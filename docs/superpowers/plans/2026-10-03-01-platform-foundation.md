@@ -2,11 +2,13 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use dev_sp_subagent-driven-development (recommended) or dev_sp_executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+> **구현 노트 (2026-10-03):** macOS 기본 `make`는 Xcode 라이선스 동의가 필요해서, 구현 단계에서 `Makefile`을 같은 명령을 가진 `scripts/dev.sh`로 대체했습니다. 이 문서의 `make <target>`은 `scripts/dev.sh <target>`으로 읽으면 됩니다.
+
 **Goal:** `NEWS_INSIGHT` 저장소에 단일 서버 Docker Compose 스택을 세우고, 4개 수집 트랙의 소스를 등록한 뒤 V0~V3 검증과 V6 포트폴리오 쿼터 게이트를 통과시키는 소스 레지스트리를 완성합니다.
 
 **Architecture:** `apps/api`는 FastAPI, Celery, SQLAlchemy 2, Alembic으로 구성한 Python 3.12 패키지 `news_insight`(uv로 관리)입니다. 소스 거버넌스는 순수 함수 검사기(V0/V1/V3/V6)와 SSRF 안전 Fetcher(V2)가 `CheckResult`를 만들고, 승격 사다리 상태 머신(`ladder.py`)이 이 결과를 단계 순서대로만 기록하는 구조입니다. `apps/web`은 Phase 8에서 본격 구현할 Next.js 셸이며, Caddy가 `/api/*`를 api로, 나머지를 web으로 프록시합니다.
 
-**Tech Stack:** Python 3.12 · uv · FastAPI · SQLAlchemy 2.0 · Alembic · psycopg 3 · Celery 5 (Redis) · httpx · feedparser · pydantic v2 · Typer · pytest · ruff · mypy(strict) · Next.js 16 · React 19 · Tailwind 4 · Vitest · PostgreSQL 16 · Redis 7 · Caddy 2
+**Tech Stack:** Python 3.12 · uv · FastAPI · SQLAlchemy 2.0 · Alembic · psycopg 3 · Celery 5 (Redis) · httpx · feedparser · pydantic v2 · Typer · pytest · ruff · mypy(strict) · Next.js 16.3.8 · React 19 · Tailwind 4 · Vitest · PostgreSQL 16 · Redis 7 · Caddy 2
 
 ## Global Constraints
 
@@ -21,6 +23,7 @@
 - 컨테이너 런타임: PostgreSQL 16, Redis 7, Caddy 2. 호스트로 포트를 공개하는 서비스는 Caddy 하나뿐 (개발용 override 제외)
 - Python 코드는 `ruff check`, `ruff format --check`, `mypy --strict`를 통과해야 함
 - 모든 Python 명령은 `apps/api`에서 `uv run ...`으로 실행하고, 웹 명령은 `apps/web`에서 `npm ...`으로 실행
+- 호스트 공개 포트는 8700~8799 대역만 사용 (`docs/PORTS.md`): Caddy HTTPS 8700 / HTTP 8701, web dev 8710, api dev 8711, PostgreSQL 8720, Redis 8721. 8770은 다른 프로젝트 예약이라 사용 금지
 
 ---
 
@@ -215,6 +218,13 @@ def test_environment_overrides_defaults(monkeypatch: pytest.MonkeyPatch) -> None
     monkeypatch.setenv("DATABASE_URL", "postgresql+psycopg://u:p@db:5432/x")
 
     assert Settings(_env_file=None).database_url == "postgresql+psycopg://u:p@db:5432/x"
+
+
+def test_local_defaults_use_reserved_dev_ports() -> None:
+    settings = Settings(_env_file=None)
+
+    assert "@localhost:8720/" in settings.database_url
+    assert settings.redis_url == "redis://localhost:8721/0"
 ```
 
 `apps/api/tests/test_health.py`:
@@ -255,8 +265,8 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     app_env: str = "development"
-    database_url: str = "postgresql+psycopg://news:news-dev-password@localhost:5432/news_insight"
-    redis_url: str = "redis://localhost:6379/0"
+    database_url: str = "postgresql+psycopg://news:news-dev-password@localhost:8720/news_insight"
+    redis_url: str = "redis://localhost:8721/0"
     timezone: str = "Asia/Seoul"
     lm_studio_url: str = "http://host.docker.internal:1234"
     lm_studio_model: str = "qwen/qwen3.8-27b"
@@ -295,7 +305,7 @@ app = create_app()
 - [ ] **Step 5: 테스트 통과와 정적 검사 확인**
 
 Run: `cd apps/api && uv run pytest -v && uv run ruff format . && uv run ruff check . && uv run mypy`
-Expected: `3 passed`, ruff `All checks passed!`, mypy `Success: no issues found`
+Expected: `4 passed`, ruff `All checks passed!`, mypy `Success: no issues found`
 
 - [ ] **Step 6: Commit**
 
@@ -328,7 +338,7 @@ git commit -m "feat(api): scaffold FastAPI package with settings and health chec
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --port 8710",
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
@@ -336,7 +346,7 @@ git commit -m "feat(api): scaffold FastAPI package with settings and health chec
   },
   "dependencies": {
     "@tailwindcss/postcss": "4.3.3",
-    "next": "16.3.2",
+    "next": "16.3.8",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "tailwindcss": "4.3.3"
@@ -607,12 +617,12 @@ volumes:
 services:
   postgres:
     ports:
-      - "127.0.0.1:5432:5432"
+      - "127.0.0.1:8720:5432"
     volumes:
       - ./ops/postgres/init:/docker-entrypoint-initdb.d:ro
   redis:
     ports:
-      - "127.0.0.1:6379:6379"
+      - "127.0.0.1:8721:6379"
 ```
 
 `ops/postgres/init/01-test-database.sql`:
@@ -631,13 +641,16 @@ POSTGRES_DB=news_insight
 POSTGRES_USER=news
 POSTGRES_PASSWORD=news-dev-password
 PUBLIC_HOST=localhost
+# Host ports (docs/PORTS.md). Use 443/80 only for a public-domain deployment.
+CADDY_HTTPS_PORT=8700
+CADDY_HTTP_PORT=8701
 ADMIN_EMAIL=ddangggoma@gmail.com
 LM_STUDIO_URL=http://host.docker.internal:1234
 LM_STUDIO_MODEL=qwen/qwen3.8-27b
 ```
 
 Run: `cp .env.example .env && docker compose up -d postgres redis && docker compose ps`
-Expected: `postgres`, `redis` 모두 `(healthy)`. (5432나 6379 포트를 이미 다른 프로세스가 쓰고 있으면 그 프로세스를 먼저 종료)
+Expected: `postgres`, `redis` 모두 `(healthy)`, 호스트에서는 `127.0.0.1:8720`(PostgreSQL)과 `127.0.0.1:8721`(Redis)로 접속. (포트 충돌 시 `docs/PORTS.md` 규칙에 따라 확인)
 
 - [ ] **Step 2: 실패하는 테스트 작성**
 
@@ -658,7 +671,7 @@ from sqlalchemy.orm import Session
 API_ROOT = Path(__file__).resolve().parents[1]
 TEST_DATABASE_URL = os.environ.get(
     "TEST_DATABASE_URL",
-    "postgresql+psycopg://news:news-dev-password@localhost:5432/news_insight_test",
+    "postgresql+psycopg://news:news-dev-password@localhost:8720/news_insight_test",
 )
 
 
@@ -785,6 +798,7 @@ def session_scope() -> Iterator[Session]:
 script_location = %(here)s/migrations
 file_template = %%(rev)s_%%(slug)s
 prepend_sys_path = src
+path_separator = os
 
 [loggers]
 keys = root,sqlalchemy,alembic
@@ -923,7 +937,7 @@ def downgrade() -> None:
 - [ ] **Step 5: 테스트 통과와 마이그레이션 일치 확인**
 
 Run: `cd apps/api && uv run pytest -v && uv run alembic upgrade head && uv run alembic check`
-Expected: `5 passed`, `alembic check`에서 `No new upgrade operations detected.`
+Expected: `6 passed`, `alembic check`에서 `No new upgrade operations detected.`
 
 - [ ] **Step 6: 정적 검사 후 Commit**
 
@@ -984,6 +998,22 @@ def test_only_caddy_publishes_host_ports() -> None:
     published = {name for name, service in load_services().items() if service.get("ports")}
 
     assert published == {"caddy"}
+
+
+def test_caddy_publishes_only_reserved_dev_ports() -> None:
+    ports = load_services()["caddy"]["ports"]
+
+    assert ports == [
+        "${CADDY_HTTPS_PORT:-8700}:${CADDY_HTTPS_PORT:-8700}",
+        "${CADDY_HTTP_PORT:-8701}:${CADDY_HTTP_PORT:-8701}",
+    ]
+
+
+def test_dev_override_binds_stores_to_loopback_reserved_ports() -> None:
+    override = yaml.safe_load((REPO_ROOT / "compose.override.yaml").read_text(encoding="utf-8"))
+
+    assert override["services"]["postgres"]["ports"] == ["127.0.0.1:8720:5432"]
+    assert override["services"]["redis"]["ports"] == ["127.0.0.1:8721:6379"]
 
 
 def test_worker_can_reach_host_lm_studio() -> None:
@@ -1196,9 +1226,11 @@ services:
     image: caddy:2.10-alpine
     environment:
       PUBLIC_HOST: ${PUBLIC_HOST:-localhost}
+      CADDY_HTTPS_PORT: ${CADDY_HTTPS_PORT:-8700}
+      CADDY_HTTP_PORT: ${CADDY_HTTP_PORT:-8701}
     ports:
-      - "80:80"
-      - "443:443"
+      - "${CADDY_HTTPS_PORT:-8700}:${CADDY_HTTPS_PORT:-8700}"
+      - "${CADDY_HTTP_PORT:-8701}:${CADDY_HTTP_PORT:-8701}"
     volumes:
       - ./ops/Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
@@ -1220,6 +1252,15 @@ volumes:
 `ops/Caddyfile`:
 
 ```caddyfile
+{
+	# Caddy listens on the same ports inside the container (docs/PORTS.md).
+	https_port {$CADDY_HTTPS_PORT:8700}
+	http_port {$CADDY_HTTP_PORT:8701}
+	# Built-in redirects drop the port when it equals https_port, so we redirect
+	# explicitly below. Certificate automation stays enabled.
+	auto_https disable_redirects
+}
+
 {$PUBLIC_HOST:localhost} {
 	encode zstd gzip
 
@@ -1239,12 +1280,16 @@ volumes:
 		reverse_proxy web:3000
 	}
 }
+
+http://{$PUBLIC_HOST:localhost} {
+	redir https://{host}:{$CADDY_HTTPS_PORT:8700}{uri} permanent
+}
 ```
 
 `Makefile` (레시피 들여쓰기는 반드시 탭):
 
 ```makefile
-.PHONY: up down logs db migrate api-test api-lint web-test web-check compose-check alembic-check verify
+.PHONY: up down logs db migrate api-dev web-dev api-test api-lint web-test web-check compose-check alembic-check verify
 
 up:
 	docker compose up -d --build
@@ -1260,6 +1305,12 @@ db:
 
 migrate:
 	cd apps/api && uv run alembic upgrade head
+
+api-dev:
+	cd apps/api && uv run uvicorn news_insight.main:app --reload --host 127.0.0.1 --port 8711
+
+web-dev:
+	cd apps/web && npm run dev
 
 api-test:
 	cd apps/api && uv run pytest
@@ -1296,7 +1347,7 @@ verify: db migrate api-lint api-test alembic-check web-test web-check compose-ch
 
 ```bash
 cp .env.example .env
-make db        # PostgreSQL 16 / Redis 7 (개발 override: 127.0.0.1 포트 공개, 테스트 DB 생성)
+make db        # PostgreSQL 16 → 127.0.0.1:8720, Redis 7 → 127.0.0.1:8721 (테스트 DB 생성)
 make verify    # lint + type + test + alembic check + web build + compose config
 ```
 
@@ -1304,7 +1355,7 @@ make verify    # lint + type + test + alembic check + web build + compose config
 
 ```bash
 make up
-curl -sk https://localhost/api/health
+curl -sk https://localhost:8700/api/health
 ```
 
 LM Studio는 호스트에서 `qwen/qwen3.8-27b`를 포트 1234로 서빙하고, 컨테이너는 `host.docker.internal:1234`로 접근합니다.
@@ -1313,14 +1364,14 @@ LM Studio는 호스트에서 `qwen/qwen3.8-27b`를 포트 1234로 서빙하고, 
 - [ ] **Step 5: 테스트 통과 확인**
 
 Run: `cd apps/api && uv run pytest -v`
-Expected: `11 passed`
+Expected: `14 passed`
 
 - [ ] **Step 6: 스택 스모크 테스트**
 
 Run: `make compose-check && docker compose up -d --build`
 
-Run: `until curl -skf https://localhost/api/health; do sleep 3; done; echo; docker compose ps`
-Expected: `{"status":"ok","version":"0.1.0"}` 출력. (Compose 2.18의 `--wait`는 종료되는 일회성 `migrate` 컨테이너를 오류로 볼 수 있어 대기 루프를 사용) `migrate`는 `exited (0)`, 나머지 서비스는 `running`이고 `healthy` (scheduler는 healthcheck가 없으므로 `running`). 80/443 포트 충돌이 나면 해당 프로세스를 먼저 종료
+Run: `until curl -skf https://localhost:8700/api/health; do sleep 3; done; echo; docker compose ps`
+Expected: `{"status":"ok","version":"0.1.0"}` 출력. (Compose 2.18의 `--wait`는 종료되는 일회성 `migrate` 컨테이너를 오류로 볼 수 있어 대기 루프를 사용) `migrate`는 `exited (0)`, 나머지 서비스는 `running`이고 `healthy` (scheduler는 healthcheck가 없으므로 `running`). 8700/8701 포트 충돌 시 `docs/PORTS.md` 규칙에 따라 확인
 
 Run: `docker compose down`
 
@@ -3559,12 +3610,13 @@ def extract_items(content: bytes) -> list[ProbedItem]:
         published = entry.get("published_parsed") or entry.get("updated_parsed")
         if not (stable_id and url and title and published):
             continue
+        year, month, day, hour, minute, second = (int(part) for part in published[:6])
         items.append(
             ProbedItem(
                 stable_id=stable_id,
                 url=url,
                 title=title,
-                published_at=datetime(*published[:6], tzinfo=UTC),
+                published_at=datetime(year, month, day, hour, minute, second, tzinfo=UTC),
             )
         )
     return items
@@ -4361,8 +4413,9 @@ def report() -> None:
         typer.echo(f"  {track.value:<14} {portfolio.track_counts[track]:>3}/{target}")
     typer.echo("Regions (active/capacity, share vs floor)")
     for region, floor in REGION_FLOORS.items():
+        counts = f"{portfolio.region_counts[region]:>3}/{region_capacity(region):<4}"
         typer.echo(
-            f"  {region.value:<14} {portfolio.region_counts[region]:>3}/{region_capacity(region):<4}"
+            f"  {region.value:<14} {counts}"
             f"{portfolio.region_share(region):6.1%} (floor {floor:.0%})"
         )
     typer.echo("Validation stages")
@@ -4398,7 +4451,7 @@ uv run news-insight sources promote <key>        # V5 통과 소스의 V6 쿼터
 - [ ] **Step 6: 전체 검증 후 Commit**
 
 Run: `make verify`
-Expected: ruff, mypy, pytest 전체 통과 (`109 passed`), `No new upgrade operations detected.`, 웹 테스트 1개 통과, `next build` 성공, compose config 오류 없음
+Expected: ruff, mypy, pytest 전체 통과 (`112 passed`), `No new upgrade operations detected.`, 웹 테스트 1개 통과, `next build` 성공, compose config 오류 없음
 
 ```bash
 git add apps/api README.md
@@ -4412,7 +4465,7 @@ git commit -m "feat(cli): add source seed/validate/promote/report commands"
 모든 태스크가 끝난 뒤 아래 순서로 시연하고 결과를 기록합니다.
 
 1. `make verify` — 전 항목 통과
-2. `docker compose up -d --build` 후 `until curl -skf https://localhost/api/health; do sleep 3; done` → `{"status":"ok","version":"0.1.0"}`
+2. `docker compose up -d --build` 후 `until curl -skf https://localhost:8700/api/health; do sleep 3; done` → `{"status":"ok","version":"0.1.0"}`
 3. 개발 DB에서 실제 카탈로그 검증:
    ```bash
    cd apps/api
@@ -4429,4 +4482,4 @@ git commit -m "feat(cli): add source seed/validate/promote/report commands"
 - **요구사항 대비 범위:** §3 V0·V1·V2·V3·V6 → Task 8·9·10·11, 승격 순서 → Task 6. §2 트랙·지역 쿼터 → Task 11 (해석은 로드맵 D2). §10 Compose 7개 서비스 → Task 3·4. V4·V5는 수집 지표가 필요하므로 Phase 2로 명시적 이관 (`StageNotAutomated`). §4~§9는 로드맵 P2~P8에서 다룹니다.
 - **누락 표시 점검:** 미완성 표시나 "Task N과 동일" 같은 참조 없이, 모든 코드 단계에 전체 코드를 포함했습니다.
 - **이름 일관성:** `CheckResult.from_reasons`, `ensure_next_stage`, `record_check`, `probe_url`, `FEED_MIME`, `EXPECTED_MIME`, `MIN_PROBE_ITEMS`, `check_quota(active, *, track, region)`, `climb(..., until=)`가 정의한 곳과 사용하는 곳에서 같은 시그니처로 쓰이는 것을 확인했습니다.
-- **테스트 수 누계 (Python):** Task 1: 3 → Task 3: 5 → Task 4: 11 → Task 5: 16 → Task 6: 26 → Task 7: 35 → Task 8: 48 → Task 9: 79 → Task 10: 89 → Task 11: 103 → Task 12: 109. 각 단계의 Expected 수치와 다르면 누락되었거나 중복 수집된 테스트 파일이 있는지 먼저 확인합니다.
+- **테스트 수 누계 (Python):** Task 1: 4 → Task 3: 6 → Task 4: 14 → Task 5: 19 → Task 6: 29 → Task 7: 38 → Task 8: 51 → Task 9: 82 → Task 10: 92 → Task 11: 106 → Task 12: 112. 각 단계의 Expected 수치와 다르면 누락되었거나 중복 수집된 테스트 파일이 있는지 먼저 확인합니다.
