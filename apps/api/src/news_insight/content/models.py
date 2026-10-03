@@ -1,0 +1,57 @@
+from datetime import datetime
+
+from sqlalchemy import DateTime, ForeignKey, String, Text, UniqueConstraint, false
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from news_insight.db import Base, str_enum
+from news_insight.sources.enums import Track
+
+
+class Item(Base):
+    """Latest stored state of one source item (seen-ledger key: source_id + stable_id)."""
+
+    __tablename__ = "items"
+    __table_args__ = (UniqueConstraint("source_id", "stable_id", name="uq_items_source_stable"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    source_id: Mapped[int] = mapped_column(ForeignKey("sources.id", ondelete="CASCADE"))
+    track: Mapped[Track] = mapped_column(str_enum(Track))
+    stable_id: Mapped[str] = mapped_column(String(500))
+    url: Mapped[str] = mapped_column(String(2048))
+    canonical_url: Mapped[str] = mapped_column(String(2048), index=True)
+    title: Mapped[str] = mapped_column(Text)
+    summary: Mapped[str | None] = mapped_column(Text)
+    body: Mapped[str | None] = mapped_column(Text)
+    body_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    author: Mapped[str | None] = mapped_column(String(300))
+    published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), index=True)
+    content_hash: Mapped[str] = mapped_column(String(64))
+    revision: Mapped[int] = mapped_column(default=1, server_default="1")
+    canary: Mapped[bool] = mapped_column(default=False, server_default=false())
+    first_seen_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    last_changed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+    revisions: Mapped[list["ItemRevision"]] = relationship(
+        back_populates="item", order_by="ItemRevision.revision"
+    )
+
+
+class ItemRevision(Base):
+    """Append-only provenance: every real content change and the run that observed it."""
+
+    __tablename__ = "item_revisions"
+    __table_args__ = (
+        UniqueConstraint("item_id", "revision", name="uq_item_revisions_item_revision"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    item_id: Mapped[int] = mapped_column(ForeignKey("items.id", ondelete="CASCADE"), index=True)
+    revision: Mapped[int]
+    content_hash: Mapped[str] = mapped_column(String(64))
+    title: Mapped[str] = mapped_column(Text)
+    fetch_run_id: Mapped[int | None] = mapped_column(
+        ForeignKey("fetch_runs.id", ondelete="SET NULL")
+    )
+    recorded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+    item: Mapped[Item] = relationship(back_populates="revisions")
