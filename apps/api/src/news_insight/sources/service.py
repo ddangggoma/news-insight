@@ -110,3 +110,15 @@ def stage_counts(session: Session) -> dict[ValidationStage, int]:
         select(Source.validation_stage, func.count()).group_by(Source.validation_stage)
     )
     return {stage: count for stage, count in rows}
+
+
+def probe_source(
+    source: Source, *, fetcher: SafeFetcher, now: datetime
+) -> list[tuple[ValidationStage, CheckResult]]:
+    """Dry-run V0-V3 without touching the ladder or the database."""
+    return [
+        (ValidationStage.V0, check_identity(source)),
+        (ValidationStage.V1, check_policy(source)),
+        (ValidationStage.V2, check_network(source, fetcher)),
+        (ValidationStage.V3, check_parser(source, fetcher, now=now)),
+    ]

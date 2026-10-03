@@ -1,6 +1,7 @@
 """Operator CLI: `news-insight sources seed|validate|promote|report`."""
 
-from datetime import UTC, datetime
+from collections import Counter
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Annotated
 from zoneinfo import ZoneInfo
@@ -12,13 +13,20 @@ from news_insight.collect.dead_letters import DeadLetterError, dismiss, list_ope
 from news_insight.collect.models import FetchOutcome, SourceRuntime
 from news_insight.collect.service import collect_source
 from news_insight.config import get_settings
+from news_insight.content.trends import metric_movers
 from news_insight.db import session_scope
 from news_insight.net.safe_fetch import SafeFetcher
 from news_insight.scheduling.redis_guards import DomainRateLimiter, RateLimiter, get_redis
 from news_insight.sources.canary import run_canaries
 from news_insight.sources.catalog import DEFAULT_CATALOG_PATH, load_catalog, seed_catalog
-from news_insight.sources.enums import STAGE_ORDER, ValidationOutcome, ValidationStage
-from news_insight.sources.ladder import LadderError, pause_source, resume_source
+from news_insight.sources.enums import (
+    STAGE_ORDER,
+    SourceStatus,
+    Track,
+    ValidationOutcome,
+    ValidationStage,
+)
+from news_insight.sources.ladder import CheckResult, LadderError, pause_source, resume_source
 from news_insight.sources.models import Source
 from news_insight.sources.portfolio import (
     REGION_FLOORS,
@@ -31,6 +39,7 @@ from news_insight.sources.service import (
     SourceNotFound,
     climb,
     get_source,
+    probe_source,
     run_check,
     stage_counts,
 )
@@ -43,6 +52,8 @@ collect_app = typer.Typer(help="Collection runs and schedule", no_args_is_help=T
 dlq_app = typer.Typer(help="Dead-letter queue", no_args_is_help=True)
 app.add_typer(collect_app, name="collect")
 app.add_typer(dlq_app, name="dlq")
+trends_app = typer.Typer(help="Signal trends from metric snapshots", no_args_is_help=True)
+app.add_typer(trends_app, name="trends")
 
 KST = ZoneInfo("Asia/Seoul")
 FAILED_OUTCOMES = (FetchOutcome.FAILED, FetchOutcome.DEAD_LETTERED)
@@ -259,3 +270,96 @@ def dlq_dismiss(dead_letter_id: int) -> None:
     except DeadLetterError as exc:
         raise _fail(str(exc)) from exc
     typer.echo(f"#{dead_letter_id}: dismissed")
+
+
+def _probe_line(source: Source, results: list[tuple[ValidationStage, CheckResult]]) -> str:
+    marks = " ".join(
+        f"{stage.value}:{'ok' if result.passed else 'FAIL'}" for stage, result in results
+    )
+    problems = "; ".join(
+        f"{stage.value} {reason}"
+        for stage, result in results
+        if stage is not ValidationStage.V1
+        for reason in result.reasons
+    )
+    line = f"{source.key:<30} {source.track.value:<11} {source.region.value:<13} {marks}"
+    return f"{line} | {problems}" if problems else line
+
+
+def _ready(results: list[tuple[ValidationStage, CheckResult]]) -> bool:
+    return all(result.passed for stage, result in results if stage is not ValidationStage.V1)
+
+
+@sources_app.command("probe")
+def probe(key: str) -> None:
+    """Dry-run V0-V3 for a registered source (nothing is recorded)."""
+    try:
+        with session_scope() as session, _fetcher() as fetcher:
+            source = get_source(session, key)
+            line = _probe_line(source, probe_source(source, fetcher=fetcher, now=datetime.now(UTC)))
+    except SourceNotFound as exc:
+        raise _fail(str(exc)) from exc
+    typer.echo(line)
+
+
+@sources_app.command("probe-catalog")
+def probe_catalog(
+    catalog: Annotated[Path, typer.Option(help="Catalog YAML path")] = DEFAULT_CATALOG_PATH,
+    track: Annotated[Track | None, typer.Option(help="Only this track")] = None,
+) -> None:
+    """Dry-run V0, V2 and V3 for catalog entries before seeding (V1 shown for reference)."""
+    entries = [
+        entry for entry in load_catalog(catalog).sources if track is None or entry.track is track
+    ]
+    totals: Counter[Track] = Counter()
+    ready_tracks: Counter[Track] = Counter()
+    ready_regions: Counter[str] = Counter()
+    now = datetime.now(UTC)
+    with _fetcher() as fetcher:
+        for entry in entries:
+            source = Source(
+                **entry.model_dump(),
+                validation_stage=ValidationStage.UNVERIFIED,
+                status=SourceStatus.CANDIDATE,
+            )
+            results = probe_source(source, fetcher=fetcher, now=now)
+            typer.echo(_probe_line(source, results))
+            totals[entry.track] += 1
+            if _ready(results):
+                ready_tracks[entry.track] += 1
+                ready_regions[entry.region.value] += 1
+    typer.echo(
+        "Ready (V0+V2+V3) by track: "
+        + ", ".join(
+            f"{name.value} {ready_tracks[name]}/{totals[name]}" for name in Track if totals[name]
+        )
+    )
+    typer.echo(
+        "Ready by region: "
+        + ", ".join(f"{name} {count}" for name, count in sorted(ready_regions.items()))
+    )
+    if sum(ready_tracks.values()) < len(entries):
+        raise typer.Exit(code=1)
+
+
+@trends_app.command("movers")
+def movers(
+    metric: Annotated[str, typer.Option(help="Metric key, e.g. stars, points, likes")] = "stars",
+    days: Annotated[int, typer.Option(help="Window in days")] = 1,
+    track: Annotated[Track | None, typer.Option(help="Only this track")] = None,
+    limit: Annotated[int, typer.Option(help="Maximum rows")] = 20,
+) -> None:
+    """Items whose metric grew the most over the window."""
+    with session_scope() as session:
+        rows = metric_movers(
+            session,
+            metric=metric,
+            window=timedelta(days=days),
+            now=datetime.now(UTC),
+            track=track,
+            limit=limit,
+        )
+        lines = [
+            f"{row.delta:+8d} {row.current:>9d}  {row.item.title}  {row.item.url}" for row in rows
+        ]
+    typer.echo("\n".join(lines) if lines else "no movers yet (needs two snapshots per item)")
