@@ -9,8 +9,8 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     app_env: str = "development"
-    database_url: str = "postgresql+psycopg://news:news-dev-password@localhost:5432/news_insight"
-    redis_url: str = "redis://localhost:6379/0"
+    database_url: str = "postgresql+psycopg://news:news-dev-password@localhost:8720/news_insight"
+    redis_url: str = "redis://localhost:8721/0"
     timezone: str = "Asia/Seoul"
     lm_studio_url: str = "http://host.docker.internal:1234"
     lm_studio_model: str = "qwen/qwen3.8-27b"

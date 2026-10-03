@@ -14,6 +14,13 @@ def test_defaults_follow_requirements() -> None:
     assert settings.fetch_max_bytes == 5 * 1024 * 1024
 
 
+def test_local_defaults_use_reserved_dev_ports() -> None:
+    settings = Settings(_env_file=None)
+
+    assert "@localhost:8720/" in settings.database_url
+    assert settings.redis_url == "redis://localhost:8721/0"
+
+
 def test_environment_overrides_defaults(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("DATABASE_URL", "postgresql+psycopg://u:p@db:5432/x")
 
