@@ -51,8 +51,8 @@ PRESETS: dict[str, dict[str, Any]] = {
         "fields": {
             "id": "post.uri",
             "url": [],
-            "title": "post.record.text",
-            "summary": "post.record.text",
+            "title": ["post.record.text", "post.embed.external.title"],
+            "summary": ["post.record.text", "post.embed.external.description"],
             "published_at": "post.record.createdAt",
             "author": "post.author.handle",
         },

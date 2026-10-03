@@ -261,3 +261,24 @@ def test_source_config_overrides_and_merges_the_preset() -> None:
 def test_unknown_preset_raises() -> None:
     with pytest.raises(ValueError, match="unknown preset 'nope'"):
         effective_config({"preset": "nope"})
+
+
+def test_bluesky_link_cards_fall_back_to_the_embed_title() -> None:
+    record = {
+        "post": {
+            "uri": "at://did:plc:ars/app.bsky.feed.post/3abc",
+            "author": {"handle": "arstechnica.com"},
+            "record": {"text": "", "createdAt": "2026-10-01T09:00:00Z"},
+            "embed": {
+                "$type": "app.bsky.embed.external#view",
+                "external": {"title": "The dawn of the exoskeleton", "description": "Robots"},
+            },
+        }
+    }
+    config = effective_config({"preset": "bluesky_author_feed"})
+    body = json.dumps({"feed": [record]}).encode()
+    context = CollectContext(endpoint_url="https://api.example.com/x", config=config, now=NOW)
+
+    [item] = JsonApiCollector(serving(body, content_type="application/json")).collect(context).items
+
+    assert (item.title, item.summary) == ("The dawn of the exoskeleton", "Robots")
