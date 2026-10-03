@@ -1,8 +1,10 @@
 """Pure validation checks for ladder stages. They never touch the database."""
 
+from datetime import datetime
 from urllib.parse import urlsplit
 
 from news_insight.net.safe_fetch import FetchError, SafeFetcher
+from news_insight.parsers.feed_probe import MIN_PROBE_ITEMS, probe_feed
 from news_insight.sources.enums import AccessMethod, Region, StorageRight, Track
 from news_insight.sources.ladder import CheckResult
 from news_insight.sources.models import Source
@@ -125,3 +127,20 @@ def check_network(source: Source, fetcher: SafeFetcher) -> CheckResult:
             "elapsed_ms": response.elapsed_ms,
         },
     )
+
+
+def check_parser(source: Source, fetcher: SafeFetcher, *, now: datetime) -> CheckResult:
+    """V3: at least three recent items with id, url, title and published date."""
+    if source.access_method is not AccessMethod.FEED:
+        return CheckResult.from_reasons(
+            [f"no V3 parser probe for access method '{source.access_method.value}' yet"]
+        )
+    try:
+        response = fetcher.fetch(probe_url(source), allowed_mime=FEED_MIME)
+    except FetchError as exc:
+        return CheckResult.from_reasons([str(exc)], {"error": exc.code})
+    if response.status_code != 200:
+        return CheckResult.from_reasons([f"unexpected HTTP status {response.status_code}"])
+    min_items = max(MIN_PROBE_ITEMS, int(source.config.get("probe_min_items", MIN_PROBE_ITEMS)))
+    max_age_days = int(source.config.get("probe_max_age_days", 30))
+    return probe_feed(response.content, now=now, min_items=min_items, max_age_days=max_age_days)

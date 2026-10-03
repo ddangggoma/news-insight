@@ -3608,12 +3608,13 @@ def extract_items(content: bytes) -> list[ProbedItem]:
         published = entry.get("published_parsed") or entry.get("updated_parsed")
         if not (stable_id and url and title and published):
             continue
+        year, month, day, hour, minute, second = (int(part) for part in published[:6])
         items.append(
             ProbedItem(
                 stable_id=stable_id,
                 url=url,
                 title=title,
-                published_at=datetime(*published[:6], tzinfo=UTC),
+                published_at=datetime(year, month, day, hour, minute, second, tzinfo=UTC),
             )
         )
     return items
