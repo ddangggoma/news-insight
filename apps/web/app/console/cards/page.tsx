@@ -43,7 +43,7 @@ export default async function CardsPage({ searchParams }: { searchParams: Promis
         title="카드 뉴스"
         description="수집된 모든 항목을 한국어 카드(제목·요약·키워드·출처)로 정리합니다. Antigravity 우선, 한도 소진 시 로컬 Qwen."
       />
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4 [&>*]:min-w-0">
         <StatCard title="오늘 만든 카드" value={formatNumber(stats.ready_today)} hint={`누적 ${formatNumber(stats.ready)}건`} icon={Sparkles} />
         <StatCard title="생성 대기" value={formatNumber(stats.pending)} hint="10분마다 자동 처리" icon={Clock} />
         <StatCard title="엔진별 카드" value={engines || "—"} hint={stats.failed ? `실패 ${formatNumber(stats.failed)}건 (3회 재시도 후)` : "실패 없음"} icon={stats.failed ? TriangleAlert : Cpu} />
