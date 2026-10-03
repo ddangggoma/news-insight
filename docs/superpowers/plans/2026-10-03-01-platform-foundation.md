@@ -1251,10 +1251,12 @@ volumes:
 
 ```caddyfile
 {
-	# Caddy listens on the same ports inside the container so HTTP->HTTPS
-	# redirects keep the non-standard port (docs/PORTS.md).
+	# Caddy listens on the same ports inside the container (docs/PORTS.md).
 	https_port {$CADDY_HTTPS_PORT:8700}
 	http_port {$CADDY_HTTP_PORT:8701}
+	# Built-in redirects drop the port when it equals https_port, so we redirect
+	# explicitly below. Certificate automation stays enabled.
+	auto_https disable_redirects
 }
 
 {$PUBLIC_HOST:localhost} {
@@ -1275,6 +1277,10 @@ volumes:
 	handle {
 		reverse_proxy web:3000
 	}
+}
+
+http://{$PUBLIC_HOST:localhost} {
+	redir https://{host}:{$CADDY_HTTPS_PORT:8700}{uri} permanent
 }
 ```
 

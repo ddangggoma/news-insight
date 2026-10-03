@@ -1,6 +1,80 @@
 name: news-insight
 
+x-python-env: &python-env
+  APP_ENV: ${APP_ENV:-production}
+  DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-news}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-news_insight}
+  REDIS_URL: redis://redis:6379/0
+  TIMEZONE: Asia/Seoul
+  LM_STUDIO_URL: ${LM_STUDIO_URL:-http://host.docker.internal:1234}
+  LM_STUDIO_MODEL: ${LM_STUDIO_MODEL:-qwen/qwen3.8-27b}
+  ADMIN_EMAIL: ${ADMIN_EMAIL:-ddangggoma@gmail.com}
+
+x-python-image: &python-image
+  image: news-insight-api:${IMAGE_TAG:-local}
+  build:
+    context: ./apps/api
+  environment: *python-env
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
+
+x-python-runtime: &python-runtime
+  <<: *python-image
+  restart: unless-stopped
+  depends_on:
+    postgres:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+    migrate:
+      condition: service_completed_successfully
+
 services:
+  migrate:
+    <<: *python-image
+    command: ["alembic", "upgrade", "head"]
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    <<: *python-runtime
+    command: ["uvicorn", "news_insight.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  worker:
+    <<: *python-runtime
+    command: ["celery", "-A", "news_insight.jobs.celery_app:celery_app", "worker", "--loglevel=INFO", "--concurrency=4"]
+    healthcheck:
+      test: ["CMD-SHELL", "celery -A news_insight.jobs.celery_app:celery_app inspect ping --timeout 5"]
+      interval: 30s
+      timeout: 15s
+      retries: 5
+
+  scheduler:
+    <<: *python-runtime
+    command: ["celery", "-A", "news_insight.jobs.celery_app:celery_app", "beat", "--loglevel=INFO", "--schedule=/tmp/celerybeat-schedule"]
+
+  web:
+    image: news-insight-web:${IMAGE_TAG:-local}
+    build:
+      context: ./apps/web
+    environment:
+      API_INTERNAL_URL: http://api:8000
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
   postgres:
     image: postgres:16-alpine
     environment:
@@ -28,6 +102,28 @@ services:
       - redis_data:/data
     restart: unless-stopped
 
+  caddy:
+    image: caddy:2.10-alpine
+    environment:
+      PUBLIC_HOST: ${PUBLIC_HOST:-localhost}
+      CADDY_HTTPS_PORT: ${CADDY_HTTPS_PORT:-8700}
+      CADDY_HTTP_PORT: ${CADDY_HTTP_PORT:-8701}
+    ports:
+      - "${CADDY_HTTPS_PORT:-8700}:${CADDY_HTTPS_PORT:-8700}"
+      - "${CADDY_HTTP_PORT:-8701}:${CADDY_HTTP_PORT:-8701}"
+    volumes:
+      - ./ops/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      api:
+        condition: service_healthy
+      web:
+        condition: service_healthy
+    restart: unless-stopped
+
 volumes:
   postgres_data:
   redis_data:
+  caddy_data:
+  caddy_config:
