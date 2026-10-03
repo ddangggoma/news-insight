@@ -81,3 +81,16 @@ scripts/demo-db.sh                     # 화면 점검용 데모 DB(news_insight
 ```
 
 자세한 절차는 [운영 콘솔 런북](docs/runbooks/ops-console.md)을 보세요.
+
+## 수집 자동화와 한국어 카드 뉴스 (Phase 3.6)
+
+- **자동 수집:** 공개 RSS·API 소스는 robots.txt와 자격 증명만 확인되면 V1을 자동 통과합니다(D17). 10분마다 후보 100개가 V3까지 검증되고, 통과하면 바로 수집을 시작합니다.
+- **카드 뉴스:** 모든 수집 항목을 한국어 카드(제목·요약·키워드·출처)로 만듭니다(D18). Antigravity CLI(Gemini Flash)를 주간 한도의 90%까지 쓰고, 한도가 바닥나면 로컬 Qwen으로 넘어갑니다. 콘솔 → 카드 뉴스에서 봅니다.
+
+```bash
+scripts/dev.sh sources-seed            # 카탈로그(1,000+)를 운영 DB에 등록
+scripts/install-card-schedule.sh       # launchd에 10분 주기 카드 생성 등록
+scripts/dev.sh cards                   # 지금 바로 카드 생성
+```
+
+자세한 절차는 [수집 자동화·카드 런북](docs/runbooks/cards-and-collection.md)을 보세요.
