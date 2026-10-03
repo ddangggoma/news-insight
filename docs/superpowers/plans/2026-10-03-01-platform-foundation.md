@@ -6,7 +6,7 @@
 
 **Architecture:** `apps/api`는 FastAPI, Celery, SQLAlchemy 2, Alembic으로 구성한 Python 3.12 패키지 `news_insight`(uv로 관리)입니다. 소스 거버넌스는 순수 함수 검사기(V0/V1/V3/V6)와 SSRF 안전 Fetcher(V2)가 `CheckResult`를 만들고, 승격 사다리 상태 머신(`ladder.py`)이 이 결과를 단계 순서대로만 기록하는 구조입니다. `apps/web`은 Phase 8에서 본격 구현할 Next.js 셸이며, Caddy가 `/api/*`를 api로, 나머지를 web으로 프록시합니다.
 
-**Tech Stack:** Python 3.12 · uv · FastAPI · SQLAlchemy 2.0 · Alembic · psycopg 3 · Celery 5 (Redis) · httpx · feedparser · pydantic v2 · Typer · pytest · ruff · mypy(strict) · Next.js 16 · React 19 · Tailwind 4 · Vitest · PostgreSQL 16 · Redis 7 · Caddy 2
+**Tech Stack:** Python 3.12 · uv · FastAPI · SQLAlchemy 2.0 · Alembic · psycopg 3 · Celery 5 (Redis) · httpx · feedparser · pydantic v2 · Typer · pytest · ruff · mypy(strict) · Next.js 16.3.8 · React 19 · Tailwind 4 · Vitest · PostgreSQL 16 · Redis 7 · Caddy 2
 
 ## Global Constraints
 
@@ -336,7 +336,7 @@ git commit -m "feat(api): scaffold FastAPI package with settings and health chec
   },
   "dependencies": {
     "@tailwindcss/postcss": "4.3.3",
-    "next": "16.3.2",
+    "next": "16.3.8",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "tailwindcss": "4.3.3"
