@@ -54,3 +54,9 @@ def session_scope() -> Iterator[Session]:
         raise
     finally:
         session.close()
+
+
+def get_db() -> Iterator[Session]:
+    """FastAPI dependency: one transaction per request."""
+    with session_scope() as session:
+        yield session
