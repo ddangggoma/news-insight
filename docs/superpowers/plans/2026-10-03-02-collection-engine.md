@@ -2908,7 +2908,7 @@ def fetcher() -> Iterator[SafeFetcher]:
 
 
 def collectable(session: Session, **overrides: Any) -> Source:
-    source = build_source(validation_stage=ValidationStage.V3, **overrides)
+    source = build_source(**{"validation_stage": ValidationStage.V3, **overrides})
     session.add(source)
     session.flush()
     return source
@@ -4027,7 +4027,7 @@ NOW = datetime(2026, 10, 3, tzinfo=UTC)
 
 
 def source_with_letter(session: Session, **overrides: Any) -> tuple[Source, DeadLetter]:
-    source = build_source(validation_stage=ValidationStage.V3, **overrides)
+    source = build_source(**{"validation_stage": ValidationStage.V3, **overrides})
     session.add(source)
     session.flush()
     session.add(
@@ -4294,7 +4294,7 @@ def wire_cli(db_session: Session, monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 def add_source(session: Session, **overrides: Any) -> Source:
-    source = build_source(validation_stage=ValidationStage.V3, **overrides)
+    source = build_source(**{"validation_stage": ValidationStage.V3, **overrides})
     session.add(source)
     session.flush()
     return source
