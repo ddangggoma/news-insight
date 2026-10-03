@@ -54,3 +54,16 @@ uv run news-insight dlq list                     # 미해결 Dead Letter
 uv run news-insight dlq retry <id>               # 소스를 즉시 재수집 대상으로
 uv run news-insight sources resume <key>         # selector drift 등으로 멈춘 소스 재개
 ```
+
+## 트랙 어댑터와 카탈로그 (Phase 3)
+
+JSON API 소스는 `config.preset`으로 매핑을 고릅니다 (`github_search`, `bluesky_author_feed`, `mastodon_timeline`, `stackexchange_questions`, `hn_algolia`, `devto_articles`, `openalex_works`, `crossref_works`, `europepmc_search` 등).
+
+```bash
+cd apps/api
+uv run --env-file ../../.env news-insight sources probe-catalog --track community   # 등록 전 V0·V2·V3 사전 점검
+uv run news-insight sources probe <key>                                              # 등록된 소스 사전 점검
+uv run news-insight trends movers --metric stars --days 1 --track oss                # 지표 상승 상위 항목
+```
+
+API 키는 카탈로그에 이름만 적고(`config.auth.secret: GITHUB_TOKEN`) 값은 `.env`의 `SOURCE_SECRET_GITHUB_TOKEN`에 둡니다.
