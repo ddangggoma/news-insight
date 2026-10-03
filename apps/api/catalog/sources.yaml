@@ -3188,6 +3188,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.AI&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -3201,6 +3204,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.CL&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -3214,6 +3220,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.CV&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -3227,6 +3236,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.LG&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -3240,6 +3252,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.RO&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -3253,6 +3268,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.NI&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -3266,6 +3284,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.HC&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -3279,6 +3300,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.AR&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -3292,6 +3316,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.CR&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -3305,6 +3332,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:eess.SP&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -3318,6 +3348,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:eess.AS&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -3331,6 +3364,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:eess.SY&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -3344,6 +3380,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:eess.IV&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -3357,6 +3396,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.MM&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -3370,6 +3412,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.SD&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -3383,6 +3428,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.ET&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -3396,6 +3444,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.DC&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -3630,6 +3681,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:physics.optics&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -11577,6 +11631,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.SE&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -11590,6 +11647,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.IT&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -11603,6 +11663,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.NE&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -11616,6 +11679,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.IR&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -11629,6 +11695,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.GR&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -11642,6 +11711,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.PF&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -11655,6 +11727,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.OS&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -11668,6 +11743,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.CY&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -11681,6 +11759,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.MA&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -11694,6 +11775,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.FL&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -11707,6 +11791,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:physics.app-ph&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -11720,6 +11807,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cond-mat.mtrl-sci&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -11733,6 +11823,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:physics.med-ph&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -11746,6 +11839,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:q-bio.QM&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -11759,6 +11855,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:physics.ins-det&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -11772,6 +11871,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.DS&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -11785,6 +11887,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:stat.ML&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -11798,6 +11903,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cond-mat.mes-hall&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -11811,6 +11919,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:physics.bio-ph&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -11824,6 +11935,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.LO&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -13232,6 +13346,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.SI&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -13245,6 +13362,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.CE&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -13258,6 +13378,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:math.OC&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -13271,6 +13394,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.CG&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -13284,6 +13410,9 @@ sources:
     category: academic_paper
     access_method: feed
     endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.DB&sortBy=submittedDate&sortOrder=descending&max_results=50
+    terms_url: https://info.arxiv.org/help/api/tou.html
+    config:
+      rate_per_minute: 1  # arXiv API terms: at most one request every 3 seconds
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
