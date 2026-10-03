@@ -6,6 +6,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from news_insight.net.safe_fetch import SafeFetcher
+from news_insight.sources.auto_policy import AUTO_STORAGE_RIGHT, check_auto_policy
 from news_insight.sources.checks import (
     check_identity,
     check_network,
@@ -55,7 +56,12 @@ def _evaluate(
     if stage is ValidationStage.V0:
         return check_identity(source)
     if stage is ValidationStage.V1:
-        return check_policy(source)
+        if source.terms_url:
+            return check_policy(source)
+        result = check_auto_policy(source, fetcher)
+        if result.passed and source.storage_right is None:
+            source.storage_right = AUTO_STORAGE_RIGHT
+        return result
     if stage is ValidationStage.V2:
         return check_network(source, fetcher)
     if stage is ValidationStage.V3:

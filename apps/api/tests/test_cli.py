@@ -54,13 +54,13 @@ def test_seed_reports_created_sources(tmp_path: Path) -> None:
 
 
 def test_validate_stops_at_policy_failure_with_exit_code_1(tmp_path: Path) -> None:
-    seed(tmp_path, ENTRY.replace("    terms_url: https://www.example.com/terms\n", ""))
+    seed(tmp_path, ENTRY.replace("terms_url: https://", "terms_url: http://"))
 
     result = runner.invoke(cli.app, ["sources", "validate", "example-news"])
 
     assert result.exit_code == 1
     assert "V0 passed: ok" in result.output
-    assert "V1 failed: terms_url is missing" in result.output
+    assert "V1 failed: terms_url must use https" in result.output
     assert "example-news: stage=V0 status=candidate" in result.output
 
 

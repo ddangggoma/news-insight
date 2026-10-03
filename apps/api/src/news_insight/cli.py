@@ -19,6 +19,7 @@ from news_insight.digest.claude import ClaudeCli, ClaudeClient
 from news_insight.digest.service import generate_digest
 from news_insight.net.safe_fetch import SafeFetcher
 from news_insight.scheduling.redis_guards import DomainRateLimiter, RateLimiter, get_redis
+from news_insight.sources.autovalidate import auto_validate
 from news_insight.sources.canary import run_canaries
 from news_insight.sources.catalog import DEFAULT_CATALOG_PATH, load_catalog, seed_catalog
 from news_insight.sources.enums import (
@@ -182,6 +183,20 @@ def canary() -> None:
             for event in run_canaries(session, datetime.now(UTC))
         ]
     typer.echo("\n".join(lines) if lines else "no sources ready for V4 yet")
+
+
+@sources_app.command("auto-validate")
+def auto_validate_command(
+    limit: Annotated[int, typer.Option(help="Maximum sources to climb in this run")] = 100,
+) -> None:
+    """Climb unverified candidates to V3 (public feeds/APIs pass V1 automatically, D17)."""
+    with _fetcher() as fetcher:
+        stats = auto_validate(session_scope, fetcher=fetcher, now=datetime.now(UTC), limit=limit)
+    failed = " ".join(f"{stage}={count}" for stage, count in sorted(stats.failed.items()))
+    typer.echo(
+        f"checked={stats.checked} reached_v3={stats.reached_v3} errors={stats.errors}"
+        + (f" failed: {failed}" if failed else "")
+    )
 
 
 @sources_app.command("pause")
