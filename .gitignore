@@ -10,3 +10,4 @@ node_modules/
 next-env.d.ts
 *.tsbuildinfo
 .DS_Store
+ops/logs/
