@@ -3,15 +3,23 @@
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Annotated
+from zoneinfo import ZoneInfo
 
 import typer
+from sqlalchemy import select
 
+from news_insight.collect.dead_letters import DeadLetterError, dismiss, list_open, retry
+from news_insight.collect.models import FetchOutcome, SourceRuntime
+from news_insight.collect.service import collect_source
 from news_insight.config import get_settings
 from news_insight.db import session_scope
 from news_insight.net.safe_fetch import SafeFetcher
+from news_insight.scheduling.redis_guards import DomainRateLimiter, RateLimiter, get_redis
+from news_insight.sources.canary import run_canaries
 from news_insight.sources.catalog import DEFAULT_CATALOG_PATH, load_catalog, seed_catalog
 from news_insight.sources.enums import STAGE_ORDER, ValidationOutcome, ValidationStage
-from news_insight.sources.ladder import LadderError
+from news_insight.sources.ladder import LadderError, pause_source, resume_source
+from news_insight.sources.models import Source
 from news_insight.sources.portfolio import (
     REGION_FLOORS,
     TRACK_TARGETS,
@@ -31,11 +39,27 @@ app = typer.Typer(help="Daily IT Intelligence operations CLI", no_args_is_help=T
 sources_app = typer.Typer(help="Source registry and V0-V6 validation ladder", no_args_is_help=True)
 app.add_typer(sources_app, name="sources")
 
+collect_app = typer.Typer(help="Collection runs and schedule", no_args_is_help=True)
+dlq_app = typer.Typer(help="Dead-letter queue", no_args_is_help=True)
+app.add_typer(collect_app, name="collect")
+app.add_typer(dlq_app, name="dlq")
+
+KST = ZoneInfo("Asia/Seoul")
+FAILED_OUTCOMES = (FetchOutcome.FAILED, FetchOutcome.DEAD_LETTERED)
+
 CLIMBABLE = (ValidationStage.V0, ValidationStage.V1, ValidationStage.V2, ValidationStage.V3)
 
 
 def _fetcher() -> SafeFetcher:
     return SafeFetcher.from_settings(get_settings())
+
+
+def _limiter() -> RateLimiter:
+    return DomainRateLimiter(get_redis(), per_minute=get_settings().domain_rate_per_minute)
+
+
+def _kst(moment: datetime | None) -> str:
+    return moment.astimezone(KST).strftime("%m-%d %H:%M KST") if moment else "-"
 
 
 def _fail(message: str, code: int = 2) -> typer.Exit:
@@ -123,3 +147,115 @@ def report() -> None:
     typer.echo("Validation stages")
     for stage in STAGE_ORDER:
         typer.echo(f"  {stage.value:<14} {stages.get(stage, 0)}")
+
+
+@sources_app.command("canary")
+def canary() -> None:
+    """Judge V4 for V3 candidates whose 24 h observation window is complete."""
+    with session_scope() as session:
+        lines = [
+            f"{event.source.key}: V4 {event.outcome.value}: {'; '.join(event.reasons) or 'ok'}"
+            for event in run_canaries(session, datetime.now(UTC))
+        ]
+    typer.echo("\n".join(lines) if lines else "no sources ready for V4 yet")
+
+
+@sources_app.command("pause")
+def pause(key: str, reason: Annotated[str, typer.Option(help="Why the source is paused")]) -> None:
+    """Stop collecting a source until it is resumed."""
+    try:
+        with session_scope() as session:
+            pause_source(session, get_source(session, key), reason=reason)
+    except (SourceNotFound, LadderError) as exc:
+        raise _fail(str(exc)) from exc
+    typer.echo(f"{key}: paused ({reason})")
+
+
+@sources_app.command("resume")
+def resume(key: str) -> None:
+    """Resume a paused source (active if it holds V6, otherwise candidate)."""
+    try:
+        with session_scope() as session:
+            source = get_source(session, key)
+            resume_source(session, source)
+            status = source.status.value
+    except (SourceNotFound, LadderError) as exc:
+        raise _fail(str(exc)) from exc
+    typer.echo(f"{key}: resumed as {status}")
+
+
+@collect_app.command("run")
+def collect_run(key: str) -> None:
+    """Collect one source now (ignores the schedule, honours the domain budget)."""
+    try:
+        with session_scope() as session, _fetcher() as fetcher:
+            source = get_source(session, key)
+            run = collect_source(
+                session, source, fetcher=fetcher, limiter=_limiter(), now=datetime.now(UTC)
+            )
+            line = (
+                f"{key}: {run.outcome.value} http={run.http_status} new={run.items_new} "
+                f"updated={run.items_updated} unchanged={run.items_unchanged}"
+            )
+            if run.error_code:
+                line += f" error={run.error_code}"
+            failed = run.outcome in FAILED_OUTCOMES
+    except SourceNotFound as exc:
+        raise _fail(str(exc)) from exc
+    typer.echo(line)
+    if failed:
+        raise typer.Exit(code=1)
+
+
+@collect_app.command("status")
+def collect_status() -> None:
+    """Show each scheduled source with its next poll, interval and failure streak."""
+    with session_scope() as session:
+        rows = session.execute(
+            select(Source.key, SourceRuntime)
+            .join(SourceRuntime, SourceRuntime.source_id == Source.id)
+            .order_by(SourceRuntime.next_due_at)
+        ).all()
+        lines = [
+            f"{key:<24} next={_kst(runtime.next_due_at)} every={runtime.interval_seconds // 60}m "
+            f"failures={runtime.consecutive_failures} last_success={_kst(runtime.last_success_at)}"
+            for key, runtime in rows
+        ]
+    typer.echo("\n".join(lines) if lines else "no sources scheduled yet")
+
+
+@dlq_app.command("list")
+def dlq_list(limit: Annotated[int, typer.Option(help="Maximum entries")] = 50) -> None:
+    """List unresolved dead letters, newest first."""
+    with session_scope() as session:
+        lines = []
+        for letter in list_open(session, limit=limit):
+            source = session.get(Source, letter.source_id)
+            key = source.key if source is not None else f"source#{letter.source_id}"
+            lines.append(
+                f"#{letter.id} {key} {letter.error_code} attempts={letter.attempts} "
+                f"{_kst(letter.created_at)} {letter.error_message[:80]}"
+            )
+    typer.echo("\n".join(lines) if lines else "dead-letter queue is empty")
+
+
+@dlq_app.command("retry")
+def dlq_retry(dead_letter_id: int) -> None:
+    """Resolve a dead letter and make its source due immediately."""
+    try:
+        with session_scope() as session:
+            retry(session, dead_letter_id, now=datetime.now(UTC))
+    except DeadLetterError as exc:
+        raise _fail(str(exc)) from exc
+    typer.echo(f"#{dead_letter_id}: retried")
+
+
+@dlq_app.command("dismiss")
+def dlq_dismiss(dead_letter_id: int) -> None:
+    """Resolve a dead letter without retrying."""
+    try:
+        with session_scope() as session:
+            dismiss(session, dead_letter_id, now=datetime.now(UTC))
+    except DeadLetterError as exc:
+        raise _fail(str(exc)) from exc
+    typer.echo(f"#{dead_letter_id}: dismissed")

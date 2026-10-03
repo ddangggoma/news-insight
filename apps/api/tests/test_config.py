@@ -25,3 +25,7 @@ def test_environment_overrides_defaults(monkeypatch: pytest.MonkeyPatch) -> None
     monkeypatch.setenv("DATABASE_URL", "postgresql+psycopg://u:p@db:5432/x")
 
     assert Settings(_env_file=None).database_url == "postgresql+psycopg://u:p@db:5432/x"
+
+
+def test_collection_defaults() -> None:
+    assert Settings(_env_file=None).domain_rate_per_minute == 30

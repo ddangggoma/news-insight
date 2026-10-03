@@ -40,3 +40,17 @@ uv run news-insight sources promote <key>        # V5 통과 소스의 V6 쿼터
 - V1은 이용약관 검토 결과(`terms_url`, `storage_right`)가 카탈로그에 기록되어야 통과합니다.
 - V4(24시간 Canary)와 V5(7일 품질)는 Phase 2 수집 엔진의 측정값으로 자동 판정합니다.
 - 카탈로그에서 `endpoint_url`, `official_domain`, `access_method`가 바뀌면 검증이 `unverified`로 초기화됩니다.
+
+## 수집 운영 (Phase 2)
+
+V3를 통과한 후보 소스는 Canary 모드로, V6 활성 소스는 정식으로 수집됩니다. Celery Beat가 1분마다 기한이 된 소스를 배정하고, 1시간마다 V4 Canary를 판정하며, 매일 03:15 KST에 보존 기한이 지난 전문을 삭제합니다.
+
+```bash
+cd apps/api
+uv run news-insight collect run the-verge        # 즉시 1회 수집 (도메인 예산은 지킴)
+uv run news-insight collect status               # 다음 수집 시각·주기·연속 실패
+uv run news-insight sources canary               # 24시간 관찰이 끝난 V3 소스의 V4 판정
+uv run news-insight dlq list                     # 미해결 Dead Letter
+uv run news-insight dlq retry <id>               # 소스를 즉시 재수집 대상으로
+uv run news-insight sources resume <key>         # selector drift 등으로 멈춘 소스 재개
+```

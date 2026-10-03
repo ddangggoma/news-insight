@@ -1,13 +1,11 @@
 from datetime import datetime
-from enum import StrEnum
 from typing import Any
 
 from sqlalchemy import DateTime, ForeignKey, Index, String, Text, func, text
-from sqlalchemy import Enum as SAEnum
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from news_insight.db import Base
+from news_insight.db import Base, str_enum
 from news_insight.sources.enums import (
     AccessMethod,
     PollClass,
@@ -20,16 +18,6 @@ from news_insight.sources.enums import (
 )
 
 
-def _enum(enum_cls: type[StrEnum]) -> SAEnum:
-    return SAEnum(
-        enum_cls,
-        native_enum=False,
-        length=32,
-        values_callable=lambda members: [member.value for member in members],
-        validate_strings=True,
-    )
-
-
 class Source(Base):
     __tablename__ = "sources"
     __table_args__ = (Index("ix_sources_status_stage", "status", "validation_stage"),)
@@ -37,25 +25,25 @@ class Source(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     key: Mapped[str] = mapped_column(String(80), unique=True)
     name: Mapped[str] = mapped_column(String(200))
-    track: Mapped[Track] = mapped_column(_enum(Track), index=True)
+    track: Mapped[Track] = mapped_column(str_enum(Track), index=True)
     category: Mapped[str] = mapped_column(String(40))
-    access_method: Mapped[AccessMethod] = mapped_column(_enum(AccessMethod))
+    access_method: Mapped[AccessMethod] = mapped_column(str_enum(AccessMethod))
     endpoint_url: Mapped[str] = mapped_column(String(2048))
     official_domain: Mapped[str] = mapped_column(String(253))
     operator: Mapped[str] = mapped_column(String(200))
-    region: Mapped[Region] = mapped_column(_enum(Region))
+    region: Mapped[Region] = mapped_column(str_enum(Region))
     language: Mapped[str] = mapped_column(String(16))
-    poll_class: Mapped[PollClass] = mapped_column(_enum(PollClass))
+    poll_class: Mapped[PollClass] = mapped_column(str_enum(PollClass))
     dx_relevance: Mapped[str] = mapped_column(Text)
     terms_url: Mapped[str | None] = mapped_column(String(2048))
-    storage_right: Mapped[StorageRight | None] = mapped_column(_enum(StorageRight))
+    storage_right: Mapped[StorageRight | None] = mapped_column(str_enum(StorageRight))
     validation_stage: Mapped[ValidationStage] = mapped_column(
-        _enum(ValidationStage),
+        str_enum(ValidationStage),
         default=ValidationStage.UNVERIFIED,
         server_default=ValidationStage.UNVERIFIED.value,
     )
     status: Mapped[SourceStatus] = mapped_column(
-        _enum(SourceStatus),
+        str_enum(SourceStatus),
         default=SourceStatus.CANDIDATE,
         server_default=SourceStatus.CANDIDATE.value,
     )
@@ -80,8 +68,8 @@ class SourceValidationEvent(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     source_id: Mapped[int] = mapped_column(ForeignKey("sources.id", ondelete="CASCADE"), index=True)
-    stage: Mapped[ValidationStage] = mapped_column(_enum(ValidationStage))
-    outcome: Mapped[ValidationOutcome] = mapped_column(_enum(ValidationOutcome))
+    stage: Mapped[ValidationStage] = mapped_column(str_enum(ValidationStage))
+    outcome: Mapped[ValidationOutcome] = mapped_column(str_enum(ValidationOutcome))
     reasons: Mapped[list[str]] = mapped_column(
         JSONB, default=list, server_default=text("'[]'::jsonb")
     )

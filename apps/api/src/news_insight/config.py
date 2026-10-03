@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     fetch_timeout_seconds: float = 15.0
     fetch_max_redirects: int = 3
     fetch_max_bytes: int = 5 * 1024 * 1024
+    domain_rate_per_minute: int = 30
 
 
 @lru_cache

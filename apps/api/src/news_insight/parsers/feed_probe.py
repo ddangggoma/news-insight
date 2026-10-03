@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
+from typing import Any
 
 import feedparser
 
@@ -18,6 +19,14 @@ class ProbedItem:
     published_at: datetime
 
 
+def struct_to_datetime(value: Any) -> datetime | None:
+    """feedparser time.struct_time (always UTC) → aware datetime."""
+    if not value:
+        return None
+    year, month, day, hour, minute, second = (int(part) for part in value[:6])
+    return datetime(year, month, day, hour, minute, second, tzinfo=UTC)
+
+
 def extract_items(content: bytes) -> list[ProbedItem]:
     """Return entries that carry every field V3 requires: id, url, title, published date."""
     parsed = feedparser.parse(content)
@@ -26,18 +35,10 @@ def extract_items(content: bytes) -> list[ProbedItem]:
         url = str(entry.get("link") or "").strip()
         stable_id = str(entry.get("id") or url).strip()
         title = str(entry.get("title") or "").strip()
-        published = entry.get("published_parsed") or entry.get("updated_parsed")
-        if not (stable_id and url and title and published):
+        published = struct_to_datetime(entry.get("published_parsed") or entry.get("updated_parsed"))
+        if published is None or not (stable_id and url and title):
             continue
-        year, month, day, hour, minute, second = (int(part) for part in published[:6])
-        items.append(
-            ProbedItem(
-                stable_id=stable_id,
-                url=url,
-                title=title,
-                published_at=datetime(year, month, day, hour, minute, second, tzinfo=UTC),
-            )
-        )
+        items.append(ProbedItem(stable_id=stable_id, url=url, title=title, published_at=published))
     return items
 
 

@@ -13,6 +13,7 @@ dependencies = [
   "pydantic>=2.11,<3",
   "pydantic-settings>=2.10,<3",
   "pyyaml>=6.0,<7",
+  "selectolax>=0.4.13,<0.5",
   "sqlalchemy>=2.0.40,<2.1",
   "typer>=0.16,<1",
   "uvicorn[standard]>=0.35,<1",
@@ -40,7 +41,10 @@ packages = ["src/news_insight"]
 [tool.pytest.ini_options]
 addopts = "--strict-markers -q"
 testpaths = ["tests"]
-markers = ["db: requires the PostgreSQL test database"]
+markers = [
+  "db: requires the PostgreSQL test database",
+  "redis: requires the Redis test database (db 15)",
+]
 
 [tool.ruff]
 line-length = 100
