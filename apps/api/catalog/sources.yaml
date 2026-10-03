@@ -86,7 +86,7 @@ sources:
     track: community
     category: open_social
     access_method: atproto
-    endpoint_url: https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed
+    endpoint_url: https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=bsky.app&limit=30
     official_domain: bsky.app
     operator: Bluesky Social PBC
     region: global_en
@@ -95,16 +95,15 @@ sources:
     dx_relevance: 탈중앙 소셜 프로토콜과 공개 기술 커뮤니티 신호
     storage_right: metadata_only
     config:
-      actor: bsky.app
-      probe_url: https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=bsky.app&limit=5
+      preset: bluesky_author_feed
 
   # ── Track 3: 논문·학회·표준·특허 ──
   - key: arxiv-cs-ai
-    name: arXiv cs.AI
+    name: arXiv cs.AI (API)
     track: research_ip
     category: academic_paper
     access_method: feed
-    endpoint_url: https://rss.arxiv.org/rss/cs.AI
+    endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.AI&sortBy=submittedDate&sortOrder=descending&max_results=50
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -112,14 +111,12 @@ sources:
     poll_class: research
     dx_relevance: 온디바이스 AI·에이전트·멀티모달 모델 연구 동향
     storage_right: metadata_only
-    config:
-      probe_max_age_days: 7
   - key: openalex-works
     name: OpenAlex Works
     track: research_ip
     category: academic_index
     access_method: research_api
-    endpoint_url: https://api.openalex.org/works
+    endpoint_url: https://api.openalex.org/works?filter=from_publication_date:{today-7d},to_publication_date:{today},title.search:on-device&sort=publication_date:desc&per-page=50
     official_domain: openalex.org
     operator: OurResearch
     region: global_en
@@ -128,7 +125,7 @@ sources:
     dx_relevance: DX 기술 키워드 기반 논문 메타데이터와 인용 신호
     storage_right: metadata_only
     config:
-      probe_url: https://api.openalex.org/works?per-page=5
+      preset: openalex_works
 
   # ── Track 4: GitHub 오픈소스 트렌드 ──
   - key: github-on-device-ai
@@ -136,7 +133,7 @@ sources:
     track: oss
     category: oss_trend
     access_method: github
-    endpoint_url: https://api.github.com/search/repositories
+    endpoint_url: https://api.github.com/search/repositories?q=on-device+llm+pushed:>{today-30d}&sort=stars&order=desc&per_page=50
     official_domain: github.com
     operator: GitHub, Inc.
     region: global_en
@@ -145,6 +142,7 @@ sources:
     dx_relevance: 온디바이스 LLM·NPU 추론 런타임 오픈소스 급상승 신호
     storage_right: metadata_only
     config:
-      query: "on-device llm in:name,description,readme pushed:>{today-30d}"
-      sort: stars
+      preset: github_search
+      auth:
+        secret: GITHUB_TOKEN
       probe_url: https://api.github.com/rate_limit

@@ -5,6 +5,7 @@ from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from news_insight.collect.presets import effective_config
 from news_insight.sources.catalog import (
     DEFAULT_CATALOG_PATH,
     Catalog,
@@ -126,3 +127,12 @@ def test_unknown_preset_is_rejected(tmp_path: Path) -> None:
 
     with pytest.raises(ValidationError, match="unknown preset 'nope'"):
         load_catalog(write_catalog(tmp_path, body))
+
+
+def test_bundled_presets_resolve_and_github_declares_its_token() -> None:
+    entries = {entry.key: entry for entry in load_catalog(DEFAULT_CATALOG_PATH).sources}
+
+    for entry in entries.values():
+        effective_config(entry.config)
+    assert entries["github-on-device-ai"].config["auth"] == {"secret": "GITHUB_TOKEN"}
+    assert entries["arxiv-cs-ai"].endpoint_url.startswith("https://export.arxiv.org/api/query")
