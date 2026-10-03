@@ -2571,7 +2571,7 @@ def retry_delay(attempt: int) -> int:
     """Delay before retry number `attempt` (1-based): 60 s, 120 s, 240 s."""
     if not 1 <= attempt <= MAX_RETRIES:
         raise ValueError(f"retry attempt must be 1..{MAX_RETRIES}, got {attempt}")
-    return RETRY_BASE_SECONDS * 2 ** (attempt - 1)
+    return RETRY_BASE_SECONDS * (1 << (attempt - 1))
 ```
 
 - [ ] **Step 4: 테스트 통과 확인**
