@@ -12,6 +12,9 @@ from news_insight.console import queries
 from news_insight.console.auth import require_console_key
 from news_insight.console.schemas import (
     DeadLetterOut,
+    ItemDetail,
+    ItemRow,
+    MoverOut,
     Overview,
     Page,
     PauseBody,
@@ -155,3 +158,46 @@ def retry_dead_letter(dead_letter_id: int, session: DB) -> DeadLetterOut:
 @router.post("/dead-letters/{dead_letter_id}/dismiss")
 def dismiss_dead_letter(dead_letter_id: int, session: DB) -> DeadLetterOut:
     return _resolve(session, dead_letter_id, "dismiss")
+
+
+@router.get("/items")
+def list_items(
+    session: DB,
+    track: Track | None = None,
+    source: str | None = None,
+    q: str | None = None,
+    days: Annotated[int | None, Query(ge=1, le=365)] = None,
+    page: PageQ = 1,
+    size: SizeQ = 50,
+) -> Page[ItemRow]:
+    return queries.list_items(
+        session,
+        track=track,
+        source_key=source,
+        q=q,
+        days=days,
+        page=page,
+        size=size,
+        now=datetime.now(UTC),
+    )
+
+
+@router.get("/items/{item_id}")
+def get_item(item_id: int, session: DB) -> ItemDetail:
+    detail = queries.item_detail(session, item_id)
+    if detail is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, f"unknown item {item_id}")
+    return detail
+
+
+@router.get("/trends/movers")
+def get_movers(
+    session: DB,
+    metric: str = "stars",
+    days: Annotated[int, Query(ge=1, le=90)] = 1,
+    track: Track | None = None,
+    limit: Annotated[int, Query(ge=1, le=100)] = 20,
+) -> list[MoverOut]:
+    return queries.movers(
+        session, metric=metric, days=days, track=track, limit=limit, now=datetime.now(UTC)
+    )

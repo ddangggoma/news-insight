@@ -9,10 +9,14 @@ from news_insight.collect.models import DeadLetter, FetchOutcome, FetchRun, Sour
 from news_insight.console.schemas import (
     DeadLetterOut,
     Health,
+    ItemDetail,
     ItemRow,
+    MetricPoint,
+    MoverOut,
     Overview,
     Page,
     RegionCount,
+    RevisionOut,
     RunOut,
     SourceDetail,
     SourceRow,
@@ -20,7 +24,8 @@ from news_insight.console.schemas import (
     TrackCount,
     ValidationEventOut,
 )
-from news_insight.content.models import Item, ItemMetricSnapshot
+from news_insight.content.models import Item, ItemMetricSnapshot, ItemRevision
+from news_insight.content.trends import metric_movers
 from news_insight.sources.enums import (
     STAGE_ORDER,
     Region,
@@ -337,3 +342,95 @@ def list_dead_letters(session: Session, *, state: str, page: int, size: int) -> 
         page=page,
         size=size,
     )
+
+
+def list_items(
+    session: Session,
+    *,
+    track: Track | None,
+    source_key: str | None,
+    q: str | None,
+    days: int | None,
+    page: int,
+    size: int,
+    now: datetime,
+) -> Page[ItemRow]:
+    conditions = []
+    if track is not None:
+        conditions.append(Item.track == track)
+    if source_key:
+        conditions.append(Source.key == source_key)
+    if q:
+        conditions.append(Item.title.ilike(_like(q), escape="\\"))
+    if days:
+        conditions.append(Item.first_seen_at >= now - timedelta(days=days))
+    base = select(Item, Source).join(Source, Source.id == Item.source_id).where(*conditions)
+    total = session.scalar(select(func.count()).select_from(base.subquery())) or 0
+    pairs = list(
+        session.execute(
+            base.order_by(Item.first_seen_at.desc(), Item.id.desc())
+            .offset(_offset(page, size))
+            .limit(size)
+        ).tuples()
+    )
+    return Page[ItemRow](items=item_rows(session, pairs), total=total, page=page, size=size)
+
+
+def item_detail(session: Session, item_id: int) -> ItemDetail | None:
+    pair = (
+        session.execute(
+            select(Item, Source).join(Source, Source.id == Item.source_id).where(Item.id == item_id)
+        )
+        .tuples()
+        .one_or_none()
+    )
+    if pair is None:
+        return None
+    item, source = pair
+    revisions = session.scalars(
+        select(ItemRevision).where(ItemRevision.item_id == item.id).order_by(ItemRevision.revision)
+    )
+    snapshots = session.scalars(
+        select(ItemMetricSnapshot)
+        .where(ItemMetricSnapshot.item_id == item.id)
+        .order_by(ItemMetricSnapshot.captured_at)
+    )
+    return ItemDetail(
+        item=item_rows(session, [(item, source)])[0],
+        summary=item.summary,
+        body=item.body,
+        author=item.author,
+        revisions=[
+            RevisionOut(revision=rev.revision, title=rev.title, recorded_at=rev.recorded_at)
+            for rev in revisions
+        ],
+        metric_history=[
+            MetricPoint(captured_at=snap.captured_at, metrics=dict(snap.metrics))
+            for snap in snapshots
+        ],
+    )
+
+
+def movers(
+    session: Session,
+    *,
+    metric: str,
+    days: int,
+    track: Track | None,
+    limit: int,
+    now: datetime,
+) -> list[MoverOut]:
+    found = metric_movers(
+        session, metric=metric, window=timedelta(days=days), now=now, track=track, limit=limit
+    )
+    sources = {
+        source.id: source
+        for source in session.scalars(
+            select(Source).where(Source.id.in_({mover.item.source_id for mover in found}))
+        )
+    }
+    rows = item_rows(session, [(mover.item, sources[mover.item.source_id]) for mover in found])
+    return [
+        MoverOut(item=row, current=mover.current, baseline=mover.baseline, delta=mover.delta)
+        for row, mover in zip(rows, found, strict=True)
+    ]
