@@ -12,7 +12,9 @@
 
 	# The console API is internal: only the web server calls it, over the compose network.
 	@admin_api path /api/admin /api/admin/*
-	respond @admin_api 404
+	handle @admin_api {
+		respond 404
+	}
 
 	@console path /console /console/*
 	basic_auth @console {

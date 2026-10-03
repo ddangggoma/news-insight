@@ -65,4 +65,4 @@ def test_caddy_guards_the_console() -> None:
     caddyfile = (REPO_ROOT / "ops" / "Caddyfile").read_text(encoding="utf-8")
 
     assert "basic_auth @console" in caddyfile
-    assert "respond @admin_api 404" in caddyfile
+    assert "handle @admin_api {" in caddyfile
