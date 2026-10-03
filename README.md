@@ -24,3 +24,17 @@ curl -sk https://localhost:8700/api/health
 ```
 
 LM Studio는 호스트에서 `qwen/qwen3.8-27b`를 포트 1234로 서빙하고, 컨테이너는 `host.docker.internal:1234`로 접근합니다.
+
+## 소스 거버넌스 (V0~V6)
+
+```bash
+cd apps/api
+uv run news-insight sources seed                 # catalog/sources.yaml → registry (멱등)
+uv run news-insight sources validate the-verge   # V0 정체성 → V1 정책 → V2 네트워크 → V3 파서
+uv run news-insight sources report               # 트랙 목표·지역 용량·단계 분포
+uv run news-insight sources promote <key>        # V5 통과 소스의 V6 쿼터 게이트
+```
+
+- V1은 이용약관 검토 결과(`terms_url`, `storage_right`)가 카탈로그에 기록되어야 통과합니다.
+- V4(24시간 Canary)와 V5(7일 품질)는 Phase 2 수집 엔진의 측정값으로 자동 판정합니다.
+- 카탈로그에서 `endpoint_url`, `official_domain`, `access_method`가 바뀌면 검증이 `unverified`로 초기화됩니다.

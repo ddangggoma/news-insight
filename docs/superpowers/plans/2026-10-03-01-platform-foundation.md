@@ -4411,8 +4411,9 @@ def report() -> None:
         typer.echo(f"  {track.value:<14} {portfolio.track_counts[track]:>3}/{target}")
     typer.echo("Regions (active/capacity, share vs floor)")
     for region, floor in REGION_FLOORS.items():
+        counts = f"{portfolio.region_counts[region]:>3}/{region_capacity(region):<4}"
         typer.echo(
-            f"  {region.value:<14} {portfolio.region_counts[region]:>3}/{region_capacity(region):<4}"
+            f"  {region.value:<14} {counts}"
             f"{portfolio.region_share(region):6.1%} (floor {floor:.0%})"
         )
     typer.echo("Validation stages")
