@@ -11,6 +11,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from news_insight.collect.presets import PRESETS
 from news_insight.sources.enums import (
     AccessMethod,
     PollClass,
@@ -54,6 +55,14 @@ class CatalogEntry(BaseModel):
         parts = urlsplit(value)
         if parts.scheme not in {"http", "https"} or not parts.hostname:
             raise ValueError(f"must be an absolute http(s) URL: {value}")
+        return value
+
+    @field_validator("config")
+    @classmethod
+    def _known_preset(cls, value: dict[str, Any]) -> dict[str, Any]:
+        preset = value.get("preset")
+        if preset is not None and preset not in PRESETS:
+            raise ValueError(f"unknown preset '{preset}'")
         return value
 
 

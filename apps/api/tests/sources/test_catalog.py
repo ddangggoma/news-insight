@@ -119,3 +119,10 @@ def test_seed_resets_validation_when_endpoint_changes(db_session: Session, tmp_p
 def test_catalog_model_requires_version_1() -> None:
     with pytest.raises(ValidationError):
         Catalog.model_validate({"version": 2, "sources": []})
+
+
+def test_unknown_preset_is_rejected(tmp_path: Path) -> None:
+    body = ENTRY + "    config:\n      preset: nope\n"
+
+    with pytest.raises(ValidationError, match="unknown preset 'nope'"):
+        load_catalog(write_catalog(tmp_path, body))
