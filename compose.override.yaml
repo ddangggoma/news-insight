@@ -1,0 +1,11 @@
+# Development only: merged automatically by `docker compose`.
+# Production deployments use `docker compose -f compose.yaml`. Ports: docs/PORTS.md
+services:
+  postgres:
+    ports:
+      - "127.0.0.1:8720:5432"
+    volumes:
+      - ./ops/postgres/init:/docker-entrypoint-initdb.d:ro
+  redis:
+    ports:
+      - "127.0.0.1:8721:6379"
