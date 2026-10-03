@@ -3,6 +3,7 @@ from collections.abc import Iterator
 from pathlib import Path
 
 import pytest
+import redis
 from alembic import command
 from alembic.config import Config
 from sqlalchemy import Engine, create_engine, text
@@ -14,6 +15,7 @@ TEST_DATABASE_URL = os.environ.get(
     "TEST_DATABASE_URL",
     "postgresql+psycopg://news:news-dev-password@localhost:8720/news_insight_test",
 )
+TEST_REDIS_URL = os.environ.get("TEST_REDIS_URL", "redis://localhost:8721/15")
 
 
 @pytest.fixture(scope="session")
@@ -45,3 +47,14 @@ def db_session(db_engine: Engine) -> Iterator[Session]:
         session.close()
         transaction.rollback()
         connection.close()
+
+
+@pytest.fixture
+def redis_client() -> Iterator[redis.Redis]:
+    if not TEST_REDIS_URL.rstrip("/").endswith("/15"):
+        raise RuntimeError("Refusing to flush a non-test Redis database (use db 15)")
+    client = redis.Redis.from_url(TEST_REDIS_URL)
+    client.flushdb()
+    yield client
+    client.flushdb()
+    client.close()

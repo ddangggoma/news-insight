@@ -2642,8 +2642,8 @@ def test_collection_defaults() -> None:
 `apps/api/tests/scheduling/test_redis_guards.py`:
 
 ```python
-import redis
 import pytest
+import redis
 
 from news_insight.scheduling.redis_guards import DomainRateLimiter, SourceLock
 
@@ -2787,7 +2787,7 @@ class DomainRateLimiter:
         allowed = self._script(
             keys=[self._prefix + domain.lower()], args=[budget, budget / 60, self._clock()]
         )
-        return allowed == 1
+        return bool(allowed == 1)
 
 
 class SourceLock:

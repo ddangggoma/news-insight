@@ -41,7 +41,10 @@ packages = ["src/news_insight"]
 [tool.pytest.ini_options]
 addopts = "--strict-markers -q"
 testpaths = ["tests"]
-markers = ["db: requires the PostgreSQL test database"]
+markers = [
+  "db: requires the PostgreSQL test database",
+  "redis: requires the Redis test database (db 15)",
+]
 
 [tool.ruff]
 line-length = 100
