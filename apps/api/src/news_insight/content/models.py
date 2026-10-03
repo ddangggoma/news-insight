@@ -1,6 +1,8 @@
 from datetime import datetime
+from typing import Any
 
-from sqlalchemy import DateTime, ForeignKey, String, Text, UniqueConstraint, false
+from sqlalchemy import DateTime, ForeignKey, Index, String, Text, UniqueConstraint, false
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from news_insight.db import Base, str_enum
@@ -55,3 +57,15 @@ class ItemRevision(Base):
     recorded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
     item: Mapped[Item] = relationship(back_populates="revisions")
+
+
+class ItemMetricSnapshot(Base):
+    """Engagement signals over time (stars, likes, points); deltas feed trend detection."""
+
+    __tablename__ = "item_metric_snapshots"
+    __table_args__ = (Index("ix_item_metric_snapshots_item_captured", "item_id", "captured_at"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    item_id: Mapped[int] = mapped_column(ForeignKey("items.id", ondelete="CASCADE"))
+    captured_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    metrics: Mapped[dict[str, Any]] = mapped_column(JSONB)

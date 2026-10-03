@@ -2,14 +2,14 @@
 
 from collections.abc import Sequence
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from news_insight.collect.contracts import RawItem
 from news_insight.collect.models import FetchRun
-from news_insight.content.models import Item, ItemRevision
+from news_insight.content.models import Item, ItemMetricSnapshot, ItemRevision
 from news_insight.content.normalize import canonical_url, clean_text, content_hash, stable_key
 from news_insight.content.policy import apply_storage_right
 from news_insight.sources.models import Source
@@ -17,6 +17,7 @@ from news_insight.sources.models import Source
 MAX_URL = 2048
 TITLE_LIMIT = 1000
 AUTHOR_LIMIT = 300
+METRIC_SNAPSHOT_INTERVAL = timedelta(hours=1)
 
 
 @dataclass(frozen=True)
@@ -27,6 +28,7 @@ class IngestStats:
     unchanged: int = 0
     duplicate_urls: int = 0
     rejected: int = 0
+    snapshots: int = 0
 
 
 @dataclass(frozen=True)
@@ -40,6 +42,7 @@ class _Prepared:
     author: str | None
     published_at: datetime | None
     digest: str
+    metrics: dict[str, int]
 
 
 def _prepare(raw: RawItem) -> _Prepared | None:
@@ -60,6 +63,7 @@ def _prepare(raw: RawItem) -> _Prepared | None:
         author=clean_text(raw.author, limit=AUTHOR_LIMIT),
         published_at=raw.published_at,
         digest=content_hash(title, summary, body),
+        metrics=dict(raw.metrics),
     )
 
 
@@ -116,6 +120,7 @@ def ingest_items(
     )
     run_id = fetch_run.id if fetch_run is not None else None
     new = updated = unchanged = duplicates = 0
+    touched: dict[str, Item] = {}
     for candidate in prepared.values():
         item = existing.get(candidate.stable_id)
         if item is None:
@@ -133,8 +138,10 @@ def ingest_items(
             )
             _apply(item, candidate, source, now)
             session.add(item)
+            touched[candidate.stable_id] = item
             new += 1
         elif item.content_hash == candidate.digest:
+            touched[candidate.stable_id] = item
             unchanged += 1  # seen-ledger hit: no write, nothing to reprocess downstream
             continue
         else:
@@ -142,6 +149,7 @@ def ingest_items(
             item.canary = canary
             item.last_changed_at = now
             _apply(item, candidate, source, now)
+            touched[candidate.stable_id] = item
             updated += 1
         session.add(
             ItemRevision(
@@ -154,6 +162,7 @@ def ingest_items(
             )
         )
     session.flush()
+    snapshots = _record_snapshots(session, touched, prepared, now)
     return IngestStats(
         seen=len(items),
         new=new,
@@ -161,4 +170,38 @@ def ingest_items(
         unchanged=unchanged,
         duplicate_urls=duplicates,
         rejected=rejected,
+        snapshots=snapshots,
     )
+
+
+def _record_snapshots(
+    session: Session, touched: dict[str, Item], prepared: dict[str, _Prepared], now: datetime
+) -> int:
+    """Record changed metrics at most once per METRIC_SNAPSHOT_INTERVAL per item."""
+    observed = {
+        touched[stable_id].id: candidate.metrics
+        for stable_id, candidate in prepared.items()
+        if candidate.metrics and stable_id in touched
+    }
+    if not observed:
+        return 0
+    latest = {
+        snapshot.item_id: snapshot
+        for snapshot in session.scalars(
+            select(ItemMetricSnapshot)
+            .where(ItemMetricSnapshot.item_id.in_(list(observed)))
+            .order_by(ItemMetricSnapshot.item_id, ItemMetricSnapshot.captured_at.desc())
+            .distinct(ItemMetricSnapshot.item_id)
+        )
+    }
+    recorded = 0
+    for item_id, metrics in observed.items():
+        last = latest.get(item_id)
+        if last is not None and (
+            last.metrics == metrics or now - last.captured_at < METRIC_SNAPSHOT_INTERVAL
+        ):
+            continue
+        session.add(ItemMetricSnapshot(item_id=item_id, captured_at=now, metrics=metrics))
+        recorded += 1
+    session.flush()
+    return recorded
