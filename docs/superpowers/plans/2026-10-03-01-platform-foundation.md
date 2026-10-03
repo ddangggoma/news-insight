@@ -796,6 +796,7 @@ def session_scope() -> Iterator[Session]:
 script_location = %(here)s/migrations
 file_template = %%(rev)s_%%(slug)s
 prepend_sys_path = src
+path_separator = os
 
 [loggers]
 keys = root,sqlalchemy,alembic
