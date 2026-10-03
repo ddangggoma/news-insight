@@ -23,6 +23,14 @@ class Settings(BaseSettings):
     claude_cli: str = "claude"
     digest_model: str = "opus"
     digest_timeout_seconds: int = 900
+    agy_cli: str = "agy"
+    card_agy_model: str = "gemini-3.8-flash-low"
+    card_agy_min_weekly: int = 10
+    card_agy_min_five_hour: int = 2
+    card_agy_batch: int = 100
+    card_qwen_batch: int = 5
+    card_timeout_seconds: int = 300
+    card_time_budget_seconds: int = 540
 
 
 @lru_cache

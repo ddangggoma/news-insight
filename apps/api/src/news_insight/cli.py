@@ -1,5 +1,7 @@
 """Operator CLI: `news-insight sources seed|validate|promote|report`."""
 
+import fcntl
+import tempfile
 from collections import Counter
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
@@ -7,8 +9,11 @@ from typing import Annotated
 from zoneinfo import ZoneInfo
 
 import typer
-from sqlalchemy import select
+from sqlalchemy import func, select
 
+from news_insight.cards.engines import AgyEngine, QwenEngine
+from news_insight.cards.models import CardRun, CardStatus, ItemCard
+from news_insight.cards.service import CardPolicy, pending_count, record_run, run_cards
 from news_insight.collect.dead_letters import DeadLetterError, dismiss, list_open, retry
 from news_insight.collect.models import FetchOutcome, SourceRuntime
 from news_insight.collect.service import collect_source
@@ -57,6 +62,11 @@ app.add_typer(collect_app, name="collect")
 app.add_typer(dlq_app, name="dlq")
 trends_app = typer.Typer(help="Signal trends from metric snapshots", no_args_is_help=True)
 app.add_typer(trends_app, name="trends")
+cards_app = typer.Typer(
+    help="Korean cards: Antigravity CLI first, local Qwen when its quota is spent",
+    no_args_is_help=True,
+)
+app.add_typer(cards_app, name="cards")
 digest_app = typer.Typer(
     help="Daily digest generated with the Claude CLI (05:00 KST)", no_args_is_help=True
 )
@@ -81,6 +91,25 @@ def _claude() -> ClaudeClient:
     return ClaudeCli(
         executable=settings.claude_cli, timeout_seconds=settings.digest_timeout_seconds
     )
+
+
+def _card_engines(qwen_only: bool) -> tuple[AgyEngine | None, QwenEngine]:
+    settings = get_settings()
+    agy = (
+        None
+        if qwen_only
+        else AgyEngine(
+            executable=settings.agy_cli,
+            model=settings.card_agy_model,
+            timeout_seconds=settings.card_timeout_seconds,
+        )
+    )
+    qwen = QwenEngine(
+        base_url=settings.lm_studio_url,
+        model=settings.lm_studio_model,
+        timeout_seconds=settings.card_timeout_seconds * 2,
+    )
+    return agy, qwen
 
 
 def _kst(moment: datetime | None) -> str:
@@ -421,4 +450,63 @@ def digest_run(
             line += f" cost=${digest.cost_usd:.3f}"
         if digest.error:
             line += f" error={digest.error}"
+    typer.echo(line)
+
+
+CARDS_LOCK = Path(tempfile.gettempdir()) / "news-insight-cards.lock"
+
+
+@cards_app.command("run")
+def cards_run(
+    budget: Annotated[int | None, typer.Option(help="Time budget in seconds")] = None,
+    qwen_only: Annotated[bool, typer.Option(help="Skip Antigravity and use local Qwen")] = False,
+) -> None:
+    """Generate Korean cards for pending items (host-side; launchd runs it every 10 minutes)."""
+    settings = get_settings()
+    with CARDS_LOCK.open("w") as lock:
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            typer.echo("another card run is active; skipping")
+            return
+        agy, qwen = _card_engines(qwen_only)
+        policy = CardPolicy(
+            agy_batch=settings.card_agy_batch,
+            qwen_batch=settings.card_qwen_batch,
+            min_weekly=settings.card_agy_min_weekly,
+            min_five_hour=settings.card_agy_min_five_hour,
+            time_budget_seconds=float(budget or settings.card_time_budget_seconds),
+        )
+        started = datetime.now(UTC)
+        stats = run_cards(session_scope, agy=agy, qwen=qwen, policy=policy)
+        record_run(session_scope, started, stats)
+    batches = " ".join(f"{name}={count}" for name, count in sorted(stats.batches.items()))
+    typer.echo(
+        f"ready={stats.ready} failed={stats.failed} batches: {batches or '-'} "
+        f"quota={stats.quota or '-'}"
+    )
+    for note in stats.notes:
+        typer.echo(f"  note: {note}")
+
+
+@cards_app.command("status")
+def cards_status() -> None:
+    """Pending, ready and failed card counts and the latest run."""
+    with session_scope() as session:
+        counts = dict(
+            session.execute(select(ItemCard.status, func.count()).group_by(ItemCard.status))
+            .tuples()
+            .all()
+        )
+        pending = pending_count(session)
+        last = session.scalars(select(CardRun).order_by(CardRun.id.desc()).limit(1)).first()
+        line = (
+            f"pending={pending} ready={counts.get(CardStatus.READY, 0)} "
+            f"failed={counts.get(CardStatus.FAILED, 0)}"
+        )
+        if last is not None:
+            line += (
+                f"\nlast run {_kst(last.started_at)}: ready={last.ready} failed={last.failed} "
+                f"batches={last.batches} quota={last.quota}"
+            )
     typer.echo(line)
