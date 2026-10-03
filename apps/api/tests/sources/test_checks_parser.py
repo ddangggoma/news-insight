@@ -1,11 +1,15 @@
+import json
 from datetime import UTC, datetime
+from typing import Any
 
 import httpx
+import pytest
 
 from news_insight.net.safe_fetch import SafeFetcher
 from news_insight.sources.checks import check_parser
 from news_insight.sources.enums import AccessMethod
 from tests.factories import build_source
+from tests.helpers import serving
 from tests.parsers.test_feed_probe import item, rss
 
 NOW = datetime(2026, 10, 3, 0, 0, tzinfo=UTC)
@@ -44,9 +48,49 @@ def test_parser_check_honours_max_age_override() -> None:
     assert not result.passed
 
 
-def test_non_feed_access_methods_fail_closed() -> None:
-    source = build_source(access_method=AccessMethod.GITHUB)
+def json_source(**config: Any) -> Any:
+    return build_source(
+        access_method=AccessMethod.JSON_API,
+        endpoint_url="https://www.example.com/api",
+        config={"list_path": "items", **config},
+    )
 
-    result = check_parser(source, fetcher_serving(b""), now=NOW)
 
-    assert result.reasons == ["no V3 parser probe for access method 'github' yet"]
+def json_fetcher(*dates: str | None) -> SafeFetcher:
+    records = [
+        {"id": n, "url": f"https://www.example.com/{n}", "title": f"T{n}", "published_at": date}
+        for n, date in enumerate(dates)
+    ]
+    return serving(json.dumps({"items": records}).encode(), content_type="application/json")
+
+
+def test_json_sources_are_probed_through_their_collector() -> None:
+    fetcher = json_fetcher(*["2026-10-01T09:00:00Z"] * 3)
+
+    result = check_parser(json_source(), fetcher, now=NOW)
+
+    assert result.passed, result.reasons
+    assert result.metrics == {"items": 3, "dated": 3, "recent": 3}
+
+
+def test_json_probe_requires_recent_dated_items() -> None:
+    fetcher = json_fetcher("2026-10-01T09:00:00Z", None, "2026-01-01T00:00:00Z")
+
+    result = check_parser(json_source(), fetcher, now=NOW)
+
+    assert result.reasons == ["only 1 recent complete items (need 3)"]
+
+
+def test_probe_reports_collector_errors() -> None:
+    result = check_parser(json_source(list_path="missing"), json_fetcher("x"), now=NOW)
+
+    assert result.reasons[0].startswith("selector_drift")
+
+
+def test_probe_reports_missing_credentials(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("SOURCE_SECRET_GITHUB_TOKEN", raising=False)
+    source = json_source(auth={"secret": "GITHUB_TOKEN"})
+
+    result = check_parser(source, json_fetcher(), now=NOW)
+
+    assert "credential SOURCE_SECRET_GITHUB_TOKEN is not configured" in result.reasons

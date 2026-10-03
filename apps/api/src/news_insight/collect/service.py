@@ -6,7 +6,8 @@ from urllib.parse import urlsplit
 
 from sqlalchemy.orm import Session
 
-from news_insight.collect.contracts import CollectContext, Collector, CollectorError
+from news_insight.collect.context import collect_context
+from news_insight.collect.contracts import Collector, CollectorError
 from news_insight.collect.models import DeadLetter, FetchOutcome, FetchRun, SourceRuntime
 from news_insight.collect.registry import SUPPORTED_METHODS, collector_for
 from news_insight.content.ingest import IngestStats, ingest_items
@@ -19,6 +20,7 @@ from news_insight.scheduling.policy import (
     retry_delay,
 )
 from news_insight.scheduling.redis_guards import RateLimiter
+from news_insight.secrets import SecretError
 from news_insight.sources.enums import STAGE_ORDER, AccessMethod, SourceStatus, ValidationStage
 from news_insight.sources.ladder import is_schedulable, pause_source
 from news_insight.sources.models import Source
@@ -27,6 +29,7 @@ CollectorFactory = Callable[[AccessMethod, SafeFetcher], Collector]
 COLLECTABLE_STAGES = frozenset(STAGE_ORDER[STAGE_ORDER.index(ValidationStage.V3) :])
 LOCAL_RATE_LIMIT_DELAY = timedelta(seconds=60)
 MESSAGE_LIMIT = 2000
+PAUSING_CODES = frozenset({"selector_drift", "config_error"})
 
 
 def is_collectable(source: Source) -> bool:
@@ -85,14 +88,17 @@ def collect_source(
         runtime.next_due_at = now + LOCAL_RATE_LIMIT_DELAY
         return _finish(session, run, now, error_code="local_rate_limit")
 
-    context = CollectContext(
-        endpoint_url=source.endpoint_url,
-        config=dict(source.config),
-        now=now,
-        etag=runtime.etag,
-        last_modified=runtime.last_modified,
-        last_success_at=runtime.last_success_at,
-    )
+    try:
+        context = collect_context(
+            source,
+            now=now,
+            etag=runtime.etag,
+            last_modified=runtime.last_modified,
+            last_success_at=runtime.last_success_at,
+        )
+    except (SecretError, ValueError) as exc:
+        error = CollectorError("config_error", str(exc), retryable=False)
+        return _handle_failure(session, source, runtime, run, error, now)
     try:
         result = collector_factory(source.access_method, fetcher).collect(context)
     except CollectorError as exc:
@@ -140,7 +146,7 @@ def _handle_failure(
     run.outcome = FetchOutcome.FAILED
     run.http_status = exc.status_code
     run.error_message = message
-    pauses = exc.code == "selector_drift" or exc.code.startswith("blocked_")
+    pauses = exc.code in PAUSING_CODES or exc.code.startswith("blocked_")
     if exc.retryable and not pauses and run.attempt <= MAX_RETRIES:
         runtime.consecutive_failures = run.attempt
         runtime.next_due_at = now + timedelta(seconds=retry_delay(run.attempt))

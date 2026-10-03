@@ -13,9 +13,9 @@ from news_insight.collect.contracts import (
 )
 from news_insight.collect.http import fetch_checked, request_headers
 from news_insight.collect.macros import expand_macros
+from news_insight.net.mime import FEED_MIME
 from news_insight.net.safe_fetch import SafeFetcher
 from news_insight.parsers.feed_probe import struct_to_datetime
-from news_insight.sources.checks import FEED_MIME
 
 
 class FeedCollector:

@@ -1532,7 +1532,7 @@ git commit -m "feat(content): snapshot engagement metrics and compute movers"
 
 - [ ] **Step 1: 실패하는 테스트 작성**
 
-`apps/api/tests/sources/test_checks_parser.py`에서 `test_non_feed_access_methods_fail_closed`를 지우고, import 블록에 `import json`, `import pytest`, `from typing import Any`를 추가한 뒤 끝에 추가:
+`apps/api/tests/sources/test_checks_parser.py`에서 `test_non_feed_access_methods_fail_closed`를 지우고, import 블록에 `import json`, `import pytest`, `from typing import Any`, `from tests.helpers import serving`을 추가한 뒤 끝에 추가:
 
 ```python
 def json_source(**config: Any) -> Any:
