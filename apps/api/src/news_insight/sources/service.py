@@ -63,7 +63,8 @@ def _evaluate(
     if stage is ValidationStage.V6:
         return check_quota(active_portfolio(session), track=source.track, region=source.region)
     raise StageNotAutomated(
-        f"{stage.value} needs collection metrics from the Phase 2 canary/quality runners"
+        f"{stage.value} is judged from collection metrics "
+        "(V4: `news-insight sources canary`; V5: Phase 5)"
     )
 
 
@@ -78,7 +79,8 @@ def run_check(
     ensure_next_stage(source, stage)
     if stage not in AUTOMATED_STAGES:
         raise StageNotAutomated(
-            f"{stage.value} needs collection metrics from the Phase 2 canary/quality runners"
+            f"{stage.value} is judged from collection metrics "
+            "(V4: `news-insight sources canary`; V5: Phase 5)"
         )
     result = _evaluate(session, source, stage, fetcher, now)
     return record_check(session, source, stage, result)

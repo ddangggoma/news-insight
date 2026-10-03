@@ -6,6 +6,7 @@ from news_insight.config import get_settings
 
 BEAT_SCHEDULE: dict[str, dict[str, Any]] = {
     "collect-dispatch-due": {"task": "collect.dispatch_due", "schedule": 60.0},
+    "sources-run-canaries": {"task": "sources.run_canaries", "schedule": 3600.0},
 }
 
 

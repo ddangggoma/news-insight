@@ -9,6 +9,7 @@ from news_insight.db import session_scope
 from news_insight.jobs.celery_app import celery_app
 from news_insight.net.safe_fetch import SafeFetcher
 from news_insight.scheduling.redis_guards import DomainRateLimiter, SourceLock, get_redis
+from news_insight.sources.canary import run_canaries
 from news_insight.sources.models import Source
 
 
@@ -40,3 +41,9 @@ def collect_source_task(source_id: int) -> str:
                 now=datetime.now(UTC),
             )
             return run.outcome.value
+
+
+@celery_app.task(name="sources.run_canaries")
+def run_canaries_task() -> int:
+    with session_scope() as session:
+        return len(run_canaries(session, datetime.now(UTC)))
