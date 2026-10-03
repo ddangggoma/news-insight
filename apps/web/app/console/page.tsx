@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { api, ApiError } from "@/lib/api";
 import { formatNumber, formatPercent, formatRelative, REGION_LABEL, TRACK_LABEL } from "@/lib/format";
-import type { DigestOut, ItemRow, MoverOut, Overview, Page } from "@/lib/types";
+import type { CardStats, DigestOut, ItemRow, MoverOut, Overview, Page } from "@/lib/types";
 
 export const metadata = { title: "대시보드" };
 
@@ -30,7 +30,7 @@ const MOVER_METRICS = [
 ];
 
 export default async function DashboardPage() {
-  const [overview, digest, movers, recent] = await Promise.all([
+  const [overview, digest, movers, recent, cardStats] = await Promise.all([
     api.get<Overview>("/api/admin/overview"),
     latestDigest(),
     Promise.all(
@@ -39,6 +39,7 @@ export default async function DashboardPage() {
       ),
     ),
     api.get<Page<ItemRow>>("/api/admin/items", { size: 8 }),
+    api.get<CardStats>("/api/admin/cards/stats"),
   ]);
   const topMovers = movers
     .flatMap((rows, index) => rows.map((mover) => ({ ...mover, label: MOVER_METRICS[index].label })))
@@ -78,7 +79,12 @@ export default async function DashboardPage() {
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard title="활성 소스" value={`${formatNumber(activeSources)} / ${formatNumber(totalSources)}`} hint="V6 활성 / 등록 후보" icon={Database} />
         <StatCard title="24시간 수집" value={formatNumber(health.runs)} hint={`정상 비율 ${formatPercent(successRate)}`} icon={Activity} />
-        <StatCard title="신규 항목" value={formatNumber(health.items_new)} hint="최근 24시간" icon={Sparkles} />
+        <StatCard
+          title="신규 항목"
+          value={formatNumber(health.items_new)}
+          hint={`최근 24시간 · 오늘 카드 ${formatNumber(cardStats.ready_today)}건 · 대기 ${formatNumber(cardStats.pending)}`}
+          icon={Sparkles}
+        />
         <StatCard title="조치 필요" value={`${health.open_dead_letters} · ${health.paused_sources}`} hint="미해결 DLQ · 일시정지 소스" icon={health.open_dead_letters ? AlertTriangle : Inbox} />
       </div>
 
@@ -127,7 +133,7 @@ export default async function DashboardPage() {
               <CardDescription>방금 들어온 항목</CardDescription>
             </div>
             <Button asChild variant="ghost" size="sm">
-              <Link href="/console/items">모두 보기</Link>
+              <Link href="/console/cards">카드로 보기</Link>
             </Button>
           </CardHeader>
           <CardContent>
@@ -139,7 +145,7 @@ export default async function DashboardPage() {
                   <li key={item.id} className="flex items-center gap-3 py-2.5">
                     <TrackBadge track={item.track} />
                     <Link href={`/console/items/${item.id}`} className="min-w-0 flex-1 truncate text-sm hover:underline">
-                      {item.title}
+                      {item.title_ko ?? item.title}
                     </Link>
                     <span className="shrink-0 text-xs text-muted-foreground">{formatRelative(item.first_seen_at)}</span>
                   </li>

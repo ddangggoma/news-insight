@@ -44,6 +44,31 @@ export default async function ItemPage({ params }: { params: Promise<{ id: strin
           </Button>
         }
       />
+      {detail.card?.status === "ready" ? (
+        <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
+          <CardHeader>
+            <CardTitle className="text-base">한국어 카드</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm leading-relaxed">
+            <p className="text-lg font-semibold text-balance">{detail.card.title_ko}</p>
+            {detail.card.summary_ko.length > 0 ? (
+              <ul className="list-disc space-y-1 pl-5">
+                {detail.card.summary_ko.map((line) => (
+                  <li key={line}>{line}</li>
+                ))}
+              </ul>
+            ) : null}
+            <div className="flex flex-wrap items-center gap-1.5">
+              {detail.card.keywords.map((keyword) => (
+                <Badge key={keyword} variant="secondary">#{keyword}</Badge>
+              ))}
+              <span className="ml-auto text-xs text-muted-foreground">
+                {detail.card.engine === "agy" ? "Antigravity" : "로컬 Qwen"} · {formatDateTime(detail.card.generated_at)}
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+      ) : null}
       <div className="grid gap-4 lg:grid-cols-3 [&>*]:min-w-0">
         <Card className="lg:col-span-2">
           <CardHeader><CardTitle className="text-base">내용</CardTitle></CardHeader>

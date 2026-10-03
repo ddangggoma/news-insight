@@ -20,8 +20,11 @@ const columns: Column<ItemRow>[] = [
     cell: (item) => (
       <div className="flex min-w-0 flex-col gap-0.5">
         <Link href={`/console/items/${item.id}`} className="line-clamp-2 font-medium hover:underline">
-          {item.title}
+          {item.title_ko ?? item.title}
         </Link>
+        {item.title_ko && item.title_ko !== item.title ? (
+          <span className="line-clamp-1 text-xs text-muted-foreground">{item.title}</span>
+        ) : null}
         <a href={item.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:underline">
           {item.source_name} <ExternalLink className="size-3" />
         </a>
