@@ -136,3 +136,14 @@ def test_bundled_presets_resolve_and_github_declares_its_token() -> None:
         effective_config(entry.config)
     assert entries["github-on-device-ai"].config["auth"] == {"secret": "GITHUB_TOKEN"}
     assert entries["arxiv-cs-ai"].endpoint_url.startswith("https://export.arxiv.org/api/query")
+
+
+def test_bundled_catalog_covers_track_targets() -> None:
+    from collections import Counter
+
+    from news_insight.sources.portfolio import TRACK_TARGETS
+
+    counts = Counter(entry.track for entry in load_catalog(DEFAULT_CATALOG_PATH).sources)
+
+    for track, target in TRACK_TARGETS.items():
+        assert counts[track] >= target, f"{track.value}: {counts[track]}/{target}"

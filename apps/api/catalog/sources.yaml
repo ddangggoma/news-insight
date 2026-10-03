@@ -1336,6 +1336,319 @@ sources:
     storage_right: metadata_only
     config:
       probe_max_age_days: 120
+  # 지역 보강 (D13): 검증된 한국·중화권 매체
+  - key: techm
+    name: 테크M
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.techm.kr/rss/allArticle.xml
+    official_domain: techm.kr
+    operator: 테크M
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 국내 테크 기업·플랫폼 동향
+    storage_right: metadata_only
+  - key: itbiznews
+    name: IT비즈뉴스
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://cdn.itbiznews.com/rss/gn_rss_allArticle.xml
+    official_domain: itbiznews.com
+    operator: IT비즈뉴스
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 국내 IT·반도체 의존 부품 산업 동향
+    storage_right: metadata_only
+  - key: epnc
+    name: 테크월드뉴스
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://cdn.epnc.co.kr/rss/gn_rss_allArticle.xml
+    official_domain: epnc.co.kr
+    operator: 테크월드뉴스
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 전자부품·임베디드 산업 뉴스
+    storage_right: metadata_only
+  - key: dailysecu
+    name: 데일리시큐
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://cdn.dailysecu.com/rss/gn_rss_allArticle.xml
+    official_domain: dailysecu.com
+    operator: 데일리시큐
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 국내 보안 산업 뉴스
+    storage_right: metadata_only
+  - key: hellot
+    name: 헬로티
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.hellot.net/data/rss/news.xml
+    official_domain: hellot.net
+    operator: 헬로티
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 산업 자동화·로봇 뉴스
+    storage_right: metadata_only
+  - key: kmedinfo
+    name: 의학신문
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://cdn.bosa.co.kr/rss/gn_rss_allArticle.xml
+    official_domain: bosa.co.kr
+    operator: 의학신문
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 디지털 헬스·의료기기 산업 뉴스
+    storage_right: metadata_only
+  - key: hitnews
+    name: 히트뉴스
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.hitnews.co.kr/rss/allArticle.xml
+    official_domain: hitnews.co.kr
+    operator: 히트뉴스
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 헬스케어·디지털 치료제 뉴스
+    storage_right: metadata_only
+  - key: autoelectronics
+    name: 오토일렉트로닉스
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.autoelectronics.co.kr/rss
+    official_domain: autoelectronics.co.kr
+    operator: 오토일렉트로닉스
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 전장·자동차 전자 기술 뉴스
+    storage_right: metadata_only
+  - key: ciokorea
+    name: CIO Korea
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.ciokorea.com/feed
+    official_domain: ciokorea.com
+    operator: CIO Korea
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 엔터프라이즈 IT·AI 도입 동향
+    storage_right: metadata_only
+  - key: itworld-korea
+    name: ITWorld Korea
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.itworld.co.kr/feed/
+    official_domain: itworld.co.kr
+    operator: ITWorld Korea
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: IT 제품·플랫폼 분석
+    storage_right: metadata_only
+  - key: byline
+    name: 바이라인네트워크
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.byline.network/feed
+    official_domain: byline.network
+    operator: 바이라인네트워크
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 국내 IT 산업 심층 보도
+    storage_right: metadata_only
+  - key: platum
+    name: 플래텀
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://platum.kr/feed
+    official_domain: platum.kr
+    operator: 플래텀
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 국내 스타트업·테크 생태계
+    storage_right: metadata_only
+  - key: venturesquare
+    name: 벤처스퀘어
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.venturesquare.net/feed/
+    official_domain: venturesquare.net
+    operator: 벤처스퀘어
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 국내 스타트업 뉴스
+    storage_right: metadata_only
+  - key: mk-it
+    name: 매일경제 IT
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.mk.co.kr/rss/30000001/
+    official_domain: mk.co.kr
+    operator: 매일경제 IT
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: IT·과학 경제 뉴스
+    storage_right: metadata_only
+  - key: enewstoday
+    name: 이뉴스투데이
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.enewstoday.co.kr/rss/gns_allArticle.xml
+    official_domain: enewstoday.co.kr
+    operator: 이뉴스투데이
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: IT·전자 산업 뉴스
+    storage_right: metadata_only
+  - key: digitaltoday
+    name: 디지털투데이
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.digitaltoday.co.kr/rss/allArticle.xml
+    official_domain: digitaltoday.co.kr
+    operator: 디지털투데이
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 디지털 산업·플랫폼 뉴스
+    storage_right: metadata_only
+  - key: 36kr
+    name: 36氪
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.36kr.com/feed
+    official_domain: 36kr.com
+    operator: 36氪
+    region: greater_china
+    language: zh
+    poll_class: news
+    dx_relevance: 중국 테크·스타트업 산업 뉴스
+    storage_right: metadata_only
+  - key: sspai
+    name: 少数派
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.sspai.com/feed
+    official_domain: sspai.com
+    operator: 少数派
+    region: greater_china
+    language: zh
+    poll_class: news
+    dx_relevance: 중국 디지털 기기·앱 리뷰
+    storage_right: metadata_only
+  - key: ifanr
+    name: 爱范儿
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.ifanr.com/feed
+    official_domain: ifanr.com
+    operator: 爱范儿
+    region: greater_china
+    language: zh
+    poll_class: news
+    dx_relevance: 중국 스마트폰·가전 제품 동향
+    storage_right: metadata_only
+  - key: leiphone
+    name: 雷峰网
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.leiphone.com/feed
+    official_domain: leiphone.com
+    operator: 雷峰网
+    region: greater_china
+    language: zh
+    poll_class: news
+    dx_relevance: 중국 AI·로봇 산업 뉴스
+    storage_right: metadata_only
+  - key: inside-tw
+    name: INSIDE
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.inside.com.tw/feed/rss
+    official_domain: inside.com.tw
+    operator: INSIDE
+    region: greater_china
+    language: zh
+    poll_class: news
+    dx_relevance: 대만 테크·스타트업 뉴스
+    storage_right: metadata_only
+  - key: kocpc
+    name: 電腦王阿達
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.kocpc.com.tw/feed
+    official_domain: kocpc.com.tw
+    operator: 電腦王阿達
+    region: greater_china
+    language: zh
+    poll_class: news
+    dx_relevance: 대만 3C 기기 리뷰
+    storage_right: metadata_only
+  - key: cool3c
+    name: 癮科技
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.cool3c.com/rss
+    official_domain: cool3c.com
+    operator: 癮科技
+    region: greater_china
+    language: zh
+    poll_class: news
+    dx_relevance: 대만 디지털 기기 뉴스
+    storage_right: metadata_only
+  - key: geekpark
+    name: 极客公园
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.geekpark.net/rss
+    official_domain: geekpark.net
+    operator: 极客公园
+    region: greater_china
+    language: zh
+    poll_class: news
+    dx_relevance: 중국 하드웨어·AI 혁신 뉴스
+    storage_right: metadata_only
   # ── Track 2: 커뮤니티 및 공개 SNS ──
   - key: hacker-news
     name: Hacker News Front Page
