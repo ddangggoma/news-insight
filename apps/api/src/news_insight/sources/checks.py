@@ -1,10 +1,17 @@
 """Pure validation checks for ladder stages. They never touch the database."""
 
-from datetime import datetime
+from collections.abc import Sequence
+from datetime import UTC, datetime, timedelta
 from urllib.parse import urlsplit
 
+from news_insight.collect.context import collect_context
+from news_insight.collect.contracts import CollectorError, RawItem
+from news_insight.collect.macros import expand_macros
+from news_insight.collect.registry import collector_for
+from news_insight.net.mime import EXPECTED_MIME, FEED_MIME
 from news_insight.net.safe_fetch import FetchError, SafeFetcher
 from news_insight.parsers.feed_probe import MIN_PROBE_ITEMS, probe_feed
+from news_insight.secrets import SecretError, resolve_auth_headers
 from news_insight.sources.enums import AccessMethod, Region, StorageRight, Track
 from news_insight.sources.ladder import CheckResult
 from news_insight.sources.models import Source
@@ -17,25 +24,6 @@ REGION_LANGUAGES: dict[Region, frozenset[str] | None] = {
     Region.EU_OTHER: None,
 }
 FULLTEXT_RIGHTS = frozenset({StorageRight.FULLTEXT_TTL, StorageRight.FULLTEXT_PERMITTED})
-FEED_MIME = frozenset(
-    {
-        "application/rss+xml",
-        "application/atom+xml",
-        "application/rdf+xml",
-        "application/xml",
-        "text/xml",
-    }
-)
-JSON_MIME = frozenset({"application/json", "application/activity+json", "application/ld+json"})
-EXPECTED_MIME: dict[AccessMethod, frozenset[str]] = {
-    AccessMethod.FEED: FEED_MIME,
-    AccessMethod.JSON_API: JSON_MIME,
-    AccessMethod.CRAWLER: frozenset({"text/html", "application/xhtml+xml"}),
-    AccessMethod.GITHUB: JSON_MIME,
-    AccessMethod.ATPROTO: JSON_MIME,
-    AccessMethod.ACTIVITYPUB: JSON_MIME,
-    AccessMethod.RESEARCH_API: JSON_MIME | FEED_MIME,
-}
 
 
 def probe_url(source: Source) -> str:
@@ -56,6 +44,8 @@ def check_identity(source: Source) -> CheckResult:
     for label, url in (
         ("endpoint", source.endpoint_url),
         ("probe", source.config.get("probe_url")),
+        ("url", source.config.get("url")),
+        ("list_url", source.config.get("list_url")),
     ):
         if not url:
             continue
@@ -102,6 +92,10 @@ def check_policy(source: Source) -> CheckResult:
             "full-text storage for research/IP requires config.open_access=true "
             "(paywall bypass is forbidden)"
         )
+    try:
+        resolve_auth_headers(source.config)
+    except SecretError as exc:
+        reasons.append(str(exc))
     storage = source.storage_right.value if source.storage_right else None
     return CheckResult.from_reasons(reasons, {"storage_right": storage})
 
@@ -110,7 +104,8 @@ def check_network(source: Source, fetcher: SafeFetcher) -> CheckResult:
     """V2: SSRF/DNS-rebinding guard, TLS, MIME and size limits via SafeFetcher."""
     try:
         response = fetcher.fetch(
-            probe_url(source), allowed_mime=EXPECTED_MIME[source.access_method]
+            expand_macros(probe_url(source), now=datetime.now(UTC)),
+            allowed_mime=EXPECTED_MIME[source.access_method],
         )
     except FetchError as exc:
         return CheckResult.from_reasons([str(exc)], {"error": exc.code})
@@ -129,18 +124,45 @@ def check_network(source: Source, fetcher: SafeFetcher) -> CheckResult:
     )
 
 
+def probe_items(
+    items: Sequence[RawItem],
+    *,
+    now: datetime,
+    min_items: int = MIN_PROBE_ITEMS,
+    max_age_days: int = 30,
+) -> CheckResult:
+    cutoff = now - timedelta(days=max_age_days)
+    dated = [item for item in items if item.published_at is not None]
+    recent = [
+        item for item in dated if item.published_at is not None and item.published_at >= cutoff
+    ]
+    reasons: list[str] = []
+    if len(recent) < min_items:
+        reasons.append(f"only {len(recent)} recent complete items (need {min_items})")
+    return CheckResult.from_reasons(
+        reasons, {"items": len(items), "dated": len(dated), "recent": len(recent)}
+    )
+
+
 def check_parser(source: Source, fetcher: SafeFetcher, *, now: datetime) -> CheckResult:
-    """V3: at least three recent items with id, url, title and published date."""
-    if source.access_method is not AccessMethod.FEED:
-        return CheckResult.from_reasons(
-            [f"no V3 parser probe for access method '{source.access_method.value}' yet"]
-        )
-    try:
-        response = fetcher.fetch(probe_url(source), allowed_mime=FEED_MIME)
-    except FetchError as exc:
-        return CheckResult.from_reasons([str(exc)], {"error": exc.code})
-    if response.status_code != 200:
-        return CheckResult.from_reasons([f"unexpected HTTP status {response.status_code}"])
+    """V3: one real collection must yield at least three recent, complete, dated items."""
     min_items = max(MIN_PROBE_ITEMS, int(source.config.get("probe_min_items", MIN_PROBE_ITEMS)))
     max_age_days = int(source.config.get("probe_max_age_days", 30))
-    return probe_feed(response.content, now=now, min_items=min_items, max_age_days=max_age_days)
+    if source.access_method is AccessMethod.FEED:
+        try:
+            url = expand_macros(probe_url(source), now=now)
+            response = fetcher.fetch(url, allowed_mime=FEED_MIME)
+        except FetchError as exc:
+            return CheckResult.from_reasons([str(exc)], {"error": exc.code})
+        if response.status_code != 200:
+            return CheckResult.from_reasons([f"unexpected HTTP status {response.status_code}"])
+        return probe_feed(response.content, now=now, min_items=min_items, max_age_days=max_age_days)
+    try:
+        context = collect_context(source, now=now)
+    except (SecretError, ValueError) as exc:
+        return CheckResult.from_reasons([str(exc)], {"error": "config"})
+    try:
+        result = collector_for(source.access_method, fetcher).collect(context)
+    except CollectorError as exc:
+        return CheckResult.from_reasons([f"{exc.code}: {exc}"], {"error": exc.code})
+    return probe_items(result.items, now=now, min_items=min_items, max_age_days=max_age_days)

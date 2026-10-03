@@ -1,6 +1,71 @@
 version: 1
 sources:
   # ── Track 1: IT 기술 뉴스 및 공식 소스 ──
+  - key: etnews
+    name: 전자신문
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://rss.etnews.com/Section901.xml
+    official_domain: etnews.com
+    operator: 전자신문사
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 국내 전자·통신·가전 산업과 정책 동향 보도
+    storage_right: metadata_only
+  - key: bloter
+    name: 블로터
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.bloter.net/rss/allArticle.xml
+    official_domain: bloter.net
+    operator: 블로터앤미디어
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 국내 테크 기업·플랫폼·AI 산업 동향
+    storage_right: metadata_only
+  - key: thelec
+    name: 디일렉
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.thelec.kr/rss/allArticle.xml
+    official_domain: thelec.kr
+    operator: 디일렉
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 디스플레이·부품·전장 공급망 전문 보도
+    storage_right: metadata_only
+  - key: aitimes
+    name: AI타임스
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.aitimes.com/rss/allArticle.xml
+    official_domain: aitimes.com
+    operator: AI타임스
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 국내외 AI 모델·온디바이스 AI 산업 동향
+    storage_right: metadata_only
+  - key: robotnews
+    name: 로봇신문
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.irobotnews.com/rss/allArticle.xml
+    official_domain: irobotnews.com
+    operator: 로봇신문사
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 홈로봇·서비스로봇·휴머노이드 산업 동향
+    storage_right: metadata_only
   - key: the-verge
     name: The Verge
     track: news
@@ -27,18 +92,70 @@ sources:
     poll_class: news
     dx_relevance: 소비자 기기, 통신, 보안 기술의 심층 분석 기사
     storage_right: metadata_only
-  - key: etnews
-    name: 전자신문
+  - key: techcrunch
+    name: TechCrunch
     track: news
     category: independent_media
     access_method: feed
-    endpoint_url: https://rss.etnews.com/Section901.xml
-    official_domain: etnews.com
-    operator: 전자신문사
-    region: kr
-    language: ko
+    endpoint_url: https://techcrunch.com/feed/
+    official_domain: techcrunch.com
+    operator: Yahoo
+    region: global_en
+    language: en
     poll_class: news
-    dx_relevance: 국내 전자·통신·가전 산업과 정책 동향 보도
+    dx_relevance: 스타트업·빅테크 제품 출시와 투자 동향
+    storage_right: metadata_only
+  - key: ieee-spectrum
+    name: IEEE Spectrum
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://spectrum.ieee.org/feeds/feed.rss
+    official_domain: spectrum.ieee.org
+    operator: IEEE
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 반도체 의존 기술·통신·로보틱스 공학 분석
+    storage_right: metadata_only
+  - key: mit-technology-review
+    name: MIT Technology Review
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.technologyreview.com/feed/
+    official_domain: technologyreview.com
+    operator: MIT
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: AI·컴퓨팅·바이오 기술의 산업 영향 분석
+    storage_right: metadata_only
+  - key: the-register
+    name: The Register
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.theregister.com/headlines.atom
+    official_domain: theregister.com
+    operator: Situation Publishing
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 엔터프라이즈·디바이스·보안 업계 뉴스
+    storage_right: metadata_only
+  - key: android-authority
+    name: Android Authority
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.androidauthority.com/feed/
+    official_domain: androidauthority.com
+    operator: Android Authority
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 안드로이드 스마트폰·웨어러블 제품 동향
     storage_right: metadata_only
   - key: itmedia-news
     name: ITmedia NEWS
@@ -53,6 +170,123 @@ sources:
     poll_class: news
     dx_relevance: 일본 전자·모바일·AI 산업 뉴스와 제조사 발표
     storage_right: metadata_only
+  - key: pc-watch
+    name: PC Watch
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://pc.watch.impress.co.jp/data/rss/1.0/pcw/feed.rdf
+    official_domain: impress.co.jp
+    operator: Impress Corporation
+    region: jp
+    language: ja
+    poll_class: news
+    dx_relevance: 일본 PC·모바일 디바이스와 부품 동향
+    storage_right: metadata_only
+  - key: av-watch
+    name: AV Watch
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://av.watch.impress.co.jp/data/rss/1.0/avw/feed.rdf
+    official_domain: impress.co.jp
+    operator: Impress Corporation
+    region: jp
+    language: ja
+    poll_class: news
+    dx_relevance: TV·디스플레이·오디오 완제품 동향
+    storage_right: metadata_only
+  - key: publickey
+    name: Publickey
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.publickey1.jp/atom.xml
+    official_domain: publickey1.jp
+    operator: Publickey
+    region: jp
+    language: ja
+    poll_class: news
+    dx_relevance: 클라우드·개발 플랫폼과 AI 인프라 동향
+    storage_right: metadata_only
+  - key: ithome-tw
+    name: iThome 台灣
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.ithome.com.tw/rss
+    official_domain: ithome.com.tw
+    operator: iThome
+    region: greater_china
+    language: zh
+    poll_class: news
+    dx_relevance: 대만 IT·반도체 의존 디바이스·보안 산업 동향
+    storage_right: metadata_only
+  - key: technews-tw
+    name: 科技新報 TechNews
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://technews.tw/feed/
+    official_domain: technews.tw
+    operator: TechNews
+    region: greater_china
+    language: zh
+    poll_class: news
+    dx_relevance: 중화권 모바일·디스플레이·EV 공급망 뉴스
+    storage_right: metadata_only
+  - key: ithome-cn
+    name: IT之家
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.ithome.com/rss/
+    official_domain: ithome.com
+    operator: IT之家
+    region: greater_china
+    language: zh
+    poll_class: news
+    dx_relevance: 중국 스마트폰·가전·AI 제품 출시 동향
+    storage_right: metadata_only
+  - key: heise
+    name: heise online
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.heise.de/rss/heise-atom.xml
+    official_domain: heise.de
+    operator: Heise Medien
+    region: eu_other
+    language: de
+    poll_class: news
+    dx_relevance: 유럽 IT·디바이스·규제 동향
+    storage_right: metadata_only
+  - key: computerbase
+    name: ComputerBase
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.computerbase.de/rss/news.xml
+    official_domain: computerbase.de
+    operator: ComputerBase GmbH
+    region: eu_other
+    language: de
+    poll_class: news
+    dx_relevance: 유럽 PC·모바일·디스플레이 제품 동향
+    storage_right: metadata_only
+  - key: frandroid
+    name: Frandroid
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.frandroid.com/feed
+    official_domain: frandroid.com
+    operator: Humanoid
+    region: eu_other
+    language: fr
+    poll_class: news
+    dx_relevance: 프랑스 스마트폰·가전·전기차 제품 동향
+    storage_right: metadata_only
   - key: google-blog
     name: Google The Keyword
     track: news
@@ -66,7 +300,1355 @@ sources:
     poll_class: news
     dx_relevance: Android·온디바이스 AI·스마트홈 플랫폼 공식 발표
     storage_right: metadata_only
-
+  - key: android-developers
+    name: Android Developers Blog
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://android-developers.googleblog.com/feeds/posts/default
+    official_domain: googleblog.com
+    operator: Google LLC
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 안드로이드 플랫폼·온디바이스 ML API 변화
+    storage_right: metadata_only
+  - key: google-research
+    name: Google Research Blog
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://research.google/blog/rss/
+    official_domain: research.google
+    operator: Google LLC
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: AI·통신·헬스 연구 성과 공식 발표
+    storage_right: metadata_only
+  - key: deepmind-blog
+    name: Google DeepMind Blog
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://deepmind.google/blog/rss.xml
+    official_domain: deepmind.google
+    operator: Google LLC
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 프런티어 AI 모델과 로보틱스 연구 발표
+    storage_right: metadata_only
+  - key: apple-newsroom
+    name: Apple Newsroom
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://www.apple.com/newsroom/rss-feed.rss
+    official_domain: apple.com
+    operator: Apple Inc.
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 아이폰·웨어러블·헬스 기능 경쟁사 공식 발표
+    storage_right: metadata_only
+  - key: microsoft-blog
+    name: Official Microsoft Blog
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://blogs.microsoft.com/feed/
+    official_domain: microsoft.com
+    operator: Microsoft
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: Copilot·Windows·디바이스 전략 발표
+    storage_right: metadata_only
+  - key: microsoft-research
+    name: Microsoft Research Blog
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://www.microsoft.com/en-us/research/feed/
+    official_domain: microsoft.com
+    operator: Microsoft
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: AI·HCI·시스템 연구 성과
+    storage_right: metadata_only
+  - key: nvidia-blog
+    name: NVIDIA Blog
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://blogs.nvidia.com/feed/
+    official_domain: nvidia.com
+    operator: NVIDIA
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 엣지 AI·자율주행·로보틱스 플랫폼 발표
+    storage_right: metadata_only
+  - key: meta-engineering
+    name: Engineering at Meta
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://engineering.fb.com/feed/
+    official_domain: fb.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: AR/VR·온디바이스 AI 엔지니어링 사례
+    storage_right: metadata_only
+  - key: aws-news
+    name: AWS News Blog
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://aws.amazon.com/blogs/aws/feed/
+    official_domain: amazon.com
+    operator: Amazon Web Services
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: IoT·엣지·AI 클라우드 서비스 출시
+    storage_right: metadata_only
+  - key: openai-news
+    name: OpenAI News
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://openai.com/news/rss.xml
+    official_domain: openai.com
+    operator: OpenAI
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 범용 AI 모델·디바이스 파트너십 발표
+    storage_right: metadata_only
+  - key: huggingface-blog
+    name: Hugging Face Blog
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://huggingface.co/blog/feed.xml
+    official_domain: huggingface.co
+    operator: Hugging Face
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 오픈 모델·온디바이스 추론 생태계 동향
+    storage_right: metadata_only
+  - key: cloudflare-blog
+    name: Cloudflare Blog
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://blog.cloudflare.com/rss/
+    official_domain: cloudflare.com
+    operator: Cloudflare
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 네트워크·엣지 컴퓨팅·보안 기술 발표
+    storage_right: metadata_only
+  - key: github-blog
+    name: The GitHub Blog
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://github.blog/feed/
+    official_domain: github.blog
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 개발 도구·AI 코딩 플랫폼 변화
+    storage_right: metadata_only
+  - key: mozilla-blog
+    name: Mozilla Blog
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://blog.mozilla.org/feed/
+    official_domain: mozilla.org
+    operator: Mozilla Foundation
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 웹·프라이버시·오픈 AI 정책 발표
+    storage_right: metadata_only
+  - key: google-cloud-blog
+    name: Google Cloud Blog
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://cloudblog.withgoogle.com/rss/
+    official_domain: withgoogle.com
+    operator: Google LLC
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: AI 인프라·엣지 클라우드 서비스 발표
+    storage_right: metadata_only
+  - key: samsung-newsroom-global
+    name: Samsung Global Newsroom
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://news.samsung.com/global/feed
+    official_domain: samsung.com
+    operator: Samsung Electronics
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: DX 사업부 제품·기술 글로벌 공식 발표
+    storage_right: metadata_only
+  - key: samsung-newsroom-kr
+    name: 삼성전자 뉴스룸
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://news.samsung.com/kr/feed
+    official_domain: samsung.com
+    operator: 삼성전자
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: DX 사업부 제품·기술 국내 공식 발표
+    storage_right: metadata_only
+  - key: sktelecom-newsroom
+    name: SK텔레콤 뉴스룸
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://news.sktelecom.com/feed
+    official_domain: sktelecom.com
+    operator: SK텔레콤
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 5G·AI 서비스·통신 인프라 발표
+    storage_right: metadata_only
+  - key: kakao-tech
+    name: 카카오 기술 블로그
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://tech.kakao.com/feed/
+    official_domain: kakao.com
+    operator: 카카오
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 국내 플랫폼 AI·인프라 엔지니어링 사례
+    storage_right: metadata_only
+  - key: lycorp-techblog
+    name: LINEヤフー Tech Blog
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://techblog.lycorp.co.jp/ja/feed/index.xml
+    official_domain: lycorp.co.jp
+    operator: LINEヤフー
+    region: jp
+    language: ja
+    poll_class: news
+    dx_relevance: 일본 플랫폼 AI·모바일 서비스 엔지니어링
+    storage_right: metadata_only
+  - key: cybozu-inside-out
+    name: Cybozu Inside Out
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://blog.cybozu.io/feed
+    official_domain: cybozu.io
+    operator: サイボウズ
+    region: jp
+    language: ja
+    poll_class: news
+    dx_relevance: 일본 SaaS 개발·보안 엔지니어링
+    storage_right: metadata_only
+  - key: raspberry-pi-news
+    name: Raspberry Pi News
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://www.raspberrypi.com/news/feed/
+    official_domain: raspberrypi.com
+    operator: Raspberry Pi Ltd
+    region: eu_other
+    language: en
+    poll_class: news
+    dx_relevance: 엣지 하드웨어·메이커 생태계 동향
+    storage_right: metadata_only
+  - key: spotify-engineering
+    name: Spotify Engineering
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://engineering.atspotify.com/feed
+    official_domain: atspotify.com
+    operator: Spotify
+    region: eu_other
+    language: en
+    poll_class: news
+    dx_relevance: 오디오 스트리밍·추천 ML 엔지니어링
+    storage_right: metadata_only
+  - key: nist-news
+    name: NIST News
+    track: news
+    category: government
+    access_method: feed
+    endpoint_url: https://www.nist.gov/news-events/news/rss.xml
+    official_domain: nist.gov
+    operator: NIST
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: AI·암호·통신 표준과 측정 기술
+    storage_right: metadata_only
+  - key: fda-press
+    name: FDA Press Announcements
+    track: news
+    category: government
+    access_method: feed
+    endpoint_url: https://www.fda.gov/about-fda/contact-fda/stay-informed/rss-feeds/press-releases/rss.xml
+    official_domain: fda.gov
+    operator: U.S. FDA
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 디지털 헬스·의료기기 규제 결정
+    storage_right: metadata_only
+  - key: ftc-press
+    name: FTC Press Releases
+    track: news
+    category: government
+    access_method: feed
+    endpoint_url: https://www.ftc.gov/feeds/press-release.xml
+    official_domain: ftc.gov
+    operator: U.S. FTC
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 소비자 기기·플랫폼 경쟁·프라이버시 규제
+    storage_right: metadata_only
+  - key: cisa-advisories
+    name: CISA Cybersecurity Advisories
+    track: news
+    category: government
+    access_method: feed
+    endpoint_url: https://www.cisa.gov/cybersecurity-advisories/all.xml
+    official_domain: cisa.gov
+    operator: CISA
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: IoT·디바이스 취약점 권고
+    storage_right: metadata_only
+  - key: eu-digital-strategy
+    name: EU Digital Strategy News
+    track: news
+    category: government
+    access_method: feed
+    endpoint_url: https://digital-strategy.ec.europa.eu/en/rss.xml
+    official_domain: europa.eu
+    operator: European Commission
+    region: eu_other
+    language: en
+    poll_class: news
+    dx_relevance: EU AI Act·디지털 시장 규제 동향
+    storage_right: metadata_only
+  - key: soumu-news
+    name: 総務省 報道資料
+    track: news
+    category: government
+    access_method: feed
+    endpoint_url: https://www.soumu.go.jp/news.rdf
+    official_domain: soumu.go.jp
+    operator: 総務省
+    region: jp
+    language: ja
+    poll_class: news
+    dx_relevance: 일본 통신·전파·방송 정책
+    storage_right: metadata_only
+  - key: w3c-news
+    name: W3C News
+    track: news
+    category: government
+    access_method: feed
+    endpoint_url: https://www.w3.org/news/feed/
+    official_domain: w3.org
+    operator: W3C
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 웹 표준·접근성·디바이스 API 표준
+    storage_right: metadata_only
+  - key: ietf-blog
+    name: IETF Blog
+    track: news
+    category: government
+    access_method: feed
+    endpoint_url: https://www.ietf.org/blog/feed/
+    official_domain: ietf.org
+    operator: IETF
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 인터넷 프로토콜 표준 동향
+    storage_right: metadata_only
+  - key: mit-news-ai
+    name: MIT News — Artificial Intelligence
+    track: news
+    category: research_org
+    access_method: feed
+    endpoint_url: https://news.mit.edu/rss/topic/artificial-intelligence2
+    official_domain: mit.edu
+    operator: MIT
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: AI·로보틱스 학술 연구 성과
+    storage_right: metadata_only
+  - key: csa-iot
+    name: Connectivity Standards Alliance
+    track: news
+    category: research_org
+    access_method: feed
+    endpoint_url: https://csa-iot.org/feed/
+    official_domain: csa-iot.org
+    operator: CSA
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: Matter·스마트홈 상호운용 표준
+    storage_right: metadata_only
+  - key: bluetooth-sig
+    name: Bluetooth SIG News
+    track: news
+    category: research_org
+    access_method: feed
+    endpoint_url: https://www.bluetooth.com/feed/
+    official_domain: bluetooth.com
+    operator: Bluetooth SIG
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 블루투스·LE Audio 표준과 시장 동향
+    storage_right: metadata_only
+  - key: linux-foundation
+    name: Linux Foundation Blog
+    track: news
+    category: research_org
+    access_method: feed
+    endpoint_url: https://www.linuxfoundation.org/blog/rss.xml
+    official_domain: linuxfoundation.org
+    operator: Linux Foundation
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 오픈소스 재단·산업 컨소시엄 동향
+    storage_right: metadata_only
+  - key: fraunhofer-press
+    name: Fraunhofer Press Releases
+    track: news
+    category: research_org
+    access_method: feed
+    endpoint_url: https://www.fraunhofer.de/en/rss/press.rss
+    official_domain: fraunhofer.de
+    operator: Fraunhofer
+    region: eu_other
+    language: en
+    poll_class: news
+    dx_relevance: 유럽 응용 연구·오디오·디스플레이 기술
+    storage_right: metadata_only
+  - key: gigazine
+    name: GIGAZINE
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://gigazine.net/news/rss_2.0/
+    official_domain: gigazine.net
+    operator: OSA
+    region: jp
+    language: ja
+    poll_class: news
+    dx_relevance: 일본 테크 화제와 신제품 소식
+    storage_right: metadata_only
+  - key: golem
+    name: Golem.de
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://rss.golem.de/rss.php?feed=RSS2.0
+    official_domain: golem.de
+    operator: Golem Media
+    region: eu_other
+    language: de
+    poll_class: news
+    dx_relevance: 독일 IT·디바이스 산업 뉴스
+    storage_right: metadata_only
+  - key: hankyung-it
+    name: 한국경제 IT
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.hankyung.com/feed/it
+    official_domain: hankyung.com
+    operator: 한국경제신문
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 국내 IT·전자 기업 경제 뉴스
+    storage_right: metadata_only
+  - key: zdnet-korea
+    name: 지디넷코리아
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://zdnet.co.kr/feed
+    official_domain: zdnet.co.kr
+    operator: 지디넷코리아
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 국내 IT·모바일·가전 산업 뉴스와 분석
+    storage_right: metadata_only
+  - key: ddaily
+    name: 디지털데일리
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.ddaily.co.kr/rss.xml
+    official_domain: ddaily.co.kr
+    operator: 디지털데일리
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 통신·디바이스·보안 산업 전문 보도
+    storage_right: metadata_only
+  - key: arm-newsroom
+    name: Arm Newsroom
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://newsroom.arm.com/feed
+    official_domain: arm.com
+    operator: Arm Ltd
+    region: eu_other
+    language: en
+    poll_class: news
+    dx_relevance: 모바일·엣지 CPU/NPU 아키텍처 발표
+    storage_right: metadata_only
+  - key: naver-d2
+    name: NAVER D2
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://d2.naver.com/d2.atom
+    official_domain: naver.com
+    operator: NAVER
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 국내 AI 모델·서비스 엔지니어링 사례
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 60
+  - key: mercari-engineering
+    name: Mercari Engineering
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://engineering.mercari.com/blog/feed.xml
+    official_domain: mercari.com
+    operator: Mercari
+    region: jp
+    language: ja
+    poll_class: news
+    dx_relevance: 일본 모바일 서비스·ML 엔지니어링 사례
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 60
+  - key: netflix-techblog
+    name: Netflix TechBlog
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://netflixtechblog.com/feed
+    official_domain: netflixtechblog.com
+    operator: Netflix
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 스트리밍·디바이스 재생 품질 엔지니어링
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 60
+  - key: zalando-engineering
+    name: Zalando Engineering
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://engineering.zalando.com/atom.xml
+    official_domain: zalando.com
+    operator: Zalando
+    region: eu_other
+    language: en
+    poll_class: news
+    dx_relevance: 유럽 커머스 플랫폼 ML·인프라 사례
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 90
+  - key: meta-newsroom
+    name: Meta Newsroom
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://about.fb.com/feed/
+    official_domain: fb.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: AR 글래스·Quest·Llama 제품 발표
+    storage_right: metadata_only
+  - key: amazon-news
+    name: About Amazon News
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://www.aboutamazon.com/rss/feed.rss
+    official_domain: aboutamazon.com
+    operator: Amazon
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: Alexa·Echo·Ring 디바이스 발표
+    storage_right: metadata_only
+  - key: harman-newsroom
+    name: HARMAN Newsroom
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://news.harman.com/rss.xml
+    official_domain: harman.com
+    operator: HARMAN International
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 전장·카오디오·SDV 솔루션 발표
+    storage_right: metadata_only
+  - key: garmin-newsroom
+    name: Garmin Newsroom
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://www.garmin.com/en-US/newsroom/feed/
+    official_domain: garmin.com
+    operator: Garmin
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 웨어러블·헬스 센서 제품 발표
+    storage_right: metadata_only
+  - key: toss-tech
+    name: 토스 테크
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://toss.tech/rss.xml
+    official_domain: toss.tech
+    operator: 비바리퍼블리카
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 국내 모바일 앱·플랫폼 엔지니어링
+    storage_right: metadata_only
+  - key: woowahan-tech
+    name: 우아한형제들 기술블로그
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://techblog.woowahan.com/feed/
+    official_domain: woowahan.com
+    operator: 우아한형제들
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 국내 모바일 서비스·로봇 배달 엔지니어링
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 60
+  - key: zozo-techblog
+    name: ZOZO TECH BLOG
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://techblog.zozo.com/feed
+    official_domain: zozo.com
+    operator: ZOZO
+    region: jp
+    language: ja
+    poll_class: news
+    dx_relevance: 일본 커머스 ML·측정 디바이스 엔지니어링
+    storage_right: metadata_only
+  - key: dena-engineering
+    name: DeNA Engineering
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://engineering.dena.com/blog/index.xml
+    official_domain: dena.com
+    operator: DeNA
+    region: jp
+    language: ja
+    poll_class: news
+    dx_relevance: 일본 모바일 서비스·AI 엔지니어링
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 60
+  - key: kisa-boho
+    name: KISA 보호나라 보안공지
+    track: news
+    category: government
+    access_method: feed
+    endpoint_url: https://www.boho.or.kr/kr/rss.do?bbsId=B0000133
+    official_domain: boho.or.kr
+    operator: 한국인터넷진흥원
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 국내 디바이스·소프트웨어 취약점 보안공지
+    storage_right: metadata_only
+  - key: nsf-news
+    name: NSF News
+    track: news
+    category: government
+    access_method: feed
+    endpoint_url: https://www.nsf.gov/rss/rss_www_news.xml
+    official_domain: nsf.gov
+    operator: U.S. NSF
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 미국 AI·통신·반도체 의존 기술 연구 지원
+    storage_right: metadata_only
+  - key: uk-dsit
+    name: UK DSIT
+    track: news
+    category: government
+    access_method: feed
+    endpoint_url: https://www.gov.uk/government/organisations/department-for-science-innovation-and-technology.atom
+    official_domain: gov.uk
+    operator: UK Department for Science, Innovation and Technology
+    region: eu_other
+    language: en
+    poll_class: news
+    dx_relevance: 영국 AI·통신·디지털 규제 정책
+    storage_right: metadata_only
+  - key: uk-mhra
+    name: UK MHRA
+    track: news
+    category: government
+    access_method: feed
+    endpoint_url: https://www.gov.uk/government/organisations/medicines-and-healthcare-products-regulatory-agency.atom
+    official_domain: gov.uk
+    operator: UK MHRA
+    region: eu_other
+    language: en
+    poll_class: news
+    dx_relevance: 영국 의료기기·SaMD 규제
+    storage_right: metadata_only
+  - key: uk-ncsc
+    name: UK NCSC
+    track: news
+    category: government
+    access_method: feed
+    endpoint_url: https://www.ncsc.gov.uk/api/1/services/v1/all-rss-feed.xml
+    official_domain: ncsc.gov.uk
+    operator: UK NCSC
+    region: eu_other
+    language: en
+    poll_class: news
+    dx_relevance: 디바이스 보안 가이드·위협 동향
+    storage_right: metadata_only
+  - key: edpb-news
+    name: EDPB News
+    track: news
+    category: government
+    access_method: feed
+    endpoint_url: https://www.edpb.europa.eu/feed/news_en
+    official_domain: europa.eu
+    operator: European Data Protection Board
+    region: eu_other
+    language: en
+    poll_class: news
+    dx_relevance: EU 개인정보 규제 결정
+    storage_right: metadata_only
+  - key: cnil-news
+    name: CNIL Actualités
+    track: news
+    category: government
+    access_method: feed
+    endpoint_url: https://www.cnil.fr/rss
+    official_domain: cnil.fr
+    operator: CNIL
+    region: eu_other
+    language: fr
+    poll_class: news
+    dx_relevance: 프랑스 개인정보·AI 규제
+    storage_right: metadata_only
+  - key: digital-agency-jp
+    name: デジタル庁 ニュース
+    track: news
+    category: government
+    access_method: feed
+    endpoint_url: https://www.digital.go.jp/rss/news.xml
+    official_domain: digital.go.jp
+    operator: デジタル庁
+    region: jp
+    language: ja
+    poll_class: news
+    dx_relevance: 일본 디지털 정부·데이터 정책
+    storage_right: metadata_only
+  - key: itu-hub
+    name: ITU Hub
+    track: news
+    category: government
+    access_method: feed
+    endpoint_url: https://www.itu.int/hub/feed/
+    official_domain: itu.int
+    operator: ITU
+    region: eu_other
+    language: en
+    poll_class: news
+    dx_relevance: 국제 통신 표준·주파수 정책
+    storage_right: metadata_only
+  - key: etsi-news
+    name: ETSI News
+    track: news
+    category: government
+    access_method: feed
+    endpoint_url: https://www.etsi.org/feed
+    official_domain: etsi.org
+    operator: ETSI
+    region: eu_other
+    language: en
+    poll_class: news
+    dx_relevance: 통신·IoT 보안 표준 발표
+    storage_right: metadata_only
+  - key: pew-internet
+    name: Pew Research — Internet & Tech
+    track: news
+    category: research_org
+    access_method: feed
+    endpoint_url: https://www.pewresearch.org/internet/feed/
+    official_domain: pewresearch.org
+    operator: Pew Research Center
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 소비자 기술 수용·AI 인식 조사
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 60
+  - key: eff-updates
+    name: EFF Updates
+    track: news
+    category: research_org
+    access_method: feed
+    endpoint_url: https://www.eff.org/rss/updates.xml
+    official_domain: eff.org
+    operator: Electronic Frontier Foundation
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 디바이스 프라이버시·디지털 권리 이슈
+    storage_right: metadata_only
+  - key: eclipse-foundation
+    name: Eclipse Foundation News
+    track: news
+    category: research_org
+    access_method: feed
+    endpoint_url: https://newsroom.eclipse.org/news.xml
+    official_domain: eclipse.org
+    operator: Eclipse Foundation
+    region: eu_other
+    language: en
+    poll_class: news
+    dx_relevance: SDV·IoT 오픈소스 산업 컨소시엄
+    storage_right: metadata_only
+  - key: algorithmwatch
+    name: AlgorithmWatch
+    track: news
+    category: research_org
+    access_method: feed
+    endpoint_url: https://algorithmwatch.org/en/feed/
+    official_domain: algorithmwatch.org
+    operator: AlgorithmWatch
+    region: eu_other
+    language: en
+    poll_class: news
+    dx_relevance: 유럽 AI 규제·알고리즘 감시
+    storage_right: metadata_only
+  - key: berkeley-news
+    name: UC Berkeley News
+    track: news
+    category: research_org
+    access_method: feed
+    endpoint_url: https://news.berkeley.edu/feed/
+    official_domain: berkeley.edu
+    operator: UC Berkeley
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 공학·AI·헬스 연구 성과
+    storage_right: metadata_only
+  - key: cambridge-research
+    name: University of Cambridge Research
+    track: news
+    category: research_org
+    access_method: feed
+    endpoint_url: https://www.cam.ac.uk/feed
+    official_domain: cam.ac.uk
+    operator: University of Cambridge
+    region: eu_other
+    language: en
+    poll_class: news
+    dx_relevance: 유럽 공학·의학 연구 성과
+    storage_right: metadata_only
+  - key: lora-alliance
+    name: LoRa Alliance
+    track: news
+    category: research_org
+    access_method: feed
+    endpoint_url: https://lora-alliance.org/feed/
+    official_domain: lora-alliance.org
+    operator: LoRa Alliance
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: LPWAN·IoT 연결 표준 협회
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 60
+  - key: fido-alliance
+    name: FIDO Alliance
+    track: news
+    category: research_org
+    access_method: feed
+    endpoint_url: https://fidoalliance.org/feed/
+    official_domain: fidoalliance.org
+    operator: FIDO Alliance
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 패스키·디바이스 인증 표준
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 60
+  - key: partnership-on-ai
+    name: Partnership on AI
+    track: news
+    category: research_org
+    access_method: feed
+    endpoint_url: https://partnershiponai.org/feed/
+    official_domain: partnershiponai.org
+    operator: Partnership on AI
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: AI 책임성·산업 가이드라인
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 60
+  - key: future-of-life
+    name: Future of Life Institute
+    track: news
+    category: research_org
+    access_method: feed
+    endpoint_url: https://futureoflife.org/feed/
+    official_domain: futureoflife.org
+    operator: Future of Life Institute
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: AI 안전·정책 연구
+    storage_right: metadata_only
+  - key: cset
+    name: CSET Georgetown
+    track: news
+    category: research_org
+    access_method: feed
+    endpoint_url: https://cset.georgetown.edu/feed/
+    official_domain: georgetown.edu
+    operator: Center for Security and Emerging Technology
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: AI·반도체 의존 공급망 정책 분석
+    storage_right: metadata_only
+  - key: itif
+    name: ITIF
+    track: news
+    category: research_org
+    access_method: feed
+    endpoint_url: https://itif.org/feed/
+    official_domain: itif.org
+    operator: Information Technology and Innovation Foundation
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 기술 정책·디지털 경쟁력 분석
+    storage_right: metadata_only
+  - key: bitkom
+    name: Bitkom Presse
+    track: news
+    category: research_org
+    access_method: feed
+    endpoint_url: https://www.bitkom.org/feed
+    official_domain: bitkom.org
+    operator: Bitkom
+    region: eu_other
+    language: de
+    poll_class: news
+    dx_relevance: 독일 디지털 산업 협회 조사
+    storage_right: metadata_only
+  - key: arxiv-blog
+    name: arXiv Blog
+    track: news
+    category: research_org
+    access_method: feed
+    endpoint_url: https://blog.arxiv.org/feed/
+    official_domain: arxiv.org
+    operator: Cornell University
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 학술 프리프린트 플랫폼 정책 변화
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 120
+  # 지역 보강 (D13): 검증된 한국·중화권 매체
+  - key: techm
+    name: 테크M
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.techm.kr/rss/allArticle.xml
+    official_domain: techm.kr
+    operator: 테크M
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 국내 테크 기업·플랫폼 동향
+    storage_right: metadata_only
+  - key: itbiznews
+    name: IT비즈뉴스
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://cdn.itbiznews.com/rss/gn_rss_allArticle.xml
+    official_domain: itbiznews.com
+    operator: IT비즈뉴스
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 국내 IT·반도체 의존 부품 산업 동향
+    storage_right: metadata_only
+  - key: epnc
+    name: 테크월드뉴스
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://cdn.epnc.co.kr/rss/gn_rss_allArticle.xml
+    official_domain: epnc.co.kr
+    operator: 테크월드뉴스
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 전자부품·임베디드 산업 뉴스
+    storage_right: metadata_only
+  - key: dailysecu
+    name: 데일리시큐
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://cdn.dailysecu.com/rss/gn_rss_allArticle.xml
+    official_domain: dailysecu.com
+    operator: 데일리시큐
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 국내 보안 산업 뉴스
+    storage_right: metadata_only
+  - key: hellot
+    name: 헬로티
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.hellot.net/data/rss/news.xml
+    official_domain: hellot.net
+    operator: 헬로티
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 산업 자동화·로봇 뉴스
+    storage_right: metadata_only
+  - key: kmedinfo
+    name: 의학신문
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://cdn.bosa.co.kr/rss/gn_rss_allArticle.xml
+    official_domain: bosa.co.kr
+    operator: 의학신문
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 디지털 헬스·의료기기 산업 뉴스
+    storage_right: metadata_only
+  - key: hitnews
+    name: 히트뉴스
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.hitnews.co.kr/rss/allArticle.xml
+    official_domain: hitnews.co.kr
+    operator: 히트뉴스
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 헬스케어·디지털 치료제 뉴스
+    storage_right: metadata_only
+  - key: autoelectronics
+    name: 오토일렉트로닉스
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.autoelectronics.co.kr/rss
+    official_domain: autoelectronics.co.kr
+    operator: 오토일렉트로닉스
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 전장·자동차 전자 기술 뉴스
+    storage_right: metadata_only
+  - key: ciokorea
+    name: CIO Korea
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.ciokorea.com/feed
+    official_domain: ciokorea.com
+    operator: CIO Korea
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 엔터프라이즈 IT·AI 도입 동향
+    storage_right: metadata_only
+  - key: itworld-korea
+    name: ITWorld Korea
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.itworld.co.kr/feed/
+    official_domain: itworld.co.kr
+    operator: ITWorld Korea
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: IT 제품·플랫폼 분석
+    storage_right: metadata_only
+  - key: byline
+    name: 바이라인네트워크
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.byline.network/feed
+    official_domain: byline.network
+    operator: 바이라인네트워크
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 국내 IT 산업 심층 보도
+    storage_right: metadata_only
+  - key: platum
+    name: 플래텀
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://platum.kr/feed
+    official_domain: platum.kr
+    operator: 플래텀
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 국내 스타트업·테크 생태계
+    storage_right: metadata_only
+  - key: venturesquare
+    name: 벤처스퀘어
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.venturesquare.net/feed/
+    official_domain: venturesquare.net
+    operator: 벤처스퀘어
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 국내 스타트업 뉴스
+    storage_right: metadata_only
+  - key: mk-it
+    name: 매일경제 IT
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.mk.co.kr/rss/30000001/
+    official_domain: mk.co.kr
+    operator: 매일경제 IT
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: IT·과학 경제 뉴스
+    storage_right: metadata_only
+  - key: enewstoday
+    name: 이뉴스투데이
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.enewstoday.co.kr/rss/gns_allArticle.xml
+    official_domain: enewstoday.co.kr
+    operator: 이뉴스투데이
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: IT·전자 산업 뉴스
+    storage_right: metadata_only
+  - key: digitaltoday
+    name: 디지털투데이
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.digitaltoday.co.kr/rss/allArticle.xml
+    official_domain: digitaltoday.co.kr
+    operator: 디지털투데이
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 디지털 산업·플랫폼 뉴스
+    storage_right: metadata_only
+  - key: 36kr
+    name: 36氪
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.36kr.com/feed
+    official_domain: 36kr.com
+    operator: 36氪
+    region: greater_china
+    language: zh
+    poll_class: news
+    dx_relevance: 중국 테크·스타트업 산업 뉴스
+    storage_right: metadata_only
+  - key: sspai
+    name: 少数派
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.sspai.com/feed
+    official_domain: sspai.com
+    operator: 少数派
+    region: greater_china
+    language: zh
+    poll_class: news
+    dx_relevance: 중국 디지털 기기·앱 리뷰
+    storage_right: metadata_only
+  - key: ifanr
+    name: 爱范儿
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.ifanr.com/feed
+    official_domain: ifanr.com
+    operator: 爱范儿
+    region: greater_china
+    language: zh
+    poll_class: news
+    dx_relevance: 중국 스마트폰·가전 제품 동향
+    storage_right: metadata_only
+  - key: leiphone
+    name: 雷峰网
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.leiphone.com/feed
+    official_domain: leiphone.com
+    operator: 雷峰网
+    region: greater_china
+    language: zh
+    poll_class: news
+    dx_relevance: 중국 AI·로봇 산업 뉴스
+    storage_right: metadata_only
+  - key: inside-tw
+    name: INSIDE
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.inside.com.tw/feed/rss
+    official_domain: inside.com.tw
+    operator: INSIDE
+    region: greater_china
+    language: zh
+    poll_class: news
+    dx_relevance: 대만 테크·스타트업 뉴스
+    storage_right: metadata_only
+  - key: kocpc
+    name: 電腦王阿達
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.kocpc.com.tw/feed
+    official_domain: kocpc.com.tw
+    operator: 電腦王阿達
+    region: greater_china
+    language: zh
+    poll_class: news
+    dx_relevance: 대만 3C 기기 리뷰
+    storage_right: metadata_only
+  - key: cool3c
+    name: 癮科技
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.cool3c.com/rss
+    official_domain: cool3c.com
+    operator: 癮科技
+    region: greater_china
+    language: zh
+    poll_class: news
+    dx_relevance: 대만 디지털 기기 뉴스
+    storage_right: metadata_only
+  - key: geekpark
+    name: 极客公园
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.geekpark.net/rss
+    official_domain: geekpark.net
+    operator: 极客公园
+    region: greater_china
+    language: zh
+    poll_class: news
+    dx_relevance: 중국 하드웨어·AI 혁신 뉴스
+    storage_right: metadata_only
   # ── Track 2: 커뮤니티 및 공개 SNS ──
   - key: hacker-news
     name: Hacker News Front Page
@@ -81,12 +1663,1023 @@ sources:
     poll_class: community
     dx_relevance: 개발자 커뮤니티의 기술 화제와 오픈소스 반응 신호
     storage_right: metadata_only
+  - key: hn-on-device-ai
+    name: 'Hacker News search: on-device AI'
+    track: community
+    category: dev_forum
+    access_method: json_api
+    endpoint_url: https://hn.algolia.com/api/v1/search_by_date?tags=story&hitsPerPage=50&numericFilters=points%3E5&query=on-device%20AI
+    official_domain: algolia.com
+    operator: Algolia (HN Search)
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 온디바이스 AI 화제에 대한 개발자 반응
+    storage_right: metadata_only
+    config:
+      preset: hn_algolia
+      probe_max_age_days: 60
+  - key: hn-smartphone
+    name: 'Hacker News search: smartphone'
+    track: community
+    category: dev_forum
+    access_method: json_api
+    endpoint_url: https://hn.algolia.com/api/v1/search_by_date?tags=story&hitsPerPage=50&numericFilters=points%3E5&query=smartphone
+    official_domain: algolia.com
+    operator: Algolia (HN Search)
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 스마트폰 제품·플랫폼에 대한 개발자 반응
+    storage_right: metadata_only
+    config:
+      preset: hn_algolia
+      probe_max_age_days: 60
+  - key: hn-display
+    name: 'Hacker News search: OLED'
+    track: community
+    category: dev_forum
+    access_method: json_api
+    endpoint_url: https://hn.algolia.com/api/v1/search_by_date?tags=story&hitsPerPage=50&numericFilters=points%3E5&query=OLED
+    official_domain: algolia.com
+    operator: Algolia (HN Search)
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: OLED·디스플레이 기술 화제
+    storage_right: metadata_only
+    config:
+      preset: hn_algolia
+      probe_max_age_days: 60
+  - key: hn-robotics
+    name: 'Hacker News search: robot'
+    track: community
+    category: dev_forum
+    access_method: json_api
+    endpoint_url: https://hn.algolia.com/api/v1/search_by_date?tags=story&hitsPerPage=50&numericFilters=points%3E5&query=robot
+    official_domain: algolia.com
+    operator: Algolia (HN Search)
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 로봇·휴머노이드 화제와 반응
+    storage_right: metadata_only
+    config:
+      preset: hn_algolia
+      probe_max_age_days: 60
+  - key: hn-wearable
+    name: 'Hacker News search: wearable'
+    track: community
+    category: dev_forum
+    access_method: json_api
+    endpoint_url: https://hn.algolia.com/api/v1/search_by_date?tags=story&hitsPerPage=50&numericFilters=points%3E5&query=wearable
+    official_domain: algolia.com
+    operator: Algolia (HN Search)
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 웨어러블·헬스 디바이스 화제
+    storage_right: metadata_only
+    config:
+      preset: hn_algolia
+      probe_max_age_days: 60
+  - key: devto-android
+    name: 'DEV Community #android'
+    track: community
+    category: dev_forum
+    access_method: json_api
+    endpoint_url: https://dev.to/api/articles?tag=android&per_page=30
+    official_domain: dev.to
+    operator: DEV Community
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 안드로이드 개발 실무 화제
+    storage_right: metadata_only
+    config:
+      preset: devto_articles
+  - key: devto-iot
+    name: 'DEV Community #iot'
+    track: community
+    category: dev_forum
+    access_method: json_api
+    endpoint_url: https://dev.to/api/articles?tag=iot&per_page=30
+    official_domain: dev.to
+    operator: DEV Community
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: IoT·스마트홈 개발 실무 화제
+    storage_right: metadata_only
+    config:
+      preset: devto_articles
+  - key: devto-ai
+    name: 'DEV Community #ai'
+    track: community
+    category: dev_forum
+    access_method: json_api
+    endpoint_url: https://dev.to/api/articles?tag=ai&per_page=30
+    official_domain: dev.to
+    operator: DEV Community
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: AI 앱 개발 실무 화제
+    storage_right: metadata_only
+    config:
+      preset: devto_articles
+  - key: stackoverflow-android
+    name: Stack Exchange stackoverflow [android]
+    track: community
+    category: dev_forum
+    access_method: json_api
+    endpoint_url: https://api.stackexchange.com/2.3/questions?site=stackoverflow&sort=creation&order=desc&pagesize=30&tagged=android
+    official_domain: stackexchange.com
+    operator: Stack Exchange Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: 안드로이드 개발 질문 흐름(문제 신호)
+    storage_right: metadata_only
+    config:
+      preset: stackexchange_questions
+      probe_max_age_days: 60
+  - key: stackexchange-iot
+    name: Stack Exchange iot
+    track: community
+    category: dev_forum
+    access_method: json_api
+    endpoint_url: https://api.stackexchange.com/2.3/questions?site=iot&sort=creation&order=desc&pagesize=30
+    official_domain: stackexchange.com
+    operator: Stack Exchange Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: IoT 디바이스 개발 질문 흐름
+    storage_right: metadata_only
+    config:
+      preset: stackexchange_questions
+      probe_max_age_days: 60
+  - key: stackexchange-robotics
+    name: Stack Exchange robotics
+    track: community
+    category: dev_forum
+    access_method: json_api
+    endpoint_url: https://api.stackexchange.com/2.3/questions?site=robotics&sort=creation&order=desc&pagesize=30
+    official_domain: stackexchange.com
+    operator: Stack Exchange Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: 로보틱스 개발 질문 흐름
+    storage_right: metadata_only
+    config:
+      preset: stackexchange_questions
+      probe_max_age_days: 60
+  - key: stackexchange-ai
+    name: Stack Exchange ai
+    track: community
+    category: dev_forum
+    access_method: json_api
+    endpoint_url: https://api.stackexchange.com/2.3/questions?site=ai&sort=creation&order=desc&pagesize=30
+    official_domain: stackexchange.com
+    operator: Stack Exchange Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: AI 이론·응용 질문 흐름
+    storage_right: metadata_only
+    config:
+      preset: stackexchange_questions
+      probe_max_age_days: 60
+  - key: stackexchange-electronics
+    name: Stack Exchange electronics
+    track: community
+    category: dev_forum
+    access_method: json_api
+    endpoint_url: https://api.stackexchange.com/2.3/questions?site=electronics&sort=creation&order=desc&pagesize=30
+    official_domain: stackexchange.com
+    operator: Stack Exchange Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: 하드웨어·전자 설계 질문 흐름
+    storage_right: metadata_only
+    config:
+      preset: stackexchange_questions
+      probe_max_age_days: 60
+  - key: lobsters
+    name: Lobsters
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://lobste.rs/rss
+    official_domain: lobste.rs
+    operator: Lobsters
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 엔지니어 중심 기술 토론 신호
+    storage_right: metadata_only
+  - key: slashdot
+    name: Slashdot
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://rss.slashdot.org/Slashdot/slashdotMain
+    official_domain: slashdot.org
+    operator: Slashdot Media
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 기술 커뮤니티 토론 화제
+    storage_right: metadata_only
+  - key: xda-developers
+    name: XDA Developers
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.xda-developers.com/feed/
+    official_domain: xda-developers.com
+    operator: Valnet
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 안드로이드 커스텀·디바이스 개발 커뮤니티
+    storage_right: metadata_only
+  - key: geeknews
+    name: GeekNews
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://news.hada.io/rss/news
+    official_domain: hada.io
+    operator: GeekNews
+    region: kr
+    language: ko
+    poll_class: community
+    dx_relevance: 국내 개발자 커뮤니티의 기술 뉴스 큐레이션
+    storage_right: metadata_only
+  - key: qiita-popular
+    name: Qiita 人気記事
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://qiita.com/popular-items/feed
+    official_domain: qiita.com
+    operator: Qiita
+    region: jp
+    language: ja
+    poll_class: community
+    dx_relevance: 일본 개발자 커뮤니티 인기 기술 글
+    storage_right: metadata_only
+  - key: zenn-trend
+    name: Zenn トレンド
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://zenn.dev/feed
+    official_domain: zenn.dev
+    operator: クラスメソッド
+    region: jp
+    language: ja
+    poll_class: community
+    dx_relevance: 일본 개발자 기술 글 트렌드
+    storage_right: metadata_only
+  - key: hatena-it
+    name: はてなブックマーク IT
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://b.hatena.ne.jp/hotentry/it.rss
+    official_domain: hatena.ne.jp
+    operator: はてな
+    region: jp
+    language: ja
+    poll_class: community
+    dx_relevance: 일본 IT 화제의 소셜 북마크 반응
+    storage_right: metadata_only
+  - key: v2ex
+    name: V2EX
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.v2ex.com/index.xml
+    official_domain: v2ex.com
+    operator: V2EX
+    region: greater_china
+    language: zh
+    poll_class: community
+    dx_relevance: 중화권 개발자 커뮤니티 화제
+    storage_right: metadata_only
+  - key: oschina-news
+    name: 开源中国 资讯
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.oschina.net/news/rss
+    official_domain: oschina.net
+    operator: 开源中国
+    region: greater_china
+    language: zh
+    poll_class: community
+    dx_relevance: 중국 오픈소스·개발 커뮤니티 뉴스
+    storage_right: metadata_only
+  - key: linuxfr
+    name: LinuxFr.org
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://linuxfr.org/news.atom
+    official_domain: linuxfr.org
+    operator: LinuxFr.org
+    region: eu_other
+    language: fr
+    poll_class: community
+    dx_relevance: 유럽 오픈소스 커뮤니티 토론
+    storage_right: metadata_only
+  - key: cncf-blog
+    name: CNCF Blog
+    track: community
+    category: open_governance
+    access_method: feed
+    endpoint_url: https://www.cncf.io/blog/feed/
+    official_domain: cncf.io
+    operator: Cloud Native Computing Foundation
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 클라우드 네이티브 오픈소스 거버넌스
+    storage_right: metadata_only
+  - key: openssf-blog
+    name: OpenSSF Blog
+    track: community
+    category: open_governance
+    access_method: feed
+    endpoint_url: https://openssf.org/feed/
+    official_domain: openssf.org
+    operator: OpenSSF
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 오픈소스 공급망 보안 표준
+    storage_right: metadata_only
+  - key: rust-blog
+    name: Rust Blog
+    track: community
+    category: open_governance
+    access_method: feed
+    endpoint_url: https://blog.rust-lang.org/feed.xml
+    official_domain: rust-lang.org
+    operator: Rust Foundation
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 임베디드·시스템 언어 릴리스
+    storage_right: metadata_only
+  - key: go-blog
+    name: The Go Blog
+    track: community
+    category: open_governance
+    access_method: feed
+    endpoint_url: https://go.dev/blog/feed.atom
+    official_domain: go.dev
+    operator: Google (Go team)
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: Go 언어 릴리스·생태계
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 90
+  - key: kotlin-blog
+    name: Kotlin Blog
+    track: community
+    category: open_governance
+    access_method: feed
+    endpoint_url: https://blog.jetbrains.com/kotlin/feed/
+    official_domain: jetbrains.com
+    operator: JetBrains
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 안드로이드 공식 언어 Kotlin 릴리스
+    storage_right: metadata_only
+  - key: nodejs-blog
+    name: Node.js Blog
+    track: community
+    category: open_governance
+    access_method: feed
+    endpoint_url: https://nodejs.org/en/feed/blog.xml
+    official_domain: nodejs.org
+    operator: OpenJS Foundation
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: Node.js 릴리스·보안 공지
+    storage_right: metadata_only
+  - key: llvm-blog
+    name: LLVM Project Blog
+    track: community
+    category: open_governance
+    access_method: feed
+    endpoint_url: https://blog.llvm.org/index.xml
+    official_domain: llvm.org
+    operator: LLVM Foundation
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 컴파일러·NPU 툴체인 생태계
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 90
+  - key: webkit-blog
+    name: WebKit Blog
+    track: community
+    category: open_governance
+    access_method: feed
+    endpoint_url: https://webkit.org/feed/
+    official_domain: webkit.org
+    operator: Apple (WebKit project)
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 웹 엔진·브라우저 기능 변화
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 60
+  - key: zephyr-project
+    name: Zephyr Project
+    track: community
+    category: open_governance
+    access_method: feed
+    endpoint_url: https://www.zephyrproject.org/feed/
+    official_domain: zephyrproject.org
+    operator: Linux Foundation
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 웨어러블·IoT RTOS 생태계
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 60
+  - key: riscv-international
+    name: RISC-V International
+    track: community
+    category: open_governance
+    access_method: feed
+    endpoint_url: https://riscv.org/feed/
+    official_domain: riscv.org
+    operator: RISC-V International
+    region: eu_other
+    language: en
+    poll_class: community
+    dx_relevance: 오픈 ISA·NPU 생태계 표준
+    storage_right: metadata_only
+  - key: ros-discourse
+    name: ROS Discourse
+    track: community
+    category: open_governance
+    access_method: feed
+    endpoint_url: https://discourse.ros.org/latest.rss
+    official_domain: ros.org
+    operator: Open Robotics
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 로봇 운영체제 커뮤니티 토론
+    storage_right: metadata_only
+  - key: pytorch-blog
+    name: PyTorch Blog
+    track: community
+    category: open_governance
+    access_method: feed
+    endpoint_url: https://pytorch.org/feed/
+    official_domain: pytorch.org
+    operator: PyTorch Foundation
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 모바일·엣지 추론(ExecuTorch) 생태계
+    storage_right: metadata_only
+  - key: agl
+    name: Automotive Grade Linux
+    track: community
+    category: open_governance
+    access_method: feed
+    endpoint_url: https://www.automotivelinux.org/feed/
+    official_domain: automotivelinux.org
+    operator: Linux Foundation
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 차량 인포테인먼트·SDV 오픈소스
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 60
+  - key: lwn
+    name: LWN.net
+    track: community
+    category: open_governance
+    access_method: feed
+    endpoint_url: https://lwn.net/headlines/rss
+    official_domain: lwn.net
+    operator: Eklektix
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 리눅스 커널·오픈소스 개발 동향
+    storage_right: metadata_only
+  - key: ruby-lang-ja
+    name: Ruby ニュース
+    track: community
+    category: open_governance
+    access_method: feed
+    endpoint_url: https://www.ruby-lang.org/ja/feeds/news.rss
+    official_domain: ruby-lang.org
+    operator: Ruby Association
+    region: jp
+    language: ja
+    poll_class: community
+    dx_relevance: 일본발 오픈소스 언어 커뮤니티
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 90
+  - key: kde-announcements
+    name: KDE Announcements
+    track: community
+    category: open_governance
+    access_method: feed
+    endpoint_url: https://kde.org/index.xml
+    official_domain: kde.org
+    operator: KDE e.V.
+    region: eu_other
+    language: en
+    poll_class: community
+    dx_relevance: 유럽 오픈소스 데스크톱 커뮤니티
+    storage_right: metadata_only
+  - key: stratechery
+    name: Stratechery
+    track: community
+    category: podcast_newsletter
+    access_method: feed
+    endpoint_url: https://stratechery.com/feed/
+    official_domain: stratechery.com
+    operator: Ben Thompson
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 빅테크 플랫폼 전략 분석
+    storage_right: metadata_only
+  - key: platformer
+    name: Platformer
+    track: community
+    category: podcast_newsletter
+    access_method: feed
+    endpoint_url: https://www.platformer.news/rss/
+    official_domain: platformer.news
+    operator: Casey Newton
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 플랫폼·AI 정책 뉴스레터
+    storage_right: metadata_only
+  - key: simon-willison
+    name: Simon Willison's Weblog
+    track: community
+    category: podcast_newsletter
+    access_method: feed
+    endpoint_url: https://simonwillison.net/atom/everything/
+    official_domain: simonwillison.net
+    operator: Simon Willison
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: LLM 도구·온디바이스 모델 실험 기록
+    storage_right: metadata_only
+  - key: import-ai
+    name: Import AI
+    track: community
+    category: podcast_newsletter
+    access_method: feed
+    endpoint_url: https://jack-clark.net/feed/
+    official_domain: jack-clark.net
+    operator: Jack Clark
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: AI 연구 동향 주간 뉴스레터
+    storage_right: metadata_only
+  - key: latent-space
+    name: Latent Space
+    track: community
+    category: podcast_newsletter
+    access_method: feed
+    endpoint_url: https://www.latent.space/feed
+    official_domain: latent.space
+    operator: swyx & Alessio
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: AI 엔지니어링 팟캐스트·뉴스레터
+    storage_right: metadata_only
+  - key: practical-ai
+    name: Practical AI
+    track: community
+    category: podcast_newsletter
+    access_method: feed
+    endpoint_url: https://changelog.com/practicalai/feed
+    official_domain: changelog.com
+    operator: Changelog Media
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 실무 AI 팟캐스트
+    storage_right: metadata_only
+  - key: lex-fridman
+    name: Lex Fridman Podcast
+    track: community
+    category: podcast_newsletter
+    access_method: feed
+    endpoint_url: https://lexfridman.com/feed/podcast/
+    official_domain: lexfridman.com
+    operator: Lex Fridman
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: AI·로보틱스 인물 인터뷰
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 60
+  - key: se-daily
+    name: Software Engineering Daily
+    track: community
+    category: podcast_newsletter
+    access_method: feed
+    endpoint_url: https://softwareengineeringdaily.com/feed/podcast/
+    official_domain: softwareengineeringdaily.com
+    operator: Software Engineering Daily
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 소프트웨어 엔지니어링 팟캐스트
+    storage_right: metadata_only
+  - key: interconnects
+    name: Interconnects
+    track: community
+    category: podcast_newsletter
+    access_method: feed
+    endpoint_url: https://www.interconnects.ai/feed
+    official_domain: interconnects.ai
+    operator: Nathan Lambert
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 오픈 모델·RLHF 연구 분석
+    storage_right: metadata_only
+  - key: pragmatic-engineer
+    name: The Pragmatic Engineer
+    track: community
+    category: podcast_newsletter
+    access_method: feed
+    endpoint_url: https://newsletter.pragmaticengineer.com/feed
+    official_domain: pragmaticengineer.com
+    operator: Gergely Orosz
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 빅테크 엔지니어링 조직·산업 분석
+    storage_right: metadata_only
+  - key: tldr-tech
+    name: TLDR Tech
+    track: community
+    category: podcast_newsletter
+    access_method: feed
+    endpoint_url: https://tldr.tech/api/rss/tech
+    official_domain: tldr.tech
+    operator: TLDR
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 테크 일간 뉴스레터 요약
+    storage_right: metadata_only
+  - key: rebuild-fm
+    name: Rebuild.fm
+    track: community
+    category: podcast_newsletter
+    access_method: feed
+    endpoint_url: https://feeds.rebuild.fm/rebuildfm
+    official_domain: rebuild.fm
+    operator: Tatsuhiko Miyagawa
+    region: jp
+    language: ja
+    poll_class: community
+    dx_relevance: 일본 개발자 기술 팟캐스트
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 90
+  - key: fukabori-fm
+    name: fukabori.fm
+    track: community
+    category: podcast_newsletter
+    access_method: feed
+    endpoint_url: https://fukabori.fm/feed.xml
+    official_domain: fukabori.fm
+    operator: fukabori.fm
+    region: jp
+    language: ja
+    poll_class: community
+    dx_relevance: 일본 엔지니어 심층 인터뷰 팟캐스트
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 120
+  - key: sifted
+    name: Sifted
+    track: community
+    category: podcast_newsletter
+    access_method: feed
+    endpoint_url: https://sifted.eu/feed
+    official_domain: sifted.eu
+    operator: Sifted (FT)
+    region: eu_other
+    language: en
+    poll_class: community
+    dx_relevance: 유럽 테크 스타트업 뉴스레터
+    storage_right: metadata_only
+  - key: the-next-web
+    name: The Next Web
+    track: community
+    category: podcast_newsletter
+    access_method: feed
+    endpoint_url: https://thenextweb.com/feed
+    official_domain: thenextweb.com
+    operator: TNW
+    region: eu_other
+    language: en
+    poll_class: community
+    dx_relevance: 유럽 테크·스타트업 매체
+    storage_right: metadata_only
+  - key: youtube-google-developers
+    name: 'YouTube: Google for Developers'
+    track: community
+    category: video_channel
+    access_method: feed
+    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UC_x5XG1OV2P6uZZ5FSM9Ttw
+    official_domain: youtube.com
+    operator: Google LLC
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 구글 개발자 플랫폼 공식 영상
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 60
+  - key: youtube-android-developers
+    name: 'YouTube: Android Developers'
+    track: community
+    category: video_channel
+    access_method: feed
+    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCVHFbqXqoYvEWM1Ddxl0QDg
+    official_domain: youtube.com
+    operator: Google LLC
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 안드로이드 플랫폼 공식 영상
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 60
+  - key: youtube-samsung
+    name: 'YouTube: Samsung'
+    track: community
+    category: video_channel
+    access_method: feed
+    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCWwgaK7x0_FR1goeSRazfsQ
+    official_domain: youtube.com
+    operator: Samsung Electronics
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: DX 제품 공식 발표 영상
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 60
+  - key: youtube-nvidia
+    name: 'YouTube: NVIDIA'
+    track: community
+    category: video_channel
+    access_method: feed
+    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCHuiy8bXnmK5nisYHUd1J5g
+    official_domain: youtube.com
+    operator: NVIDIA
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 엣지 AI·로보틱스 공식 영상
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 60
+  - key: youtube-microsoft-developer
+    name: 'YouTube: Microsoft Developer'
+    track: community
+    category: video_channel
+    access_method: feed
+    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCsMica-v34Irf9KVTh6xx-g
+    official_domain: youtube.com
+    operator: Microsoft
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 개발자 플랫폼 공식 영상
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 60
+  - key: youtube-deepmind
+    name: 'YouTube: Google DeepMind'
+    track: community
+    category: video_channel
+    access_method: feed
+    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCP7jMXSY2xbc3KCAE0MHQ-A
+    official_domain: youtube.com
+    operator: Google LLC
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: AI 연구 공식 영상
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 60
+  - key: youtube-apple
+    name: 'YouTube: Apple'
+    track: community
+    category: video_channel
+    access_method: feed
+    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCE_M8A5yxnLfW0KghEeajjw
+    official_domain: youtube.com
+    operator: Apple Inc.
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 경쟁사 제품 발표 영상
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 60
+  - key: youtube-huggingface
+    name: 'YouTube: Hugging Face'
+    track: community
+    category: video_channel
+    access_method: feed
+    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCHlNU7kIZhRgSbhHvFoy72w
+    official_domain: youtube.com
+    operator: Hugging Face
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 오픈 모델 생태계 영상
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 60
+  - key: youtube-two-minute-papers
+    name: 'YouTube: Two Minute Papers'
+    track: community
+    category: video_channel
+    access_method: feed
+    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCbfYPyITQ-7l4upoX8nvctg
+    official_domain: youtube.com
+    operator: Károly Zsolnai-Fehér
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: AI 논문 해설 영상
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 60
+  - key: youtube-computerphile
+    name: 'YouTube: Computerphile'
+    track: community
+    category: video_channel
+    access_method: feed
+    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UC9-y-6csu5WGm29I7JiwpnA
+    official_domain: youtube.com
+    operator: Brady Haran
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 컴퓨팅 원리 해설 영상
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 60
+  - key: youtube-fireship
+    name: 'YouTube: Fireship'
+    track: community
+    category: video_channel
+    access_method: feed
+    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCsBjURrPoezykLs9EqgamOA
+    official_domain: youtube.com
+    operator: Fireship
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 개발 트렌드 요약 영상
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 60
+  - key: youtube-mkbhd
+    name: 'YouTube: Marques Brownlee'
+    track: community
+    category: video_channel
+    access_method: feed
+    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCBJycsmduvYEL83R_U4JriQ
+    official_domain: youtube.com
+    operator: MKBHD
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 스마트폰·가전 리뷰 반응
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 60
+  - key: youtube-linus-tech-tips
+    name: 'YouTube: Linus Tech Tips'
+    track: community
+    category: video_channel
+    access_method: feed
+    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCXuqSBlHAE6Xw-yeJA0Tunw
+    official_domain: youtube.com
+    operator: Linus Media Group
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: PC·디스플레이 하드웨어 리뷰
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 60
+  - key: youtube-the-verge
+    name: 'YouTube: The Verge'
+    track: community
+    category: video_channel
+    access_method: feed
+    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCddiUEpeqJcYeBxX1IVBKvQ
+    official_domain: youtube.com
+    operator: Vox Media
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 테크 제품 리뷰 영상
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 60
+  - key: youtube-asianometry
+    name: 'YouTube: Asianometry'
+    track: community
+    category: video_channel
+    access_method: feed
+    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UC1LpsuAUaKoMzzJSEt5WImw
+    official_domain: youtube.com
+    operator: Asianometry
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 아시아 전자 산업 공급망 분석 영상
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 60
+  - key: youtube-itsub
+    name: 'YouTube: ITSub잇섭'
+    track: community
+    category: video_channel
+    access_method: feed
+    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCdUcjkyZtf-1WJyPPiETF1g
+    official_domain: youtube.com
+    operator: ITSub
+    region: kr
+    language: ko
+    poll_class: community
+    dx_relevance: 국내 IT 기기 리뷰 반응
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 60
+  - key: youtube-lex-fridman
+    name: 'YouTube: Lex Fridman'
+    track: community
+    category: video_channel
+    access_method: feed
+    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCSHZKyawb77ixDdsGog4iWA
+    official_domain: youtube.com
+    operator: Lex Fridman
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: AI·테크 인물 인터뷰 영상
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 60
   - key: bluesky-official
     name: Bluesky Official Account
     track: community
     category: open_social
     access_method: atproto
-    endpoint_url: https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed
+    endpoint_url: https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=bsky.app&limit=30
     official_domain: bsky.app
     operator: Bluesky Social PBC
     region: global_en
@@ -95,16 +2688,506 @@ sources:
     dx_relevance: 탈중앙 소셜 프로토콜과 공개 기술 커뮤니티 신호
     storage_right: metadata_only
     config:
-      actor: bsky.app
-      probe_url: https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=bsky.app&limit=5
-
+      preset: bluesky_author_feed
+  - key: bluesky-atproto-com
+    name: Bluesky @atproto.com
+    track: community
+    category: open_social
+    access_method: atproto
+    endpoint_url: https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=atproto.com&limit=30
+    official_domain: bsky.app
+    operator: Bluesky Social PBC
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: AT Protocol 개발 공지
+    storage_right: metadata_only
+    config:
+      preset: bluesky_author_feed
+      probe_max_age_days: 60
+  - key: bluesky-theverge-com
+    name: Bluesky @theverge.com
+    track: community
+    category: open_social
+    access_method: atproto
+    endpoint_url: https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=theverge.com&limit=30
+    official_domain: bsky.app
+    operator: Vox Media
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 테크 매체의 소셜 반응 신호
+    storage_right: metadata_only
+    config:
+      preset: bluesky_author_feed
+      probe_max_age_days: 60
+  - key: bluesky-techcrunch-com
+    name: Bluesky @techcrunch.com
+    track: community
+    category: open_social
+    access_method: atproto
+    endpoint_url: https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=techcrunch.com&limit=30
+    official_domain: bsky.app
+    operator: TechCrunch
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 스타트업 뉴스 소셜 확산 신호
+    storage_right: metadata_only
+    config:
+      preset: bluesky_author_feed
+      probe_max_age_days: 60
+  - key: bluesky-simonwillison-net
+    name: Bluesky @simonwillison.net
+    track: community
+    category: open_social
+    access_method: atproto
+    endpoint_url: https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=simonwillison.net&limit=30
+    official_domain: bsky.app
+    operator: Simon Willison
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: LLM 도구 실험 소셜 신호
+    storage_right: metadata_only
+    config:
+      preset: bluesky_author_feed
+      probe_max_age_days: 60
+  - key: bluesky-jay-bsky-team
+    name: Bluesky @jay.bsky.team
+    track: community
+    category: open_social
+    access_method: atproto
+    endpoint_url: https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=jay.bsky.team&limit=30
+    official_domain: bsky.app
+    operator: Bluesky Social PBC
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 탈중앙 소셜 플랫폼 방향 발표
+    storage_right: metadata_only
+    config:
+      preset: bluesky_author_feed
+      probe_max_age_days: 60
+  - key: bluesky-github-com
+    name: Bluesky @github.com
+    track: community
+    category: open_social
+    access_method: atproto
+    endpoint_url: https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=github.com&limit=30
+    official_domain: bsky.app
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 개발 플랫폼 공지 소셜 신호
+    storage_right: metadata_only
+    config:
+      preset: bluesky_author_feed
+      probe_max_age_days: 60
+  - key: mastodon-mastodon-android
+    name: 'Mastodon mastodon.social #android'
+    track: community
+    category: open_social
+    access_method: activitypub
+    endpoint_url: https://mastodon.social/api/v1/timelines/tag/android?limit=40
+    official_domain: mastodon.social
+    operator: Mastodon gGmbH
+    region: eu_other
+    language: en
+    poll_class: community
+    dx_relevance: 안드로이드 화제의 오픈 소셜 반응
+    storage_right: metadata_only
+    config:
+      preset: mastodon_timeline
+  - key: mastodon-mastodon-ai
+    name: 'Mastodon mastodon.social #ai'
+    track: community
+    category: open_social
+    access_method: activitypub
+    endpoint_url: https://mastodon.social/api/v1/timelines/tag/ai?limit=40
+    official_domain: mastodon.social
+    operator: Mastodon gGmbH
+    region: eu_other
+    language: en
+    poll_class: community
+    dx_relevance: AI 화제의 오픈 소셜 반응
+    storage_right: metadata_only
+    config:
+      preset: mastodon_timeline
+  - key: mastodon-mastodon-opensource
+    name: 'Mastodon mastodon.social #opensource'
+    track: community
+    category: open_social
+    access_method: activitypub
+    endpoint_url: https://mastodon.social/api/v1/timelines/tag/opensource?limit=40
+    official_domain: mastodon.social
+    operator: Mastodon gGmbH
+    region: eu_other
+    language: en
+    poll_class: community
+    dx_relevance: 오픈소스 화제의 오픈 소셜 반응
+    storage_right: metadata_only
+    config:
+      preset: mastodon_timeline
+  - key: mastodon-mastodon-smarthome
+    name: 'Mastodon mastodon.social #smarthome'
+    track: community
+    category: open_social
+    access_method: activitypub
+    endpoint_url: https://mastodon.social/api/v1/timelines/tag/smarthome?limit=40
+    official_domain: mastodon.social
+    operator: Mastodon gGmbH
+    region: eu_other
+    language: en
+    poll_class: community
+    dx_relevance: 스마트홈 화제의 오픈 소셜 반응
+    storage_right: metadata_only
+    config:
+      preset: mastodon_timeline
+  - key: mastodon-fosstodon-rust
+    name: 'Mastodon fosstodon.org #rust'
+    track: community
+    category: open_social
+    access_method: activitypub
+    endpoint_url: https://fosstodon.org/api/v1/timelines/tag/rust?limit=40
+    official_domain: fosstodon.org
+    operator: Fosstodon
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 임베디드·시스템 언어 커뮤니티 반응
+    storage_right: metadata_only
+    config:
+      preset: mastodon_timeline
+  - key: mastodon-fosstodon-linux
+    name: 'Mastodon fosstodon.org #linux'
+    track: community
+    category: open_social
+    access_method: activitypub
+    endpoint_url: https://fosstodon.org/api/v1/timelines/tag/linux?limit=40
+    official_domain: fosstodon.org
+    operator: Fosstodon
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 리눅스 커뮤니티 반응
+    storage_right: metadata_only
+    config:
+      preset: mastodon_timeline
+  - key: mastodon-mstdn-android
+    name: 'Mastodon mstdn.jp #android'
+    track: community
+    category: open_social
+    access_method: activitypub
+    endpoint_url: https://mstdn.jp/api/v1/timelines/tag/android?limit=40
+    official_domain: mstdn.jp
+    operator: mstdn.jp
+    region: jp
+    language: ja
+    poll_class: community
+    dx_relevance: 일본 오픈 소셜의 안드로이드 화제
+    storage_right: metadata_only
+    config:
+      preset: mastodon_timeline
+  - key: mastodon-mastodon-wearables
+    name: 'Mastodon mastodon.social #wearables'
+    track: community
+    category: open_social
+    access_method: activitypub
+    endpoint_url: https://mastodon.social/api/v1/timelines/tag/wearables?limit=40
+    official_domain: mastodon.social
+    operator: Mastodon gGmbH
+    region: eu_other
+    language: en
+    poll_class: community
+    dx_relevance: 웨어러블 화제의 오픈 소셜 반응
+    storage_right: metadata_only
+    config:
+      preset: mastodon_timeline
+  - key: bluesky-arstechnica-com
+    name: Bluesky @arstechnica.com
+    track: community
+    category: open_social
+    access_method: atproto
+    endpoint_url: https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=arstechnica.com&limit=30
+    official_domain: bsky.app
+    operator: Condé Nast
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 기술 기사 소셜 반응
+    storage_right: metadata_only
+    config:
+      preset: bluesky_author_feed
+      probe_max_age_days: 60
+  - key: hn-6g
+    name: 'Hacker News search: 6G'
+    track: community
+    category: dev_forum
+    access_method: json_api
+    endpoint_url: https://hn.algolia.com/api/v1/search_by_date?tags=story&hitsPerPage=50&numericFilters=points%3E5&query=6G
+    official_domain: algolia.com
+    operator: Algolia (HN Search)
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 6G·차세대 통신 화제
+    storage_right: metadata_only
+    config:
+      preset: hn_algolia
+      probe_max_age_days: 60
+  - key: hn-smart-home
+    name: 'Hacker News search: smart home'
+    track: community
+    category: dev_forum
+    access_method: json_api
+    endpoint_url: https://hn.algolia.com/api/v1/search_by_date?tags=story&hitsPerPage=50&numericFilters=points%3E5&query=smart%20home
+    official_domain: algolia.com
+    operator: Algolia (HN Search)
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 스마트홈 화제와 반응
+    storage_right: metadata_only
+    config:
+      preset: hn_algolia
+      probe_max_age_days: 60
+  - key: product-hunt
+    name: Product Hunt
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.producthunt.com/feed
+    official_domain: producthunt.com
+    operator: Product Hunt
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 신규 디바이스·AI 앱 출시 반응
+    storage_right: metadata_only
+  - key: lf-ai-data
+    name: LF AI & Data
+    track: community
+    category: open_governance
+    access_method: feed
+    endpoint_url: https://lfaidata.foundation/feed/
+    official_domain: lfaidata.foundation
+    operator: Linux Foundation
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 오픈 AI 프로젝트 거버넌스
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 60
+  - key: fedora-magazine
+    name: Fedora Magazine
+    track: community
+    category: open_governance
+    access_method: feed
+    endpoint_url: https://fedoramagazine.org/feed/
+    official_domain: fedoramagazine.org
+    operator: Fedora Project
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 리눅스 배포판 커뮤니티 소식
+    storage_right: metadata_only
+  - key: ubuntu-blog
+    name: Ubuntu Blog
+    track: community
+    category: open_governance
+    access_method: feed
+    endpoint_url: https://ubuntu.com/blog/feed
+    official_domain: ubuntu.com
+    operator: Canonical
+    region: eu_other
+    language: en
+    poll_class: community
+    dx_relevance: 엣지·IoT 리눅스 배포판 동향
+    storage_right: metadata_only
+  - key: home-assistant
+    name: Home Assistant Blog
+    track: community
+    category: open_governance
+    access_method: feed
+    endpoint_url: https://www.home-assistant.io/atom.xml
+    official_domain: home-assistant.io
+    operator: Open Home Foundation
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 오픈소스 스마트홈 생태계
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 90
+  - key: atp-fm
+    name: Accidental Tech Podcast
+    track: community
+    category: podcast_newsletter
+    access_method: feed
+    endpoint_url: https://atp.fm/rss
+    official_domain: atp.fm
+    operator: ATP
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 애플·디바이스 생태계 팟캐스트
+    storage_right: metadata_only
+  - key: dwarkesh
+    name: Dwarkesh Podcast
+    track: community
+    category: podcast_newsletter
+    access_method: feed
+    endpoint_url: https://www.dwarkesh.com/feed
+    official_domain: dwarkesh.com
+    operator: Dwarkesh Patel
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: AI 연구자·창업자 인터뷰
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 60
+  - key: big-technology
+    name: Big Technology
+    track: community
+    category: podcast_newsletter
+    access_method: feed
+    endpoint_url: https://www.bigtechnology.com/feed
+    official_domain: bigtechnology.com
+    operator: Alex Kantrowitz
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 빅테크 동향 뉴스레터
+    storage_right: metadata_only
+  - key: exponential-view
+    name: Exponential View
+    track: community
+    category: podcast_newsletter
+    access_method: feed
+    endpoint_url: https://www.exponentialview.co/feed
+    official_domain: exponentialview.co
+    operator: Azeem Azhar
+    region: eu_other
+    language: en
+    poll_class: community
+    dx_relevance: AI·에너지 전환 거시 분석
+    storage_right: metadata_only
+  - key: one-useful-thing
+    name: One Useful Thing
+    track: community
+    category: podcast_newsletter
+    access_method: feed
+    endpoint_url: https://www.oneusefulthing.org/feed
+    official_domain: oneusefulthing.org
+    operator: Ethan Mollick
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: AI 활용·조직 영향 분석
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 60
+  - key: youtube-ibm-technology
+    name: 'YouTube: IBM Technology'
+    track: community
+    category: video_channel
+    access_method: feed
+    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCKWaEZ-_VweaEx1j62do_vQ
+    official_domain: youtube.com
+    operator: IBM
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 엔터프라이즈 AI 기술 해설
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 60
+  - key: youtube-mrwhosetheboss
+    name: 'YouTube: Mrwhosetheboss'
+    track: community
+    category: video_channel
+    access_method: feed
+    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCMiJRAwDNSNzuYeN2uWa0pA
+    official_domain: youtube.com
+    operator: Arun Maini
+    region: eu_other
+    language: en
+    poll_class: community
+    dx_relevance: 스마트폰 비교 리뷰 반응
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 60
+  - key: youtube-dave2d
+    name: 'YouTube: Dave2D'
+    track: community
+    category: video_channel
+    access_method: feed
+    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCVYamHliCI9rw1tHR1xbkfw
+    official_domain: youtube.com
+    operator: Dave Lee
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 노트북·디바이스 리뷰
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 60
+  - key: youtube-jerryrigeverything
+    name: 'YouTube: JerryRigEverything'
+    track: community
+    category: video_channel
+    access_method: feed
+    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCWFKCr40YwOZQx8FHU_ZqqQ
+    official_domain: youtube.com
+    operator: Zack Nelson
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 스마트폰 내구성 리뷰
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 60
+  - key: youtube-techlinked
+    name: 'YouTube: TechLinked'
+    track: community
+    category: video_channel
+    access_method: feed
+    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCeeFfhMcJa1kjtfZAGskOCA
+    official_domain: youtube.com
+    operator: Linus Media Group
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 테크 뉴스 요약 영상
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 60
+  - key: youtube-unbox-therapy
+    name: 'YouTube: Unbox Therapy'
+    track: community
+    category: video_channel
+    access_method: feed
+    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCsTcErHg8oDvUnTzoqsYeNw
+    official_domain: youtube.com
+    operator: Lewis Hilsenteger
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 신제품 언박싱 반응
+    storage_right: metadata_only
+    config:
+      probe_max_age_days: 60
   # ── Track 3: 논문·학회·표준·특허 ──
   - key: arxiv-cs-ai
-    name: arXiv cs.AI
+    name: arXiv cs.AI (API)
     track: research_ip
     category: academic_paper
     access_method: feed
-    endpoint_url: https://rss.arxiv.org/rss/cs.AI
+    endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.AI&sortBy=submittedDate&sortOrder=descending&max_results=50
     official_domain: arxiv.org
     operator: Cornell University
     region: global_en
@@ -112,14 +3195,220 @@ sources:
     poll_class: research
     dx_relevance: 온디바이스 AI·에이전트·멀티모달 모델 연구 동향
     storage_right: metadata_only
-    config:
-      probe_max_age_days: 7
+  - key: arxiv-cs-cl
+    name: arXiv cs.CL (API)
+    track: research_ip
+    category: academic_paper
+    access_method: feed
+    endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.CL&sortBy=submittedDate&sortOrder=descending&max_results=50
+    official_domain: arxiv.org
+    operator: Cornell University
+    region: global_en
+    language: en
+    poll_class: research
+    dx_relevance: 온디바이스 언어 모델·음성 비서 연구
+    storage_right: metadata_only
+  - key: arxiv-cs-cv
+    name: arXiv cs.CV (API)
+    track: research_ip
+    category: academic_paper
+    access_method: feed
+    endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.CV&sortBy=submittedDate&sortOrder=descending&max_results=50
+    official_domain: arxiv.org
+    operator: Cornell University
+    region: global_en
+    language: en
+    poll_class: research
+    dx_relevance: 카메라·디스플레이 영상 처리 연구
+    storage_right: metadata_only
+  - key: arxiv-cs-lg
+    name: arXiv cs.LG (API)
+    track: research_ip
+    category: academic_paper
+    access_method: feed
+    endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.LG&sortBy=submittedDate&sortOrder=descending&max_results=50
+    official_domain: arxiv.org
+    operator: Cornell University
+    region: global_en
+    language: en
+    poll_class: research
+    dx_relevance: 모델 경량화·양자화 학습 연구
+    storage_right: metadata_only
+  - key: arxiv-cs-ro
+    name: arXiv cs.RO (API)
+    track: research_ip
+    category: academic_paper
+    access_method: feed
+    endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.RO&sortBy=submittedDate&sortOrder=descending&max_results=50
+    official_domain: arxiv.org
+    operator: Cornell University
+    region: global_en
+    language: en
+    poll_class: research
+    dx_relevance: 홈로봇·휴머노이드 제어 연구
+    storage_right: metadata_only
+  - key: arxiv-cs-ni
+    name: arXiv cs.NI (API)
+    track: research_ip
+    category: academic_paper
+    access_method: feed
+    endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.NI&sortBy=submittedDate&sortOrder=descending&max_results=50
+    official_domain: arxiv.org
+    operator: Cornell University
+    region: global_en
+    language: en
+    poll_class: research
+    dx_relevance: 5G Advanced·6G 네트워크 연구
+    storage_right: metadata_only
+  - key: arxiv-cs-hc
+    name: arXiv cs.HC (API)
+    track: research_ip
+    category: academic_paper
+    access_method: feed
+    endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.HC&sortBy=submittedDate&sortOrder=descending&max_results=50
+    official_domain: arxiv.org
+    operator: Cornell University
+    region: global_en
+    language: en
+    poll_class: research
+    dx_relevance: 웨어러블·XR 인터랙션 연구
+    storage_right: metadata_only
+  - key: arxiv-cs-ar
+    name: arXiv cs.AR (API)
+    track: research_ip
+    category: academic_paper
+    access_method: feed
+    endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.AR&sortBy=submittedDate&sortOrder=descending&max_results=50
+    official_domain: arxiv.org
+    operator: Cornell University
+    region: global_en
+    language: en
+    poll_class: research
+    dx_relevance: NPU·온디바이스 가속기 아키텍처 연구
+    storage_right: metadata_only
+  - key: arxiv-cs-cr
+    name: arXiv cs.CR (API)
+    track: research_ip
+    category: academic_paper
+    access_method: feed
+    endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.CR&sortBy=submittedDate&sortOrder=descending&max_results=50
+    official_domain: arxiv.org
+    operator: Cornell University
+    region: global_en
+    language: en
+    poll_class: research
+    dx_relevance: 디바이스·IoT 보안 연구
+    storage_right: metadata_only
+  - key: arxiv-eess-sp
+    name: arXiv eess.SP (API)
+    track: research_ip
+    category: academic_paper
+    access_method: feed
+    endpoint_url: https://export.arxiv.org/api/query?search_query=cat:eess.SP&sortBy=submittedDate&sortOrder=descending&max_results=50
+    official_domain: arxiv.org
+    operator: Cornell University
+    region: global_en
+    language: en
+    poll_class: research
+    dx_relevance: 무선 신호처리·센서 연구
+    storage_right: metadata_only
+  - key: arxiv-eess-as
+    name: arXiv eess.AS (API)
+    track: research_ip
+    category: academic_paper
+    access_method: feed
+    endpoint_url: https://export.arxiv.org/api/query?search_query=cat:eess.AS&sortBy=submittedDate&sortOrder=descending&max_results=50
+    official_domain: arxiv.org
+    operator: Cornell University
+    region: global_en
+    language: en
+    poll_class: research
+    dx_relevance: 오디오·음성 처리 연구
+    storage_right: metadata_only
+  - key: arxiv-eess-sy
+    name: arXiv eess.SY (API)
+    track: research_ip
+    category: academic_paper
+    access_method: feed
+    endpoint_url: https://export.arxiv.org/api/query?search_query=cat:eess.SY&sortBy=submittedDate&sortOrder=descending&max_results=50
+    official_domain: arxiv.org
+    operator: Cornell University
+    region: global_en
+    language: en
+    poll_class: research
+    dx_relevance: 차량·로봇 제어 시스템 연구
+    storage_right: metadata_only
+  - key: arxiv-eess-iv
+    name: arXiv eess.IV (API)
+    track: research_ip
+    category: academic_paper
+    access_method: feed
+    endpoint_url: https://export.arxiv.org/api/query?search_query=cat:eess.IV&sortBy=submittedDate&sortOrder=descending&max_results=50
+    official_domain: arxiv.org
+    operator: Cornell University
+    region: global_en
+    language: en
+    poll_class: research
+    dx_relevance: 디스플레이·카메라 영상 품질 연구
+    storage_right: metadata_only
+  - key: arxiv-cs-mm
+    name: arXiv cs.MM (API)
+    track: research_ip
+    category: academic_paper
+    access_method: feed
+    endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.MM&sortBy=submittedDate&sortOrder=descending&max_results=50
+    official_domain: arxiv.org
+    operator: Cornell University
+    region: global_en
+    language: en
+    poll_class: research
+    dx_relevance: 멀티미디어 코덱·스트리밍 연구
+    storage_right: metadata_only
+  - key: arxiv-cs-sd
+    name: arXiv cs.SD (API)
+    track: research_ip
+    category: academic_paper
+    access_method: feed
+    endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.SD&sortBy=submittedDate&sortOrder=descending&max_results=50
+    official_domain: arxiv.org
+    operator: Cornell University
+    region: global_en
+    language: en
+    poll_class: research
+    dx_relevance: 사운드·스피커 음향 연구
+    storage_right: metadata_only
+  - key: arxiv-cs-et
+    name: arXiv cs.ET (API)
+    track: research_ip
+    category: academic_paper
+    access_method: feed
+    endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.ET&sortBy=submittedDate&sortOrder=descending&max_results=50
+    official_domain: arxiv.org
+    operator: Cornell University
+    region: global_en
+    language: en
+    poll_class: research
+    dx_relevance: 차세대 컴퓨팅 소자 활용 연구
+    storage_right: metadata_only
+  - key: arxiv-cs-dc
+    name: arXiv cs.DC (API)
+    track: research_ip
+    category: academic_paper
+    access_method: feed
+    endpoint_url: https://export.arxiv.org/api/query?search_query=cat:cs.DC&sortBy=submittedDate&sortOrder=descending&max_results=50
+    official_domain: arxiv.org
+    operator: Cornell University
+    region: global_en
+    language: en
+    poll_class: research
+    dx_relevance: 엣지-클라우드 분산 추론 연구
+    storage_right: metadata_only
   - key: openalex-works
-    name: OpenAlex Works
+    name: 'OpenAlex: on-device'
     track: research_ip
     category: academic_index
     access_method: research_api
-    endpoint_url: https://api.openalex.org/works
+    endpoint_url: https://api.openalex.org/works?filter=from_publication_date:{today-30d},to_publication_date:{today},title_and_abstract.search:on-device&sort=publication_date:desc&per-page=50
     official_domain: openalex.org
     operator: OurResearch
     region: global_en
@@ -128,15 +3417,272 @@ sources:
     dx_relevance: DX 기술 키워드 기반 논문 메타데이터와 인용 신호
     storage_right: metadata_only
     config:
-      probe_url: https://api.openalex.org/works?per-page=5
-
+      preset: openalex_works
+  - key: openalex-6g
+    name: 'OpenAlex: 6G wireless'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://api.openalex.org/works?filter=from_publication_date:{today-30d},to_publication_date:{today},title_and_abstract.search:6G%20wireless&sort=publication_date:desc&per-page=50
+    official_domain: openalex.org
+    operator: OurResearch
+    region: global_en
+    language: en
+    poll_class: research
+    dx_relevance: 6G 무선 통신 논문 동향
+    storage_right: metadata_only
+    config:
+      preset: openalex_works
+  - key: openalex-oled
+    name: 'OpenAlex: OLED display'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://api.openalex.org/works?filter=from_publication_date:{today-30d},to_publication_date:{today},title_and_abstract.search:OLED%20display&sort=publication_date:desc&per-page=50
+    official_domain: openalex.org
+    operator: OurResearch
+    region: global_en
+    language: en
+    poll_class: research
+    dx_relevance: OLED·디스플레이 소재·패널 논문
+    storage_right: metadata_only
+    config:
+      preset: openalex_works
+  - key: openalex-wearable-health
+    name: 'OpenAlex: wearable health monitoring'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://api.openalex.org/works?filter=from_publication_date:{today-30d},to_publication_date:{today},title_and_abstract.search:wearable%20health%20monitoring&sort=publication_date:desc&per-page=50
+    official_domain: openalex.org
+    operator: OurResearch
+    region: global_en
+    language: en
+    poll_class: research
+    dx_relevance: 웨어러블 헬스 모니터링 논문
+    storage_right: metadata_only
+    config:
+      preset: openalex_works
+  - key: openalex-autonomous-driving
+    name: 'OpenAlex: autonomous driving'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://api.openalex.org/works?filter=from_publication_date:{today-30d},to_publication_date:{today},title_and_abstract.search:autonomous%20driving&sort=publication_date:desc&per-page=50
+    official_domain: openalex.org
+    operator: OurResearch
+    region: global_en
+    language: en
+    poll_class: research
+    dx_relevance: 자율주행·SDV 논문
+    storage_right: metadata_only
+    config:
+      preset: openalex_works
+  - key: openalex-humanoid
+    name: 'OpenAlex: humanoid robot'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://api.openalex.org/works?filter=from_publication_date:{today-30d},to_publication_date:{today},title_and_abstract.search:humanoid%20robot&sort=publication_date:desc&per-page=50
+    official_domain: openalex.org
+    operator: OurResearch
+    region: global_en
+    language: en
+    poll_class: research
+    dx_relevance: 휴머노이드·가정용 로봇 논문
+    storage_right: metadata_only
+    config:
+      preset: openalex_works
+  - key: openalex-smart-home
+    name: 'OpenAlex: smart home IoT'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://api.openalex.org/works?filter=from_publication_date:{today-30d},to_publication_date:{today},title_and_abstract.search:smart%20home%20IoT&sort=publication_date:desc&per-page=50
+    official_domain: openalex.org
+    operator: OurResearch
+    region: global_en
+    language: en
+    poll_class: research
+    dx_relevance: 스마트홈·IoT 논문
+    storage_right: metadata_only
+    config:
+      preset: openalex_works
+  - key: crossref-on-device-ml
+    name: 'Crossref: on-device machine learning'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://api.crossref.org/works?query.bibliographic=on-device%20machine%20learning&filter=from-pub-date:{today-30d},until-pub-date:{today}&sort=published&order=desc&rows=50
+    official_domain: crossref.org
+    operator: Crossref
+    region: global_en
+    language: en
+    poll_class: research
+    dx_relevance: 온디바이스 ML 학술 출판 동향
+    storage_right: metadata_only
+    config:
+      preset: crossref_works
+  - key: crossref-micro-led
+    name: 'Crossref: micro LED display'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://api.crossref.org/works?query.bibliographic=micro%20LED%20display&filter=from-pub-date:{today-30d},until-pub-date:{today}&sort=published&order=desc&rows=50
+    official_domain: crossref.org
+    operator: Crossref
+    region: global_en
+    language: en
+    poll_class: research
+    dx_relevance: 마이크로 LED 디스플레이 출판 동향
+    storage_right: metadata_only
+    config:
+      preset: crossref_works
+  - key: europepmc-wearable-sensor
+    name: 'Europe PMC: wearable sensor'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28wearable%20sensor%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: eu_other
+    language: en
+    poll_class: research
+    dx_relevance: 웨어러블 바이오센서 의학 논문
+    storage_right: metadata_only
+    config:
+      preset: europepmc_search
+  - key: europepmc-digital-health-ai
+    name: 'Europe PMC: digital health artificial intelligence'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28digital%20health%20artificial%20intelligence%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: eu_other
+    language: en
+    poll_class: research
+    dx_relevance: 디지털 헬스 AI 의학 논문
+    storage_right: metadata_only
+    config:
+      preset: europepmc_search
+  - key: europepmc-medical-device-software
+    name: 'Europe PMC: software as a medical device'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28software%20as%20a%20medical%20device%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: eu_other
+    language: en
+    poll_class: research
+    dx_relevance: SaMD·의료기기 소프트웨어 논문
+    storage_right: metadata_only
+    config:
+      preset: europepmc_search
+  - key: nature-electronics
+    name: Nature Electronics
+    track: research_ip
+    category: academic_paper
+    access_method: feed
+    endpoint_url: https://www.nature.com/natelectron.rss
+    official_domain: nature.com
+    operator: Springer Nature
+    region: eu_other
+    language: en
+    poll_class: research
+    dx_relevance: 전자 소자·디바이스 학술지 신규 논문
+    storage_right: metadata_only
+  - key: nature-machine-intelligence
+    name: Nature Machine Intelligence
+    track: research_ip
+    category: academic_paper
+    access_method: feed
+    endpoint_url: https://www.nature.com/natmachintell.rss
+    official_domain: nature.com
+    operator: Springer Nature
+    region: eu_other
+    language: en
+    poll_class: research
+    dx_relevance: AI 학술지 신규 논문
+    storage_right: metadata_only
+  - key: crossref-digital-therapeutics
+    name: 'Crossref: digital therapeutics'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://api.crossref.org/works?query.bibliographic=digital%20therapeutics&filter=from-pub-date:{today-30d},until-pub-date:{today}&sort=published&order=desc&rows=50
+    official_domain: crossref.org
+    operator: Crossref
+    region: global_en
+    language: en
+    poll_class: research
+    dx_relevance: 디지털 치료제 출판 동향
+    storage_right: metadata_only
+    config:
+      preset: crossref_works
+  - key: arxiv-physics-optics
+    name: arXiv physics.optics (API)
+    track: research_ip
+    category: academic_paper
+    access_method: feed
+    endpoint_url: https://export.arxiv.org/api/query?search_query=cat:physics.optics&sortBy=submittedDate&sortOrder=descending&max_results=50
+    official_domain: arxiv.org
+    operator: Cornell University
+    region: global_en
+    language: en
+    poll_class: research
+    dx_relevance: 디스플레이·카메라 광학 연구
+    storage_right: metadata_only
+  - key: npj-digital-medicine
+    name: npj Digital Medicine
+    track: research_ip
+    category: academic_paper
+    access_method: feed
+    endpoint_url: https://www.nature.com/npjdigitalmed.rss
+    official_domain: nature.com
+    operator: Springer Nature
+    region: eu_other
+    language: en
+    poll_class: research
+    dx_relevance: 디지털 헬스·의료 AI 학술지 신규 논문
+    storage_right: metadata_only
+  - key: nature-photonics
+    name: Nature Photonics
+    track: research_ip
+    category: academic_paper
+    access_method: feed
+    endpoint_url: https://www.nature.com/nphoton.rss
+    official_domain: nature.com
+    operator: Springer Nature
+    region: eu_other
+    language: en
+    poll_class: research
+    dx_relevance: 광학·디스플레이 소자 학술지 신규 논문
+    storage_right: metadata_only
+  - key: nature-biomedical-engineering
+    name: Nature Biomedical Engineering
+    track: research_ip
+    category: academic_paper
+    access_method: feed
+    endpoint_url: https://www.nature.com/natbiomedeng.rss
+    official_domain: nature.com
+    operator: Springer Nature
+    region: eu_other
+    language: en
+    poll_class: research
+    dx_relevance: 의료기기·바이오센서 학술지 신규 논문
+    storage_right: metadata_only
   # ── Track 4: GitHub 오픈소스 트렌드 ──
   - key: github-on-device-ai
-    name: GitHub On-device AI Trend
+    name: 'GitHub trend: on-device llm'
     track: oss
     category: oss_trend
     access_method: github
-    endpoint_url: https://api.github.com/search/repositories
+    endpoint_url: https://api.github.com/search/repositories?q=on-device+llm+pushed:>{today-30d}&sort=stars&order=desc&per_page=50
     official_domain: github.com
     operator: GitHub, Inc.
     region: global_en
@@ -145,6 +3691,439 @@ sources:
     dx_relevance: 온디바이스 LLM·NPU 추론 런타임 오픈소스 급상승 신호
     storage_right: metadata_only
     config:
-      query: "on-device llm in:name,description,readme pushed:>{today-30d}"
-      sort: stars
+      preset: github_search
+      auth:
+        secret: GITHUB_TOKEN
+      probe_url: https://api.github.com/rate_limit
+  - key: github-npu-inference
+    name: 'GitHub trend: npu inference'
+    track: oss
+    category: oss_trend
+    access_method: github
+    endpoint_url: https://api.github.com/search/repositories?q=npu+inference+pushed:>{today-30d}&sort=stars&order=desc&per_page=50
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: NPU 추론 엔진·드라이버 오픈소스
+    storage_right: metadata_only
+    config:
+      preset: github_search
+      auth:
+        secret: GITHUB_TOKEN
+      probe_url: https://api.github.com/rate_limit
+  - key: github-mobile-ml
+    name: 'GitHub trend: litert OR tflite'
+    track: oss
+    category: oss_trend
+    access_method: github
+    endpoint_url: https://api.github.com/search/repositories?q=litert+OR+tflite+pushed:>{today-30d}&sort=stars&order=desc&per_page=50
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: 모바일 ML 런타임(LiteRT) 생태계
+    storage_right: metadata_only
+    config:
+      preset: github_search
+      auth:
+        secret: GITHUB_TOKEN
+      probe_url: https://api.github.com/rate_limit
+  - key: github-edge-ai
+    name: 'GitHub trend: edge ai'
+    track: oss
+    category: oss_trend
+    access_method: github
+    endpoint_url: https://api.github.com/search/repositories?q=edge+ai+pushed:>{today-30d}&sort=stars&order=desc&per_page=50
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: 엣지 AI 배포 도구
+    storage_right: metadata_only
+    config:
+      preset: github_search
+      auth:
+        secret: GITHUB_TOKEN
+      probe_url: https://api.github.com/rate_limit
+  - key: github-llm-quantization
+    name: 'GitHub trend: llm quantization'
+    track: oss
+    category: oss_trend
+    access_method: github
+    endpoint_url: https://api.github.com/search/repositories?q=llm+quantization+pushed:>{today-30d}&sort=stars&order=desc&per_page=50
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: 모델 양자화·경량화 도구
+    storage_right: metadata_only
+    config:
+      preset: github_search
+      auth:
+        secret: GITHUB_TOKEN
+      probe_url: https://api.github.com/rate_limit
+  - key: github-android-llm
+    name: 'GitHub trend: android llm'
+    track: oss
+    category: oss_trend
+    access_method: github
+    endpoint_url: https://api.github.com/search/repositories?q=android+llm+pushed:>{today-30d}&sort=stars&order=desc&per_page=50
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: 안드로이드 앱 내 LLM 통합 사례
+    storage_right: metadata_only
+    config:
+      preset: github_search
+      auth:
+        secret: GITHUB_TOKEN
+      probe_url: https://api.github.com/rate_limit
+  - key: github-smart-home
+    name: 'GitHub trend: smart home'
+    track: oss
+    category: oss_trend
+    access_method: github
+    endpoint_url: https://api.github.com/search/repositories?q=smart+home+pushed:>{today-30d}&sort=stars&order=desc&per_page=50
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: 스마트홈 허브·자동화 오픈소스
+    storage_right: metadata_only
+    config:
+      preset: github_search
+      auth:
+        secret: GITHUB_TOKEN
+      probe_url: https://api.github.com/rate_limit
+  - key: github-matter-protocol
+    name: 'GitHub trend: matter protocol'
+    track: oss
+    category: oss_trend
+    access_method: github
+    endpoint_url: https://api.github.com/search/repositories?q=matter+protocol+pushed:>{today-30d}&sort=stars&order=desc&per_page=50
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: Matter 표준 구현체
+    storage_right: metadata_only
+    config:
+      preset: github_search
+      auth:
+        secret: GITHUB_TOKEN
+      probe_url: https://api.github.com/rate_limit
+  - key: github-ros2
+    name: 'GitHub trend: ros2'
+    track: oss
+    category: oss_trend
+    access_method: github
+    endpoint_url: https://api.github.com/search/repositories?q=ros2+pushed:>{today-30d}&sort=stars&order=desc&per_page=50
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: ROS 2 로봇 소프트웨어 생태계
+    storage_right: metadata_only
+    config:
+      preset: github_search
+      auth:
+        secret: GITHUB_TOKEN
+      probe_url: https://api.github.com/rate_limit
+  - key: github-humanoid-robot
+    name: 'GitHub trend: humanoid robot'
+    track: oss
+    category: oss_trend
+    access_method: github
+    endpoint_url: https://api.github.com/search/repositories?q=humanoid+robot+pushed:>{today-30d}&sort=stars&order=desc&per_page=50
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: 휴머노이드·가정용 로봇 오픈소스
+    storage_right: metadata_only
+    config:
+      preset: github_search
+      auth:
+        secret: GITHUB_TOKEN
+      probe_url: https://api.github.com/rate_limit
+  - key: github-autonomous-driving
+    name: 'GitHub trend: autonomous driving'
+    track: oss
+    category: oss_trend
+    access_method: github
+    endpoint_url: https://api.github.com/search/repositories?q=autonomous+driving+pushed:>{today-30d}&sort=stars&order=desc&per_page=50
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: 자율주행·SDV 오픈소스 스택
+    storage_right: metadata_only
+    config:
+      preset: github_search
+      auth:
+        secret: GITHUB_TOKEN
+      probe_url: https://api.github.com/rate_limit
+  - key: github-open-ran
+    name: 'GitHub trend: open ran'
+    track: oss
+    category: oss_trend
+    access_method: github
+    endpoint_url: https://api.github.com/search/repositories?q=open+ran+pushed:>{today-30d}&sort=stars&order=desc&per_page=50
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: 개방형 RAN·5G 코어 오픈소스
+    storage_right: metadata_only
+    config:
+      preset: github_search
+      auth:
+        secret: GITHUB_TOKEN
+      probe_url: https://api.github.com/rate_limit
+  - key: github-wearable-health
+    name: 'GitHub trend: wearable health'
+    track: oss
+    category: oss_trend
+    access_method: github
+    endpoint_url: https://api.github.com/search/repositories?q=wearable+health+pushed:>{today-30d}&sort=stars&order=desc&per_page=50
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: 웨어러블 헬스 데이터 처리 오픈소스
+    storage_right: metadata_only
+    config:
+      preset: github_search
+      auth:
+        secret: GITHUB_TOKEN
+      probe_url: https://api.github.com/rate_limit
+  - key: github-edge-object-detection
+    name: 'GitHub trend: object detection edge'
+    track: oss
+    category: oss_trend
+    access_method: github
+    endpoint_url: https://api.github.com/search/repositories?q=object+detection+edge+pushed:>{today-30d}&sort=stars&order=desc&per_page=50
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: 엣지 비전·카메라 AI 모델
+    storage_right: metadata_only
+    config:
+      preset: github_search
+      auth:
+        secret: GITHUB_TOKEN
+      probe_url: https://api.github.com/rate_limit
+  - key: github-offline-speech
+    name: 'GitHub trend: speech recognition offline'
+    track: oss
+    category: oss_trend
+    access_method: github
+    endpoint_url: https://api.github.com/search/repositories?q=speech+recognition+offline+pushed:>{today-30d}&sort=stars&order=desc&per_page=50
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: 오프라인 음성 인식 엔진
+    storage_right: metadata_only
+    config:
+      preset: github_search
+      auth:
+        secret: GITHUB_TOKEN
+      probe_url: https://api.github.com/rate_limit
+  - key: github-text-to-speech
+    name: 'GitHub trend: text to speech'
+    track: oss
+    category: oss_trend
+    access_method: github
+    endpoint_url: https://api.github.com/search/repositories?q=text+to+speech+pushed:>{today-30d}&sort=stars&order=desc&per_page=50
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: TTS·음성 합성 모델
+    storage_right: metadata_only
+    config:
+      preset: github_search
+      auth:
+        secret: GITHUB_TOKEN
+      probe_url: https://api.github.com/rate_limit
+  - key: github-webgpu
+    name: 'GitHub trend: webgpu'
+    track: oss
+    category: oss_trend
+    access_method: github
+    endpoint_url: https://api.github.com/search/repositories?q=webgpu+pushed:>{today-30d}&sort=stars&order=desc&per_page=50
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: 브라우저 GPU 추론·그래픽 생태계
+    storage_right: metadata_only
+    config:
+      preset: github_search
+      auth:
+        secret: GITHUB_TOKEN
+      probe_url: https://api.github.com/rate_limit
+  - key: github-risc-v
+    name: 'GitHub trend: risc-v'
+    track: oss
+    category: oss_trend
+    access_method: github
+    endpoint_url: https://api.github.com/search/repositories?q=risc-v+pushed:>{today-30d}&sort=stars&order=desc&per_page=50
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: RISC-V 코어·툴체인 생태계
+    storage_right: metadata_only
+    config:
+      preset: github_search
+      auth:
+        secret: GITHUB_TOKEN
+      probe_url: https://api.github.com/rate_limit
+  - key: github-vision-language-action
+    name: 'GitHub trend: vision language action'
+    track: oss
+    category: oss_trend
+    access_method: github
+    endpoint_url: https://api.github.com/search/repositories?q=vision+language+action+pushed:>{today-30d}&sort=stars&order=desc&per_page=50
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: 로봇 VLA 모델 생태계
+    storage_right: metadata_only
+    config:
+      preset: github_search
+      auth:
+        secret: GITHUB_TOKEN
+      probe_url: https://api.github.com/rate_limit
+  - key: github-releases-llama-cpp
+    name: 'GitHub releases: ggml-org/llama.cpp'
+    track: oss
+    category: oss_release
+    access_method: github
+    endpoint_url: https://api.github.com/repos/ggml-org/llama.cpp/releases?per_page=20
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: 온디바이스 LLM 런타임 핵심 릴리스
+    storage_right: metadata_only
+    config:
+      preset: github_releases
+      auth:
+        secret: GITHUB_TOKEN
+      probe_url: https://api.github.com/rate_limit
+  - key: github-releases-ollama
+    name: 'GitHub releases: ollama/ollama'
+    track: oss
+    category: oss_release
+    access_method: github
+    endpoint_url: https://api.github.com/repos/ollama/ollama/releases?per_page=20
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: 로컬 LLM 실행 런타임 릴리스
+    storage_right: metadata_only
+    config:
+      preset: github_releases
+      auth:
+        secret: GITHUB_TOKEN
+      probe_url: https://api.github.com/rate_limit
+  - key: github-releases-home-assistant
+    name: 'GitHub releases: home-assistant/core'
+    track: oss
+    category: oss_release
+    access_method: github
+    endpoint_url: https://api.github.com/repos/home-assistant/core/releases?per_page=20
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: 오픈소스 스마트홈 허브 릴리스
+    storage_right: metadata_only
+    config:
+      preset: github_releases
+      auth:
+        secret: GITHUB_TOKEN
+      probe_url: https://api.github.com/rate_limit
+  - key: github-advisories-pip
+    name: 'GitHub advisories: pip'
+    track: oss
+    category: oss_security
+    access_method: github
+    endpoint_url: https://api.github.com/advisories?ecosystem=pip&per_page=50
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: 파이썬 AI·서버 생태계 보안 권고
+    storage_right: metadata_only
+    config:
+      preset: github_advisories
+      auth:
+        secret: GITHUB_TOKEN
+      probe_url: https://api.github.com/rate_limit
+  - key: github-advisories-npm
+    name: 'GitHub advisories: npm'
+    track: oss
+    category: oss_security
+    access_method: github
+    endpoint_url: https://api.github.com/advisories?ecosystem=npm&per_page=50
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: 웹·앱 프런트엔드 생태계 보안 권고
+    storage_right: metadata_only
+    config:
+      preset: github_advisories
+      auth:
+        secret: GITHUB_TOKEN
+      probe_url: https://api.github.com/rate_limit
+  - key: github-advisories-maven
+    name: 'GitHub advisories: maven'
+    track: oss
+    category: oss_security
+    access_method: github
+    endpoint_url: https://api.github.com/advisories?ecosystem=maven&per_page=50
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: 안드로이드·JVM 생태계 보안 권고
+    storage_right: metadata_only
+    config:
+      preset: github_advisories
+      auth:
+        secret: GITHUB_TOKEN
       probe_url: https://api.github.com/rate_limit

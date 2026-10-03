@@ -5,6 +5,7 @@ from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from news_insight.collect.presets import effective_config
 from news_insight.sources.catalog import (
     DEFAULT_CATALOG_PATH,
     Catalog,
@@ -119,3 +120,30 @@ def test_seed_resets_validation_when_endpoint_changes(db_session: Session, tmp_p
 def test_catalog_model_requires_version_1() -> None:
     with pytest.raises(ValidationError):
         Catalog.model_validate({"version": 2, "sources": []})
+
+
+def test_unknown_preset_is_rejected(tmp_path: Path) -> None:
+    body = ENTRY + "    config:\n      preset: nope\n"
+
+    with pytest.raises(ValidationError, match="unknown preset 'nope'"):
+        load_catalog(write_catalog(tmp_path, body))
+
+
+def test_bundled_presets_resolve_and_github_declares_its_token() -> None:
+    entries = {entry.key: entry for entry in load_catalog(DEFAULT_CATALOG_PATH).sources}
+
+    for entry in entries.values():
+        effective_config(entry.config)
+    assert entries["github-on-device-ai"].config["auth"] == {"secret": "GITHUB_TOKEN"}
+    assert entries["arxiv-cs-ai"].endpoint_url.startswith("https://export.arxiv.org/api/query")
+
+
+def test_bundled_catalog_covers_track_targets() -> None:
+    from collections import Counter
+
+    from news_insight.sources.portfolio import TRACK_TARGETS
+
+    counts = Counter(entry.track for entry in load_catalog(DEFAULT_CATALOG_PATH).sources)
+
+    for track, target in TRACK_TARGETS.items():
+        assert counts[track] >= target, f"{track.value}: {counts[track]}/{target}"

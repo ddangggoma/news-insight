@@ -14,14 +14,12 @@ from news_insight.collect.contracts import (
     majority_incomplete,
 )
 from news_insight.collect.fields import parse_datetime
-from news_insight.collect.http import conditional_headers, fetch_checked
+from news_insight.collect.http import fetch_checked, request_headers
 from news_insight.collect.macros import expand_macros
 from news_insight.content.normalize import canonical_url, clean_text
+from news_insight.net.mime import HTML_MIME
 from news_insight.net.safe_fetch import FetchResponse, SafeFetcher
-from news_insight.sources.checks import EXPECTED_MIME
-from news_insight.sources.enums import AccessMethod
 
-HTML_MIME = EXPECTED_MIME[AccessMethod.CRAWLER]
 REQUIRED_SELECTORS = ("item", "title", "link")
 
 
@@ -40,7 +38,7 @@ class CrawlerCollector:
             str(context.config.get("list_url") or context.endpoint_url), now=context.now
         )
         response = fetch_checked(
-            self._fetcher, url, allowed_mime=HTML_MIME, headers=conditional_headers(context)
+            self._fetcher, url, allowed_mime=HTML_MIME, headers=request_headers(context)
         )
         if response.status_code == 304:
             return CollectResult(

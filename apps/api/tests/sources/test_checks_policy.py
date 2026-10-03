@@ -1,3 +1,5 @@
+import pytest
+
 from news_insight.sources.checks import check_identity, check_policy, probe_url
 from news_insight.sources.enums import AccessMethod, Region, StorageRight, Track
 from tests.factories import build_source
@@ -99,3 +101,16 @@ def test_probe_url_prefers_config_override() -> None:
     assert probe_url(build_source(config={"probe_url": "https://example.com/p"})) == (
         "https://example.com/p"
     )
+
+
+def test_identity_checks_collector_urls() -> None:
+    result = check_identity(build_source(config={"url": "https://other.org/api"}))
+
+    assert "url host 'other.org' is not under official domain 'example.com'" in result.reasons
+
+
+def test_policy_requires_declared_credentials(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("SOURCE_SECRET_GITHUB_TOKEN", raising=False)
+    source = build_source(config={"auth": {"secret": "GITHUB_TOKEN"}})
+
+    assert "credential SOURCE_SECRET_GITHUB_TOKEN is not configured" in check_policy(source).reasons

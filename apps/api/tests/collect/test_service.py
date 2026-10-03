@@ -248,3 +248,32 @@ def test_active_source_items_are_not_canary(db_session: Session, fetcher: SafeFe
 
     assert run.canary is False
     assert db_session.scalars(select(Item)).one().canary is False
+
+
+def test_missing_credentials_pause_the_source(
+    db_session: Session, fetcher: SafeFetcher, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.delenv("SOURCE_SECRET_GITHUB_TOKEN", raising=False)
+    source = collectable(db_session, config={"auth": {"secret": "GITHUB_TOKEN"}})
+    stub = StubCollector()
+
+    run = collect(db_session, source, stub, fetcher)
+
+    assert (run.outcome, run.error_code) == (FetchOutcome.DEAD_LETTERED, "config_error")
+    assert source.status is SourceStatus.PAUSED
+    assert stub.contexts == []
+
+
+def test_collectors_receive_preset_config_and_credentials(
+    db_session: Session, fetcher: SafeFetcher, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("SOURCE_SECRET_GITHUB_TOKEN", "t0k")
+    source = collectable(
+        db_session, config={"preset": "github_search", "auth": {"secret": "GITHUB_TOKEN"}}
+    )
+    stub = StubCollector(ok(raw(1)))
+
+    collect(db_session, source, stub, fetcher)
+
+    assert stub.contexts[0].config["list_path"] == "items"
+    assert stub.contexts[0].headers == {"Authorization": "Bearer t0k"}

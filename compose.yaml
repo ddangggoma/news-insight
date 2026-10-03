@@ -8,6 +8,7 @@ x-python-env: &python-env
   LM_STUDIO_URL: ${LM_STUDIO_URL:-http://host.docker.internal:1234}
   LM_STUDIO_MODEL: ${LM_STUDIO_MODEL:-qwen/qwen3.8-27b}
   ADMIN_EMAIL: ${ADMIN_EMAIL:-ddangggoma@gmail.com}
+  SOURCE_SECRET_GITHUB_TOKEN: ${SOURCE_SECRET_GITHUB_TOKEN:-}
 
 x-python-image: &python-image
   image: news-insight-api:${IMAGE_TAG:-local}

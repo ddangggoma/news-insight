@@ -131,6 +131,27 @@ V1 검사(`check_policy`)는 아래 항목이 **모두** 충족되어야 통과�
 
 ---
 
+## Step 3-1. (OSS 트랙) GitHub 토큰 넣기
+
+GitHub 검색 소스는 V1에서 토큰 설정 여부까지 확인합니다.
+
+1. GitHub → Settings → Developer settings → Personal access tokens → **Fine-grained token**을 만듭니다. 공개 저장소만 읽으므로 권한은 기본값(Public repositories read-only)이면 충분합니다.
+2. 프로젝트 루트의 `.env`에 아래 줄을 채웁니다. 토큰을 채팅·코드·커밋에 붙여넣지 마세요.
+
+   ```dotenv
+   SOURCE_SECRET_GITHUB_TOKEN=github_pat_...
+   ```
+
+3. 로컬 CLI는 `.env`를 자동으로 읽지 않으므로 `--env-file`을 붙입니다.
+
+   ```bash
+   uv run --env-file ../../.env news-insight sources validate github-on-device-ai
+   ```
+
+4. Docker 스택(worker)은 `compose.yaml`이 같은 변수를 전달하므로 `scripts/dev.sh up`으로 다시 띄우면 적용됩니다.
+
+---
+
 ## Step 4. 카탈로그를 DB에 반영하기 (seed)
 
 ```bash
@@ -180,8 +201,8 @@ hacker-news: stage=V3 status=candidate
 | `V2 failed: refusing non-public address ...` | 주소가 사설 IP로 해석됨 | 엔드포인트 주소를 확인 (정상 공개 사이트라면 발생하지 않음) |
 | `V2 failed: unexpected content type ...` | RSS가 아닌 HTML 페이지를 받음 | 피드 주소가 바뀌었는지 사이트에서 확인 후 `endpoint_url` 수정 (검증 초기화됨) |
 | `V3 failed: only N recent complete items (need 3)` | 최근 30일 안의 완전한 항목이 3개 미만 | 피드가 살아 있는지 확인. 업데이트가 드문 소스는 `config.probe_max_age_days`를 늘림 |
-| `V3 failed: feed could not be parsed: no entries` | 피드가 비어 있음 | **arXiv는 토·일요일에 항목이 0개입니다.** 평일에 다시 실행 |
-| `V3 failed: no V3 parser probe for access method '...' yet` | JSON API 방식(Bluesky, OpenAlex, GitHub) | 정상입니다. Phase 3에서 V3 검사가 추가되기 전까지 V2에서 대기 |
+| `V3 failed: feed could not be parsed: no entries` | 피드가 비어 있음 | 피드 주소가 바뀌었거나 일시적으로 비어 있음. 사이트에서 확인 (arXiv는 주말에도 비지 않는 API 주소를 사용) |
+| `V3 failed: credential SOURCE_SECRET_GITHUB_TOKEN is not configured` | GitHub 소스인데 토큰이 없음 | Step 3-1에 따라 `.env`에 토큰을 넣고 `--env-file`로 다시 실행 |
 
 **한 번에 상태 보기**
 

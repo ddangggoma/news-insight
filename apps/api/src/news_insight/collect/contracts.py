@@ -1,6 +1,6 @@
 """Collector contract shared by every access-method adapter."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Protocol
 
@@ -17,6 +17,7 @@ class RawItem:
     author: str | None = None
     summary: str | None = None
     body: str | None = None
+    metrics: dict[str, int] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -27,6 +28,7 @@ class CollectContext:
     etag: str | None = None
     last_modified: str | None = None
     last_success_at: datetime | None = None
+    headers: dict[str, str] = field(default_factory=dict)
 
     @property
     def item_limit(self) -> int:

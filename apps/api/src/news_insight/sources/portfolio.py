@@ -1,4 +1,4 @@
-"""Active-source portfolio quotas: per-track targets and per-region capacity (roadmap D2)."""
+"""Active-source portfolio: per-track targets (blocking) and per-region capacity (advisory, D13)."""
 
 import math
 from collections import Counter
@@ -75,17 +75,23 @@ def active_portfolio(session: Session) -> list[tuple[Track, Region]]:
 def check_quota(
     active: Sequence[tuple[Track, Region]], *, track: Track, region: Region
 ) -> CheckResult:
-    """V6 portfolio gate: refuse promotion into a full track or a region at capacity."""
+    """V6 portfolio gate: refuse promotion into a full track.
+
+    Region capacity is advisory (roadmap D13): it is reported in the metrics, and regional
+    balance is enforced on published articles by the P6 publication gate.
+    """
     report = build_report(active)
     reasons: list[str] = []
     track_active = report.track_counts[track]
     region_active = report.region_counts[region]
     if track_active >= TRACK_TARGETS[track]:
         reasons.append(f"track '{track.value}' is full ({track_active}/{TRACK_TARGETS[track]})")
-    if region_active >= region_capacity(region):
-        reasons.append(
-            f"region '{region.value}' is at capacity ({region_active}/{region_capacity(region)})"
-        )
     return CheckResult.from_reasons(
-        reasons, {"track_active": track_active, "region_active": region_active}
+        reasons,
+        {
+            "track_active": track_active,
+            "region_active": region_active,
+            "region_capacity": region_capacity(region),
+            "region_over_capacity": region_active >= region_capacity(region),
+        },
     )
