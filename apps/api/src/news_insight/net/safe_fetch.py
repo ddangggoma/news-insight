@@ -20,6 +20,14 @@ from news_insight.config import Settings
 Resolver = Callable[[str, int], list[str]]
 DEFAULT_USER_AGENT = f"DailyITIntelligenceBot/{__version__}"
 REDIRECT_STATUSES = frozenset({301, 302, 303, 307, 308})
+CROSS_HOST_SAFE_HEADERS = frozenset({"user-agent", "accept", "if-none-match", "if-modified-since"})
+
+
+def _cross_host_headers(headers: dict[str, str]) -> dict[str, str]:
+    """Never forward credentials (or any non-essential header) to a different host."""
+    return {
+        name: value for name, value in headers.items() if name.lower() in CROSS_HOST_SAFE_HEADERS
+    }
 
 
 class FetchError(Exception):
@@ -112,6 +120,7 @@ class SafeFetcher:
     ) -> FetchResponse:
         started = time.monotonic()
         request_headers = {"User-Agent": self._user_agent, **(headers or {})}
+        origin_host = httpx.URL(url).host
         current = url
         redirects: list[str] = []
         for _ in range(self._max_redirects + 1):
@@ -127,6 +136,8 @@ class SafeFetcher:
                             )
                         current = str(response.url.join(location))
                         redirects.append(current)
+                        if httpx.URL(current).host != origin_host:
+                            request_headers = _cross_host_headers(request_headers)
                         continue
                     content_type = (
                         response.headers.get("content-type", "").split(";", 1)[0].strip().lower()

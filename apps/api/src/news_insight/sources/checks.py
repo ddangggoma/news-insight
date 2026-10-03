@@ -5,6 +5,7 @@ from urllib.parse import urlsplit
 
 from news_insight.net.safe_fetch import FetchError, SafeFetcher
 from news_insight.parsers.feed_probe import MIN_PROBE_ITEMS, probe_feed
+from news_insight.secrets import SecretError, resolve_auth_headers
 from news_insight.sources.enums import AccessMethod, Region, StorageRight, Track
 from news_insight.sources.ladder import CheckResult
 from news_insight.sources.models import Source
@@ -56,6 +57,8 @@ def check_identity(source: Source) -> CheckResult:
     for label, url in (
         ("endpoint", source.endpoint_url),
         ("probe", source.config.get("probe_url")),
+        ("url", source.config.get("url")),
+        ("list_url", source.config.get("list_url")),
     ):
         if not url:
             continue
@@ -102,6 +105,10 @@ def check_policy(source: Source) -> CheckResult:
             "full-text storage for research/IP requires config.open_access=true "
             "(paywall bypass is forbidden)"
         )
+    try:
+        resolve_auth_headers(source.config)
+    except SecretError as exc:
+        reasons.append(str(exc))
     storage = source.storage_right.value if source.storage_right else None
     return CheckResult.from_reasons(reasons, {"storage_right": storage})
 

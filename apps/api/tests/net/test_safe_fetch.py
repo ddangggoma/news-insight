@@ -236,3 +236,33 @@ def test_timeout_is_reported_as_failure() -> None:
         make_fetcher(slow).fetch("https://example.com/feed")
 
     assert error.value.code == "timeout"
+
+
+def recording_redirect(target: str, seen: list[httpx.Request]) -> Handler:
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(request)
+        if request.url.path == "/start":
+            return httpx.Response(302, headers={"location": target})
+        return httpx.Response(200, headers={"content-type": "text/plain"}, content=b"ok")
+
+    return handler
+
+
+def test_credentials_are_dropped_on_cross_host_redirect() -> None:
+    seen: list[httpx.Request] = []
+    fetcher = make_fetcher(recording_redirect("https://cdn.example.net/file", seen))
+
+    fetcher.fetch("https://example.com/start", headers={"Authorization": "Bearer secret"})
+
+    assert seen[0].headers["authorization"] == "Bearer secret"
+    assert "authorization" not in seen[1].headers
+    assert seen[1].headers["user-agent"].startswith("DailyITIntelligenceBot/")
+
+
+def test_credentials_survive_same_host_redirect() -> None:
+    seen: list[httpx.Request] = []
+    fetcher = make_fetcher(recording_redirect("/next", seen))
+
+    fetcher.fetch("https://example.com/start", headers={"Authorization": "Bearer secret"})
+
+    assert seen[1].headers["authorization"] == "Bearer secret"
