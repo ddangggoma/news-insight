@@ -10,7 +10,6 @@
 | 8711 | FastAPI 개발 서버 (`make api-dev`, Docker 없이 실행할 때) | 127.0.0.1 | `Makefile` | P1 |
 | 8720 | PostgreSQL 16 (개발 override 전용) | 127.0.0.1 | `compose.override.yaml` | P1 |
 | 8721 | Redis 7 (개발 override 전용) | 127.0.0.1 | `compose.override.yaml` | P1 |
-| 8730 | Antigravity CLI(`agy`) 호스트 중계 서비스 (예약) | 127.0.0.1 | P7에서 확정 | P7 |
 | 8740 | 운영 모니터링 대시보드 (예약) | 127.0.0.1 | P9에서 확정 | P9 |
 
 ## 규칙
