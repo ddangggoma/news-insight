@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from news_insight.collect.dispatch import DISPATCH_LEASE, bootstrap_runtimes, claim_due_sources
 from news_insight.collect.models import SourceRuntime
-from news_insight.sources.enums import AccessMethod, SourceStatus, ValidationStage
+from news_insight.sources.enums import SourceStatus, ValidationStage
 from news_insight.sources.models import Source
 from tests.factories import build_source
 
@@ -38,7 +38,7 @@ def test_bootstrap_creates_runtimes_for_collectable_sources_only(db_session: Ses
         db_session, "active", validation_stage=ValidationStage.V6, status=SourceStatus.ACTIVE
     )
     add(db_session, "early", validation_stage=ValidationStage.V2)
-    add(db_session, "github", access_method=AccessMethod.GITHUB)
+    add(db_session, "retired", status=SourceStatus.RETIRED)
     add(db_session, "paused", status=SourceStatus.PAUSED)
 
     created = bootstrap_runtimes(db_session, NOW)

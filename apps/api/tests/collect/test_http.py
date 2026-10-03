@@ -4,7 +4,7 @@ import httpx
 import pytest
 
 from news_insight.collect.contracts import CollectContext, CollectorError
-from news_insight.collect.http import conditional_headers, fetch_checked
+from news_insight.collect.http import conditional_headers, fetch_checked, request_headers
 from tests.helpers import mock_fetcher, serving
 
 URL = "https://www.example.com/feed.xml"
@@ -67,3 +67,24 @@ def test_conditional_headers_follow_context() -> None:
         "If-None-Match": '"v1"',
         "If-Modified-Since": "Thu, 01 Oct 2026 09:00:00 GMT",
     }
+
+
+def test_github_style_403_rate_limit_is_retryable() -> None:
+    fetcher = serving(b"", status=403, headers={"x-ratelimit-remaining": "0"})
+
+    with pytest.raises(CollectorError) as error:
+        fetch_checked(fetcher, URL, allowed_mime=MIME)
+
+    assert (error.value.code, error.value.retryable) == ("rate_limited", True)
+
+
+def test_request_headers_merge_credentials_and_validators() -> None:
+    context = CollectContext(
+        endpoint_url=URL,
+        config={},
+        now=datetime(2026, 10, 3, tzinfo=UTC),
+        etag='"v1"',
+        headers={"Authorization": "Bearer t"},
+    )
+
+    assert request_headers(context) == {"Authorization": "Bearer t", "If-None-Match": '"v1"'}

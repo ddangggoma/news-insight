@@ -11,7 +11,7 @@ from news_insight.collect.contracts import (
     RawItem,
     majority_incomplete,
 )
-from news_insight.collect.http import conditional_headers, fetch_checked
+from news_insight.collect.http import fetch_checked, request_headers
 from news_insight.collect.macros import expand_macros
 from news_insight.net.safe_fetch import SafeFetcher
 from news_insight.parsers.feed_probe import struct_to_datetime
@@ -25,7 +25,7 @@ class FeedCollector:
     def collect(self, context: CollectContext) -> CollectResult:
         url = expand_macros(context.endpoint_url, now=context.now)
         response = fetch_checked(
-            self._fetcher, url, allowed_mime=FEED_MIME, headers=conditional_headers(context)
+            self._fetcher, url, allowed_mime=FEED_MIME, headers=request_headers(context)
         )
         if response.status_code == 304:
             return CollectResult(

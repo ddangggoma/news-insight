@@ -2,6 +2,7 @@ import json
 from datetime import UTC, datetime
 from typing import Any
 
+import httpx
 import pytest
 
 from news_insight.collect.contracts import CollectContext, CollectorError
@@ -91,3 +92,88 @@ def test_not_modified() -> None:
 
 def test_item_limit_caps_records() -> None:
     assert len(collect(payload(RECORDS), item_limit=1).items) == 1
+
+
+def collect_records(records: list[dict[str, Any]], **config: Any) -> Any:
+    context = CollectContext(
+        endpoint_url="https://www.example.com/api",
+        config={"list_path": "data.items", **config},
+        now=NOW,
+    )
+    fetcher = serving(payload(records), content_type="application/json")
+    return JsonApiCollector(fetcher).collect(context)
+
+
+def test_field_alternatives_take_the_first_non_empty_value() -> None:
+    record = {"id": 1, "html_url": "https://www.example.com/r/1", "name": "", "tag_name": "v1.0"}
+
+    [item] = collect_records(
+        [record], fields={"url": "html_url", "title": ["name", "tag_name"]}
+    ).items
+
+    assert item.title == "v1.0"
+
+
+def test_url_template_fills_missing_links() -> None:
+    record = {
+        "post": {
+            "uri": "at://did:plc:abc/app.bsky.feed.post/3kq",
+            "author": {"handle": "bsky.app"},
+            "record": {"text": "hello world", "createdAt": "2026-10-01T09:00:00Z"},
+        }
+    }
+
+    [item] = collect_records(
+        [record],
+        fields={
+            "id": "post.uri",
+            "url": [],
+            "title": "post.record.text",
+            "published_at": "post.record.createdAt",
+        },
+        url_template="https://bsky.app/profile/{post.author.handle}/post/{post.uri|last}",
+    ).items
+
+    assert item.url == "https://bsky.app/profile/bsky.app/post/3kq"
+    assert item.stable_id == "at://did:plc:abc/app.bsky.feed.post/3kq"
+
+
+def test_title_limit_shortens_html_posts() -> None:
+    record = {"id": 1, "url": "https://www.example.com/p/1", "title": "<p>" + "가" * 200 + "</p>"}
+
+    [item] = collect_records([record], title_limit=50).items
+
+    assert len(item.title) == 50
+    assert "<p>" not in item.title
+
+
+def test_metrics_are_mapped_to_integers() -> None:
+    record = {
+        "id": 1,
+        "url": "https://www.example.com/p/1",
+        "title": "repo",
+        "stargazers_count": 16168,
+        "archived": False,
+    }
+
+    [item] = collect_records(
+        [record], metrics={"stars": "stargazers_count", "flag": "archived", "gone": "missing"}
+    ).items
+
+    assert item.metrics == {"stars": 16168}
+
+
+def test_credential_headers_are_sent() -> None:
+    seen: list[httpx.Request] = []
+    context = CollectContext(
+        endpoint_url="https://www.example.com/api",
+        config=CONFIG,
+        now=NOW,
+        headers={"Authorization": "Bearer t0k"},
+    )
+
+    JsonApiCollector(serving(payload(RECORDS), content_type="application/json", seen=seen)).collect(
+        context
+    )
+
+    assert seen[0].headers["authorization"] == "Bearer t0k"

@@ -13,6 +13,11 @@ def conditional_headers(context: CollectContext) -> dict[str, str]:
     return headers
 
 
+def request_headers(context: CollectContext) -> dict[str, str]:
+    """Credential headers resolved for the source, plus conditional-request validators."""
+    return {**context.headers, **conditional_headers(context)}
+
+
 def fetch_checked(
     fetcher: SafeFetcher,
     url: str,
@@ -31,6 +36,8 @@ def fetch_checked(
     if status in (200, 304):
         return response
     message = f"HTTP {status} from {url}"
+    if status == 403 and response.headers.get("x-ratelimit-remaining") == "0":
+        raise CollectorError("rate_limited", message, retryable=True, status_code=status)
     if status == 429:
         raise CollectorError("rate_limited", message, retryable=True, status_code=status)
     if status >= 500:
