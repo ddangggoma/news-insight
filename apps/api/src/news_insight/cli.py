@@ -1,7 +1,7 @@
 """Operator CLI: `news-insight sources seed|validate|promote|report`."""
 
 from collections import Counter
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from typing import Annotated
 from zoneinfo import ZoneInfo
@@ -15,6 +15,8 @@ from news_insight.collect.service import collect_source
 from news_insight.config import get_settings
 from news_insight.content.trends import metric_movers
 from news_insight.db import session_scope
+from news_insight.digest.claude import ClaudeCli, ClaudeClient
+from news_insight.digest.service import generate_digest
 from news_insight.net.safe_fetch import SafeFetcher
 from news_insight.scheduling.redis_guards import DomainRateLimiter, RateLimiter, get_redis
 from news_insight.sources.canary import run_canaries
@@ -54,6 +56,10 @@ app.add_typer(collect_app, name="collect")
 app.add_typer(dlq_app, name="dlq")
 trends_app = typer.Typer(help="Signal trends from metric snapshots", no_args_is_help=True)
 app.add_typer(trends_app, name="trends")
+digest_app = typer.Typer(
+    help="Daily digest generated with the Claude CLI (05:00 KST)", no_args_is_help=True
+)
+app.add_typer(digest_app, name="digest")
 
 KST = ZoneInfo("Asia/Seoul")
 FAILED_OUTCOMES = (FetchOutcome.FAILED, FetchOutcome.DEAD_LETTERED)
@@ -67,6 +73,13 @@ def _fetcher() -> SafeFetcher:
 
 def _limiter() -> RateLimiter:
     return DomainRateLimiter(get_redis(), per_minute=get_settings().domain_rate_per_minute)
+
+
+def _claude() -> ClaudeClient:
+    settings = get_settings()
+    return ClaudeCli(
+        executable=settings.claude_cli, timeout_seconds=settings.digest_timeout_seconds
+    )
 
 
 def _kst(moment: datetime | None) -> str:
@@ -363,3 +376,34 @@ def movers(
             f"{row.delta:+8d} {row.current:>9d}  {row.item.title}  {row.item.url}" for row in rows
         ]
     typer.echo("\n".join(lines) if lines else "no movers yet (needs two snapshots per item)")
+
+
+@digest_app.command("run")
+def digest_run(
+    on: Annotated[
+        str | None, typer.Option("--date", help="Publication date YYYY-MM-DD (KST)")
+    ] = None,
+    model: Annotated[
+        str | None, typer.Option(help="Claude model alias (default: DIGEST_MODEL)")
+    ] = None,
+) -> None:
+    """Summarise the previous KST day's items and publish the digest (fallback on failure)."""
+    now = datetime.now(UTC)
+    digest_date = date.fromisoformat(on) if on else now.astimezone(KST).date()
+    with session_scope() as session:
+        digest = generate_digest(
+            session,
+            digest_date=digest_date,
+            now=now,
+            client=_claude(),
+            model=model or get_settings().digest_model,
+        )
+        line = (
+            f"{digest.digest_date} v{digest.version} {digest.status.value} "
+            f"items={digest.item_count} model={digest.model or '-'}"
+        )
+        if digest.cost_usd is not None:
+            line += f" cost=${digest.cost_usd:.3f}"
+        if digest.error:
+            line += f" error={digest.error}"
+    typer.echo(line)

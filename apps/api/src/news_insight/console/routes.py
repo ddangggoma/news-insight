@@ -1,6 +1,6 @@
 """Operations console API. Reached only by the web server over the internal network (D16)."""
 
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -24,6 +24,8 @@ from news_insight.console.schemas import (
     SourceRow,
 )
 from news_insight.db import get_db
+from news_insight.digest import service as digest_service
+from news_insight.digest.schemas import DigestOut, DigestSummary
 from news_insight.sources.enums import Region, SourceStatus, Track, ValidationStage
 from news_insight.sources.ladder import LadderError, pause_source, resume_source
 from news_insight.sources.models import Source
@@ -201,3 +203,24 @@ def get_movers(
     return queries.movers(
         session, metric=metric, days=days, track=track, limit=limit, now=datetime.now(UTC)
     )
+
+
+@router.get("/digests")
+def list_digests(session: DB, page: PageQ = 1, size: SizeQ = 30) -> Page[DigestSummary]:
+    return digest_service.list_digests(session, page=page, size=size)
+
+
+@router.get("/digests/latest")
+def latest_digest(session: DB) -> DigestOut:
+    digest = digest_service.latest_digest(session)
+    if digest is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "no digest yet")
+    return digest_service.digest_out(session, digest)
+
+
+@router.get("/digests/{digest_date}")
+def get_digest(digest_date: date, session: DB) -> DigestOut:
+    digest = digest_service.digest_for(session, digest_date)
+    if digest is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, f"no digest for {digest_date}")
+    return digest_service.digest_out(session, digest)
