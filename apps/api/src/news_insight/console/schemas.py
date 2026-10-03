@@ -118,6 +118,41 @@ class ItemRow(BaseModel):
     revision: int
     canary: bool
     metrics: dict[str, int]
+    title_ko: str | None = None
+
+
+class CardBody(BaseModel):
+    title_ko: str | None
+    summary_ko: list[str]
+    keywords: list[str]
+    status: str
+    engine: str | None
+    model: str | None
+    generated_at: datetime
+
+
+class CardView(BaseModel):
+    item: ItemRow
+    card: CardBody
+
+
+class CardRunOut(BaseModel):
+    started_at: datetime
+    finished_at: datetime | None
+    ready: int
+    failed: int
+    batches: dict[str, int]
+    quota: dict[str, int | None]
+    note: str | None
+
+
+class CardStats(BaseModel):
+    ready: int
+    failed: int
+    pending: int
+    ready_today: int
+    by_engine: dict[str, int]
+    last_run: CardRunOut | None
 
 
 class SourceDetail(BaseModel):
@@ -165,6 +200,7 @@ class ItemDetail(BaseModel):
     author: str | None
     revisions: list[RevisionOut]
     metric_history: list[MetricPoint]
+    card: CardBody | None = None
 
 
 class MoverOut(BaseModel):

@@ -39,6 +39,9 @@ PY
 }
 
 digest()        { (cd "$API" && uv run --env-file "$ROOT/.env" news-insight digest run); }
+# Host-side: agy is logged in here, and LM Studio is reached on localhost (not host.docker.internal).
+cards()         { (cd "$API" && LM_STUDIO_URL=http://127.0.0.1:1234 uv run --env-file "$ROOT/.env" news-insight cards run); }
+sources_seed()  { (cd "$API" && uv run --env-file "$ROOT/.env" news-insight sources seed); }
 
 verify() {
   local step
@@ -49,7 +52,7 @@ verify() {
   printf '\nverify: all checks passed\n'
 }
 
-COMMANDS="up down logs db migrate api-dev web-dev api-test api-lint web-test web-check compose-check alembic-check verify console-password digest"
+COMMANDS="up down logs db migrate api-dev web-dev api-test api-lint web-test web-check compose-check alembic-check verify console-password digest cards sources-seed"
 
 usage() {
   echo "usage: scripts/dev.sh <command>"

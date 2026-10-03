@@ -5,8 +5,10 @@ from datetime import datetime, timedelta
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from news_insight.cards.models import CardStatus, ItemCard
 from news_insight.collect.models import DeadLetter, FetchOutcome, FetchRun, SourceRuntime
 from news_insight.console.schemas import (
+    CardBody,
     DeadLetterOut,
     Health,
     ItemDetail,
@@ -210,8 +212,33 @@ def latest_metrics(session: Session, item_ids: list[int]) -> dict[int, dict[str,
     return {snapshot.item_id: dict(snapshot.metrics) for snapshot in snapshots}
 
 
+def korean_titles(session: Session, item_ids: list[int]) -> dict[int, str]:
+    if not item_ids:
+        return {}
+    rows = session.execute(
+        select(ItemCard.item_id, ItemCard.title_ko).where(
+            ItemCard.item_id.in_(item_ids), ItemCard.status == CardStatus.READY
+        )
+    ).tuples()
+    return {item_id: title for item_id, title in rows if title}
+
+
+def card_body(card: ItemCard) -> CardBody:
+    return CardBody(
+        title_ko=card.title_ko,
+        summary_ko=list(card.summary_ko),
+        keywords=list(card.keywords),
+        status=card.status.value,
+        engine=card.engine,
+        model=card.model,
+        generated_at=card.generated_at,
+    )
+
+
 def item_rows(session: Session, pairs: list[tuple[Item, Source]]) -> list[ItemRow]:
-    metrics = latest_metrics(session, [item.id for item, _ in pairs])
+    ids = [item.id for item, _ in pairs]
+    metrics = latest_metrics(session, ids)
+    titles = korean_titles(session, ids)
     return [
         ItemRow(
             id=item.id,
@@ -227,6 +254,7 @@ def item_rows(session: Session, pairs: list[tuple[Item, Source]]) -> list[ItemRo
             revision=item.revision,
             canary=item.canary,
             metrics=metrics.get(item.id, {}),
+            title_ko=titles.get(item.id),
         )
         for item, source in pairs
     ]
@@ -397,6 +425,7 @@ def item_detail(session: Session, item_id: int) -> ItemDetail | None:
         .where(ItemMetricSnapshot.item_id == item.id)
         .order_by(ItemMetricSnapshot.captured_at)
     )
+    card = session.scalars(select(ItemCard).where(ItemCard.item_id == item.id)).one_or_none()
     return ItemDetail(
         item=item_rows(session, [(item, source)])[0],
         summary=item.summary,
@@ -410,6 +439,7 @@ def item_detail(session: Session, item_id: int) -> ItemDetail | None:
             MetricPoint(captured_at=snap.captured_at, metrics=dict(snap.metrics))
             for snap in snapshots
         ],
+        card=card_body(card) if card is not None else None,
     )
 
 
