@@ -11,6 +11,11 @@ import { api, ApiError } from "@/lib/api";
 import { CATEGORY_LABEL, formatDateTime, formatNumber, REGION_LABEL } from "@/lib/format";
 import type { ItemDetail } from "@/lib/types";
 
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  return { title: `항목 #${id}` };
+}
+
 export default async function ItemPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   let detail: ItemDetail;
@@ -39,7 +44,7 @@ export default async function ItemPage({ params }: { params: Promise<{ id: strin
           </Button>
         }
       />
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 lg:grid-cols-3 [&>*]:min-w-0">
         <Card className="lg:col-span-2">
           <CardHeader><CardTitle className="text-base">내용</CardTitle></CardHeader>
           <CardContent className="space-y-3 text-sm leading-relaxed">

@@ -14,6 +14,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 
 const NAV = [
@@ -38,6 +39,7 @@ export function isActive(pathname: string, href: string): boolean {
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const { isMobile, setOpenMobile } = useSidebar();
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
@@ -56,7 +58,7 @@ export function AppSidebar() {
               {group.items.map((item) => (
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton asChild isActive={isActive(pathname, item.href)} tooltip={item.title}>
-                    <Link href={item.href}>
+                    <Link href={item.href} onClick={() => isMobile && setOpenMobile(false)}>
                       <item.icon />
                       <span>{item.title}</span>
                     </Link>

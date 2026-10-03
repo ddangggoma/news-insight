@@ -36,6 +36,11 @@ const itemColumns: Column<ItemRow>[] = [
   { key: "seen", header: "수집", className: "w-24 text-muted-foreground", cell: (item) => formatRelative(item.first_seen_at) },
 ];
 
+export async function generateMetadata({ params }: { params: Promise<{ key: string }> }) {
+  const { key } = await params;
+  return { title: `소스 ${key}` };
+}
+
 export default async function SourcePage({ params }: { params: Promise<{ key: string }> }) {
   const { key } = await params;
   let detail: SourceDetail;

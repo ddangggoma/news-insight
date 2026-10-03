@@ -23,13 +23,28 @@ async function latestDigest(): Promise<DigestOut | null> {
   }
 }
 
+const MOVER_METRICS = [
+  { metric: "stars", label: "스타" },
+  { metric: "points", label: "HN 점수" },
+  { metric: "likes", label: "좋아요" },
+];
+
 export default async function DashboardPage() {
   const [overview, digest, movers, recent] = await Promise.all([
     api.get<Overview>("/api/admin/overview"),
     latestDigest(),
-    api.get<MoverOut[]>("/api/admin/trends/movers", { metric: "stars", days: 1, limit: 5 }),
+    Promise.all(
+      MOVER_METRICS.map(({ metric }) =>
+        api.get<MoverOut[]>("/api/admin/trends/movers", { metric, days: 1, limit: 5 }),
+      ),
+    ),
     api.get<Page<ItemRow>>("/api/admin/items", { size: 8 }),
   ]);
+  const topMovers = movers
+    .flatMap((rows, index) => rows.map((mover) => ({ ...mover, label: MOVER_METRICS[index].label })))
+    .filter((mover) => mover.delta > 0)
+    .sort((a, b) => b.delta - a.delta)
+    .slice(0, 6);
   const totalSources = overview.tracks.reduce((sum, track) => sum + track.total, 0);
   const activeSources = overview.tracks.reduce((sum, track) => sum + track.active, 0);
   const { health } = overview;
@@ -67,7 +82,7 @@ export default async function DashboardPage() {
         <StatCard title="조치 필요" value={`${health.open_dead_letters} · ${health.paused_sources}`} hint="미해결 DLQ · 일시정지 소스" icon={health.open_dead_letters ? AlertTriangle : Inbox} />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 lg:grid-cols-3 [&>*]:min-w-0">
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle className="text-base">검증 단계 분포</CardTitle>
@@ -90,7 +105,8 @@ export default async function DashboardPage() {
                   <div className="flex justify-between text-sm">
                     <span>{TRACK_LABEL[track.track]}</span>
                     <span className="text-muted-foreground tabular-nums">
-                      {track.active} / {track.target}
+                      활성 {track.active} / 목표 {track.target}
+                      <span className="ml-1.5 text-xs">(후보 {track.total})</span>
                     </span>
                   </div>
                   <div className="h-1.5 overflow-hidden rounded-full bg-muted">
@@ -103,7 +119,7 @@ export default async function DashboardPage() {
         </Card>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 lg:grid-cols-3 [&>*]:min-w-0">
         <Card className="lg:col-span-2">
           <CardHeader className="flex flex-row items-center justify-between">
             <div className="space-y-1.5">
@@ -132,37 +148,55 @@ export default async function DashboardPage() {
             )}
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">지표 상승 상위</CardTitle>
-            <CardDescription>GitHub 스타 24시간 증가</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {movers.length === 0 ? (
-              <EmptyState title="아직 데이터가 없습니다" description="스냅샷이 2개 이상 쌓이면 표시됩니다." />
-            ) : (
-              <ol className="space-y-3">
-                {movers.map((mover, index) => (
-                  <li key={mover.item.id} className="flex items-center gap-3 text-sm">
-                    <span className="w-4 text-muted-foreground tabular-nums">{index + 1}</span>
-                    <a href={mover.item.url} target="_blank" rel="noreferrer" className="min-w-0 flex-1 truncate hover:underline">
-                      {mover.item.title}
-                    </a>
-                    <span className="font-medium text-emerald-600 tabular-nums dark:text-emerald-400">+{formatNumber(mover.delta)}</span>
-                  </li>
-                ))}
-              </ol>
-            )}
-            <div className="mt-6 space-y-1 text-xs text-muted-foreground">
+        <div className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">지표 상승 상위</CardTitle>
+              <CardDescription>최근 24시간 반응 지표 증가</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {topMovers.length === 0 ? (
+                <EmptyState title="아직 데이터가 없습니다" description="지표 스냅샷이 2개 이상 쌓이면 표시됩니다." />
+              ) : (
+                <ol className="space-y-3">
+                  {topMovers.map((mover, index) => (
+                    <li key={`${mover.label}-${mover.item.id}`} className="flex items-center gap-3 text-sm">
+                      <span className="w-4 text-muted-foreground tabular-nums">{index + 1}</span>
+                      <a href={mover.item.url} target="_blank" rel="noreferrer" className="min-w-0 flex-1 truncate hover:underline">
+                        {mover.item.title}
+                      </a>
+                      <span className="shrink-0 text-right">
+                        <span className="block font-medium text-emerald-600 tabular-nums dark:text-emerald-400">+{formatNumber(mover.delta)}</span>
+                        <span className="block text-[11px] text-muted-foreground">{mover.label}</span>
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">지역 분포</CardTitle>
+              <CardDescription>발행 시 지역 균형 기준(D13)의 용량 대비</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
               {overview.regions.map((region) => (
-                <div key={region.region} className="flex justify-between">
-                  <span>{REGION_LABEL[region.region]}</span>
-                  <span className="tabular-nums">후보 {region.total} · 활성 {region.active}</span>
+                <div key={region.region} className="space-y-1">
+                  <div className="flex justify-between text-sm">
+                    <span>{REGION_LABEL[region.region]}</span>
+                    <span className="text-muted-foreground tabular-nums">
+                      후보 {region.total} · 용량 {region.capacity}
+                    </span>
+                  </div>
+                  <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+                    <div className="h-full bg-chart-3" style={{ width: `${Math.min(100, (region.total / region.capacity) * 100)}%` }} />
+                  </div>
                 </div>
               ))}
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </>
   );

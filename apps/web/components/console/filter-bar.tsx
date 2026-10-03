@@ -11,6 +11,11 @@ export interface FilterField {
   options: { value: string; label: string }[];
 }
 
+function selectedLabel(field: FilterField): string {
+  const option = field.options.find((candidate) => candidate.value === field.value);
+  return option ? option.label : `전체 ${field.label}`;
+}
+
 export function FilterBar({
   fields,
   query,
@@ -25,7 +30,8 @@ export function FilterBar({
       {fields.map((field) => (
         <Select key={field.name} name={field.name} defaultValue={field.value ?? "all"}>
           <SelectTrigger className="w-40" aria-label={field.label}>
-            <SelectValue placeholder={field.label} />
+            {/* Explicit text so the server render already shows the current choice. */}
+            <SelectValue placeholder={field.label}>{selectedLabel(field)}</SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">전체 {field.label}</SelectItem>

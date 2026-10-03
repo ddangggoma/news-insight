@@ -5,6 +5,11 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { api, ApiError } from "@/lib/api";
 import type { DigestOut } from "@/lib/types";
 
+export async function generateMetadata({ params }: { params: Promise<{ date: string }> }) {
+  const { date } = await params;
+  return { title: `다이제스트 ${date}` };
+}
+
 export default async function DigestPage({ params }: { params: Promise<{ date: string }> }) {
   const { date } = await params;
   let digest: DigestOut;

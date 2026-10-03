@@ -251,7 +251,7 @@ def source_detail(session: Session, key: str) -> SourceDetail | None:
     items = session.scalars(
         select(Item)
         .where(Item.source_id == source.id)
-        .order_by(Item.first_seen_at.desc(), Item.id.desc())
+        .order_by(Item.first_seen_at.desc(), Item.published_at.desc().nulls_last(), Item.id.desc())
         .limit(20)
     )
     return SourceDetail(
@@ -368,7 +368,9 @@ def list_items(
     total = session.scalar(select(func.count()).select_from(base.subquery())) or 0
     pairs = list(
         session.execute(
-            base.order_by(Item.first_seen_at.desc(), Item.id.desc())
+            base.order_by(
+                Item.first_seen_at.desc(), Item.published_at.desc().nulls_last(), Item.id.desc()
+            )
             .offset(_offset(page, size))
             .limit(size)
         ).tuples()

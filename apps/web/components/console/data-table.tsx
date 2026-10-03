@@ -10,6 +10,14 @@ export interface Column<T> {
   cell: (row: T) => ReactNode;
 }
 
+/** Column headers keep width and alignment from the cell classes, never their colors or fonts. */
+function headClass(className?: string): string | undefined {
+  return className
+    ?.split(/\s+/)
+    .filter((token) => /^(w-|min-w-|max-w-|text-(left|right|center)$)/.test(token))
+    .join(" ");
+}
+
 export function DataTable<T>({
   columns,
   rows,
@@ -30,7 +38,7 @@ export function DataTable<T>({
         <TableHeader className="bg-muted/50">
           <TableRow>
             {columns.map((column) => (
-              <TableHead key={column.key} className={column.className}>
+              <TableHead key={column.key} className={headClass(column.className)}>
                 {column.header}
               </TableHead>
             ))}

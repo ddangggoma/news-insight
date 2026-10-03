@@ -11,10 +11,10 @@ export function StageChart({ stages }: { stages: Overview["stages"] }) {
   const data = stages.map((stage) => ({ stage: stage.stage === "unverified" ? "미검증" : stage.stage, count: stage.count }));
   return (
     <ChartContainer config={stageConfig} className="h-56 w-full">
-      <BarChart data={data} margin={{ left: -16 }}>
+      <BarChart data={data} margin={{ left: 0, right: 8, top: 8 }}>
         <CartesianGrid vertical={false} />
         <XAxis dataKey="stage" tickLine={false} axisLine={false} />
-        <YAxis allowDecimals={false} tickLine={false} axisLine={false} width={40} />
+        <YAxis allowDecimals={false} tickLine={false} axisLine={false} width={36} />
         <ChartTooltip content={<ChartTooltipContent />} />
         <Bar dataKey="count" fill="var(--color-count)" radius={4} />
       </BarChart>

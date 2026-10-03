@@ -29,7 +29,7 @@ export function DigestView({ digest }: { digest: DigestOut }) {
           </h3>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {content.insights.map((insight) => (
-              <article key={insight.title}>
+              <article key={insight.title} className="min-w-0">
                 <Card className="h-full">
                   <CardHeader>
                     <CardTitle className="text-base">{insight.title}</CardTitle>
@@ -45,7 +45,7 @@ export function DigestView({ digest }: { digest: DigestOut }) {
         </section>
       ) : null}
 
-      <section className="grid gap-4 lg:grid-cols-2">
+      <section className="space-y-4">
         {content.tracks.map((track) => (
           <Card key={track.track}>
             <CardHeader>
@@ -54,7 +54,7 @@ export function DigestView({ digest }: { digest: DigestOut }) {
               </div>
               <CardDescription className="leading-relaxed">{track.summary}</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-5">
+            <CardContent className="grid gap-x-8 gap-y-6 md:grid-cols-2 [&>*]:min-w-0">
               {track.categories.map((category) => (
                 <div key={category.category} className="space-y-2">
                   <p className="text-sm font-medium">
