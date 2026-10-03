@@ -62,19 +62,26 @@ def test_quota_blocks_full_track() -> None:
     assert result.reasons == ["track 'oss' is full (25/25)"]
 
 
-def test_quota_blocks_region_at_capacity() -> None:
+def test_region_capacity_is_reported_but_does_not_block() -> None:
     active = [(Track.NEWS, Region.GREATER_CHINA)] * 21
 
     result = check_quota(active, track=Track.NEWS, region=Region.GREATER_CHINA)
 
-    assert result.reasons == ["region 'greater_china' is at capacity (21/21)"]
+    assert result.passed
+    assert result.metrics["region_over_capacity"] is True
+    assert result.metrics["region_capacity"] == 21
 
 
 def test_quota_passes_with_room() -> None:
     result = check_quota([], track=Track.NEWS, region=Region.KR)
 
     assert result.passed
-    assert result.metrics == {"track_active": 0, "region_active": 0}
+    assert result.metrics == {
+        "track_active": 0,
+        "region_active": 0,
+        "region_capacity": 65,
+        "region_over_capacity": False,
+    }
 
 
 @pytest.mark.db
