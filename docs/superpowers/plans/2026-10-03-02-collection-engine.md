@@ -2262,7 +2262,7 @@ def test_supported_methods_map_to_collectors() -> None:
         assert isinstance(collector_for(AccessMethod.FEED, fetcher), FeedCollector)
         assert isinstance(collector_for(AccessMethod.JSON_API, fetcher), JsonApiCollector)
         assert isinstance(collector_for(AccessMethod.CRAWLER, fetcher), CrawlerCollector)
-    assert SUPPORTED_METHODS == {AccessMethod.FEED, AccessMethod.JSON_API, AccessMethod.CRAWLER}
+    assert set(SUPPORTED_METHODS) == {AccessMethod.FEED, AccessMethod.JSON_API, AccessMethod.CRAWLER}
 
 
 def test_unsupported_methods_are_rejected() -> None:
