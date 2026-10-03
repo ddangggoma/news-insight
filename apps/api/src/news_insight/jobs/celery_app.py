@@ -1,12 +1,17 @@
 from typing import Any
 
 from celery import Celery
+from celery.schedules import crontab
 
 from news_insight.config import get_settings
 
 BEAT_SCHEDULE: dict[str, dict[str, Any]] = {
     "collect-dispatch-due": {"task": "collect.dispatch_due", "schedule": 60.0},
     "sources-run-canaries": {"task": "sources.run_canaries", "schedule": 3600.0},
+    "content-purge-expired": {
+        "task": "content.purge_expired",
+        "schedule": crontab(hour=3, minute=15),  # Asia/Seoul (celery timezone)
+    },
 }
 
 
