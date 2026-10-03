@@ -2,6 +2,7 @@
 
 from urllib.parse import urlsplit
 
+from news_insight.net.safe_fetch import FetchError, SafeFetcher
 from news_insight.sources.enums import AccessMethod, Region, StorageRight, Track
 from news_insight.sources.ladder import CheckResult
 from news_insight.sources.models import Source
@@ -14,6 +15,25 @@ REGION_LANGUAGES: dict[Region, frozenset[str] | None] = {
     Region.EU_OTHER: None,
 }
 FULLTEXT_RIGHTS = frozenset({StorageRight.FULLTEXT_TTL, StorageRight.FULLTEXT_PERMITTED})
+FEED_MIME = frozenset(
+    {
+        "application/rss+xml",
+        "application/atom+xml",
+        "application/rdf+xml",
+        "application/xml",
+        "text/xml",
+    }
+)
+JSON_MIME = frozenset({"application/json", "application/activity+json", "application/ld+json"})
+EXPECTED_MIME: dict[AccessMethod, frozenset[str]] = {
+    AccessMethod.FEED: FEED_MIME,
+    AccessMethod.JSON_API: JSON_MIME,
+    AccessMethod.CRAWLER: frozenset({"text/html", "application/xhtml+xml"}),
+    AccessMethod.GITHUB: JSON_MIME,
+    AccessMethod.ATPROTO: JSON_MIME,
+    AccessMethod.ACTIVITYPUB: JSON_MIME,
+    AccessMethod.RESEARCH_API: JSON_MIME | FEED_MIME,
+}
 
 
 def probe_url(source: Source) -> str:
@@ -82,3 +102,26 @@ def check_policy(source: Source) -> CheckResult:
         )
     storage = source.storage_right.value if source.storage_right else None
     return CheckResult.from_reasons(reasons, {"storage_right": storage})
+
+
+def check_network(source: Source, fetcher: SafeFetcher) -> CheckResult:
+    """V2: SSRF/DNS-rebinding guard, TLS, MIME and size limits via SafeFetcher."""
+    try:
+        response = fetcher.fetch(
+            probe_url(source), allowed_mime=EXPECTED_MIME[source.access_method]
+        )
+    except FetchError as exc:
+        return CheckResult.from_reasons([str(exc)], {"error": exc.code})
+    reasons: list[str] = []
+    if response.status_code != 200:
+        reasons.append(f"unexpected HTTP status {response.status_code}")
+    return CheckResult.from_reasons(
+        reasons,
+        {
+            "status": response.status_code,
+            "content_type": response.content_type,
+            "bytes": len(response.content),
+            "redirects": len(response.redirects),
+            "elapsed_ms": response.elapsed_ms,
+        },
+    )
