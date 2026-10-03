@@ -8,18 +8,20 @@
 
 ## 개발 환경
 
+`scripts/dev.sh`를 인자 없이 실행하면 전체 명령 목록이 나옵니다. (macOS 기본 `make`는 Xcode 라이선스 동의가 필요해서 셸 스크립트를 사용합니다.)
+
 ```bash
 cp .env.example .env
-make db        # PostgreSQL 16 → 127.0.0.1:8720, Redis 7 → 127.0.0.1:8721 (테스트 DB 생성)
-make verify    # lint + type + test + alembic check + web build + compose config
-make api-dev   # FastAPI → http://127.0.0.1:8711
-make web-dev   # Next.js → http://localhost:8710
+scripts/dev.sh db        # PostgreSQL 16 → 127.0.0.1:8720, Redis 7 → 127.0.0.1:8721 (테스트 DB 생성)
+scripts/dev.sh verify    # lint + type + test + alembic check + web build + compose config
+scripts/dev.sh api-dev   # FastAPI → http://127.0.0.1:8711
+scripts/dev.sh web-dev   # Next.js → http://localhost:8710
 ```
 
 ## 전체 스택
 
 ```bash
-make up
+scripts/dev.sh up
 curl -sk https://localhost:8700/api/health
 ```
 

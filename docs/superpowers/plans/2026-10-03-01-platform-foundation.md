@@ -2,6 +2,8 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use dev_sp_subagent-driven-development (recommended) or dev_sp_executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+> **구현 노트 (2026-10-03):** macOS 기본 `make`는 Xcode 라이선스 동의가 필요해서, 구현 단계에서 `Makefile`을 같은 명령을 가진 `scripts/dev.sh`로 대체했습니다. 이 문서의 `make <target>`은 `scripts/dev.sh <target>`으로 읽으면 됩니다.
+
 **Goal:** `NEWS_INSIGHT` 저장소에 단일 서버 Docker Compose 스택을 세우고, 4개 수집 트랙의 소스를 등록한 뒤 V0~V3 검증과 V6 포트폴리오 쿼터 게이트를 통과시키는 소스 레지스트리를 완성합니다.
 
 **Architecture:** `apps/api`는 FastAPI, Celery, SQLAlchemy 2, Alembic으로 구성한 Python 3.12 패키지 `news_insight`(uv로 관리)입니다. 소스 거버넌스는 순수 함수 검사기(V0/V1/V3/V6)와 SSRF 안전 Fetcher(V2)가 `CheckResult`를 만들고, 승격 사다리 상태 머신(`ladder.py`)이 이 결과를 단계 순서대로만 기록하는 구조입니다. `apps/web`은 Phase 8에서 본격 구현할 Next.js 셸이며, Caddy가 `/api/*`를 api로, 나머지를 web으로 프록시합니다.

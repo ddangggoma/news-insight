@@ -7,7 +7,7 @@
 | 8700 | Caddy HTTPS — 전체 스택 진입점 (`https://localhost:8700`) | 0.0.0.0 | `CADDY_HTTPS_PORT` | P1 |
 | 8701 | Caddy HTTP — HTTPS(8700)로 리다이렉트 | 0.0.0.0 | `CADDY_HTTP_PORT` | P1 |
 | 8710 | Next.js 개발 서버 (`npm run dev`, Docker 없이 실행할 때) | localhost | `apps/web/package.json` | P1 |
-| 8711 | FastAPI 개발 서버 (`make api-dev`, Docker 없이 실행할 때) | 127.0.0.1 | `Makefile` | P1 |
+| 8711 | FastAPI 개발 서버 (`scripts/dev.sh api-dev`, Docker 없이 실행할 때) | 127.0.0.1 | `scripts/dev.sh` | P1 |
 | 8720 | PostgreSQL 16 (개발 override 전용) | 127.0.0.1 | `compose.override.yaml` | P1 |
 | 8721 | Redis 7 (개발 override 전용) | 127.0.0.1 | `compose.override.yaml` | P1 |
 | 8740 | 운영 모니터링 대시보드 (예약) | 127.0.0.1 | P9에서 확정 | P9 |
