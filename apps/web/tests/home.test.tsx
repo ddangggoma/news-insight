@@ -8,6 +8,6 @@ describe("HomePage", () => {
     render(<HomePage />);
 
     expect(screen.getByRole("heading", { name: "Daily IT Intelligence" })).toBeInTheDocument();
-    expect(screen.getByText(/07:00 KST 정시 발행/)).toBeInTheDocument();
+    expect(screen.getByText(/05:00 KST 정시 발행/)).toBeInTheDocument();
   });
 });

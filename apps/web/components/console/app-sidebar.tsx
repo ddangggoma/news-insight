@@ -1,0 +1,75 @@
+"use client";
+
+import { Activity, Inbox, LayoutDashboard, Library, Newspaper, Radar, Rss, TrendingUp } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
+
+const NAV = [
+  { label: "개요", items: [
+    { href: "/console", title: "대시보드", icon: LayoutDashboard },
+    { href: "/console/digests", title: "데일리 다이제스트", icon: Newspaper },
+  ] },
+  { label: "수집", items: [
+    { href: "/console/sources", title: "소스", icon: Rss },
+    { href: "/console/runs", title: "수집 현황", icon: Activity },
+    { href: "/console/dlq", title: "DLQ", icon: Inbox },
+  ] },
+  { label: "인텔리전스", items: [
+    { href: "/console/items", title: "수집 항목", icon: Library },
+    { href: "/console/trends", title: "지표 상승", icon: TrendingUp },
+  ] },
+];
+
+export function isActive(pathname: string, href: string): boolean {
+  return href === "/console" ? pathname === href : pathname === href || pathname.startsWith(`${href}/`);
+}
+
+export function AppSidebar() {
+  const pathname = usePathname();
+  return (
+    <Sidebar collapsible="icon">
+      <SidebarHeader>
+        <Link href="/console" className="flex items-center gap-2 px-2 py-1.5 font-semibold">
+          <span className="flex size-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
+            <Radar className="size-4" />
+          </span>
+          <span className="truncate group-data-[collapsible=icon]:hidden">DX Intelligence</span>
+        </Link>
+      </SidebarHeader>
+      <SidebarContent>
+        {NAV.map((group) => (
+          <SidebarGroup key={group.label}>
+            <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+            <SidebarMenu>
+              {group.items.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                  <SidebarMenuButton asChild isActive={isActive(pathname, item.href)} tooltip={item.title}>
+                    <Link href={item.href}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroup>
+        ))}
+      </SidebarContent>
+      <SidebarFooter className="px-4 pb-4 text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">
+        매일 05:00 KST 발행
+      </SidebarFooter>
+    </Sidebar>
+  );
+}
