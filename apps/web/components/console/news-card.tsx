@@ -29,7 +29,7 @@ export function NewsCard({ view, now }: { view: CardView; now?: Date }) {
         <ClassificationBadges card={card} />
       </div>
       {card.summary_ko.length > 0 ? (
-        <ul className="mt-3 space-y-1.5 text-sm leading-relaxed text-muted-foreground">
+        <ul className="mt-3 space-y-1.5 text-sm leading-relaxed text-ink-2">
           {card.summary_ko.map((line) => (
             <li key={line} className="flex gap-2">
               <span className="mt-2 size-1 shrink-0 rounded-full bg-primary/70" aria-hidden />

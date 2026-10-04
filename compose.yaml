@@ -13,6 +13,7 @@ x-python-env: &python-env
   SOURCE_SECRET_NAVER_CLIENT_ID: ${SOURCE_SECRET_NAVER_CLIENT_ID:-}
   SOURCE_SECRET_NAVER_CLIENT_SECRET: ${SOURCE_SECRET_NAVER_CLIENT_SECRET:-}
   CONSOLE_API_KEY: ${CONSOLE_API_KEY:?CONSOLE_API_KEY is required}
+  PUBLIC_API_KEY: ${PUBLIC_API_KEY:-}
 
 x-python-image: &python-image
   image: news-insight-api:${IMAGE_TAG:-local}
@@ -71,6 +72,7 @@ services:
     environment:
       API_INTERNAL_URL: http://api:8000
       CONSOLE_API_KEY: ${CONSOLE_API_KEY:?CONSOLE_API_KEY is required}
+      PUBLIC_API_KEY: ${PUBLIC_API_KEY:-}
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
       interval: 10s

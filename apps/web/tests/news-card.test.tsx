@@ -55,6 +55,14 @@ describe("NewsCard", () => {
     expect(screen.getByRole("link", { name: "관련 3건" })).toHaveAttribute("href", "/console/stories?focus=9");
   });
 
+  it("renders the summary in the readable body ink, not muted grey", () => {
+    render(<NewsCard view={VIEW} now={new Date("2026-10-04T02:00:00Z")} />);
+
+    const summary = screen.getByRole("list");
+    expect(summary).toHaveClass("text-ink-2");
+    expect(summary).not.toHaveClass("text-muted-foreground");
+  });
+
   it("falls back to the original title and hides empty sections", () => {
     render(
       <NewsCard view={{ item: { ...VIEW.item, title_ko: null }, card: { ...VIEW.card, title_ko: null, summary_ko: [], keywords: [] } }} />,
