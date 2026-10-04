@@ -532,3 +532,26 @@ def stories_run(
     )
     relations = " ".join(f"{k}={v}" for k, v in sorted(stats.by_relation.items()))
     typer.echo(f"processed={stats.processed} {relations or '-'} refs={stats.refs}")
+
+
+@stories_app.command("eval")
+def stories_eval(
+    size: Annotated[int, typer.Option(help="Candidate pairs to judge")] = 200,
+) -> None:
+    """Judge real candidate pairs with Antigravity and report P/R/F1 per MinHash threshold."""
+    from news_insight.stories.evaluate import judge, sample_pairs, score
+
+    agy, _ = _card_engines(False)
+    assert agy is not None
+    with session_scope() as session:
+        pairs = sample_pairs(session, now=datetime.now(UTC), size=size)
+    labels = judge(agy.ask, pairs)
+    same = sum(labels.values())
+    typer.echo(f"pairs={len(pairs)} judged={len(labels)} same_event={same}")
+    typer.echo("threshold  precision  recall  f1")
+    for result in score(pairs, labels):
+        cells = [
+            f"{value:.2f}" if value is not None else "  - "
+            for value in (result.precision, result.recall, result.f1)
+        ]
+        typer.echo(f"{result.threshold:>9.2f}  {cells[0]:>9}  {cells[1]:>6}  {cells[2]:>4}")
