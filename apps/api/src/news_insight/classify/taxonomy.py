@@ -52,7 +52,6 @@ class TaxonomyNode(BaseModel):
 class TaxonomyAxis(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    max_labels: int = Field(ge=1, le=5)
     nodes: tuple[TaxonomyNode, ...] = Field(min_length=1)
 
     @model_validator(mode="after")
@@ -64,12 +63,22 @@ class TaxonomyAxis(BaseModel):
         return self
 
 
+class TaxonomyRules(BaseModel):
+    """Per-item label limits and free-text rules (impact is always exactly one)."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    max_fields: int = Field(ge=1, le=10)
+    max_products: int = Field(ge=1, le=10)
+    guidance: tuple[str, ...] = ()
+
+
 class Taxonomy(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     version: Literal[1]
     revision: int = Field(ge=1)
-    guidance: tuple[str, ...] = ()
+    rules: TaxonomyRules
     axes: dict[Axis, TaxonomyAxis]
 
     @model_validator(mode="after")
@@ -86,7 +95,11 @@ class Taxonomy(BaseModel):
         return tuple(node.key for node in self.axes[axis].nodes)
 
     def max_labels(self, axis: Axis) -> int:
-        return self.axes[axis].max_labels
+        if axis is Axis.FIELD:
+            return self.rules.max_fields
+        if axis is Axis.PRODUCT:
+            return self.rules.max_products
+        return 1
 
     def label(self, axis: Axis, key: str) -> str | None:
         for node in self.axes[axis].nodes:
@@ -118,9 +131,9 @@ class Taxonomy(BaseModel):
                 if node.examples:
                     line += f" (예: {', '.join(node.examples)})"
                 lines.append(line)
-        if self.guidance:
+        if self.rules.guidance:
             lines.append("분류 규칙:")
-            lines.extend(f"  - {rule}" for rule in self.guidance)
+            lines.extend(f"  - {rule}" for rule in self.rules.guidance)
         return "\n".join(lines)
 
 

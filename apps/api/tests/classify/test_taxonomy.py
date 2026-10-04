@@ -13,10 +13,13 @@ from news_insight.classify.taxonomy import (
 MINIMAL: dict[str, object] = {
     "version": 1,
     "revision": 3,
-    "guidance": ["반도체 자산 투자는 다루지 않는다."],
+    "rules": {
+        "max_fields": 2,
+        "max_products": 1,
+        "guidance": ["반도체 자산 투자는 다루지 않는다."],
+    },
     "axes": {
         "field": {
-            "max_labels": 2,
             "nodes": [
                 {"key": "ai", "label": "온디바이스 AI·모델", "description": "모델 경량화"},
                 {"key": "display", "label": "디스플레이", "description": "패널"},
@@ -24,11 +27,12 @@ MINIMAL: dict[str, object] = {
             ],
         },
         "product": {
-            "max_labels": 2,
-            "nodes": [{"key": "phone", "label": "스마트폰", "description": "바형 스마트폰"}],
+            "nodes": [
+                {"key": "phone", "label": "스마트폰", "description": "바형 스마트폰"},
+                {"key": "foldable", "label": "폴더블", "description": "접는 폰"},
+            ],
         },
         "impact": {
-            "max_labels": 1,
             "nodes": [
                 {"key": "opportunity", "label": "기회", "description": "기회"},
                 {"key": "risk", "label": "위험", "description": "위험"},
@@ -45,15 +49,19 @@ def write(tmp_path: Path, data: object) -> Path:
     return path
 
 
-def test_shipped_taxonomy_is_the_draft_v1() -> None:
+def test_shipped_taxonomy_is_the_finalized_v1() -> None:
     taxonomy = load_taxonomy(DEFAULT_TAXONOMY_PATH)
 
     assert taxonomy.revision >= 1
-    assert len(taxonomy.keys(Axis.FIELD)) == 15
-    assert len(taxonomy.keys(Axis.PRODUCT)) == 11
+    assert len(taxonomy.keys(Axis.FIELD)) == 23
+    assert len(taxonomy.keys(Axis.PRODUCT)) == 18
     assert taxonomy.keys(Axis.IMPACT) == ("opportunity", "risk", "watch")
+    assert {"genai_service", "smarthome", "quantum"} <= set(taxonomy.keys(Axis.FIELD))
+    assert {"earbuds_audio", "signage", "camera_drone"} <= set(taxonomy.keys(Axis.PRODUCT))
+    assert not {"smart_ring", "game_device"} & set(taxonomy.keys(Axis.PRODUCT))
     assert taxonomy.label(Axis.FIELD, "ai") == "온디바이스 AI·모델"
     assert taxonomy.label(Axis.PRODUCT, "home_robot_iot") == "홈로봇·IoT"
+    assert (taxonomy.max_labels(Axis.FIELD), taxonomy.max_labels(Axis.PRODUCT)) == (3, 3)
     assert taxonomy.max_labels(Axis.IMPACT) == 1
     assert all(node.description for node in taxonomy.nodes(Axis.FIELD))
 
@@ -65,7 +73,7 @@ def test_pick_drops_unknown_keys_duplicates_and_caps(tmp_path: Path) -> None:
         "ai",
         "display",
     ]
-    assert taxonomy.pick(Axis.PRODUCT, ["phone", 7, None]) == ["phone"]  # type: ignore[list-item]
+    assert taxonomy.pick(Axis.PRODUCT, [7, None, "phone", "foldable"]) == ["phone"]
     assert taxonomy.pick(Axis.IMPACT, ["boom"]) == []
     assert taxonomy.pick(Axis.IMPACT, ["risk", "watch"]) == ["risk"]
     assert taxonomy.label(Axis.FIELD, "quantum") is None
@@ -93,7 +101,8 @@ def test_prompt_lists_every_key_with_label_and_guidance(tmp_path: Path) -> None:
         ),
         lambda d: d.update(revision=0),
         lambda d: d["axes"].update(region={"max_labels": 1, "nodes": []}),
-        lambda d: d["axes"]["impact"].update(max_labels=0),
+        lambda d: d["rules"].update(max_fields=0),
+        lambda d: d.pop("rules"),
         lambda d: d["axes"]["field"]["nodes"][0].update(color="red"),
     ],
 )
