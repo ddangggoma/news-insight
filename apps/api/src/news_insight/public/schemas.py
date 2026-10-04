@@ -142,6 +142,10 @@ class Topic(BaseModel):
     tracks: dict[str, int]
     previous_tracks: dict[str, int]
     impacts: dict[str, int]
+    regions: dict[str, int]  # current window, by source region
+    first_seen: dict[str, datetime]  # earliest report per region over the trend span
+    official: int  # current-window reports from official vendor sources
+    effective_sources: float | None  # 1 / HHI of reports per source in the current window
 
 
 class KeywordPair(BaseModel):
@@ -152,6 +156,21 @@ class KeywordPair(BaseModel):
     is_new: bool
 
 
+class FlowLink(BaseModel):
+    source: str
+    target: str
+    count: int
+    median_hours: float
+
+
+class Flows(BaseModel):
+    """Track-to-track hand-offs completed in the window (stories and shared identifiers)."""
+
+    chains: int
+    origins: dict[str, int]
+    links: list[FlowLink]
+
+
 class Radar(BaseModel):
     window: RadarWindow
     periods: list[str]
@@ -160,6 +179,7 @@ class Radar(BaseModel):
     themes: list[Topic]
     keywords: list[Topic]
     pairs: list[KeywordPair]
+    flows: Flows
 
 
 class KeywordCount(BaseModel):

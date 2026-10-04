@@ -6,11 +6,11 @@ state, and the track mix (research + open source vs news + community) as a matur
 DX businesses are a filter here, not an axis. Counted live; R3 rollups will replace the queries.
 """
 
-from collections import Counter
+from collections import Counter, defaultdict
 from dataclasses import dataclass
 from datetime import datetime
 from itertools import combinations
-from statistics import fmean, pstdev
+from statistics import fmean, median, pstdev
 from typing import Any
 
 from sqlalchemy import ColumnElement, case, distinct, exists, func, literal, null, select, true
@@ -24,6 +24,8 @@ from news_insight.public.filters import ReaderFilters, joined
 from news_insight.public.periods import Window, trailing_windows
 from news_insight.public.schemas import (
     Count,
+    FlowLink,
+    Flows,
     KeywordCount,
     KeywordPair,
     Radar,
@@ -32,9 +34,9 @@ from news_insight.public.schemas import (
     Topic,
     TopicDetail,
 )
-from news_insight.sources.enums import Track
+from news_insight.sources.enums import Region, Track
 from news_insight.sources.models import Source
-from news_insight.stories.models import Story, StoryItem
+from news_insight.stories.models import ItemRef, Story, StoryItem
 
 TREND_WINDOWS = 8
 MIN_SOURCES = 2  # new / surging needs more than one outlet
@@ -46,6 +48,10 @@ PAIR_TOP = 24
 RESEARCH = (Track.RESEARCH_IP, Track.OSS)
 IMPACTS = ("opportunity", "risk", "watch")
 KINDS = ("field", "theme", "keyword")
+OFFICIAL = "official_vendor"
+# ties between tracks reached at the same moment go research-first
+PIPELINE = (Track.RESEARCH_IP, Track.OSS, Track.COMMUNITY, Track.NEWS)
+TRACK_ORDER = {t.value: i for i, t in enumerate(PIPELINE)}
 
 
 def _normalized(value: Any) -> Any:
@@ -67,6 +73,17 @@ def _span(windows: list[Window]) -> list[ColumnElement[bool]]:
     return [Item.first_seen_at >= windows[0].start, Item.first_seen_at < windows[-1].end]
 
 
+def _dimension(dimension: str) -> tuple[Any, Any, Any]:
+    """(key expression, lateral join or None, display label or None) for one dimension."""
+    if dimension == "field":
+        return ItemCard.field, None, None
+    column = ItemCard.themes if dimension == "theme" else ItemCard.keywords
+    join = func.jsonb_array_elements_text(column).table_valued("value").lateral("element")
+    if dimension == "theme":
+        return join.c.value, join, None
+    return _normalized(join.c.value), join, func.mode().within_group(join.c.value)
+
+
 @dataclass
 class Series:
     label: str | None
@@ -76,6 +93,9 @@ class Series:
     tracks: dict[str, int]
     previous_tracks: dict[str, int]
     impacts: dict[str, int]
+    regions: dict[str, int]
+    first_seen: dict[str, datetime]
+    official: int
 
 
 def _series(
@@ -91,16 +111,7 @@ def _series(
     last = len(windows) - 1
     bucket = _bucket(windows)
     items = func.count(distinct(Item.id))
-    label: Any = None
-    if dimension == "field":
-        key: Any = ItemCard.field
-        join = None
-    else:
-        column = ItemCard.themes if dimension == "theme" else ItemCard.keywords
-        join = func.jsonb_array_elements_text(column).table_valued("value").lateral("element")
-        key = join.c.value if dimension == "theme" else _normalized(join.c.value)
-        if dimension == "keyword":
-            label = func.mode().within_group(join.c.value)
+    key, join, label = _dimension(dimension)
     columns = [
         key,
         label if label is not None else null(),
@@ -110,6 +121,9 @@ def _series(
         *(items.filter(bucket == last, Item.track == t) for t in Track),
         *(items.filter(bucket == last - 1, Item.track == t) for t in Track),
         *(items.filter(bucket == last, ItemCard.impact == impact) for impact in IMPACTS),
+        *(items.filter(bucket == last, Source.region == r) for r in Region),
+        items.filter(bucket == last, Source.category == OFFICIAL),
+        *(func.min(Item.first_seen_at).filter(Source.region == r) for r in Region),
     ]
     statement = joined(select(*columns))
     if join is not None:
@@ -119,12 +133,15 @@ def _series(
         statement = statement.where(key == only)
     statement = statement.group_by(key).having(items >= min_total)
     tracks = [t.value for t in Track]
-    n, k = len(windows), len(tracks)
+    regions = [r.value for r in Region]
+    n, k, m = len(windows), len(tracks), len(regions)
     result: dict[str, Series] = {}
     for row in session.execute(statement).tuples():
         value, name, field, *numbers = row
+        firsts = numbers[-m:]
         counts = [int(c) for c in numbers[:n]]
-        rest = [int(c) for c in numbers[n:]]
+        rest = [int(c) for c in numbers[n:-m]]
+        at = 1 + 2 * k + len(IMPACTS)
         result[str(value)] = Series(
             label=str(name) if name is not None else None,
             field=str(field) if field is not None else None,
@@ -132,9 +149,34 @@ def _series(
             sources=rest[0],
             tracks=dict(zip(tracks, rest[1 : 1 + k], strict=True)),
             previous_tracks=dict(zip(tracks, rest[1 + k : 1 + 2 * k], strict=True)),
-            impacts=dict(zip(IMPACTS, rest[1 + 2 * k :], strict=True)),
+            impacts=dict(zip(IMPACTS, rest[1 + 2 * k : at], strict=True)),
+            regions=dict(zip(regions, rest[at : at + m], strict=True)),
+            official=rest[at + m],
+            first_seen={r: t for r, t in zip(regions, firsts, strict=True) if t is not None},
         )
     return result
+
+
+def _effective_sources(
+    session: Session, conditions: list[ColumnElement[bool]], window: Window, dimension: str
+) -> dict[str, float]:
+    """1 / Herfindahl index of reports per source in the window: 1 = one outlet, n = n equal."""
+    key, join, _ = _dimension(dimension)
+    statement = joined(select(key, Item.source_id, func.count(distinct(Item.id))))
+    if join is not None:
+        statement = statement.join(join, true())
+    rows = session.execute(
+        statement.where(*conditions, *_span([window]), key.is_not(None)).group_by(
+            key, Item.source_id
+        )
+    ).tuples()
+    shares: dict[str, list[int]] = defaultdict(list)
+    for value, _, count in rows:
+        shares[str(value)].append(int(count))
+    return {
+        value: round(sum(counts) ** 2 / sum(c * c for c in counts), 2)
+        for value, counts in shares.items()
+    }
 
 
 def change(count: int, previous: int) -> float | None:
@@ -163,7 +205,7 @@ def lifecycle(counts: list[int], sources: int) -> str | None:
     return "steady" if current >= KEYWORD_MIN_COUNT else None
 
 
-def _topic(key: str, series: Series) -> Topic:
+def _topic(key: str, series: Series, effective: float | None = None) -> Topic:
     return Topic(
         key=key,
         label=series.label,
@@ -176,6 +218,10 @@ def _topic(key: str, series: Series) -> Topic:
         tracks=series.tracks,
         previous_tracks=series.previous_tracks,
         impacts=series.impacts,
+        regions=series.regions,
+        first_seen=series.first_seen,
+        official=series.official,
+        effective_sources=effective,
     )
 
 
@@ -294,6 +340,62 @@ def _pairs(
     return pairs[:PAIR_TOP]
 
 
+def _arrivals(
+    session: Session,
+    chain: Any,
+    conditions: list[ColumnElement[bool]],
+    window: Window,
+    *,
+    refs: bool = False,
+) -> dict[str, dict[str, datetime]]:
+    """chain key → track → first time that track reported on it (up to the window end)."""
+    statement = joined(select(chain, Item.track, func.min(Item.first_seen_at)))
+    if refs:
+        statement = statement.join(ItemRef, ItemRef.item_id == Item.id)
+    rows = session.execute(
+        statement.where(*conditions, chain.is_not(None), Item.first_seen_at < window.end).group_by(
+            chain, Item.track
+        )
+    ).tuples()
+    result: dict[str, dict[str, datetime]] = defaultdict(dict)
+    for key, track, at in rows:
+        result[str(key)][Track(track).value] = at
+    return result
+
+
+def _flows(session: Session, conditions: list[ColumnElement[bool]], window: Window) -> Flows:
+    """How reports moved between tracks: within a story, or via a shared arXiv/DOI/repo id.
+
+    A chain counts when one of its tracks was first reached inside the window; each step is the
+    next track to pick the subject up, with the hours it took.
+    """
+    assert window.start is not None
+    touching = [Story.last_seen_at >= window.start, Story.first_seen_at < window.end]
+    stories = _arrivals(session, StoryItem.story_id, [*conditions, *touching], window)
+    ref = func.concat(ItemRef.kind, ":", ItemRef.value)
+    refs = _arrivals(session, ref, conditions, window, refs=True)
+    origins: Counter[str] = Counter()
+    lags: dict[tuple[str, str], list[float]] = defaultdict(list)
+    chains = 0
+    for arrivals in (*stories.values(), *refs.values()):
+        if len(arrivals) < 2:
+            continue
+        ordered = sorted(arrivals.items(), key=lambda kv: (kv[1], TRACK_ORDER[kv[0]]))
+        steps = [(a, b) for a, b in zip(ordered, ordered[1:], strict=False) if b[1] >= window.start]
+        if not steps:
+            continue
+        chains += 1
+        origins[ordered[0][0]] += 1
+        for (source, start), (target, end) in steps:
+            lags[(source, target)].append((end - start).total_seconds() / 3600)
+    links = [
+        FlowLink(source=a, target=b, count=len(hours), median_hours=round(median(hours), 1))
+        for (a, b), hours in lags.items()
+    ]
+    links.sort(key=lambda link: (-link.count, link.source, link.target))
+    return Flows(chains=chains, origins=dict(origins), links=links)
+
+
 def _pick_keywords(topics: list[Topic]) -> list[Topic]:
     called = [t for t in topics if t.state is not None]
     live = sorted(
@@ -314,8 +416,9 @@ def radar(
 
     def topics(dimension: str, min_total: int = 1) -> list[Topic]:
         series = _series(session, base, windows, dimension, min_total=min_total)
+        effective = _effective_sources(session, base, window, dimension)
         return sorted(
-            (_topic(key, s) for key, s in series.items()),
+            (_topic(key, s, effective.get(key)) for key, s in series.items()),
             key=lambda t: (-t.counts[-1], -sum(t.counts), t.key),
         )
 
@@ -328,6 +431,7 @@ def radar(
         themes=topics("theme"),
         keywords=keywords,
         pairs=_pairs(session, base, windows, keywords, kpis.items[-1]),
+        flows=_flows(session, base, window),
     )
 
 
@@ -365,8 +469,9 @@ def topic_detail(
     series = _series(session, base, windows, kind, only=value).get(value)
     counts = series.counts if series else [0] * TREND_WINDOWS
     empty = dict.fromkeys((t.value for t in Track), 0)
+    effective = _effective_sources(session, base, window, kind).get(value)
     topic = (
-        _topic(value, series)
+        _topic(value, series, effective)
         if series
         else Topic(
             key=value,
@@ -380,6 +485,10 @@ def topic_detail(
             tracks=empty,
             previous_tracks=empty,
             impacts=dict.fromkeys(IMPACTS, 0),
+            regions=dict.fromkeys((r.value for r in Region), 0),
+            first_seen={},
+            official=0,
+            effective_sources=None,
         )
     )
     current = [*base, *_span([window])]

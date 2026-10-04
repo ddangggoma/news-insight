@@ -217,3 +217,39 @@ def test_failed_and_stale_cards_stay_out(
     assert db_session.scalar(select(ItemCard.id).limit(1)) is not None
     body = get(public_client, public_headers, "radar", period="week", scope="all")
     assert body["kpis"]["items"][-1] == 6
+
+
+def test_radar_regions_concentration_and_flows(
+    public_client: TestClient, public_headers: dict[str, str]
+) -> None:
+    body = get(public_client, public_headers, "radar", period="week", key="2026-W40")
+    ai = by_key(body["fields"])["ai_data"]
+    assert ai["regions"] == {"kr": 1, "global_en": 1, "jp": 0, "greater_china": 0, "eu_other": 0}
+    assert set(ai["first_seen"]) == {"kr", "global_en"}
+    # one report each from two outlets
+    assert ai["effective_sources"] == 2.0
+    assert ai["official"] == 0
+    # the repo (oss, 50 h ago) and the paper (research, 26 h ago) share an arXiv id
+    assert body["flows"] == {
+        "chains": 1,
+        "origins": {"oss": 1},
+        "links": [{"source": "oss", "target": "research_ip", "count": 1, "median_hours": 24.0}],
+    }
+    earlier = get(public_client, public_headers, "radar", period="week", key="2026-W39")
+    assert earlier["flows"]["chains"] == 0
+
+
+def test_radar_topic_carries_concentration(
+    public_client: TestClient, public_headers: dict[str, str]
+) -> None:
+    body = get(
+        public_client,
+        public_headers,
+        "radar/topic",
+        period="week",
+        key="2026-W40",
+        kind="keyword",
+        value="oled",
+    )
+    assert body["topic"]["effective_sources"] == 2.0
+    assert body["topic"]["regions"]["global_en"] == 2
