@@ -172,6 +172,20 @@ PRESETS: dict[str, dict[str, Any]] = {
             "author": "bloggername",
         },
     },
+    # Hugging Face Hub public API (models / datasets / spaces listing), no token needed.
+    "huggingface_hub": {
+        "list_path": "",
+        "fields": {
+            "id": "id",
+            "url": [],
+            "title": "id",
+            "summary": "pipeline_tag",
+            "published_at": ["lastModified", "createdAt"],
+            "author": "author",
+        },
+        "url_template": "https://huggingface.co/{id|path}",
+        "metrics": {"likes": "likes", "downloads": "downloads", "trending": "trendingScore"},
+    },
     # YouTube Data API v3 playlistItems (channel uploads playlist UU...), X-Goog-Api-Key header.
     "youtube_playlist": {
         "list_path": "items",
