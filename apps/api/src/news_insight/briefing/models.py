@@ -41,6 +41,7 @@ class Briefing(Base):
     status: Mapped[BriefingStatus] = mapped_column(str_enum(BriefingStatus))
     freeze_id: Mapped[int] = mapped_column(ForeignKey("briefing_freezes.id"))
     digest_id: Mapped[int | None] = mapped_column(ForeignKey("digests.id"))
+    strategy_id: Mapped[int | None] = mapped_column(ForeignKey("strategy_runs.id"))
     input_hash: Mapped[str] = mapped_column(String(64))
     shortlist: Mapped[list[dict[str, Any]]] = mapped_column(JSONB)
     gates: Mapped[list[dict[str, Any]]] = mapped_column(JSONB)

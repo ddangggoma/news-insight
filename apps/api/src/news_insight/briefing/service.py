@@ -19,6 +19,7 @@ from news_insight.cards.models import CardStatus, ItemCard
 from news_insight.digest.claude import ClaudeClient
 from news_insight.digest.service import generate_digest
 from news_insight.stories.models import StoryItem
+from news_insight.strategy.service import generate_strategy, strategy_ok
 from news_insight.taxonomy.catalog import TAXONOMY_REVISION
 
 DEFAULT_RULES = SelectionRules()
@@ -60,6 +61,7 @@ def publish(
     client: ClaudeClient,
     model: str,
     rules: SelectionRules = DEFAULT_RULES,
+    with_strategy: bool = True,
 ) -> Briefing:
     snapshot = freeze(session, briefing_date=briefing_date, now=now)
     selected = shortlist(load_candidates(session, list(snapshot.candidate_ids), now=now), rules)
@@ -86,6 +88,14 @@ def publish(
         if ids
         else None
     )
+    strategy = (
+        generate_strategy(
+            session, briefing_date=briefing_date, item_ids=ids, now=now, client=client, model=model
+        )
+        if ids and with_strategy
+        else None
+    )
+    personas_ok, strategy_passed = strategy_ok(strategy) if with_strategy else (None, None)
     carded = (
         session.scalar(
             select(func.count())
@@ -101,7 +111,15 @@ def publish(
         .tuples()
         .all()
     )
-    gates = evaluate(selected, rules=rules, carded=carded, story_ids=story_ids, digest=digest)
+    gates = evaluate(
+        selected,
+        rules=rules,
+        carded=carded,
+        story_ids=story_ids,
+        digest=digest,
+        personas_ok=personas_ok,
+        strategy_ok=strategy_passed,
+    )
     blocked = any(g.blocking and not g.passed for g in gates)
     version = (
         session.scalar(
@@ -115,6 +133,7 @@ def publish(
         status=BriefingStatus.BLOCKED if blocked else BriefingStatus.PUBLISHED,
         freeze_id=snapshot.id,
         digest_id=digest.id if digest is not None else None,
+        strategy_id=strategy.id if strategy is not None else None,
         input_hash=input_hash,
         shortlist=[
             {"item_id": c.item_id, "track": c.track, "score": round(c.score, 2)} for c in selected

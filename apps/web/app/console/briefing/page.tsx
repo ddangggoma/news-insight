@@ -5,6 +5,7 @@ import { DigestView } from "@/components/console/digest-view";
 import { EmptyState } from "@/components/console/empty-state";
 import { NewsCard } from "@/components/console/news-card";
 import { PageHeader } from "@/components/console/page-header";
+import { StrategyView } from "@/components/console/strategy-view";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -87,6 +88,7 @@ export default async function BriefingPage({ searchParams }: { searchParams: Pro
           ))}
         </CardContent>
       </Card>
+      {briefing.strategy ? <StrategyView strategy={briefing.strategy} /> : null}
       {briefing.digest ? <DigestView digest={briefing.digest} /> : null}
       {briefing.sections.map((section) => (
         <section key={section.track} className="space-y-3">

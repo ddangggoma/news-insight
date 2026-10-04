@@ -131,7 +131,13 @@ def test_publish_passes_gates_and_is_idempotent(db_session: Session) -> None:
     seed(db_session)
 
     first = publish(
-        db_session, briefing_date=DAY, now=FREEZE_AT, client=FakeClaude(), model="opus", rules=RULES
+        db_session,
+        briefing_date=DAY,
+        now=FREEZE_AT,
+        client=FakeClaude(),
+        model="opus",
+        rules=RULES,
+        with_strategy=False,
     )
     calls = FakeClaude.calls
     again = publish(
@@ -141,6 +147,7 @@ def test_publish_passes_gates_and_is_idempotent(db_session: Session) -> None:
         client=FakeClaude(),
         model="opus",
         rules=RULES,
+        with_strategy=False,
     )
 
     assert first.status is BriefingStatus.PUBLISHED, failing(first.gates)
@@ -159,7 +166,13 @@ def test_freeze_snapshot_ignores_late_items(db_session: Session) -> None:
         == snapshot.id
     )
     briefing = publish(
-        db_session, briefing_date=DAY, now=FREEZE_AT, client=FakeClaude(), model="opus", rules=RULES
+        db_session,
+        briefing_date=DAY,
+        now=FREEZE_AT,
+        client=FakeClaude(),
+        model="opus",
+        rules=RULES,
+        with_strategy=False,
     )
     late = db_session.scalars(select(Item).where(Item.title == "late 기사")).one()
     assert late.id not in {entry["item_id"] for entry in briefing.shortlist}
@@ -168,7 +181,13 @@ def test_freeze_snapshot_ignores_late_items(db_session: Session) -> None:
 def test_failed_gate_blocks_and_keeps_the_previous_briefing(db_session: Session) -> None:
     seed(db_session)
     yesterday = publish(
-        db_session, briefing_date=DAY, now=FREEZE_AT, client=FakeClaude(), model="opus", rules=RULES
+        db_session,
+        briefing_date=DAY,
+        now=FREEZE_AT,
+        client=FakeClaude(),
+        model="opus",
+        rules=RULES,
+        with_strategy=False,
     )
     next_day = DAY + timedelta(days=1)
     seed(
@@ -184,6 +203,7 @@ def test_failed_gate_blocks_and_keeps_the_previous_briefing(db_session: Session)
         client=FakeClaude(),
         model="opus",
         rules=RULES,
+        with_strategy=False,
     )
 
     assert blocked.status is BriefingStatus.BLOCKED
@@ -199,7 +219,13 @@ def test_console_briefing_api(
     client: TestClient = console_client  # type: ignore[assignment]
     seed(db_session)
     publish(
-        db_session, briefing_date=DAY, now=FREEZE_AT, client=FakeClaude(), model="opus", rules=RULES
+        db_session,
+        briefing_date=DAY,
+        now=FREEZE_AT,
+        client=FakeClaude(),
+        model="opus",
+        rules=RULES,
+        with_strategy=False,
     )
 
     latest = client.get("/api/admin/briefings/latest", headers=headers).json()

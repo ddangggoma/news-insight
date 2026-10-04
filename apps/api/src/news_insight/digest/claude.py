@@ -48,7 +48,13 @@ class ClaudeResult:
 
 class ClaudeClient(Protocol):
     def generate(
-        self, payload: dict[str, Any], *, schema: dict[str, Any], model: str
+        self,
+        payload: dict[str, Any],
+        *,
+        schema: dict[str, Any],
+        model: str,
+        system: str | None = None,
+        instruction: str | None = None,
     ) -> ClaudeResult: ...
 
 
@@ -69,8 +75,15 @@ class ClaudeCli:
         self._runner = runner
 
     def generate(
-        self, payload: dict[str, Any], *, schema: dict[str, Any], model: str
+        self,
+        payload: dict[str, Any],
+        *,
+        schema: dict[str, Any],
+        model: str,
+        system: str | None = None,
+        instruction: str | None = None,
     ) -> ClaudeResult:
+        """Digest prompts by default; `system`/`instruction` reuse the sandbox for P7 roles."""
         args = [
             self._executable,
             "-p",
@@ -85,8 +98,8 @@ class ClaudeCli:
             "--json-schema",
             json.dumps(schema, ensure_ascii=False),
             "--system-prompt",
-            SYSTEM_PROMPT,
-            USER_PROMPT,
+            system or SYSTEM_PROMPT,
+            instruction or USER_PROMPT,
         ]
         with tempfile.TemporaryDirectory(prefix="digest-") as workdir:
             try:
