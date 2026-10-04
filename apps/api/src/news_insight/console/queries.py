@@ -6,6 +6,8 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from news_insight.cards.models import CardStatus, ItemCard
+from news_insight.classify.store import current_labels, empty_labels
+from news_insight.classify.taxonomy import Axis, Labels, Taxonomy, get_taxonomy
 from news_insight.collect.models import DeadLetter, FetchOutcome, FetchRun, SourceRuntime
 from news_insight.console.schemas import (
     CardBody,
@@ -23,6 +25,7 @@ from news_insight.console.schemas import (
     SourceDetail,
     SourceRow,
     StageCount,
+    TaxonomyLabel,
     TrackCount,
     ValidationEventOut,
 )
@@ -223,7 +226,22 @@ def korean_titles(session: Session, item_ids: list[int]) -> dict[int, str]:
     return {item_id: title for item_id, title in rows if title}
 
 
-def card_body(card: ItemCard) -> CardBody:
+def _taxonomy_labels(taxonomy: Taxonomy, axis: Axis, keys: list[str]) -> list[TaxonomyLabel]:
+    """Labels for keys the current taxonomy still defines (others are not shown)."""
+    found = []
+    for key in keys:
+        label = taxonomy.label(axis, key)
+        if label is not None:
+            found.append(TaxonomyLabel(key=key, label=label))
+    return found
+
+
+def card_body(
+    card: ItemCard, labels: Labels | None = None, taxonomy: Taxonomy | None = None
+) -> CardBody:
+    taxonomy = taxonomy or get_taxonomy()
+    labels = labels or empty_labels()
+    impact = _taxonomy_labels(taxonomy, Axis.IMPACT, labels[Axis.IMPACT])
     return CardBody(
         title_ko=card.title_ko,
         summary_ko=list(card.summary_ko),
@@ -232,6 +250,10 @@ def card_body(card: ItemCard) -> CardBody:
         engine=card.engine,
         model=card.model,
         generated_at=card.generated_at,
+        fields=_taxonomy_labels(taxonomy, Axis.FIELD, labels[Axis.FIELD]),
+        products=_taxonomy_labels(taxonomy, Axis.PRODUCT, labels[Axis.PRODUCT]),
+        impact=impact[0] if impact else None,
+        taxonomy_rev=card.taxonomy_rev,
     )
 
 
@@ -439,7 +461,9 @@ def item_detail(session: Session, item_id: int) -> ItemDetail | None:
             MetricPoint(captured_at=snap.captured_at, metrics=dict(snap.metrics))
             for snap in snapshots
         ],
-        card=card_body(card) if card is not None else None,
+        card=card_body(card, current_labels(session, [item.id]).get(item.id))
+        if card is not None
+        else None,
     )
 
 
