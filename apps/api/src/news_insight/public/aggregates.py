@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from news_insight.cards.models import ItemCard
 from news_insight.content.models import Item
 from news_insight.public.filters import AXES, ReaderFilters, in_window, joined
+from news_insight.public.keywords import keyword_key_sql
 from news_insight.public.periods import Window
 from news_insight.public.schemas import Count, Insights, KeywordTrend
 from news_insight.sources.models import Source
@@ -66,7 +67,7 @@ def keyword_counts(
     session: Session, conditions: list[ColumnElement[bool]]
 ) -> dict[str, tuple[str, int]]:
     element = func.jsonb_array_elements_text(ItemCard.keywords).table_valued("value").lateral("kw")
-    normalized = func.lower(func.replace(element.c.value, " ", ""))
+    normalized = keyword_key_sql(element.c.value)
     statement = (
         joined(
             select(

@@ -92,38 +92,128 @@ export interface RadarWindow {
   prev_key: string;
   next_key: string;
   is_current: boolean;
+  /** Share of the current window already past; null for a closed window. */
+  elapsed: number | null;
 }
 
-export interface Cell {
-  field: string;
-  business: string;
+export type TopicKind = "field" | "theme" | "keyword";
+export type TopicState = "new" | "surging" | "rising" | "steady" | "falling";
+export type TrackMix = Record<Track, number>;
+
+/** A field, theme or keyword: counts per window (oldest first) and current-window breakdowns. */
+export interface Topic {
+  key: string;
+  label: string | null;
+  field: string | null;
+  counts: number[];
+  change: number | null;
+  z: number;
+  state: TopicState | null;
+  sources: number;
+  tracks: TrackMix;
+  previous_tracks: TrackMix;
+  /** Summed over the windows before the current one. */
+  baseline_tracks: TrackMix;
+  impacts: Record<"opportunity" | "risk" | "watch", number>;
+  /** Current window by source region. */
+  regions: Record<Region, number>;
+  /** Earliest report per region over the trend span (ISO time); regions without reports are absent. */
+  first_seen: Partial<Record<Region, string>>;
+  /** Current-window reports from official vendor sources. */
+  official: number;
+  /** 1 / HHI of reports per source: 1 = a single outlet. */
+  effective_sources: number | null;
+  /** Keywords only: first report ever, with the filters. */
+  first_ever?: string | null;
+  /** Keywords only: "new" in the span but reported before it. */
+  returning?: boolean;
+  /** Keywords only: first report ever within the last three windows. */
+  debut?: boolean;
+}
+
+export interface KeywordPair {
+  a: string;
+  b: string;
   count: number;
-  previous: number;
+  lift: number;
+  is_new: boolean;
+}
+
+export interface FlowLink {
+  source: Track;
+  target: Track;
+  count: number;
+  median_hours: number;
 }
 
 export interface Radar {
   window: RadarWindow;
+  periods: string[];
   kpis: {
-    total: number;
-    previous_total: number;
+    items: number[];
+    stories: number[];
+    sources: number[];
+    research: number[];
     new_stories: number;
     cross_track_stories: number;
-    hottest: Cell | null;
   };
-  cells: Cell[];
-  momentum: { key: string; counts: number[]; change: number | null }[];
-  hype: { key: string; chatter: number; chatter_change: number | null; research: number; research_change: number | null }[];
-  keywords: { key: string; label: string; state: "new" | "rising" | "steady" | "falling"; counts: number[] }[];
+  fields: Topic[];
+  themes: Topic[];
+  keywords: Topic[];
+  pairs: KeywordPair[];
+  /** Track-to-track hand-offs completed in the window. */
+  flows: { chains: number; origins: Partial<Record<Track, number>>; links: FlowLink[] };
+  engagement: Engagement;
+  calendar: RadarCalendar;
+  field_links: FieldLink[];
 }
 
-export interface CellDetail {
+export interface EngagedItem {
+  id: number;
+  title: string;
+  track: Track;
+  source_name: string;
+  metric: string;
+  gain: number;
+  current: number;
+}
+
+/** Reactions gained inside the window (stars, points, likes …). */
+export interface Engagement {
+  measured: number;
+  themes: { key: string; score: number; items: number }[];
+  top: EngagedItem[];
+}
+
+export interface Anomaly {
+  day: string;
   field: string;
-  business: string;
+  count: number;
+  expected: number;
+  z: number;
+  keywords: { key: string; label: string; count: number }[];
+}
+
+export interface RadarCalendar {
+  start: string;
+  days: number[];
+  anomalies: Anomaly[];
+}
+
+export interface FieldLink {
+  a: string;
+  b: string;
   count: number;
   previous: number;
-  trend: number[];
+}
+
+export interface TopicDetail {
+  kind: TopicKind;
+  topic: Topic;
   themes: Count[];
   keywords: { key: string; label: string; count: number }[];
+  businesses: Count[];
+  regions: Count[];
   stories: ReaderItem[];
 }
 

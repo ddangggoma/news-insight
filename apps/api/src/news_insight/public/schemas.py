@@ -114,60 +114,65 @@ class RadarWindow(BaseModel):
     prev_key: str
     next_key: str
     is_current: bool
-
-
-class HotCell(BaseModel):
-    field: str
-    business: str
-    count: int
-    previous: int
+    elapsed: float | None  # share of the current window already past (None when closed)
 
 
 class RadarKpis(BaseModel):
-    total: int
-    previous_total: int
+    """Per window, oldest first. `research` = research + open source items."""
+
+    items: list[int]
+    stories: list[int]
+    sources: list[int]
+    research: list[int]
     new_stories: int
     cross_track_stories: int
-    hottest: HotCell | None
 
 
-class Cell(BaseModel):
-    field: str
-    business: str
-    count: int
-    previous: int
+class Topic(BaseModel):
+    """A field, theme or keyword: counts per window and the current window's breakdowns."""
 
-
-class FieldMomentum(BaseModel):
     key: str
+    label: str | None
+    field: str | None
     counts: list[int]
     change: float | None
+    z: float
+    state: str | None  # new · surging · rising · steady · falling
+    sources: int
+    tracks: dict[str, int]
+    previous_tracks: dict[str, int]
+    baseline_tracks: dict[str, int]  # summed over the windows before the current one
+    impacts: dict[str, int]
+    regions: dict[str, int]  # current window, by source region
+    first_seen: dict[str, datetime]  # earliest report per region over the trend span
+    official: int  # current-window reports from official vendor sources
+    effective_sources: float | None  # 1 / HHI of reports per source in the current window
+    first_ever: datetime | None = None  # keywords only: first report ever (with the filters)
+    returning: bool = False  # "new" in the span but seen before it
+    debut: bool = False  # keywords only: first report ever within the last DEBUT_WINDOWS windows
 
 
-class HypePoint(BaseModel):
-    """Chatter = news + community reports; research = papers + open source."""
-
-    key: str
-    chatter: int
-    chatter_change: float | None
-    research: int
-    research_change: float | None
+class KeywordPair(BaseModel):
+    a: str
+    b: str
+    count: int
+    lift: float
+    is_new: bool
 
 
-class KeywordShift(BaseModel):
-    key: str
-    label: str
-    state: str
-    counts: list[int]
+class FlowLink(BaseModel):
+    source: str
+    target: str
+    count: int
+    median_hours: float
 
 
-class Radar(BaseModel):
-    window: RadarWindow
-    kpis: RadarKpis
-    cells: list[Cell]
-    momentum: list[FieldMomentum]
-    hype: list[HypePoint]
-    keywords: list[KeywordShift]
+class Flows(BaseModel):
+    """Track-to-track hand-offs completed in the window (stories and shared identifiers)."""
+
+    chains: int
+    origins: dict[str, int]
+    links: list[FlowLink]
 
 
 class KeywordCount(BaseModel):
@@ -176,14 +181,77 @@ class KeywordCount(BaseModel):
     count: int
 
 
-class CellDetail(BaseModel):
+class EngagedItem(BaseModel):
+    id: int
+    title: str
+    track: str
+    source_name: str
+    metric: str  # the metric that grew most
+    gain: int
+    current: int
+
+
+class ThemeEngagement(BaseModel):
+    key: str
+    score: float  # sum over items of log(1 + gain) across metrics
+    items: int  # items whose metrics grew in the window
+
+
+class Engagement(BaseModel):
+    """Reactions gained in the window (stars, points, likes …) from metric snapshots."""
+
+    measured: int  # items with any growth
+    themes: list[ThemeEngagement]
+    top: list[EngagedItem]
+
+
+class Anomaly(BaseModel):
+    """One category far above its usual level for that weekday."""
+
+    day: date
     field: str
-    business: str
     count: int
+    expected: float  # mean of the same weekday over the previous four weeks
+    z: float
+    keywords: list[KeywordCount]  # in that category, most above their own baseline that day
+
+
+class Calendar(BaseModel):
+    """Reports per KST day, ending with the window, and per-category anomaly days."""
+
+    start: date
+    days: list[int]
+    anomalies: list[Anomaly]
+
+
+class FieldLink(BaseModel):
+    a: str
+    b: str
+    count: int  # reports classified into both categories this window
     previous: int
-    trend: list[int]
+
+
+class Radar(BaseModel):
+    window: RadarWindow
+    periods: list[str]
+    kpis: RadarKpis
+    fields: list[Topic]
+    themes: list[Topic]
+    keywords: list[Topic]
+    pairs: list[KeywordPair]
+    flows: Flows
+    engagement: Engagement
+    calendar: Calendar
+    field_links: list[FieldLink]
+
+
+class TopicDetail(BaseModel):
+    kind: str
+    topic: Topic
     themes: list[Count]
     keywords: list[KeywordCount]
+    businesses: list[Count]
+    regions: list[Count]
     stories: list[ReaderItem]
 
 

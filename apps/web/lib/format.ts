@@ -67,6 +67,7 @@ const DATE_TIME = new Intl.DateTimeFormat("ko-KR", {
   minute: "2-digit",
   hour12: false,
 });
+const DATE = new Intl.DateTimeFormat("ko-KR", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit", day: "2-digit" });
 const NUMBER = new Intl.NumberFormat("ko-KR");
 const RELATIVE = new Intl.RelativeTimeFormat("ko-KR", { numeric: "auto" });
 
@@ -74,6 +75,13 @@ export function formatDateTime(iso: string | null): string {
   if (!iso) return "—";
   const parts = Object.fromEntries(DATE_TIME.formatToParts(new Date(iso)).map((p) => [p.type, p.value]));
   return `${parts.month}.${parts.day} ${parts.hour}:${parts.minute}`;
+}
+
+/** "2026.09.14" in KST. */
+export function formatDay(iso: string | null): string {
+  if (!iso) return "—";
+  const parts = Object.fromEntries(DATE.formatToParts(new Date(iso)).map((p) => [p.type, p.value]));
+  return `${parts.year}.${parts.month}.${parts.day}`;
 }
 
 export function formatRelative(iso: string | null, now: Date = new Date()): string {
