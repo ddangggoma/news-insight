@@ -15,6 +15,7 @@ def collect_context(
     etag: str | None = None,
     last_modified: str | None = None,
     last_success_at: datetime | None = None,
+    known_ids: frozenset[str] = frozenset(),
 ) -> CollectContext:
     """Raises SecretError (credential) or ValueError (unknown preset)."""
     return CollectContext(
@@ -25,4 +26,5 @@ def collect_context(
         last_modified=last_modified,
         last_success_at=last_success_at,
         headers=resolve_auth_headers(source.config),
+        known_ids=known_ids,
     )

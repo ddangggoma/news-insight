@@ -218,6 +218,59 @@ CASES: list[tuple[str, dict[str, Any], tuple[str, str, str, datetime, dict[str, 
             {"citations": 2},
         ),
     ),
+    (
+        "naver_news_search",
+        {
+            "title": "<b>갤럭시</b> S30 공개",
+            "originallink": "https://www.etnews.com/2026100100001",
+            "link": "https://n.news.naver.com/mnews/article/030/0003",
+            "description": "삼성전자가 <b>갤럭시</b> S30을 공개했다",
+            "pubDate": "Thu, 01 Oct 2026 18:00:00 +0900",
+        },
+        (
+            "https://www.etnews.com/2026100100001",
+            "https://www.etnews.com/2026100100001",
+            "<b>갤럭시</b> S30 공개",
+            OCT_1_0900,
+            {},
+        ),
+    ),
+    (
+        "naver_blog_search",
+        {
+            "title": "온디바이스 AI 정리",
+            "link": "https://blog.naver.com/someone/2236",
+            "description": "요약",
+            "bloggername": "someone",
+            "postdate": "20261001",
+        },
+        (
+            "https://blog.naver.com/someone/2236",
+            "https://blog.naver.com/someone/2236",
+            "온디바이스 AI 정리",
+            datetime(2026, 10, 1, tzinfo=UTC),
+            {},
+        ),
+    ),
+    (
+        "youtube_playlist",
+        {
+            "snippet": {
+                "title": "Galaxy S30 review",
+                "description": "Full review",
+                "publishedAt": "2026-10-01T09:00:00Z",
+                "videoOwnerChannelTitle": "MKBHD",
+                "resourceId": {"videoId": "abc123XYZ"},
+            }
+        },
+        (
+            "abc123XYZ",
+            "https://www.youtube.com/watch?v=abc123XYZ",
+            "Galaxy S30 review",
+            OCT_1_0900,
+            {},
+        ),
+    ),
 ]
 
 

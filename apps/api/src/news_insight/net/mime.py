@@ -17,6 +17,7 @@ EXPECTED_MIME: dict[AccessMethod, frozenset[str]] = {
     AccessMethod.FEED: FEED_MIME,
     AccessMethod.JSON_API: JSON_MIME,
     AccessMethod.CRAWLER: HTML_MIME,
+    AccessMethod.SITEMAP: FEED_MIME | frozenset({"text/plain"}),
     AccessMethod.GITHUB: JSON_MIME,
     AccessMethod.ATPROTO: JSON_MIME,
     AccessMethod.ACTIVITYPUB: JSON_MIME,

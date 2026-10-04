@@ -4,6 +4,7 @@ from collections.abc import Callable
 from datetime import datetime, timedelta
 from urllib.parse import urlsplit
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from news_insight.collect.context import collect_context
@@ -11,6 +12,7 @@ from news_insight.collect.contracts import Collector, CollectorError
 from news_insight.collect.models import DeadLetter, FetchOutcome, FetchRun, SourceRuntime
 from news_insight.collect.registry import SUPPORTED_METHODS, collector_for
 from news_insight.content.ingest import IngestStats, ingest_items
+from news_insight.content.models import Item
 from news_insight.net.safe_fetch import SafeFetcher
 from news_insight.scheduling.policy import (
     MAX_RETRIES,
@@ -58,6 +60,23 @@ def ensure_runtime(session: Session, source: Source, now: datetime) -> SourceRun
     return runtime
 
 
+PAGE_METHODS = frozenset({AccessMethod.CRAWLER, AccessMethod.SITEMAP})
+KNOWN_ID_LIMIT = 2000
+
+
+def known_stable_ids(session: Session, source: Source) -> frozenset[str]:
+    """Recent stable ids of a page-based source, so crawlers only fetch unseen articles."""
+    if source.access_method not in PAGE_METHODS:
+        return frozenset()
+    statement = (
+        select(Item.stable_id)
+        .where(Item.source_id == source.id)
+        .order_by(Item.first_seen_at.desc())
+        .limit(KNOWN_ID_LIMIT)
+    )
+    return frozenset(session.scalars(statement))
+
+
 def collect_source(
     session: Session,
     source: Source,
@@ -95,6 +114,7 @@ def collect_source(
             etag=runtime.etag,
             last_modified=runtime.last_modified,
             last_success_at=runtime.last_success_at,
+            known_ids=known_stable_ids(session, source),
         )
     except (SecretError, ValueError) as exc:
         error = CollectorError("config_error", str(exc), retryable=False)

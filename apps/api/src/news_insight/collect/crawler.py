@@ -1,4 +1,4 @@
-"""Declarative HTML list crawler. V1 already requires terms review, robots check and selectors."""
+"""HTML list crawler: declarative selectors, or `config.mode: auto` link discovery."""
 
 from typing import Any
 from urllib.parse import urljoin
@@ -6,6 +6,7 @@ from zoneinfo import ZoneInfo
 
 from selectolax.parser import HTMLParser, Node
 
+from news_insight.collect.auto_crawl import collect_auto
 from news_insight.collect.contracts import (
     CollectContext,
     CollectorError,
@@ -28,6 +29,8 @@ class CrawlerCollector:
         self._fetcher = fetcher
 
     def collect(self, context: CollectContext) -> CollectResult:
+        if context.config.get("mode") == "auto":
+            return collect_auto(self._fetcher, context)
         selectors: dict[str, Any] = dict(context.config.get("selectors") or {})
         missing = [name for name in REQUIRED_SELECTORS if not selectors.get(name)]
         if missing:
