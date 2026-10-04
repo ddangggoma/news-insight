@@ -19253,3 +19253,115 @@ sources:
     config:
       preset: huggingface_hub
       probe_max_age_days: 60
+
+  # ── 테마 v2 보강 (plan 08 B5, 2026-10-05): 데이터센터·출처증명·AI 코딩·SDV·PQC ──
+  - key: datacenterdynamics
+    name: DatacenterDynamics
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.datacenterdynamics.com/en/rss/
+    official_domain: datacenterdynamics.com
+    operator: DCD
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: AI 데이터센터 전력·냉각·인터커넥트 (cloud_data__ai_datacenter)
+    storage_right: excerpt_allowed
+  - key: datacenterknowledge
+    name: Data Center Knowledge
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.datacenterknowledge.com/rss.xml
+    official_domain: datacenterknowledge.com
+    operator: Informa
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 데이터센터 인프라·냉각·전력 (cloud_data__ai_datacenter)
+    storage_right: excerpt_allowed
+  - key: c2pa-news
+    name: C2PA
+    track: news
+    category: research_org
+    access_method: feed
+    endpoint_url: https://c2pa.org/feed/
+    official_domain: c2pa.org
+    operator: Coalition for Content Provenance and Authenticity
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: 콘텐츠 출처증명 표준 C2PA (security__ai_security_provenance)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 365
+  - key: owasp-genai
+    name: OWASP GenAI Security Project
+    track: community
+    category: open_governance
+    access_method: feed
+    endpoint_url: https://genai.owasp.org/feed/
+    official_domain: genai.owasp.org
+    operator: OWASP Foundation
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: LLM·에이전트 보안 취약점·가이드 (security__ai_security_provenance)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 180
+  - key: github-changelog
+    name: GitHub Changelog
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://github.blog/changelog/feed/
+    official_domain: github.blog
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: Copilot·코딩 에이전트 기능 변경 (ai__ai_coding)
+    storage_right: excerpt_allowed
+  - key: automotive-world
+    name: Automotive World
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.automotiveworld.com/feed/
+    official_domain: automotiveworld.com
+    operator: Automotive World Ltd
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: SDV·차량 E/E 아키텍처·콕핏 (robotics_mobility__sdv_cockpit)
+    storage_right: excerpt_allowed
+  - key: pqshield-blog
+    name: PQShield
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://pqshield.com/feed/
+    official_domain: pqshield.com
+    operator: PQShield Ltd
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: PQC 구현·전환 (security__privacy_crypto)
+    storage_right: excerpt_allowed
+  - key: jetbrains-ai-blog
+    name: JetBrains AI Blog
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://blog.jetbrains.com/ai/feed/
+    official_domain: blog.jetbrains.com
+    operator: JetBrains
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: AI 코딩 도구·에이전트 (ai__ai_coding)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 90
