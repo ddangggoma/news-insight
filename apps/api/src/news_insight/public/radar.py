@@ -8,8 +8,9 @@ DX businesses are a filter here, not an axis. Counted live; R3 rollups will repl
 
 from collections import Counter, defaultdict
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import date, datetime, timedelta
 from itertools import combinations
+from math import log1p
 from statistics import fmean, median, pstdev
 from typing import Any
 
@@ -17,13 +18,19 @@ from sqlalchemy import ColumnElement, case, distinct, exists, func, literal, nul
 from sqlalchemy.orm import Session
 
 from news_insight.cards.models import ItemCard
-from news_insight.content.models import Item
+from news_insight.content.models import Item, ItemMetricSnapshot
 from news_insight.public.aggregates import KEYWORD_MIN_COUNT
 from news_insight.public.feed import feed
 from news_insight.public.filters import ReaderFilters, joined
-from news_insight.public.periods import Window, trailing_windows
+from news_insight.public.keywords import keyword_key_sql
+from news_insight.public.periods import KST, Window, trailing_windows
 from news_insight.public.schemas import (
+    Anomaly,
+    Calendar,
     Count,
+    EngagedItem,
+    Engagement,
+    FieldLink,
     FlowLink,
     Flows,
     KeywordCount,
@@ -31,6 +38,7 @@ from news_insight.public.schemas import (
     Radar,
     RadarKpis,
     RadarWindow,
+    ThemeEngagement,
     Topic,
     TopicDetail,
 )
@@ -52,10 +60,16 @@ OFFICIAL = "official_vendor"
 # ties between tracks reached at the same moment go research-first
 PIPELINE = (Track.RESEARCH_IP, Track.OSS, Track.COMMUNITY, Track.NEWS)
 TRACK_ORDER = {t.value: i for i, t in enumerate(PIPELINE)}
-
-
-def _normalized(value: Any) -> Any:
-    return func.lower(func.replace(value, " ", ""))
+# reactions that grow over time; anything else in item metrics (views, rank) is ignored
+REACTIONS = ("stars", "points", "likes", "reactions", "score", "comments", "downloads", "answers")
+ENGAGED_TOP = 8
+CALENDAR_DAYS = (84, 371)  # at least 12 weeks of context, at most a year
+ANOMALY_BASELINE = 28
+ANOMALY_Z = 3.0
+ANOMALY_RATIO = 2.5  # and at least this many times the usual level
+ANOMALY_MIN = 8  # a handful of reports in a quiet category is noise, not an event
+DEBUT_WINDOWS = 3
+ANOMALY_TOP = 8
 
 
 def _bucket(windows: list[Window]) -> Any:
@@ -81,7 +95,7 @@ def _dimension(dimension: str) -> tuple[Any, Any, Any]:
     join = func.jsonb_array_elements_text(column).table_valued("value").lateral("element")
     if dimension == "theme":
         return join.c.value, join, None
-    return _normalized(join.c.value), join, func.mode().within_group(join.c.value)
+    return keyword_key_sql(join.c.value), join, func.mode().within_group(join.c.value)
 
 
 @dataclass
@@ -92,6 +106,7 @@ class Series:
     sources: int
     tracks: dict[str, int]
     previous_tracks: dict[str, int]
+    baseline_tracks: dict[str, int]
     impacts: dict[str, int]
     regions: dict[str, int]
     first_seen: dict[str, datetime]
@@ -120,6 +135,7 @@ def _series(
         func.count(distinct(Item.source_id)).filter(bucket == last),
         *(items.filter(bucket == last, Item.track == t) for t in Track),
         *(items.filter(bucket == last - 1, Item.track == t) for t in Track),
+        *(items.filter(bucket < last, Item.track == t) for t in Track),
         *(items.filter(bucket == last, ItemCard.impact == impact) for impact in IMPACTS),
         *(items.filter(bucket == last, Source.region == r) for r in Region),
         items.filter(bucket == last, Source.category == OFFICIAL),
@@ -141,7 +157,7 @@ def _series(
         firsts = numbers[-m:]
         counts = [int(c) for c in numbers[:n]]
         rest = [int(c) for c in numbers[n:-m]]
-        at = 1 + 2 * k + len(IMPACTS)
+        at = 1 + 3 * k + len(IMPACTS)
         result[str(value)] = Series(
             label=str(name) if name is not None else None,
             field=str(field) if field is not None else None,
@@ -149,7 +165,8 @@ def _series(
             sources=rest[0],
             tracks=dict(zip(tracks, rest[1 : 1 + k], strict=True)),
             previous_tracks=dict(zip(tracks, rest[1 + k : 1 + 2 * k], strict=True)),
-            impacts=dict(zip(IMPACTS, rest[1 + 2 * k : at], strict=True)),
+            baseline_tracks=dict(zip(tracks, rest[1 + 2 * k : 1 + 3 * k], strict=True)),
+            impacts=dict(zip(IMPACTS, rest[1 + 3 * k : at], strict=True)),
             regions=dict(zip(regions, rest[at : at + m], strict=True)),
             official=rest[at + m],
             first_seen={r: t for r, t in zip(regions, firsts, strict=True) if t is not None},
@@ -217,6 +234,7 @@ def _topic(key: str, series: Series, effective: float | None = None) -> Topic:
         sources=series.sources,
         tracks=series.tracks,
         previous_tracks=series.previous_tracks,
+        baseline_tracks=series.baseline_tracks,
         impacts=series.impacts,
         regions=series.regions,
         first_seen=series.first_seen,
@@ -294,7 +312,7 @@ def _keyword_items(
 ) -> dict[int, tuple[int, set[str]]]:
     """item id → (window index, its keywords among `keys`)."""
     element = func.jsonb_array_elements_text(ItemCard.keywords).table_valued("value").lateral("kw")
-    normalized = _normalized(element.c.value)
+    normalized = keyword_key_sql(element.c.value)
     rows = session.execute(
         joined(select(Item.id, _bucket(windows), normalized))
         .join(element, true())
@@ -396,6 +414,218 @@ def _flows(session: Session, conditions: list[ColumnElement[bool]], window: Wind
     return Flows(chains=chains, origins=dict(origins), links=links)
 
 
+def _first_ever(
+    session: Session, conditions: list[ColumnElement[bool]], keys: list[str]
+) -> dict[str, datetime]:
+    """First report ever for each keyword key (with the reader filters, no window)."""
+    if not keys:
+        return {}
+    element = func.jsonb_array_elements_text(ItemCard.keywords).table_valued("value").lateral("kw")
+    key = keyword_key_sql(element.c.value)
+    rows = session.execute(
+        joined(select(key, func.min(Item.first_seen_at)))
+        .join(element, true())
+        .where(*conditions, key.in_(keys))
+        .group_by(key)
+    ).tuples()
+    return {str(k): at for k, at in rows}
+
+
+def _engagement(
+    session: Session, conditions: list[ColumnElement[bool]], window: Window, themes: list[Topic]
+) -> Engagement:
+    """Reactions each item gained inside the window: last snapshot before the window end minus
+    the last one before its start (or the first one inside it for items seen later)."""
+    assert window.start is not None
+    active = (
+        select(ItemMetricSnapshot.item_id)
+        .where(
+            ItemMetricSnapshot.captured_at >= window.start,
+            ItemMetricSnapshot.captured_at < window.end,
+        )
+        .distinct()
+    )
+    rows = session.execute(
+        joined(
+            select(
+                Item.id,
+                ItemMetricSnapshot.captured_at,
+                ItemMetricSnapshot.metrics,
+            )
+        )
+        .join(ItemMetricSnapshot, ItemMetricSnapshot.item_id == Item.id)
+        .where(
+            *conditions,
+            Item.id.in_(active),
+            ItemMetricSnapshot.captured_at < window.end,
+            ItemMetricSnapshot.captured_at >= window.start - timedelta(days=30),
+        )
+        .order_by(Item.id, ItemMetricSnapshot.captured_at)
+    ).tuples()
+    series: dict[int, list[tuple[datetime, dict[str, Any]]]] = defaultdict(list)
+    for item_id, at, metrics in rows:
+        series[int(item_id)].append((at, metrics))
+    gains: dict[int, dict[str, tuple[int, int]]] = {}
+    for item_id, points in series.items():
+        before = [m for at, m in points if at < window.start]
+        inside = [m for at, m in points if at >= window.start]
+        base, end = (before[-1] if before else inside[0]), inside[-1]
+        grown = {}
+        for name in REACTIONS:
+            now, then = end.get(name), base.get(name)
+            if isinstance(now, int) and isinstance(then, int) and now > then:
+                grown[name] = (now - then, now)
+        if grown:
+            gains[item_id] = grown
+    if not gains:
+        return Engagement(measured=0, themes=[], top=[])
+    score = {i: sum(log1p(gain) for gain, _ in g.values()) for i, g in gains.items()}
+    cards = session.execute(
+        select(Item.id, Item.title, ItemCard.title_ko, Item.track, Source.name, ItemCard.themes)
+        .join(ItemCard, ItemCard.item_id == Item.id)
+        .join(Source, Source.id == Item.source_id)
+        .where(Item.id.in_(list(gains)))
+    ).tuples()
+    by_theme: dict[str, list[float]] = defaultdict(list)
+    top: list[EngagedItem] = []
+    for item_id, title, title_ko, track, source_name, item_themes in cards:
+        for theme in item_themes or []:
+            by_theme[theme].append(score[item_id])
+        metric, (gain, current) = max(gains[item_id].items(), key=lambda kv: kv[1][0])
+        top.append(
+            EngagedItem(
+                id=item_id,
+                title=title_ko or title,
+                track=Track(track).value,
+                source_name=source_name,
+                metric=metric,
+                gain=gain,
+                current=current,
+            )
+        )
+    top.sort(key=lambda item: (-score[item.id], item.id))
+    known = {t.key for t in themes}
+    return Engagement(
+        measured=len(gains),
+        themes=sorted(
+            (
+                ThemeEngagement(key=key, score=round(sum(values), 2), items=len(values))
+                for key, values in by_theme.items()
+                if key in known
+            ),
+            key=lambda t: (-t.score, t.key),
+        ),
+        top=top[:ENGAGED_TOP],
+    )
+
+
+def _kst_day(column: Any) -> Any:
+    return func.date(func.timezone(str(KST), column))
+
+
+def _calendar(
+    session: Session, conditions: list[ColumnElement[bool]], windows: list[Window]
+) -> Calendar:
+    """Daily report counts ending with the window, and days when one category ran far above
+    its usual level for that weekday (an announcement, a launch event, an incident)."""
+    end = windows[-1].end.astimezone(KST).date()
+    first = windows[0].start
+    assert first is not None
+    span = (end - first.astimezone(KST).date()).days
+    start = end - timedelta(days=min(max(span, CALENDAR_DAYS[0]), CALENDAR_DAYS[1]))
+    since = datetime.combine(start, datetime.min.time(), tzinfo=KST)
+    day = _kst_day(Item.first_seen_at)
+    rows = session.execute(
+        joined(select(day, ItemCard.field, func.count(distinct(Item.id))))
+        .where(*conditions, Item.first_seen_at >= since, Item.first_seen_at < windows[-1].end)
+        .group_by(day, ItemCard.field)
+    ).tuples()
+    length = (end - start).days
+    days = [0] * length
+    by_field: dict[str, list[int]] = defaultdict(lambda: [0] * length)
+    for d, field, count in rows:
+        days[(d - start).days] += int(count)
+        if field:
+            by_field[str(field)][(d - start).days] = int(count)
+    found: list[tuple[int, str, float, float]] = []
+    for field, series in by_field.items():
+        for i in range(ANOMALY_BASELINE, length):
+            same_day = [series[j] for j in range(i - ANOMALY_BASELINE, i) if (i - j) % 7 == 0]
+            expected = fmean(same_day)
+            z = (series[i] - expected) / max(expected**0.5, 1.0)
+            if z >= ANOMALY_Z and series[i] >= max(expected * ANOMALY_RATIO, ANOMALY_MIN):
+                found.append((i, field, round(expected, 1), round(z, 2)))
+    found = sorted(found, key=lambda row: -row[3])[:ANOMALY_TOP]
+    anomalies = [
+        Anomaly(
+            day=start + timedelta(days=i),
+            field=field,
+            count=by_field[field][i],
+            expected=expected,
+            z=z,
+            keywords=_spike_keywords(
+                session, [*conditions, ItemCard.field == field], start + timedelta(days=i)
+            ),
+        )
+        for i, field, expected, z in sorted(found)
+    ]
+    return Calendar(start=start, days=days, anomalies=anomalies)
+
+
+def _spike_keywords(
+    session: Session, conditions: list[ColumnElement[bool]], day: date
+) -> list[KeywordCount]:
+    """Keywords most above their average day over the previous four weeks."""
+    element = func.jsonb_array_elements_text(ItemCard.keywords).table_valued("value").lateral("kw")
+    key = keyword_key_sql(element.c.value)
+    on = _kst_day(Item.first_seen_at)
+    begin = datetime.combine(day - timedelta(days=ANOMALY_BASELINE), datetime.min.time(), KST)
+    finish = datetime.combine(day + timedelta(days=1), datetime.min.time(), KST)
+    rows = session.execute(
+        joined(
+            select(
+                key,
+                func.mode().within_group(element.c.value),
+                func.count(distinct(Item.id)).filter(on == day),
+                func.count(distinct(Item.id)).filter(on < day),
+            )
+        )
+        .join(element, true())
+        .where(*conditions, Item.first_seen_at >= begin, Item.first_seen_at < finish)
+        .group_by(key)
+    ).tuples()
+    lifted = [
+        (int(today) - int(before) / ANOMALY_BASELINE, str(k), str(label), int(today))
+        for k, label, today, before in rows
+        if int(today) >= KEYWORD_MIN_COUNT
+    ]
+    lifted.sort(key=lambda row: (-row[0], row[1]))
+    return [KeywordCount(key=k, label=label, count=count) for _, k, label, count in lifted[:3]]
+
+
+def _field_links(
+    session: Session, conditions: list[ColumnElement[bool]], windows: list[Window]
+) -> list[FieldLink]:
+    """Reports whose themes span two categories, this window and the one before."""
+    recent = windows[-2:]
+    rows = session.execute(
+        joined(select(Item.id, _bucket(recent), ItemCard.field, ItemCard.themes))
+        .where(*conditions, *_span(recent))
+        .distinct()
+    ).tuples()
+    now: Counter[tuple[str, str]] = Counter()
+    before: Counter[tuple[str, str]] = Counter()
+    for _, index, field, item_themes in rows:
+        fields = {t.split("__", 1)[0] for t in item_themes or []} | ({field} if field else set())
+        for pair in combinations(sorted(fields), 2):
+            (now if index == len(recent) - 1 else before)[pair] += 1
+    links = [
+        FieldLink(a=a, b=b, count=count, previous=before[(a, b)]) for (a, b), count in now.items()
+    ]
+    links.sort(key=lambda link: (-link.count, link.a, link.b))
+    return links
+
+
 def _pick_keywords(topics: list[Topic]) -> list[Topic]:
     called = [t for t in topics if t.state is not None]
     live = sorted(
@@ -422,17 +652,46 @@ def radar(
             key=lambda t: (-t.counts[-1], -sum(t.counts), t.key),
         )
 
-    keywords = _pick_keywords(topics("keyword", min_total=KEYWORD_MIN_COUNT))
+    keywords = _with_history(
+        session, base, windows, _pick_keywords(topics("keyword", min_total=KEYWORD_MIN_COUNT))
+    )
+    themes = topics("theme")
     return Radar(
         window=window_out(window, current_key, now),
         periods=[w.key for w in windows],
         kpis=kpis,
         fields=topics("field"),
-        themes=topics("theme"),
+        themes=themes,
         keywords=keywords,
         pairs=_pairs(session, base, windows, keywords, kpis.items[-1]),
         flows=_flows(session, base, window),
+        engagement=_engagement(session, base, window, themes),
+        calendar=_calendar(session, base, windows),
+        field_links=_field_links(session, base, windows),
     )
+
+
+def _with_history(
+    session: Session,
+    conditions: list[ColumnElement[bool]],
+    windows: list[Window],
+    keywords: list[Topic],
+) -> list[Topic]:
+    """Add each keyword's first report ever: a "new" keyword seen before the span is returning;
+    one first reported in the last DEBUT_WINDOWS windows is a debut."""
+    first = _first_ever(session, conditions, [k.key for k in keywords])
+    start, recent = windows[0].start, windows[-DEBUT_WINDOWS:][0].start
+    assert start is not None and recent is not None
+    return [
+        k.model_copy(
+            update={
+                "first_ever": first.get(k.key),
+                "returning": k.state == "new" and k.key in first and first[k.key] < start,
+                "debut": k.key in first and first[k.key] >= recent,
+            }
+        )
+        for k in keywords
+    ]
 
 
 def topic_condition(kind: str, value: str) -> ColumnElement[bool]:
@@ -441,7 +700,7 @@ def topic_condition(kind: str, value: str) -> ColumnElement[bool]:
     if kind == "theme":
         return ItemCard.themes.contains([value])
     element = func.jsonb_array_elements_text(ItemCard.keywords).table_valued("value").alias("k")
-    return exists(select(1).select_from(element).where(_normalized(element.c.value) == value))
+    return exists(select(1).select_from(element).where(keyword_key_sql(element.c.value) == value))
 
 
 def _counts(session: Session, conditions: list[ColumnElement[bool]], axis: str) -> list[Count]:
@@ -484,6 +743,7 @@ def topic_detail(
             sources=0,
             tracks=empty,
             previous_tracks=empty,
+            baseline_tracks=empty,
             impacts=dict.fromkeys(IMPACTS, 0),
             regions=dict.fromkeys((r.value for r in Region), 0),
             first_seen={},
@@ -491,6 +751,8 @@ def topic_detail(
             effective_sources=None,
         )
     )
+    if kind == "keyword":
+        topic = _with_history(session, filters.conditions(), windows, [topic])[0]
     current = [*base, *_span([window])]
     related = _series(session, base, [window], "keyword")
     related.pop(value, None)

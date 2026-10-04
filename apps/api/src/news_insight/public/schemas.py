@@ -141,11 +141,15 @@ class Topic(BaseModel):
     sources: int
     tracks: dict[str, int]
     previous_tracks: dict[str, int]
+    baseline_tracks: dict[str, int]  # summed over the windows before the current one
     impacts: dict[str, int]
     regions: dict[str, int]  # current window, by source region
     first_seen: dict[str, datetime]  # earliest report per region over the trend span
     official: int  # current-window reports from official vendor sources
     effective_sources: float | None  # 1 / HHI of reports per source in the current window
+    first_ever: datetime | None = None  # keywords only: first report ever (with the filters)
+    returning: bool = False  # "new" in the span but seen before it
+    debut: bool = False  # keywords only: first report ever within the last DEBUT_WINDOWS windows
 
 
 class KeywordPair(BaseModel):
@@ -171,6 +175,62 @@ class Flows(BaseModel):
     links: list[FlowLink]
 
 
+class KeywordCount(BaseModel):
+    key: str
+    label: str
+    count: int
+
+
+class EngagedItem(BaseModel):
+    id: int
+    title: str
+    track: str
+    source_name: str
+    metric: str  # the metric that grew most
+    gain: int
+    current: int
+
+
+class ThemeEngagement(BaseModel):
+    key: str
+    score: float  # sum over items of log(1 + gain) across metrics
+    items: int  # items whose metrics grew in the window
+
+
+class Engagement(BaseModel):
+    """Reactions gained in the window (stars, points, likes …) from metric snapshots."""
+
+    measured: int  # items with any growth
+    themes: list[ThemeEngagement]
+    top: list[EngagedItem]
+
+
+class Anomaly(BaseModel):
+    """One category far above its usual level for that weekday."""
+
+    day: date
+    field: str
+    count: int
+    expected: float  # mean of the same weekday over the previous four weeks
+    z: float
+    keywords: list[KeywordCount]  # in that category, most above their own baseline that day
+
+
+class Calendar(BaseModel):
+    """Reports per KST day, ending with the window, and per-category anomaly days."""
+
+    start: date
+    days: list[int]
+    anomalies: list[Anomaly]
+
+
+class FieldLink(BaseModel):
+    a: str
+    b: str
+    count: int  # reports classified into both categories this window
+    previous: int
+
+
 class Radar(BaseModel):
     window: RadarWindow
     periods: list[str]
@@ -180,12 +240,9 @@ class Radar(BaseModel):
     keywords: list[Topic]
     pairs: list[KeywordPair]
     flows: Flows
-
-
-class KeywordCount(BaseModel):
-    key: str
-    label: str
-    count: int
+    engagement: Engagement
+    calendar: Calendar
+    field_links: list[FieldLink]
 
 
 class TopicDetail(BaseModel):
