@@ -1,6 +1,6 @@
 # 웹 리디자인 & 기간별 인사이트 분석 — 계획안
 
-> **상태:** R1 완료, R2는 P4로 대체, R4 구현 중(B+C).
+> **상태:** R1 완료, R2는 P4로 대체, R4 완료(B+C). 다음은 R3(롤업)·R5(기간 리포트)·R6(콘솔 이전).
 > **시안 페이지:** https://claude.ai/artifact/7PDUTUyp4HVMQZ1dVMzVLo (데스크톱·태블릿·모바일 폭 전환, 예시 데이터)
 > **HTML 시안 (예시 데이터, 브라우저로 바로 열기):** [`docs/design/mockups/mockup-a-briefing.html`](../../design/mockups/mockup-a-briefing.html), [`mockup-b-explore.html`](../../design/mockups/mockup-b-explore.html), [`mockup-c-radar.html`](../../design/mockups/mockup-c-radar.html)
 > **분류 선택 위자드:** https://claude.ai/artifact/3fEunMiBCX6wjmSJkHLMP9
