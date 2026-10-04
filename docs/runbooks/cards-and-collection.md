@@ -223,3 +223,24 @@ uv run --env-file ../../.env news-insight sources retire <key> --reason "사유"
   uv run --env-file ../../.env news-insight technologies candidates  # 후보 목록
   ```
 - 배포 직후 한 번 `technologies seed`를 실행해야 별칭이 적용됩니다(마이그레이션은 표만 만듭니다).
+
+## 15. 테마 v2 소스 보강 (2026-10-05, plan 08 B5)
+
+수요는 크지만 소스가 없거나 적던 영역에 8곳을 추가했습니다(모두 `probe-catalog`로 V0·V2·V3 통과 확인).
+
+| 영역 (v2 테마) | 추가 소스 |
+|---|---|
+| AI 데이터센터 (`cloud_data__ai_datacenter`) | DatacenterDynamics, Data Center Knowledge |
+| 출처증명·AI 보안 (`security__ai_security_provenance`) | C2PA, OWASP GenAI Security Project |
+| AI 코딩 (`ai__ai_coding`) | GitHub Changelog, JetBrains AI Blog |
+| SDV (`robotics_mobility__sdv_cockpit`) | Automotive World |
+| PQC (`security__privacy_crypto`) | PQShield |
+
+갱신이 드문 단체(C2PA 365일, OWASP 180일, JetBrains AI 90일)는 V3 판정 기간(`probe_max_age_days`)을 늘렸습니다.
+
+제외한 후보와 이유:
+- Healthcare IT News, MobiHealthNews, IEA: 봇 차단(403)이라 우회하지 않습니다.
+- The Register 데이터센터: robots.txt가 막습니다.
+- Canary Media: 피드 주소가 HTML을 돌려줍니다.
+- NIST CSRC: 공개 피드가 비어 있거나 없습니다.
+- 식약처: RSS가 없습니다. 크롤러 후보로 남겨 둡니다.

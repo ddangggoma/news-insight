@@ -17,7 +17,7 @@
 - [x] B3' 기술 레지스트리 (PR #22, 배포·시드 완료) (technologies·aliases 테이블, item_cards.technology_keys GIN, 콘솔 편집·후보 대기열, 시드 약 350)
 - [x] B4' 체계 v2: catalog 12분야·62테마·SIGNAL_TYPES, signal_type 컬럼, 사업 태그 전면 삭제(API·웹·레이더·브리핑·다이제스트·전략 분야별 섹션), 테스트, 웹 taxonomy.ts, 레이더 개정 시점 표시
 - [ ] B4'-run 전체 즉시 재분류 실행·검증 (기술 테마 없는 관련 카드 < 5%, 표본 200건 정확도 85%)
-- [ ] B5 소스 보강 (데이터센터·출처증명·AI 코딩·SDV·의료기기·제품 규제)
+- [x] B5 소스 보강 (데이터센터·출처증명·AI 코딩·SDV·의료기기·제품 규제)
 - [ ] B6 일 롤업 daily_rollups + 레이더 롤업 조회 + radarClosed 캐시
 - [ ] B7 보정 점유율 (트랙 내 비중, 출처당 상한, 활성 소스 수 기록)
 
