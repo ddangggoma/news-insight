@@ -1,13 +1,17 @@
 """Reader API for the public web. Reached only by the web server over the internal network."""
 
 from collections.abc import Sequence
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
+from news_insight.console.schemas import Page
 from news_insight.db import get_db
+from news_insight.digest import service as digest_service
+from news_insight.digest.models import Digest
+from news_insight.digest.schemas import DigestSummary
 from news_insight.public import aggregates
 from news_insight.public import feed as feed_queries
 from news_insight.public import radar as radar_queries
@@ -24,6 +28,7 @@ from news_insight.public.schemas import (
     CellDetail,
     FeedPage,
     Insights,
+    PublicDigest,
     Radar,
     ReaderItemDetail,
     TaxonomyField,
@@ -169,3 +174,29 @@ def get_radar_cell(
     if business != radar_queries.NO_BUSINESS and business not in BUSINESS_KEYS:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, f"unknown business '{business}'")
     return radar_queries.cell_detail(session, filters, window, field=field, business=business)
+
+
+def _public_digest(session: Session, digest: Digest | None) -> PublicDigest:
+    if digest is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "digest not found")
+    full = digest_service.digest_out(session, digest)
+    return PublicDigest.model_validate(full.model_dump(exclude={"model", "cost_usd", "error"}))
+
+
+@router.get("/digests")
+def list_digests(
+    session: DB,
+    page: Annotated[int, Query(ge=1)] = 1,
+    size: Annotated[int, Query(ge=1, le=50)] = 30,
+) -> Page[DigestSummary]:
+    return digest_service.list_digests(session, page=page, size=size)
+
+
+@router.get("/digests/latest")
+def latest_digest(session: DB) -> PublicDigest:
+    return _public_digest(session, digest_service.latest_digest(session))
+
+
+@router.get("/digests/{digest_date}")
+def get_digest(digest_date: date, session: DB) -> PublicDigest:
+    return _public_digest(session, digest_service.digest_for(session, digest_date))

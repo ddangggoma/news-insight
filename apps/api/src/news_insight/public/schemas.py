@@ -1,8 +1,11 @@
 """Reader-facing response models: no source keys, validation state or stored bodies."""
 
-from datetime import datetime
+from datetime import date, datetime
 
 from pydantic import BaseModel
+
+from news_insight.digest.models import DigestStatus
+from news_insight.digest.schemas import DigestContent, DigestItemRef
 
 
 class TaxonomyNode(BaseModel):
@@ -182,3 +185,17 @@ class CellDetail(BaseModel):
     themes: list[Count]
     keywords: list[KeywordCount]
     stories: list[ReaderItem]
+
+
+class PublicDigest(BaseModel):
+    """A published digest without its model, cost or error fields."""
+
+    digest_date: date
+    version: int
+    status: DigestStatus
+    generated_at: datetime
+    window_start: datetime
+    window_end: datetime
+    item_count: int
+    content: DigestContent
+    items: list[DigestItemRef]
