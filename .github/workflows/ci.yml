@@ -44,6 +44,9 @@ jobs:
       - name: E2E (Playwright, system Chrome, seeded news_insight_e2e)
         run: scripts/dev.sh web-e2e
 
+      - name: Radar signal regression (demo corpus, planted patterns)
+        run: scripts/dev.sh radar-qa
+
       - name: Stop data stores
         if: always()
         run: docker compose down --volumes

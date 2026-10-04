@@ -777,15 +777,15 @@ def stories_refs_backfill(
     from news_insight.stories.refs import extract_refs
 
     since = datetime.now(UTC) - timedelta(days=days)
-    added = 0
     with session_scope() as session:
+        before = session.scalar(select(func.count()).select_from(ItemRef)) or 0
         rows = session.execute(
             select(Item.id, Item.url, Item.title, Item.summary).where(Item.first_seen_at >= since)
         ).all()
         for item_id, url, title, summary in rows:
             refs = extract_refs(url, title, summary)
             if refs:
-                result = session.execute(
+                session.execute(
                     insert(ItemRef)
                     .values(
                         [
@@ -795,5 +795,5 @@ def stories_refs_backfill(
                     )
                     .on_conflict_do_nothing()
                 )
-                added += int(getattr(result, "rowcount", 0) or 0)
+        added = (session.scalar(select(func.count()).select_from(ItemRef)) or 0) - before
     typer.echo(f"items={len(rows)} refs_added={added}")

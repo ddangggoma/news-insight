@@ -17,6 +17,9 @@ export type SignalTone = "surge" | "event" | "new" | "back" | "early" | "pull" |
 
 export type Signal = { tone: SignalTone; title: string; detail: string; focus: Focus };
 
+/** Every topic a rule matched before ranking, per tone: what the QA regression checks. */
+export type SignalCandidates = Partial<Record<SignalTone, string[]>>;
+
 export const SIGNAL_META: Record<SignalTone, { label: string }> = {
   surge: { label: "급상승" },
   event: { label: "이례적인 날" },
@@ -52,8 +55,11 @@ function shortDay(iso: string): string {
  * Each rule yields at most one signal and each theme appears on one card at most; thresholds
  * keep single-report noise out. Track comparisons use the average of the baseline windows,
  * not the single previous window, which is too noisy at these counts.
+ *
+ * Pass `candidates` to collect every match per rule (before ranking and before a theme already
+ * shown on an earlier card is set aside).
  */
-export function radarSignals(radar: Radar): Signal[] {
+export function radarSignals(radar: Radar, candidates?: SignalCandidates): Signal[] {
   const themes = radar.themes.filter((t) => last(t.counts) > 0 || mean(t.counts.slice(0, -1)) > 0);
   const history = radar.periods.length - 1;
   const baseline = `직전 ${history}${BASELINE_UNIT[radar.window.kind]}`;
@@ -61,15 +67,22 @@ export function radarSignals(radar: Radar): Signal[] {
   const signals: Signal[] = [];
   const theme = (t: Topic): Focus => ({ kind: "theme", key: t.key });
   const used = new Set<string>();
-  const unused = (rows: Topic[]) => rows.filter((t) => !used.has(t.key));
   const push = (signal: Signal) => {
     signals.push(signal);
     used.add(signal.focus.key);
   };
+  /** The best match of a rule; with `fresh`, themes already on a card are skipped. */
+  const pick = <T,>(tone: SignalTone, rows: T[], score: (row: T) => number, key: (row: T) => string, fresh = false) => {
+    if (candidates) candidates[tone] = rows.map(key);
+    return top(fresh ? rows.filter((row) => !used.has(key(row))) : rows, score);
+  };
+  const topicKey = (t: Topic) => t.key;
 
-  const surge = top(
+  const surge = pick(
+    "surge",
     themes.filter((t) => t.state === "surging"),
     (t) => t.z,
+    topicKey,
   );
   if (surge) {
     push({
@@ -82,9 +95,11 @@ export function radarSignals(radar: Radar): Signal[] {
 
   // the busiest anomaly day inside the current window: a launch, an announcement, an incident
   const windowStart = radar.window.start.slice(0, 10);
-  const event = top(
+  const event = pick(
+    "event",
     radar.calendar.anomalies.filter((a) => a.day >= windowStart),
     (a) => a.z,
+    (a) => a.keywords[0]?.key ?? a.field,
   );
   if (event) {
     const words = event.keywords.map((k) => k.label);
@@ -99,6 +114,7 @@ export function radarSignals(radar: Radar): Signal[] {
   const fresh = radar.keywords
     .filter((k) => !k.returning && (k.state === "new" || (k.debut && k.state !== "falling")))
     .sort((a, b) => last(b.counts) - last(a.counts) || b.z - a.z);
+  if (candidates) candidates.new = fresh.map(topicKey);
   if (fresh.length) {
     const lead = fresh[0];
     const others = fresh.slice(1, 4).map((k) => topicLabel("keyword", k));
@@ -110,9 +126,11 @@ export function radarSignals(radar: Radar): Signal[] {
     });
   }
 
-  const back = top(
+  const back = pick(
+    "back",
     radar.keywords.filter((k) => k.returning),
     (k) => last(k.counts),
+    topicKey,
   );
   if (back) {
     push({
@@ -123,9 +141,12 @@ export function radarSignals(radar: Radar): Signal[] {
     });
   }
 
-  const early = top(
-    unused(themes).filter((t) => last(t.counts) >= 3 && t.z >= 1 && (researchShare(t.tracks) ?? 0) >= 0.5),
+  const early = pick(
+    "early",
+    themes.filter((t) => last(t.counts) >= 3 && t.z >= 1 && (researchShare(t.tracks) ?? 0) >= 0.5),
     (t) => t.z * (researchShare(t.tracks) ?? 0),
+    topicKey,
+    true,
   );
   if (early) {
     push({
@@ -143,12 +164,15 @@ export function radarSignals(radar: Radar): Signal[] {
   // ranked by the share of reactions beyond the share of mentions, so a tiny theme with a
   // high ratio does not beat a large one far above the line
   const excess = (e: { key: string; score: number }) => e.score / reactions - last(byKey.get(e.key)!.counts) / mentions;
-  const pull = top(
+  const pull = pick(
+    "pull",
     radar.engagement.themes.filter((e) => {
       const t = byKey.get(e.key);
-      return !!t && !used.has(t.key) && e.items >= 5 && mentions > 0 && reactions > 0 && e.score / reactions >= (2 * last(t.counts)) / mentions;
+      return !!t && e.items >= 5 && mentions > 0 && reactions > 0 && e.score / reactions >= (2 * last(t.counts)) / mentions;
     }),
     excess,
+    (e) => e.key,
+    true,
   );
   if (pull) {
     const t = byKey.get(pull.key)!;
@@ -161,9 +185,12 @@ export function radarSignals(radar: Radar): Signal[] {
   }
 
   // the research share fell: a two-proportion z-test keeps small counts from winning
-  const shift = top(
-    unused(themes).filter((t) => total(t.tracks) >= 5 && total(t.baseline_tracks) >= 10 && shareDrop(t) >= 0.2 && shareDropZ(t) >= 2),
+  const shift = pick(
+    "shift",
+    themes.filter((t) => total(t.tracks) >= 5 && total(t.baseline_tracks) >= 10 && shareDrop(t) >= 0.2 && shareDropZ(t) >= 2),
     shareDropZ,
+    topicKey,
+    true,
   );
   if (shift) {
     const before = researchShare(shift.baseline_tracks) ?? 0;
@@ -176,13 +203,16 @@ export function radarSignals(radar: Radar): Signal[] {
     });
   }
 
-  const hype = top(
-    unused(themes).filter((t) => {
+  const hype = pick(
+    "hype",
+    themes.filter((t) => {
       const usual = perWindow(t.baseline_tracks, chatter);
       const usualResearch = perWindow(t.baseline_tracks, research);
       return chatter(t.tracks) >= 5 && usual > 0 && chatter(t.tracks) >= usual * 1.5 && research(t.tracks) <= usualResearch * 1.1;
     }),
     (t) => chatter(t.tracks) / Math.max(perWindow(t.baseline_tracks, chatter), 0.5),
+    topicKey,
+    true,
   );
   if (hype) {
     const usual = perWindow(hype.baseline_tracks, chatter);
@@ -195,13 +225,16 @@ export function radarSignals(radar: Radar): Signal[] {
   }
 
   // a rise carried by one or two outlets, or by vendors' own newsrooms
-  const thin = top(
-    unused(themes).filter((t) => {
+  const thin = pick(
+    "thin",
+    themes.filter((t) => {
       const narrow = t.effective_sources !== null && t.effective_sources < 2.5;
       const vendor = t.tracks.news >= 4 && t.official / t.tracks.news >= 0.5;
       return last(t.counts) >= 5 && t.z >= 1 && (narrow || vendor);
     }),
     (t) => t.z,
+    topicKey,
+    true,
   );
   if (thin) {
     const parts = [
@@ -217,6 +250,7 @@ export function radarSignals(radar: Radar): Signal[] {
   }
 
   const gap = koreaGaps(radar, 3);
+  if (candidates) candidates.gap = koreaGaps(radar, Infinity).map(topicKey);
   if (gap.length) {
     const lead = gap[0];
     const others = gap.slice(1).map((k) => topicLabel("keyword", k));
@@ -233,9 +267,11 @@ export function radarSignals(radar: Radar): Signal[] {
     const fa = keywords.get(a)?.field, fb = keywords.get(b)?.field;
     return !!fa && !!fb && fa !== fb;
   };
-  const link = top(
+  const link = pick(
+    "link",
     radar.pairs.filter((p) => p.lift >= 2 && (p.is_new || crossField(p.a, p.b))),
     (p) => (p.is_new ? 1000 : 0) + (crossField(p.a, p.b) ? 500 : 0) + p.count * p.lift,
+    (p) => `${p.a}×${p.b}`,
   );
   const fieldLink = top(
     radar.field_links.filter((l) => l.previous === 0 && l.count >= 3),
@@ -259,9 +295,12 @@ export function radarSignals(radar: Radar): Signal[] {
     });
   }
 
-  const cool = top(
-    unused(themes).filter((t) => t.state === "falling"),
+  const cool = pick(
+    "cool",
+    themes.filter((t) => t.state === "falling"),
     (t) => -t.z,
+    topicKey,
+    true,
   );
   if (cool) {
     push({
