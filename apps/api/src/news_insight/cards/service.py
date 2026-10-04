@@ -20,6 +20,7 @@ from news_insight.cards.engines import (
     QuotaExhausted,
 )
 from news_insight.cards.models import CardRun, CardStatus, ItemCard
+from news_insight.cards.preserve import missing_facts
 from news_insight.cards.schemas import CardDraft, CardInput, parse_drafts
 from news_insight.content.models import Item
 from news_insight.content.normalize import truncate
@@ -50,12 +51,17 @@ def pending_condition() -> Any:
     )
 
 
-def pending_items(session: Session, *, limit: int) -> list[tuple[Item, Source]]:
+def pending_items(
+    session: Session, *, limit: int, exclude: set[int] | None = None
+) -> list[tuple[Item, Source]]:
+    conditions = [pending_condition()]
+    if exclude:
+        conditions.append(Item.id.not_in(exclude))
     statement = (
         select(Item, Source)
         .join(Source, Source.id == Item.source_id)
         .outerjoin(ItemCard, ItemCard.item_id == Item.id)
-        .where(pending_condition())
+        .where(*conditions)
         .order_by(Item.first_seen_at.desc(), Item.id.desc())
         .limit(limit)
     )
@@ -156,6 +162,7 @@ def run_cards(
     stats = CardRunStats()
     deadline = monotonic() + policy.time_budget_seconds
     use_agy = agy is not None
+    attempted: set[int] = set()
     quota = Quota(weekly=None, five_hour=None)
 
     def refresh_quota() -> None:
@@ -184,14 +191,17 @@ def run_cards(
         with open_session() as session:
             inputs = [
                 card_input(item, source)
-                for item, source in pending_items(session, limit=batch * lanes)
+                for item, source in pending_items(session, limit=batch * lanes, exclude=attempted)
             ]
         if not inputs:
             break
+        attempted.update(card.id for card in inputs)  # retries wait for the next run
         chunks = [inputs[i : i + batch] for i in range(0, len(inputs), batch)]
         results = _generate_all(engine, chunks)
         switch = False
         for chunk, result in zip(chunks, results, strict=True):
+            if isinstance(result, EngineError):
+                attempted.difference_update(card.id for card in chunk)  # not their fault
             if isinstance(result, QuotaExhausted) or (
                 isinstance(result, EngineError) and engine is agy
             ):
@@ -242,13 +252,16 @@ def _store_batch(
             if item is None:
                 continue
             draft = drafts.get(card.id)
+            error = None if draft else "missing or invalid in engine output"
+            if draft is not None and (lost := missing_facts(card, draft)):
+                draft, error = None, f"preservation: lost {', '.join(lost)}"
             store_result(
                 session,
                 item,
                 draft,
                 engine=engine_name,
                 model=output.model,
-                error=None if draft else "missing or invalid in engine output",
+                error=error,
                 now=now,
             )
             if draft:

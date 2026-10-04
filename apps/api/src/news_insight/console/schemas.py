@@ -145,6 +145,13 @@ class StoryRef(BaseModel):
     is_representative: bool
 
 
+class CardFailure(BaseModel):
+    item: ItemRow
+    error: str | None
+    attempts: int
+    generated_at: datetime
+
+
 class CardView(BaseModel):
     item: ItemRow
     card: CardBody
@@ -166,6 +173,8 @@ class CardStats(BaseModel):
     failed: int
     pending: int
     ready_today: int
+    success_rate_7d: float | None = None
+    scope_7d: dict[str, int] = {}
     by_engine: dict[str, int]
     last_run: CardRunOut | None
 

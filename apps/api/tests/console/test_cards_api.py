@@ -122,3 +122,21 @@ def test_card_stats_and_korean_titles_on_items(
     assert stats["last_run"]["quota"] == {"weekly": 80, "five_hour": 50}
     assert items["items"][0]["title_ko"] == "갤럭시 S30 공개"
     assert detail["card"]["keywords"] == ["삼성", "갤럭시"]
+
+
+def test_card_failures_and_success_rate(
+    console_client: TestClient, headers: dict[str, str], db_session: Session
+) -> None:
+    seed(db_session)
+    db_session.execute(
+        __import__("sqlalchemy")
+        .update(ItemCard)
+        .where(ItemCard.status == CardStatus.FAILED)
+        .values(error="preservation: lost S30")
+    )
+
+    failures = console_client.get("/api/admin/cards/failures", headers=headers).json()
+    stats = console_client.get("/api/admin/cards/stats", headers=headers).json()
+
+    assert [f["error"] for f in failures] == ["preservation: lost S30"]
+    assert stats["success_rate_7d"] == pytest.approx(2 / 3)
