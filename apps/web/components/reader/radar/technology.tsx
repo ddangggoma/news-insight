@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { ChartTips } from "@/components/reader/radar/chart-tips";
-import { Legend, StateBadge } from "@/components/reader/radar/parts";
+import { KeywordBadge, Legend, StateBadge } from "@/components/reader/radar/parts";
 import { Sparkline } from "@/components/reader/sparkline";
 import {
   type Focus,
@@ -44,6 +44,7 @@ function keywordTip(keyword: Topic): string {
     `${last(keyword.counts)}건 · ${formatZ(keyword.z)}`,
     `${keyword.state ? STATE_META[keyword.state].label : ""} · 직전 대비 ${formatChange(keyword.change)} · 출처 ${keyword.sources}곳`,
     share !== null ? `논문·오픈소스 ${Math.round(share * 100)}%` : "",
+    keyword.returning ? "↺ 재등장" : keyword.debut ? "✦ 최근 첫 등장" : "",
   ]
     .filter(Boolean)
     .join("\n");
@@ -106,9 +107,11 @@ const WATCH: TopicState[] = ["new", "surging", "rising"];
 
 /** The technologies to act on: new, surging and rising keywords ranked by momentum. */
 export function EmergingTable({ radar, view, limit = 14 }: { radar: Radar; view: RadarView; limit?: number }) {
+  // fresh first (returning, debut), then by lifecycle and momentum
+  const rank = (k: Topic) => (k.returning ? 0 : k.debut ? 1 : 2 + WATCH.indexOf(k.state ?? "rising"));
   const rows = radar.keywords
-    .filter((k) => k.state && WATCH.includes(k.state))
-    .sort((a, b) => WATCH.indexOf(a.state!) - WATCH.indexOf(b.state!) || b.z - a.z || last(b.counts) - last(a.counts))
+    .filter((k) => k.state !== "falling" && ((k.state && WATCH.includes(k.state)) || k.debut || k.returning))
+    .sort((a, b) => rank(a) - rank(b) || b.z - a.z || last(b.counts) - last(a.counts))
     .slice(0, limit);
   if (!rows.length) return <p className="py-10 text-center text-sm text-muted-foreground">새로 뜨거나 늘어난 기술이 없습니다.</p>;
   return (
@@ -138,7 +141,10 @@ export function EmergingTable({ radar, view, limit = 14 }: { radar: Radar; view:
                   {keyword.field ? <span className="block truncate text-[11px] text-muted-foreground">{FIELD_LABEL[keyword.field] ?? keyword.field}</span> : null}
                 </td>
                 <td className="py-1.5">
-                  <StateBadge state={keyword.state} />
+                  <span className="flex flex-wrap gap-1">
+                    <KeywordBadge topic={keyword} />
+                    <StateBadge state={keyword.state} />
+                  </span>
                 </td>
                 <td className="hidden py-1.5 sm:table-cell">
                   <Sparkline values={keyword.counts} width={60} height={20} className={cn(keyword.state === "new" ? "text-primary" : "text-state-hot")} />

@@ -3,8 +3,8 @@ import Link from "next/link";
 import { ViewTransition } from "react";
 
 import { ChartTips } from "@/components/reader/radar/chart-tips";
-import { Change, Legend, StateBadge } from "@/components/reader/radar/parts";
-import { formatDateTime, formatRelative, REGION_LABEL, TRACK_LABEL } from "@/lib/format";
+import { Change, KeywordBadge, Legend, StateBadge } from "@/components/reader/radar/parts";
+import { formatDateTime, formatDay, formatRelative, REGION_LABEL, TRACK_LABEL } from "@/lib/format";
 import {
   BASELINE_UNIT,
   businessShort,
@@ -84,6 +84,12 @@ function Trend({ counts, periods, forecast }: { counts: number[]; periods: strin
   );
 }
 
+/** Baseline track counts as an average window, rounded for display. */
+function averageMix(mix: TrackMix, windows: number): TrackMix {
+  const per = (n: number) => Math.round((n / Math.max(windows, 1)) * 10) / 10;
+  return { news: per(mix.news), community: per(mix.community), research_ip: per(mix.research_ip), oss: per(mix.oss) };
+}
+
 function Mix({ label, mix }: { label: string; mix: TrackMix }) {
   const total = sumMix(mix);
   return (
@@ -96,7 +102,7 @@ function Mix({ label, mix }: { label: string; mix: TrackMix }) {
             )
           : null}
       </span>
-      <span className="text-right tabular-nums text-muted-foreground">{total}</span>
+      <span className="text-right tabular-nums text-muted-foreground">{Number.isInteger(total) ? total : total.toFixed(1)}</span>
     </div>
   );
 }
@@ -134,7 +140,7 @@ export function TopicPanel({ detail, radar, view }: { detail: TopicDetail; radar
   const { topic, kind } = detail;
   const current = last(topic.counts);
   const share = researchShare(topic.tracks);
-  const before = researchShare(topic.previous_tracks);
+  const before = researchShare(topic.baseline_tracks);
   const stage = stageOf(share);
   const firstSeen = (Object.entries(topic.first_seen) as [Region, string][]).sort((a, b) => Date.parse(a[1]) - Date.parse(b[1]));
   const impactTotal = topic.impacts.opportunity + topic.impacts.risk + topic.impacts.watch;
@@ -165,7 +171,11 @@ export function TopicPanel({ detail, radar, view }: { detail: TopicDetail; radar
           <h2 className="mt-1 flex flex-wrap items-center gap-2 text-xl leading-snug font-bold tracking-tight">
             {topicLabel(kind, topic)}
             <StateBadge state={topic.state} />
+            <KeywordBadge topic={topic} />
           </h2>
+          {topic.first_ever ? (
+            <p className="mt-1 text-xs text-muted-foreground">첫 보도 {formatDay(topic.first_ever)} · 지금 필터로 전체 기간을 본 기준</p>
+          ) : null}
           <dl className="mt-3 grid grid-cols-3 gap-2 text-center">
             {[
               ["언급", `${current}건`],
@@ -190,12 +200,12 @@ export function TopicPanel({ detail, radar, view }: { detail: TopicDetail; radar
         <Section title="신호 단계 · 트랙 구성">
           <div className="space-y-1.5">
             <Mix label="이번" mix={topic.tracks} />
-            <Mix label="직전" mix={topic.previous_tracks} />
+            <Mix label="평소" mix={averageMix(topic.baseline_tracks, topic.counts.length - 1)} />
           </div>
           <p className="mt-2 text-xs text-ink-2">
             {stage ? <b className="text-foreground">{STAGE_META[stage].label}</b> : null}
             {share !== null ? ` · 논문·오픈소스 ${Math.round(share * 100)}%` : ""}
-            {share !== null && before !== null ? ` (직전 ${Math.round(before * 100)}%)` : ""}
+            {share !== null && before !== null ? ` (평소 ${Math.round(before * 100)}%)` : ""}
             {stage ? ` · ${STAGE_META[stage].hint}` : ""}
           </p>
           <Legend className="mt-2" items={TRACK_ORDER.map((track) => ({ label: TRACK_LABEL[track], swatch: TRACK_FILL[track] }))} />

@@ -3,14 +3,17 @@ export const RADAR_SECTIONS = [
   ["landscape", "지도"],
   ["matrix", "포지셔닝"],
   ["timing", "타이밍"],
+  ["calendar", "캘린더"],
   ["rank", "순위"],
   ["cloud", "기술"],
+  ["engagement", "반응"],
   ["regions", "지역"],
   ["share", "점유율"],
   ["maturity", "신호 단계"],
   ["impact", "기회·위험"],
   ["flows", "확산 경로"],
   ["network", "융합"],
+  ["cross", "교차"],
 ] as const;
 
 /** Jump links to every view; sticks under the site header while scrolling. */

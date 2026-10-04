@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 
+import { ActivityCalendar, EngagementMatrix, FieldCrossMatrix, TopMovers } from "@/components/reader/radar/activity";
 import { RadarControls } from "@/components/reader/radar/controls";
 import { FocusScroll } from "@/components/reader/radar/focus-scroll";
 import { CategoryTreemap, PositioningMatrix, TimingHeatmap } from "@/components/reader/radar/landscape";
@@ -103,6 +104,15 @@ export default async function RadarPage({ params, searchParams }: Props) {
             </Panel>
           </div>
 
+          <Panel
+            id="calendar"
+            title="일별 캘린더"
+            question="언제 무슨 일이 있었나? 발표·행사·사고가 있던 날은?"
+            note="칸 = 하루 보도량. 테두리 = 한 카테고리가 평소 같은 요일의 2.5배 이상(8건 이상)이던 날, 그날 유독 많이 나온 기술과 함께."
+          >
+            <ActivityCalendar radar={radar} view={view} />
+          </Panel>
+
           <Panel id="rank" title="테마 순위 변화" question="누가 치고 올라오고, 누가 밀려나나?" note="이번 기간 언급량 상위 10개 테마의 기간별 순위. 첫 기간 대비 3계단 이상 움직인 선만 색으로 강조합니다.">
             <RankBump radar={radar} view={view} />
           </Panel>
@@ -115,6 +125,18 @@ export default async function RadarPage({ params, searchParams }: Props) {
               <EmergingTable radar={radar} view={view} />
             </Panel>
           </div>
+
+          <Panel
+            id="engagement"
+            title="반응 vs 보도"
+            question="보도는 적어도 개발자들이 먼저 반응하는 곳은? 보도만 많고 반응은 없는 곳은?"
+            note="반응 = 이번 기간 GitHub 스타·커뮤니티 포인트·좋아요 등의 증가량(항목마다 log(1+증가량)을 합산). 대각선 위는 반응이 보도보다 큰 테마입니다."
+          >
+            <div className="grid gap-5 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] [&>*]:min-w-0">
+              <EngagementMatrix radar={radar} view={view} />
+              <TopMovers radar={radar} />
+            </div>
+          </Panel>
 
           <Panel
             id="regions"
@@ -157,6 +179,10 @@ export default async function RadarPage({ params, searchParams }: Props) {
               </div>
             </Panel>
           </div>
+
+          <Panel id="cross" title="카테고리 교차" question="어느 분야끼리 만나고 있나? 새로 생긴 교차점은?" note="한 보도가 두 카테고리의 테마에 함께 분류된 경우를 셉니다. 점 = 직전 기간에는 없던 교차.">
+            <FieldCrossMatrix radar={radar} view={view} />
+          </Panel>
         </div>
       </div>
     </main>

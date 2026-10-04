@@ -388,10 +388,10 @@ export function koreaLagDays(topic: Topic): number | null {
   return (Date.parse(kr) - Math.min(...others)) / DAY;
 }
 
-/** Technologies moving abroad that Korean sources have not picked up yet. */
+/** Technologies with real coverage abroad this period and none from Korean sources. */
 export function koreaGaps(radar: Radar, limit = 6): Topic[] {
   return radar.keywords
-    .filter((k) => (k.state === "new" || k.state === "surging" || k.state === "rising") && k.regions.kr === 0 && last(k.counts) >= 4)
+    .filter((k) => k.state !== "falling" && k.regions.kr === 0 && last(k.counts) >= 4)
     .sort((a, b) => last(b.counts) - last(a.counts) || b.z - a.z)
     .slice(0, limit);
 }

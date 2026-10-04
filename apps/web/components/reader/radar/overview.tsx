@@ -1,4 +1,4 @@
-import { ArrowRightLeft, FlaskConical, Flame, Globe2, Link2, SearchCheck, Sparkles, TrendingDown, TrendingUp } from "lucide-react";
+import { ArrowRightLeft, CalendarClock, FlaskConical, Flame, Globe2, Link2, RotateCcw, SearchCheck, Sparkles, Star, TrendingDown, TrendingUp } from "lucide-react";
 import Link from "next/link";
 
 import { Change } from "@/components/reader/radar/parts";
@@ -58,8 +58,11 @@ export function KpiStrip({ radar }: { radar: Radar }) {
 
 const SIGNAL_ICON: Record<SignalTone, typeof Flame> = {
   surge: Flame,
+  event: CalendarClock,
   new: Sparkles,
+  back: RotateCcw,
   early: FlaskConical,
+  pull: Star,
   shift: ArrowRightLeft,
   hype: TrendingUp,
   thin: SearchCheck,
@@ -69,8 +72,11 @@ const SIGNAL_ICON: Record<SignalTone, typeof Flame> = {
 };
 const SIGNAL_TONE: Record<SignalTone, string> = {
   surge: "text-state-hot bg-state-hot/12",
+  event: "text-state-hot bg-state-hot/12",
   new: "text-primary bg-primary/12",
+  back: "text-primary bg-primary/12",
   early: "text-track-research bg-track-research/12",
+  pull: "text-track-oss bg-track-oss/12",
   shift: "text-track-oss bg-track-oss/12",
   hype: "text-track-community bg-track-community/12",
   thin: "text-impact-risk bg-impact-risk/12",

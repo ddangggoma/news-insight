@@ -112,6 +112,8 @@ export interface Topic {
   sources: number;
   tracks: TrackMix;
   previous_tracks: TrackMix;
+  /** Summed over the windows before the current one. */
+  baseline_tracks: TrackMix;
   impacts: Record<"opportunity" | "risk" | "watch", number>;
   /** Current window by source region. */
   regions: Record<Region, number>;
@@ -121,6 +123,12 @@ export interface Topic {
   official: number;
   /** 1 / HHI of reports per source: 1 = a single outlet. */
   effective_sources: number | null;
+  /** Keywords only: first report ever, with the filters. */
+  first_ever?: string | null;
+  /** Keywords only: "new" in the span but reported before it. */
+  returning?: boolean;
+  /** Keywords only: first report ever within the last three windows. */
+  debut?: boolean;
 }
 
 export interface KeywordPair {
@@ -155,6 +163,48 @@ export interface Radar {
   pairs: KeywordPair[];
   /** Track-to-track hand-offs completed in the window. */
   flows: { chains: number; origins: Partial<Record<Track, number>>; links: FlowLink[] };
+  engagement: Engagement;
+  calendar: RadarCalendar;
+  field_links: FieldLink[];
+}
+
+export interface EngagedItem {
+  id: number;
+  title: string;
+  track: Track;
+  source_name: string;
+  metric: string;
+  gain: number;
+  current: number;
+}
+
+/** Reactions gained inside the window (stars, points, likes …). */
+export interface Engagement {
+  measured: number;
+  themes: { key: string; score: number; items: number }[];
+  top: EngagedItem[];
+}
+
+export interface Anomaly {
+  day: string;
+  field: string;
+  count: number;
+  expected: number;
+  z: number;
+  keywords: { key: string; label: string; count: number }[];
+}
+
+export interface RadarCalendar {
+  start: string;
+  days: number[];
+  anomalies: Anomaly[];
+}
+
+export interface FieldLink {
+  a: string;
+  b: string;
+  count: number;
+  previous: number;
 }
 
 export interface TopicDetail {

@@ -112,7 +112,7 @@ export function CategoryShare({ radar, view }: { radar: Radar; view: RadarView }
 
 function MixBar({ topic, label }: { topic: Topic; label: string }) {
   const total = sumMix(topic.tracks);
-  const before = researchShare(topic.previous_tracks);
+  const before = researchShare(topic.baseline_tracks);
   return (
     <div className="relative h-4">
       <div className="flex h-full gap-0.5 overflow-hidden rounded-[4px]">
@@ -130,7 +130,7 @@ function MixBar({ topic, label }: { topic: Topic; label: string }) {
         <span
           className="pointer-events-none absolute -inset-y-1 w-0.5 rounded-full bg-foreground"
           style={{ left: `calc(${(before * 100).toFixed(1)}% - 1px)` }}
-          title={`직전 기간 논문·오픈소스 ${Math.round(before * 100)}%`}
+          title={`기준 기간 논문·오픈소스 ${Math.round(before * 100)}%`}
         />
       ) : null}
     </div>
@@ -153,7 +153,7 @@ export function MaturityBars({ radar, view, limit = 14 }: { radar: Radar; view: 
       <ul className="space-y-2">
         {rows.map((theme) => {
           const share = researchShare(theme.tracks);
-          const before = researchShare(theme.previous_tracks);
+          const before = researchShare(theme.baseline_tracks);
           const stage = stageOf(share);
           const focus = { kind: "theme" as const, key: theme.key };
           const label = topicLabel("theme", theme);
@@ -177,7 +177,7 @@ export function MaturityBars({ radar, view, limit = 14 }: { radar: Radar; view: 
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
         <Legend items={TRACK_ORDER.map((track) => ({ label: TRACK_LABEL[track], swatch: TRACK_FILL[track] }))} />
         <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <span className="inline-block h-3 w-0.5 rounded-full bg-foreground" aria-hidden /> 직전 기간 논문·오픈소스 비중
+          <span className="inline-block h-3 w-0.5 rounded-full bg-foreground" aria-hidden /> 기준 기간(직전 7기간) 논문·오픈소스 비중
         </span>
       </div>
     </ChartTips>

@@ -87,3 +87,14 @@ export function Legend({ items, className }: { items: { label: string; swatch: s
     </ul>
   );
 }
+
+/** "첫 등장" for a keyword first reported in the last three windows, "재등장" for one back after a gap. */
+export function KeywordBadge({ topic }: { topic: { debut?: boolean; returning?: boolean } }) {
+  if (topic.returning) {
+    return <span title="기준 기간 동안 없다가 다시 등장 (그 전에 보도된 적 있음)" className="rounded-full bg-primary/12 px-1.5 py-px text-[11px] font-semibold whitespace-nowrap text-primary">↺ 재등장</span>;
+  }
+  if (topic.debut) {
+    return <span title="최근 3개 기간 안에 처음 보도됨" className="rounded-full bg-primary/12 px-1.5 py-px text-[11px] font-semibold whitespace-nowrap text-primary">✦ 첫 등장</span>;
+  }
+  return null;
+}

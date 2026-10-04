@@ -23,7 +23,8 @@ import {
   volumeSplit,
   wordCloud,
 } from "@/lib/radar";
-import { radarSignals } from "@/lib/radar-signals";
+import { formatDay } from "@/lib/format";
+import { radarSignals, shareDropZ } from "@/lib/radar-signals";
 import { radarView } from "@/lib/radar-view";
 import type { Radar, Topic } from "@/lib/reader-types";
 
@@ -41,6 +42,7 @@ function topic(key: string, counts: number[], patch: Partial<Topic> = {}): Topic
     sources: 3,
     tracks: mix(last(counts)),
     previous_tracks: mix(counts[counts.length - 2]),
+    baseline_tracks: mix(counts.slice(0, -1).reduce((a, b) => a + b, 0)),
     impacts: { opportunity: 0, risk: 0, watch: 0 },
     regions: { kr: 0, global_en: last(counts), jp: 0, greater_china: 0, eu_other: 0 },
     first_seen: {},
@@ -55,7 +57,7 @@ function last(values: number[]): number {
 }
 
 const radar: Radar = {
-  window: { kind: "week", key: "2026-W40", start: "", end: "", prev_key: "2026-W39", next_key: "2026-W41", is_current: true, elapsed: 0.5 },
+  window: { kind: "week", key: "2026-W40", start: "2026-09-28T00:00:00+09:00", end: "2026-10-05T00:00:00+09:00", prev_key: "2026-W39", next_key: "2026-W41", is_current: true, elapsed: 0.5 },
   periods: ["2026-W37", "2026-W38", "2026-W39", "2026-W40"],
   kpis: { items: [10, 10, 12, 20], stories: [8, 8, 9, 15], sources: [5, 5, 6, 8], research: [3, 3, 4, 9], new_stories: 4, cross_track_stories: 1 },
   fields: [topic("ai_data", [4, 4, 5, 12], { z: 7 })],
@@ -66,7 +68,7 @@ const radar: Radar = {
       z: 0.5,
       state: "steady",
       tracks: mix(5, 3, 0, 0),
-      previous_tracks: mix(2, 1, 1, 1),
+      baseline_tracks: mix(6, 3, 8, 3),
     }),
     topic("network_comms__fiveg_sixg", [6, 6, 6, 1], { z: -5, state: "falling" }),
   ],
@@ -80,6 +82,9 @@ const radar: Radar = {
     { a: "hbm4", b: "유리기판", count: 2, lift: 1.5, is_new: false },
   ],
   flows: { chains: 0, origins: {}, links: [] },
+  engagement: { measured: 0, themes: [], top: [] },
+  calendar: { start: "2026-07-13", days: [], anomalies: [] },
+  field_links: [],
 };
 
 describe("radar URL state", () => {
@@ -160,9 +165,11 @@ describe("radar regions, ranks and projection", () => {
         topic("y", [0, 0, 0, 5], { state: "rising", regions: { kr: 1, global_en: 4, jp: 0, greater_china: 0, eu_other: 0 } }),
         topic("z", [0, 0, 0, 3], { state: "new" }),
         topic("w", [5, 5, 5, 6], { state: "steady" }),
+        topic("v", [9, 9, 9, 7], { state: "falling" }),
       ],
     });
-    expect(gaps.map((k) => k.key)).toEqual(["x"]);
+    // steady counts as long as it is not falling; Korean coverage or too few reports do not
+    expect(gaps.map((k) => k.key)).toEqual(["w", "x"]);
     const lagged = topic("k", [0, 1], { first_seen: { global_en: "2026-09-01T00:00:00Z", jp: "2026-09-02T00:00:00Z", kr: "2026-09-04T12:00:00Z" } });
     expect(koreaLagDays(lagged)).toBe(3.5);
     expect(koreaLagDays(topic("k", [0, 1], { first_seen: { global_en: "2026-09-01T00:00:00Z" } }))).toBeNull();
@@ -247,7 +254,7 @@ describe("radar signals", () => {
     expect(signals.new.focus).toEqual({ kind: "keyword", key: "유리기판" });
     expect(signals.early.title).toBe("Embodied AI");
     expect(signals.shift.title).toBe("XR·공간 디스플레이");
-    expect(signals.shift.detail).toContain("40% → 0%");
+    expect(signals.shift.detail).toContain("직전 3주 55% → 이번 0%");
     expect(signals.link.title).toBe("HBM4 × 온디바이스 AI");
     expect(signals.link.detail).toContain("첫 동시 언급");
     expect(signals.cool.title).toBe("5G·6G");
@@ -255,18 +262,18 @@ describe("radar signals", () => {
   });
 
   it("flags chatter that outruns research, once per theme", () => {
-    const hot = topic("mobile_edge__smartphone_compute", [3, 3, 3, 9], { z: 0.8, tracks: mix(6, 2, 1, 0), previous_tracks: mix(2, 1, 2, 0) });
+    const hot = topic("mobile_edge__smartphone_compute", [3, 3, 3, 9], { z: 0.8, tracks: mix(6, 2, 1, 0), baseline_tracks: mix(6, 3, 6, 0) });
     const signals = radarSignals({ ...radar, themes: [...radar.themes, hot] });
     const hype = signals.find((s) => s.tone === "hype")!;
     expect(hype.title).toBe("스마트폰·모바일 컴퓨팅");
-    expect(hype.detail).toBe("뉴스·커뮤니티 ▲167%, 논문·오픈소스 ▼50%: 화제가 실체보다 앞섬");
+    expect(hype.detail).toBe("뉴스·커뮤니티 8건으로 평소(3.0건)의 2.7배, 논문·오픈소스는 1건(평소 2.0건): 화제가 실체보다 앞섬");
     const keys = signals.filter((s) => s.focus.kind === "theme").map((s) => s.focus.key);
     expect(new Set(keys).size).toBe(keys.length);
   });
 
   it("flags thin sourcing and Korean gaps", () => {
-    const narrow = topic("cloud_infra__kubernetes_container", [2, 2, 2, 8], { z: 3, effective_sources: 1.6 });
-    const vendor = topic("mobile_edge__android_mobile_os", [2, 2, 2, 6], { z: 2, official: 4 });
+    const narrow = topic("cloud_infra__kubernetes_container", [2, 2, 2, 8], { z: 3, effective_sources: 1.6, baseline_tracks: mix(18) });
+    const vendor = topic("mobile_edge__android_mobile_os", [2, 2, 2, 6], { z: 2, official: 4, baseline_tracks: mix(15) });
     const abroad = topic("wasm", [0, 0, 1, 6], { label: "WASM", state: "rising", regions: { kr: 0, global_en: 6, jp: 0, greater_china: 0, eu_other: 0 } });
     const signals = radarSignals({ ...radar, themes: [narrow, vendor], keywords: [abroad], pairs: [] });
     const thin = signals.find((s) => s.tone === "thin")!;
@@ -276,7 +283,57 @@ describe("radar signals", () => {
     expect(gap.title).toBe("WASM");
     expect(gap.detail).toContain("해외 6건");
     const onlyVendor = radarSignals({ ...radar, themes: [vendor], keywords: [], pairs: [] }).find((s) => s.tone === "thin")!;
-    expect(onlyVendor.detail).toContain("공식 발표 67%");
+    expect(onlyVendor.detail).toContain("뉴스 중 공식 발표 67%");
+  });
+
+  it("reads anomaly days, returning keywords, developer pull and new category links", () => {
+    const signals = Object.fromEntries(
+      radarSignals({
+        ...radar,
+        keywords: [
+          topic("메타버스", [0, 0, 0, 4], { label: "메타버스", state: "new", returning: true, first_ever: "2026-01-01T00:00:00Z" }),
+          topic("one ui 9", [0, 0, 2, 9], { label: "One UI 9", state: "surging", debut: true, first_ever: "2026-09-26T00:00:00Z" }),
+        ],
+        pairs: [],
+        engagement: {
+          measured: 30,
+          themes: [
+            { key: "display_media__xr_spatial_display", score: 80, items: 12 },
+            { key: "ai_data__ai_agents", score: 20, items: 9 },
+          ],
+          top: [],
+        },
+        calendar: {
+          start: "2026-07-13",
+          days: [],
+          anomalies: [
+            { day: "2026-08-27", field: "ai_data", count: 40, expected: 13.5, z: 7.2, keywords: [] },
+            { day: "2026-09-30", field: "mobile_edge", count: 25, expected: 3.5, z: 11.5, keywords: [{ key: "갤럭시", label: "갤럭시", count: 9 }] },
+          ],
+        },
+        field_links: [{ a: "emerging_science", b: "security_privacy", count: 3, previous: 0 }],
+      }).map((s) => [s.tone, s]),
+    );
+    // only anomalies inside the window count, and the card opens the keyword behind them
+    expect(signals.event.title).toBe("9/30 모바일·엣지");
+    expect(signals.event.detail).toBe("하루 25건, 평소 같은 요일 3.5건의 7.1배 · 갤럭시");
+    expect(signals.event.focus).toEqual({ kind: "keyword", key: "갤럭시" });
+    expect(signals.back.title).toBe("메타버스");
+    expect(signals.new.title).toBe("One UI 9");
+    expect(signals.new.detail).toContain("처음 보도된 지 8일");
+    // XR: 6 of 20 mentions (30%) but 80% of the reactions; a theme already on another card is skipped
+    expect(signals.pull.title).toBe("XR·공간 디스플레이");
+    expect(signals.pull.detail).toContain("언급 비중 30%인데 반응(스타·포인트 증가) 비중 80%");
+    expect(signals.link.title).toBe("미래과학·지속가능성 × 보안·프라이버시");
+  });
+
+  it("tests a drop in research share for significance", () => {
+    const big = topic("a__b", [10, 10, 10, 30], { tracks: mix(24, 0, 6, 0), baseline_tracks: mix(10, 0, 20, 0) });
+    const small = topic("a__b", [1, 1, 1, 3], { tracks: mix(3, 0, 0, 0), baseline_tracks: mix(1, 0, 2, 0) });
+    // 67% → 20% over 30 reports each: z ≈ 3.6
+    expect(shareDropZ(big)).toBeCloseTo(3.65, 1);
+    expect(shareDropZ(small)).toBeLessThan(2);
+    expect(formatDay("2026-09-13T16:00:00Z")).toBe("2026.09.14");
   });
 
   it("stays quiet on an empty radar", () => {
