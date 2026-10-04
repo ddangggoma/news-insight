@@ -112,7 +112,8 @@ def in_window(window: Window) -> list[ColumnElement[bool]]:
 def joined[T: tuple[Any, ...]](statement: Select[T]) -> Select[T]:
     """Item ⋈ Source ⋈ ItemCard, with the item's story when it has one."""
     return (
-        statement.join(Source, Source.id == Item.source_id)
+        statement.select_from(Item)
+        .join(Source, Source.id == Item.source_id)
         .join(ItemCard, ItemCard.item_id == Item.id)
         .outerjoin(StoryItem, StoryItem.item_id == Item.id)
         .outerjoin(Story, Story.id == StoryItem.story_id)

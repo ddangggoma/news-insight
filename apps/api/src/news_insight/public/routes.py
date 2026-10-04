@@ -8,12 +8,14 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from news_insight.db import get_db
+from news_insight.public import aggregates
 from news_insight.public import feed as feed_queries
 from news_insight.public.auth import require_public_key
 from news_insight.public.filters import FilterError, ReaderFilters
 from news_insight.public.periods import PeriodError, Window, rolling_window
 from news_insight.public.schemas import (
     FeedPage,
+    Insights,
     ReaderItemDetail,
     TaxonomyField,
     TaxonomyNode,
@@ -118,3 +120,13 @@ def get_item(item_id: int, session: DB) -> ReaderItemDetail:
     if detail is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "item not found")
     return detail
+
+
+@router.get("/facets")
+def get_facets(session: DB, filters: Filters, window: FeedWindow) -> dict[str, dict[str, int]]:
+    return aggregates.facets(session, filters, window)
+
+
+@router.get("/insights")
+def get_insights(session: DB, filters: Filters, window: FeedWindow) -> Insights:
+    return aggregates.insights(session, filters, window)

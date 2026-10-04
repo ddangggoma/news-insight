@@ -77,3 +77,27 @@ class ReaderItemDetail(BaseModel):
     story_items: list[LinkedItem]
     signals: list[LinkedItem]
     same_field: list[LinkedItem]
+
+
+class Count(BaseModel):
+    key: str
+    count: int
+
+
+class KeywordTrend(BaseModel):
+    key: str
+    label: str
+    count: int
+    previous: int | None
+    change: float | None
+    is_new: bool
+
+
+class Insights(BaseModel):
+    total: int
+    previous_total: int | None
+    keywords: list[KeywordTrend]
+    related_keywords: list[str]
+    fields: list[Count]
+    businesses: list[Count]
+    impacts: list[Count]
