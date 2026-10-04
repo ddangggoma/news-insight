@@ -193,3 +193,38 @@ export interface DigestSummary {
   item_count: number;
   generated_at: string;
 }
+
+export type Verdict = "relevant" | "irrelevant" | "unsure";
+
+export interface ReviewOut {
+  verdict: Verdict;
+  note: string | null;
+  reviewed_at: string;
+}
+
+export interface ReviewItem {
+  item: ItemRow;
+  card: CardBody | null;
+  review: ReviewOut | null;
+}
+
+export interface ReviewSample {
+  seed: string;
+  items: ReviewItem[];
+  reviewed: number;
+}
+
+export interface ReviewBucket {
+  key: string;
+  total: number;
+  relevant: number;
+  irrelevant: number;
+  unsure: number;
+}
+
+export interface ReviewStats {
+  overall: ReviewBucket;
+  by_track: ReviewBucket[];
+  by_category: ReviewBucket[];
+  worst_sources: ReviewBucket[];
+}

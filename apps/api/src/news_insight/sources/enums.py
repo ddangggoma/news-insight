@@ -19,7 +19,8 @@ class Region(StrEnum):
 class AccessMethod(StrEnum):
     FEED = "feed"  # RSS / Atom
     JSON_API = "json_api"
-    CRAWLER = "crawler"  # declarative, terms-reviewed crawler
+    CRAWLER = "crawler"  # HTML list pages: declarative selectors or `mode: auto` link discovery
+    SITEMAP = "sitemap"  # XML sitemaps (Google News sitemaps carry titles and dates)
     GITHUB = "github"
     ATPROTO = "atproto"
     ACTIVITYPUB = "activitypub"

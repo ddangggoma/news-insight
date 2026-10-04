@@ -4,7 +4,15 @@ from datetime import UTC, datetime, tzinfo
 from email.utils import parsedate_to_datetime
 from typing import Any
 
-DATE_FORMATS = ("%Y.%m.%d", "%Y/%m/%d", "%Y.%m.%d %H:%M", "%Y/%m/%d %H:%M")
+DATE_FORMATS = (
+    "%Y.%m.%d",
+    "%Y/%m/%d",
+    "%Y.%m.%d %H:%M",
+    "%Y/%m/%d %H:%M",
+    "%Y-%m-%d %H:%M",
+    "%Y.%m.%d. %H:%M",
+    "%Y%m%d",
+)
 EPOCH_MS_THRESHOLD = 10**11
 
 

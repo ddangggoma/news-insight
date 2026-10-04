@@ -66,7 +66,7 @@ def test_public_feed_is_auto_approved_with_excerpt_storage() -> None:
 @pytest.mark.parametrize(
     ("overrides", "reason"),
     [
-        ({"access_method": AccessMethod.CRAWLER}, "manual terms review"),
+        ({"access_method": AccessMethod.CRAWLER}, "selectors or config.mode=auto"),
         ({"config": {"manual_review": True}}, "manual_review"),
         ({"config": {"auth": {"secret": "NOT_SET_ANYWHERE"}}}, "SOURCE_SECRET_NOT_SET_ANYWHERE"),
         ({"storage_right": StorageRight.FULLTEXT_PERMITTED}, "at most excerpt"),
@@ -101,3 +101,20 @@ def test_climb_uses_auto_policy_without_terms_and_sets_storage(db_session: Sessi
     assert source.validation_stage is ValidationStage.V3
     assert source.storage_right is StorageRight.EXCERPT_ALLOWED
     assert events[1].metrics["auto_approved"] is True
+
+
+def test_documented_apis_skip_robots_and_auto_crawlers_respect_it() -> None:
+    blocked = site(robots("User-agent: *\nDisallow: /"))
+
+    api = check_auto_policy(unreviewed(access_method=AccessMethod.JSON_API), blocked)
+    crawler = check_auto_policy(
+        unreviewed(access_method=AccessMethod.CRAWLER, config={"mode": "auto"}), blocked
+    )
+    allowed_crawler = check_auto_policy(
+        unreviewed(access_method=AccessMethod.CRAWLER, config={"mode": "auto"}),
+        site(httpx.Response(404)),
+    )
+
+    assert api.passed and api.metrics["robots"].startswith("not applicable")
+    assert not crawler.passed and "disallows" in crawler.reasons[0]
+    assert allowed_crawler.passed

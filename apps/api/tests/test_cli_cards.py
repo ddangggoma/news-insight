@@ -1,6 +1,7 @@
 from collections.abc import Iterator
 from contextlib import contextmanager
 from datetime import UTC, datetime
+from pathlib import Path
 
 import pytest
 from sqlalchemy.orm import Session
@@ -26,7 +27,9 @@ class Qwen:
 
 
 @pytest.fixture(autouse=True)
-def wire(db_session: Session, monkeypatch: pytest.MonkeyPatch) -> None:
+def wire(db_session: Session, monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.setattr(cli, "CARDS_LOCK", tmp_path / "cards.lock")
+
     @contextmanager
     def scope() -> Iterator[Session]:
         with db_session.begin_nested():

@@ -101,11 +101,18 @@ def check_policy(source: Source) -> CheckResult:
 
 
 def check_network(source: Source, fetcher: SafeFetcher) -> CheckResult:
-    """V2: SSRF/DNS-rebinding guard, TLS, MIME and size limits via SafeFetcher."""
+    """V2: SSRF/DNS-rebinding guard, TLS, MIME and size limits via SafeFetcher.
+
+    Authenticated APIs are probed with their credentials (V1 already required them)."""
+    try:
+        headers = resolve_auth_headers(source.config)
+    except SecretError:
+        headers = {}
     try:
         response = fetcher.fetch(
             expand_macros(probe_url(source), now=datetime.now(UTC)),
             allowed_mime=EXPECTED_MIME[source.access_method],
+            headers=headers,
         )
     except FetchError as exc:
         return CheckResult.from_reasons([str(exc)], {"error": exc.code})

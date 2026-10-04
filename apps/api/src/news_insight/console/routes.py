@@ -4,12 +4,14 @@ from datetime import UTC, date, datetime
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi.responses import Response
 from sqlalchemy.orm import Session
 
 from news_insight.collect.dead_letters import DeadLetterError, dismiss, retry
 from news_insight.collect.models import DeadLetter, FetchOutcome
 from news_insight.console import cards as card_queries
 from news_insight.console import queries
+from news_insight.console import reviews as review_queries
 from news_insight.console.auth import require_console_key
 from news_insight.console.schemas import (
     CardStats,
@@ -256,3 +258,38 @@ def list_cards(
 @router.get("/cards/stats")
 def get_card_stats(session: DB) -> CardStats:
     return card_queries.card_stats(session, now=datetime.now(UTC))
+
+
+@router.get("/reviews/sample")
+def review_sample(
+    session: DB,
+    seed: Annotated[str, Query(min_length=1, max_length=40)],
+    size: Annotated[int, Query(ge=1, le=200)] = 30,
+    track: Track | None = None,
+    days: Annotated[int | None, Query(ge=1, le=365)] = None,
+) -> review_queries.ReviewSample:
+    return review_queries.sample(
+        session, seed=seed, size=size, track=track, days=days, now=datetime.now(UTC)
+    )
+
+
+@router.post("/reviews")
+def record_review(body: review_queries.ReviewBody, session: DB) -> review_queries.ReviewOut:
+    try:
+        return review_queries.record(session, body, now=datetime.now(UTC))
+    except LookupError as exc:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, str(exc)) from exc
+
+
+@router.get("/reviews/stats")
+def review_stats(session: DB) -> review_queries.ReviewStats:
+    return review_queries.stats(session)
+
+
+@router.get("/reviews/export.csv")
+def review_export(session: DB) -> Response:
+    return Response(
+        content=review_queries.export_csv(session),
+        media_type="text/csv; charset=utf-8",
+        headers={"Content-Disposition": 'attachment; filename="relevance-reviews.csv"'},
+    )
