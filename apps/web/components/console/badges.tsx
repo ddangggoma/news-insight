@@ -31,8 +31,20 @@ export function StageBadge({ stage }: { stage: Stage }) {
   );
 }
 
+// Full class strings so Tailwind can see them: tinted background (12% of the track colour), track-coloured text.
+const TRACK_CLASS: Record<Track, string> = {
+  news: "bg-track-news/12 text-track-news",
+  community: "bg-track-community/12 text-track-community",
+  research_ip: "bg-track-research/12 text-track-research",
+  oss: "bg-track-oss/12 text-track-oss",
+};
+
 export function TrackBadge({ track }: { track: Track }) {
-  return <Badge variant="secondary">{TRACK_LABEL[track]}</Badge>;
+  return (
+    <Badge variant="secondary" data-track={track} className={TRACK_CLASS[track]}>
+      {TRACK_LABEL[track]}
+    </Badge>
+  );
 }
 
 export function OutcomeBadge({ outcome }: { outcome: Outcome }) {

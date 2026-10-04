@@ -1,13 +1,13 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { OutcomeBadge, StageBadge, StatusBadge } from "@/components/console/badges";
+import { OutcomeBadge, StageBadge, StatusBadge, TrackBadge } from "@/components/console/badges";
 import { type Column, DataTable } from "@/components/console/data-table";
 import { DigestView } from "@/components/console/digest-view";
 import { PaginationBar } from "@/components/console/pagination-bar";
 import { StatCard } from "@/components/console/stat-card";
 import { isActive } from "@/components/console/app-sidebar";
-import type { DigestOut } from "@/lib/types";
+import type { DigestOut, Track } from "@/lib/types";
 
 const DIGEST: DigestOut = {
   digest_date: "2026-10-04",
@@ -54,6 +54,30 @@ describe("console components", () => {
     expect(screen.getByText("DLQ")).toBeInTheDocument();
   });
 
+  it("gives each track its own semantic colour instead of grey", () => {
+    const tracks: [Track, string, string][] = [
+      ["news", "뉴스·공식", "track-news"],
+      ["community", "커뮤니티", "track-community"],
+      ["research_ip", "논문·특허", "track-research"],
+      ["oss", "오픈소스", "track-oss"],
+    ];
+    render(
+      <div>
+        {tracks.map(([track]) => (
+          <TrackBadge key={track} track={track} />
+        ))}
+      </div>,
+    );
+    const classes = tracks.map(([, label, token]) => {
+      const badge = screen.getByText(label);
+      expect(badge).toHaveAttribute("data-track");
+      expect(badge).toHaveClass(`text-${token}`, `bg-${token}/12`);
+      expect(badge).not.toHaveClass("bg-secondary");
+      return badge.className;
+    });
+    expect(new Set(classes).size).toBe(tracks.length);
+  });
+
   it("renders a stat card", () => {
     render(<StatCard title="활성 소스" value="12" hint="목표 260" />);
     expect(screen.getByText("활성 소스")).toBeInTheDocument();
@@ -83,6 +107,15 @@ describe("console components", () => {
     const links = within(insight as HTMLElement).getAllByRole("link");
     expect(links.map((link) => link.getAttribute("href"))).toEqual(["https://example.com/1", "https://example.com/2"]);
     expect(screen.getByText("Galaxy 출시")).toBeInTheDocument();
+  });
+
+  it("sets digest body text in the readable ink, not muted grey", () => {
+    render(<DigestView digest={DIGEST} />);
+    for (const text of ["개요 문장", "뉴스 요약"]) {
+      const node = screen.getByText(text);
+      expect(node).toHaveClass("text-ink-2");
+      expect(node).not.toHaveClass("text-muted-foreground");
+    }
   });
 
   it("marks the active menu item", () => {
