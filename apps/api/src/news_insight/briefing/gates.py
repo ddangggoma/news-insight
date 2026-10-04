@@ -42,6 +42,8 @@ def evaluate(
     carded: int,
     story_ids: Mapping[int, int | None],
     digest: Digest | None,
+    personas_ok: bool | None = None,
+    strategy_ok: bool | None = None,
 ) -> list[Gate]:
     size = len(selected)
     domains = Counter(c.domain for c in selected)
@@ -107,6 +109,26 @@ def evaluate(
             claims_ok,
         )
     )
+    if personas_ok is not None:
+        gates.append(
+            Gate(
+                "personas",
+                "30개 페르소나 인사이트(또는 no_signal)",
+                float(personas_ok),
+                1.0,
+                personas_ok,
+            )
+        )
+    if strategy_ok is not None:
+        gates.append(
+            Gate(
+                "strategy",
+                "전략 주장 출처 2개 이상·리뷰 통과",
+                float(strategy_ok),
+                1.0,
+                strategy_ok,
+            )
+        )
     for region, floor in ADVISORY_REGION_MIN.items():
         share = sum(1 for c in selected if c.region == region) / size if size else 0.0
         gates.append(

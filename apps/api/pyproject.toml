@@ -53,6 +53,9 @@ target-version = "py312"
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
 
+[tool.ruff.lint.per-file-ignores]
+"src/news_insight/strategy/prompts.py" = ["E501"]
+
 [tool.mypy]
 python_version = "3.12"
 strict = true
