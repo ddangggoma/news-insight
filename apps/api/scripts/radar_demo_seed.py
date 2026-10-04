@@ -18,9 +18,13 @@ Usage (never on a real database; the name must contain "demo"):
     createdb news_insight_demo
     DATABASE_URL=postgresql+psycopg://news:…@localhost:8720/news_insight_demo \\
         uv run alembic upgrade head && uv run python scripts/radar_demo_seed.py
+
+scripts/dev.sh radar-qa runs it at a pinned RADAR_DEMO_NOW and checks every planted pattern
+against the radar signal rules (apps/web/tests/radar-qa.test.ts): keep the two lists in step.
 """
 
 import math
+import os
 import random
 from dataclasses import dataclass, field
 from datetime import UTC, date, datetime, timedelta
@@ -49,7 +53,13 @@ from news_insight.stories.models import ItemRef, Relation, Story, StoryItem
 from news_insight.taxonomy.catalog import TAXONOMY_REVISION
 
 rng = random.Random(20261004)
-NOW = datetime.now(UTC).replace(minute=0, second=0, microsecond=0)
+# RADAR_DEMO_NOW pins the corpus in time so the QA regression (scripts/radar_qa_export.py)
+# sees the same calendar windows on every run
+NOW = (
+    datetime.fromisoformat(os.environ["RADAR_DEMO_NOW"])
+    if os.environ.get("RADAR_DEMO_NOW")
+    else datetime.now(UTC).replace(minute=0, second=0, microsecond=0)
+)
 DAYS = 280
 KR, EN, JP, CN, EU = Region.KR, Region.GLOBAL_EN, Region.JP, Region.GREATER_CHINA, Region.EU_OTHER
 
@@ -245,11 +255,11 @@ THEMES = [
     ),
     Theme(
         "display_av__display_panel",
-        7,
+        12,
         "flat",
         (2, 1, 5, 1),
         tracks_to=(7, 2, 1, 0),
-        shift_from=DAYS - 16,
+        shift_from=DAYS - 21,
         regions={KR: 0.5, EN: 0.25, JP: 0.1, CN: 0.12, EU: 0.03},
         keywords=[Kw("OLED", 2), Kw("마이크로LED", variants=("MicroLED",)), Kw("QD-OLED")],
     ),
@@ -264,7 +274,7 @@ THEMES = [
             Kw("스마트 글래스"),
             Kw("Vision Pro"),
             Kw("메타버스", 1.5, stop=30),
-            Kw("메타버스", 6, start=DAYS - 6),
+            Kw("메타버스", 12, start=DAYS - 6),
         ],
     ),
     Theme(
@@ -455,7 +465,7 @@ EVENTS = {  # day → (boost per theme, extra official share)
         },
         0.3,
     ),
-    DAYS - 3: ({"display_av__xr_spatial": 12}, 0.0),  # 메타버스 comes back
+    weekday_near(2): ({"display_av__xr_spatial": 12}, 0.0),  # 메타버스 comes back
     weekday_near(35): (
         {
             "ai__ai_agents": 8,
