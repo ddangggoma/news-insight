@@ -6,10 +6,15 @@ from sqlalchemy.orm import Session
 
 from news_insight.signals.models import RadarSignalSnapshot
 from news_insight.signals.service import ensure, evidence, for_day, radar_path, snapshot
-from tests.public.seed import NOW, seed_corpus
+from tests.public.seed import NOW, Spec, seed_corpus
 
 pytestmark = pytest.mark.db
 DAY = date(2026, 10, 4)
+# one report in each earlier week, so the radar has a baseline to compare against
+BASELINE = tuple(
+    Spec(f"Weekly roundup {weeks}", "verge", 24 * 7 * weeks + 1, "ai", ("ai__foundation_models",))
+    for weeks in range(2, 8)
+)
 
 
 def count(session: Session) -> int:
@@ -17,7 +22,7 @@ def count(session: Session) -> int:
 
 
 def test_snapshot_stores_this_and_last_weeks_cards(db_session: Session) -> None:
-    seed_corpus(db_session)
+    seed_corpus(db_session, extra=BASELINE)
     rows = snapshot(db_session, day=DAY, now=NOW)
     assert [(r.window_key, r.is_current, r.tone, r.focus_key) for r in rows] == [
         ("2026-W40", True, "new", "oled")
@@ -34,7 +39,7 @@ def test_snapshot_stores_this_and_last_weeks_cards(db_session: Session) -> None:
 
 
 def test_snapshot_replaces_and_ensure_reuses(db_session: Session) -> None:
-    seed_corpus(db_session)
+    seed_corpus(db_session, extra=BASELINE)
     ensure(db_session, day=DAY, now=NOW)
     ensure(db_session, day=DAY, now=NOW)
     snapshot(db_session, day=DAY, now=NOW)

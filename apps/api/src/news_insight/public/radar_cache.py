@@ -12,6 +12,7 @@ import json
 import logging
 from collections.abc import Callable
 from datetime import datetime
+from pathlib import Path
 
 from pydantic import BaseModel
 
@@ -26,6 +27,18 @@ CLOSED_TTL = 24 * 3600
 PREFIX = "radar:v1"
 
 
+def _code_hash() -> str:
+    """Hash of the reader query code: a deploy that changes rules, statistics or the response
+    shape starts new keys even when the package version stays the same."""
+    digest = hashlib.sha1()
+    for path in sorted(Path(__file__).parent.glob("*.py")):
+        digest.update(path.read_bytes())
+    return digest.hexdigest()[:10]
+
+
+CODE_HASH = _code_hash()
+
+
 def view_key(
     kind: str, window: Window, filters: ReaderFilters, extra: dict[str, str] | None = None
 ) -> str:
@@ -37,7 +50,7 @@ def view_key(
         **(extra or {}),
     }
     digest = hashlib.sha1(json.dumps(view, sort_keys=True).encode()).hexdigest()[:20]
-    return f"{PREFIX}:{__version__}:{TAXONOMY_REVISION}:{kind}:{digest}"
+    return f"{PREFIX}:{__version__}:{CODE_HASH}:{TAXONOMY_REVISION}:{kind}:{digest}"
 
 
 def ttl_for(window: Window, now: datetime) -> int:

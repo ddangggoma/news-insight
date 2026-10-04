@@ -51,6 +51,8 @@ SHARE_DROP = 0.2  # research share must fall by at least this much for "shift"
 GAP_CHANCE = 0.05  # no Korean source although the usual rate makes that this unlikely
 NARROW_SOURCES = 2.5  # effective number of outlets below which a rise is thin
 LINK_LIFT = 2.0
+MIN_SOURCES = 2  # a first report or a foreign-only topic needs more than one outlet
+BASELINE_MIN = 0.5  # share of earlier windows that must have reports before anything is compared
 FIELD_LINK_MIN = 3
 
 T = TypeVar("T")
@@ -102,10 +104,18 @@ def korea_gaps(radar: Radar) -> list[Topic]:
         k
         for k in radar.keywords
         if k.state != "falling"
+        and k.sources >= MIN_SOURCES
         and k.regions.get("kr", 0) == 0
         and zero_chance(_last(k.counts), rate) <= GAP_CHANCE
     ]
     return sorted(rows, key=lambda k: (-_last(k.counts), -k.z, k.key))
+
+
+def has_baseline(radar: Radar) -> bool:
+    """Enough earlier windows with reports to compare against: right after collection starts
+    (or a backfill stamps everything this week) every topic would read as a huge surge."""
+    history = radar.kpis.items[:-1]
+    return bool(history) and sum(1 for c in history if c > 0) >= len(history) * BASELINE_MIN
 
 
 def share_drop_z(topic: Topic) -> float:
@@ -132,6 +142,8 @@ def radar_signals(
 ) -> list[RadarSignal]:
     """The radar's cards. With `candidates`, every rule's matches before ranking are collected
     (the QA regression checks planted patterns against them)."""
+    if not has_baseline(radar):
+        return []
     window = radar.window
     until = min(window.end, now or window.end).astimezone(UTC)
     history = len(radar.periods) - 1
@@ -214,7 +226,9 @@ def radar_signals(
         (
             k
             for k in radar.keywords
-            if not k.returning and (k.state == "new" or (k.debut and k.state != "falling"))
+            if not k.returning
+            and k.sources >= MIN_SOURCES
+            and (k.state == "new" or (k.debut and k.state != "falling"))
         ),
         key=lambda k: (-_last(k.counts), -k.z, k.key),
     )
