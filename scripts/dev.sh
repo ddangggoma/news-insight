@@ -19,24 +19,14 @@ api_test()      { (cd "$API" && uv run pytest); }
 api_lint()      { (cd "$API" && uv run ruff check . && uv run ruff format --check . && uv run mypy); }
 web_test()      { (cd "$WEB" && npm test -- --run); }
 web_check()     { (cd "$WEB" && npm run typecheck && npm run build); }
+# Playwright against a seeded news_insight_e2e database (system Chrome; API 8712, web 8713)
+web_e2e()       { db; e2e_db; (cd "$WEB" && npx playwright test); }
+e2e_db()        { docker compose exec -T postgres psql -q -U news -d postgres -tc "SELECT 1 FROM pg_database WHERE datname = 'news_insight_e2e'" | grep -q 1 || docker compose exec -T postgres psql -q -U news -d postgres -c "CREATE DATABASE news_insight_e2e"; }
 compose_check() { docker compose --env-file .env.example config --quiet; }
 alembic_check() { (cd "$API" && uv run alembic check); }
 
-console_password() {
-  local password confirm hash
-  read -r -s -p "Console password: " password; echo
-  read -r -s -p "Repeat: " confirm; echo
-  [[ -n "$password" && "$password" == "$confirm" ]] || { echo "passwords do not match"; exit 1; }
-  hash="$(docker run --rm caddy:2.10-alpine caddy hash-password --plaintext "$password")"
-  python3 - "$ROOT/.env" "$hash" <<'PY'
-import pathlib, sys
-path, value = pathlib.Path(sys.argv[1]), sys.argv[2]
-lines = [line for line in path.read_text().splitlines() if not line.startswith("CONSOLE_PASSWORD_HASH=")]
-lines.append(f"CONSOLE_PASSWORD_HASH='{value}'")
-path.write_text("\n".join(lines) + "\n")
-PY
-  echo "saved to .env (apply with: docker compose up -d caddy)"
-}
+# Admin magic link without SMTP: prints a single-use 15-minute login URL (P8).
+admin_link()    { (cd "$API" && uv run --env-file "$ROOT/.env" news-insight admin link); }
 
 # 05:00 KST (launchd): freeze if Celery has not, shortlist, Claude digest, gates, publish
 digest()        { (cd "$API" && uv run --env-file "$ROOT/.env" news-insight daily publish); }
@@ -53,7 +43,7 @@ verify() {
   printf '\nverify: all checks passed\n'
 }
 
-COMMANDS="up down logs db migrate api-dev web-dev api-test api-lint web-test web-check compose-check alembic-check verify console-password digest cards sources-seed"
+COMMANDS="up down logs db migrate api-dev web-dev api-test api-lint web-test web-check compose-check alembic-check verify web-e2e admin-link digest cards sources-seed"
 
 usage() {
   echo "usage: scripts/dev.sh <command>"

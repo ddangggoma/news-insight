@@ -61,8 +61,16 @@ def test_console_key_reaches_api_and_web() -> None:
     assert "CONSOLE_API_KEY" in services["web"]["environment"]
 
 
-def test_caddy_guards_the_console() -> None:
+def test_caddy_hides_the_admin_api() -> None:
     caddyfile = (REPO_ROOT / "ops" / "Caddyfile").read_text(encoding="utf-8")
 
-    assert "basic_auth @console" in caddyfile
+    # /console itself is guarded by the web server's magic-link session (P8)
+    assert "basic_auth" not in caddyfile
     assert "handle @admin_api {" in caddyfile
+
+
+def test_magic_link_settings_reach_python_services() -> None:
+    env = load_services()["api"]["environment"]
+
+    for name in ("PUBLIC_BASE_URL", "SMTP_HOST", "SMTP_PORT", "SMTP_USER", "SMTP_PASSWORD"):
+        assert name in env

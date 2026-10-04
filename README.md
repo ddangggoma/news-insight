@@ -74,7 +74,7 @@ API 키는 카탈로그에 이름만 적고(`config.auth.secret: GITHUB_TOKEN`) 
 - 다이제스트: 매일 05:00 KST에 호스트의 Claude CLI(Opus)가 전일 수집 항목을 트랙 → 하위 범주 → 종합 인사이트로 요약합니다. 모든 문장에 근거 기사 링크가 붙습니다.
 
 ```bash
-scripts/dev.sh console-password        # 콘솔 비밀번호 설정 (bcrypt 해시만 .env에 저장)
+scripts/dev.sh admin-link              # 관리자 로그인 링크 출력 (SMTP 미설정 시)
 scripts/install-digest-schedule.sh     # launchd에 05:00 다이제스트 등록
 scripts/dev.sh digest                  # 지금 바로 다이제스트 생성
 scripts/demo-db.sh                     # 화면 점검용 데모 DB(news_insight_demo) 생성

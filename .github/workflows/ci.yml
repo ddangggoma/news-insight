@@ -41,6 +41,9 @@ jobs:
       - name: Verify (lint, types, tests, migrations, web build, compose config)
         run: scripts/dev.sh verify
 
+      - name: E2E (Playwright, system Chrome, seeded news_insight_e2e)
+        run: scripts/dev.sh web-e2e
+
       - name: Stop data stores
         if: always()
         run: docker compose down --volumes

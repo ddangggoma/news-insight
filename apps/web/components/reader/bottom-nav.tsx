@@ -1,6 +1,6 @@
 "use client";
 
-import { Compass, Newspaper, Radar } from "lucide-react";
+import { Compass, FileText, Newspaper, Radar } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 
 const ITEMS = [
   { href: "/", label: "탐색", icon: Compass },
+  { href: "/briefings", label: "브리핑", icon: FileText },
   { href: "/radar", label: "레이더", icon: Radar },
   { href: "/digests", label: "다이제스트", icon: Newspaper },
 ];
@@ -18,7 +19,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="하단 메뉴"
-      className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-3 border-t bg-background pb-[env(safe-area-inset-bottom)] md:hidden"
+      className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-4 border-t bg-background pb-[env(safe-area-inset-bottom)] md:hidden"
     >
       {ITEMS.map((item) => {
         const active = isReaderActive(pathname, item.href);
