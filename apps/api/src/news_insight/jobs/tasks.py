@@ -143,3 +143,14 @@ def technologies_refresh_task() -> dict[str, int]:
             "cards_rekeyed": recompute_all(session),
             "labels": refresh_labels(session, now=datetime.now(UTC)),
         }
+
+
+@celery_app.task(name="radar.warm")
+def radar_warm_task() -> int:
+    from news_insight.public.radar_cache import cache_client, warm
+
+    client = cache_client()
+    if client is None:
+        return 0
+    with session_scope() as session:
+        return warm(session, now=datetime.now(UTC), client=client)

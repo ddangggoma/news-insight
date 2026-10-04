@@ -259,3 +259,20 @@ def test_radar_topic_carries_concentration(
     )
     assert body["topic"]["effective_sources"] == 2.0
     assert body["topic"]["regions"]["global_en"] == 2
+
+
+def test_normalized_share_weighs_every_track_equally() -> None:
+    from news_insight.public.radar import normalized_share
+
+    # 4 of 10 news reports and 1 of 2 research reports: (40% + 50%) / 2
+    assert normalized_share({"news": 4, "research_ip": 1}, {"news": 10, "research_ip": 2}) == 45.0
+    assert normalized_share({"news": 4}, {"news": 0}) is None
+
+
+def test_radar_topics_carry_capped_counts_and_share(
+    public_client: TestClient, public_headers: dict[str, str]
+) -> None:
+    body = get(public_client, public_headers, "radar", period="week", key="2026-W40")
+    theme = {row["key"]: row for row in body["themes"]}["display_av__display_panel"]
+    assert theme["capped"] == 2
+    assert 0 < theme["normalized_share"] <= 100
