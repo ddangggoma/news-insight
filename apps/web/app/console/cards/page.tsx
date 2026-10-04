@@ -63,7 +63,7 @@ export default async function CardsPage({ searchParams }: { searchParams: Promis
         <StatCard
           title="생성 대기"
           value={formatNumber(stats.pending)}
-          hint={`7일 성공률 ${formatPercent(stats.success_rate_7d ?? Number.NaN)} · DX 관련 ${formatPercent(classified7 ? relevant7 / classified7 : Number.NaN)}`}
+          hint={`${stats.reclassify ? `재분류 대기 ${formatNumber(stats.reclassify)} · ` : ""}7일 성공률 ${formatPercent(stats.success_rate_7d ?? Number.NaN)} · DX 관련 ${formatPercent(classified7 ? relevant7 / classified7 : Number.NaN)}`}
           icon={Clock}
         />
         <StatCard title="엔진별 카드" value={engines || "—"} hint={stats.failed ? `실패 ${formatNumber(stats.failed)}건 (3회 재시도 후)` : "실패 없음"} icon={stats.failed ? TriangleAlert : Cpu} />

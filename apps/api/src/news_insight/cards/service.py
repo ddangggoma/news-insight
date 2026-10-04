@@ -22,13 +22,21 @@ from news_insight.cards.engines import (
 )
 from news_insight.cards.models import CardRun, CardStatus, ItemCard
 from news_insight.cards.preserve import missing_facts
-from news_insight.cards.schemas import CardDraft, CardInput, parse_drafts
+from news_insight.cards.schemas import (
+    CardDraft,
+    CardInput,
+    Classification,
+    ClassifyInput,
+    parse_classifications,
+    parse_drafts,
+)
 from news_insight.content.models import Item
 from news_insight.content.normalize import truncate
 from news_insight.sources.models import Source
 from news_insight.taxonomy.catalog import TAXONOMY_REVISION
 
 MAX_ATTEMPTS = 3
+MAX_CLASSIFY_ATTEMPTS = 3
 EXCERPT_LIMIT = 500
 SessionScope = Callable[[], AbstractContextManager[Session]]
 Clock = Callable[[], datetime]
@@ -39,16 +47,21 @@ def _now() -> datetime:
 
 
 def pending_condition() -> Any:
-    """No card yet, the item changed since its card, a failed card with retries left, or a
-    card classified against an older taxonomy revision."""
+    """Card text is needed: no card yet, the item changed since its card, or a failed card
+    with retries left. A taxonomy revision alone does not regenerate text (checklist CLS-2)."""
     return or_(
         ItemCard.id.is_(None),
         ItemCard.input_hash != Item.content_hash,
         and_(ItemCard.status == CardStatus.FAILED, ItemCard.attempts < MAX_ATTEMPTS),
-        and_(
-            ItemCard.status == CardStatus.READY,
-            func.coalesce(ItemCard.taxonomy_revision, "") != TAXONOMY_REVISION,
-        ),
+    )
+
+
+def classify_pending_condition() -> Any:
+    """A ready card whose classification predates the current taxonomy revision."""
+    return and_(
+        ItemCard.status == CardStatus.READY,
+        ItemCard.input_hash == Item.content_hash,
+        func.coalesce(ItemCard.taxonomy_revision, "") != TAXONOMY_REVISION,
     )
 
 
@@ -77,6 +90,70 @@ def pending_count(session: Session) -> int:
         .where(pending_condition())
     )
     return session.scalar(statement) or 0
+
+
+def classify_pending_items(
+    session: Session, *, limit: int, exclude: set[int] | None = None
+) -> list[tuple[Item, ItemCard]]:
+    conditions = [classify_pending_condition()]
+    if exclude:
+        conditions.append(Item.id.not_in(exclude))
+    statement = (
+        select(Item, ItemCard)
+        .join(ItemCard, ItemCard.item_id == Item.id)
+        .where(*conditions)
+        .order_by(Item.first_seen_at.desc(), Item.id.desc())
+        .limit(limit)
+    )
+    return list(session.execute(statement).tuples())
+
+
+def classify_pending_count(session: Session) -> int:
+    statement = (
+        select(func.count())
+        .select_from(Item)
+        .join(ItemCard, ItemCard.item_id == Item.id)
+        .where(classify_pending_condition())
+    )
+    return session.scalar(statement) or 0
+
+
+def classify_input(item: Item, card: ItemCard) -> ClassifyInput:
+    return ClassifyInput(
+        id=item.id,
+        title=item.title,
+        title_ko=card.title_ko or item.title,
+        summary_ko=list(card.summary_ko),
+        keywords=list(card.keywords),
+    )
+
+
+def _apply_classification(card: ItemCard, draft: Classification) -> None:
+    card.field, card.themes, card.businesses = draft.field, draft.themes, draft.businesses
+    card.impact, card.scope, card.relevance = draft.impact, draft.scope, draft.relevance
+    card.topic_candidates = draft.topic_candidates
+    card.taxonomy_revision = TAXONOMY_REVISION
+    card.classify_attempts = 0
+
+
+def store_classification(
+    session: Session, card: ItemCard, draft: Classification | None, *, error: str | None
+) -> bool:
+    """Reclassify a card in place; the card text never changes. After MAX_CLASSIFY_ATTEMPTS
+    failures the card is marked current with empty labels so it stops blocking the lane."""
+    if draft is not None:
+        _apply_classification(card, draft)
+        session.flush()
+        return True
+    card.classify_attempts += 1
+    if card.classify_attempts >= MAX_CLASSIFY_ATTEMPTS:
+        card.field, card.themes, card.businesses = None, [], []
+        card.impact, card.topic_candidates = None, []
+        card.taxonomy_revision = TAXONOMY_REVISION
+        card.classify_attempts = 0
+        card.error = f"classification gave up: {error}"[:500]
+    session.flush()
+    return False
 
 
 def card_input(item: Item, source: Source) -> CardInput:
@@ -115,9 +192,7 @@ def store_result(
             draft.summary_ko,
             draft.keywords,
         )
-        card.field, card.themes, card.businesses = draft.field, draft.themes, draft.businesses
-        card.impact, card.scope, card.relevance = draft.impact, draft.scope, draft.relevance
-        card.taxonomy_revision = TAXONOMY_REVISION
+        _apply_classification(card, draft)
         card.attempts, card.error = 0, None
     else:
         card.status = CardStatus.FAILED
@@ -131,6 +206,8 @@ def store_result(
 class CardRunStats:
     ready: int = 0
     failed: int = 0
+    classified: int = 0
+    classify_failed: int = 0
     batches: dict[str, int] = field(default_factory=dict)
     quota: dict[str, int | None] = field(default_factory=dict)
     notes: list[str] = field(default_factory=list)
@@ -141,9 +218,19 @@ class CardPolicy:
     agy_batch: int = 100
     agy_parallel: int = 3  # independent agy processes per round (quota is the real cap)
     qwen_batch: int = 5
+    classify_batch: int = 200  # classification-only calls carry title, summary and keywords
+    qwen_classify_batch: int = 20
     min_weekly: int = 10  # D18: cards may use 90 % of the weekly Antigravity limit
     min_five_hour: int = 2
     time_budget_seconds: float = 540.0
+
+
+@dataclass(frozen=True)
+class Job:
+    """One engine call: card text for new items, or classification only for re-labelling."""
+
+    kind: str  # "card" | "classify"
+    inputs: list[CardInput] | list[ClassifyInput]
 
 
 def run_cards(
@@ -155,15 +242,18 @@ def run_cards(
     clock: Clock = _now,
     monotonic: Callable[[], float] = time.monotonic,
 ) -> CardRunStats:
-    """Generate cards until nothing is pending or the time budget is spent.
+    """Generate cards and reclassify stale ones until nothing is pending or time runs out.
 
     Antigravity is used while its quota allows (D18); when it is spent, unavailable or
-    failing, the run continues on local Qwen (user request, 2026-10-04).
+    failing, the run continues on local Qwen (user request, 2026-10-04). While cards wait
+    for a newer taxonomy, one Antigravity lane per round reclassifies them so new items
+    are never starved (checklist CLS-2). On Qwen, reclassification waits for new items.
     """
     stats = CardRunStats()
     deadline = monotonic() + policy.time_budget_seconds
     use_agy = agy is not None
     attempted: set[int] = set()
+    classify_attempted: set[int] = set()
     quota = Quota(weekly=None, five_hour=None)
 
     def refresh_quota() -> None:
@@ -187,22 +277,15 @@ def run_cards(
         if engine is None:
             stats.notes.append("no engine available")
             break
-        batch = policy.agy_batch if use_agy else policy.qwen_batch
-        lanes = max(1, policy.agy_parallel) if use_agy else 1
-        with open_session() as session:
-            inputs = [
-                card_input(item, source)
-                for item, source in pending_items(session, limit=batch * lanes, exclude=attempted)
-            ]
-        if not inputs:
+        jobs = _plan_round(open_session, policy, use_agy, attempted, classify_attempted)
+        if not jobs:
             break
-        attempted.update(card.id for card in inputs)  # retries wait for the next run
-        chunks = [inputs[i : i + batch] for i in range(0, len(inputs), batch)]
-        results = _generate_all(engine, chunks)
+        results = _run_jobs(engine, jobs)
         switch = False
-        for chunk, result in zip(chunks, results, strict=True):
+        for job, result in zip(jobs, results, strict=True):
+            ids = {entry.id for entry in job.inputs}
             if isinstance(result, EngineError):
-                attempted.difference_update(card.id for card in chunk)  # not their fault
+                (attempted if job.kind == "card" else classify_attempted).difference_update(ids)
             if isinstance(result, QuotaExhausted) or (
                 isinstance(result, EngineError) and engine is agy
             ):
@@ -212,7 +295,10 @@ def run_cards(
             if isinstance(result, EngineError):
                 stats.notes.append(str(result))
                 continue
-            _store_batch(open_session, engine.name, chunk, result, clock(), stats)
+            if job.kind == "card":
+                _store_batch(open_session, engine.name, job.inputs, result, clock(), stats)  # type: ignore[arg-type]
+            else:
+                _store_classifications(open_session, job.inputs, result, stats)  # type: ignore[arg-type]
         if switch:
             use_agy = False
             continue
@@ -223,19 +309,69 @@ def run_cards(
     return stats
 
 
-def _generate_all(
-    engine: CardEngine, chunks: list[list[CardInput]]
-) -> list[EngineOutput | EngineError]:
-    def one(chunk: list[CardInput]) -> EngineOutput | EngineError:
+def _plan_round(
+    open_session: SessionScope,
+    policy: CardPolicy,
+    use_agy: bool,
+    attempted: set[int],
+    classify_attempted: set[int],
+) -> list[Job]:
+    lanes = max(1, policy.agy_parallel) if use_agy else 1
+    batch = policy.agy_batch if use_agy else policy.qwen_batch
+    classify_batch = policy.classify_batch if use_agy else policy.qwen_classify_batch
+    with open_session() as session:
+        stale = classify_pending_items(session, limit=classify_batch, exclude=classify_attempted)
+        # keep one lane for reclassification while new items also wait (Antigravity only)
+        card_lanes = lanes - 1 if stale and lanes > 1 else lanes
+        inputs = [
+            card_input(item, source)
+            for item, source in pending_items(session, limit=batch * card_lanes, exclude=attempted)
+        ]
+        jobs = [Job("card", inputs[i : i + batch]) for i in range(0, len(inputs), batch)]
+        if stale and (lanes > 1 or not jobs):
+            jobs.append(Job("classify", [classify_input(item, card) for item, card in stale]))
+    attempted.update(entry.id for entry in inputs)  # retries wait for the next run
+    for job in jobs:
+        if job.kind == "classify":
+            classify_attempted.update(entry.id for entry in job.inputs)
+    return jobs
+
+
+def _run_jobs(engine: CardEngine, jobs: list[Job]) -> list[EngineOutput | EngineError]:
+    def one(job: Job) -> EngineOutput | EngineError:
         try:
-            return engine.generate(chunk)
+            if job.kind == "card":
+                return engine.generate(job.inputs)  # type: ignore[arg-type]
+            return engine.classify(job.inputs)  # type: ignore[arg-type]
         except EngineError as exc:
             return exc
 
-    if len(chunks) == 1:
-        return [one(chunks[0])]
-    with ThreadPoolExecutor(max_workers=len(chunks)) as pool:
-        return list(pool.map(one, chunks))
+    if len(jobs) == 1:
+        return [one(jobs[0])]
+    with ThreadPoolExecutor(max_workers=len(jobs)) as pool:
+        return list(pool.map(one, jobs))
+
+
+def _store_classifications(
+    open_session: SessionScope,
+    chunk: list[ClassifyInput],
+    output: EngineOutput,
+    stats: "CardRunStats",
+) -> None:
+    drafts = parse_classifications(output.raw, chunk)
+    with open_session() as session:
+        for entry in chunk:
+            card = session.scalars(select(ItemCard).where(ItemCard.item_id == entry.id)).first()
+            if card is None:
+                continue
+            draft = drafts.get(entry.id)
+            ok = store_classification(
+                session, card, draft, error=None if draft else "missing in engine output"
+            )
+            if ok:
+                stats.classified += 1
+            else:
+                stats.classify_failed += 1
 
 
 def _store_batch(
@@ -290,6 +426,7 @@ def record_run(open_session: SessionScope, started_at: datetime, stats: CardRunS
                 finished_at=_now(),
                 ready=stats.ready,
                 failed=stats.failed,
+                classified=stats.classified,
                 batches=stats.batches,
                 quota=stats.quota,
                 note="; ".join(stats.notes)[:2000] or None,

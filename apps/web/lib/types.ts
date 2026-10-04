@@ -141,6 +141,7 @@ export interface CardStats {
   ready: number;
   failed: number;
   pending: number;
+  reclassify?: number;
   ready_today: number;
   success_rate_7d?: number | null;
   scope_7d?: Record<string, number>;
@@ -381,4 +382,15 @@ export interface AlertOut {
   last_seen_at: string;
   resolved_at: string | null;
   notified_at: string | null;
+}
+
+export interface TopicCandidate {
+  key: string;
+  label: string;
+  count: number;
+  recent: number;
+  first_seen: string;
+  last_seen: string;
+  fields: Record<string, number>;
+  examples: ItemRow[];
 }

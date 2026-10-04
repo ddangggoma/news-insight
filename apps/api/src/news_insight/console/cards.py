@@ -7,7 +7,7 @@ from sqlalchemy import Text, cast, func, literal_column, or_, select
 from sqlalchemy.orm import Session
 
 from news_insight.cards.models import CardRun, CardStatus, ItemCard
-from news_insight.cards.service import pending_count
+from news_insight.cards.service import classify_pending_count, pending_count
 from news_insight.console.queries import _like, _offset, card_body, item_rows
 from news_insight.console.schemas import (
     CardFailure,
@@ -165,6 +165,7 @@ def card_stats(session: Session, *, now: datetime) -> CardStats:
         ready=counts.get(CardStatus.READY, 0),
         failed=counts.get(CardStatus.FAILED, 0),
         pending=pending_count(session),
+        reclassify=classify_pending_count(session),
         ready_today=ready_today or 0,
         by_engine={str(engine): count for engine, count in by_engine.items() if engine},
         last_run=CardRunOut(

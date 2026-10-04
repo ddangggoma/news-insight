@@ -9,11 +9,13 @@ from sqlalchemy.orm import Session
 
 from news_insight.cards.engines import EngineError, EngineOutput, Quota, QuotaExhausted
 from news_insight.cards.models import CardStatus, ItemCard
-from news_insight.cards.schemas import CardInput
+from news_insight.cards.schemas import CardInput, ClassifyInput
 from news_insight.cards.service import (
     MAX_ATTEMPTS,
+    MAX_CLASSIFY_ATTEMPTS,
     CardPolicy,
     SessionScope,
+    classify_pending_count,
     pending_count,
     pending_items,
     run_cards,
@@ -22,6 +24,8 @@ from news_insight.collect.contracts import RawItem
 from news_insight.content.ingest import ingest_items
 from news_insight.content.models import Item
 from news_insight.sources.enums import StorageRight
+from news_insight.sources.models import Source
+from news_insight.taxonomy.catalog import TAXONOMY_REVISION
 from tests.factories import build_source
 
 pytestmark = pytest.mark.db
@@ -35,6 +39,8 @@ class FakeEngine:
     ) -> None:
         self.name, self.fail, self.skip = name, fail, skip
         self.batches: list[list[int]] = []
+        self.classified: list[list[int]] = []
+        self.classify_fail: Exception | None = None
 
     def generate(self, inputs: list[CardInput]) -> EngineOutput:
         self.batches.append([card.id for card in inputs])
@@ -49,6 +55,23 @@ class FakeEngine:
             }
             for c in inputs
             if c.title not in self.skip
+        ]
+        return EngineOutput(raw={"cards": cards}, model=f"{self.name}-model")
+
+    def classify(self, inputs: list[ClassifyInput]) -> EngineOutput:
+        self.classified.append([entry.id for entry in inputs])
+        if self.classify_fail:
+            raise self.classify_fail
+        cards = [
+            {
+                "id": entry.id,
+                "field": "ai_data",
+                "themes": ["ai_data__ai_agents"],
+                "scope": "dx",
+                "relevance": 70,
+                "topic_candidates": ["위성 직접통신", "  위성  직접통신 "],
+            }
+            for entry in inputs
         ]
         return EngineOutput(raw={"cards": cards}, model=f"{self.name}-model")
 
@@ -76,9 +99,11 @@ def scope_for(db_session: Session) -> SessionScope:
 
 
 def seed(db_session: Session, titles: list[str]) -> None:
-    source = build_source(storage_right=StorageRight.EXCERPT_ALLOWED)
-    db_session.add(source)
-    db_session.flush()
+    source = db_session.scalars(select(Source).where(Source.key == "example-news")).first()
+    if source is None:
+        source = build_source(storage_right=StorageRight.EXCERPT_ALLOWED)
+        db_session.add(source)
+        db_session.flush()
     ingest_items(
         db_session,
         source,
@@ -170,16 +195,75 @@ def test_changed_items_are_regenerated(db_session: Session) -> None:
     assert pending_count(db_session) == 1
 
 
-def test_cards_from_an_older_taxonomy_are_regenerated(db_session: Session) -> None:
+def test_older_taxonomy_reclassifies_without_regenerating_text(db_session: Session) -> None:
     seed(db_session, ["a"])
     run_cards(scope_for(db_session), agy=None, qwen=FakeEngine("qwen"), policy=POLICY)
     card = cards(db_session)["a"]
-    assert card.taxonomy_revision is not None and pending_count(db_session) == 0
-
+    title_before = card.title_ko
     card.taxonomy_revision = "old"
     db_session.flush()
 
-    assert pending_count(db_session) == 1
+    assert pending_count(db_session) == 0 and classify_pending_count(db_session) == 1
+    qwen = FakeEngine("qwen")
+    stats = run_cards(scope_for(db_session), agy=None, qwen=qwen, policy=POLICY)
+
+    assert qwen.batches == [] and len(qwen.classified) == 1
+    assert stats.classified == 1 and classify_pending_count(db_session) == 0
+    assert card.title_ko == title_before and card.taxonomy_revision == TAXONOMY_REVISION
+    assert card.themes == ["ai_data__ai_agents"]
+    assert card.topic_candidates == ["위성 직접통신"]
+
+
+def test_one_agy_lane_reclassifies_while_new_items_are_carded(db_session: Session) -> None:
+    seed(db_session, ["old1", "old2"])
+    run_cards(scope_for(db_session), agy=None, qwen=FakeEngine("qwen"), policy=POLICY)
+    for card in cards(db_session).values():
+        card.taxonomy_revision = "old"
+    seed(db_session, ["new1", "new2", "new3", "new4"])
+    agy = FakeAgy([FULL])
+    policy = CardPolicy(agy_batch=2, agy_parallel=3, classify_batch=10, time_budget_seconds=1000)
+
+    stats = run_cards(scope_for(db_session), agy=agy, qwen=None, policy=policy)
+
+    first_round_cards = agy.batches[:2]
+    assert sorted(id for batch in first_round_cards for id in batch) == sorted(
+        c.item_id for t, c in cards(db_session).items() if t.startswith("new")
+    )
+    assert len(agy.classified) == 1 and stats.classified == 2 and stats.ready == 4
+
+
+def test_qwen_reclassifies_only_after_new_items(db_session: Session) -> None:
+    seed(db_session, ["old"])
+    run_cards(scope_for(db_session), agy=None, qwen=FakeEngine("qwen"), policy=POLICY)
+    cards(db_session)["old"].taxonomy_revision = "old"
+    seed(db_session, ["new"])
+    qwen = FakeEngine("qwen")
+    order: list[str] = []
+    qwen.generate = lambda inputs: (order.append("card"), FakeEngine.generate(qwen, inputs))[1]  # type: ignore[method-assign]
+    qwen.classify = lambda inputs: (order.append("classify"), FakeEngine.classify(qwen, inputs))[1]  # type: ignore[method-assign]
+
+    run_cards(scope_for(db_session), agy=None, qwen=qwen, policy=POLICY)
+
+    assert order == ["card", "classify"]
+
+
+def test_classification_gives_up_after_repeated_failures(db_session: Session) -> None:
+    seed(db_session, ["a"])
+    run_cards(scope_for(db_session), agy=None, qwen=FakeEngine("qwen"), policy=POLICY)
+    card = cards(db_session)["a"]
+    card.taxonomy_revision, card.field = "old", "ai_data"
+    db_session.flush()
+
+    class Empty(FakeEngine):
+        def classify(self, inputs: list[ClassifyInput]) -> EngineOutput:
+            return EngineOutput(raw={"cards": []}, model="m")
+
+    for _ in range(MAX_CLASSIFY_ATTEMPTS):
+        run_cards(scope_for(db_session), agy=None, qwen=Empty("qwen"), policy=POLICY)
+
+    assert card.taxonomy_revision == TAXONOMY_REVISION and card.field is None
+    assert card.error is not None and card.error.startswith("classification gave up")
+    assert classify_pending_count(db_session) == 0
 
 
 def test_agy_lanes_run_batches_concurrently(db_session: Session) -> None:

@@ -172,6 +172,7 @@ class CardStats(BaseModel):
     ready: int
     failed: int
     pending: int
+    reclassify: int = 0
     ready_today: int
     success_rate_7d: float | None = None
     scope_7d: dict[str, int] = {}
@@ -255,3 +256,16 @@ class SourceQualityRow(BaseModel):
     classified_7d: int
     relevance: float | None
     translation: float | None
+
+
+class TopicCandidate(BaseModel):
+    """A phrase the classifier proposed because no theme fit (checklist CLS-1)."""
+
+    key: str
+    label: str
+    count: int
+    recent: int
+    first_seen: datetime
+    last_seen: datetime
+    fields: dict[str, int]
+    examples: list[ItemRow]

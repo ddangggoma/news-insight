@@ -50,6 +50,10 @@ class ItemCard(Base):
     scope: Mapped[str | None] = mapped_column(String(20), index=True)
     relevance: Mapped[int | None]
     taxonomy_revision: Mapped[str | None] = mapped_column(String(20))
+    # classification-only retries against the current revision (checklist CLS-2)
+    classify_attempts: Mapped[int] = mapped_column(default=0, server_default="0")
+    # phrases the theme list does not cover (checklist CLS-1)
+    topic_candidates: Mapped[list[str]] = mapped_column(JSONB, default=list, server_default="[]")
 
 
 class CardRun(Base):
@@ -62,6 +66,7 @@ class CardRun(Base):
     finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     ready: Mapped[int] = mapped_column(default=0)
     failed: Mapped[int] = mapped_column(default=0)
+    classified: Mapped[int] = mapped_column(default=0, server_default="0")
     batches: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
     quota: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
     note: Mapped[str | None] = mapped_column(Text)

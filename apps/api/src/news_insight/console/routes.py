@@ -32,6 +32,7 @@ from news_insight.console.schemas import (
     SourceDetail,
     SourceQualityRow,
     SourceRow,
+    TopicCandidate,
 )
 from news_insight.db import get_db
 from news_insight.digest import service as digest_service
@@ -284,6 +285,17 @@ def get_card_failures(
     session: DB, limit: Annotated[int, Query(ge=1, le=200)] = 50
 ) -> list[CardFailure]:
     return card_queries.card_failures(session, limit=limit)
+
+
+@router.get("/topic-candidates")
+def get_topic_candidates(
+    session: DB,
+    days: Annotated[int, Query(ge=1, le=180)] = 30,
+    min_count: Annotated[int, Query(ge=1, le=100)] = 2,
+) -> list[TopicCandidate]:
+    from news_insight.console.topics import topic_candidates
+
+    return topic_candidates(session, days=days, now=datetime.now(UTC), min_count=min_count)
 
 
 @router.get("/cards/stats")

@@ -23,7 +23,12 @@ web_check()     { (cd "$WEB" && npm run typecheck && npm run build); }
 web_e2e()       { db; e2e_db; (cd "$WEB" && npx playwright test); }
 e2e_db()        { docker compose exec -T postgres psql -q -U news -d postgres -tc "SELECT 1 FROM pg_database WHERE datname = 'news_insight_e2e'" | grep -q 1 || docker compose exec -T postgres psql -q -U news -d postgres -c "CREATE DATABASE news_insight_e2e"; }
 compose_check() { docker compose --env-file .env.example config --quiet; }
-alembic_check() { (cd "$API" && uv run alembic check); }
+# Migrations are checked on a scratch database: verify must never change the live schema.
+CHECK_DB_URL="postgresql+psycopg://news:news-dev-password@localhost:8720/news_insight_check"
+alembic_check() {
+  docker compose exec -T postgres psql -q -U news -d postgres -c "DROP DATABASE IF EXISTS news_insight_check" -c "CREATE DATABASE news_insight_check" >/dev/null
+  (cd "$API" && DATABASE_URL="$CHECK_DB_URL" uv run alembic upgrade head >/dev/null && DATABASE_URL="$CHECK_DB_URL" uv run alembic check)
+}
 
 # Admin magic link without SMTP: prints a single-use 15-minute login URL (P8).
 admin_link()    { (cd "$API" && uv run --env-file "$ROOT/.env" news-insight admin link); }
@@ -36,7 +41,7 @@ sources_seed()  { (cd "$API" && uv run --env-file "$ROOT/.env" news-insight sour
 
 verify() {
   local step
-  for step in db migrate api_lint api_test alembic_check web_test web_check compose_check; do
+  for step in db api_lint api_test alembic_check web_test web_check compose_check; do
     printf '\n==> %s\n' "${step//_/-}"
     "$step"
   done
