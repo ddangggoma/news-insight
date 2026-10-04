@@ -28,3 +28,14 @@ def test_prompt_outline_lists_every_theme_once() -> None:
 
     assert outline.count("\n") == 14
     assert "edge_ai(온디바이스·엣지 AI)" in outline
+
+
+def test_web_labels_match_the_catalog() -> None:
+    from pathlib import Path
+
+    from news_insight.taxonomy.catalog import TAXONOMY_REVISION
+
+    web = (Path(__file__).resolve().parents[3] / "web" / "lib" / "taxonomy.ts").read_text()
+
+    assert f'"{TAXONOMY_REVISION}"' in web
+    assert all(f'"{key}":' in web for key in LABELS)

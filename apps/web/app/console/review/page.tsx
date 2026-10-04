@@ -87,7 +87,11 @@ export default async function ReviewPage({ searchParams }: { searchParams: Promi
         <StatCard title="이 샘플 진행" value={`${sample.reviewed} / ${sample.items.length}`} hint={`샘플 번호 ${sample.seed}`} />
         <StatCard title="누적 검토" value={formatNumber(overall.total)} hint={`애매 ${formatNumber(overall.unsure)}건 포함`} />
         <StatCard title="관련 비율" value={formatPercent(rate(overall))} hint="관련 / (관련 + 무관)" />
-        <StatCard title="무관 판정" value={formatNumber(overall.irrelevant)} hint="P4 관련성 필터의 학습·평가 자료" />
+        <StatCard
+          title="AI 분류 일치율"
+          value={formatPercent(stats.classifier.accuracy ?? Number.NaN)}
+          hint={`정밀도 ${formatPercent(stats.classifier.precision ?? Number.NaN)} · 재현율 ${formatPercent(stats.classifier.recall ?? Number.NaN)} (애매 제외)`}
+        />
       </div>
       <FilterBar
         fields={[
