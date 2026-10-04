@@ -1,6 +1,6 @@
 # 웹 리디자인 & 기간별 인사이트 분석 — 계획안
 
-> **상태:** R1·R2 완료, R4 설계 완료(B+C).
+> **상태:** R1 완료, R2는 P4로 대체, R4 구현 중(B+C).
 > **시안 페이지:** https://claude.ai/artifact/7PDUTUyp4HVMQZ1dVMzVLo (데스크톱·태블릿·모바일 폭 전환, 예시 데이터)
 > **HTML 시안 (예시 데이터, 브라우저로 바로 열기):** [`docs/design/mockups/mockup-a-briefing.html`](../../design/mockups/mockup-a-briefing.html), [`mockup-b-explore.html`](../../design/mockups/mockup-b-explore.html), [`mockup-c-radar.html`](../../design/mockups/mockup-c-radar.html)
 > **분류 선택 위자드:** https://claude.ai/artifact/3fEunMiBCX6wjmSJkHLMP9
@@ -75,7 +75,9 @@
 /admin/*                   현 /console 이전
 ```
 
-**분류 체계 v1 (위자드로 확정, 2026-10-04)** — 원본은 `apps/api/catalog/taxonomy.yaml`
+> **변경 (2026-10-04):** 아래 위자드 분류(R2)는 `main`에 먼저 합쳐진 P4 분류(분야 15·테마 75·DX 사업부 6·영향·범위·관련도, `taxonomy/catalog.py`)와 같은 카드 호출을 두고 겹쳐서 되돌렸습니다. 독자 웹은 P4 체계를 씁니다. 제품군 축은 P4에 축을 더하는 별도 작업으로 남깁니다.
+
+**분류 체계 v1 (위자드 선택 기록, 적용 보류)**
 
 - **기술 분야 23:** 온디바이스 AI·모델(ai), 디스플레이(display), 통신·네트워크(network), 칩셋·부품(chipset), 카메라·센서(camera), 배터리·전력(power), 로보틱스(robotics), XR·공간 컴퓨팅(xr), 헬스·바이오센싱(health), 보안·프라이버시(security), OS·플랫폼(platform), 클라우드·엣지(cloud), 모빌리티·SDV(mobility), 소재·지속가능성(materials), 정책·규제·표준(policy), 오디오·음향(audio), 스마트홈 연결(smarthome), 생성형 AI 서비스(genai_service), 개발 도구·SDK(devtools), 결제·디지털 지갑(commerce), 에너지 관리(energy), 스마트 제조(manufacturing), 양자 기술(quantum)
 - **제품군 18:** 스마트폰(phone), 폴더블(foldable), 태블릿·PC(tablet_pc), 웨어러블(wearable), TV·모니터(tv_monitor), 생활가전(appliance), 홈로봇·IoT(home_robot_iot), XR 기기(xr_device), 네트워크 장비(network_equipment), 전장(automotive), 의료기기(medical_device), 이어버드·오디오(earbuds_audio), 스마트 스피커·허브(smart_speaker), 상업용 디스플레이(signage), 공조·HVAC(hvac), 가정용 에너지 기기(home_energy), PC 주변기기(pc_peripheral), 카메라·드론(camera_drone)
@@ -175,8 +177,8 @@
 
 | 항목 | 결정 |
 |---|---|
-| 시안 선택 | 시안 B(탐색) + C(레이더) — 설계: [`2026-10-04-06-reader-web-r4.md`](2026-10-04-06-reader-web-r4.md) |
-| 분류 체계 | 확정 — 분야 23, 제품군 18, 기사당 최대 3·3 (3장) |
+| 시안 선택 | 시안 B(탐색) + C(레이더) — 설계: [`2026-10-04-07-reader-web-r4.md`](2026-10-04-07-reader-web-r4.md) |
+| 분류 체계 | P4 체계 사용(분야 15·테마 75·사업부 6). 위자드 선택(분야 23·제품군 18)은 기록만 남기고 보류 |
 | 공개 범위 | 로그인 없이 공개 |
 | 리포트 생성 모델 | 호스트 Claude CLI (P7의 D1 "외부 LLM 미사용"과 다르므로 P7 착수 시 결정 기록 갱신 필요) |
 | 착수 순서 | R1·R2 병렬 |
