@@ -16,6 +16,12 @@
 		respond 404
 	}
 
+	# The reader API (R4) is internal too: the web server renders public pages from it.
+	@public_api path /api/public /api/public/*
+	handle @public_api {
+		respond 404
+	}
+
 	@console path /console /console/*
 	basic_auth @console {
 		{$CONSOLE_USER:admin} {$CONSOLE_PASSWORD_HASH}
