@@ -254,7 +254,7 @@ describe("radar signals", () => {
     expect(signals.new.focus).toEqual({ kind: "keyword", key: "유리기판" });
     expect(signals.early.title).toBe("휴머노이드·Embodied AI");
     expect(signals.shift.title).toBe("XR·공간컴퓨팅·AI 글래스");
-    expect(signals.shift.detail).toContain("직전 3주 55% → 이번 0%");
+    expect(signals.shift.detail).toContain("직전 3주 같은 시점 55% → 이번 0%");
     expect(signals.link.title).toBe("HBM4 × 온디바이스 AI");
     expect(signals.link.detail).toContain("첫 동시 언급");
     expect(signals.cool.title).toBe("5G-Adv·6G");
