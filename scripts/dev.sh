@@ -22,7 +22,7 @@ web_check()     { (cd "$WEB" && npm run typecheck && npm run build); }
 # Playwright against a seeded news_insight_e2e database (system Chrome; API 8712, web 8713)
 web_e2e()       { db; e2e_db; (cd "$WEB" && npx playwright test); }
 e2e_db()        { docker compose exec -T postgres psql -q -U news -d postgres -tc "SELECT 1 FROM pg_database WHERE datname = 'news_insight_e2e'" | grep -q 1 || docker compose exec -T postgres psql -q -U news -d postgres -c "CREATE DATABASE news_insight_e2e"; }
-# Signal regression (QA-1): demo corpus at a pinned time → radar JSON → vitest on the planted patterns
+# Signal regression (QA-1): demo corpus at a pinned time → radar JSON → planted patterns (pytest)
 QA_DB_URL="postgresql+psycopg://news:news-dev-password@localhost:8720/news_insight_qa_demo"
 QA_NOW="2026-10-04T15:00:00+00:00"
 radar_qa() {
@@ -32,7 +32,7 @@ radar_qa() {
   (cd "$API" && export DATABASE_URL="$QA_DB_URL" RADAR_DEMO_NOW="$QA_NOW" \
     && uv run alembic upgrade head >/dev/null && uv run news-insight technologies seed >/dev/null \
     && uv run python scripts/radar_demo_seed.py && uv run python scripts/radar_qa_export.py "$out")
-  (cd "$WEB" && RADAR_QA_DIR="$out" npx vitest run tests/radar-qa.test.ts)
+  (cd "$API" && RADAR_QA_DIR="$out" uv run pytest -q tests/radar_qa)
 }
 compose_check() { docker compose --env-file .env.example config --quiet; }
 # Migrations are checked on a scratch database: verify must never change the live schema.

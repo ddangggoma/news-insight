@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from itertools import combinations
 from math import log1p
-from statistics import fmean, median, pstdev
+from statistics import fmean, median
 from typing import Any
 
 from sqlalchemy import ColumnElement, case, distinct, func, literal, null, select, true
@@ -43,6 +43,8 @@ from news_insight.public.schemas import (
     Topic,
     TopicDetail,
 )
+from news_insight.public.signals import radar_signals
+from news_insight.public.stats import count_z, rate_z
 from news_insight.sources.enums import Region, Track
 from news_insight.sources.models import Source
 from news_insight.stories.models import ItemRef, Story, StoryItem
@@ -52,6 +54,9 @@ from news_insight.technologies.service import labels_for
 TREND_WINDOWS = 8
 MIN_SOURCES = 2  # new / surging needs more than one outlet
 SURGE_Z = 2.0
+SURGE_MOVE = 1.5  # and at least this many times the baseline mean
+RISE_Z = 1.0
+FALL_Z = -1.0
 KEYWORD_TOP = 90
 KEYWORD_FALLING_TOP = 12
 PAIR_POOL = 40
@@ -293,9 +298,9 @@ def change(count: int, previous: int) -> float | None:
 
 
 def z_score(counts: list[int]) -> float:
-    """Current window against the earlier ones; the deviation floor of 1 damps tiny baselines."""
+    """Current window against the earlier ones (overdispersed Poisson z, public/stats.py)."""
     *history, current = counts
-    return round((current - fmean(history)) / max(pstdev(history), 1.0), 2)
+    return round(count_z(current, history), 2)
 
 
 def lifecycle(counts: list[int], sources: int, *, seen_before: bool | None = None) -> str | None:
@@ -308,11 +313,12 @@ def lifecycle(counts: list[int], sources: int, *, seen_before: bool | None = Non
     if current >= KEYWORD_MIN_COUNT:
         if not (sum(history) > 0 if seen_before is None else seen_before):
             return "new" if sources >= MIN_SOURCES else "steady"
-        if z_score(counts) >= SURGE_Z and current >= mean * 1.5 and sources >= MIN_SOURCES:
+        z = z_score(counts)
+        if z >= SURGE_Z and current >= mean * SURGE_MOVE and sources >= MIN_SOURCES:
             return "surging"
-        if current >= mean * 1.3:
+        if z >= RISE_Z:
             return "rising"
-    if mean >= KEYWORD_MIN_COUNT and current <= mean * 0.7:
+    if mean >= KEYWORD_MIN_COUNT and z_score(counts) <= FALL_Z:
         return "falling"
     return "steady" if current >= KEYWORD_MIN_COUNT else None
 
@@ -658,7 +664,7 @@ def _calendar(
         for i in range(ANOMALY_BASELINE, length):
             same_day = [series[j] for j in range(i - ANOMALY_BASELINE, i) if (i - j) % 7 == 0]
             expected = fmean(same_day)
-            z = (series[i] - expected) / max(expected**0.5, 1.0)
+            z = rate_z(series[i], expected)
             if z >= ANOMALY_Z and series[i] >= max(expected * ANOMALY_RATIO, ANOMALY_MIN):
                 found.append((i, field, round(expected, 1), round(z, 2)))
     found = sorted(found, key=lambda row: -row[3])[:ANOMALY_TOP]
@@ -765,7 +771,7 @@ def radar(
         session, base, windows, _pick_keywords(topics("keyword", min_total=KEYWORD_MIN_COUNT))
     )
     themes = topics("theme")
-    return Radar(
+    body = Radar(
         taxonomy_revised_on=date.fromisoformat(TAXONOMY_REVISED_ON),
         window=window_out(window, current_key, now),
         periods=[w.key for w in windows],
@@ -779,6 +785,8 @@ def radar(
         calendar=_calendar(session, base, windows),
         field_links=_field_links(session, base, windows),
     )
+    body.signals = radar_signals(body, now=now)
+    return body
 
 
 def _with_history(

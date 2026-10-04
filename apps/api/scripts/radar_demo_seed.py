@@ -20,7 +20,7 @@ Usage (never on a real database; the name must contain "demo"):
         uv run alembic upgrade head && uv run python scripts/radar_demo_seed.py
 
 scripts/dev.sh radar-qa runs it at a pinned RADAR_DEMO_NOW and checks every planted pattern
-against the radar signal rules (apps/web/tests/radar-qa.test.ts): keep the two lists in step.
+against the signal rules (tests/radar_qa/test_planted.py): keep the two lists in step.
 """
 
 import math
