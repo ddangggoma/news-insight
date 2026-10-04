@@ -32,6 +32,8 @@ const VIEW: ReviewItem = {
     engine: "agy",
     model: "m",
     generated_at: "2026-10-04T00:10:00Z",
+    scope: "dx",
+    relevance: 77,
   },
   review: null,
 };
@@ -46,5 +48,6 @@ describe("ReviewCard", () => {
     expect(screen.getByRole("button", { name: /무관/ })).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByText("갤럭시 S30 출시")).toBeInTheDocument();
     expect(screen.getByText("#1")).toBeInTheDocument();
+    expect(screen.getByText("DX 제품·기술")).toBeInTheDocument();
   });
 });

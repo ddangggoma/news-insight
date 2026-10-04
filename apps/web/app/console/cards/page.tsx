@@ -9,6 +9,7 @@ import { StatCard } from "@/components/console/stat-card";
 import { api } from "@/lib/api";
 import { CATEGORY_LABEL, formatNumber, formatRelative, REGION_LABEL, TRACK_LABEL } from "@/lib/format";
 import { pageParam, param, type SearchParams } from "@/lib/params";
+import { BUSINESS_LABEL, FIELD_LABEL, IMPACT_LABEL, SCOPE_LABEL } from "@/lib/taxonomy";
 import type { CardStats, CardView, Page, Region, Track } from "@/lib/types";
 
 export const metadata = { title: "카드 뉴스" };
@@ -27,10 +28,20 @@ export default async function CardsPage({ searchParams }: { searchParams: Promis
     region: param(sp, "region"),
     days: param(sp, "days"),
     q: param(sp, "q"),
+    field: param(sp, "field"),
+    business: param(sp, "business"),
+    impact: param(sp, "impact"),
+    scope: param(sp, "scope"),
+    view: param(sp, "view"),
   };
   const page = pageParam(sp);
   const [data, stats] = await Promise.all([
-    api.get<Page<CardView>>("/api/admin/cards", { ...filters, page }),
+    api.get<Page<CardView>>("/api/admin/cards", {
+      ...filters,
+      view: undefined,
+      dedup: filters.view === "story" ? "true" : undefined,
+      page,
+    }),
     api.get<CardStats>("/api/admin/cards/stats"),
   ]);
   const quota = stats.last_run?.quota;
@@ -59,6 +70,21 @@ export default async function CardsPage({ searchParams }: { searchParams: Promis
           { name: "track", label: "트랙", value: filters.track, options: options<Track>(TRACK_LABEL) },
           { name: "category", label: "범주", value: filters.category, options: options(CATEGORY_LABEL) },
           { name: "region", label: "지역", value: filters.region, options: options<Region>(REGION_LABEL) },
+          { name: "business", label: "사업부", value: filters.business, options: options(BUSINESS_LABEL) },
+          { name: "field", label: "분야", value: filters.field, options: options(FIELD_LABEL) },
+          { name: "impact", label: "영향", value: filters.impact, options: options(IMPACT_LABEL) },
+          {
+            name: "scope",
+            label: "범위",
+            value: filters.scope,
+            options: [{ value: "relevant", label: "DX 관련만" }, ...options(SCOPE_LABEL)],
+          },
+          {
+            name: "view",
+            label: "보기",
+            value: filters.view,
+            options: [{ value: "story", label: "이슈별 1건 (중복 묶기)" }],
+          },
           {
             name: "days",
             label: "기간",

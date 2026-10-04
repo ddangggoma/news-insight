@@ -51,6 +51,7 @@ from news_insight.sources.service import (
     run_check,
     stage_counts,
 )
+from news_insight.stories.service import Thresholds, cluster
 
 app = typer.Typer(help="Daily IT Intelligence operations CLI", no_args_is_help=True)
 sources_app = typer.Typer(help="Source registry and V0-V6 validation ladder", no_args_is_help=True)
@@ -62,6 +63,10 @@ app.add_typer(collect_app, name="collect")
 app.add_typer(dlq_app, name="dlq")
 trends_app = typer.Typer(help="Signal trends from metric snapshots", no_args_is_help=True)
 app.add_typer(trends_app, name="trends")
+stories_app = typer.Typer(
+    help="Issue clustering (exact/near/event) and cross-track identifiers", no_args_is_help=True
+)
+app.add_typer(stories_app, name="stories")
 cards_app = typer.Typer(
     help="Korean cards: Antigravity CLI first, local Qwen when its quota is spent",
     no_args_is_help=True,
@@ -472,6 +477,7 @@ def cards_run(
         agy, qwen = _card_engines(qwen_only)
         policy = CardPolicy(
             agy_batch=settings.card_agy_batch,
+            agy_parallel=settings.card_agy_parallel,
             qwen_batch=settings.card_qwen_batch,
             min_weekly=settings.card_agy_min_weekly,
             min_five_hour=settings.card_agy_min_five_hour,
@@ -510,3 +516,43 @@ def cards_status() -> None:
                 f"batches={last.batches} quota={last.quota}"
             )
     typer.echo(line)
+
+
+@stories_app.command("run")
+def stories_run(
+    limit: Annotated[int, typer.Option(help="Maximum items to cluster")] = 5000,
+    near: Annotated[float, typer.Option(help="Near-duplicate MinHash threshold")] = 0.6,
+    event: Annotated[float, typer.Option(help="Same-event MinHash threshold")] = 0.35,
+) -> None:
+    """Attach carded items to stories (exact duplicate, near duplicate, same event or new)."""
+    stats = cluster(
+        session_scope,
+        now=datetime.now(UTC),
+        limit=limit,
+        thresholds=Thresholds(near=near, event=event),
+    )
+    relations = " ".join(f"{k}={v}" for k, v in sorted(stats.by_relation.items()))
+    typer.echo(f"processed={stats.processed} {relations or '-'} refs={stats.refs}")
+
+
+@stories_app.command("eval")
+def stories_eval(
+    size: Annotated[int, typer.Option(help="Candidate pairs to judge")] = 200,
+) -> None:
+    """Judge real candidate pairs with Antigravity and report P/R/F1 per MinHash threshold."""
+    from news_insight.stories.evaluate import judge, sample_pairs, score
+
+    agy, _ = _card_engines(False)
+    assert agy is not None
+    with session_scope() as session:
+        pairs = sample_pairs(session, now=datetime.now(UTC), size=size)
+    labels = judge(agy.ask, pairs)
+    same = sum(labels.values())
+    typer.echo(f"pairs={len(pairs)} judged={len(labels)} same_event={same}")
+    typer.echo("threshold  precision  recall  f1")
+    for result in score(pairs, labels):
+        cells = [
+            f"{value:.2f}" if value is not None else "  - "
+            for value in (result.precision, result.recall, result.f1)
+        ]
+        typer.echo(f"{result.threshold:>9.2f}  {cells[0]:>9}  {cells[1]:>6}  {cells[2]:>4}")

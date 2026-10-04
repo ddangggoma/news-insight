@@ -88,11 +88,53 @@ export interface CardBody {
   engine: string | null;
   model: string | null;
   generated_at: string;
+  field?: string | null;
+  themes?: string[];
+  businesses?: string[];
+  impact?: string | null;
+  scope?: string | null;
+  relevance?: number | null;
+}
+
+export interface StoryRef {
+  id: number;
+  item_count: number;
+  source_count: number;
+  tracks: string[];
+  is_representative: boolean;
 }
 
 export interface CardView {
   item: ItemRow;
   card: CardBody;
+  story?: StoryRef | null;
+}
+
+export interface StoryMember {
+  item: ItemRow;
+  relation: "seed" | "exact" | "near" | "event";
+  similarity: number | null;
+}
+
+export interface StoryView {
+  id: number;
+  title_ko: string | null;
+  item_count: number;
+  source_count: number;
+  tracks: Track[];
+  first_seen_at: string;
+  last_seen_at: string;
+  max_relevance: number | null;
+  representative: ItemRow;
+  card: CardBody | null;
+  members: StoryMember[];
+}
+
+export interface SignalChain {
+  kind: "arxiv" | "doi" | "github";
+  value: string;
+  tracks: Track[];
+  items: ItemRow[];
 }
 
 export interface CardStats {
@@ -223,6 +265,15 @@ export interface ReviewBucket {
 }
 
 export interface ReviewStats {
+  classifier: {
+    tp: number;
+    fp: number;
+    fn: number;
+    tn: number;
+    precision: number | null;
+    recall: number | null;
+    accuracy: number | null;
+  };
   overall: ReviewBucket;
   by_track: ReviewBucket[];
   by_category: ReviewBucket[];

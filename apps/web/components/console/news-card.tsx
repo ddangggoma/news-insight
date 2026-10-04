@@ -2,6 +2,7 @@ import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 
 import { TrackBadge } from "@/components/console/badges";
+import { ClassificationBadges } from "@/components/console/classification";
 import { CATEGORY_LABEL, formatRelative, REGION_LABEL } from "@/lib/format";
 import type { CardView } from "@/lib/types";
 
@@ -24,6 +25,9 @@ export function NewsCard({ view, now }: { view: CardView; now?: Date }) {
         </Link>
       </h3>
       {showOriginal ? <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">{item.title}</p> : null}
+      <div className="mt-2">
+        <ClassificationBadges card={card} />
+      </div>
       {card.summary_ko.length > 0 ? (
         <ul className="mt-3 space-y-1.5 text-sm leading-relaxed text-muted-foreground">
           {card.summary_ko.map((line) => (
@@ -51,6 +55,15 @@ export function NewsCard({ view, now }: { view: CardView; now?: Date }) {
         <div className="flex items-center gap-2 border-t pt-3 text-xs text-muted-foreground">
           <span className="truncate font-medium text-foreground/80">{item.source_name}</span>
           <span className="shrink-0">· {REGION_LABEL[item.region]}</span>
+          {view.story && view.story.item_count > 1 ? (
+            <Link
+              href={`/console/stories?focus=${view.story.id}`}
+              className="shrink-0 rounded bg-amber-500/10 px-1.5 py-0.5 font-medium text-amber-700 hover:underline dark:text-amber-300"
+              title={`${view.story.source_count}개 매체가 다룬 이슈`}
+            >
+              관련 {view.story.item_count - 1}건
+            </Link>
+          ) : null}
           <a
             href={item.url}
             target="_blank"

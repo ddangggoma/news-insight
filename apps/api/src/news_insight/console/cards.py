@@ -9,10 +9,11 @@ from sqlalchemy.orm import Session
 from news_insight.cards.models import CardRun, CardStatus, ItemCard
 from news_insight.cards.service import pending_count
 from news_insight.console.queries import _like, _offset, card_body, item_rows
-from news_insight.console.schemas import CardRunOut, CardStats, CardView, Page
+from news_insight.console.schemas import CardRunOut, CardStats, CardView, Page, StoryRef
 from news_insight.content.models import Item
 from news_insight.sources.enums import Region, Track
 from news_insight.sources.models import Source
+from news_insight.stories.models import Story, StoryItem
 
 KST = ZoneInfo("Asia/Seoul")
 
@@ -28,8 +29,31 @@ def list_cards(
     page: int,
     size: int,
     now: datetime,
+    field: str | None = None,
+    business: str | None = None,
+    impact: str | None = None,
+    scope: str | None = None,
+    dedup: bool = False,
 ) -> Page[CardView]:
     conditions = [ItemCard.status == CardStatus.READY]
+    if field:
+        conditions.append(ItemCard.field == field)
+    if business:
+        conditions.append(ItemCard.businesses.contains([business]))
+    if impact:
+        conditions.append(ItemCard.impact == impact)
+    if scope == "relevant":
+        conditions.append(ItemCard.scope.in_(["dx", "dx_dependency"]))
+    elif scope:
+        conditions.append(ItemCard.scope == scope)
+    if dedup:
+        # one card per story: its representative, plus items not clustered yet
+        conditions.append(
+            or_(
+                StoryItem.item_id.is_(None),
+                Story.representative_item_id == Item.id,
+            )
+        )
     if track is not None:
         conditions.append(Item.track == track)
     if category:
@@ -48,9 +72,11 @@ def list_cards(
             )
         )
     base = (
-        select(Item, Source, ItemCard)
+        select(Item, Source, ItemCard, Story)
         .join(Source, Source.id == Item.source_id)
         .join(ItemCard, ItemCard.item_id == Item.id)
+        .outerjoin(StoryItem, StoryItem.item_id == Item.id)
+        .outerjoin(Story, Story.id == StoryItem.story_id)
         .where(*conditions)
     )
     total = session.scalar(select(func.count()).select_from(base.subquery())) or 0
@@ -63,10 +89,22 @@ def list_cards(
             .limit(size)
         ).tuples()
     )
-    items = item_rows(session, [(item, source) for item, source, _ in rows])
+    items = item_rows(session, [(item, source) for item, source, _, _ in rows])
     views = [
-        CardView(item=row, card=card_body(card))
-        for row, (_, _, card) in zip(items, rows, strict=True)
+        CardView(
+            item=row,
+            card=card_body(card),
+            story=StoryRef(
+                id=story.id,
+                item_count=story.item_count,
+                source_count=story.source_count,
+                tracks=list(story.tracks),
+                is_representative=story.representative_item_id == row.id,
+            )
+            if story is not None
+            else None,
+        )
+        for row, (_, _, card, story) in zip(items, rows, strict=True)
     ]
     return Page[CardView](items=views, total=total, page=page, size=size)
 

@@ -232,6 +232,12 @@ def card_body(card: ItemCard) -> CardBody:
         engine=card.engine,
         model=card.model,
         generated_at=card.generated_at,
+        field=card.field,
+        themes=list(card.themes or []),
+        businesses=list(card.businesses or []),
+        impact=card.impact,
+        scope=card.scope,
+        relevance=card.relevance,
     )
 
 

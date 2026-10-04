@@ -2,6 +2,7 @@
 
 import time
 from collections.abc import Callable
+from concurrent.futures import ThreadPoolExecutor
 from contextlib import AbstractContextManager
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -13,6 +14,7 @@ from sqlalchemy.orm import Session
 from news_insight.cards.engines import (
     CardEngine,
     EngineError,
+    EngineOutput,
     MeteredEngine,
     Quota,
     QuotaExhausted,
@@ -22,6 +24,7 @@ from news_insight.cards.schemas import CardDraft, CardInput, parse_drafts
 from news_insight.content.models import Item
 from news_insight.content.normalize import truncate
 from news_insight.sources.models import Source
+from news_insight.taxonomy.catalog import TAXONOMY_REVISION
 
 MAX_ATTEMPTS = 3
 EXCERPT_LIMIT = 500
@@ -34,11 +37,16 @@ def _now() -> datetime:
 
 
 def pending_condition() -> Any:
-    """No card yet, the item changed since its card, or a failed card with retries left."""
+    """No card yet, the item changed since its card, a failed card with retries left, or a
+    card classified against an older taxonomy revision."""
     return or_(
         ItemCard.id.is_(None),
         ItemCard.input_hash != Item.content_hash,
         and_(ItemCard.status == CardStatus.FAILED, ItemCard.attempts < MAX_ATTEMPTS),
+        and_(
+            ItemCard.status == CardStatus.READY,
+            func.coalesce(ItemCard.taxonomy_revision, "") != TAXONOMY_REVISION,
+        ),
     )
 
 
@@ -100,6 +108,9 @@ def store_result(
             draft.summary_ko,
             draft.keywords,
         )
+        card.field, card.themes, card.businesses = draft.field, draft.themes, draft.businesses
+        card.impact, card.scope, card.relevance = draft.impact, draft.scope, draft.relevance
+        card.taxonomy_revision = TAXONOMY_REVISION
         card.attempts, card.error = 0, None
     else:
         card.status = CardStatus.FAILED
@@ -121,6 +132,7 @@ class CardRunStats:
 @dataclass(frozen=True)
 class CardPolicy:
     agy_batch: int = 100
+    agy_parallel: int = 3  # independent agy processes per round (quota is the real cap)
     qwen_batch: int = 5
     min_weekly: int = 10  # D18: cards may use 90 % of the weekly Antigravity limit
     min_five_hour: int = 2
@@ -167,51 +179,83 @@ def run_cards(
         if engine is None:
             stats.notes.append("no engine available")
             break
-        size = policy.agy_batch if use_agy else policy.qwen_batch
+        batch = policy.agy_batch if use_agy else policy.qwen_batch
+        lanes = max(1, policy.agy_parallel) if use_agy else 1
         with open_session() as session:
             inputs = [
-                card_input(item, source) for item, source in pending_items(session, limit=size)
+                card_input(item, source)
+                for item, source in pending_items(session, limit=batch * lanes)
             ]
         if not inputs:
             break
-        try:
-            output = engine.generate(inputs)
-        except QuotaExhausted as exc:
-            stats.notes.append(f"{exc}: switching to qwen")
+        chunks = [inputs[i : i + batch] for i in range(0, len(inputs), batch)]
+        results = _generate_all(engine, chunks)
+        switch = False
+        for chunk, result in zip(chunks, results, strict=True):
+            if isinstance(result, QuotaExhausted) or (
+                isinstance(result, EngineError) and engine is agy
+            ):
+                stats.notes.append(f"{result}: switching to qwen")
+                switch = True
+                continue
+            if isinstance(result, EngineError):
+                stats.notes.append(str(result))
+                continue
+            _store_batch(open_session, engine.name, chunk, result, clock(), stats)
+        if switch:
             use_agy = False
             continue
-        except EngineError as exc:
-            if engine is agy:
-                stats.notes.append(f"{exc}: switching to qwen")
-                use_agy = False
-                continue
-            stats.notes.append(str(exc))
+        if engine is not agy and all(isinstance(r, EngineError) for r in results):
             break  # local model down: leave items pending for the next run
-        drafts = parse_drafts(output.raw, inputs)
-        now = clock()
-        with open_session() as session:
-            for card in inputs:
-                item = session.get(Item, card.id)
-                if item is None:
-                    continue
-                draft = drafts.get(card.id)
-                store_result(
-                    session,
-                    item,
-                    draft,
-                    engine=engine.name,
-                    model=output.model,
-                    error=None if draft else "missing or invalid in engine output",
-                    now=now,
-                )
-                if draft:
-                    stats.ready += 1
-                else:
-                    stats.failed += 1
-        stats.batches[engine.name] = stats.batches.get(engine.name, 0) + 1
         if engine is agy:
             refresh_quota()
     return stats
+
+
+def _generate_all(
+    engine: CardEngine, chunks: list[list[CardInput]]
+) -> list[EngineOutput | EngineError]:
+    def one(chunk: list[CardInput]) -> EngineOutput | EngineError:
+        try:
+            return engine.generate(chunk)
+        except EngineError as exc:
+            return exc
+
+    if len(chunks) == 1:
+        return [one(chunks[0])]
+    with ThreadPoolExecutor(max_workers=len(chunks)) as pool:
+        return list(pool.map(one, chunks))
+
+
+def _store_batch(
+    open_session: SessionScope,
+    engine_name: str,
+    chunk: list[CardInput],
+    output: EngineOutput,
+    now: datetime,
+    stats: "CardRunStats",
+) -> None:
+    drafts = parse_drafts(output.raw, chunk)
+    with open_session() as session:
+        for card in chunk:
+            item = session.get(Item, card.id)
+            if item is None:
+                continue
+            draft = drafts.get(card.id)
+            store_result(
+                session,
+                item,
+                draft,
+                engine=engine_name,
+                model=output.model,
+                error=None if draft else "missing or invalid in engine output",
+                now=now,
+            )
+            if draft:
+                stats.ready += 1
+            else:
+                stats.failed += 1
+    stats.batches[engine_name] = stats.batches.get(engine_name, 0) + 1
 
 
 def record_run(open_session: SessionScope, started_at: datetime, stats: CardRunStats) -> None:

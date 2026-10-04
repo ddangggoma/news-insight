@@ -9,6 +9,7 @@ import { TrackBadge } from "@/components/console/badges";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CATEGORY_LABEL } from "@/lib/format";
+import { SCOPE_LABEL } from "@/lib/taxonomy";
 import type { ReviewItem, Verdict } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -63,6 +64,12 @@ export function ReviewCard({ view, seed, index }: { view: ReviewItem; seed: stri
       ) : null}
       {card && card.keywords.length > 0 ? (
         <p className="text-xs text-muted-foreground">{card.keywords.map((k) => `#${k}`).join(" ")}</p>
+      ) : null}
+      {card?.scope ? (
+        <p className="text-xs text-muted-foreground">
+          AI 판정: <span className="font-medium text-foreground">{SCOPE_LABEL[card.scope] ?? card.scope}</span>
+          {typeof card.relevance === "number" ? ` · 관련도 ${card.relevance}` : ""}
+        </p>
       ) : null}
       <div className="mt-auto flex flex-wrap items-center gap-2 pt-1">
         {OPTIONS.map((option) => (
