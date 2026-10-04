@@ -12,6 +12,7 @@ from news_insight.collect.models import DeadLetter, FetchOutcome
 from news_insight.console import cards as card_queries
 from news_insight.console import queries
 from news_insight.console import reviews as review_queries
+from news_insight.console import stories as story_queries
 from news_insight.console.auth import require_console_key
 from news_insight.console.schemas import (
     CardStats,
@@ -239,6 +240,11 @@ def list_cards(
     region: Region | None = None,
     days: Annotated[int | None, Query(ge=1, le=365)] = None,
     q: str | None = None,
+    field: str | None = None,
+    business: str | None = None,
+    impact: str | None = None,
+    scope: str | None = None,
+    dedup: bool = False,
     page: PageQ = 1,
     size: SizeQ = 60,
 ) -> Page[CardView]:
@@ -252,6 +258,11 @@ def list_cards(
         page=page,
         size=size,
         now=datetime.now(UTC),
+        field=field,
+        business=business,
+        impact=impact,
+        scope=scope,
+        dedup=dedup,
     )
 
 
@@ -293,3 +304,36 @@ def review_export(session: DB) -> Response:
         media_type="text/csv; charset=utf-8",
         headers={"Content-Disposition": 'attachment; filename="relevance-reviews.csv"'},
     )
+
+
+@router.get("/stories")
+def list_stories(
+    session: DB,
+    days: Annotated[int, Query(ge=1, le=30)] = 1,
+    min_size: Annotated[int, Query(ge=1, le=100)] = 2,
+    min_tracks: Annotated[int, Query(ge=1, le=4)] = 1,
+    track: Track | None = None,
+    business: str | None = None,
+    page: PageQ = 1,
+    size: SizeQ = 30,
+) -> Page[story_queries.StoryView]:
+    return story_queries.list_stories(
+        session,
+        days=days,
+        min_size=min_size,
+        min_tracks=min_tracks,
+        track=track,
+        business=business,
+        page=page,
+        size=size,
+        now=datetime.now(UTC),
+    )
+
+
+@router.get("/signals")
+def list_signals(
+    session: DB,
+    days: Annotated[int, Query(ge=1, le=90)] = 7,
+    limit: Annotated[int, Query(ge=1, le=200)] = 50,
+) -> list[story_queries.SignalChain]:
+    return story_queries.list_signals(session, days=days, now=datetime.now(UTC), limit=limit)

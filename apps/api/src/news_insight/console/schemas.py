@@ -129,11 +129,26 @@ class CardBody(BaseModel):
     engine: str | None
     model: str | None
     generated_at: datetime
+    field: str | None = None
+    themes: list[str] = []
+    businesses: list[str] = []
+    impact: str | None = None
+    scope: str | None = None
+    relevance: int | None = None
+
+
+class StoryRef(BaseModel):
+    id: int
+    item_count: int
+    source_count: int
+    tracks: list[str]
+    is_representative: bool
 
 
 class CardView(BaseModel):
     item: ItemRow
     card: CardBody
+    story: StoryRef | None = None
 
 
 class CardRunOut(BaseModel):

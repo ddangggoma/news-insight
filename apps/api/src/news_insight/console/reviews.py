@@ -57,7 +57,20 @@ class Bucket(BaseModel):
         return self.relevant / decided if decided else 0.0
 
 
+class Agreement(BaseModel):
+    """Operator verdict vs LLM scope (dx/dx_dependency = relevant), unsure excluded."""
+
+    tp: int
+    fp: int
+    fn: int
+    tn: int
+    precision: float | None
+    recall: float | None
+    accuracy: float | None
+
+
 class ReviewStats(BaseModel):
+    classifier: Agreement
     overall: Bucket
     by_track: list[Bucket]
     by_category: list[Bucket]
@@ -161,9 +174,36 @@ def _buckets(
     ]
 
 
+def agreement(session: Session) -> Agreement:
+    rows = session.execute(
+        select(RelevanceReview.verdict, ItemCard.scope)
+        .join(ItemCard, ItemCard.item_id == RelevanceReview.item_id)
+        .where(RelevanceReview.verdict != Verdict.UNSURE, ItemCard.scope.is_not(None))
+    ).tuples()
+    tp = fp = fn = tn = 0
+    for verdict, scope in rows:
+        predicted = scope in ("dx", "dx_dependency")
+        actual = verdict is Verdict.RELEVANT
+        tp += predicted and actual
+        fp += predicted and not actual
+        fn += (not predicted) and actual
+        tn += (not predicted) and not actual
+    total = tp + fp + fn + tn
+    return Agreement(
+        tp=tp,
+        fp=fp,
+        fn=fn,
+        tn=tn,
+        precision=tp / (tp + fp) if tp + fp else None,
+        recall=tp / (tp + fn) if tp + fn else None,
+        accuracy=(tp + tn) / total if total else None,
+    )
+
+
 def stats(session: Session) -> ReviewStats:
     overall = _buckets(session, literal("전체"))
     return ReviewStats(
+        classifier=agreement(session),
         overall=overall[0]
         if overall
         else Bucket(key="전체", total=0, relevant=0, irrelevant=0, unsure=0),
