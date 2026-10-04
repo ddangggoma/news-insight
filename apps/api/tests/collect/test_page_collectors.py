@@ -80,8 +80,11 @@ def site(robots_txt: str | None = None) -> object:
             return httpx.Response(
                 200, headers={"content-type": "application/xml"}, content=NEWS_SITEMAP
             )
+        page = ARTICLE.replace(
+            "S30 공개", f"S30 공개 {request.url.params.get('idxno', '')}".rstrip()
+        )
         return httpx.Response(
-            200, headers={"content-type": "text/html; charset=utf-8"}, content=ARTICLE.encode()
+            200, headers={"content-type": "text/html; charset=utf-8"}, content=page.encode()
         )
 
     return mock_fetcher(handler)
@@ -107,7 +110,7 @@ def test_auto_crawl_completes_unseen_articles_from_their_pages() -> None:
         "https://www.example.co.kr/news/articleView.html?idxno=123457",
     ]
     first = result.items[0]
-    assert first.title == "삼성, 갤럭시 S30 공개"
+    assert first.title == "삼성, 갤럭시 S30 공개 123456"
     assert first.summary == "온디바이스 AI를 탑재한 새 플래그십"
     assert first.published_at == datetime(2026, 10, 4, 0, 30, tzinfo=UTC)
 
@@ -145,3 +148,49 @@ def test_sitemap_index_prefers_news_sitemap_and_orders_by_date() -> None:
     assert [item.title for item in result.items] == ["newer", "older"]
     assert result.items[0].published_at == datetime(2026, 10, 3, 23, 0, tzinfo=UTC)
     assert result.items[0].summary == "온디바이스 AI를 탑재한 새 플래그십"
+
+
+def test_shared_og_title_falls_back_to_anchor_and_undated_pages_are_dropped() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.path == "/robots.txt":
+            return httpx.Response(404)
+        if request.url.path == "/":
+            return httpx.Response(200, headers={"content-type": "text/html"}, content=LIST.encode())
+        idxno = request.url.params.get("idxno")
+        dated = '<meta property="article:published_time" content="2026-10-04T09:30:00+09:00">'
+        head = f'<meta property="og:title" content="SITE">{dated if idxno == "123456" else ""}'
+        return httpx.Response(
+            200,
+            headers={"content-type": "text/html"},
+            content=f"<html><head>{head}</head></html>".encode(),
+        )
+
+    result = collect_auto(mock_fetcher(handler), context("https://www.example.co.kr/", mode="auto"))
+    fallback = collect_auto(
+        mock_fetcher(handler),
+        context("https://www.example.co.kr/", mode="auto", date_fallback="now"),
+    )
+
+    assert [item.title for item in result.items] == ["삼성, 갤럭시 S30 공개하며 온디바이스 AI 강화"]
+    assert [item.title for item in fallback.items] == [
+        "삼성, 갤럭시 S30 공개하며 온디바이스 AI 강화",
+        "LG디스플레이 2세대 탠덤 OLED 양산",
+    ]
+    assert fallback.items[1].published_at == NOW
+
+
+def test_shared_site_suffix_is_stripped() -> None:
+    from news_insight.collect.contracts import RawItem
+    from news_insight.collect.pages import strip_site_suffix
+
+    items = [
+        RawItem(stable_id="a", url="https://x/a", title="아이폰 판매량 증가 : 클리앙"),
+        RawItem(stable_id="b", url="https://x/b", title="신한은행 개인정보 유출 : 클리앙"),
+        RawItem(stable_id="c", url="https://x/c", title="Pixel 11 review - hands on"),
+    ]
+
+    assert [item.title for item in strip_site_suffix(items)] == [
+        "아이폰 판매량 증가",
+        "신한은행 개인정보 유출",
+        "Pixel 11 review - hands on",
+    ]

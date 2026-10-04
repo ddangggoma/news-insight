@@ -2,7 +2,7 @@
 
 A link counts as an article when it stays on the site, is not navigation (tag, category,
 author, login, media files…), carries a headline-length anchor text and looks like an
-article URL (an id or date in the path/query, or a deep or long path). `config.link_pattern`
+article URL (an id or date in the path/query, or a long slug path). `config.link_pattern`
 (regex) narrows it further for noisy sites.
 """
 
@@ -40,7 +40,9 @@ def _headline(text: str) -> bool:
     return len(text) >= (8 if CJK.search(text) else 15)
 
 
-def article_links(html: str, *, base_url: str, domain: str, pattern: str | None) -> list[Candidate]:
+def article_links(
+    html: str, *, base_url: str, domain: str, pattern: str | None, drop_query: bool = False
+) -> list[Candidate]:
     regex = re.compile(pattern) if pattern else None
     best: dict[str, str] = {}
     order: list[str] = []
@@ -54,7 +56,9 @@ def article_links(html: str, *, base_url: str, domain: str, pattern: str | None)
             host == domain or host.endswith("." + domain)
         ):
             continue
-        url = urlunsplit((parts.scheme, parts.netloc, parts.path, parts.query, ""))
+        url = urlunsplit(
+            (parts.scheme, parts.netloc, parts.path, "" if drop_query else parts.query, "")
+        )
         path_query = f"{parts.path}?{parts.query}"
         if parts.path in ("", "/") or MEDIA.search(parts.path) or NAVIGATION.search(path_query):
             continue
@@ -62,14 +66,7 @@ def article_links(html: str, *, base_url: str, domain: str, pattern: str | None)
         if regex is not None:
             if not regex.search(url):
                 continue
-        elif not (
-            _headline(text)
-            and (
-                ARTICLE_HINT.search(path_query)
-                or parts.path.count("/") >= 3
-                or len(parts.path) > 40
-            )
-        ):
+        elif not (_headline(text) and (ARTICLE_HINT.search(path_query) or len(parts.path) > 40)):
             continue
         if url not in best:
             order.append(url)
@@ -97,6 +94,7 @@ def collect_auto(fetcher: SafeFetcher, context: CollectContext) -> CollectResult
                 base_url=response.url,
                 domain=domain,
                 pattern=str(pattern) if pattern else None,
+                drop_query=bool(context.config.get("drop_query")),
             )
         )
     if not candidates:

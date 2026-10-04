@@ -4,7 +4,8 @@ Unseen article URLs are completed from the article page itself (title, descripti
 at most `enrich_limit` per run and only where robots.txt allows the path.
 """
 
-from dataclasses import dataclass
+import re
+from dataclasses import dataclass, replace
 from datetime import datetime
 from typing import Any
 from urllib.parse import urlsplit
@@ -93,40 +94,80 @@ def complete(
     *,
     robots: RobotsGate | None = None,
 ) -> list[RawItem]:
-    """Drop known URLs, fill missing fields from article pages, keep only titled items."""
+    """Drop known URLs, fill missing fields from article pages, keep only titled items.
+
+    - a page that was fetched but carries no publication date is not an article (category
+      and list pages) unless `config.date_fallback: now` (boards that print no date meta),
+    - an og:title shared by several pages is the site name, so the anchor text wins.
+    """
     limit = int(context.config.get("enrich_limit", DEFAULT_ENRICH_LIMIT))
+    now_fallback = context.config.get("date_fallback") == "now"
     tz = timezone_of(context.config)
     robots = robots or RobotsGate(fetcher)
-    items: list[RawItem] = []
+    kept: list[tuple[Candidate, str | None, RawItem]] = []
+    page_titles: dict[str, int] = {}
     seen: set[str] = set()
     for candidate in candidates:
         canonical = canonical_url(candidate.url)
         key = stable_key(canonical)
         if key in context.known_ids or key in seen:
             continue
-        if len(items) >= limit:
+        if len(kept) >= limit:
             break
         seen.add(key)
         title, published, summary = candidate.title, candidate.published_at, candidate.summary
+        page_title: str | None = None
+        fetched = False
         if not (title and published and summary) and robots.allows(candidate.url):
             try:
                 response = fetcher.fetch(candidate.url, allowed_mime=HTML_MIME)
             except FetchError:
                 response = None
             if response is not None and response.status_code == 200:
+                fetched = True
                 meta = extract_meta(decode(response), assume_tz=tz)
-                if not (candidate.trusted_title and title):
-                    title = meta.title or title
+                page_title = meta.title
+                if page_title:
+                    page_titles[page_title] = page_titles.get(page_title, 0) + 1
                 published = published or meta.published_at
                 summary = summary or meta.description
-        if title:
-            items.append(
-                RawItem(
-                    stable_id=canonical,
-                    url=candidate.url,
-                    title=title,
-                    published_at=published,
-                    summary=summary,
-                )
+        if published is None:
+            if now_fallback:
+                published = context.now
+            elif fetched:
+                continue
+        best = title if candidate.trusted_title and title else (page_title or title)
+        if best:
+            item = RawItem(
+                stable_id=canonical,
+                url=candidate.url,
+                title=best,
+                published_at=published,
+                summary=summary,
             )
-    return items
+            kept.append((candidate, page_title, item))
+    items: list[RawItem] = []
+    for candidate, page_title, item in kept:
+        if page_title and page_titles.get(page_title, 0) > 1 and candidate.title:
+            item = replace(item, title=candidate.title)
+        items.append(item)
+    return strip_site_suffix(items)
+
+
+SUFFIX = re.compile(r"^(?P<head>.+?)\s+(?:\||-|–|—|:|::|·)\s+(?P<tail>[^|:–—·-]{2,40})$")
+
+
+def strip_site_suffix(items: list[RawItem]) -> list[RawItem]:
+    """Remove a trailing ' | Site' / ' - Site' / ' : Site' shared by two or more titles."""
+    tails: dict[str, int] = {}
+    for item in items:
+        match = SUFFIX.match(item.title)
+        if match:
+            tails[match["tail"]] = tails.get(match["tail"], 0) + 1
+    result = []
+    for item in items:
+        match = SUFFIX.match(item.title)
+        if match and tails.get(match["tail"], 0) > 1:
+            item = replace(item, title=match["head"].strip())
+        result.append(item)
+    return result
