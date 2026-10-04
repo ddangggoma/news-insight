@@ -32,6 +32,14 @@ class ItemCard(Base):
     attempts: Mapped[int] = mapped_column(default=0)
     error: Mapped[str | None] = mapped_column(Text)
     generated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    # classification (P4) against taxonomy_revision
+    field: Mapped[str | None] = mapped_column(String(40), index=True)
+    themes: Mapped[list[str]] = mapped_column(JSONB, default=list, server_default="[]")
+    businesses: Mapped[list[str]] = mapped_column(JSONB, default=list, server_default="[]")
+    impact: Mapped[str | None] = mapped_column(String(20))
+    scope: Mapped[str | None] = mapped_column(String(20), index=True)
+    relevance: Mapped[int | None]
+    taxonomy_revision: Mapped[str | None] = mapped_column(String(20))
 
 
 class CardRun(Base):

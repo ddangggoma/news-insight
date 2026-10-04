@@ -168,3 +168,15 @@ def test_changed_items_are_regenerated(db_session: Session) -> None:
     db_session.flush()
 
     assert pending_count(db_session) == 1
+
+
+def test_cards_from_an_older_taxonomy_are_regenerated(db_session: Session) -> None:
+    seed(db_session, ["a"])
+    run_cards(scope_for(db_session), agy=None, qwen=FakeEngine("qwen"), policy=POLICY)
+    card = cards(db_session)["a"]
+    assert card.taxonomy_revision is not None and pending_count(db_session) == 0
+
+    card.taxonomy_revision = "old"
+    db_session.flush()
+
+    assert pending_count(db_session) == 1

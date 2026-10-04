@@ -22,6 +22,7 @@ from news_insight.cards.schemas import CardDraft, CardInput, parse_drafts
 from news_insight.content.models import Item
 from news_insight.content.normalize import truncate
 from news_insight.sources.models import Source
+from news_insight.taxonomy.catalog import TAXONOMY_REVISION
 
 MAX_ATTEMPTS = 3
 EXCERPT_LIMIT = 500
@@ -34,11 +35,16 @@ def _now() -> datetime:
 
 
 def pending_condition() -> Any:
-    """No card yet, the item changed since its card, or a failed card with retries left."""
+    """No card yet, the item changed since its card, a failed card with retries left, or a
+    card classified against an older taxonomy revision."""
     return or_(
         ItemCard.id.is_(None),
         ItemCard.input_hash != Item.content_hash,
         and_(ItemCard.status == CardStatus.FAILED, ItemCard.attempts < MAX_ATTEMPTS),
+        and_(
+            ItemCard.status == CardStatus.READY,
+            func.coalesce(ItemCard.taxonomy_revision, "") != TAXONOMY_REVISION,
+        ),
     )
 
 
@@ -100,6 +106,9 @@ def store_result(
             draft.summary_ko,
             draft.keywords,
         )
+        card.field, card.themes, card.businesses = draft.field, draft.themes, draft.businesses
+        card.impact, card.scope, card.relevance = draft.impact, draft.scope, draft.relevance
+        card.taxonomy_revision = TAXONOMY_REVISION
         card.attempts, card.error = 0, None
     else:
         card.status = CardStatus.FAILED
