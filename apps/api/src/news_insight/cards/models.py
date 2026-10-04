@@ -31,6 +31,8 @@ class ItemCard(Base):
     input_hash: Mapped[str] = mapped_column(String(64))
     attempts: Mapped[int] = mapped_column(default=0)
     error: Mapped[str | None] = mapped_column(Text)
+    # Taxonomy revision the item's labels were assigned under (None: not classified yet).
+    taxonomy_rev: Mapped[int | None]
     generated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
 

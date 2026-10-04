@@ -1,0 +1,204 @@
+# 카드 분류 체계 (기술 분야 · 제품군 · 영향)
+#
+# 이 파일이 분류 체계의 유일한 원본입니다. 코드는 시작할 때 이 파일을 읽고 검증합니다.
+# - 노드를 추가·삭제하거나 키·라벨·설명·규칙을 바꾸면 revision을 1 올립니다.
+#   새 revision이 되면 `news-insight cards classify --backfill`이 기존 카드를 다시 분류합니다.
+# - key: 소문자·숫자·밑줄(영문 소문자로 시작, 40자 이하). 저장·필터·URL에 쓰이므로 되도록 바꾸지 않습니다.
+# - label: 화면에 보이는 한국어 이름.
+# - description: 경계를 긋는 한 줄 설명. examples와 함께 LLM 프롬프트에 그대로 들어갑니다.
+# - 엔진이 이 파일에 없는 키를 내면 버립니다(fail-closed).
+# 상태: 확정 v1 (2026-10-04, 선택 마법사). 사업부 축은 두지 않습니다.
+version: 1
+revision: 1
+
+rules:
+  max_fields: 3      # 기사당 기술 분야 0~3개
+  max_products: 3    # 기사당 제품군 0~3개 (영향은 항상 정확히 1개)
+  # 모든 축에 공통으로 적용되는 분류 규칙 (프롬프트에 그대로 들어감)
+  guidance:
+    - 기사 핵심과 직접 관련된 것만 고른다. 스치듯 언급된 분야·제품은 고르지 않는다.
+    - 메모리·파운드리 증설 같은 반도체 자산 투자 자체는 분류 대상이 아니다. 공장·장비 설비 투자(capex) 기사도 같다. 이런 기사는 fields·products를 비우고 impact는 watch로 둔다.
+    - chipset은 완제품의 성능·원가·출시 일정에 영향을 주는 부품 이슈에만 쓴다.
+    - 설명의 괄호 안 경계를 따른다. 예를 들어 기기 안 AI는 ai, 클라우드 AI 서비스는 genai_service.
+    - impact는 완제품(스마트폰·가전·TV·웨어러블 등) 사업 관점에서 판단한다. 판단이 어려우면 watch.
+
+axes:
+  field:
+    nodes:
+      - key: ai
+        label: 온디바이스 AI·모델
+        description: 기기 안에서 도는 AI, 모델 경량화·NPU 추론 (클라우드 AI 서비스는 genai_service)
+        examples: [온디바이스 LLM, NPU 추론 최적화, 기기 내 AI 비서]
+      - key: genai_service
+        label: 생성형 AI 서비스
+        description: 클라우드 기반 대형 모델과 AI 서비스·에이전트 (기기 안에서 돌면 ai)
+        examples: [새 대형 언어 모델 공개, AI 챗봇 서비스, AI 에이전트 플랫폼]
+      - key: display
+        label: 디스플레이
+        description: 패널 기술(OLED·마이크로LED·LCD), 폴더블·롤러블 패널, 화질·주사율
+        examples: [마이크로LED, 폴더블 OLED 주름, 저전력 LTPO]
+      - key: network
+        label: 통신·네트워크
+        description: 5G·5G Advanced·6G, Wi-Fi·블루투스·UWB, 위성 통신, 모뎀 (가정 내 연결 표준은 smarthome)
+        examples: [6G 표준, Wi-Fi 7, 위성 문자]
+      - key: chipset
+        label: 칩셋·부품
+        description: 완제품에 들어가는 AP·모뎀·메모리 등 부품의 성능·수급·원가 이슈 (반도체 설비 투자는 제외)
+        examples: [스냅드래곤 신제품, 메모리 가격 상승의 완제품 원가 영향]
+      - key: camera
+        label: 카메라·센서
+        description: 이미지 센서, 카메라 모듈·영상 처리, 각종 센서(ToF·라이다·환경)
+        examples: [2억 화소 센서, 컴퓨테이셔널 포토그래피]
+      - key: audio
+        label: 오디오·음향
+        description: 공간 음향, 오디오 코덱, 노이즈 캔슬링, 보청 기능
+        examples: [공간 음향, LE 오디오, 보청기 모드]
+      - key: power
+        label: 배터리·전력
+        description: 배터리·충전·전력 효율 부품 기술 (가정 에너지 운영은 energy)
+        examples: [실리콘 음극 배터리, Qi2 충전, 발열 관리]
+      - key: energy
+        label: 에너지 관리
+        description: 가정 에너지 효율, ESS, 수요 반응 등 에너지 운영 (기기 배터리·충전 부품은 power)
+        examples: [가정용 ESS, 수요 반응 요금제, 에너지 절감 모드]
+      - key: robotics
+        label: 로보틱스
+        description: 가정용·서비스·휴머노이드 로봇, 로봇 지능과 구동 부품
+        examples: [휴머노이드, 로봇청소기 자율주행]
+      - key: xr
+        label: XR·공간 컴퓨팅
+        description: VR·AR·MR 기술, 공간 컴퓨팅 UX·콘텐츠, 스마트 글래스 기술
+        examples: [AR 글래스 광학, 공간 컴퓨팅 OS]
+      - key: health
+        label: 헬스·바이오센싱
+        description: 생체 신호 측정, 디지털 헬스 기능, 의료 인증과 건강 데이터
+        examples: [비침습 혈당, 수면 무호흡 감지]
+      - key: security
+        label: 보안·프라이버시
+        description: 기기·계정 보안, 취약점·해킹, 개인정보 보호와 암호화 (양자 내성 암호는 quantum)
+        examples: [제로데이 취약점, 패스키, 온디바이스 프라이버시]
+      - key: platform
+        label: OS·플랫폼
+        description: 모바일·가전 OS와 앱 생태계·앱 마켓·플랫폼 정책 (가정 내 연결 표준은 smarthome, 개발 도구는 devtools)
+        examples: [안드로이드 새 버전, 앱 마켓 수수료]
+      - key: smarthome
+        label: 스마트홈 연결
+        description: Matter·Thread 등 가정 내 연결 표준, 홈 허브, 기기 간 자동화
+        examples: [Matter 지원, Thread 보더 라우터, 홈 자동화 루틴]
+      - key: devtools
+        label: 개발 도구·SDK
+        description: SDK, AI 코딩 도구, 빌드·배포 도구와 개발자 프레임워크
+        examples: [새 SDK 공개, AI 코딩 어시스턴트, 빌드 도구]
+      - key: cloud
+        label: 클라우드·엣지
+        description: 클라우드·엣지 인프라와 서비스, 하이브리드 추론 (데이터센터 설비 투자 자체는 제외, AI 서비스 자체는 genai_service)
+        examples: [하이브리드 AI 추론, 엣지 서버]
+      - key: commerce
+        label: 결제·디지털 지갑
+        description: 모바일 결제, 디지털 지갑, 디지털 신분증
+        examples: [모바일 결제, 디지털 운전면허증, 지갑 앱]
+      - key: mobility
+        label: 모빌리티·SDV
+        description: 소프트웨어 중심 차량(SDV), 차량 인포테인먼트·자율주행 SW, 차량 연결
+        examples: [차량용 OS, 디지털 키, ADAS 소프트웨어]
+      - key: manufacturing
+        label: 스마트 제조
+        description: 공장 자동화, 품질 검사 AI, 디지털 트윈 (장비·설비 투자 기사는 제외)
+        examples: [AI 비전 검사, 디지털 트윈 공장]
+      - key: materials
+        label: 소재·지속가능성
+        description: 신소재, 재활용·탄소 감축, 친환경 규제 대응
+        examples: [재활용 알루미늄, 탄소중립 공정]
+      - key: quantum
+        label: 양자 기술
+        description: 양자 내성 암호, 양자 컴퓨터 로드맵, 양자 통신
+        examples: [PQC 적용, 양자 컴퓨터 로드맵]
+      - key: policy
+        label: 정책·규제·표준
+        description: 정부 정책·규제, 무역·관세, 표준화 기구 결정과 소송
+        examples: [EU AI 법, 관세, 3GPP 표준 확정, 특허 소송]
+  product:
+    nodes:
+      - key: phone
+        label: 스마트폰
+        description: 바(bar)형 스마트폰과 피처폰 (접는 폰은 foldable)
+        examples: [갤럭시 S, 아이폰, 픽셀]
+      - key: foldable
+        label: 폴더블
+        description: 폴더블·롤러블·트라이폴드 등 접거나 늘리는 기기
+        examples: [갤럭시 Z 폴드, 플립]
+      - key: tablet_pc
+        label: 태블릿·PC
+        description: 태블릿, 노트북, 데스크톱 PC 본체 (주변기기는 pc_peripheral)
+        examples: [갤럭시 탭, 아이패드, AI PC]
+      - key: pc_peripheral
+        label: PC 주변기기
+        description: 키보드·마우스·웹캠·외장 저장장치·도킹 등 PC 주변기기 (모니터는 tv_monitor)
+        examples: [무선 키보드, 웹캠, 외장 SSD]
+      - key: wearable
+        label: 웨어러블
+        description: 워치·밴드·링 등 몸에 차는 기기 (이어버드는 earbuds_audio, 헤드셋·글래스는 xr_device)
+        examples: [갤럭시 워치, 스마트 밴드, 스마트 링]
+      - key: earbuds_audio
+        label: 이어버드·오디오
+        description: 무선 이어버드, 헤드폰, 사운드바와 스피커 (음성 비서 스피커는 smart_speaker)
+        examples: [갤럭시 버즈, 노이즈 캔슬링 헤드폰, 사운드바]
+      - key: tv_monitor
+        label: TV·모니터
+        description: 가정용 TV·모니터·프로젝터 (상업용은 signage)
+        examples: [OLED TV, 게이밍 모니터]
+      - key: signage
+        label: 상업용 디스플레이
+        description: 사이니지, LED 월, 전자 칠판 등 상업·교육용 디스플레이
+        examples: [디지털 사이니지, LED 월, 전자 칠판]
+      - key: appliance
+        label: 생활가전
+        description: 주방·세탁·청소 가전 (공조는 hvac, 로봇은 home_robot_iot)
+        examples: [AI 세탁기, 냉장고, 무선 청소기]
+      - key: hvac
+        label: 공조·HVAC
+        description: 에어컨, 히트펌프, 공기청정·환기 등 공기 관리 기기
+        examples: [히트펌프, 시스템 에어컨, 공기청정기]
+      - key: home_robot_iot
+        label: 홈로봇·IoT
+        description: 홈로봇, 로봇청소기, IoT 센서·스마트 조명·도어록 (허브·스피커는 smart_speaker)
+        examples: [홈로봇, 로봇청소기, 스마트 도어록]
+      - key: smart_speaker
+        label: 스마트 스피커·허브
+        description: 음성 비서 스피커, 스마트홈 허브·디스플레이 허브
+        examples: [AI 스피커, 홈 허브]
+      - key: home_energy
+        label: 가정용 에너지 기기
+        description: 태양광 인버터, 가정용 ESS, EV 충전기
+        examples: [가정용 ESS, 완속 EV 충전기, 태양광 인버터]
+      - key: xr_device
+        label: XR 기기
+        description: VR·MR 헤드셋, AR·스마트 글래스
+        examples: [헤드셋, AI 안경]
+      - key: camera_drone
+        label: 카메라·드론
+        description: 디지털·액션 카메라, 짐벌, 소비자용 드론
+        examples: [액션캠, 미러리스, 촬영용 드론]
+      - key: network_equipment
+        label: 네트워크 장비
+        description: 기지국·코어망·RAN 장비, 공유기와 통신 인프라 장비
+        examples: [vRAN, 5G 기지국, Wi-Fi 공유기]
+      - key: automotive
+        label: 전장
+        description: 차량용 디스플레이·인포테인먼트·전자 부품과 차량 시스템
+        examples: [차량용 OLED, 인포테인먼트 시스템]
+      - key: medical_device
+        label: 의료기기
+        description: 의료 인증 기기, 진단·모니터링 기기와 디지털 치료
+        examples: [FDA 인증 심전도, 혈압 측정 기기]
+  impact:
+    nodes:
+      - key: opportunity
+        label: 기회
+        description: 신기술·신시장·경쟁사 약점 등 완제품 사업에 유리하게 쓸 수 있는 신호
+      - key: risk
+        label: 위험
+        description: 경쟁 위협, 규제·소송, 공급망·원가 부담, 보안 사고 등 불리한 신호
+      - key: watch
+        label: 관찰
+        description: 아직 방향이 정해지지 않았거나 영향이 작아 지켜볼 신호

@@ -18,6 +18,9 @@ from news_insight.cards.service import (
     pending_items,
     run_cards,
 )
+from news_insight.classify.models import ItemKeyword, ItemLabel, Keyword, LabelMethod
+from news_insight.classify.store import current_labels
+from news_insight.classify.taxonomy import Axis, get_taxonomy
 from news_insight.collect.contracts import RawItem
 from news_insight.content.ingest import ingest_items
 from news_insight.content.models import Item
@@ -31,9 +34,16 @@ POLICY = CardPolicy(agy_batch=2, qwen_batch=1, time_budget_seconds=1000)
 
 class FakeEngine:
     def __init__(
-        self, name: str, *, fail: Exception | None = None, skip: frozenset[str] = frozenset()
+        self,
+        name: str,
+        *,
+        fail: Exception | None = None,
+        skip: frozenset[str] = frozenset(),
+        labels: dict[str, Any] | None = None,
+        keywords: list[str] | None = None,
     ) -> None:
         self.name, self.fail, self.skip = name, fail, skip
+        self.labels, self.keywords = labels or {}, keywords or ["k"]
         self.batches: list[list[int]] = []
 
     def generate(self, inputs: list[CardInput]) -> EngineOutput:
@@ -45,7 +55,8 @@ class FakeEngine:
                 "id": c.id,
                 "title_ko": f"[{self.name}] {c.title}",
                 "summary_ko": ["요약"],
-                "keywords": ["k"],
+                "keywords": self.keywords,
+                **self.labels,
             }
             for c in inputs
             if c.title not in self.skip
@@ -158,6 +169,51 @@ def test_missing_cards_retry_then_give_up(db_session: Session) -> None:
     card = cards(db_session)["bad"]
     assert (card.status, card.attempts) == (CardStatus.FAILED, MAX_ATTEMPTS)
     assert pending_items(db_session, limit=10) == []
+
+
+def keyword_names(db_session: Session, item_id: int) -> list[str]:
+    return list(
+        db_session.scalars(
+            select(Keyword.canonical)
+            .join(ItemKeyword, ItemKeyword.keyword_id == Keyword.id)
+            .where(ItemKeyword.item_id == item_id)
+        )
+    )
+
+
+def test_cards_store_taxonomy_labels_and_canonical_keywords(db_session: Session) -> None:
+    seed(db_session, ["a"])
+    qwen = FakeEngine(
+        "qwen",
+        labels={"fields": ["ai", "warp_drive"], "products": ["phone"], "impact": "risk"},
+        keywords=["온디바이스AI", "On-device AI", "#갤럭시"],
+    )
+
+    run_cards(scope_for(db_session), agy=None, qwen=qwen, policy=POLICY)
+
+    card = cards(db_session)["a"]
+    assert card.taxonomy_rev == get_taxonomy().revision
+    assert current_labels(db_session, [card.item_id])[card.item_id] == {
+        Axis.FIELD: ["ai"],
+        Axis.PRODUCT: ["phone"],
+        Axis.IMPACT: ["risk"],
+    }
+    rows = list(db_session.scalars(select(ItemLabel)))
+    assert {(row.method, row.engine, row.model) for row in rows} == {
+        (LabelMethod.LLM, "qwen", "qwen-model")
+    }
+    assert sorted(keyword_names(db_session, card.item_id)) == ["갤럭시", "온디바이스 AI"]
+
+
+def test_cards_without_labels_are_left_for_the_backfill(db_session: Session) -> None:
+    seed(db_session, ["a"])
+
+    run_cards(scope_for(db_session), agy=None, qwen=FakeEngine("qwen"), policy=POLICY)
+
+    card = cards(db_session)["a"]
+    assert card.status == CardStatus.READY and card.taxonomy_rev is None
+    assert current_labels(db_session, [card.item_id]) == {}
+    assert keyword_names(db_session, card.item_id) == ["k"]
 
 
 def test_changed_items_are_regenerated(db_session: Session) -> None:

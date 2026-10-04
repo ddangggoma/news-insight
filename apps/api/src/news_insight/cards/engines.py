@@ -1,6 +1,8 @@
 """Card engines: Antigravity CLI (Gemini Flash, primary) and local Qwen via LM Studio (fallback).
 
 Both run without tools and only see public item metadata plus the stored excerpt (D18).
+Each engine answers two structured-output tasks: full cards (`generate`) and taxonomy labels
+for existing cards (`classify`, title and summary only, used by the backfill).
 """
 
 import json
@@ -8,13 +10,22 @@ import os
 import re
 import subprocess
 import tempfile
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from typing import Any, Protocol
 
 import httpx
+from pydantic import BaseModel
 
-from news_insight.cards.schemas import CARD_BATCH_SCHEMA, CARD_INSTRUCTIONS, CardInput
+from news_insight.cards.schemas import (
+    CardInput,
+    LabelInput,
+    card_batch_schema,
+    card_instructions,
+    label_batch_schema,
+    label_instructions,
+)
+from news_insight.classify.taxonomy import Taxonomy, get_taxonomy
 from news_insight.digest.claude import safe_env
 
 Runner = Callable[..., subprocess.CompletedProcess[str]]
@@ -66,14 +77,46 @@ class CardEngine(Protocol):
     def generate(self, inputs: list[CardInput]) -> EngineOutput: ...
 
 
+class LabelEngine(Protocol):
+    """An engine that classifies existing cards from their Korean title and summary."""
+
+    name: str
+
+    def classify(self, inputs: list[LabelInput]) -> EngineOutput: ...
+
+
 class MeteredEngine(CardEngine, Protocol):
     """An engine with a usage limit it can report (Antigravity)."""
 
     def usage(self) -> Quota: ...
 
 
-def _payload(inputs: list[CardInput]) -> str:
+class MeteredLabelEngine(LabelEngine, Protocol):
+    def usage(self) -> Quota: ...
+
+
+@dataclass(frozen=True)
+class Task:
+    """One structured-output request: instructions, JSON payload and output schema."""
+
+    name: str
+    instructions: str
+    payload: str
+    schema: dict[str, Any]
+
+
+def _payload(inputs: Sequence[BaseModel]) -> str:
     return json.dumps([card.model_dump() for card in inputs], ensure_ascii=False)
+
+
+def card_task(inputs: list[CardInput], taxonomy: Taxonomy) -> Task:
+    return Task("cards", card_instructions(taxonomy), _payload(inputs), card_batch_schema(taxonomy))
+
+
+def label_task(inputs: list[LabelInput], taxonomy: Taxonomy) -> Task:
+    return Task(
+        "labels", label_instructions(taxonomy), _payload(inputs), label_batch_schema(taxonomy)
+    )
 
 
 class AgyEngine:
@@ -88,11 +131,13 @@ class AgyEngine:
         model: str,
         timeout_seconds: int,
         runner: Runner = subprocess.run,
+        taxonomy: Taxonomy | None = None,
     ) -> None:
         self._executable = executable
         self._model = model
         self._timeout = timeout_seconds
         self._runner = runner
+        self._taxonomy = taxonomy or get_taxonomy()
 
     def _run(self, args: list[str]) -> dict[str, Any]:
         with tempfile.TemporaryDirectory(prefix="cards-") as workdir:
@@ -129,7 +174,13 @@ class AgyEngine:
         return parse_usage(str(envelope.get("response", "")))
 
     def generate(self, inputs: list[CardInput]) -> EngineOutput:
-        prompt = f"{CARD_INSTRUCTIONS}\n입력:\n{_payload(inputs)}"
+        return self._complete(card_task(inputs, self._taxonomy))
+
+    def classify(self, inputs: list[LabelInput]) -> EngineOutput:
+        return self._complete(label_task(inputs, self._taxonomy))
+
+    def _complete(self, task: Task) -> EngineOutput:
+        prompt = f"{task.instructions}\n입력:\n{task.payload}"
         envelope = self._run(
             [
                 "-p",
@@ -139,7 +190,7 @@ class AgyEngine:
                 "--output-format",
                 "json",
                 "--json-schema",
-                json.dumps(CARD_BATCH_SCHEMA),
+                json.dumps(task.schema),
                 "--disable-slash-commands",
                 "--print-timeout",
                 f"{self._timeout}s",
@@ -174,23 +225,31 @@ class QwenEngine:
         model: str,
         timeout_seconds: int,
         client: httpx.Client | None = None,
+        taxonomy: Taxonomy | None = None,
     ) -> None:
         self._url = base_url.rstrip("/") + "/v1/chat/completions"
         self._model = model
         self._client = client or httpx.Client(timeout=timeout_seconds, trust_env=False)
+        self._taxonomy = taxonomy or get_taxonomy()
 
     def generate(self, inputs: list[CardInput]) -> EngineOutput:
+        return self._complete(card_task(inputs, self._taxonomy))
+
+    def classify(self, inputs: list[LabelInput]) -> EngineOutput:
+        return self._complete(label_task(inputs, self._taxonomy))
+
+    def _complete(self, task: Task) -> EngineOutput:
         body = {
             "model": self._model,
             "temperature": 0,
             "reasoning_effort": "none",
             "messages": [
-                {"role": "system", "content": CARD_INSTRUCTIONS},
-                {"role": "user", "content": _payload(inputs)},
+                {"role": "system", "content": task.instructions},
+                {"role": "user", "content": task.payload},
             ],
             "response_format": {
                 "type": "json_schema",
-                "json_schema": {"name": "cards", "strict": True, "schema": CARD_BATCH_SCHEMA},
+                "json_schema": {"name": task.name, "strict": True, "schema": task.schema},
             },
         }
         try:

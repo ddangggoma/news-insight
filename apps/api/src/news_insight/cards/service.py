@@ -13,12 +13,16 @@ from sqlalchemy.orm import Session
 from news_insight.cards.engines import (
     CardEngine,
     EngineError,
+    EngineOutput,
     MeteredEngine,
     Quota,
-    QuotaExhausted,
 )
 from news_insight.cards.models import CardRun, CardStatus, ItemCard
 from news_insight.cards.schemas import CardDraft, CardInput, parse_drafts
+from news_insight.classify.keywords import AliasSeed, get_alias_seed
+from news_insight.classify.models import LabelMethod
+from news_insight.classify.store import apply_labels, link_keywords
+from news_insight.classify.taxonomy import Labels, Taxonomy, get_taxonomy
 from news_insight.content.models import Item
 from news_insight.content.normalize import truncate
 from news_insight.sources.models import Source
@@ -75,6 +79,30 @@ def card_input(item: Item, source: Source) -> CardInput:
     )
 
 
+def store_labels(
+    session: Session,
+    card: ItemCard,
+    labels: Labels | None,
+    *,
+    taxonomy: Taxonomy,
+    engine: str,
+    model: str,
+    now: datetime,
+) -> None:
+    """Record the card's taxonomy labels; None (engine sent none) leaves it for the backfill."""
+    apply_labels(
+        session,
+        card.item_id,
+        labels,
+        taxonomy_rev=taxonomy.revision,
+        method=LabelMethod.LLM,
+        engine=engine,
+        model=model,
+        now=now,
+    )
+    card.taxonomy_rev = taxonomy.revision if labels is not None else None
+
+
 def store_result(
     session: Session,
     item: Item,
@@ -84,6 +112,8 @@ def store_result(
     model: str,
     error: str | None,
     now: datetime,
+    taxonomy: Taxonomy | None = None,
+    seed: AliasSeed | None = None,
 ) -> ItemCard:
     card = session.scalars(select(ItemCard).where(ItemCard.item_id == item.id)).one_or_none()
     if card is None:
@@ -101,6 +131,24 @@ def store_result(
             draft.keywords,
         )
         card.attempts, card.error = 0, None
+        session.flush()
+        store_labels(
+            session,
+            card,
+            draft.labels,
+            taxonomy=taxonomy or get_taxonomy(),
+            engine=engine,
+            model=model,
+            now=now,
+        )
+        link_keywords(
+            session,
+            item.id,
+            draft.keywords,
+            seen_at=item.first_seen_at,
+            now=now,
+            seed=seed or get_alias_seed(),
+        )
     else:
         card.status = CardStatus.FAILED
         card.attempts = 1 if changed else card.attempts + 1
@@ -127,6 +175,75 @@ class CardPolicy:
     time_budget_seconds: float = 540.0
 
 
+@dataclass(frozen=True)
+class Lane[T]:
+    """One engine as the run driver sees it: its batch size, the call and its quota probe."""
+
+    name: str
+    batch: int
+    call: Callable[[list[T]], EngineOutput]
+    usage: Callable[[], Quota] | None = None
+
+
+def drive_engines[T](
+    primary: Lane[T] | None,
+    fallback: Lane[T] | None,
+    *,
+    policy: CardPolicy,
+    stats: CardRunStats,
+    load: Callable[[int], list[T]],
+    store: Callable[[str, list[T], EngineOutput], None],
+    monotonic: Callable[[], float] = time.monotonic,
+) -> None:
+    """Run batches until `load` has nothing left or the time budget is spent.
+
+    The primary (Antigravity) is used while its quota allows (D18); when it is spent,
+    unavailable or failing, the run continues on the fallback (local Qwen, user request
+    2026-10-04). A fallback failure stops the run and leaves the rest for the next one.
+    """
+    deadline = monotonic() + policy.time_budget_seconds
+    use_primary = primary is not None
+    switch = f"switching to {fallback.name}" if fallback else "no fallback engine"
+
+    def refresh_quota() -> None:
+        nonlocal use_primary
+        if primary is None or primary.usage is None or not use_primary:
+            return
+        try:
+            quota = primary.usage()
+        except EngineError as exc:
+            stats.notes.append(f"{primary.name} usage unavailable: {exc}")
+            use_primary = False
+            return
+        stats.quota = quota.as_dict()
+        if not quota.usable(min_weekly=policy.min_weekly, min_five_hour=policy.min_five_hour):
+            stats.notes.append(f"{primary.name} quota reserved ({quota.as_dict()}): {switch}")
+            use_primary = False
+
+    refresh_quota()
+    while monotonic() < deadline:
+        lane = primary if use_primary else fallback
+        if lane is None:
+            stats.notes.append("no engine available")
+            break
+        inputs = load(lane.batch)
+        if not inputs:
+            break
+        try:
+            output = lane.call(inputs)
+        except EngineError as exc:
+            if lane is primary:
+                stats.notes.append(f"{exc}: {switch}")
+                use_primary = False
+                continue
+            stats.notes.append(str(exc))
+            break  # local model down: leave items pending for the next run
+        store(lane.name, inputs, output)
+        stats.batches[lane.name] = stats.batches.get(lane.name, 0) + 1
+        if lane is primary:
+            refresh_quota()
+
+
 def run_cards(
     open_session: SessionScope,
     *,
@@ -135,59 +252,20 @@ def run_cards(
     policy: CardPolicy,
     clock: Clock = _now,
     monotonic: Callable[[], float] = time.monotonic,
+    taxonomy: Taxonomy | None = None,
+    seed: AliasSeed | None = None,
 ) -> CardRunStats:
-    """Generate cards until nothing is pending or the time budget is spent.
-
-    Antigravity is used while its quota allows (D18); when it is spent, unavailable or
-    failing, the run continues on local Qwen (user request, 2026-10-04).
-    """
+    """Generate cards (with taxonomy labels and canonical keywords) for pending items."""
     stats = CardRunStats()
-    deadline = monotonic() + policy.time_budget_seconds
-    use_agy = agy is not None
-    quota = Quota(weekly=None, five_hour=None)
+    taxonomy = taxonomy or get_taxonomy()
+    seed = seed or get_alias_seed()
 
-    def refresh_quota() -> None:
-        nonlocal use_agy, quota
-        if agy is None or not use_agy:
-            return
-        try:
-            quota = agy.usage()
-        except EngineError as exc:
-            stats.notes.append(f"agy usage unavailable: {exc}")
-            use_agy = False
-            return
-        stats.quota = quota.as_dict()
-        if not quota.usable(min_weekly=policy.min_weekly, min_five_hour=policy.min_five_hour):
-            stats.notes.append(f"agy quota reserved ({quota.as_dict()}): switching to qwen")
-            use_agy = False
-
-    refresh_quota()
-    while monotonic() < deadline:
-        engine: CardEngine | None = agy if use_agy else qwen
-        if engine is None:
-            stats.notes.append("no engine available")
-            break
-        size = policy.agy_batch if use_agy else policy.qwen_batch
+    def load(size: int) -> list[CardInput]:
         with open_session() as session:
-            inputs = [
-                card_input(item, source) for item, source in pending_items(session, limit=size)
-            ]
-        if not inputs:
-            break
-        try:
-            output = engine.generate(inputs)
-        except QuotaExhausted as exc:
-            stats.notes.append(f"{exc}: switching to qwen")
-            use_agy = False
-            continue
-        except EngineError as exc:
-            if engine is agy:
-                stats.notes.append(f"{exc}: switching to qwen")
-                use_agy = False
-                continue
-            stats.notes.append(str(exc))
-            break  # local model down: leave items pending for the next run
-        drafts = parse_drafts(output.raw, inputs)
+            return [card_input(item, source) for item, source in pending_items(session, limit=size)]
+
+    def store(engine: str, inputs: list[CardInput], output: EngineOutput) -> None:
+        drafts = parse_drafts(output.raw, inputs, taxonomy)
         now = clock()
         with open_session() as session:
             for card in inputs:
@@ -199,18 +277,27 @@ def run_cards(
                     session,
                     item,
                     draft,
-                    engine=engine.name,
+                    engine=engine,
                     model=output.model,
                     error=None if draft else "missing or invalid in engine output",
                     now=now,
+                    taxonomy=taxonomy,
+                    seed=seed,
                 )
                 if draft:
                     stats.ready += 1
                 else:
                     stats.failed += 1
-        stats.batches[engine.name] = stats.batches.get(engine.name, 0) + 1
-        if engine is agy:
-            refresh_quota()
+
+    drive_engines(
+        Lane(agy.name, policy.agy_batch, agy.generate, agy.usage) if agy else None,
+        Lane(qwen.name, policy.qwen_batch, qwen.generate) if qwen else None,
+        policy=policy,
+        stats=stats,
+        load=load,
+        store=store,
+        monotonic=monotonic,
+    )
     return stats
 
 
