@@ -6,9 +6,6 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from news_insight.cards.models import CardRun, CardStatus, ItemCard
-from news_insight.classify.models import LabelMethod
-from news_insight.classify.store import apply_labels
-from news_insight.classify.taxonomy import Axis, get_taxonomy
 from news_insight.collect.contracts import RawItem
 from news_insight.content.ingest import ingest_items
 from news_insight.content.models import Item
@@ -16,7 +13,6 @@ from news_insight.sources.enums import Region, Track
 from tests.factories import build_source
 
 pytestmark = pytest.mark.db
-REV = get_taxonomy().revision
 
 
 def seed(db_session: Session) -> dict[str, int]:
@@ -88,70 +84,7 @@ def seed(db_session: Session) -> dict[str, int]:
         ]
     )
     db_session.flush()
-    apply_labels(
-        db_session,
-        ids["Galaxy S30"],
-        {Axis.FIELD: ["ai", "display"], Axis.PRODUCT: ["phone"], Axis.IMPACT: ["opportunity"]},
-        taxonomy_rev=REV,
-        method=LabelMethod.LLM,
-        engine="agy",
-        model="gemini",
-        now=now,
-    )
-    apply_labels(
-        db_session,
-        ids["긱뉴스 글"],
-        # "retired_key" stands for a node removed from the taxonomy since: never shown.
-        {Axis.FIELD: ["retired_key", "devtools"], Axis.PRODUCT: [], Axis.IMPACT: ["risk"]},
-        taxonomy_rev=REV,
-        method=LabelMethod.LLM,
-        engine="qwen",
-        model="qwen",
-        now=now,
-    )
     return ids
-
-
-def test_card_feed_shows_and_filters_taxonomy_labels(
-    console_client: TestClient, headers: dict[str, str], db_session: Session
-) -> None:
-    seed(db_session)
-
-    def titles(query: str) -> list[str]:
-        response = console_client.get(f"/api/admin/cards?{query}", headers=headers)
-        assert response.status_code == 200, response.text
-        return [view["card"]["title_ko"] for view in response.json()["items"]]
-
-    feed = console_client.get("/api/admin/cards?field=ai", headers=headers).json()
-    card = feed["items"][0]["card"]
-    assert card["fields"] == [
-        {"key": "ai", "label": "온디바이스 AI·모델"},
-        {"key": "display", "label": "디스플레이"},
-    ]
-    assert card["products"] == [{"key": "phone", "label": "스마트폰"}]
-    assert card["impact"] == {"key": "opportunity", "label": "기회"}
-    assert titles("field=devtools") == ["긱뉴스 글"]
-    assert titles("product=phone&impact=opportunity") == ["갤럭시 S30 공개"]
-    assert titles("impact=watch") == []
-    community = console_client.get("/api/admin/cards?impact=risk", headers=headers).json()
-    assert [f["key"] for f in community["items"][0]["card"]["fields"]] == ["devtools"]
-    unknown = console_client.get("/api/admin/cards?field=retired_key", headers=headers)
-    assert unknown.status_code == 422
-
-
-def test_taxonomy_endpoint_lists_the_current_revision(
-    console_client: TestClient, headers: dict[str, str]
-) -> None:
-    taxonomy = console_client.get("/api/admin/taxonomy", headers=headers).json()
-
-    assert taxonomy["revision"] == REV
-    assert taxonomy["max_fields"] == 3 and taxonomy["max_products"] == 3
-    assert len(taxonomy["fields"]) == 23 and len(taxonomy["products"]) == 18
-    assert taxonomy["impacts"][0] == {
-        "key": "opportunity",
-        "label": "기회",
-        "description": taxonomy["impacts"][0]["description"],
-    }
 
 
 def test_card_feed_filters_and_searches(
@@ -186,5 +119,3 @@ def test_card_stats_and_korean_titles_on_items(
     assert stats["last_run"]["quota"] == {"weekly": 80, "five_hour": 50}
     assert items["items"][0]["title_ko"] == "갤럭시 S30 공개"
     assert detail["card"]["keywords"] == ["삼성", "갤럭시"]
-    assert detail["card"]["impact"] == {"key": "opportunity", "label": "기회"}
-    assert [f["key"] for f in detail["card"]["fields"]] == ["ai", "display"]

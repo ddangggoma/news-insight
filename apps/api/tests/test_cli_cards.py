@@ -8,7 +8,7 @@ from typer.testing import CliRunner
 
 from news_insight import cli
 from news_insight.cards.engines import EngineOutput
-from news_insight.cards.schemas import CardInput, LabelInput
+from news_insight.cards.schemas import CardInput
 from news_insight.collect.contracts import RawItem
 from news_insight.content.ingest import ingest_items
 from tests.factories import build_source
@@ -23,10 +23,6 @@ class Qwen:
     def generate(self, inputs: list[CardInput]) -> EngineOutput:
         cards = [{"id": c.id, "title_ko": "카드", "summary_ko": [], "keywords": []} for c in inputs]
         return EngineOutput(raw={"cards": cards}, model="qwen-test")
-
-    def classify(self, inputs: list[LabelInput]) -> EngineOutput:
-        labels = [{"id": c.id, "fields": ["ai"], "products": [], "impact": "watch"} for c in inputs]
-        return EngineOutput(raw={"labels": labels}, model="qwen-test")
 
 
 @pytest.fixture(autouse=True)
@@ -61,21 +57,3 @@ def test_cards_run_and_status() -> None:
     assert "ready=1 failed=0 batches: qwen=1" in run.output
     assert "pending=0 ready=1" in after.output
     assert "last run" in after.output
-
-
-def test_cards_classify_reports_then_backfills_idempotently() -> None:
-    runner.invoke(cli.app, ["cards", "run", "--qwen-only", "--budget", "60"])
-
-    before = runner.invoke(cli.app, ["cards", "classify"])
-    backfill = runner.invoke(
-        cli.app, ["cards", "classify", "--backfill", "--qwen-only", "--limit", "10"]
-    )
-    again = runner.invoke(cli.app, ["cards", "classify", "--backfill", "--qwen-only"])
-    after = runner.invoke(cli.app, ["cards", "classify"])
-
-    assert before.exit_code == 0, before.output
-    assert "unclassified=1" in before.output and "--backfill" in before.output
-    assert backfill.exit_code == 0, backfill.output
-    assert "labels: ready=1 failed=0 batches: qwen=1" in backfill.output
-    assert "labels: ready=0 failed=0 batches: -" in again.output
-    assert "unclassified=0" in after.output

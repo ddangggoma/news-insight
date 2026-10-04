@@ -12,10 +12,9 @@ from news_insight.cards.engines import (
     QwenEngine,
     parse_usage,
 )
-from news_insight.cards.schemas import CardInput, LabelInput
+from news_insight.cards.schemas import CardInput
 
 INPUTS = [CardInput(id=7, title="Pixel 11", source="9to5Google", language="en", excerpt=None)]
-LABELS = [LabelInput(id=8, title="폴드 8", summary=["더 얇아졌다"])]
 USAGE = (
     "Gemini Models\tWeekly Limit Remaining\t42%\t2026-10-10T03:49:33Z\n"
     "Gemini Models\tFive Hour Limit Remaining\t7%\t2026-10-03T16:18:41Z\n"
@@ -60,23 +59,6 @@ def test_agy_generates_with_schema_without_slash_commands_and_secrets() -> None:
     assert args[args.index("--model") + 1] == "gemini-flash"
     assert "SOURCE_SECRET_GITHUB_TOKEN" not in call["env"]
     assert output.raw == {"cards": []}
-    assert "분류 체계 (revision" in args[2]
-    schema = json.loads(args[args.index("--json-schema") + 1])
-    card = schema["properties"]["cards"]["items"]["properties"]
-    assert "genai_service" in card["fields"]["items"]["enum"]
-
-
-def test_agy_classifies_title_and_summary_with_the_label_schema() -> None:
-    envelope = {"status": "SUCCESS", "structured_output": {"labels": []}}
-    runner = FakeRunner(json.dumps(envelope))
-
-    output = agy(runner).classify(LABELS)
-
-    args = runner.calls[0]["args"]
-    assert '"폴드 8"' in args[2] and "excerpt" not in args[2]
-    schema = json.loads(args[args.index("--json-schema") + 1])
-    assert schema["required"] == ["labels"]
-    assert output.raw == {"labels": []}
 
 
 @pytest.mark.parametrize(
@@ -118,30 +100,7 @@ def test_qwen_posts_schema_with_reasoning_off() -> None:
 
     assert seen[0]["reasoning_effort"] == "none"
     assert seen[0]["response_format"]["type"] == "json_schema"
-    assert "분류 체계" in seen[0]["messages"][0]["content"]
     assert output.raw["cards"][0]["title_ko"] == "픽셀 11"
-
-
-def test_qwen_classifies_with_the_label_schema() -> None:
-    seen: list[dict[str, Any]] = []
-
-    def handler(request: httpx.Request) -> httpx.Response:
-        seen.append(json.loads(request.content))
-        content = json.dumps({"labels": [{"id": 8, "fields": ["display"]}]})
-        return httpx.Response(200, json={"choices": [{"message": {"content": content}}]})
-
-    engine = QwenEngine(
-        base_url="http://lm:1234",
-        model="qwen",
-        timeout_seconds=5,
-        client=httpx.Client(transport=httpx.MockTransport(handler)),
-    )
-
-    output = engine.classify(LABELS)
-
-    schema = seen[0]["response_format"]["json_schema"]
-    assert schema["name"] == "labels" and schema["schema"]["required"] == ["labels"]
-    assert output.raw["labels"][0]["id"] == 8
 
 
 def test_qwen_errors_are_engine_errors() -> None:

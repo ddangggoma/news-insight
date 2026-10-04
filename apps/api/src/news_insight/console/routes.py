@@ -6,7 +6,6 @@ from typing import Annotated, Literal
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
-from news_insight.classify.taxonomy import Axis, get_taxonomy
 from news_insight.collect.dead_letters import DeadLetterError, dismiss, retry
 from news_insight.collect.models import DeadLetter, FetchOutcome
 from news_insight.console import cards as card_queries
@@ -26,7 +25,6 @@ from news_insight.console.schemas import (
     RunOut,
     SourceDetail,
     SourceRow,
-    TaxonomyOut,
 )
 from news_insight.db import get_db
 from news_insight.digest import service as digest_service
@@ -239,23 +237,9 @@ def list_cards(
     region: Region | None = None,
     days: Annotated[int | None, Query(ge=1, le=365)] = None,
     q: str | None = None,
-    field: str | None = None,
-    product: str | None = None,
-    impact: str | None = None,
     page: PageQ = 1,
     size: SizeQ = 60,
 ) -> Page[CardView]:
-    taxonomy = get_taxonomy()
-    labels: dict[Axis, str] = {}
-    for axis, key in ((Axis.FIELD, field), (Axis.PRODUCT, product), (Axis.IMPACT, impact)):
-        if key is None:
-            continue
-        if key not in taxonomy.keys(axis):
-            raise HTTPException(
-                status.HTTP_422_UNPROCESSABLE_CONTENT,
-                f"unknown {axis.value} '{key}' (taxonomy revision {taxonomy.revision})",
-            )
-        labels[axis] = key
     return card_queries.list_cards(
         session,
         track=track,
@@ -266,14 +250,7 @@ def list_cards(
         page=page,
         size=size,
         now=datetime.now(UTC),
-        labels=labels,
     )
-
-
-@router.get("/taxonomy")
-def get_taxonomy_nodes() -> TaxonomyOut:
-    """The card taxonomy (catalog/taxonomy.yaml) for filters and labels."""
-    return card_queries.taxonomy_out(get_taxonomy())
 
 
 @router.get("/cards/stats")

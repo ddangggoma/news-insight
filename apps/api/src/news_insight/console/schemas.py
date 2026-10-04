@@ -121,24 +121,6 @@ class ItemRow(BaseModel):
     title_ko: str | None = None
 
 
-class TaxonomyLabel(BaseModel):
-    key: str
-    label: str
-
-
-class TaxonomyNodeOut(TaxonomyLabel):
-    description: str
-
-
-class TaxonomyOut(BaseModel):
-    revision: int
-    max_fields: int
-    max_products: int
-    fields: list[TaxonomyNodeOut]
-    products: list[TaxonomyNodeOut]
-    impacts: list[TaxonomyNodeOut]
-
-
 class CardBody(BaseModel):
     title_ko: str | None
     summary_ko: list[str]
@@ -147,11 +129,6 @@ class CardBody(BaseModel):
     engine: str | None
     model: str | None
     generated_at: datetime
-    # Taxonomy labels (catalog/taxonomy.yaml); empty until the card is classified.
-    fields: list[TaxonomyLabel] = []
-    products: list[TaxonomyLabel] = []
-    impact: TaxonomyLabel | None = None
-    taxonomy_rev: int | None = None
 
 
 class CardView(BaseModel):

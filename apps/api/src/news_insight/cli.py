@@ -11,16 +11,9 @@ from zoneinfo import ZoneInfo
 import typer
 from sqlalchemy import func, select
 
-from news_insight.cards.backfill import (
-    relink_keywords,
-    run_classify,
-    unclassified_count,
-    unlinked_count,
-)
 from news_insight.cards.engines import AgyEngine, QwenEngine
 from news_insight.cards.models import CardRun, CardStatus, ItemCard
 from news_insight.cards.service import CardPolicy, pending_count, record_run, run_cards
-from news_insight.classify.taxonomy import get_taxonomy
 from news_insight.collect.dead_letters import DeadLetterError, dismiss, list_open, retry
 from news_insight.collect.models import FetchOutcome, SourceRuntime
 from news_insight.collect.service import collect_source
@@ -494,62 +487,6 @@ def cards_run(
     )
     for note in stats.notes:
         typer.echo(f"  note: {note}")
-
-
-@cards_app.command("classify")
-def cards_classify(
-    backfill: Annotated[
-        bool, typer.Option(help="Normalise keywords and classify unlabeled cards (else report)")
-    ] = False,
-    limit: Annotated[
-        int | None, typer.Option(min=1, help="At most this many cards per step")
-    ] = None,
-    budget: Annotated[int | None, typer.Option(help="Time budget in seconds")] = None,
-    qwen_only: Annotated[bool, typer.Option(help="Skip Antigravity and use local Qwen")] = False,
-    relink: Annotated[
-        bool, typer.Option(help="Recompute keyword links of every card (after alias edits)")
-    ] = False,
-) -> None:
-    """Taxonomy labels and canonical keywords for cards made before classification."""
-    taxonomy = get_taxonomy()
-    if not backfill:
-        with session_scope() as session:
-            typer.echo(
-                f"taxonomy revision={taxonomy.revision} "
-                f"unclassified={unclassified_count(session, taxonomy.revision)} "
-                f"unlinked_keywords={unlinked_count(session)}"
-            )
-        typer.echo("run with --backfill to classify (uses the card engines)")
-        return
-    settings = get_settings()
-    with CARDS_LOCK.open("w") as lock:
-        try:
-            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        except BlockingIOError:
-            typer.echo("another card run is active; skipping")
-            return
-        linked = relink_keywords(session_scope, limit=limit, relink_all=relink)
-        typer.echo(f"keywords: cards={linked}")
-        agy, qwen = _card_engines(qwen_only)
-        policy = CardPolicy(
-            agy_batch=settings.card_agy_batch,
-            qwen_batch=settings.card_qwen_batch,
-            min_weekly=settings.card_agy_min_weekly,
-            min_five_hour=settings.card_agy_min_five_hour,
-            time_budget_seconds=float(budget or settings.card_time_budget_seconds),
-        )
-        stats = run_classify(
-            session_scope, agy=agy, qwen=qwen, policy=policy, limit=limit, taxonomy=taxonomy
-        )
-    batches = " ".join(f"{name}={count}" for name, count in sorted(stats.batches.items()))
-    typer.echo(
-        f"labels: ready={stats.ready} failed={stats.failed} batches: {batches or '-'} "
-        f"quota={stats.quota or '-'}"
-    )
-    for note in stats.notes:
-        typer.echo(f"  note: {note}")
-    with session_scope() as session:
-        typer.echo(f"remaining unclassified={unclassified_count(session, taxonomy.revision)}")
 
 
 @cards_app.command("status")
