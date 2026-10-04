@@ -22,8 +22,8 @@
 - [x] B7 보정 점유율 (PR #25: normalized_share, 출처·일 3건 상한 capped, 활성 소스 수는 KPI sources)
 
 ## 단계 C — 품질
-- [ ] C1 CLU-1 다국어 임베딩 묶음 (LM Studio) + stories eval 비교
-- [ ] C2 SIG-1 식별자 확장 (CVE, 3GPP, 특허, Hugging Face)
+- [ ] C1 CLU-1 다국어 임베딩 묶음 (LM Studio) + stories eval 비교 — 평가 완료·보류: nomic-embed-text-v1.5는 한국어 제목에 무효(고유사도·MinHash 미검출 쌍 중 같은 사건 4%). 다국어 모델(bge-m3 등) 내려받기 승인 필요
+- [x] C2 SIG-1 식별자 확장 (CVE, 3GPP, 특허, Hugging Face) (PR #26, 배포 후 refs-backfill 30일)
 - [ ] C3 STAT-2 진행 중 기간 보정 / STAT-3 소량 표본 통계 통일
 - [ ] C4 WEB-1 레이더 페이지 경량화 (≤400KB)
 - [ ] C5 PRD-1 신호 저장 → 다이제스트·전략 근거

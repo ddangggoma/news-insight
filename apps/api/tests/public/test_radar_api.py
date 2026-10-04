@@ -240,6 +240,7 @@ def test_radar_regions_concentration_and_flows(
         "chains": 1,
         "origins": {"oss": 1},
         "links": [{"source": "oss", "target": "research_ip", "count": 1, "median_hours": 24.0}],
+        "ref_kinds": {"arxiv": 1},
     }
     earlier = get(public_client, public_headers, "radar", period="week", key="2026-W39")
     assert earlier["flows"]["chains"] == 0

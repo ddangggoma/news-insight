@@ -441,7 +441,8 @@ def _arrivals(
 
 
 def _flows(session: Session, conditions: list[ColumnElement[bool]], window: Window) -> Flows:
-    """How reports moved between tracks: within a story, or via a shared arXiv/DOI/repo id.
+    """How reports moved between tracks: within a story, or via a shared identifier (arXiv,
+    DOI, repository, CVE, 3GPP spec, patent, Hugging Face model).
 
     A chain counts when one of its tracks was first reached inside the window; each step is the
     next track to pick the subject up, with the hours it took.
@@ -454,7 +455,9 @@ def _flows(session: Session, conditions: list[ColumnElement[bool]], window: Wind
     origins: Counter[str] = Counter()
     lags: dict[tuple[str, str], list[float]] = defaultdict(list)
     chains = 0
-    for arrivals in (*stories.values(), *refs.values()):
+    ref_kinds: Counter[str] = Counter()
+    chained = [(None, a) for a in stories.values()] + [(str(k), a) for k, a in refs.items()]
+    for ref_key, arrivals in chained:
         if len(arrivals) < 2:
             continue
         ordered = sorted(arrivals.items(), key=lambda kv: (kv[1], TRACK_ORDER[kv[0]]))
@@ -463,6 +466,8 @@ def _flows(session: Session, conditions: list[ColumnElement[bool]], window: Wind
             continue
         chains += 1
         origins[ordered[0][0]] += 1
+        if ref_key is not None:
+            ref_kinds[ref_key.split(":", 1)[0]] += 1
         for (source, start), (target, end) in steps:
             lags[(source, target)].append((end - start).total_seconds() / 3600)
     links = [
@@ -470,7 +475,7 @@ def _flows(session: Session, conditions: list[ColumnElement[bool]], window: Wind
         for (a, b), hours in lags.items()
     ]
     links.sort(key=lambda link: (-link.count, link.source, link.target))
-    return Flows(chains=chains, origins=dict(origins), links=links)
+    return Flows(chains=chains, origins=dict(origins), links=links, ref_kinds=dict(ref_kinds))
 
 
 def _first_ever(

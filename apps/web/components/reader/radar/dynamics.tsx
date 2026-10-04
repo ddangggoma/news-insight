@@ -165,9 +165,13 @@ export function formatLag(hours: number): string {
   return `${(hours / 24).toFixed(1)}일`;
 }
 
+/** Shared-identifier kinds behind cross-track chains (checklist SIG-1). */
+const REF_KIND_LABEL: Record<string, string> = { arxiv: "arXiv", doi: "DOI", github: "GitHub", cve: "CVE", "3gpp": "3GPP", patent: "특허", hf: "Hugging Face" };
+
 /** Bipartite flow: which track picked a subject up first (left) and which followed (right). */
 export function FlowDiagram({ radar }: { radar: Radar }) {
   const { links, chains, origins } = radar.flows;
+  const refKinds = Object.entries(radar.flows.ref_kinds ?? {}).sort((a, b) => b[1] - a[1]);
   if (!links.length) {
     return <p className="py-10 text-center text-sm text-muted-foreground">이번 기간에 트랙을 건너간 이슈·식별자 연결이 없습니다.</p>;
   }
@@ -204,6 +208,17 @@ export function FlowDiagram({ radar }: { radar: Radar }) {
           </span>
         ))}
         {fastest ? ` · 가장 빠른 전파: ${TRACK_LABEL[fastest.source]}→${TRACK_LABEL[fastest.target]} ${formatLag(fastest.median_hours)}` : ""}
+        {refKinds.length ? (
+          <span>
+            {" "}· 식별자로 이어진 주제{" "}
+            {refKinds.map(([kind, count], i) => (
+              <span key={kind}>
+                {i ? ", " : ""}
+                {REF_KIND_LABEL[kind] ?? kind} <b className="text-foreground tabular-nums">{count}</b>
+              </span>
+            ))}
+          </span>
+        ) : null}
       </p>
       <div className="overflow-x-auto">
         <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full min-w-[520px]" role="img" aria-label="먼저 다룬 트랙에서 다음 트랙으로 넘어간 주제 수와 걸린 시간">

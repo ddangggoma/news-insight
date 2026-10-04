@@ -163,7 +163,7 @@ export interface Radar {
   keywords: Topic[];
   pairs: KeywordPair[];
   /** Track-to-track hand-offs completed in the window. */
-  flows: { chains: number; origins: Partial<Record<Track, number>>; links: FlowLink[] };
+  flows: { chains: number; origins: Partial<Record<Track, number>>; links: FlowLink[]; ref_kinds?: Record<string, number> };
   engagement: Engagement;
   calendar: RadarCalendar;
   field_links: FieldLink[];
