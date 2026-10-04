@@ -35,3 +35,10 @@ def test_beat_runs_source_quality_daily_before_freeze() -> None:
 
     assert entry["task"] == "sources.quality"
     assert (entry["schedule"].hour, entry["schedule"].minute) == ({3}, {30})
+
+
+def test_beat_freezes_the_briefing_at_0440() -> None:
+    entry = celery_app.conf.beat_schedule["briefing-freeze"]
+
+    assert entry["task"] == "briefing.freeze"
+    assert (entry["schedule"].hour, entry["schedule"].minute) == ({4}, {40})
