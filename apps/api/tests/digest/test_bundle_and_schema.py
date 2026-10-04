@@ -156,3 +156,86 @@ def test_fallback_lists_top_titles() -> None:
     assert result.tracks[0].categories[0].points[0].text == "A"
     assert result.insights == []
     assert "claude failed" not in result.overview
+
+
+@pytest.mark.db
+def test_bundle_drops_off_topic_items_and_keeps_one_item_per_story(db_session: Session) -> None:
+    from sqlalchemy import select as sa_select
+
+    from news_insight.cards.models import CardStatus, ItemCard
+    from news_insight.content.models import Item
+    from news_insight.stories.models import Relation, Story, StoryItem
+
+    source = build_source(key="news", name="News")
+    db_session.add(source)
+    db_session.flush()
+    inside = START + timedelta(hours=3)
+    ingest_items(
+        db_session,
+        source,
+        [
+            RawItem(stable_id=k, url=f"https://www.example.com/{k}", title=k)
+            for k in ("rep", "dup", "politics", "fab")
+        ],
+        fetch_run=None,
+        now=inside,
+        canary=True,
+    )
+    items = {item.title: item for item in db_session.scalars(sa_select(Item))}
+    for title, scope in (
+        ("rep", "dx"),
+        ("dup", "dx"),
+        ("politics", "irrelevant"),
+        ("fab", "excluded"),
+    ):
+        db_session.add(
+            ItemCard(
+                item_id=items[title].id,
+                status=CardStatus.READY,
+                title_ko=f"{title} 카드",
+                summary_ko=[],
+                keywords=[],
+                engine="agy",
+                model="m",
+                input_hash=items[title].content_hash,
+                attempts=0,
+                generated_at=inside,
+                scope=scope,
+                businesses=["mx"],
+            )
+        )
+    story = Story(
+        representative_item_id=items["rep"].id,
+        title_ko="rep",
+        first_seen_at=inside,
+        last_seen_at=inside,
+        item_count=2,
+        source_count=2,
+        tracks=["news"],
+        max_relevance=80,
+    )
+    db_session.add(story)
+    db_session.flush()
+    for title in ("rep", "dup"):
+        db_session.add(
+            StoryItem(
+                item_id=items[title].id,
+                story_id=story.id,
+                relation=Relation.NEAR,
+                similarity=0.9,
+                joined_at=inside,
+            )
+        )
+    db_session.flush()
+
+    bundle = build_bundle(db_session, start=START, end=END)
+
+    entries = [
+        item
+        for track in bundle.payload["tracks"]
+        for cat in track["categories"]
+        for item in cat["items"]
+    ]
+    assert [entry["title"] for entry in entries] == ["rep"]
+    assert entries[0]["covered_by_sources"] == 2 and entries[0]["businesses"] == ["mx"]
+    assert entries[0]["title_ko"] == "rep 카드"
