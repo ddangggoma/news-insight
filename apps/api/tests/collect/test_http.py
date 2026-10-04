@@ -88,3 +88,40 @@ def test_request_headers_merge_credentials_and_validators() -> None:
     )
 
     assert request_headers(context) == {"Authorization": "Bearer t", "If-None-Match": '"v1"'}
+
+
+def test_stack_exchange_throttle_is_retryable_with_its_wait() -> None:
+    body = (
+        b'{"error_id":502,"error_message":"too many requests from this IP, '
+        b'more requests available in 10830 seconds","error_name":"throttle_violation"}'
+    )
+    fetcher = serving(body, status=400, content_type="application/json")
+
+    with pytest.raises(CollectorError) as error:
+        fetch_checked(fetcher, URL, allowed_mime=MIME)
+
+    assert (error.value.code, error.value.retryable, error.value.retry_after) == (
+        "rate_limited",
+        True,
+        10830,
+    )
+
+
+def test_other_400s_stay_final() -> None:
+    fetcher = serving(
+        b'{"error_name":"bad_parameter"}', status=400, content_type="application/json"
+    )
+
+    with pytest.raises(CollectorError) as error:
+        fetch_checked(fetcher, URL, allowed_mime=MIME)
+
+    assert (error.value.code, error.value.retryable) == ("http_400", False)
+
+
+def test_retry_after_header_is_kept() -> None:
+    fetcher = serving(b"", status=429, headers={"retry-after": "120"})
+
+    with pytest.raises(CollectorError) as error:
+        fetch_checked(fetcher, URL, allowed_mime=MIME)
+
+    assert error.value.retry_after == 120

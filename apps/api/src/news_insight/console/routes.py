@@ -5,6 +5,7 @@ from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import Response
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from news_insight.collect.dead_letters import DeadLetterError, dismiss, retry
@@ -379,3 +380,43 @@ def get_briefing(briefing_date: date, session: DB) -> briefing_queries.BriefingO
     if briefing is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, f"no briefing for {briefing_date}")
     return briefing_queries.briefing_out(session, briefing)
+
+
+class AlertOut(BaseModel):
+    id: int
+    key: str
+    severity: str
+    title: str
+    detail: str
+    opened_at: datetime
+    last_seen_at: datetime
+    resolved_at: datetime | None
+    notified_at: datetime | None
+
+
+@router.get("/alerts")
+def list_alerts(session: DB, limit: Annotated[int, Query(ge=1, le=200)] = 50) -> list[AlertOut]:
+    """Open alerts first, then the most recently resolved."""
+    from sqlalchemy import select
+
+    from news_insight.ops.models import OpsAlert
+
+    rows = session.scalars(
+        select(OpsAlert)
+        .order_by(OpsAlert.resolved_at.is_not(None), OpsAlert.opened_at.desc())
+        .limit(limit)
+    )
+    return [
+        AlertOut(
+            id=a.id,
+            key=a.key,
+            severity=a.severity.value,
+            title=a.title,
+            detail=a.detail,
+            opened_at=a.opened_at,
+            last_seen_at=a.last_seen_at,
+            resolved_at=a.resolved_at,
+            notified_at=a.notified_at,
+        )
+        for a in rows
+    ]

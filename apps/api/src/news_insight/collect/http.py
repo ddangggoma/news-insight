@@ -1,5 +1,8 @@
 """Map SafeFetcher outcomes onto collector errors, and build conditional-request headers."""
 
+import json
+import re
+
 from news_insight.collect.contracts import CollectContext, CollectorError
 from news_insight.net.safe_fetch import FetchBlocked, FetchFailed, FetchResponse, SafeFetcher
 
@@ -39,7 +42,39 @@ def fetch_checked(
     if status == 403 and response.headers.get("x-ratelimit-remaining") == "0":
         raise CollectorError("rate_limited", message, retryable=True, status_code=status)
     if status == 429:
-        raise CollectorError("rate_limited", message, retryable=True, status_code=status)
+        raise CollectorError(
+            "rate_limited",
+            message,
+            retryable=True,
+            status_code=status,
+            retry_after=_seconds(response.headers.get("retry-after")),
+        )
+    throttle = _api_throttle(response.content) if status == 400 else None
+    if throttle is not None:
+        raise CollectorError(
+            "rate_limited",
+            f"{message}: {throttle[0]}",
+            retryable=True,
+            status_code=status,
+            retry_after=throttle[1],
+        )
     if status >= 500:
         raise CollectorError("server_error", message, retryable=True, status_code=status)
     raise CollectorError(f"http_{status}", message, retryable=False, status_code=status)
+
+
+def _seconds(value: str | None) -> int | None:
+    return int(value) if value and value.strip().isdigit() else None
+
+
+def _api_throttle(body: bytes) -> tuple[str, int | None] | None:
+    """Stack Exchange answers quota exhaustion with HTTP 400 and error_name throttle_violation."""
+    try:
+        data = json.loads(body[:2000])
+    except ValueError:
+        return None
+    if not isinstance(data, dict) or data.get("error_name") != "throttle_violation":
+        return None
+    text = str(data.get("error_message", ""))
+    wait = re.search(r"(\d+) seconds", text)
+    return text, int(wait.group(1)) if wait else None

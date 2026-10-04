@@ -41,3 +41,20 @@ def test_facts_may_live_in_the_summary() -> None:
         )
         == []
     )
+
+
+@pytest.mark.parametrize(
+    ("title", "title_ko", "missing"),
+    [
+        ("Samsung 3Q26 earnings beat", "삼성전자 3분기 실적 예상 상회", []),
+        ("Apple Q4 iPhone sales", "애플 4분기 아이폰 판매", []),
+        ("Inference 5x faster on NPU", "NPU 추론 5배 빨라져", []),
+        ("Inference 2.5x faster", "추론 2.5배 향상", []),
+        ("Samsung 3Q26 earnings beat", "삼성전자 실적 예상 상회", ["3Q26"]),
+        ("Inference 5x faster on NPU", "NPU 추론 빨라져", ["5x"]),
+    ],
+)
+def test_korean_quarter_and_multiplier_renderings(
+    title: str, title_ko: str, missing: list[str]
+) -> None:
+    assert missing_facts(card(title), draft(title_ko)) == missing

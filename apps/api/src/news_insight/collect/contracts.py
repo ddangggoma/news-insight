@@ -56,12 +56,19 @@ class CollectorError(Exception):
     """A collection attempt failed; `retryable` chooses backoff over dead letter."""
 
     def __init__(
-        self, code: str, message: str, *, retryable: bool, status_code: int | None = None
+        self,
+        code: str,
+        message: str,
+        *,
+        retryable: bool,
+        status_code: int | None = None,
+        retry_after: int | None = None,
     ) -> None:
         super().__init__(message)
         self.code = code
         self.retryable = retryable
         self.status_code = status_code
+        self.retry_after = retry_after  # seconds the server asked us to wait, if it said
 
 
 class Collector(Protocol):

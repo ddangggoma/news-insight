@@ -17,8 +17,25 @@ NUMBER = re.compile(
 )
 
 
+# Korean renderings that keep the fact: "3Q26"/"Q3" → "3분기", "5x" → "5배".
+EQUIVALENTS = (
+    (re.compile(r"^([1-4])Q(?:\d{2}|\d{4})?$", re.IGNORECASE), r"\1분기"),
+    (re.compile(r"^Q([1-4])(?:\d{2}|\d{4})?$", re.IGNORECASE), r"\1분기"),
+    (re.compile(r"^(\d+(?:\.\d+)?)x$", re.IGNORECASE), r"\1배"),
+)
+
+
 def _compact(text: str) -> str:
     return re.sub(r"[\s\-_.,·:]", "", text).casefold()
+
+
+def _kept(token: str, target: str) -> bool:
+    if _compact(token) in target:
+        return True
+    return any(
+        pattern.match(token) and _compact(pattern.sub(korean, token)) in target
+        for pattern, korean in EQUIVALENTS
+    )
 
 
 def missing_facts(card: CardInput, draft: CardDraft) -> list[str]:
@@ -26,7 +43,7 @@ def missing_facts(card: CardInput, draft: CardDraft) -> list[str]:
     missing: list[str] = []
     for token in IDENTIFIER.findall(card.title):
         token = token.rstrip(".+-")
-        if len(token) >= 2 and _compact(token) not in target:
+        if len(token) >= 2 and not _kept(token, target):
             missing.append(token)
     for number in NUMBER.findall(card.title):
         if _compact(number) not in target:

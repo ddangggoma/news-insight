@@ -10,6 +10,7 @@ BEAT_SCHEDULE: dict[str, dict[str, Any]] = {
     "sources-run-canaries": {"task": "sources.run_canaries", "schedule": 3600.0},
     "sources-auto-validate": {"task": "sources.auto_validate", "schedule": 600.0},
     "stories-cluster": {"task": "stories.cluster", "schedule": 300.0},
+    "ops-check": {"task": "ops.check", "schedule": 300.0},
     "briefing-freeze": {
         "task": "briefing.freeze",
         "schedule": crontab(hour=4, minute=40),  # D15 freeze, 20 min before publication

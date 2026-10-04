@@ -277,3 +277,39 @@ def test_collectors_receive_preset_config_and_credentials(
 
     assert stub.contexts[0].config["list_path"] == "items"
     assert stub.contexts[0].headers == {"Authorization": "Bearer t0k"}
+
+
+def test_repeated_dead_letter_merges_and_pauses(db_session: Session, fetcher: SafeFetcher) -> None:
+    source = collectable(db_session)
+    forbidden = CollectorError("http_403", "HTTP 403", retryable=False, status_code=403)
+
+    collect(db_session, source, StubCollector(forbidden), fetcher)
+    assert source.status is SourceStatus.CANDIDATE
+    collect(db_session, source, StubCollector(forbidden), fetcher, now=NOW + timedelta(hours=6))
+
+    letters = list(db_session.scalars(select(DeadLetter)))
+    assert len(letters) == 1 and letters[0].attempts == 2
+    assert source.status is SourceStatus.PAUSED
+    assert source.paused_reason is not None and source.paused_reason.startswith("repeated http_403")
+
+
+def test_wrong_content_type_pauses_only_on_the_second_strike(
+    db_session: Session, fetcher: SafeFetcher
+) -> None:
+    source = collectable(db_session)
+    html = CollectorError("blocked_mime", "unexpected content type 'text/html'", retryable=False)
+
+    collect(db_session, source, StubCollector(html), fetcher)
+    first = source.status
+    collect(db_session, source, StubCollector(html), fetcher, now=NOW + timedelta(hours=6))
+
+    assert first is SourceStatus.CANDIDATE and source.status is SourceStatus.PAUSED
+
+
+def test_server_requested_wait_delays_the_retry(db_session: Session, fetcher: SafeFetcher) -> None:
+    source = collectable(db_session)
+    throttled = CollectorError("rate_limited", "throttle", retryable=True, retry_after=10830)
+
+    collect(db_session, source, StubCollector(throttled), fetcher)
+
+    assert runtime_of(db_session, source).next_due_at == NOW + timedelta(seconds=10830)

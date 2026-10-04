@@ -31,7 +31,22 @@ def send_login_link(settings: Settings, *, to: str, url: str) -> bool:
     if not settings.smtp_host:
         log.warning("magic link issued but SMTP is not configured; use `news-insight admin link`")
         return False
-    message = build_message(settings, to=to, url=url)
+    return _send(settings, build_message(settings, to=to, url=url))
+
+
+def send_email(settings: Settings, *, to: str, subject: str, body: str) -> bool:
+    """Plain-text mail to the admin (ops alerts). False when SMTP is not configured."""
+    if not settings.smtp_host:
+        return False
+    message = EmailMessage()
+    message["Subject"] = subject
+    message["From"] = settings.smtp_from or settings.smtp_user
+    message["To"] = to
+    message.set_content(body)
+    return _send(settings, message)
+
+
+def _send(settings: Settings, message: EmailMessage) -> bool:
     context = ssl.create_default_context()
     try:
         if settings.smtp_port == 465:
@@ -44,7 +59,7 @@ def send_login_link(settings: Settings, *, to: str, url: str) -> bool:
                 smtp.starttls(context=context)
                 _deliver(smtp, settings, message)
     except (OSError, smtplib.SMTPException) as exc:
-        log.error("magic link delivery failed: %s", type(exc).__name__)
+        log.error("mail delivery failed: %s", type(exc).__name__)
         return False
     return True
 
