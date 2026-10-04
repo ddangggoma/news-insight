@@ -176,6 +176,7 @@ class Flows(BaseModel):
     chains: int
     origins: dict[str, int]
     links: list[FlowLink]
+    ref_kinds: dict[str, int] = {}  # chains carried by a shared identifier, per kind (SIG-1)
 
 
 class KeywordCount(BaseModel):

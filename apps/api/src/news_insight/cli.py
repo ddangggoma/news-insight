@@ -763,3 +763,37 @@ def taxonomy_provisional() -> None:
         f"mapped={result.mapped} from_keywords={result.from_keywords} "
         f"without_theme={result.without_theme}"
     )
+
+
+@stories_app.command("refs-backfill")
+def stories_refs_backfill(
+    days: Annotated[int, typer.Option(help="Items first seen in the last N days")] = 30,
+) -> None:
+    """Re-extract cross-track identifiers (new kinds: CVE, 3GPP, patent, Hugging Face)."""
+    from sqlalchemy.dialects.postgresql import insert
+
+    from news_insight.content.models import Item
+    from news_insight.stories.models import ItemRef
+    from news_insight.stories.refs import extract_refs
+
+    since = datetime.now(UTC) - timedelta(days=days)
+    added = 0
+    with session_scope() as session:
+        rows = session.execute(
+            select(Item.id, Item.url, Item.title, Item.summary).where(Item.first_seen_at >= since)
+        ).all()
+        for item_id, url, title, summary in rows:
+            refs = extract_refs(url, title, summary)
+            if refs:
+                result = session.execute(
+                    insert(ItemRef)
+                    .values(
+                        [
+                            {"item_id": item_id, "kind": k, "value": v[:300], "meta": {}}
+                            for k, v in refs
+                        ]
+                    )
+                    .on_conflict_do_nothing()
+                )
+                added += int(getattr(result, "rowcount", 0) or 0)
+    typer.echo(f"items={len(rows)} refs_added={added}")

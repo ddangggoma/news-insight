@@ -13,7 +13,8 @@ stories.cluster (Celery 5분) — 카드가 생긴 항목만
    2) 근접 중복: 한국어 제목 MinHash 유사도 ≥ 0.45 (LSH 후보)
    3) 같은 사건: 카드 키워드 공유 + 유사도 ≥ 0.35 + 날짜 차이 2일 이내
    4) 해당 없으면 새 이슈
-   + arXiv ID·DOI·GitHub 저장소 추출 → 교차 신호
+   + arXiv ID·DOI·GitHub 저장소·CVE·3GPP 규격(TS/TR)·특허 공개번호(US/EP/WO/KR)·Hugging Face 모델 추출 → 교차 신호
+     (새 종류를 추가했으면 `news-insight stories refs-backfill --days 30` 으로 최근 기사에 다시 추출)
           ▼
 콘솔: 카드 뉴스(분류 필터·이슈별 1건) · 이슈 묶음 · 교차 신호 · 관련성 검토(AI 일치율)
 다이제스트: 무관·제외 항목 제거, 이슈 대표 기사만, 보도 매체 수 반영
