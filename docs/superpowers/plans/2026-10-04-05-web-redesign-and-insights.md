@@ -1,6 +1,6 @@
 # 웹 리디자인 & 기간별 인사이트 분석 — 계획안
 
-> **상태:** R1·R2 진행 중, 시안 선택 대기.
+> **상태:** R1·R2 완료, R4 설계 완료(B+C).
 > **시안 페이지:** https://claude.ai/artifact/7PDUTUyp4HVMQZ1dVMzVLo (데스크톱·태블릿·모바일 폭 전환, 예시 데이터)
 > **HTML 시안 (예시 데이터, 브라우저로 바로 열기):** [`docs/design/mockups/mockup-a-briefing.html`](../../design/mockups/mockup-a-briefing.html), [`mockup-b-explore.html`](../../design/mockups/mockup-b-explore.html), [`mockup-c-radar.html`](../../design/mockups/mockup-c-radar.html)
 > **분류 선택 위자드:** https://claude.ai/artifact/3fEunMiBCX6wjmSJkHLMP9
@@ -175,7 +175,7 @@
 
 | 항목 | 결정 |
 |---|---|
-| 시안 선택 | 대기 — HTML 시안을 보고 결정 |
+| 시안 선택 | 시안 B(탐색) + C(레이더) — 설계: [`2026-10-04-06-reader-web-r4.md`](2026-10-04-06-reader-web-r4.md) |
 | 분류 체계 | 확정 — 분야 23, 제품군 18, 기사당 최대 3·3 (3장) |
 | 공개 범위 | 로그인 없이 공개 |
 | 리포트 생성 모델 | 호스트 Claude CLI (P7의 D1 "외부 LLM 미사용"과 다르므로 P7 착수 시 결정 기록 갱신 필요) |
