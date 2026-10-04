@@ -5,6 +5,7 @@
 	# Built-in redirects drop the port when it equals https_port, so we redirect
 	# explicitly below. Certificate automation stays enabled.
 	auto_https disable_redirects
+	order rate_limit before handle
 }
 
 {$PUBLIC_HOST:localhost} {
@@ -22,7 +23,32 @@
 		respond 404
 	}
 
+	# Web-internal hooks (cache revalidation after a deploy) are reached over the compose network only.
+	@internal path /internal /internal/*
+	handle @internal {
+		respond 404
+	}
+
 	# /console is guarded by the web server's magic-link session (P8).
+
+	# Per-IP request limits on public pages (checklist OPS-2). The radar aggregates the
+	# whole corpus on a cache miss, so it gets a tighter budget. Static assets are free.
+	@limited not path /_next/static/* /favicon.ico /icon.svg
+	rate_limit @limited {
+		zone radar {
+			match {
+				path /radar /radar/*
+			}
+			key {remote_host}
+			events {$RATE_LIMIT_RADAR:20}
+			window 1m
+		}
+		zone pages {
+			key {remote_host}
+			events {$RATE_LIMIT_PAGES:120}
+			window 1m
+		}
+	}
 
 	# Next.js hydration and next-themes use inline scripts/styles; everything else is same-origin.
 	header {

@@ -135,3 +135,19 @@ def test_console_alerts_api(
     body = console_client.get("/api/admin/alerts", headers=headers).json()
 
     assert body[0]["key"] == "queue_backlog" and body[0]["resolved_at"] is None
+
+
+def test_card_failure_rate_alert(db_session: Session) -> None:
+    db_session.add(
+        CardRun(
+            started_at=AT_0530 - timedelta(minutes=5),
+            ready=60,
+            failed=40,
+            batches={},
+            quota={},
+            note="preservation",
+        )
+    )
+    db_session.flush()
+
+    assert "cards_failing" in keys(check_cards(db_session, now=AT_0530))

@@ -3,11 +3,14 @@ from fastapi import FastAPI
 from news_insight import __version__
 from news_insight.auth.routes import router as auth_router
 from news_insight.console.routes import router as console_router
+from news_insight.observability import RequestLogMiddleware, configure_logging
 from news_insight.public.routes import router as public_router
 
 
 def create_app() -> FastAPI:
+    configure_logging("api")
     app = FastAPI(title="Daily IT Intelligence API", version=__version__)
+    app.add_middleware(RequestLogMiddleware)
 
     @app.get("/api/health")
     def health() -> dict[str, str]:

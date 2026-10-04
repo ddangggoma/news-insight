@@ -12,6 +12,19 @@ export const REVALIDATE = { feed: 300, digest: 600, radarOpen: 600, radarClosed:
  * Reader API client. Uses PUBLIC_API_KEY, never the console key, and lets Next.js cache
  * responses so public traffic does not reach the API for every page view.
  */
+/** Public API shape hash; part of every cached URL so a deploy never mixes old JSON in. */
+async function schemaVersion(key: string): Promise<string | undefined> {
+  try {
+    const response = await fetch(`${BASE_URL}/api/public/version`, {
+      headers: { "X-Public-Key": key },
+      next: { revalidate: 30, tags: ["reader"] },
+    });
+    return response.ok ? ((await response.json()) as { schema: string }).schema : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export async function readerGet<T>(
   path: string,
   params: Record<string, QueryValue> = {},
@@ -19,7 +32,8 @@ export async function readerGet<T>(
 ): Promise<T> {
   const key = process.env.PUBLIC_API_KEY;
   if (!key) throw new ApiError(503, "PUBLIC_API_KEY is not configured for the web server");
-  const response = await fetch(`${BASE_URL}/api/public${withQuery(path, params)}`, {
+  const version = await schemaVersion(key);
+  const response = await fetch(`${BASE_URL}/api/public${withQuery(path, { ...params, _v: version })}`, {
     headers: { "X-Public-Key": key },
     next: { revalidate, tags: ["reader"] },
   });

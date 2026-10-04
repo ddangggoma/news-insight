@@ -2,20 +2,19 @@
 
 from datetime import datetime
 
-from sqlalchemy import select
+from sqlalchemy import update
 from sqlalchemy.orm import Session
 
 from news_insight.content.models import Item
 
 
 def purge_expired_bodies(session: Session, now: datetime) -> int:
-    expired = list(
-        session.scalars(
-            select(Item).where(Item.body_expires_at.is_not(None), Item.body_expires_at <= now)
-        )
+    """One UPDATE on the partial `body_expires_at` index (checklist DATA-2)."""
+    result = session.execute(
+        update(Item)
+        .where(Item.body_expires_at.is_not(None), Item.body_expires_at <= now)
+        .values(body=None, body_expires_at=None)
+        .execution_options(synchronize_session="fetch")
     )
-    for item in expired:
-        item.body = None
-        item.body_expires_at = None
     session.flush()
-    return len(expired)
+    return int(getattr(result, "rowcount", 0) or 0)

@@ -6,6 +6,9 @@ const DB = process.env.E2E_DATABASE_URL ?? "postgresql+psycopg://news:news-dev-p
 const KEY = "e2e-console-key";
 const PUBLIC_KEY = "e2e-public-key";
 const WEB = "http://127.0.0.1:8713";
+// System Chrome by default; E2E_BROWSER_CHANNEL="" uses Playwright's bundled Chromium (containers).
+const CHANNEL = process.env.E2E_BROWSER_CHANNEL ?? "chrome";
+const browser = CHANNEL ? { channel: CHANNEL } : {};
 
 export const E2E_ENV = { DATABASE_URL: DB, CONSOLE_API_KEY: KEY, PUBLIC_API_KEY: PUBLIC_KEY, PUBLIC_BASE_URL: WEB, SMTP_HOST: "" };
 
@@ -17,8 +20,8 @@ export default defineConfig({
   reporter: [["list"]],
   use: { baseURL: WEB, trace: "retain-on-failure", locale: "ko-KR", timezoneId: "Asia/Seoul" },
   projects: [
-    { name: "desktop", use: { ...devices["Desktop Chrome"], channel: "chrome" } },
-    { name: "mobile", use: { ...devices["Pixel 7"], channel: "chrome" }, grep: /@mobile/ },
+    { name: "desktop", use: { ...devices["Desktop Chrome"], ...browser } },
+    { name: "mobile", use: { ...devices["Pixel 7"], ...browser }, grep: /@mobile/ },
   ],
   webServer: [
     {

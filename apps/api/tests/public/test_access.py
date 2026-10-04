@@ -45,3 +45,13 @@ def test_taxonomy_lists_p4_axes(public_client: TestClient, public_headers: dict[
     ]
     assert [node["key"] for node in body["impacts"]] == ["opportunity", "risk", "watch"]
     assert [node["key"] for node in body["scopes"]][:2] == ["dx", "dx_dependency"]
+
+
+def test_schema_version_is_stable_and_keyed(
+    public_client: TestClient, public_headers: dict[str, str]
+) -> None:
+    first = public_client.get("/api/public/version", headers=public_headers).json()["schema"]
+    second = public_client.get("/api/public/version", headers=public_headers).json()["schema"]
+
+    assert first == second and len(first) == 12
+    assert public_client.get("/api/public/version").status_code == 401

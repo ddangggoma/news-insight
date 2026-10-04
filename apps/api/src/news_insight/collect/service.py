@@ -1,5 +1,6 @@
 """Collect one source: rate budget → collector → seen-ledger ingest → schedule / retry / DLQ."""
 
+import logging
 from collections.abc import Callable
 from datetime import datetime, timedelta
 from urllib.parse import urlsplit
@@ -31,6 +32,7 @@ CollectorFactory = Callable[[AccessMethod, SafeFetcher], Collector]
 COLLECTABLE_STAGES = frozenset(STAGE_ORDER[STAGE_ORDER.index(ValidationStage.V3) :])
 LOCAL_RATE_LIMIT_DELAY = timedelta(seconds=60)
 MESSAGE_LIMIT = 2000
+log = logging.getLogger(__name__)
 PAUSING_CODES = frozenset({"selector_drift", "config_error"})
 # A wrong content type is often a temporary maintenance or consent page: two strikes, not one.
 SECOND_STRIKE_CODES = frozenset({"blocked_mime"})
@@ -220,4 +222,14 @@ def _finish(
     if error_code is not None:
         run.error_code = error_code
     session.flush()
+    if run.outcome in (FetchOutcome.FAILED, FetchOutcome.DEAD_LETTERED):
+        log.warning(
+            "collect failed",
+            extra={
+                "source_id": run.source_id,
+                "outcome": run.outcome.value,
+                "error_code": run.error_code,
+                "attempt": run.attempt,
+            },
+        )
     return run

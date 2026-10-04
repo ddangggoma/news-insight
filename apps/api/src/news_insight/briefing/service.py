@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+import logging
 from datetime import date, datetime
 
 from sqlalchemy import func, select
@@ -142,6 +143,15 @@ def publish(
         published_at=now,
     )
     session.add(briefing)
+    logging.getLogger(__name__).info(
+        "briefing published" if briefing.status is BriefingStatus.PUBLISHED else "briefing blocked",
+        extra={
+            "date": str(briefing_date),
+            "version": briefing.version,
+            "shortlist": len(briefing.shortlist),
+            "failing": failing(briefing.gates),
+        },
+    )
     session.flush()
     return briefing
 

@@ -1,5 +1,6 @@
 """Korean card generation: pending selection, engine switching, storage and run records."""
 
+import logging
 import time
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
@@ -272,6 +273,16 @@ def _store_batch(
 
 
 def record_run(open_session: SessionScope, started_at: datetime, stats: CardRunStats) -> None:
+    logging.getLogger(__name__).info(
+        "card run",
+        extra={
+            "ready": stats.ready,
+            "failed": stats.failed,
+            "batches": stats.batches,
+            "quota": stats.quota,
+            "notes": stats.notes[:5],
+        },
+    )
     with open_session() as session:
         session.add(
             CardRun(
