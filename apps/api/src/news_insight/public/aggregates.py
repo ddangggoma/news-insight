@@ -62,7 +62,7 @@ def facets(session: Session, filters: ReaderFilters, window: Window) -> dict[str
     return result
 
 
-def _keywords(
+def keyword_counts(
     session: Session, conditions: list[ColumnElement[bool]]
 ) -> dict[str, tuple[str, int]]:
     element = func.jsonb_array_elements_text(ItemCard.keywords).table_valued("value").lateral("kw")
@@ -97,8 +97,8 @@ def insights(session: Session, filters: ReaderFilters, window: Window) -> Insigh
     previous_window = window.previous() if window.start is not None else None
     previous = [*filters.conditions(), *in_window(previous_window)] if previous_window else None
 
-    now_keywords = _keywords(session, current)
-    before = _keywords(session, previous) if previous is not None else {}
+    now_keywords = keyword_counts(session, current)
+    before = keyword_counts(session, previous) if previous is not None else {}
     ranked = sorted(now_keywords.items(), key=lambda pair: (-pair[1][1], pair[0]))
     top = [(key, value) for key, value in ranked if value[1] >= KEYWORD_MIN_COUNT][:KEYWORD_TOP]
     top_keys = {key for key, _ in top}

@@ -10,19 +10,30 @@ from sqlalchemy.orm import Session
 from news_insight.db import get_db
 from news_insight.public import aggregates
 from news_insight.public import feed as feed_queries
+from news_insight.public import radar as radar_queries
 from news_insight.public.auth import require_public_key
 from news_insight.public.filters import FilterError, ReaderFilters
-from news_insight.public.periods import PeriodError, Window, rolling_window
+from news_insight.public.periods import (
+    PeriodError,
+    Window,
+    calendar_window,
+    current_key,
+    rolling_window,
+)
 from news_insight.public.schemas import (
+    CellDetail,
     FeedPage,
     Insights,
+    Radar,
     ReaderItemDetail,
     TaxonomyField,
     TaxonomyNode,
     TaxonomyOut,
 )
 from news_insight.taxonomy.catalog import (
+    BUSINESS_KEYS,
     BUSINESSES,
+    FIELD_KEYS,
     FIELDS,
     IMPACTS,
     SCOPES,
@@ -130,3 +141,31 @@ def get_facets(session: DB, filters: Filters, window: FeedWindow) -> dict[str, d
 @router.get("/insights")
 def get_insights(session: DB, filters: Filters, window: FeedWindow) -> Insights:
     return aggregates.insights(session, filters, window)
+
+
+def radar_window(now: Now, period: str = "week", key: str | None = None) -> Window:
+    try:
+        return calendar_window(period, key or current_key(period, now))
+    except PeriodError as error:
+        raise _unprocessable(error) from error
+
+
+RadarPeriod = Annotated[Window, Depends(radar_window)]
+
+
+@router.get("/radar")
+def get_radar(session: DB, filters: Filters, window: RadarPeriod, now: Now) -> Radar:
+    return radar_queries.radar(session, filters, window, current_key(window.kind, now))
+
+
+@router.get("/radar/cell")
+def get_radar_cell(
+    session: DB, window: RadarPeriod, field: str, business: str, scope: str = "relevant"
+) -> CellDetail:
+    """One heatmap cell. The cell fixes field and business, so only the scope filter applies."""
+    filters = reader_filters(scope=scope)
+    if field not in FIELD_KEYS:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, f"unknown field '{field}'")
+    if business != radar_queries.NO_BUSINESS and business not in BUSINESS_KEYS:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, f"unknown business '{business}'")
+    return radar_queries.cell_detail(session, filters, window, field=field, business=business)

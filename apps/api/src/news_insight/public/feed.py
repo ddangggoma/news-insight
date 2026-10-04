@@ -1,8 +1,9 @@
 """Reader feed (one row per story) and item detail."""
 
+from collections.abc import Sequence
 from typing import Literal
 
-from sqlalchemy import func, select
+from sqlalchemy import ColumnElement, func, select
 from sqlalchemy.orm import Session
 
 from news_insight.cards.models import CardStatus, ItemCard
@@ -65,6 +66,7 @@ def feed(
     sort: Sort,
     page: int,
     size: int,
+    extra: Sequence[ColumnElement[bool]] = (),
 ) -> FeedPage:
     # One row per story: the best matching report (the representative first, then the newest),
     # so a story stays visible when only a follow-up report matches the filters.
@@ -81,7 +83,7 @@ def feed(
             )
             .label("rank"),
         )
-    ).where(*filters.conditions(), *in_window(window))
+    ).where(*filters.conditions(), *in_window(window), *extra)
     ranked_rows = ranked.subquery()
     picked = select(ranked_rows.c.item_id).where(ranked_rows.c.rank == 1)
     total = session.scalar(select(func.count()).select_from(picked.subquery())) or 0

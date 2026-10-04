@@ -101,3 +101,84 @@ class Insights(BaseModel):
     fields: list[Count]
     businesses: list[Count]
     impacts: list[Count]
+
+
+class RadarWindow(BaseModel):
+    kind: str
+    key: str
+    start: datetime
+    end: datetime
+    prev_key: str
+    next_key: str
+    is_current: bool
+
+
+class HotCell(BaseModel):
+    field: str
+    business: str
+    count: int
+    previous: int
+
+
+class RadarKpis(BaseModel):
+    total: int
+    previous_total: int
+    new_stories: int
+    cross_track_stories: int
+    hottest: HotCell | None
+
+
+class Cell(BaseModel):
+    field: str
+    business: str
+    count: int
+    previous: int
+
+
+class FieldMomentum(BaseModel):
+    key: str
+    counts: list[int]
+    change: float | None
+
+
+class HypePoint(BaseModel):
+    """Chatter = news + community reports; research = papers + open source."""
+
+    key: str
+    chatter: int
+    chatter_change: float | None
+    research: int
+    research_change: float | None
+
+
+class KeywordShift(BaseModel):
+    key: str
+    label: str
+    state: str
+    counts: list[int]
+
+
+class Radar(BaseModel):
+    window: RadarWindow
+    kpis: RadarKpis
+    cells: list[Cell]
+    momentum: list[FieldMomentum]
+    hype: list[HypePoint]
+    keywords: list[KeywordShift]
+
+
+class KeywordCount(BaseModel):
+    key: str
+    label: str
+    count: int
+
+
+class CellDetail(BaseModel):
+    field: str
+    business: str
+    count: int
+    previous: int
+    trend: list[int]
+    themes: list[Count]
+    keywords: list[KeywordCount]
+    stories: list[ReaderItem]
