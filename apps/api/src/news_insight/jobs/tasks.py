@@ -15,6 +15,7 @@ from news_insight.scheduling.redis_guards import DomainRateLimiter, SourceLock, 
 from news_insight.sources.autovalidate import auto_validate
 from news_insight.sources.canary import run_canaries
 from news_insight.sources.models import Source
+from news_insight.sources.quality import run_quality
 from news_insight.stories.service import cluster
 
 
@@ -69,6 +70,12 @@ def auto_validate_task() -> dict[str, Any]:
 @celery_app.task(name="stories.cluster")
 def cluster_stories_task() -> dict[str, Any]:
     return asdict(cluster(session_scope, now=datetime.now(UTC)))
+
+
+@celery_app.task(name="sources.quality")
+def source_quality_task() -> dict[str, Any]:
+    with session_scope() as session:
+        return asdict(run_quality(session, now=datetime.now(UTC)))
 
 
 @celery_app.task(name="content.purge_expired")

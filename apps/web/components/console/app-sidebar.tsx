@@ -1,6 +1,6 @@
 "use client";
 
-import { Activity, ClipboardCheck, GitMerge, Layers, Inbox, LayoutDashboard, LayoutGrid, Library, Newspaper, Radar, Rss, TrendingUp } from "lucide-react";
+import { Activity, ClipboardCheck, Gauge, GitMerge, Layers, Inbox, LayoutDashboard, LayoutGrid, Library, Newspaper, Radar, Rss, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -26,6 +26,7 @@ const NAV = [
     { href: "/console/sources", title: "소스", icon: Rss },
     { href: "/console/runs", title: "수집 현황", icon: Activity },
     { href: "/console/dlq", title: "DLQ", icon: Inbox },
+    { href: "/console/quality", title: "소스 품질", icon: Gauge },
   ] },
   { label: "인텔리전스", items: [
     { href: "/console/cards", title: "카드 뉴스", icon: LayoutGrid },

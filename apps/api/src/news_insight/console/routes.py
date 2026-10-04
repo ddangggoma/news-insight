@@ -15,6 +15,7 @@ from news_insight.console import reviews as review_queries
 from news_insight.console import stories as story_queries
 from news_insight.console.auth import require_console_key
 from news_insight.console.schemas import (
+    CardFailure,
     CardStats,
     CardView,
     DeadLetterOut,
@@ -27,6 +28,7 @@ from news_insight.console.schemas import (
     Queued,
     RunOut,
     SourceDetail,
+    SourceQualityRow,
     SourceRow,
 )
 from news_insight.db import get_db
@@ -84,6 +86,15 @@ def list_sources(
         page=page,
         size=size,
     )
+
+
+@router.get("/sources/quality")
+def sources_quality(
+    session: DB,
+    order: Literal["worst", "best"] = "worst",
+    limit: Annotated[int, Query(ge=1, le=500)] = 200,
+) -> list[SourceQualityRow]:
+    return queries.source_quality(session, now=datetime.now(UTC), order=order, limit=limit)
 
 
 @router.get("/sources/{key}")
@@ -264,6 +275,13 @@ def list_cards(
         scope=scope,
         dedup=dedup,
     )
+
+
+@router.get("/cards/failures")
+def get_card_failures(
+    session: DB, limit: Annotated[int, Query(ge=1, le=200)] = 50
+) -> list[CardFailure]:
+    return card_queries.card_failures(session, limit=limit)
 
 
 @router.get("/cards/stats")

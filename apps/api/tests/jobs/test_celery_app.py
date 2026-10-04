@@ -28,3 +28,10 @@ def test_beat_clusters_stories_every_five_minutes() -> None:
         "task": "stories.cluster",
         "schedule": 300.0,
     }
+
+
+def test_beat_runs_source_quality_daily_before_freeze() -> None:
+    entry = celery_app.conf.beat_schedule["sources-quality"]
+
+    assert entry["task"] == "sources.quality"
+    assert (entry["schedule"].hour, entry["schedule"].minute) == ({3}, {30})

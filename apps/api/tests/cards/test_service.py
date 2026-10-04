@@ -211,3 +211,22 @@ def test_agy_lanes_run_batches_concurrently(db_session: Session) -> None:
 
     assert stats.ready == 6 and stats.batches == {"agy": 3}
     assert peak == 3
+
+
+def test_cards_losing_identifiers_are_rejected_and_retried(db_session: Session) -> None:
+    seed(db_session, ["Galaxy S30 launch"])
+
+    class Lossy(FakeEngine):
+        def generate(self, inputs: list[CardInput]) -> EngineOutput:
+            cards = [
+                {"id": c.id, "title_ko": "갤럭시 출시", "summary_ko": [], "keywords": []}
+                for c in inputs
+            ]
+            return EngineOutput(raw={"cards": cards}, model="m")
+
+    run_cards(scope_for(db_session), agy=None, qwen=Lossy("qwen"), policy=POLICY)
+
+    card = cards(db_session)["Galaxy S30 launch"]
+    assert card.status is CardStatus.FAILED
+    assert card.error == "preservation: lost S30"
+    assert pending_count(db_session) == 1

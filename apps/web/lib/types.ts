@@ -142,6 +142,8 @@ export interface CardStats {
   failed: number;
   pending: number;
   ready_today: number;
+  success_rate_7d?: number | null;
+  scope_7d?: Record<string, number>;
   by_engine: Record<string, number>;
   last_run: {
     started_at: string;
@@ -278,4 +280,26 @@ export interface ReviewStats {
   by_track: ReviewBucket[];
   by_category: ReviewBucket[];
   worst_sources: ReviewBucket[];
+}
+
+export interface CardFailure {
+  item: ItemRow;
+  error: string | null;
+  attempts: number;
+  generated_at: string;
+}
+
+export interface SourceQualityRow {
+  key: string;
+  name: string;
+  track: Track;
+  category: string;
+  region: Region;
+  validation_stage: Stage;
+  status: SourceStatus;
+  paused_reason: string | null;
+  items_7d: number;
+  classified_7d: number;
+  relevance: number | null;
+  translation: number | null;
 }
