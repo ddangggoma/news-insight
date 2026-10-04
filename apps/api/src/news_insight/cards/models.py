@@ -18,7 +18,10 @@ class ItemCard(Base):
     """Korean card for one collected item (title, up to 3 summary lines, keywords)."""
 
     __tablename__ = "item_cards"
-    __table_args__ = (Index("ix_item_cards_generated_at", "generated_at"),)
+    __table_args__ = (
+        Index("ix_item_cards_generated_at", "generated_at"),
+        Index("ix_item_cards_keywords", "keywords", postgresql_using="gin"),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True)
     item_id: Mapped[int] = mapped_column(ForeignKey("items.id", ondelete="CASCADE"), unique=True)
