@@ -12,3 +12,6 @@ next-env.d.ts
 .DS_Store
 ops/logs/
 .claude/
+.next-e2e/
+test-results/
+playwright-report/

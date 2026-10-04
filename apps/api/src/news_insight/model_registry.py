@@ -1,5 +1,6 @@
 """Import every ORM module here so Alembic sees the complete metadata."""
 
+import news_insight.auth.models  # noqa: F401
 import news_insight.briefing.models  # noqa: F401
 import news_insight.cards.models  # noqa: F401
 import news_insight.collect.models  # noqa: F401

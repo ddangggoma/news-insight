@@ -14,6 +14,12 @@ x-python-env: &python-env
   SOURCE_SECRET_NAVER_CLIENT_SECRET: ${SOURCE_SECRET_NAVER_CLIENT_SECRET:-}
   CONSOLE_API_KEY: ${CONSOLE_API_KEY:?CONSOLE_API_KEY is required}
   PUBLIC_API_KEY: ${PUBLIC_API_KEY:-}
+  PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-https://localhost:8700}
+  SMTP_HOST: ${SMTP_HOST:-}
+  SMTP_PORT: ${SMTP_PORT:-587}
+  SMTP_USER: ${SMTP_USER:-}
+  SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+  SMTP_FROM: ${SMTP_FROM:-}
 
 x-python-image: &python-image
   image: news-insight-api:${IMAGE_TAG:-local}
@@ -116,8 +122,6 @@ services:
       PUBLIC_HOST: ${PUBLIC_HOST:-localhost}
       CADDY_HTTPS_PORT: ${CADDY_HTTPS_PORT:-8700}
       CADDY_HTTP_PORT: ${CADDY_HTTP_PORT:-8701}
-      CONSOLE_USER: ${CONSOLE_USER:-admin}
-      CONSOLE_PASSWORD_HASH: ${CONSOLE_PASSWORD_HASH:?run scripts/dev.sh console-password}
     ports:
       - "${CADDY_HTTPS_PORT:-8700}:${CADDY_HTTPS_PORT:-8700}"
       - "${CADDY_HTTP_PORT:-8701}:${CADDY_HTTP_PORT:-8701}"

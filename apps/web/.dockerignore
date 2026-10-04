@@ -2,3 +2,8 @@ node_modules
 .next
 tests
 *.tsbuildinfo
+.next-e2e
+e2e
+test-results
+playwright-report
+playwright.config.ts

@@ -13,6 +13,7 @@ from news_insight.digest import service as digest_service
 from news_insight.digest.models import Digest
 from news_insight.digest.schemas import DigestSummary
 from news_insight.public import aggregates
+from news_insight.public import briefings as briefing_queries
 from news_insight.public import feed as feed_queries
 from news_insight.public import radar as radar_queries
 from news_insight.public.auth import require_public_key
@@ -200,3 +201,29 @@ def latest_digest(session: DB) -> PublicDigest:
 @router.get("/digests/{digest_date}")
 def get_digest(digest_date: date, session: DB) -> PublicDigest:
     return _public_digest(session, digest_service.digest_for(session, digest_date))
+
+
+@router.get("/briefings")
+def list_briefings(
+    session: DB,
+    page: Annotated[int, Query(ge=1)] = 1,
+    size: Annotated[int, Query(ge=1, le=100)] = 30,
+) -> Page[briefing_queries.BriefingEntry]:
+    entries, total = briefing_queries.archive(session, page=page, size=size)
+    return Page[briefing_queries.BriefingEntry](items=entries, total=total, page=page, size=size)
+
+
+@router.get("/briefings/latest")
+def latest_briefing(session: DB) -> briefing_queries.PublicBriefing:
+    briefing = briefing_queries.published(session)
+    if briefing is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "no published briefing yet")
+    return briefing_queries.public_briefing(session, briefing)
+
+
+@router.get("/briefings/{briefing_date}")
+def get_briefing(briefing_date: date, session: DB) -> briefing_queries.PublicBriefing:
+    briefing = briefing_queries.published(session, briefing_date)
+    if briefing is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "no published briefing on that date")
+    return briefing_queries.public_briefing(session, briefing)

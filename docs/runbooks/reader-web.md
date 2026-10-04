@@ -7,7 +7,7 @@
 ```
 브라우저 ──HTTPS──▶ Caddy(8700) ──▶ web(Next.js) ──내부망 + X-Public-Key──▶ api(/api/public)
                     │  /              : 인증 없음 (탐색·레이더·다이제스트·RSS)
-                    │  /console*      : Basic Auth (기존과 같음)
+                    │  /console*      : 관리자 매직링크 세션 (P8, ops-console.md §2-1)
                     │  /api/public*   : 외부에서는 항상 404
                     │  /api/admin*    : 외부에서는 항상 404
 ```
@@ -65,3 +65,14 @@ PUBLIC_API_KEY=dev-public scripts/dev.sh web-dev
 | 탐색은 되는데 다이제스트 띠가 없음 | 아직 발행된 다이제스트가 없거나, 최신 다이제스트를 읽다 오류가 났습니다(웹 로그에 `latest digest failed`). 피드는 계속 보입니다 |
 | 필터를 골라도 0건 | 범위가 "DX 관련 + 의존 기술"이면 `excluded`·`irrelevant` 분류는 빠집니다. 범위를 "전체"로 바꿔 보세요 |
 | 레이더 칸이 대부분 비어 있음 | 카드가 아직 현재 `TAXONOMY_REVISION`으로 분류되지 않았습니다. `docs/runbooks/stories-classification.md`의 재분류 절차를 확인하세요 |
+
+## 데일리 브리핑 (P8)
+
+| 경로 | 내용 |
+|---|---|
+| `/briefings` | 가장 최근에 **발행된** 브리핑. 왼쪽(모바일은 "브리핑" 탭)에 헤드라인·개요·핵심 인사이트와 4개 트랙 선정 기사, 오른쪽("인사이트" 탭)에 페르소나 통찰(경영진·사업부장·도메인), 전략 요약, 근거 지도(많이 인용된 기사), 로드맵 시사점(1·3·5년), 시장 영향도(사업부별 기회·위험·관찰), 지난 브리핑 |
+| `/briefings/YYYY-MM-DD` | 그날 발행본. 이전·다음 이동, 없는 날짜는 404 |
+
+- 독자 API: `GET /api/public/briefings`(목록), `/briefings/latest`, `/briefings/{date}`. 게이트에서 막힌(blocked) 버전과 게이트 상세·비용·오류는 내보내지 않습니다.
+- 기사 행은 탐색 피드와 같은 `StoryRow`라서 누르면 기사 상세 시트가 열립니다.
+- E2E: `scripts/dev.sh web-e2e`. `news_insight_e2e` DB에 오늘·어제 브리핑 고정 데이터를 넣고 API(8712)·웹(8713)을 띄워 시스템 Chrome으로 검사합니다(관리자 로그인 가드 포함). 실제 DB는 건드리지 않습니다.

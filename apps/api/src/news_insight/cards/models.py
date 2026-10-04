@@ -21,6 +21,12 @@ class ItemCard(Base):
     __table_args__ = (
         Index("ix_item_cards_generated_at", "generated_at"),
         Index("ix_item_cards_keywords", "keywords", postgresql_using="gin"),
+        Index(
+            "ix_item_cards_title_ko_trgm",
+            "title_ko",
+            postgresql_using="gin",
+            postgresql_ops={"title_ko": "gin_trgm_ops"},
+        ),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
