@@ -16,19 +16,25 @@ from news_insight.sources.enums import Region, Track
 from news_insight.sources.models import Source
 from news_insight.stories.models import Story, StoryItem
 from news_insight.taxonomy.catalog import (
-    BUSINESS_KEYS,
     FIELD_KEYS,
     IMPACT_KEYS,
-    TAXONOMY_REVISION,
+    SIGNAL_TYPE_KEYS,
+    TAXONOMY_TREE,
     THEME_KEYS,
 )
 
+
+def in_current_tree() -> ColumnElement[bool]:
+    """Cards classified against the current tree, provisional mapping included."""
+    return ItemCard.taxonomy_revision.like(f"{TAXONOMY_TREE}.%")
+
+
 SCOPES = {"relevant": ("dx", "dx_dependency"), "dx": ("dx",), "all": None}
-AXES = ("field", "theme", "business", "impact", "track", "region")
+AXES = ("field", "theme", "signal", "impact", "track", "region")
 ALLOWED: dict[str, frozenset[str]] = {
     "field": FIELD_KEYS,
     "theme": THEME_KEYS,
-    "business": BUSINESS_KEYS,
+    "signal": SIGNAL_TYPE_KEYS,
     "impact": IMPACT_KEYS,
     "track": frozenset(track.value for track in Track),
     "region": frozenset(region.value for region in Region),
@@ -68,7 +74,7 @@ class ReaderFilters:
     def conditions(self, *, skip: str | None = None) -> list[ColumnElement[bool]]:
         conditions: list[ColumnElement[bool]] = [
             ItemCard.status == CardStatus.READY,
-            ItemCard.taxonomy_revision == TAXONOMY_REVISION,
+            in_current_tree(),
         ]
         scopes = SCOPES[self.scope]
         if scopes is not None:
@@ -93,8 +99,8 @@ def _axis_condition(axis: str, chosen: tuple[str, ...]) -> ColumnElement[bool]:
         return ItemCard.field.in_(chosen)
     if axis == "theme":
         return or_(*(ItemCard.themes.contains([value]) for value in chosen))
-    if axis == "business":
-        return or_(*(ItemCard.businesses.contains([value]) for value in chosen))
+    if axis == "signal":
+        return ItemCard.signal_type.in_(chosen)
     if axis == "impact":
         return ItemCard.impact.in_(chosen)
     if axis == "track":

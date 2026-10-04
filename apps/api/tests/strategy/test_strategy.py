@@ -60,16 +60,16 @@ def test_personas_fill_missing_and_downgrade_unsupported() -> None:
 def test_report_drops_unsupported_claims_and_reviewer_flags() -> None:
     raw = {
         "summary": "요약",
-        "businesses": [
+        "fields": [
             {
-                "business": "mx",
+                "field": "ai",
                 "summary": "s",
                 "claims": [
                     {"text": "근거 충분", "item_ids": [1, 3]},
                     {"text": "한 이슈만", "item_ids": [1, 2]},
                 ],
             },
-            {"business": "memory", "summary": "s", "claims": [{"text": "x", "item_ids": [1, 3]}]},
+            {"field": "memory", "summary": "s", "claims": [{"text": "x", "item_ids": [1, 3]}]},
         ],
         "roadmap": [{"horizon": "3y", "text": "로드맵", "item_ids": [3, 4]}],
         "opportunities": [{"text": "증설 투자 확대", "item_ids": [3, 4]}],
@@ -78,8 +78,8 @@ def test_report_drops_unsupported_claims_and_reviewer_flags() -> None:
 
     report = validate_report(raw, STORY)
     assert report is not None
-    assert [c.id for s in report.businesses for c in s.claims] == ["mx-1"]
-    assert [s.business for s in report.businesses] == ["mx"]
+    assert [c.id for s in report.fields for c in s.claims] == ["ai-1"]
+    assert [s.field for s in report.fields] == ["ai"]
 
     reviewed, dropped = apply_review(
         report,
@@ -127,9 +127,9 @@ class StrategyClaude(FakeClaude):
         else:
             data = {
                 "summary": "요약",
-                "businesses": [
+                "fields": [
                     {
-                        "business": "mx",
+                        "field": "ai",
                         "summary": "s",
                         "claims": [
                             {"text": f"주장 {n}", "item_ids": ids[n : n + 3]} for n in range(3)
@@ -208,5 +208,5 @@ def test_briefing_api_includes_strategy(
     assert strategy["status"] == "ok" and len(strategy["personas"]) == 30
     mx = next(p for p in strategy["personas"] if p["key"] == "mx_head")
     assert mx["name"] == "MX 사업부장" and mx["status"] == "insight"
-    assert strategy["report"]["businesses"][0]["claims"][0]["id"] == "mx-1"
+    assert strategy["report"]["fields"][0]["claims"][0]["id"] == "ai-1"
     assert {ref["id"] for ref in strategy["items"]} >= set(mx["item_ids"])

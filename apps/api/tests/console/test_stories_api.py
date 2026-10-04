@@ -106,9 +106,9 @@ def seed(db_session: Session) -> dict[str, int]:
                 attempts=0,
                 generated_at=now,
                 scope=scope,
-                businesses=businesses,
+                signal_type="launch" if businesses else None,
                 relevance=relevance,
-                field="mobile_edge",
+                field="platform_sw",
                 taxonomy_revision=TAXONOMY_REVISION,
             )
         )
@@ -123,8 +123,10 @@ def test_card_feed_filters_by_classification_and_dedups_stories(
     seed(db_session)
 
     relevant = console_client.get("/api/admin/cards?scope=relevant", headers=headers).json()
-    mx = console_client.get("/api/admin/cards?business=mx", headers=headers).json()
-    dedup = console_client.get("/api/admin/cards?business=mx&dedup=true", headers=headers).json()
+    mx = console_client.get("/api/admin/cards?signal_type=launch", headers=headers).json()
+    dedup = console_client.get(
+        "/api/admin/cards?signal_type=launch&dedup=true", headers=headers
+    ).json()
 
     assert relevant["total"] == 4
     assert mx["total"] == 2 and dedup["total"] == 1

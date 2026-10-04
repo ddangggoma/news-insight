@@ -46,14 +46,14 @@ def test_classification_is_validated_against_the_taxonomy() -> None:
                 "title_ko": "갤럭시 S30",
                 "summary_ko": [],
                 "keywords": [],
-                "field": "mobile_edge",
+                "field": "platform_sw",
                 "themes": [
                     "smartphone_compute",
-                    "ai_data__edge_ai",
+                    "ai__on_device_ai",
                     "nope",
-                    "mobile_edge__smartphone_compute",
+                    "platform_sw__device_os",
                 ],
-                "businesses": ["mx", "mx", "semiconductor"],
+                "signal_type": "launch",
                 "impact": "opportunity",
                 "scope": "dx",
                 "relevance": 140,
@@ -64,8 +64,8 @@ def test_classification_is_validated_against_the_taxonomy() -> None:
                 "summary_ko": [],
                 "keywords": [],
                 "field": "unknown",
-                "themes": ["display_media__oled_microled"],
-                "businesses": [],
+                "themes": ["display_av__display_panel"],
+                "signal_type": "boom",
                 "impact": "boom",
                 "scope": "maybe",
                 "relevance": -5,
@@ -76,12 +76,18 @@ def test_classification_is_validated_against_the_taxonomy() -> None:
     drafts = parse_drafts(raw, INPUTS)
 
     first, second = drafts[1], drafts[2]
-    assert first.themes == ["mobile_edge__smartphone_compute", "ai_data__edge_ai"]
-    assert (first.businesses, first.impact, first.scope, first.relevance) == (
-        ["mx"],
+    assert first.themes == ["ai__on_device_ai", "platform_sw__device_os"]
+    assert first.field == "ai"  # the primary field follows the first theme
+    assert (first.signal_type, first.impact, first.scope, first.relevance) == (
+        "launch",
         "opportunity",
         "dx",
         100,
     )
-    assert second.field == "display_media"
-    assert (second.impact, second.scope, second.relevance) == (None, None, 0)
+    assert second.field == "display_av"
+    assert (second.signal_type, second.impact, second.scope, second.relevance) == (
+        None,
+        None,
+        None,
+        0,
+    )

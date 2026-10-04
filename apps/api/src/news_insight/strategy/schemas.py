@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field, ValidationError
 
 from news_insight.digest.schemas import inline_schema
 from news_insight.strategy.personas import PERSONA_KEYS, PERSONAS
-from news_insight.taxonomy.catalog import BUSINESS_KEYS
+from news_insight.taxonomy.catalog import FIELD_KEYS
 
 MIN_STORIES = 2
 
@@ -31,8 +31,10 @@ class Claim(BaseModel):
     item_ids: list[int] = Field(default_factory=list, max_length=8)
 
 
-class BusinessSection(BaseModel):
-    business: str
+class FieldSection(BaseModel):
+    """Claims grouped by technology field (taxonomy v2; there is no business axis)."""
+
+    field: str
     summary: str = Field(max_length=800)
     claims: list[Claim] = Field(default_factory=list, max_length=6)
 
@@ -43,7 +45,7 @@ class RoadmapEntry(Claim):
 
 class StrategyReport(BaseModel):
     summary: str = Field(min_length=1, max_length=1500)
-    businesses: list[BusinessSection] = Field(default_factory=list)
+    fields: list[FieldSection] = Field(default_factory=list)
     roadmap: list[RoadmapEntry] = Field(default_factory=list, max_length=12)
     opportunities: list[Claim] = Field(default_factory=list, max_length=8)
     risks: list[Claim] = Field(default_factory=list, max_length=8)
@@ -92,9 +94,9 @@ def validate_personas(raw: Any, story_of: dict[int, int]) -> list[PersonaInsight
 
 def number_claims(report: StrategyReport) -> list[Claim]:
     claims: list[Claim] = []
-    for section in report.businesses:
+    for section in report.fields:
         for index, claim in enumerate(section.claims):
-            claim.id = f"{section.business}-{index + 1}"
+            claim.id = f"{section.field}-{index + 1}"
             claims.append(claim)
     for prefix, group in (
         ("roadmap", report.roadmap),
@@ -118,13 +120,13 @@ def _keep_supported[C: Claim](claims: list[C], story_of: dict[int, int]) -> list
 
 
 def validate_report(raw: Any, story_of: dict[int, int]) -> StrategyReport | None:
-    """Drop claims lacking two-story evidence and sections for unknown businesses."""
+    """Drop claims lacking two-story evidence and sections for unknown fields."""
     try:
         report = StrategyReport.model_validate(raw)
     except ValidationError:
         return None
-    report.businesses = [s for s in report.businesses if s.business in BUSINESS_KEYS]
-    for section in report.businesses:
+    report.fields = [s for s in report.fields if s.field in FIELD_KEYS]
+    for section in report.fields:
         section.claims = _keep_supported(section.claims, story_of)
     report.roadmap = _keep_supported(report.roadmap, story_of)
     report.opportunities = _keep_supported(report.opportunities, story_of)
@@ -140,7 +142,7 @@ def apply_review(report: StrategyReport, review: Review) -> tuple[StrategyReport
         return [c for c in claims if c.id not in flagged]
 
     before = len(number_claims(report))
-    for section in report.businesses:
+    for section in report.fields:
         section.claims = keep(section.claims)
     report.roadmap = keep(report.roadmap)
     report.opportunities = keep(report.opportunities)

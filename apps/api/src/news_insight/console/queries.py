@@ -236,7 +236,7 @@ def card_body(card: ItemCard) -> CardBody:
         generated_at=card.generated_at,
         field=card.field,
         themes=list(card.themes or []),
-        businesses=list(card.businesses or []),
+        signal_type=card.signal_type,
         impact=card.impact,
         scope=card.scope,
         relevance=card.relevance,

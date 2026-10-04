@@ -10,7 +10,7 @@ import { PaginationBar } from "@/components/console/pagination-bar";
 import { api } from "@/lib/api";
 import { formatRelative, TRACK_LABEL } from "@/lib/format";
 import { pageParam, param, type SearchParams } from "@/lib/params";
-import { BUSINESS_LABEL } from "@/lib/taxonomy";
+import { SIGNAL_LABEL } from "@/lib/taxonomy";
 import type { Page, StoryView, Track } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -25,7 +25,7 @@ export default async function StoriesPage({ searchParams }: { searchParams: Prom
     min_size: param(sp, "min_size") ?? "2",
     min_tracks: param(sp, "min_tracks"),
     track: param(sp, "track"),
-    business: param(sp, "business"),
+    signal_type: param(sp, "signal_type"),
   };
   const focus = Number(param(sp, "focus") ?? 0);
   const page = pageParam(sp);
@@ -42,7 +42,7 @@ export default async function StoriesPage({ searchParams }: { searchParams: Prom
           { name: "min_size", label: "최소 기사 수", value: filters.min_size, options: [{ value: "1", label: "1건 이상" }, { value: "2", label: "2건 이상" }, { value: "3", label: "3건 이상" }, { value: "5", label: "5건 이상" }] },
           { name: "min_tracks", label: "트랙 수", value: filters.min_tracks, options: [{ value: "2", label: "2개 트랙 이상" }] },
           { name: "track", label: "트랙", value: filters.track, options: (Object.entries(TRACK_LABEL) as [Track, string][]).map(([value, label]) => ({ value, label })) },
-          { name: "business", label: "사업부", value: filters.business, options: Object.entries(BUSINESS_LABEL).map(([value, label]) => ({ value, label })) },
+          { name: "signal_type", label: "신호 유형", value: filters.signal_type, options: Object.entries(SIGNAL_LABEL).map(([value, label]) => ({ value, label })) },
         ]}
       />
       {data.items.length === 0 ? (

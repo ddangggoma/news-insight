@@ -41,7 +41,7 @@ def seed(db_session: Session, candidates: list[list[str]], *, scope: str = "dx")
                 keywords=[],
                 input_hash=item.content_hash,
                 generated_at=now,
-                field="network_comms",
+                field="connectivity",
                 scope=scope,
                 relevance=50 + index,
                 topic_candidates=candidates[index],
@@ -59,7 +59,7 @@ def test_candidates_group_spelling_variants(
 
     assert [c["key"] for c in body] == [candidate_key("위성 직접통신")]
     top = body[0]
-    assert top["count"] == 3 and top["fields"] == {"network_comms": 3}
+    assert top["count"] == 3 and top["fields"] == {"connectivity": 3}
     assert len(top["examples"]) == 3 and top["examples"][0]["title_ko"] == "카드 2"
     single = console_client.get(
         "/api/admin/topic-candidates", params={"min_count": 1}, headers=headers

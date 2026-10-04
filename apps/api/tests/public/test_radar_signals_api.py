@@ -103,7 +103,7 @@ def test_keyword_debut_and_return(
     assert keywords["oled"]["returning"] is False
     assert keywords["ai에이전트"]["debut"] is True
     # a report 30 weeks ago makes this week's "new" oled a returning keyword
-    add_report(db_session, "old oled story", 24 * 7 * 30, "display_media", ["OLED"])
+    add_report(db_session, "old oled story", 24 * 7 * 30, "display_av", ["OLED"])
     keywords = {k["key"]: k for k in radar(public_client, public_headers)["keywords"]}
     assert keywords["oled"]["state"] == "new"
     assert keywords["oled"]["returning"] is True
@@ -134,7 +134,7 @@ def test_radar_engagement_counts_growth_inside_the_window(
     engagement = radar(public_client, public_headers)["engagement"]
     assert engagement["measured"] == 1
     assert engagement["themes"] == [
-        {"key": "display_media__oled_microled", "score": round(log1p(100), 2), "items": 1}
+        {"key": "display_av__display_panel", "score": round(log1p(100), 2), "items": 1}
     ]
     top = engagement["top"][0]
     assert (top["id"], top["metric"], top["gain"], top["current"]) == (repo, "stars", 100, 110)
@@ -146,12 +146,12 @@ def test_radar_calendar_flags_a_category_spike(
     public_client: TestClient, public_headers: dict[str, str], db_session: Session
 ) -> None:
     for n in range(9):
-        add_report(db_session, f"quantum launch {n}", 1 + n * 0.1, "emerging_science", ["양자"])
+        add_report(db_session, f"quantum launch {n}", 1 + n * 0.1, "frontier", ["양자"])
     calendar = radar(public_client, public_headers)["calendar"]
     assert len(calendar["days"]) == 84
     today = (NOW - timedelta(hours=1)).astimezone(KST).date().isoformat()
     [anomaly] = calendar["anomalies"]
-    assert (anomaly["day"], anomaly["field"], anomaly["count"]) == (today, "emerging_science", 9)
+    assert (anomaly["day"], anomaly["field"], anomaly["count"]) == (today, "frontier", 9)
     assert anomaly["keywords"] == [{"key": "양자", "label": "양자", "count": 9}]
 
 
@@ -164,9 +164,9 @@ def test_radar_field_links_and_baseline_tracks(
     db_session.execute(
         update(ItemCard)
         .where(ItemCard.item_id == corpus["Galaxy agent OS"])
-        .values(themes=["ai_data__ai_agents", "mobile_edge__smartphone_compute"])
+        .values(themes=["ai__ai_agents", "platform_sw__device_os"])
     )
     body = radar(public_client, public_headers)
-    assert body["field_links"] == [{"a": "ai_data", "b": "mobile_edge", "count": 1, "previous": 0}]
-    network = {f["key"]: f for f in body["fields"]}["network_comms"]
+    assert body["field_links"] == [{"a": "ai", "b": "platform_sw", "count": 1, "previous": 0}]
+    network = {f["key"]: f for f in body["fields"]}["connectivity"]
     assert network["baseline_tracks"]["news"] == 1

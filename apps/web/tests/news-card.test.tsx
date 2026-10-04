@@ -29,9 +29,9 @@ const VIEW: CardView = {
     engine: "agy",
     model: "gemini",
     generated_at: "2026-10-04T00:10:00Z",
-    field: "mobile_edge",
-    themes: ["mobile_edge__smartphone_compute"],
-    businesses: ["mx"],
+    field: "platform_sw",
+    themes: ["platform_sw__device_os"],
+    signal_type: "launch",
     impact: "opportunity",
     scope: "dx",
     relevance: 82,
@@ -49,9 +49,9 @@ describe("NewsCard", () => {
     expect(screen.getByRole("link", { name: "#삼성" })).toHaveAttribute("href", "/console/cards?q=%EC%82%BC%EC%84%B1");
     expect(screen.getByRole("link", { name: /원문/ })).toHaveAttribute("href", "https://example.com/s30");
     expect(screen.getByText("2시간 전")).toBeInTheDocument();
-    expect(screen.getByText("MX")).toBeInTheDocument();
+    expect(screen.getByText("제품·기능 출시")).toBeInTheDocument();
     expect(screen.getByText("기회")).toBeInTheDocument();
-    expect(screen.getByText("스마트폰·모바일 컴퓨팅")).toBeInTheDocument();
+    expect(screen.getByText("디바이스 OS·플랫폼")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "관련 3건" })).toHaveAttribute("href", "/console/stories?focus=9");
   });
 

@@ -121,7 +121,7 @@ def seed(
                 generated_at=when,
                 scope="dx",
                 relevance=70,
-                businesses=["mx"],
+                signal_type="launch",
             )
         )
     db_session.flush()

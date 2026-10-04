@@ -126,7 +126,7 @@ class Theme:
 
 THEMES = [
     Theme(
-        "ai_data__ai_agents",
+        "ai__ai_agents",
         14,
         "surge",
         (5, 4, 2, 3),
@@ -139,14 +139,14 @@ THEMES = [
             Kw("A2A 프로토콜", 1, start=DAYS - 60),
         ],
         also=(
-            ("software_dev__developer_experience", 0.15),
-            ("ai_data__edge_ai", 0.15),
+            ("platform_sw__developer_tools", 0.15),
+            ("ai__on_device_ai", 0.15),
         ),
         stars=2.5,
         chains=30,
     ),
     Theme(
-        "ai_data__generative_foundation",
+        "ai__foundation_models",
         20,
         "flat",
         (5, 3, 3, 2),
@@ -161,7 +161,7 @@ THEMES = [
         chains=18,
     ),
     Theme(
-        "ai_data__edge_ai",
+        "ai__on_device_ai",
         9,
         "grow",
         (3, 2, 3, 3),
@@ -172,18 +172,18 @@ THEMES = [
             Kw("소형 언어모델", variants=("SLM",)),
             Kw("양자화"),
         ],
-        also=(("semiconductor__soc_npu", 0.35), ("mobile_edge__smartphone_compute", 0.2)),
+        also=(("semis__ap_soc_npu", 0.35), ("platform_sw__device_os", 0.2)),
         chains=15,
     ),
     Theme(
-        "ai_data__multimodal",
+        "ai__multimodal_perception",
         8,
         "flat",
         (3, 2, 3, 2),
         keywords=[Kw("비전 언어 모델"), Kw("음성 AI"), Kw("월드 모델")],
     ),
     Theme(
-        "ai_data__mlops_data",
+        "cloud_data__data_ml_platform",
         5,
         "flat",
         (2, 2, 1, 4),
@@ -191,17 +191,17 @@ THEMES = [
         stars=1.5,
     ),
     Theme(
-        "semiconductor__memory_hbm_cxl",
+        "semis__memory_storage",
         11,
         "grow",
         (6, 1, 2, 1),
         regions={KR: 0.55, EN: 0.3, JP: 0.05, CN: 0.07, EU: 0.03},
         impacts=(0.5, 0.3, 0.2),
         keywords=[Kw("HBM4", 3), Kw("CXL"), Kw("LPDDR6"), Kw("PIM")],
-        also=(("cloud_infra__finops_green_compute", 0.15),),
+        also=(("cloud_data__infra_ops", 0.15),),
     ),
     Theme(
-        "semiconductor__advanced_packaging",
+        "semis__packaging_chiplet",
         5,
         "new",
         (3, 0, 4, 1),
@@ -213,23 +213,23 @@ THEMES = [
         ],
     ),
     Theme(
-        "semiconductor__soc_npu",
+        "semis__ap_soc_npu",
         6,
         "flat",
         (4, 1, 2, 1),
         keywords=[Kw("엑시노스"), Kw("2나노"), Kw("RISC-V")],
     ),
     Theme(
-        "mobile_edge__smartphone_compute",
+        "platform_sw__device_os",
         11,
         "wave",
         (7, 3, 0, 0),
         official=0.25,
         keywords=[Kw("갤럭시", 2), Kw("폴더블"), Kw("아이폰"), Kw("트라이폴드")],
-        also=(("ai_data__edge_ai", 0.3),),
+        also=(("ai__on_device_ai", 0.3),),
     ),
     Theme(
-        "mobile_edge__android_mobile_os",
+        "platform_sw__device_os",
         6,
         "spike",
         (5, 2, 0, 1),
@@ -237,14 +237,14 @@ THEMES = [
         keywords=[Kw("One UI 9", 3, start=DAYS - 10), Kw("Android 17"), Kw("Wear OS")],
     ),
     Theme(
-        "mobile_edge__wearable_health",
+        "health_tech__biosensing",
         6,
         "grow",
         (3, 2, 2, 1),
         keywords=[Kw("스마트링"), Kw("비침습 혈당"), Kw("갤럭시 워치")],
     ),
     Theme(
-        "display_media__oled_microled",
+        "display_av__display_panel",
         7,
         "flat",
         (2, 1, 5, 1),
@@ -254,7 +254,7 @@ THEMES = [
         keywords=[Kw("OLED", 2), Kw("마이크로LED", variants=("MicroLED",)), Kw("QD-OLED")],
     ),
     Theme(
-        "display_media__xr_spatial_display",
+        "display_av__xr_spatial",
         7,
         "fall",
         (5, 3, 1, 1),
@@ -268,7 +268,7 @@ THEMES = [
         ],
     ),
     Theme(
-        "network_comms__fiveg_sixg",
+        "connectivity__cellular_5g_6g",
         7,
         "fall",
         (3, 1, 3, 0),
@@ -276,14 +276,14 @@ THEMES = [
         keywords=[Kw("6G", 2), Kw("5G-Advanced"), Kw("AI-RAN")],
     ),
     Theme(
-        "network_comms__satellite_ntn",
+        "connectivity__satellite_ntn",
         4,
         "grow",
         (2, 1, 2, 0),
         keywords=[Kw("NTN", variants=("비지상 네트워크",)), Kw("위성 직접통신")],
     ),
     Theme(
-        "cloud_infra__kubernetes_container",
+        "cloud_data__infra_ops",
         6,
         "flat",
         (1, 3, 0, 4),
@@ -291,7 +291,7 @@ THEMES = [
         stars=1.5,
     ),
     Theme(
-        "cloud_infra__finops_green_compute",
+        "cloud_data__infra_ops",
         4,
         "grow",
         (2, 1, 1, 1),
@@ -299,7 +299,7 @@ THEMES = [
         keywords=[Kw("데이터센터 전력"), Kw("액침 냉각")],
     ),
     Theme(
-        "software_dev__developer_experience",
+        "platform_sw__developer_tools",
         6,
         "grow",
         (1, 4, 0, 5),
@@ -312,14 +312,14 @@ THEMES = [
         chains=12,
     ),
     Theme(
-        "software_dev__language_compiler",
+        "platform_sw__developer_tools",
         4,
         "flat",
         (1, 3, 1, 2),
         keywords=[Kw("Rust"), Kw("Mojo")],
     ),
     Theme(
-        "open_source__supply_chain_sbom",
+        "security__software_supply_chain",
         4,
         "flat",
         (1, 2, 1, 2),
@@ -327,7 +327,7 @@ THEMES = [
         keywords=[Kw("SBOM"), Kw("xz 백도어")],
     ),
     Theme(
-        "security_privacy__privacy_cryptography",
+        "security__privacy_crypto",
         4,
         "new",
         (1, 1, 4, 2),
@@ -336,7 +336,7 @@ THEMES = [
         chains=12,
     ),
     Theme(
-        "security_privacy__device_hardware_security",
+        "security__device_security",
         5,
         "wave",
         (3, 2, 2, 0),
@@ -344,17 +344,17 @@ THEMES = [
         keywords=[Kw("Knox"), Kw("TEE")],
     ),
     Theme(
-        "robotics_auto__humanoid_service_robot",
+        "robotics_mobility__humanoid_embodied",
         6,
         "surge",
         (4, 2, 2, 2),
         regions={KR: 0.2, EN: 0.4, JP: 0.25, CN: 0.12, EU: 0.03},
         keywords=[Kw("휴머노이드", 2, variants=("Humanoid",)), Kw("가정용 로봇"), Kw("Optimus")],
-        also=(("robotics_auto__embodied_ai", 0.3),),
+        also=(("robotics_mobility__humanoid_embodied", 0.3),),
         stars=1.5,
     ),
     Theme(
-        "robotics_auto__embodied_ai",
+        "robotics_mobility__humanoid_embodied",
         4,
         "grow",
         (1, 1, 5, 4),
@@ -364,12 +364,12 @@ THEMES = [
             Kw("로봇 파운데이션 모델"),
             Kw("시뮬레이션 학습"),
         ],
-        also=(("ai_data__multimodal", 0.3),),
+        also=(("ai__multimodal_perception", 0.3),),
         stars=3,
         chains=24,
     ),
     Theme(
-        "robotics_auto__autonomous_adas",
+        "robotics_mobility__autonomous_driving",
         6,
         "hype",
         (4, 2, 1, 1),
@@ -378,10 +378,10 @@ THEMES = [
             Kw("SDV"),
             Kw("자율주행 레벨3", variants=("자율 주행 레벨3",)),
         ],
-        also=(("ai_data__multimodal", 0.2),),
+        also=(("ai__multimodal_perception", 0.2),),
     ),
     Theme(
-        "manufacturing_supply__supply_resilience",
+        "manufacturing__logistics_automation",
         4,
         "flat",
         (4, 0, 1, 0),
@@ -389,14 +389,14 @@ THEMES = [
         keywords=[Kw("공급망 재편"), Kw("희토류")],
     ),
     Theme(
-        "product_market__competition_partnership",
+        "platform_sw__app_ecosystem",
         8,
         "wave",
         (7, 2, 0, 0),
         keywords=[Kw("인수합병"), Kw("파트너십")],
     ),
     Theme(
-        "policy_ip_standards__ai_governance_ethics",
+        "ai__ai_safety_eval",
         6,
         "grow",
         (4, 2, 2, 0),
@@ -405,7 +405,7 @@ THEMES = [
         keywords=[Kw("EU AI Act", 2), Kw("AI 기본법", 2)],
     ),
     Theme(
-        "policy_ip_standards__export_geopolitics",
+        "semis__ap_soc_npu",
         5,
         "flat",
         (5, 1, 0, 0),
@@ -413,7 +413,7 @@ THEMES = [
         keywords=[Kw("수출통제", 2), Kw("관세")],
     ),
     Theme(
-        "emerging_science__quantum_technology",
+        "frontier__quantum",
         3,
         "grow",
         (1, 1, 3, 1),
@@ -421,7 +421,7 @@ THEMES = [
         chains=9,
     ),
     Theme(
-        "emerging_science__battery_energy",
+        "energy__battery_charging",
         4,
         "flat",
         (3, 1, 2, 0),
@@ -431,8 +431,8 @@ THEMES = [
 ]
 # PQC meets quantum only in the current week: a brand-new cross-category link
 NEW_LINK = (
-    "security_privacy__privacy_cryptography",
-    "emerging_science__quantum_technology",
+    "security__privacy_crypto",
+    "frontier__quantum",
     DAYS - 6,
 )
 
@@ -449,37 +449,21 @@ def weekday_near(days_ago: int) -> int:
 EVENTS = {  # day → (boost per theme, extra official share)
     weekday_near(8): (
         {
-            "mobile_edge__smartphone_compute": 14,
-            "mobile_edge__wearable_health": 8,
-            "mobile_edge__android_mobile_os": 6,
+            "platform_sw__device_os": 14,
+            "health_tech__biosensing": 8,
+            "ai__on_device_ai": 6,
         },
         0.3,
     ),
-    DAYS - 3: ({"display_media__xr_spatial_display": 12}, 0.0),  # 메타버스 comes back
+    DAYS - 3: ({"display_av__xr_spatial": 12}, 0.0),  # 메타버스 comes back
     weekday_near(35): (
         {
-            "ai_data__ai_agents": 8,
-            "ai_data__generative_foundation": 6,
-            "software_dev__developer_experience": 8,
+            "ai__ai_agents": 8,
+            "ai__foundation_models": 6,
+            "platform_sw__developer_tools": 8,
         },
         0.1,
     ),
-}
-BUSINESS = {
-    "ai_data": ["mx", "da", "vd"],
-    "semiconductor": ["mx"],
-    "mobile_edge": ["mx", "health"],
-    "display_media": ["vd", "mx"],
-    "network_comms": ["networks"],
-    "cloud_infra": [],
-    "software_dev": ["mx"],
-    "open_source": [],
-    "security_privacy": ["mx", "networks"],
-    "robotics_auto": ["da", "harman"],
-    "manufacturing_supply": ["da"],
-    "product_market": ["mx", "vd", "da"],
-    "policy_ip_standards": ["mx", "networks"],
-    "emerging_science": ["mx", "harman"],
 }
 
 
@@ -643,6 +627,9 @@ def plan_items() -> list[Plan]:
     return plans
 
 
+SIGNALS = ["research", "launch", "market", "ecosystem", "standard", "regulation"]
+
+
 def main() -> None:
     database = make_url(get_settings().database_url).database or ""
     if "demo" not in database:
@@ -698,7 +685,6 @@ def main() -> None:
         for n, plan in enumerate(plans):
             item = items[f"demo-{n}"]
             field_key = plan.theme.key.split("__")[0]
-            hint = BUSINESS[field_key]
             opportunity, risk, _ = plan.theme.impacts
             r = rng.random()
             session.add(
@@ -718,7 +704,7 @@ def main() -> None:
                     generated_at=item.first_seen_at,
                     field=field_key,
                     themes=plan.themes,
-                    businesses=rng.sample(hint, k=min(len(hint), rng.choice([0, 1, 1, 2]))),
+                    signal_type=rng.choice(SIGNALS),
                     impact="opportunity"
                     if r < opportunity
                     else ("risk" if r < opportunity + risk else "watch"),

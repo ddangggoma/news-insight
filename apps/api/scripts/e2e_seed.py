@@ -49,16 +49,16 @@ SOURCES = [
     ("hn", "Hacker News", Track.COMMUNITY, "dev_forum", Region.GLOBAL_EN),
 ]
 
-# (source, original title, Korean title, summary, field, theme, businesses, impact)
-CARDS: list[tuple[str, str, str, list[str], str, str, list[str], str]] = [
+# (source, original title, Korean title, summary, field, theme, signal type, impact)
+CARDS: list[tuple[str, str, str, list[str], str, str, str, str]] = [
     (
         "etnews",
         "삼성, 온디바이스 AI 칩 공개",
         "삼성, 차세대 온디바이스 AI 칩 공개",
         ["NPU 성능을 2배로 높였다.", "갤럭시 S30에 처음 탑재된다."],
-        "mobile_edge",
-        "mobile_edge__smartphone_compute",
-        ["mx"],
+        "platform_sw",
+        "platform_sw__device_os",
+        "launch",
         "opportunity",
     ),
     (
@@ -66,9 +66,9 @@ CARDS: list[tuple[str, str, str, list[str], str, str, list[str], str]] = [
         "Samsung unveils Micro RGB TV",
         "삼성, 마이크로 RGB TV 공개",
         ["백라이트 없는 자발광 구조다.", "내년 상반기 출시 예정이다."],
-        "display_media",
-        "display_media__oled_microled",
-        ["vd"],
+        "display_av",
+        "display_av__display_panel",
+        "launch",
         "opportunity",
     ),
     (
@@ -76,9 +76,9 @@ CARDS: list[tuple[str, str, str, list[str], str, str, list[str], str]] = [
         "Apple foldable iPhone enters production",
         "애플 폴더블 아이폰 양산 돌입",
         ["힌지 공급망이 확정됐다.", "2027년 출시가 유력하다."],
-        "mobile_edge",
-        "mobile_edge__smartphone_compute",
-        ["mx"],
+        "platform_sw",
+        "platform_sw__device_os",
+        "launch",
         "risk",
     ),
     (
@@ -86,9 +86,9 @@ CARDS: list[tuple[str, str, str, list[str], str, str, list[str], str]] = [
         "Matter 1.5 adds energy management",
         "매터 1.5, 가전 에너지 관리 기능 추가",
         ["스마트홈 표준에 전력 관리 API가 생겼다."],
-        "network_comms",
-        "network_comms__short_range_wireless",
-        ["da"],
+        "connectivity",
+        "connectivity__short_range_wireless",
+        "standard",
         "watch",
     ),
     (
@@ -96,9 +96,9 @@ CARDS: list[tuple[str, str, str, list[str], str, str, list[str], str]] = [
         "Quantized LLMs for phones",
         "스마트폰용 4비트 양자화 LLM 기법",
         ["메모리 사용량을 60% 줄였다.", "정확도 손실은 1% 미만이다."],
-        "ai_data",
-        "ai_data__edge_ai",
-        ["mx"],
+        "ai",
+        "ai__on_device_ai",
+        "launch",
         "opportunity",
     ),
     (
@@ -106,9 +106,9 @@ CARDS: list[tuple[str, str, str, list[str], str, str, list[str], str]] = [
         "6G semantic communication survey",
         "6G 시맨틱 통신 연구 동향 서베이",
         ["표준화 일정과 핵심 과제를 정리했다."],
-        "network_comms",
-        "network_comms__fiveg_sixg",
-        ["networks"],
+        "connectivity",
+        "connectivity__cellular_5g_6g",
+        "research",
         "watch",
     ),
     (
@@ -116,9 +116,9 @@ CARDS: list[tuple[str, str, str, list[str], str, str, list[str], str]] = [
         "llama.cpp adds NPU backend",
         "llama.cpp, 모바일 NPU 백엔드 추가",
         ["엑시노스와 스냅드래곤 NPU를 지원한다."],
-        "open_source",
-        "open_source__project_trends",
-        ["mx"],
+        "platform_sw",
+        "platform_sw__developer_tools",
+        "launch",
         "opportunity",
     ),
     (
@@ -126,9 +126,9 @@ CARDS: list[tuple[str, str, str, list[str], str, str, list[str], str]] = [
         "Discussion: smart TV ads backlash",
         "스마트 TV 광고 강제 노출에 개발자 반발",
         ["플랫폼 광고 정책에 대한 비판이 커졌다."],
-        "product_market",
-        "product_market__consumer_electronics",
-        ["vd"],
+        "platform_sw",
+        "platform_sw__device_os",
+        "launch",
         "risk",
     ),
 ]
@@ -246,11 +246,11 @@ def _strategy(day: date, items: list[Item], now: datetime) -> StrategyRun:
     claim = lambda cid, text_, refs: {"id": cid, "text": text_, "item_ids": refs}  # noqa: E731
     report = {
         "summary": "모바일 AI와 폴더블 폼팩터에서 동시 대응이 필요하다.",
-        "businesses": [
+        "fields": [
             {
-                "business": "mx",
+                "field": "ai",
                 "summary": "NPU·폴더블 동시 대응",
-                "claims": [claim("mx-1", "NPU 성능 우위를 마케팅 핵심으로", ids[0:1] + ids[4:5])],
+                "claims": [claim("ai-1", "NPU 성능 우위를 마케팅 핵심으로", ids[0:1] + ids[4:5])],
             }
         ],
         "roadmap": [
@@ -293,7 +293,7 @@ def seed(session: Session) -> None:
     for day in (YESTERDAY, TODAY):
         now = NOW - timedelta(days=(TODAY - day).days)
         items = []
-        for index, (key, title, title_ko, summary, field, theme, businesses, impact) in enumerate(
+        for index, (key, title, title_ko, summary, field, theme, signal, impact) in enumerate(
             CARDS
         ):
             source = sources[key]
@@ -328,7 +328,7 @@ def seed(session: Session) -> None:
                     generated_at=now,
                     field=field,
                     themes=[theme],
-                    businesses=businesses,
+                    signal_type=signal,
                     impact=impact,
                     scope="dx",
                     relevance=80 - index,

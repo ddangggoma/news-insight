@@ -9,7 +9,7 @@ import { StatCard } from "@/components/console/stat-card";
 import { api } from "@/lib/api";
 import { CATEGORY_LABEL, formatNumber, formatPercent, formatRelative, REGION_LABEL, TRACK_LABEL } from "@/lib/format";
 import { pageParam, param, type SearchParams } from "@/lib/params";
-import { BUSINESS_LABEL, FIELD_LABEL, IMPACT_LABEL, SCOPE_LABEL } from "@/lib/taxonomy";
+import { FIELD_LABEL, IMPACT_LABEL, SCOPE_LABEL, SIGNAL_LABEL } from "@/lib/taxonomy";
 import type { CardFailure, CardStats, CardView, Page, Region, Track } from "@/lib/types";
 
 export const metadata = { title: "카드 뉴스" };
@@ -29,7 +29,7 @@ export default async function CardsPage({ searchParams }: { searchParams: Promis
     days: param(sp, "days"),
     q: param(sp, "q"),
     field: param(sp, "field"),
-    business: param(sp, "business"),
+    signal_type: param(sp, "signal_type"),
     impact: param(sp, "impact"),
     scope: param(sp, "scope"),
     view: param(sp, "view"),
@@ -79,7 +79,7 @@ export default async function CardsPage({ searchParams }: { searchParams: Promis
           { name: "track", label: "트랙", value: filters.track, options: options<Track>(TRACK_LABEL) },
           { name: "category", label: "범주", value: filters.category, options: options(CATEGORY_LABEL) },
           { name: "region", label: "지역", value: filters.region, options: options<Region>(REGION_LABEL) },
-          { name: "business", label: "사업부", value: filters.business, options: options(BUSINESS_LABEL) },
+          { name: "signal_type", label: "신호 유형", value: filters.signal_type, options: options(SIGNAL_LABEL) },
           { name: "field", label: "분야", value: filters.field, options: options(FIELD_LABEL) },
           { name: "impact", label: "영향", value: filters.impact, options: options(IMPACT_LABEL) },
           {

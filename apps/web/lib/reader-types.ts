@@ -17,7 +17,7 @@ export interface ReaderItem {
   keywords: string[];
   field: string | null;
   themes: string[];
-  businesses: string[];
+  signal_type: string | null;
   impact: string | null;
   scope: string | null;
   relevance: number | null;
@@ -56,7 +56,7 @@ export interface ReaderItemDetail {
   same_field: LinkedItem[];
 }
 
-export type Facets = Record<"field" | "theme" | "business" | "impact" | "track" | "region" | "scope", Record<string, number>>;
+export type Facets = Record<"field" | "theme" | "signal" | "impact" | "track" | "region" | "scope", Record<string, number>>;
 
 export interface Count {
   key: string;
@@ -78,7 +78,7 @@ export interface Insights {
   keywords: KeywordTrend[];
   related_keywords: string[];
   fields: Count[];
-  businesses: Count[];
+  signal_types: Count[];
   impacts: Count[];
 }
 
@@ -147,6 +147,7 @@ export interface FlowLink {
 }
 
 export interface Radar {
+  taxonomy_revised_on?: string | null;
   window: RadarWindow;
   periods: string[];
   kpis: {
@@ -212,7 +213,7 @@ export interface TopicDetail {
   topic: Topic;
   themes: Count[];
   keywords: { key: string; label: string; count: number }[];
-  businesses: Count[];
+  signal_types: Count[];
   regions: Count[];
   stories: ReaderItem[];
 }

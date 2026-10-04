@@ -58,27 +58,27 @@ def test_radar_scores_fields_and_themes(
 ) -> None:
     body = get(public_client, public_headers, "radar", period="week", key="2026-W40")
     fields = by_key(body["fields"])
-    assert [row["key"] for row in body["fields"]][:2] == ["ai_data", "display_media"]
-    ai = fields["ai_data"]
+    assert [row["key"] for row in body["fields"]][:2] == ["ai", "display_av"]
+    ai = fields["ai"]
     assert ai["counts"] == [0, 0, 0, 0, 0, 0, 0, 2]
     assert (ai["change"], ai["z"], ai["state"], ai["sources"]) == (None, 2.0, "new", 2)
     assert ai["tracks"] == {"news": 2, "community": 0, "research_ip": 0, "oss": 0}
     assert ai["impacts"] == {"opportunity": 2, "risk": 0, "watch": 0}
-    display = fields["display_media"]
+    display = fields["display_av"]
     assert display["tracks"] == {"news": 0, "community": 0, "research_ip": 1, "oss": 1}
-    network = fields["network_comms"]
+    network = fields["connectivity"]
     assert network["counts"][-2:] == [1, 0]
     assert network["change"] == -100.0
     assert network["state"] is None
     assert network["previous_tracks"]["news"] == 1
 
     themes = by_key(body["themes"])
-    oled = themes["display_media__oled_microled"]
-    assert (oled["field"], oled["counts"][-1], oled["state"]) == ("display_media", 2, "new")
+    oled = themes["display_av__display_panel"]
+    assert (oled["field"], oled["counts"][-1], oled["state"]) == ("display_av", 2, "new")
     assert set(themes) == {
-        "ai_data__ai_agents",
-        "display_media__oled_microled",
-        "network_comms__fiveg_sixg",
+        "ai__ai_agents",
+        "display_av__display_panel",
+        "connectivity__cellular_5g_6g",
     }
 
 
@@ -93,7 +93,7 @@ def test_radar_keywords_normalize_and_track_lifecycle(
     assert agent["label"] == "AI 에이전트"
     assert agent["counts"] == [0, 0, 0, 0, 0, 0, 1, 2]
     assert agent["state"] == "rising"
-    assert agent["field"] == "ai_data"
+    assert agent["field"] == "ai"
     assert keywords["oled"]["state"] == "new"
     assert body["pairs"] == []
 
@@ -114,14 +114,17 @@ def test_radar_keyword_pairs_with_lift(
     assert body["pairs"] == [{"a": "oled", "b": "번인", "count": 2, "lift": 2.0, "is_new": True}]
 
 
-def test_radar_business_is_a_filter(
+def test_radar_signal_type_is_a_filter(
     public_client: TestClient, public_headers: dict[str, str]
 ) -> None:
-    body = get(public_client, public_headers, "radar", period="week", key="2026-W40", business="vd")
-    assert [row["key"] for row in body["fields"]] == ["display_media"]
-    assert body["kpis"]["items"][-1] == 2
+    body = get(
+        public_client, public_headers, "radar", period="week", key="2026-W40", signal="research"
+    )
+    assert [row["key"] for row in body["fields"]] == ["display_av"]
+    assert body["kpis"]["items"][-1] == 1
+    assert body["taxonomy_revised_on"] == "2026-10-05"
     everything = get(public_client, public_headers, "radar", period="week", scope="all")
-    assert {row["key"] for row in everything["fields"]} >= {"semiconductor", "software_dev"}
+    assert {row["key"] for row in everything["fields"]} >= {"semis", "platform_sw"}
 
 
 def test_radar_topic_theme(public_client: TestClient, public_headers: dict[str, str]) -> None:
@@ -132,14 +135,17 @@ def test_radar_topic_theme(public_client: TestClient, public_headers: dict[str, 
         period="week",
         key="2026-W40",
         kind="theme",
-        value="display_media__oled_microled",
+        value="display_av__display_panel",
     )
     topic = body["topic"]
     assert topic["counts"] == [0, 0, 0, 0, 0, 0, 0, 2]
     assert topic["tracks"]["research_ip"] == 1
     assert body["themes"] == []
     assert body["keywords"][0] == {"key": "oled", "label": "OLED", "count": 2}
-    assert body["businesses"] == [{"key": "vd", "count": 2}, {"key": "mx", "count": 1}]
+    assert body["signal_types"] == [
+        {"key": "ecosystem", "count": 1},
+        {"key": "research", "count": 1},
+    ]
     assert sum(row["count"] for row in body["regions"]) == 2
     assert {row["title"] for row in body["stories"]} == {
         "OLED burn-in compensation",
@@ -159,7 +165,7 @@ def test_radar_topic_keyword(public_client: TestClient, public_headers: dict[str
     )
     assert body["topic"]["counts"][-2:] == [1, 2]
     assert body["topic"]["label"] == "AI 에이전트"
-    assert body["themes"] == [{"key": "ai_data__ai_agents", "count": 2}]
+    assert body["themes"] == [{"key": "ai__ai_agents", "count": 2}]
     assert [row["key"] for row in body["keywords"]] == ["갤럭시"]
     # both reports are one story, so one row
     assert len(body["stories"]) == 1
@@ -168,7 +174,7 @@ def test_radar_topic_keyword(public_client: TestClient, public_headers: dict[str
 def test_radar_topic_field_honours_scope_and_quiet_topics(
     public_client: TestClient, public_headers: dict[str, str]
 ) -> None:
-    common = {"period": "week", "key": "2026-W40", "kind": "field", "value": "semiconductor"}
+    common = {"period": "week", "key": "2026-W40", "kind": "field", "value": "semis"}
     body = get(public_client, public_headers, "radar/topic", scope="all", **common)
     assert body["topic"]["counts"][-1] == 1
     assert [row["title"] for row in body["stories"]] == ["HBM capacity expansion"]
@@ -184,10 +190,10 @@ def test_radar_topic_field_honours_scope_and_quiet_topics(
         ("radar", {"period": "year"}),
         ("radar", {"period": "week", "key": "2026-W99"}),
         ("radar", {"period": "week", "scope": "nope"}),
-        ("radar", {"period": "week", "business": "nope"}),
+        ("radar", {"period": "week", "signal": "nope"}),
         ("radar/topic", {"period": "week", "kind": "nope", "value": "x"}),
         ("radar/topic", {"period": "week", "kind": "field", "value": "nope"}),
-        ("radar/topic", {"period": "week", "kind": "theme", "value": "ai_data"}),
+        ("radar/topic", {"period": "week", "kind": "theme", "value": "ai"}),
         ("radar/topic", {"period": "week", "kind": "keyword"}),
     ],
 )
@@ -223,7 +229,7 @@ def test_radar_regions_concentration_and_flows(
     public_client: TestClient, public_headers: dict[str, str]
 ) -> None:
     body = get(public_client, public_headers, "radar", period="week", key="2026-W40")
-    ai = by_key(body["fields"])["ai_data"]
+    ai = by_key(body["fields"])["ai"]
     assert ai["regions"] == {"kr": 1, "global_en": 1, "jp": 0, "greater_china": 0, "eu_other": 0}
     assert set(ai["first_seen"]) == {"kr", "global_en"}
     # one report each from two outlets

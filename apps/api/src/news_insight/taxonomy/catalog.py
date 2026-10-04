@@ -1,12 +1,17 @@
-"""Classification axes (requirements §9): 15 fields × 5 themes, 6 DX businesses, impact, scope.
+"""Classification axes, taxonomy v2 (plan 09): technology fields → themes (→ technologies in
+the registry), signal type, impact and scope. There is no DX business axis.
 
-The field/theme tree follows the v3 catalog. Bumping TAXONOMY_REVISION makes the card
-runner regenerate cards so every item is classified against the current tree.
+Bumping TAXONOMY_REVISION queues every card for classification-only reclassification
+(checklist CLS-2); card text is not regenerated.
 """
 
 from dataclasses import dataclass
 
-TAXONOMY_REVISION = "2026-10-04.1"
+TAXONOMY_TREE = "2026-10-05"  # field/theme keys; revisions of one tree share them
+TAXONOMY_REVISION = f"{TAXONOMY_TREE}.1"
+PROVISIONAL_REVISION = f"{TAXONOMY_TREE}.0"  # deterministic mapping from the previous tree
+# first day classified with this tree; the radar marks comparisons that cross it
+TAXONOMY_REVISED_ON = "2026-10-05"
 
 
 @dataclass(frozen=True)
@@ -26,179 +31,153 @@ def _field(key: str, name: str, themes: tuple[tuple[str, str], ...]) -> Field:
 
 FIELDS: tuple[Field, ...] = (
     _field(
-        "ai_data",
-        "AI·데이터",
+        "ai",
+        "AI 모델·에이전트",
         (
-            ("generative_foundation", "생성형 AI·기반모델"),
+            ("foundation_models", "기반모델·LLM"),
+            ("multimodal_perception", "멀티모달·비전·음성"),
             ("ai_agents", "AI 에이전트"),
-            ("multimodal", "멀티모달·비전·음성"),
-            ("edge_ai", "온디바이스·엣지 AI"),
-            ("mlops_data", "MLOps·데이터 플랫폼"),
+            ("on_device_ai", "온디바이스 AI·디바이스 AI 경험"),
+            ("model_efficiency", "경량화·SLM·양자화"),
+            ("ai_coding", "AI 코딩·개발 에이전트"),
+            ("ai_safety_eval", "AI 평가·안전성·해석가능성"),
         ),
     ),
     _field(
-        "semiconductor",
-        "반도체",
+        "semis",
+        "반도체·컴퓨팅 HW",
         (
-            ("memory_hbm_cxl", "메모리·HBM·CXL"),
-            ("foundry_process", "파운드리·미세공정"),
-            ("soc_npu", "System LSI·SoC·NPU"),
-            ("advanced_packaging", "첨단 패키징·칩렛"),
-            ("eda_material_equipment", "EDA·소재·장비"),
+            ("ap_soc_npu", "모바일 AP·SoC·NPU"),
+            ("memory_storage", "메모리·스토리지"),
+            ("packaging_chiplet", "첨단 패키징·칩렛"),
+            ("sensor_chips", "이미지센서·MEMS·센서칩"),
+            ("power_rf_semis", "전력·RF 반도체"),
         ),
     ),
     _field(
-        "mobile_edge",
-        "모바일·엣지",
+        "display_av",
+        "디스플레이·영상·오디오",
         (
-            ("android_mobile_os", "Android·모바일 OS"),
-            ("smartphone_compute", "스마트폰·모바일 컴퓨팅"),
-            ("edge_computing", "엣지 컴퓨팅"),
-            ("wearable_health", "웨어러블·디지털 헬스"),
-            ("app_service_ecosystem", "앱·서비스 생태계"),
+            ("display_panel", "디스플레이 패널"),
+            ("picture_processing", "화질·영상처리"),
+            ("camera_imaging", "카메라·컴퓨테이셔널 포토"),
+            ("audio_acoustics", "오디오·음향"),
+            ("codec_streaming", "코덱·스트리밍·방송 기술"),
+            ("xr_spatial", "XR·공간컴퓨팅·AI 글래스"),
         ),
     ),
     _field(
-        "display_media",
-        "디스플레이·미디어",
+        "connectivity",
+        "무선·네트워크",
         (
-            ("oled_microled", "OLED·MicroLED"),
-            ("display_imaging", "디스플레이 구동·영상처리"),
-            ("tv_media_platform", "TV·미디어 플랫폼"),
-            ("xr_spatial_display", "XR·공간 디스플레이"),
-            ("codec_content", "코덱·콘텐츠 기술"),
+            ("cellular_5g_6g", "5G-Adv·6G"),
+            ("ran_core", "RAN·코어"),
+            ("short_range_wireless", "Wi-Fi·UWB·Bluetooth·NFC"),
+            ("satellite_ntn", "위성·NTN·D2D"),
+            ("smart_home_iot", "스마트홈·IoT 연결"),
+            ("network_ops", "네트워크 자동화·운영"),
         ),
     ),
     _field(
-        "network_comms",
-        "네트워크·통신",
+        "platform_sw",
+        "플랫폼·소프트웨어",
         (
-            ("fiveg_sixg", "5G·6G"),
-            ("ran_core", "RAN·코어망"),
-            ("short_range_wireless", "Wi-Fi·UWB·Bluetooth"),
-            ("satellite_ntn", "위성·NTN"),
-            ("network_automation_security", "네트워크 자동화·보안"),
+            ("device_os", "디바이스 OS·플랫폼"),
+            ("app_ecosystem", "앱·서비스·스토어·결제"),
+            ("developer_tools", "개발 언어·프레임워크·도구"),
+            ("web_cross_platform", "웹·크로스플랫폼"),
+            ("ux_accessibility", "UX·접근성·디자인 시스템"),
         ),
     ),
     _field(
-        "cloud_infra",
-        "클라우드·인프라",
+        "cloud_data",
+        "클라우드·데이터센터",
         (
-            ("public_hybrid_cloud", "퍼블릭·하이브리드 클라우드"),
-            ("kubernetes_container", "Kubernetes·컨테이너"),
-            ("platform_engineering", "플랫폼 엔지니어링"),
-            ("sre_observability", "SRE·관측성"),
-            ("finops_green_compute", "FinOps·그린 컴퓨팅"),
+            ("ai_datacenter", "AI 데이터센터·전력·냉각"),
+            ("cloud_platforms", "클라우드·소버린 클라우드"),
+            ("edge_cloud", "엣지 컴퓨팅·MEC"),
+            ("data_ml_platform", "데이터·MLOps 플랫폼"),
+            ("infra_ops", "인프라 운영"),
         ),
     ),
     _field(
-        "software_dev",
-        "소프트웨어·개발",
+        "security",
+        "보안·신뢰",
         (
-            ("language_compiler", "프로그래밍 언어·컴파일러"),
-            ("web_app_framework", "웹·앱 프레임워크"),
-            ("api_distributed", "API·분산 시스템"),
-            ("cicd_testing", "CI/CD·테스트"),
-            ("developer_experience", "개발자 경험·도구"),
+            ("device_security", "디바이스·HW 보안"),
+            ("app_cloud_security", "앱·클라우드 보안"),
+            ("identity_auth", "인증·ID"),
+            ("privacy_crypto", "프라이버시·암호·PQC"),
+            ("ai_security_provenance", "AI 보안·콘텐츠 출처증명"),
+            ("software_supply_chain", "SW 공급망·취약점"),
         ),
     ),
     _field(
-        "open_source",
-        "오픈소스·생태계",
+        "robotics_mobility",
+        "로보틱스·모빌리티",
         (
-            ("project_trends", "프로젝트 트렌드"),
-            ("community_health", "메인테이너·커뮤니티 건강성"),
-            ("license_governance", "라이선스·거버넌스"),
-            ("supply_chain_sbom", "공급망·SBOM"),
-            ("enterprise_adoption", "기업 채택·기여"),
+            ("home_service_robot", "홈·서비스 로봇"),
+            ("humanoid_embodied", "휴머노이드·Embodied AI"),
+            ("autonomous_driving", "자율주행·ADAS"),
+            ("sdv_cockpit", "SDV·디지털 콕핏·차량 OS"),
+            ("sensing_digital_twin", "센서 퓨전·디지털 트윈"),
         ),
     ),
     _field(
-        "security_privacy",
-        "보안·프라이버시",
+        "health_tech",
+        "헬스테크",
         (
-            ("application_security", "애플리케이션 보안"),
-            ("cloud_security", "클라우드·인프라 보안"),
-            ("device_hardware_security", "디바이스·하드웨어 보안"),
-            ("identity_zero_trust", "ID·제로트러스트"),
-            ("privacy_cryptography", "프라이버시·암호기술"),
+            ("biosensing", "디지털 바이오마커·비침습 센싱"),
+            ("medical_ai_samd", "AI 의료기기·SaMD"),
+            ("remote_care", "원격진료·원격 모니터링"),
+            ("health_data_interop", "의료데이터 표준·연동"),
+            ("aging_care", "에이징테크·돌봄"),
         ),
     ),
     _field(
-        "robotics_auto",
-        "로보틱스·자율시스템",
+        "energy",
+        "에너지·지속가능성",
         (
-            ("humanoid_service_robot", "휴머노이드·서비스 로봇"),
-            ("embodied_ai", "Embodied AI"),
-            ("autonomous_adas", "자율주행·ADAS"),
-            ("drone_unmanned", "드론·무인이동체"),
-            ("sensor_control_twin", "센서·제어·디지털 트윈"),
+            ("battery_charging", "배터리·충전"),
+            ("home_energy", "가정 에너지·HEMS"),
+            ("power_efficiency", "저전력·고효율 설계"),
+            ("circular_materials", "순환·친환경 소재·수리성"),
         ),
     ),
     _field(
-        "manufacturing_supply",
-        "제조·공급망",
+        "manufacturing",
+        "제조 기술",
         (
-            ("smart_factory", "스마트 팩토리"),
-            ("industrial_ai", "산업 AI·자동화"),
-            ("scm_logistics", "SCM·물류"),
-            ("quality_yield", "품질·수율"),
-            ("supply_resilience", "공급망 회복탄력성"),
+            ("smart_factory", "스마트 팩토리·산업 AI"),
+            ("quality_inspection", "품질·검사 AI"),
+            ("factory_robotics", "제조 로봇·협동로봇"),
+            ("logistics_automation", "물류·창고 자동화"),
         ),
     ),
     _field(
-        "product_market",
-        "제품·시장",
+        "frontier",
+        "미래 기술",
         (
-            ("consumer_electronics", "소비자 전자"),
-            ("b2b_enterprise", "B2B·엔터프라이즈"),
-            ("customer_design", "고객경험·디자인"),
-            ("competition_partnership", "경쟁·파트너십·M&A"),
-            ("pricing_revenue", "가격·수익모델"),
-        ),
-    ),
-    _field(
-        "finance_investment",
-        "재무·투자",
-        (
-            ("macro_fx", "거시경제·환율"),
-            ("capex_investment", "CAPEX·설비투자"),
-            ("cost_economics", "원가·단위경제성"),
-            ("valuation_ir", "기업가치·IR"),
-            ("financial_risk", "재무·사업 리스크"),
-        ),
-    ),
-    _field(
-        "policy_ip_standards",
-        "정책·IP·표준",
-        (
-            ("technology_regulation", "기술 규제"),
-            ("ai_governance_ethics", "AI 거버넌스·윤리"),
-            ("patent_litigation", "특허·소송·라이선스"),
-            ("international_standards", "국제표준"),
-            ("export_geopolitics", "수출통제·지정학"),
-        ),
-    ),
-    _field(
-        "emerging_science",
-        "미래과학·지속가능성",
-        (
-            ("quantum_technology", "양자기술"),
-            ("neuromorphic_photonic", "뉴로모픽·포토닉스"),
-            ("advanced_materials", "첨단소재"),
-            ("battery_energy", "배터리·에너지"),
-            ("carbon_circularity", "탄소·순환경제"),
+            ("quantum", "양자 컴퓨팅·통신·센싱"),
+            ("neuromorphic_photonic", "뉴로모픽·광컴퓨팅"),
+            ("advanced_materials", "신소재"),
+            ("neurotech_bci", "뉴로테크·BCI"),
         ),
     ),
 )
 
-BUSINESSES: tuple[Node, ...] = (
-    Node("mx", "MX · 모바일·온디바이스 AI"),
-    Node("vd", "VD · 디스플레이·영상"),
-    Node("da", "DA · 생활가전·홈로봇"),
-    Node("networks", "Networks · 5G Adv·6G"),
-    Node("health", "Health · 디지털 헬스·의료기기"),
-    Node("harman", "Harman · 전장·SDV"),
+# What kind of news an item is, independent of its technology (plan 09 §3-2).
+SIGNAL_TYPES: tuple[Node, ...] = (
+    Node("research", "연구·논문"),
+    Node("launch", "제품·기능 출시"),
+    Node("standard", "표준·인증"),
+    Node("regulation", "정책·규제"),
+    Node("market", "시장·경쟁·제휴"),
+    Node("finance", "투자·실적"),
+    Node("ecosystem", "오픈소스·생태계"),
+    Node("security_event", "취약점·보안 사고"),
+    Node("supply", "공급망·생산"),
+    Node("ip", "특허·소송"),
 )
 IMPACTS: tuple[Node, ...] = (
     Node("opportunity", "기회"),
@@ -214,12 +193,12 @@ SCOPES: tuple[Node, ...] = (
 
 FIELD_KEYS = frozenset(field.key for field in FIELDS)
 THEME_KEYS = frozenset(theme.key for field in FIELDS for theme in field.themes)
-BUSINESS_KEYS = frozenset(node.key for node in BUSINESSES)
+SIGNAL_TYPE_KEYS = frozenset(node.key for node in SIGNAL_TYPES)
 IMPACT_KEYS = frozenset(node.key for node in IMPACTS)
 SCOPE_KEYS = frozenset(node.key for node in SCOPES)
 LABELS: dict[str, str] = {
     node.key: node.name
-    for node in (*FIELDS, *(t for f in FIELDS for t in f.themes), *BUSINESSES, *IMPACTS, *SCOPES)
+    for node in (*FIELDS, *(t for f in FIELDS for t in f.themes), *SIGNAL_TYPES, *IMPACTS, *SCOPES)
 }
 
 

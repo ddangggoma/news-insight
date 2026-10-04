@@ -2,11 +2,11 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 import { FieldPicker } from "@/components/reader/radar/field-picker";
-import { businessShort, RADAR_KINDS, radarHref, type RadarView } from "@/lib/radar";
+import { RADAR_KINDS, radarHref, type RadarView } from "@/lib/radar";
 import { withQuery } from "@/lib/query";
 import { SCOPES, type Scope } from "@/lib/reader-filters";
 import type { Radar, RadarKind } from "@/lib/reader-types";
-import { BUSINESS_LABEL, FIELD_LABEL } from "@/lib/taxonomy";
+import { FIELD_LABEL, SIGNAL_LABEL } from "@/lib/taxonomy";
 import { cn } from "@/lib/utils";
 
 const segment = "rounded-md px-3 py-1 text-sm text-muted-foreground transition-colors hover:text-foreground";
@@ -14,11 +14,11 @@ const segmentOn = "bg-background font-semibold text-foreground shadow-sm";
 
 export function RadarControls({ radar, view }: { radar: Radar; view: RadarView }) {
   const { window } = radar;
-  const keep = { scope: view.scope, business: view.business, field: view.field };
+  const keep = { scope: view.scope, signal: view.signal, field: view.field };
   const at = (patch: Partial<RadarView>) => radarHref(window.kind, window.key, { ...keep, ...patch });
   const fieldHrefs = Object.fromEntries([["*", at({ field: null })], ...Object.keys(FIELD_LABEL).map((field) => [field, at({ field })])]);
-  const toggle = (business: string) =>
-    view.business.includes(business) ? view.business.filter((b) => b !== business) : [...view.business, business];
+  const toggle = (signal: string) =>
+    view.signal.includes(signal) ? view.signal.filter((s) => s !== signal) : [...view.signal, signal];
 
   return (
     <div className="space-y-3 rounded-2xl border bg-card/70 p-3 shadow-xs backdrop-blur md:p-4">
@@ -27,7 +27,7 @@ export function RadarControls({ radar, view }: { radar: Radar; view: RadarView }
           {(Object.keys(RADAR_KINDS) as RadarKind[]).map((kind) => (
             <Link
               key={kind}
-              href={withQuery("/radar", { period: kind, scope: view.scope !== "relevant" ? view.scope : undefined, business: view.business, field: view.field ?? undefined })}
+              href={withQuery("/radar", { period: kind, scope: view.scope !== "relevant" ? view.scope : undefined, signal: view.signal, field: view.field ?? undefined })}
               aria-current={window.kind === kind ? "true" : undefined}
               className={cn(segment, window.kind === kind && segmentOn)}
             >
@@ -69,26 +69,26 @@ export function RadarControls({ radar, view }: { radar: Radar; view: RadarView }
       </div>
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t pt-3">
         <FieldPicker value={view.field} hrefs={fieldHrefs} />
-        <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="DX 사업부 필터">
-          <span className="mr-1 text-sm text-muted-foreground">DX 사업부</span>
+        <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="신호 유형 필터">
+          <span className="mr-1 text-sm text-muted-foreground">신호 유형</span>
           <Link
-            href={at({ business: [] })}
-            aria-current={view.business.length === 0 ? "true" : undefined}
-            className={cn("rounded-full border px-2.5 py-0.5 text-xs", view.business.length === 0 ? "border-foreground bg-foreground text-background" : "hover:bg-muted")}
+            href={at({ signal: [] })}
+            aria-current={view.signal.length === 0 ? "true" : undefined}
+            className={cn("rounded-full border px-2.5 py-0.5 text-xs", view.signal.length === 0 ? "border-foreground bg-foreground text-background" : "hover:bg-muted")}
           >
             전체
           </Link>
-          {Object.keys(BUSINESS_LABEL).map((business) => {
-            const on = view.business.includes(business);
+          {Object.keys(SIGNAL_LABEL).map((signal) => {
+            const on = view.signal.includes(signal);
             return (
               <Link
-                key={business}
-                href={at({ business: toggle(business) })}
+                key={signal}
+                href={at({ signal: toggle(signal) })}
                 aria-pressed={on}
-                title={BUSINESS_LABEL[business]}
+                title={SIGNAL_LABEL[signal]}
                 className={cn("rounded-full border px-2.5 py-0.5 text-xs", on ? "border-primary bg-primary/10 font-semibold text-primary" : "hover:bg-muted")}
               >
-                {businessShort(business)}
+                {SIGNAL_LABEL[signal]}
               </Link>
             );
           })}

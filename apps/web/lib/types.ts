@@ -90,7 +90,7 @@ export interface CardBody {
   generated_at: string;
   field?: string | null;
   themes?: string[];
-  businesses?: string[];
+  signal_type?: string | null;
   impact?: string | null;
   scope?: string | null;
   relevance?: number | null;
@@ -360,7 +360,7 @@ export interface StrategyOut {
   }[];
   report: {
     summary: string;
-    businesses: { business: string; summary: string; claims: StrategyClaim[] }[];
+    fields: { field: string; summary: string; claims: StrategyClaim[] }[];
     roadmap: StrategyClaim[];
     opportunities: StrategyClaim[];
     risks: StrategyClaim[];

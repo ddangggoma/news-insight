@@ -91,6 +91,8 @@ digest_app = typer.Typer(
     help="Daily digest generated with the Claude CLI (05:00 KST)", no_args_is_help=True
 )
 app.add_typer(digest_app, name="digest")
+taxonomy_app = typer.Typer(help="Taxonomy migrations", no_args_is_help=True)
+app.add_typer(taxonomy_app, name="taxonomy")
 tech_app = typer.Typer(
     help="Technology registry (third level of the taxonomy)", no_args_is_help=True
 )
@@ -748,3 +750,16 @@ def technologies_candidates(
         labels = labels_for(session, [key for key, _ in rows])
     for key, count in rows:
         typer.echo(f"{count:5d}  {labels[key]}  ({key})")
+
+
+@taxonomy_app.command("provisional")
+def taxonomy_provisional() -> None:
+    """Map cards from the previous tree to the current one until the LLM reclassifies them."""
+    from news_insight.taxonomy.provisional import apply_provisional
+
+    with session_scope() as session:
+        result = apply_provisional(session)
+    typer.echo(
+        f"mapped={result.mapped} from_keywords={result.from_keywords} "
+        f"without_theme={result.without_theme}"
+    )

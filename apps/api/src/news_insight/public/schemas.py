@@ -20,7 +20,7 @@ class TaxonomyField(TaxonomyNode):
 class TaxonomyOut(BaseModel):
     revision: str
     fields: list[TaxonomyField]
-    businesses: list[TaxonomyNode]
+    signal_types: list[TaxonomyNode]
     impacts: list[TaxonomyNode]
     scopes: list[TaxonomyNode]
 
@@ -41,7 +41,7 @@ class ReaderItem(BaseModel):
     keywords: list[str]
     field: str | None
     themes: list[str]
-    businesses: list[str]
+    signal_type: str | None
     impact: str | None
     scope: str | None
     relevance: int | None
@@ -102,7 +102,7 @@ class Insights(BaseModel):
     keywords: list[KeywordTrend]
     related_keywords: list[str]
     fields: list[Count]
-    businesses: list[Count]
+    signal_types: list[Count]
     impacts: list[Count]
 
 
@@ -243,6 +243,8 @@ class Radar(BaseModel):
     engagement: Engagement
     calendar: Calendar
     field_links: list[FieldLink]
+    # first day of the current taxonomy tree: comparisons across it are indicative only
+    taxonomy_revised_on: date | None = None
 
 
 class TopicDetail(BaseModel):
@@ -250,7 +252,7 @@ class TopicDetail(BaseModel):
     topic: Topic
     themes: list[Count]
     keywords: list[KeywordCount]
-    businesses: list[Count]
+    signal_types: list[Count]
     regions: list[Count]
     stories: list[ReaderItem]
 

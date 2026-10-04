@@ -60,6 +60,11 @@ export default async function RadarPage({ params, searchParams }: Props) {
           </p>
         </div>
       </header>
+      {radar.taxonomy_revised_on && radar.window.start && radar.window.start.slice(0, 10) <= radar.taxonomy_revised_on ? (
+        <p role="note" className="rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-800 dark:text-amber-200">
+          기술 분류 체계가 {radar.taxonomy_revised_on}에 개정되었습니다(12개 기술 분야·62개 테마·신호 유형). 그 이전 기간은 새 체계로 다시 분류하는 중이라, 이전 기간과의 증감·추세는 참고용으로 보세요.
+        </p>
+      ) : null}
       <RadarControls radar={radar} view={view} />
       <SectionNav />
 

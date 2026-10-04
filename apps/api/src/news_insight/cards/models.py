@@ -47,6 +47,7 @@ class ItemCard(Base):
     field: Mapped[str | None] = mapped_column(String(40), index=True)
     themes: Mapped[list[str]] = mapped_column(JSONB, default=list, server_default="[]")
     businesses: Mapped[list[str]] = mapped_column(JSONB, default=list, server_default="[]")
+    signal_type: Mapped[str | None] = mapped_column(String(20), index=True)
     impact: Mapped[str | None] = mapped_column(String(20))
     scope: Mapped[str | None] = mapped_column(String(20), index=True)
     relevance: Mapped[int | None]

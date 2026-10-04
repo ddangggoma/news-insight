@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 const SECTIONS: { axis: Axis; title: string; limit?: number }[] = [
   { axis: "field", title: "기술 분야", limit: 10 },
   { axis: "theme", title: "테마" },
-  { axis: "business", title: "DX 사업부" },
+  { axis: "signal", title: "신호 유형" },
   { axis: "impact", title: "영향" },
   { axis: "track", title: "트랙" },
   { axis: "region", title: "지역" },

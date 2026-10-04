@@ -201,7 +201,7 @@ def test_bundle_drops_off_topic_items_and_keeps_one_item_per_story(db_session: S
                 attempts=0,
                 generated_at=inside,
                 scope=scope,
-                businesses=["mx"],
+                signal_type="launch",
             )
         )
     story = Story(
@@ -237,5 +237,5 @@ def test_bundle_drops_off_topic_items_and_keeps_one_item_per_story(db_session: S
         for item in cat["items"]
     ]
     assert [entry["title"] for entry in entries] == ["rep"]
-    assert entries[0]["covered_by_sources"] == 2 and entries[0]["businesses"] == ["mx"]
+    assert entries[0]["covered_by_sources"] == 2 and entries[0]["signal_type"] == "launch"
     assert entries[0]["title_ko"] == "rep 카드"

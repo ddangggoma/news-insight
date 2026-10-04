@@ -3,7 +3,8 @@
 Every dimension is counted per window for the last TREND_WINDOWS windows in one query, then scored
 against the earlier windows: change vs the previous window, z-score vs the baseline, a lifecycle
 state, and the track mix (research + open source vs news + community) as a maturity proxy.
-DX businesses are a filter here, not an axis. Counted live; R3 rollups will replace the queries.
+Signal types (research, launch, regulation, …) are a filter here, not an axis.
+Counted live; R3 rollups will replace the queries.
 """
 
 from collections import Counter, defaultdict
@@ -45,6 +46,7 @@ from news_insight.public.schemas import (
 from news_insight.sources.enums import Region, Track
 from news_insight.sources.models import Source
 from news_insight.stories.models import ItemRef, Story, StoryItem
+from news_insight.taxonomy.catalog import TAXONOMY_REVISED_ON
 from news_insight.technologies.service import labels_for
 
 TREND_WINDOWS = 8
@@ -663,6 +665,7 @@ def radar(
     )
     themes = topics("theme")
     return Radar(
+        taxonomy_revised_on=date.fromisoformat(TAXONOMY_REVISED_ON),
         window=window_out(window, current_key, now),
         periods=[w.key for w in windows],
         kpis=kpis,
@@ -709,12 +712,13 @@ def topic_condition(kind: str, value: str) -> ColumnElement[bool]:
 
 
 def _counts(session: Session, conditions: list[ColumnElement[bool]], axis: str) -> list[Count]:
-    if axis == "region":
-        key: Any = Source.region
-        statement = joined(select(key, func.count(distinct(Item.id))))
+    if axis in ("region", "signal"):
+        key: Any = Source.region if axis == "region" else ItemCard.signal_type
+        statement = joined(select(key, func.count(distinct(Item.id)))).where(key.is_not(None))
     else:
-        column = ItemCard.themes if axis == "theme" else ItemCard.businesses
-        element = func.jsonb_array_elements_text(column).table_valued("value").lateral(axis)
+        element = (
+            func.jsonb_array_elements_text(ItemCard.themes).table_valued("value").lateral(axis)
+        )
         key = element.c.value
         statement = joined(select(key, func.count(distinct(Item.id)))).join(element, true())
     rows = session.execute(statement.where(*conditions).group_by(key)).tuples()
@@ -770,7 +774,7 @@ def topic_detail(
         keywords=[
             KeywordCount(key=key, label=s.label or key, count=s.counts[-1]) for key, s in keywords
         ],
-        businesses=_counts(session, current, "business"),
+        signal_types=_counts(session, current, "signal"),
         regions=_counts(session, current, "region"),
         stories=stories.items,
     )

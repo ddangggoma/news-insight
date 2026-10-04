@@ -60,22 +60,22 @@ const radar: Radar = {
   window: { kind: "week", key: "2026-W40", start: "2026-09-28T00:00:00+09:00", end: "2026-10-05T00:00:00+09:00", prev_key: "2026-W39", next_key: "2026-W41", is_current: true, elapsed: 0.5 },
   periods: ["2026-W37", "2026-W38", "2026-W39", "2026-W40"],
   kpis: { items: [10, 10, 12, 20], stories: [8, 8, 9, 15], sources: [5, 5, 6, 8], research: [3, 3, 4, 9], new_stories: 4, cross_track_stories: 1 },
-  fields: [topic("ai_data", [4, 4, 5, 12], { z: 7 })],
+  fields: [topic("ai", [4, 4, 5, 12], { z: 7 })],
   themes: [
-    topic("ai_data__ai_agents", [2, 2, 2, 9], { z: 7, state: "surging", sources: 6 }),
-    topic("robotics_auto__embodied_ai", [0, 1, 1, 4], { z: 3, state: "rising", tracks: mix(1, 0, 2, 1) }),
-    topic("display_media__xr_spatial_display", [5, 6, 5, 6], {
+    topic("ai__ai_agents", [2, 2, 2, 9], { z: 7, state: "surging", sources: 6 }),
+    topic("robotics_mobility__humanoid_embodied", [0, 1, 1, 4], { z: 3, state: "rising", tracks: mix(1, 0, 2, 1) }),
+    topic("display_av__xr_spatial", [5, 6, 5, 6], {
       z: 0.5,
       state: "steady",
       tracks: mix(5, 3, 0, 0),
       baseline_tracks: mix(6, 3, 8, 3),
     }),
-    topic("network_comms__fiveg_sixg", [6, 6, 6, 1], { z: -5, state: "falling" }),
+    topic("connectivity__cellular_5g_6g", [6, 6, 6, 1], { z: -5, state: "falling" }),
   ],
   keywords: [
-    topic("유리기판", [0, 0, 0, 3], { label: "유리기판", field: "semiconductor", state: "new" }),
-    topic("hbm4", [1, 1, 1, 4], { label: "HBM4", field: "semiconductor", state: "rising" }),
-    topic("온디바이스ai", [2, 2, 2, 5], { label: "온디바이스 AI", field: "ai_data", state: "rising" }),
+    topic("유리기판", [0, 0, 0, 3], { label: "유리기판", field: "semis", state: "new" }),
+    topic("hbm4", [1, 1, 1, 4], { label: "HBM4", field: "semis", state: "rising" }),
+    topic("온디바이스ai", [2, 2, 2, 5], { label: "온디바이스 AI", field: "ai", state: "rising" }),
   ],
   pairs: [
     { a: "hbm4", b: "온디바이스ai", count: 3, lift: 3.2, is_new: true },
@@ -89,31 +89,31 @@ const radar: Radar = {
 
 describe("radar URL state", () => {
   it("parses only known focus targets", () => {
-    expect(parseFocus("theme:ai_data__ai_agents")).toEqual({ kind: "theme", key: "ai_data__ai_agents" });
-    expect(parseFocus("field:ai_data")).toEqual({ kind: "field", key: "ai_data" });
+    expect(parseFocus("theme:ai__ai_agents")).toEqual({ kind: "theme", key: "ai__ai_agents" });
+    expect(parseFocus("field:ai")).toEqual({ kind: "field", key: "ai" });
     expect(parseFocus("keyword:온디바이스ai")).toEqual({ kind: "keyword", key: "온디바이스ai" });
     expect(parseFocus("keyword:a:b")).toEqual({ kind: "keyword", key: "a:b" });
     expect(parseFocus("theme:nope")).toBeNull();
     expect(parseFocus("field:")).toBeNull();
-    expect(parseFocus("nope:ai_data")).toBeNull();
+    expect(parseFocus("nope:ai")).toBeNull();
     expect(parseFocus(undefined)).toBeNull();
   });
 
   it("keeps filters and focus in the link and drops defaults", () => {
-    expect(radarHref("week", "2026-W40", { scope: "relevant", business: [], field: null, focus: null })).toBe("/radar/week/2026-W40");
-    expect(radarHref("month", "2026-09", { scope: "all", business: ["mx", "vd"], field: "ai_data", focus: { kind: "keyword", key: "hbm4" } })).toBe(
-      "/radar/month/2026-09?business=mx&business=vd&field=ai_data&focus=keyword%3Ahbm4",
+    expect(radarHref("week", "2026-W40", { scope: "relevant", signal: [], field: null, focus: null })).toBe("/radar/week/2026-W40");
+    expect(radarHref("month", "2026-09", { scope: "all", signal: ["launch", "research"], field: "ai", focus: { kind: "keyword", key: "hbm4" } })).toBe(
+      "/radar/month/2026-09?signal=launch&signal=research&field=ai&focus=keyword%3Ahbm4",
     );
   });
 
   it("reads the view from search params and ignores unknown values", () => {
-    expect(radarView({ scope: "dx", business: ["mx", "nope", "mx"], field: "ai_data", focus: "theme:ai_data__ai_agents" })).toEqual({
+    expect(radarView({ scope: "dx", signal: ["launch", "nope", "launch"], field: "ai", focus: "theme:ai__ai_agents" })).toEqual({
       scope: "dx",
-      business: ["mx"],
-      field: "ai_data",
-      focus: { kind: "theme", key: "ai_data__ai_agents" },
+      signal: ["launch"],
+      field: "ai",
+      focus: { kind: "theme", key: "ai__ai_agents" },
     });
-    expect(radarView({ scope: "nope", business: "vd", field: "nope" })).toEqual({ scope: "relevant", business: ["vd"], field: null, focus: null });
+    expect(radarView({ scope: "nope", signal: "research", field: "nope" })).toEqual({ scope: "relevant", signal: ["research"], field: null, focus: null });
   });
 });
 
@@ -139,14 +139,14 @@ describe("radar numbers", () => {
 
   it("opens the requested topic, else the theme with the strongest momentum", () => {
     expect(initialFocus(radar, { kind: "keyword", key: "hbm4" })).toEqual({ kind: "keyword", key: "hbm4" });
-    expect(initialFocus(radar, null)).toEqual({ kind: "theme", key: "ai_data__ai_agents" });
+    expect(initialFocus(radar, null)).toEqual({ kind: "theme", key: "ai__ai_agents" });
   });
 });
 
 describe("radar regions, ranks and projection", () => {
   it("measures regional specialization and holds back thin cells", () => {
-    const field = topic("ai_data", [0, 10], { regions: { kr: 6, global_en: 4, jp: 0, greater_china: 0, eu_other: 0 } });
-    const other = topic("semiconductor", [0, 10], { regions: { kr: 2, global_en: 7, jp: 1, greater_china: 0, eu_other: 0 } });
+    const field = topic("ai", [0, 10], { regions: { kr: 6, global_en: 4, jp: 0, greater_china: 0, eu_other: 0 } });
+    const other = topic("semis", [0, 10], { regions: { kr: 2, global_en: 7, jp: 1, greater_china: 0, eu_other: 0 } });
     const totals = regionTotals({ ...radar, fields: [field, other] });
     expect(totals).toEqual({ kr: 8, global_en: 11, jp: 1, greater_china: 0, eu_other: 0 });
     // Korea: 6 of 8 Korean reports vs 10 of 20 overall
@@ -252,32 +252,32 @@ describe("radar signals", () => {
     expect(signals.surge.title).toBe("AI 에이전트");
     expect(signals.surge.detail).toContain("직전 3주");
     expect(signals.new.focus).toEqual({ kind: "keyword", key: "유리기판" });
-    expect(signals.early.title).toBe("Embodied AI");
-    expect(signals.shift.title).toBe("XR·공간 디스플레이");
+    expect(signals.early.title).toBe("휴머노이드·Embodied AI");
+    expect(signals.shift.title).toBe("XR·공간컴퓨팅·AI 글래스");
     expect(signals.shift.detail).toContain("직전 3주 55% → 이번 0%");
     expect(signals.link.title).toBe("HBM4 × 온디바이스 AI");
     expect(signals.link.detail).toContain("첫 동시 언급");
-    expect(signals.cool.title).toBe("5G·6G");
+    expect(signals.cool.title).toBe("5G-Adv·6G");
     expect(signals.hype).toBeUndefined();
   });
 
   it("flags chatter that outruns research, once per theme", () => {
-    const hot = topic("mobile_edge__smartphone_compute", [3, 3, 3, 9], { z: 0.8, tracks: mix(6, 2, 1, 0), baseline_tracks: mix(6, 3, 6, 0) });
+    const hot = topic("platform_sw__device_os", [3, 3, 3, 9], { z: 0.8, tracks: mix(6, 2, 1, 0), baseline_tracks: mix(6, 3, 6, 0) });
     const signals = radarSignals({ ...radar, themes: [...radar.themes, hot] });
     const hype = signals.find((s) => s.tone === "hype")!;
-    expect(hype.title).toBe("스마트폰·모바일 컴퓨팅");
+    expect(hype.title).toBe("디바이스 OS·플랫폼");
     expect(hype.detail).toBe("뉴스·커뮤니티 8건으로 평소(3.0건)의 2.7배, 논문·오픈소스는 1건(평소 2.0건): 화제가 실체보다 앞섬");
     const keys = signals.filter((s) => s.focus.kind === "theme").map((s) => s.focus.key);
     expect(new Set(keys).size).toBe(keys.length);
   });
 
   it("flags thin sourcing and Korean gaps", () => {
-    const narrow = topic("cloud_infra__kubernetes_container", [2, 2, 2, 8], { z: 3, effective_sources: 1.6, baseline_tracks: mix(18) });
-    const vendor = topic("mobile_edge__android_mobile_os", [2, 2, 2, 6], { z: 2, official: 4, baseline_tracks: mix(15) });
+    const narrow = topic("cloud_data__infra_ops", [2, 2, 2, 8], { z: 3, effective_sources: 1.6, baseline_tracks: mix(18) });
+    const vendor = topic("platform_sw__device_os", [2, 2, 2, 6], { z: 2, official: 4, baseline_tracks: mix(15) });
     const abroad = topic("wasm", [0, 0, 1, 6], { label: "WASM", state: "rising", regions: { kr: 0, global_en: 6, jp: 0, greater_china: 0, eu_other: 0 } });
     const signals = radarSignals({ ...radar, themes: [narrow, vendor], keywords: [abroad], pairs: [] });
     const thin = signals.find((s) => s.tone === "thin")!;
-    expect(thin.title).toBe("Kubernetes·컨테이너");
+    expect(thin.title).toBe("인프라 운영");
     expect(thin.detail).toContain("실효 출처 1.6곳");
     const gap = signals.find((s) => s.tone === "gap")!;
     expect(gap.title).toBe("WASM");
@@ -298,8 +298,8 @@ describe("radar signals", () => {
         engagement: {
           measured: 30,
           themes: [
-            { key: "display_media__xr_spatial_display", score: 80, items: 12 },
-            { key: "ai_data__ai_agents", score: 20, items: 9 },
+            { key: "display_av__xr_spatial", score: 80, items: 12 },
+            { key: "ai__ai_agents", score: 20, items: 9 },
           ],
           top: [],
         },
@@ -307,24 +307,24 @@ describe("radar signals", () => {
           start: "2026-07-13",
           days: [],
           anomalies: [
-            { day: "2026-08-27", field: "ai_data", count: 40, expected: 13.5, z: 7.2, keywords: [] },
-            { day: "2026-09-30", field: "mobile_edge", count: 25, expected: 3.5, z: 11.5, keywords: [{ key: "갤럭시", label: "갤럭시", count: 9 }] },
+            { day: "2026-08-27", field: "ai", count: 40, expected: 13.5, z: 7.2, keywords: [] },
+            { day: "2026-09-30", field: "platform_sw", count: 25, expected: 3.5, z: 11.5, keywords: [{ key: "갤럭시", label: "갤럭시", count: 9 }] },
           ],
         },
-        field_links: [{ a: "emerging_science", b: "security_privacy", count: 3, previous: 0 }],
+        field_links: [{ a: "frontier", b: "security", count: 3, previous: 0 }],
       }).map((s) => [s.tone, s]),
     );
     // only anomalies inside the window count, and the card opens the keyword behind them
-    expect(signals.event.title).toBe("9/30 모바일·엣지");
+    expect(signals.event.title).toBe("9/30 플랫폼·소프트웨어");
     expect(signals.event.detail).toBe("하루 25건, 평소 같은 요일 3.5건의 7.1배 · 갤럭시");
     expect(signals.event.focus).toEqual({ kind: "keyword", key: "갤럭시" });
     expect(signals.back.title).toBe("메타버스");
     expect(signals.new.title).toBe("One UI 9");
     expect(signals.new.detail).toContain("처음 보도된 지 8일");
     // XR: 6 of 20 mentions (30%) but 80% of the reactions; a theme already on another card is skipped
-    expect(signals.pull.title).toBe("XR·공간 디스플레이");
+    expect(signals.pull.title).toBe("XR·공간컴퓨팅·AI 글래스");
     expect(signals.pull.detail).toContain("언급 비중 30%인데 반응(스타·포인트 증가) 비중 80%");
-    expect(signals.link.title).toBe("미래과학·지속가능성 × 보안·프라이버시");
+    expect(signals.link.title).toBe("미래 기술 × 보안·신뢰");
   });
 
   it("tests a drop in research share for significance", () => {

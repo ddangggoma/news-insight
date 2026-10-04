@@ -131,7 +131,7 @@ class CardBody(BaseModel):
     generated_at: datetime
     field: str | None = None
     themes: list[str] = []
-    businesses: list[str] = []
+    signal_type: str | None = None
     impact: str | None = None
     scope: str | None = None
     relevance: int | None = None
