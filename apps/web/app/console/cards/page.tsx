@@ -7,10 +7,10 @@ import { PageHeader } from "@/components/console/page-header";
 import { PaginationBar } from "@/components/console/pagination-bar";
 import { StatCard } from "@/components/console/stat-card";
 import { api } from "@/lib/api";
-import { CATEGORY_LABEL, formatNumber, formatRelative, REGION_LABEL, TRACK_LABEL } from "@/lib/format";
+import { CATEGORY_LABEL, formatNumber, formatPercent, formatRelative, REGION_LABEL, TRACK_LABEL } from "@/lib/format";
 import { pageParam, param, type SearchParams } from "@/lib/params";
 import { BUSINESS_LABEL, FIELD_LABEL, IMPACT_LABEL, SCOPE_LABEL } from "@/lib/taxonomy";
-import type { CardStats, CardView, Page, Region, Track } from "@/lib/types";
+import type { CardFailure, CardStats, CardView, Page, Region, Track } from "@/lib/types";
 
 export const metadata = { title: "카드 뉴스" };
 
@@ -35,7 +35,7 @@ export default async function CardsPage({ searchParams }: { searchParams: Promis
     view: param(sp, "view"),
   };
   const page = pageParam(sp);
-  const [data, stats] = await Promise.all([
+  const [data, stats, failures] = await Promise.all([
     api.get<Page<CardView>>("/api/admin/cards", {
       ...filters,
       view: undefined,
@@ -43,7 +43,11 @@ export default async function CardsPage({ searchParams }: { searchParams: Promis
       page,
     }),
     api.get<CardStats>("/api/admin/cards/stats"),
+    api.get<CardFailure[]>("/api/admin/cards/failures", { limit: 20 }),
   ]);
+  const scope7 = stats.scope_7d ?? {};
+  const classified7 = Object.entries(scope7).filter(([k]) => k !== "unclassified").reduce((sum, [, v]) => sum + v, 0);
+  const relevant7 = (scope7.dx ?? 0) + (scope7.dx_dependency ?? 0);
   const quota = stats.last_run?.quota;
   const engines = Object.entries(stats.by_engine)
     .map(([engine, count]) => `${ENGINE_LABEL[engine] ?? engine} ${formatNumber(count)}`)
@@ -56,7 +60,12 @@ export default async function CardsPage({ searchParams }: { searchParams: Promis
       />
       <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4 [&>*]:min-w-0">
         <StatCard title="오늘 만든 카드" value={formatNumber(stats.ready_today)} hint={`누적 ${formatNumber(stats.ready)}건`} icon={Sparkles} />
-        <StatCard title="생성 대기" value={formatNumber(stats.pending)} hint="10분마다 자동 처리" icon={Clock} />
+        <StatCard
+          title="생성 대기"
+          value={formatNumber(stats.pending)}
+          hint={`7일 성공률 ${formatPercent(stats.success_rate_7d ?? Number.NaN)} · DX 관련 ${formatPercent(classified7 ? relevant7 / classified7 : Number.NaN)}`}
+          icon={Clock}
+        />
         <StatCard title="엔진별 카드" value={engines || "—"} hint={stats.failed ? `실패 ${formatNumber(stats.failed)}건 (3회 재시도 후)` : "실패 없음"} icon={stats.failed ? TriangleAlert : Cpu} />
         <StatCard
           title="Antigravity 한도"
@@ -110,6 +119,21 @@ export default async function CardsPage({ searchParams }: { searchParams: Promis
         </div>
       )}
       <PaginationBar pathname="/console/cards" params={filters} page={page} size={data.size} total={data.total} />
+      {failures.length > 0 ? (
+        <details className="rounded-xl border bg-card p-4 text-sm">
+          <summary className="cursor-pointer font-medium">최근 실패한 카드 {failures.length}건 (보존 검증·출력 누락)</summary>
+          <ul className="mt-3 divide-y">
+            {failures.map((failure) => (
+              <li key={failure.item.id} className="flex flex-wrap items-center gap-2 py-2">
+                <a href={failure.item.url} target="_blank" rel="noreferrer" className="min-w-0 flex-1 truncate hover:underline">
+                  {failure.item.title}
+                </a>
+                <span className="text-xs text-muted-foreground">{failure.error ?? "알 수 없음"} · 시도 {failure.attempts}회</span>
+              </li>
+            ))}
+          </ul>
+        </details>
+      ) : null}
     </>
   );
 }

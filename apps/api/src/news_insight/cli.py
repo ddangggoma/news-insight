@@ -43,6 +43,7 @@ from news_insight.sources.portfolio import (
     build_report,
     region_capacity,
 )
+from news_insight.sources.quality import run_quality
 from news_insight.sources.service import (
     SourceNotFound,
     climb,
@@ -231,6 +232,23 @@ def auto_validate_command(
         f"checked={stats.checked} reached_v3={stats.reached_v3} errors={stats.errors}"
         + (f" failed: {failed}" if failed else "")
     )
+
+
+@sources_app.command("quality")
+def quality_command(
+    dry_run: Annotated[bool, typer.Option(help="Report without pausing or promoting")] = False,
+) -> None:
+    """V5/V6: pause low-relevance sources, promote high-relevance V4 sources (7-day cards)."""
+    with session_scope() as session:
+        run = run_quality(session, now=datetime.now(UTC), apply=not dry_run)
+    typer.echo(
+        f"judged={run.judged} paused={len(run.paused)} passed_v5={len(run.passed_v5)} "
+        f"promoted_v6={len(run.promoted_v6)} track_full={len(run.track_full)}"
+        + (" (dry run)" if dry_run else "")
+    )
+    for label, keys in (("paused", run.paused), ("promoted", run.promoted_v6)):
+        if keys:
+            typer.echo(f"  {label}: {', '.join(keys[:40])}{' …' if len(keys) > 40 else ''}")
 
 
 @sources_app.command("pause")

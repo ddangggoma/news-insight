@@ -28,6 +28,7 @@ from news_insight.console.schemas import (
     Queued,
     RunOut,
     SourceDetail,
+    SourceQualityRow,
     SourceRow,
 )
 from news_insight.db import get_db
@@ -85,6 +86,15 @@ def list_sources(
         page=page,
         size=size,
     )
+
+
+@router.get("/sources/quality")
+def sources_quality(
+    session: DB,
+    order: Literal["worst", "best"] = "worst",
+    limit: Annotated[int, Query(ge=1, le=500)] = 200,
+) -> list[SourceQualityRow]:
+    return queries.source_quality(session, now=datetime.now(UTC), order=order, limit=limit)
 
 
 @router.get("/sources/{key}")

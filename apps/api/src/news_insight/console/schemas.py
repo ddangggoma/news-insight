@@ -240,3 +240,18 @@ class PauseBody(BaseModel):
 
 class Queued(BaseModel):
     queued: bool
+
+
+class SourceQualityRow(BaseModel):
+    key: str
+    name: str
+    track: Track
+    category: str
+    region: Region
+    validation_stage: ValidationStage
+    status: SourceStatus
+    paused_reason: str | None
+    items_7d: int
+    classified_7d: int
+    relevance: float | None
+    translation: float | None
