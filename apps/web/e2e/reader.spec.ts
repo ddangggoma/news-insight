@@ -49,4 +49,28 @@ test.describe("reader", () => {
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     expect(overflow).toBeLessThanOrEqual(0);
   });
+
+  test("radar opens the current month, focuses a theme and filters by DX business", async ({ page }) => {
+    await page.goto("/radar?period=month");
+    await expect(page).toHaveURL(/\/radar\/month\/\d{4}-\d{2}$/);
+    await expect(page.getByRole("heading", { level: 1, name: /기술 레이더/ })).toBeVisible();
+    const theme = page.locator("#landscape a[href*='focus=theme']").first();
+    const name = (await theme.getAttribute("aria-label"))!.replace(/ \d+건.*$/, "");
+    await theme.click();
+    await expect(page).toHaveURL(/focus=theme%3A/);
+    await expect(page.getByRole("complementary", { name: "선택한 항목" }).getByRole("heading", { level: 2 })).toContainText(name);
+    await page.getByRole("group", { name: "DX 사업부 필터" }).getByRole("link", { name: "MX" }).click();
+    await expect(page).toHaveURL(/business=mx/);
+    await expect(page.getByRole("group", { name: "DX 사업부 필터" }).getByRole("link", { name: "MX" })).toHaveAttribute("aria-pressed", "true");
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    expect(overflow).toBeLessThanOrEqual(0);
+  });
+
+  test("radar fits a phone @mobile", async ({ page, isMobile }) => {
+    test.skip(!isMobile, "mobile only");
+    await page.goto("/radar?period=month");
+    await expect(page.getByRole("heading", { name: "카테고리 · 테마 지도" })).toBeVisible();
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    expect(overflow).toBeLessThanOrEqual(0);
+  });
 });

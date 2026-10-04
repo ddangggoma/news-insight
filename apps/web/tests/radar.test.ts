@@ -1,46 +1,207 @@
 import { describe, expect, it } from "vitest";
 
-import { changePercent, formatChange, heatLevel, heatRows, initialCell, parseCell } from "@/lib/radar";
-import type { Radar } from "@/lib/reader-types";
+import {
+  forceLayout,
+  formatChange,
+  formatPoints,
+  formatZ,
+  initialFocus,
+  parseFocus,
+  periodLabel,
+  quadrantOf,
+  radarHref,
+  researchShare,
+  squarify,
+  stageOf,
+  volumeSplit,
+  wordCloud,
+} from "@/lib/radar";
+import { radarSignals } from "@/lib/radar-signals";
+import { radarView } from "@/lib/radar-view";
+import type { Radar, Topic } from "@/lib/reader-types";
 
-const radar = {
-  window: { kind: "week", key: "2026-W40", start: "", end: "", prev_key: "2026-W39", next_key: "2026-W41", is_current: true },
-  kpis: { total: 5, previous_total: 1, new_stories: 1, cross_track_stories: 0, hottest: null },
-  cells: [
-    { field: "display_media", business: "vd", count: 3, previous: 0 },
-    { field: "ai_data", business: "mx", count: 2, previous: 1 },
+const mix = (news = 0, community = 0, research_ip = 0, oss = 0) => ({ news, community, research_ip, oss });
+
+function topic(key: string, counts: number[], patch: Partial<Topic> = {}): Topic {
+  return {
+    key,
+    label: null,
+    field: key.split("__")[0],
+    counts,
+    change: null,
+    z: 0,
+    state: null,
+    sources: 3,
+    tracks: mix(last(counts)),
+    previous_tracks: mix(counts[counts.length - 2]),
+    impacts: { opportunity: 0, risk: 0, watch: 0 },
+    ...patch,
+  };
+}
+
+function last(values: number[]): number {
+  return values[values.length - 1];
+}
+
+const radar: Radar = {
+  window: { kind: "week", key: "2026-W40", start: "", end: "", prev_key: "2026-W39", next_key: "2026-W41", is_current: true, elapsed: 0.5 },
+  periods: ["2026-W37", "2026-W38", "2026-W39", "2026-W40"],
+  kpis: { items: [10, 10, 12, 20], stories: [8, 8, 9, 15], sources: [5, 5, 6, 8], research: [3, 3, 4, 9], new_stories: 4, cross_track_stories: 1 },
+  fields: [topic("ai_data", [4, 4, 5, 12], { z: 7 })],
+  themes: [
+    topic("ai_data__ai_agents", [2, 2, 2, 9], { z: 7, state: "surging", sources: 6 }),
+    topic("robotics_auto__embodied_ai", [0, 1, 1, 4], { z: 3, state: "rising", tracks: mix(1, 0, 2, 1) }),
+    topic("display_media__xr_spatial_display", [5, 6, 5, 6], {
+      z: 0.5,
+      state: "steady",
+      tracks: mix(5, 3, 0, 0),
+      previous_tracks: mix(2, 1, 1, 1),
+    }),
+    topic("network_comms__fiveg_sixg", [6, 6, 6, 1], { z: -5, state: "falling" }),
   ],
-  momentum: [],
-  hype: [],
-  keywords: [],
-} satisfies Radar;
+  keywords: [
+    topic("유리기판", [0, 0, 0, 3], { label: "유리기판", field: "semiconductor", state: "new" }),
+    topic("hbm4", [1, 1, 1, 4], { label: "HBM4", field: "semiconductor", state: "rising" }),
+    topic("온디바이스ai", [2, 2, 2, 5], { label: "온디바이스 AI", field: "ai_data", state: "rising" }),
+  ],
+  pairs: [
+    { a: "hbm4", b: "온디바이스ai", count: 3, lift: 3.2, is_new: true },
+    { a: "hbm4", b: "유리기판", count: 2, lift: 1.5, is_new: false },
+  ],
+};
 
-describe("radar helpers", () => {
-  it("scales heat with a square root and keeps small counts visible", () => {
-    expect(heatLevel(0, 10)).toBe(0);
-    expect(heatLevel(10, 10)).toBe(92);
-    expect(heatLevel(1, 1000)).toBe(8);
+describe("radar URL state", () => {
+  it("parses only known focus targets", () => {
+    expect(parseFocus("theme:ai_data__ai_agents")).toEqual({ kind: "theme", key: "ai_data__ai_agents" });
+    expect(parseFocus("field:ai_data")).toEqual({ kind: "field", key: "ai_data" });
+    expect(parseFocus("keyword:온디바이스ai")).toEqual({ kind: "keyword", key: "온디바이스ai" });
+    expect(parseFocus("keyword:a:b")).toEqual({ kind: "keyword", key: "a:b" });
+    expect(parseFocus("theme:nope")).toBeNull();
+    expect(parseFocus("field:")).toBeNull();
+    expect(parseFocus("nope:ai_data")).toBeNull();
+    expect(parseFocus(undefined)).toBeNull();
   });
 
-  it("formats changes against the previous window", () => {
-    expect(changePercent(3, 0)).toBeNull();
-    expect(changePercent(2, 1)).toBe(100);
-    expect(formatChange(-49.6)).toBe("▼50%");
+  it("keeps filters and focus in the link and drops defaults", () => {
+    expect(radarHref("week", "2026-W40", { scope: "relevant", business: [], field: null, focus: null })).toBe("/radar/week/2026-W40");
+    expect(radarHref("month", "2026-09", { scope: "all", business: ["mx", "vd"], field: "ai_data", focus: { kind: "keyword", key: "hbm4" } })).toBe(
+      "/radar/month/2026-09?business=mx&business=vd&field=ai_data&focus=keyword%3Ahbm4",
+    );
+  });
+
+  it("reads the view from search params and ignores unknown values", () => {
+    expect(radarView({ scope: "dx", business: ["mx", "nope", "mx"], field: "ai_data", focus: "theme:ai_data__ai_agents" })).toEqual({
+      scope: "dx",
+      business: ["mx"],
+      field: "ai_data",
+      focus: { kind: "theme", key: "ai_data__ai_agents" },
+    });
+    expect(radarView({ scope: "nope", business: "vd", field: "nope" })).toEqual({ scope: "relevant", business: ["vd"], field: null, focus: null });
+  });
+});
+
+describe("radar numbers", () => {
+  it("formats periods, changes, z and points", () => {
+    expect(["2026-W05", "2026-09", "2026-Q3", "2026-10-04"].map(periodLabel)).toEqual(["W5", "9월", "Q3", "10/4"]);
     expect(formatChange(null)).toBe("–");
-    expect(formatChange(0.4)).toBe("±0%");
+    expect(formatChange(-49.6)).toBe("▼50%");
+    expect(formatZ(2.04)).toBe("+2.0σ");
+    expect(formatZ(-1.26)).toBe("−1.3σ");
+    expect(formatPoints(0.04)).toBe("±0%p");
+    expect(formatPoints(-3.26)).toBe("−3.3%p");
   });
 
-  it("parses only known cells", () => {
-    expect(parseCell("ai_data.mx")).toEqual({ field: "ai_data", business: "mx" });
-    expect(parseCell("ai_data.none")).toEqual({ field: "ai_data", business: "none" });
-    expect(parseCell("nope.mx")).toBeNull();
-    expect(parseCell("ai_data.nope")).toBeNull();
+  it("derives research share, stage and quadrant", () => {
+    expect(researchShare(mix(1, 1, 1, 1))).toBe(0.5);
+    expect(researchShare(mix())).toBeNull();
+    expect([0.6, 0.3, 0.1, null].map(stageOf)).toEqual(["research", "diffusion", "market", null]);
+    const split = volumeSplit(radar.themes);
+    expect(split).toBe(6);
+    expect(radar.themes.map((t) => quadrantOf(t, split))).toEqual(["leading", "emerging", "mainstream", "niche"]);
   });
 
-  it("orders rows by volume and opens the busiest cell without a hottest one", () => {
-    expect(heatRows(radar, 2)).toEqual(["display_media", "ai_data"]);
-    expect(heatRows(radar)).toHaveLength(15);
-    expect(initialCell(radar, null)).toEqual({ field: "display_media", business: "vd" });
-    expect(initialCell(radar, { field: "ai_data", business: "mx" })).toEqual({ field: "ai_data", business: "mx" });
+  it("opens the requested topic, else the theme with the strongest momentum", () => {
+    expect(initialFocus(radar, { kind: "keyword", key: "hbm4" })).toEqual({ kind: "keyword", key: "hbm4" });
+    expect(initialFocus(radar, null)).toEqual({ kind: "theme", key: "ai_data__ai_agents" });
+  });
+});
+
+describe("radar layouts", () => {
+  it("squarifies areas in proportion inside the box", () => {
+    const rects = squarify([{ value: 6 }, { value: 3 }, { value: 1 }, { value: 0 }], { x: 0, y: 0, w: 100, h: 50 });
+    expect(rects).toHaveLength(3);
+    const area = rects.map((r) => r.w * r.h);
+    expect(area[0] / area[2]).toBeCloseTo(6);
+    expect(area.reduce((a, b) => a + b)).toBeCloseTo(5000);
+    for (const r of rects) {
+      expect(r.x).toBeGreaterThanOrEqual(0);
+      expect(r.x + r.w).toBeLessThanOrEqual(100.0001);
+      expect(r.y + r.h).toBeLessThanOrEqual(50.0001);
+    }
+  });
+
+  it("places cloud words inside the canvas without overlaps, biggest first", () => {
+    const words = Array.from({ length: 30 }, (_, i) => ({ key: `k${i}`, text: i % 2 ? `기술 ${i}` : `Tech${i}`, weight: 30 - i }));
+    const placed = wordCloud(words, 400, 240);
+    expect(placed.length).toBeGreaterThan(15);
+    expect(placed[0].key).toBe("k0");
+    expect(placed[0].size).toBe(40);
+    for (const [i, a] of placed.entries()) {
+      expect(a.x - a.w / 2).toBeGreaterThanOrEqual(0);
+      expect(a.y + a.h / 2).toBeLessThanOrEqual(240);
+      for (const b of placed.slice(i + 1)) {
+        expect(Math.abs(a.x - b.x) * 2 >= a.w + b.w || Math.abs(a.y - b.y) * 2 >= a.h + b.h).toBe(true);
+      }
+    }
+  });
+
+  it("lays out a network deterministically inside the margins", () => {
+    const nodes = ["a", "b", "c", "d", "e"];
+    const edges = [
+      { a: "a", b: "b", weight: 3 },
+      { a: "b", b: "c", weight: 1 },
+      { a: "d", b: "e", weight: 2 },
+    ];
+    const one = forceLayout(nodes, edges, 300, 200, 20);
+    const two = forceLayout(nodes, edges, 300, 200, 20);
+    expect([...one.entries()]).toEqual([...two.entries()]);
+    for (const { x, y } of one.values()) {
+      expect(x).toBeGreaterThanOrEqual(20);
+      expect(x).toBeLessThanOrEqual(280);
+      expect(y).toBeGreaterThanOrEqual(20);
+      expect(y).toBeLessThanOrEqual(180);
+    }
+    const distance = (p: string, q: string) => Math.hypot(one.get(p)!.x - one.get(q)!.x, one.get(p)!.y - one.get(q)!.y);
+    expect(distance("a", "b")).toBeLessThan(distance("a", "e"));
+  });
+});
+
+describe("radar signals", () => {
+  it("reads surge, new, early, shift, link and cooling signals from the stats", () => {
+    const signals = Object.fromEntries(radarSignals(radar).map((s) => [s.tone, s]));
+    expect(signals.surge.title).toBe("AI 에이전트");
+    expect(signals.surge.detail).toContain("직전 3주");
+    expect(signals.new.focus).toEqual({ kind: "keyword", key: "유리기판" });
+    expect(signals.early.title).toBe("Embodied AI");
+    expect(signals.shift.title).toBe("XR·공간 디스플레이");
+    expect(signals.shift.detail).toContain("40% → 0%");
+    expect(signals.link.title).toBe("HBM4 × 온디바이스 AI");
+    expect(signals.link.detail).toContain("첫 동시 언급");
+    expect(signals.cool.title).toBe("5G·6G");
+    expect(signals.hype).toBeUndefined();
+  });
+
+  it("flags chatter that outruns research, once per theme", () => {
+    const hot = topic("mobile_edge__smartphone_compute", [3, 3, 3, 9], { z: 0.8, tracks: mix(6, 2, 1, 0), previous_tracks: mix(2, 1, 2, 0) });
+    const signals = radarSignals({ ...radar, themes: [...radar.themes, hot] });
+    const hype = signals.find((s) => s.tone === "hype")!;
+    expect(hype.title).toBe("스마트폰·모바일 컴퓨팅");
+    expect(hype.detail).toBe("뉴스·커뮤니티 ▲167%, 논문·오픈소스 ▼50%: 화제가 실체보다 앞섬");
+    const keys = signals.filter((s) => s.focus.kind === "theme").map((s) => s.focus.key);
+    expect(new Set(keys).size).toBe(keys.length);
+  });
+
+  it("stays quiet on an empty radar", () => {
+    expect(radarSignals({ ...radar, themes: [], keywords: [], pairs: [] })).toEqual([]);
   });
 });

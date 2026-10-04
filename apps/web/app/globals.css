@@ -48,6 +48,16 @@
     --color-impact-watch: var(--impact-watch);
     --color-heat: var(--heat);
     --color-heat-ink: var(--heat-ink);
+    --color-cool: var(--cool);
+    --color-viz-news: var(--viz-news);
+    --color-viz-community: var(--viz-community);
+    --color-viz-research: var(--viz-research);
+    --color-viz-oss: var(--viz-oss);
+    --color-state-hot: var(--state-hot);
+    --color-state-cool: var(--state-cool);
+    --color-stage-research: var(--stage-research);
+    --color-stage-diffusion: var(--stage-diffusion);
+    --color-stage-market: var(--stage-market);
     --radius-sm: calc(var(--radius) * 0.6);
     --radius-md: calc(var(--radius) * 0.8);
     --radius-lg: var(--radius);
@@ -90,6 +100,19 @@
     /* radar heatmap: one hue, mixed toward the surface for lower counts */
     --heat: oklch(0.66 0.17 45);
     --heat-ink: oklch(0.2 0.03 40);
+    /* radar charts, checked with the dataviz validator: track fills (categorical, adjacent CVD
+       ΔE >= 10), the cool arm of the momentum scale, lifecycle text (>= 5.2:1 on card) and the
+       maturity stages (one-hue ordinal ramp, light end 2.6:1). */
+    --cool: oklch(0.62 0.13 250);
+    --viz-news: var(--track-news);
+    --viz-community: var(--track-community);
+    --viz-research: var(--track-research);
+    --viz-oss: var(--track-oss);
+    --state-hot: oklch(0.55 0.17 40);
+    --state-cool: oklch(0.5 0.13 250);
+    --stage-research: oklch(0.72 0.1 300);
+    --stage-diffusion: oklch(0.58 0.14 300);
+    --stage-market: oklch(0.45 0.17 300);
     --chart-1: oklch(0.585 0.233 277.12);
     --chart-2: oklch(0.696 0.17 162.48);
     --chart-3: oklch(0.746 0.16 232.66);
@@ -138,6 +161,17 @@
     --impact-watch: oklch(0.76 0.02 255);
     --heat: oklch(0.74 0.15 50);
     --heat-ink: oklch(0.17 0.02 40);
+    /* the track tokens above are text colours; chart fills sit in the dark band (L 0.48–0.67) */
+    --cool: oklch(0.68 0.11 245);
+    --viz-news: oklch(0.64 0.13 250);
+    --viz-community: oklch(0.66 0.13 50);
+    --viz-research: oklch(0.64 0.15 300);
+    --viz-oss: oklch(0.64 0.12 160);
+    --state-hot: oklch(0.76 0.15 50);
+    --state-cool: oklch(0.75 0.1 245);
+    --stage-research: oklch(0.52 0.15 300);
+    --stage-diffusion: oklch(0.66 0.14 300);
+    --stage-market: oklch(0.8 0.1 300);
     --chart-1: oklch(0.673 0.182 276.94);
     --chart-2: oklch(0.765 0.177 163.22);
     --chart-3: oklch(0.789 0.154 211.53);
