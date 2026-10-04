@@ -1,6 +1,6 @@
 "use client";
 
-import { Activity, ClipboardCheck, Gauge, GitMerge, Layers, Inbox, LayoutDashboard, LayoutGrid, Library, Newspaper, Radar, Rss, TrendingUp } from "lucide-react";
+import { Activity, ClipboardCheck, Gauge, History, GitMerge, Layers, Inbox, LayoutDashboard, LayoutGrid, Library, Newspaper, Radar, Rss, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -20,7 +20,8 @@ import {
 const NAV = [
   { label: "개요", items: [
     { href: "/console", title: "대시보드", icon: LayoutDashboard },
-    { href: "/console/digests", title: "데일리 다이제스트", icon: Newspaper },
+    { href: "/console/briefing", title: "데일리 브리핑", icon: Newspaper },
+    { href: "/console/digests", title: "다이제스트 이력", icon: History },
   ] },
   { label: "수집", items: [
     { href: "/console/sources", title: "소스", icon: Rss },
