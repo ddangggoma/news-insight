@@ -37,3 +37,17 @@ export const api = {
   post: <T>(path: string, body?: unknown) => request<T>("POST", path, body),
   text: async (path: string) => (await send("GET", path)).text(),
 };
+
+/** Public reader API: no key, read-only. A 404 becomes null. */
+async function publicGet<T>(path: string, params?: Record<string, QueryValue>): Promise<T | null> {
+  const response = await fetch(`${BASE_URL}${withQuery(path, params)}`, { cache: "no-store" });
+  if (response.status === 404) return null;
+  if (!response.ok) throw new ApiError(response.status, (await response.text()) || response.statusText);
+  return (await response.json()) as T;
+}
+
+export const publicApi = {
+  get: publicGet,
+  raw: (path: string, params?: Record<string, QueryValue>) =>
+    fetch(`${BASE_URL}${withQuery(path, params)}`, { cache: "no-store" }),
+};

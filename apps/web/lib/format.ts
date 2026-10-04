@@ -97,3 +97,17 @@ export function formatNumber(value: number): string {
 export function formatPercent(ratio: number): string {
   return Number.isFinite(ratio) ? `${(ratio * 100).toFixed(1)}%` : "—";
 }
+
+const BRIEFING_DATE = new Intl.DateTimeFormat("ko-KR", {
+  timeZone: "UTC",
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+  weekday: "short",
+});
+
+/** "2026-10-05" → "2026년 10월 5일 (월)" (a calendar date, so no time-zone shift). */
+export function formatBriefingDate(day: string): string {
+  const parts = Object.fromEntries(BRIEFING_DATE.formatToParts(new Date(`${day}T00:00:00Z`)).map((p) => [p.type, p.value]));
+  return `${parts.year}년 ${parts.month} ${parts.day}일 (${parts.weekday})`;
+}

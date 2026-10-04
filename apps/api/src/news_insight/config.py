@@ -15,6 +15,12 @@ class Settings(BaseSettings):
     lm_studio_url: str = "http://host.docker.internal:1234"
     lm_studio_model: str = "qwen/qwen3.8-27b"
     admin_email: str = "ddangggoma@gmail.com"
+    public_base_url: str = "https://localhost:8700"
+    smtp_host: str = ""
+    smtp_port: int = 587
+    smtp_user: str = ""
+    smtp_password: str = ""
+    smtp_from: str = ""
     fetch_timeout_seconds: float = 15.0
     fetch_max_redirects: int = 3
     fetch_max_bytes: int = 5 * 1024 * 1024

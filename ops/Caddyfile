@@ -16,10 +16,7 @@
 		respond 404
 	}
 
-	@console path /console /console/*
-	basic_auth @console {
-		{$CONSOLE_USER:admin} {$CONSOLE_PASSWORD_HASH}
-	}
+	# /console is guarded by the web server's magic-link session (P8).
 
 	header {
 		X-Content-Type-Options nosniff

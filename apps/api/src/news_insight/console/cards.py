@@ -41,16 +41,22 @@ def list_cards(
     impact: str | None = None,
     scope: str | None = None,
     dedup: bool = False,
+    theme: str | None = None,
 ) -> Page[CardView]:
     conditions = [ItemCard.status == CardStatus.READY]
     if field:
         conditions.append(ItemCard.field == field)
+    if theme:
+        conditions.append(ItemCard.themes.contains([theme]))
     if business:
         conditions.append(ItemCard.businesses.contains([business]))
     if impact:
         conditions.append(ItemCard.impact == impact)
     if scope == "relevant":
         conditions.append(ItemCard.scope.in_(["dx", "dx_dependency"]))
+    elif scope == "visible":
+        # public reader: everything except cards classified as off-topic
+        conditions.append(or_(ItemCard.scope.is_(None), ItemCard.scope != "irrelevant"))
     elif scope:
         conditions.append(ItemCard.scope == scope)
     if dedup:
