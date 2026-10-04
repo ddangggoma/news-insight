@@ -77,6 +77,39 @@ export interface ItemRow {
   revision: number;
   canary: boolean;
   metrics: Record<string, number>;
+  title_ko: string | null;
+}
+
+export interface CardBody {
+  title_ko: string | null;
+  summary_ko: string[];
+  keywords: string[];
+  status: "ready" | "failed";
+  engine: string | null;
+  model: string | null;
+  generated_at: string;
+}
+
+export interface CardView {
+  item: ItemRow;
+  card: CardBody;
+}
+
+export interface CardStats {
+  ready: number;
+  failed: number;
+  pending: number;
+  ready_today: number;
+  by_engine: Record<string, number>;
+  last_run: {
+    started_at: string;
+    finished_at: string | null;
+    ready: number;
+    failed: number;
+    batches: Record<string, number>;
+    quota: { weekly?: number | null; five_hour?: number | null };
+    note: string | null;
+  } | null;
 }
 
 export interface SourceDetail {
@@ -113,6 +146,7 @@ export interface ItemDetail {
   author: string | null;
   revisions: { revision: number; title: string; recorded_at: string }[];
   metric_history: { captured_at: string; metrics: Record<string, number> }[];
+  card: CardBody | null;
 }
 
 export interface MoverOut {

@@ -8,9 +8,12 @@ from sqlalchemy.orm import Session
 
 from news_insight.collect.dead_letters import DeadLetterError, dismiss, retry
 from news_insight.collect.models import DeadLetter, FetchOutcome
+from news_insight.console import cards as card_queries
 from news_insight.console import queries
 from news_insight.console.auth import require_console_key
 from news_insight.console.schemas import (
+    CardStats,
+    CardView,
     DeadLetterOut,
     ItemDetail,
     ItemRow,
@@ -224,3 +227,32 @@ def get_digest(digest_date: date, session: DB) -> DigestOut:
     if digest is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, f"no digest for {digest_date}")
     return digest_service.digest_out(session, digest)
+
+
+@router.get("/cards")
+def list_cards(
+    session: DB,
+    track: Track | None = None,
+    category: str | None = None,
+    region: Region | None = None,
+    days: Annotated[int | None, Query(ge=1, le=365)] = None,
+    q: str | None = None,
+    page: PageQ = 1,
+    size: SizeQ = 60,
+) -> Page[CardView]:
+    return card_queries.list_cards(
+        session,
+        track=track,
+        category=category,
+        region=region,
+        days=days,
+        q=q,
+        page=page,
+        size=size,
+        now=datetime.now(UTC),
+    )
+
+
+@router.get("/cards/stats")
+def get_card_stats(session: DB) -> CardStats:
+    return card_queries.card_stats(session, now=datetime.now(UTC))

@@ -15,3 +15,9 @@ def test_beat_schedule_covers_collection_canary_and_retention() -> None:
     assert schedule["collect-dispatch-due"] == {"task": "collect.dispatch_due", "schedule": 60.0}
     assert schedule["sources-run-canaries"]["task"] == "sources.run_canaries"
     assert schedule["content-purge-expired"]["task"] == "content.purge_expired"
+
+
+def test_beat_climbs_candidates_every_ten_minutes() -> None:
+    entry = celery_app.conf.beat_schedule["sources-auto-validate"]
+
+    assert entry == {"task": "sources.auto_validate", "schedule": 600.0}

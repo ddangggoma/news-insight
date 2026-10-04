@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.newsinsight.cards</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/zsh</string>
+    <string>-lc</string>
+    <string>cd "__REPO__" &amp;&amp; scripts/dev.sh cards</string>
+  </array>
+  <key>StartInterval</key>
+  <integer>600</integer>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>__PATH__</string>
+    <key>AGY_CLI</key>
+    <string>__AGY__</string>
+  </dict>
+  <key>StandardOutPath</key>
+  <string>__REPO__/ops/logs/cards.log</string>
+  <key>StandardErrorPath</key>
+  <string>__REPO__/ops/logs/cards.log</string>
+</dict>
+</plist>

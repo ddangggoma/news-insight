@@ -1,6 +1,6 @@
 "use client";
 
-import { Activity, Inbox, LayoutDashboard, Library, Newspaper, Radar, Rss, TrendingUp } from "lucide-react";
+import { Activity, Inbox, LayoutDashboard, LayoutGrid, Library, Newspaper, Radar, Rss, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -28,6 +28,7 @@ const NAV = [
     { href: "/console/dlq", title: "DLQ", icon: Inbox },
   ] },
   { label: "인텔리전스", items: [
+    { href: "/console/cards", title: "카드 뉴스", icon: LayoutGrid },
     { href: "/console/items", title: "수집 항목", icon: Library },
     { href: "/console/trends", title: "지표 상승", icon: TrendingUp },
   ] },
