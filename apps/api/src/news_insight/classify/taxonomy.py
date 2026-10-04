@@ -36,6 +36,10 @@ AXIS_TITLES: dict[Axis, str] = {
 }
 
 
+# Node keys per axis for one item, e.g. {FIELD: ["ai"], PRODUCT: [], IMPACT: ["watch"]}.
+Labels = dict[Axis, list[str]]
+
+
 class TaxonomyError(Exception):
     """The taxonomy file is missing or invalid."""
 

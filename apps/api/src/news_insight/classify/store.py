@@ -16,9 +16,7 @@ from news_insight.classify.models import (
     KeywordAlias,
     LabelMethod,
 )
-from news_insight.classify.taxonomy import Axis
-
-Labels = dict[Axis, list[str]]
+from news_insight.classify.taxonomy import Axis, Labels
 
 
 def empty_labels() -> Labels:
