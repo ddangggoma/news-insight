@@ -51,7 +51,7 @@ export function RadarControls({ radar, view }: { radar: Radar; view: RadarView }
           )}
         </div>
         {window.elapsed !== null ? (
-          <div className="flex items-center gap-2 text-xs text-muted-foreground" title="진행 중인 기간은 끝난 직전 기간과 그대로 비교합니다">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground" title="진행 중인 기간은 직전 기간들의 같은 시점(같은 경과 비율, 주는 같은 요일·시각)까지와 비교해 변화율·z·상태를 계산합니다. 막대는 전체 건수입니다">
             <span className="rounded-full bg-primary/10 px-2 py-0.5 font-semibold text-primary">진행 중</span>
             <span className="relative h-1.5 w-20 overflow-hidden rounded-full bg-muted" aria-hidden>
               <span className="absolute inset-y-0 left-0 rounded-full bg-primary/60" style={{ width: `${Math.round(window.elapsed * 100)}%` }} />

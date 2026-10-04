@@ -62,7 +62,11 @@ function shortDay(iso: string): string {
 export function radarSignals(radar: Radar, candidates?: SignalCandidates): Signal[] {
   const themes = radar.themes.filter((t) => last(t.counts) > 0 || mean(t.counts.slice(0, -1)) > 0);
   const history = radar.periods.length - 1;
-  const baseline = `직전 ${history}${BASELINE_UNIT[radar.window.kind]}`;
+  const span = `직전 ${history}${BASELINE_UNIT[radar.window.kind]}`;
+  // earlier windows are compared up to the point the current one has reached (STAT-2)
+  const baseline = radar.window.is_current ? `${span} 같은 시점` : span;
+  // the counts change, z and state were scored on (the same elapsed share while in progress)
+  const scored = (t: Topic) => t.paced ?? t.counts;
   const perWindow = (mix: TrackMix, pick: (m: TrackMix) => number) => pick(mix) / Math.max(history, 1);
   const signals: Signal[] = [];
   const theme = (t: Topic): Focus => ({ kind: "theme", key: t.key });
@@ -88,7 +92,7 @@ export function radarSignals(radar: Radar, candidates?: SignalCandidates): Signa
     push({
       tone: "surge",
       title: topicLabel("theme", surge),
-      detail: `${last(surge.counts)}건, ${baseline} 평균 ${mean(surge.counts.slice(0, -1)).toFixed(1)}건 대비 ${formatZ(surge.z)} · 출처 ${surge.sources}곳`,
+      detail: `${last(scored(surge))}건, ${baseline} 평균 ${mean(scored(surge).slice(0, -1)).toFixed(1)}건 대비 ${formatZ(surge.z)} · 출처 ${surge.sources}곳`,
       focus: theme(surge),
     });
   }
@@ -136,7 +140,7 @@ export function radarSignals(radar: Radar, candidates?: SignalCandidates): Signa
     push({
       tone: "back",
       title: topicLabel("keyword", back),
-      detail: `${baseline} 동안 없다가 ${last(back.counts)}건 · 첫 보도는 ${daysSince(back.first_ever, radar)}일 전: 다시 주목받는 이유 확인`,
+      detail: `${span} 동안 없다가 ${last(back.counts)}건 · 첫 보도는 ${daysSince(back.first_ever, radar)}일 전: 다시 주목받는 이유 확인`,
       focus: { kind: "keyword", key: back.key },
     });
   }
@@ -306,7 +310,7 @@ export function radarSignals(radar: Radar, candidates?: SignalCandidates): Signa
     push({
       tone: "cool",
       title: topicLabel("theme", cool),
-      detail: `${last(cool.counts)}건, ${baseline} 평균 ${mean(cool.counts.slice(0, -1)).toFixed(1)}건 대비 ${formatZ(cool.z)}`,
+      detail: `${last(scored(cool))}건, ${baseline} 평균 ${mean(scored(cool).slice(0, -1)).toFixed(1)}건 대비 ${formatZ(cool.z)}`,
       focus: theme(cool),
     });
   }

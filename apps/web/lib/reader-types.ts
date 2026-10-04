@@ -106,6 +106,8 @@ export interface Topic {
   label: string | null;
   field: string | null;
   counts: number[];
+  /** Window in progress: every window counted up to the same elapsed share; change, z and state use these. */
+  paced?: number[] | null;
   change: number | null;
   z: number;
   state: TopicState | null;

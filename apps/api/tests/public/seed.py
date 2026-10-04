@@ -125,7 +125,7 @@ SPECS = (
 )
 
 
-def seed_corpus(session: Session) -> dict[str, int]:
+def seed_corpus(session: Session, extra: tuple[Spec, ...] = ()) -> dict[str, int]:
     sources = {
         "verge": build_source(key="verge", name="The Verge"),
         "etnews": build_source(
@@ -161,7 +161,7 @@ def seed_corpus(session: Session) -> dict[str, int]:
     }
     session.add_all(sources.values())
     session.flush()
-    for spec in SPECS:
+    for spec in (*SPECS, *extra):
         ingest_items(
             session,
             sources[spec.source],
@@ -177,7 +177,7 @@ def seed_corpus(session: Session) -> dict[str, int]:
             canary=True,
         )
     items = {item.title: item for item in session.scalars(select(Item))}
-    for spec in SPECS:
+    for spec in (*SPECS, *extra):
         item = items[spec.title]
         session.add(
             ItemCard(

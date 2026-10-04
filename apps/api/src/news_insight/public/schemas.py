@@ -135,6 +135,9 @@ class Topic(BaseModel):
     label: str | None
     field: str | None
     counts: list[int]
+    # window in progress: every window counted up to the same elapsed share; change, z and state
+    # are scored on these (STAT-2). None for a closed window
+    paced: list[int] | None = None
     change: float | None
     z: float
     state: str | None  # new · surging · rising · steady · falling

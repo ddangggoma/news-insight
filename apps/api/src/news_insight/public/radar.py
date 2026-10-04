@@ -85,6 +85,32 @@ def _bucket(windows: list[Window]) -> Any:
     )
 
 
+def paced_cutoffs(windows: list[Window], now: datetime) -> list[datetime] | None:
+    """For a window still in progress: each window's start plus the same elapsed share, so earlier
+    windows are compared up to the same point (same weekday and hour for weeks; checklist STAT-2).
+    None for a closed window."""
+    current = windows[-1]
+    assert current.start is not None
+    if not current.start <= now < current.end:
+        return None
+    share = (now - current.start) / (current.end - current.start)
+    cutoffs = []
+    for w in windows:
+        assert w.start is not None
+        cutoffs.append(w.start + (w.end - w.start) * share)
+    return cutoffs
+
+
+def _paced(windows: list[Window], cutoffs: list[datetime] | None) -> ColumnElement[bool]:
+    """Item falls before its window's paced cutoff (always true without cutoffs)."""
+    if cutoffs is None:
+        return true()
+    bucket = _bucket(windows)
+    return Item.first_seen_at < case(
+        *((bucket == i, literal(c)) for i, c in enumerate(cutoffs[:-1])), else_=literal(cutoffs[-1])
+    )
+
+
 def _span(windows: list[Window]) -> list[ColumnElement[bool]]:
     assert windows[0].start is not None
     return [Item.first_seen_at >= windows[0].start, Item.first_seen_at < windows[-1].end]
@@ -116,6 +142,7 @@ class Series:
     regions: dict[str, int]
     first_seen: dict[str, datetime]
     official: int
+    paced: list[int] | None = None  # counts up to the same elapsed share (window in progress)
 
 
 def _series(
@@ -126,21 +153,29 @@ def _series(
     *,
     only: str | None = None,
     min_total: int = 1,
+    cutoffs: list[datetime] | None = None,
 ) -> dict[str, Series]:
-    """Per-window item counts for every key of one dimension, plus current-window breakdowns."""
+    """Per-window item counts for every key of one dimension, plus current-window breakdowns.
+
+    With `cutoffs` (a window in progress) the earlier windows' track breakdowns and a second set
+    of counts stop at the same elapsed share, so they compare like with like.
+    """
     last = len(windows) - 1
     bucket = _bucket(windows)
+    paced = _paced(windows, cutoffs)
     items = func.count(distinct(Item.id))
     key, join, label = _dimension(dimension)
+    n_paced = len(windows) if cutoffs is not None else 0
     columns = [
         key,
         label if label is not None else null(),
         func.mode().within_group(ItemCard.field),
         *(items.filter(bucket == i) for i in range(len(windows))),
+        *(items.filter(bucket == i, paced) for i in range(n_paced)),
         func.count(distinct(Item.source_id)).filter(bucket == last),
         *(items.filter(bucket == last, Item.track == t) for t in Track),
-        *(items.filter(bucket == last - 1, Item.track == t) for t in Track),
-        *(items.filter(bucket < last, Item.track == t) for t in Track),
+        *(items.filter(bucket == last - 1, Item.track == t, paced) for t in Track),
+        *(items.filter(bucket < last, Item.track == t, paced) for t in Track),
         *(items.filter(bucket == last, ItemCard.impact == impact) for impact in IMPACTS),
         *(items.filter(bucket == last, Source.region == r) for r in Region),
         items.filter(bucket == last, Source.category == OFFICIAL),
@@ -161,7 +196,8 @@ def _series(
         value, name, field, *numbers = row
         firsts = numbers[-m:]
         counts = [int(c) for c in numbers[:n]]
-        rest = [int(c) for c in numbers[n:-m]]
+        paced_counts = [int(c) for c in numbers[n : n + n_paced]] or None
+        rest = [int(c) for c in numbers[n + n_paced : -m]]
         at = 1 + 3 * k + len(IMPACTS)
         result[str(value)] = Series(
             label=str(name) if name is not None else None,
@@ -175,6 +211,7 @@ def _series(
             regions=dict(zip(regions, rest[at : at + m], strict=True)),
             official=rest[at + m],
             first_seen={r: t for r, t in zip(regions, firsts, strict=True) if t is not None},
+            paced=paced_counts,
         )
     if dimension == "keyword":
         for key_value, label in labels_for(session, result).items():
@@ -261,12 +298,15 @@ def z_score(counts: list[int]) -> float:
     return round((current - fmean(history)) / max(pstdev(history), 1.0), 2)
 
 
-def lifecycle(counts: list[int], sources: int) -> str | None:
-    """new → surging → rising → steady → falling, or None when too quiet to call."""
+def lifecycle(counts: list[int], sources: int, *, seen_before: bool | None = None) -> str | None:
+    """new → surging → rising → steady → falling, or None when too quiet to call.
+
+    `seen_before` overrides "any earlier count" for paced counts, where a report late in an
+    earlier window is cut off but still means the topic is not new."""
     *history, current = counts
     mean = fmean(history)
     if current >= KEYWORD_MIN_COUNT:
-        if sum(history) == 0:
+        if not (sum(history) > 0 if seen_before is None else seen_before):
             return "new" if sources >= MIN_SOURCES else "steady"
         if z_score(counts) >= SURGE_Z and current >= mean * 1.5 and sources >= MIN_SOURCES:
             return "surging"
@@ -280,14 +320,16 @@ def lifecycle(counts: list[int], sources: int) -> str | None:
 def _topic(
     key: str, series: Series, mix: SourceMix | None = None, totals: dict[str, int] | None = None
 ) -> Topic:
+    scored = series.paced or series.counts
     return Topic(
         key=key,
         label=series.label,
         field=series.field,
         counts=series.counts,
-        change=change(series.counts[-1], series.counts[-2]),
-        z=z_score(series.counts),
-        state=lifecycle(series.counts, series.sources),
+        paced=series.paced,
+        change=change(scored[-1], scored[-2]),
+        z=z_score(scored),
+        state=lifecycle(scored, series.sources, seen_before=sum(series.counts[:-1]) > 0),
         sources=series.sources,
         tracks=series.tracks,
         previous_tracks=series.previous_tracks,
@@ -706,12 +748,13 @@ def radar(
 ) -> Radar:
     base = filters.conditions()
     windows = trailing_windows(window, TREND_WINDOWS)
+    cutoffs = paced_cutoffs(windows, now)
     kpis = _kpis(session, base, windows)
 
     totals = _track_totals(session, base, window)
 
     def topics(dimension: str, min_total: int = 1) -> list[Topic]:
-        series = _series(session, base, windows, dimension, min_total=min_total)
+        series = _series(session, base, windows, dimension, min_total=min_total, cutoffs=cutoffs)
         mixes = _source_mix(session, base, window, dimension)
         return sorted(
             (_topic(key, s, mixes.get(key), totals) for key, s in series.items()),
@@ -787,12 +830,19 @@ def _counts(session: Session, conditions: list[ColumnElement[bool]], axis: str) 
 
 
 def topic_detail(
-    session: Session, filters: ReaderFilters, window: Window, *, kind: str, value: str
+    session: Session,
+    filters: ReaderFilters,
+    window: Window,
+    *,
+    kind: str,
+    value: str,
+    now: datetime | None = None,
 ) -> TopicDetail:
     condition = topic_condition(kind, value)
     base = [*filters.conditions(), condition]
     windows = trailing_windows(window, TREND_WINDOWS)
-    series = _series(session, base, windows, kind, only=value).get(value)
+    cutoffs = paced_cutoffs(windows, now) if now is not None else None
+    series = _series(session, base, windows, kind, only=value, cutoffs=cutoffs).get(value)
     counts = series.counts if series else [0] * TREND_WINDOWS
     empty = dict.fromkeys((t.value for t in Track), 0)
     mix = _source_mix(session, base, window, kind).get(value)

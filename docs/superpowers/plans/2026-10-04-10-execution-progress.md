@@ -24,7 +24,7 @@
 ## 단계 C — 품질
 - [ ] C1 CLU-1 다국어 임베딩 묶음 (LM Studio) + stories eval 비교 — 평가 완료·보류: nomic-embed-text-v1.5는 한국어 제목에 무효(고유사도·MinHash 미검출 쌍 중 같은 사건 4%). 다국어 모델(bge-m3 등) 내려받기 승인 필요
 - [x] C2 SIG-1 식별자 확장 (CVE, 3GPP, 특허, Hugging Face) (PR #26, 배포 후 refs-backfill 30일)
-- [ ] C3 STAT-2 진행 중 기간 보정 / STAT-3 소량 표본 통계 통일
+- [ ] C3 STAT-2 진행 중 기간 보정 (PR #28: 같은 시점 비교 `paced`, 월요일 하락 25→0/26) / STAT-3 소량 표본 통계 통일 (C5와 함께: 신호 규칙을 API로 옮기며 공통 통계 헬퍼)
 - [ ] C4 WEB-1 레이더 페이지 경량화 (≤400KB)
 - [ ] C5 PRD-1 신호 저장 → 다이제스트·전략 근거
 - [x] C6 QA-1 데모 시드 패턴 회귀 테스트 (PR #27: `dev.sh radar-qa`, CI 단계, 규칙별 후보 노출. 시드 보강 — 메타버스 재등장이 토요일에 걸려 약했고 OLED 이동은 표본이 문턱 미달)

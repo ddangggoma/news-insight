@@ -193,7 +193,9 @@ def get_radar_topic(
     body, hit = radar_cache.cached_json(
         radar_cache.view_key("topic", window, filters, {"kind": kind, "value": value}),
         radar_cache.ttl_for(window, now),
-        lambda: radar_queries.topic_detail(session, filters, window, kind=kind, value=value),
+        lambda: radar_queries.topic_detail(
+            session, filters, window, kind=kind, value=value, now=now
+        ),
         client=cache,
     )
     return Response(
