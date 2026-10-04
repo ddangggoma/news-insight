@@ -324,6 +324,7 @@ export interface BriefingOut {
   failing: string[];
   sections: { track: Track; items: CardView[] }[];
   digest: DigestOut | null;
+  strategy?: StrategyOut | null;
   is_current: boolean;
   current_date: string | null;
 }
@@ -335,4 +336,37 @@ export interface BriefingSummary {
   shortlist: number;
   failing: string[];
   published_at: string;
+}
+
+export interface StrategyClaim {
+  id: string;
+  text: string;
+  item_ids: number[];
+  horizon?: "1y" | "3y" | "5y";
+}
+
+export interface StrategyOut {
+  status: "ok" | "failed";
+  personas: {
+    key: string;
+    name: string;
+    group: "executive" | "business" | "domain";
+    status: "insight" | "no_signal";
+    headline: string;
+    insight: string;
+    actions: string[];
+    item_ids: number[];
+  }[];
+  report: {
+    summary: string;
+    businesses: { business: string; summary: string; claims: StrategyClaim[] }[];
+    roadmap: StrategyClaim[];
+    opportunities: StrategyClaim[];
+    risks: StrategyClaim[];
+  } | null;
+  review: { verdict: "pass" | "revise"; issues: { claim_id: string; kind: string; note: string }[] } | null;
+  dropped_claims: number;
+  error: string | null;
+  cost_usd: number | null;
+  items: DigestOut["items"];
 }
