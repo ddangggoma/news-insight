@@ -18784,3 +18784,868 @@ sources:
     config:
       timezone: UTC
       enrich_limit: 15
+
+  # ── Track 4 보강: 토큰 불필요 오픈소스 신호 (GitHub 릴리스 Atom·PyPI·Hugging Face) (55) ──
+  - key: gh-atom-llama-cpp
+    name: 'GitHub releases (Atom): ggml-org/llama.cpp'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://github.com/ggml-org/llama.cpp/releases.atom
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: ggml-org/llama.cpp 릴리스 동향 (토큰 불필요 Atom)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 120
+      probe_min_items: 3
+  - key: gh-atom-ollama
+    name: 'GitHub releases (Atom): ollama/ollama'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://github.com/ollama/ollama/releases.atom
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: ollama/ollama 릴리스 동향 (토큰 불필요 Atom)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 120
+      probe_min_items: 3
+  - key: gh-atom-core
+    name: 'GitHub releases (Atom): home-assistant/core'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://github.com/home-assistant/core/releases.atom
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: home-assistant/core 릴리스 동향 (토큰 불필요 Atom)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 120
+      probe_min_items: 3
+  - key: gh-atom-pytorch
+    name: 'GitHub releases (Atom): pytorch/pytorch'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://github.com/pytorch/pytorch/releases.atom
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: pytorch/pytorch 릴리스 동향 (토큰 불필요 Atom)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 120
+      probe_min_items: 3
+  - key: gh-atom-mlx
+    name: 'GitHub releases (Atom): ml-explore/mlx'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://github.com/ml-explore/mlx/releases.atom
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: ml-explore/mlx 릴리스 동향 (토큰 불필요 Atom)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 120
+      probe_min_items: 3
+  - key: gh-atom-onnxruntime
+    name: 'GitHub releases (Atom): microsoft/onnxruntime'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://github.com/microsoft/onnxruntime/releases.atom
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: microsoft/onnxruntime 릴리스 동향 (토큰 불필요 Atom)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 120
+      probe_min_items: 3
+  - key: gh-atom-executorch
+    name: 'GitHub releases (Atom): pytorch/executorch'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://github.com/pytorch/executorch/releases.atom
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: pytorch/executorch 릴리스 동향 (토큰 불필요 Atom)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 120
+      probe_min_items: 3
+  - key: gh-atom-openvino
+    name: 'GitHub releases (Atom): openvinotoolkit/openvino'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://github.com/openvinotoolkit/openvino/releases.atom
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: openvinotoolkit/openvino 릴리스 동향 (토큰 불필요 Atom)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 120
+      probe_min_items: 3
+  - key: gh-atom-transformers
+    name: 'GitHub releases (Atom): huggingface/transformers'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://github.com/huggingface/transformers/releases.atom
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: huggingface/transformers 릴리스 동향 (토큰 불필요 Atom)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 120
+      probe_min_items: 3
+  - key: gh-atom-vllm
+    name: 'GitHub releases (Atom): vllm-project/vllm'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://github.com/vllm-project/vllm/releases.atom
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: vllm-project/vllm 릴리스 동향 (토큰 불필요 Atom)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 120
+      probe_min_items: 3
+  - key: gh-atom-whisper-cpp
+    name: 'GitHub releases (Atom): ggml-org/whisper.cpp'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://github.com/ggml-org/whisper.cpp/releases.atom
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: ggml-org/whisper.cpp 릴리스 동향 (토큰 불필요 Atom)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 120
+      probe_min_items: 3
+  - key: gh-atom-ultralytics
+    name: 'GitHub releases (Atom): ultralytics/ultralytics'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://github.com/ultralytics/ultralytics/releases.atom
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: ultralytics/ultralytics 릴리스 동향 (토큰 불필요 Atom)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 120
+      probe_min_items: 3
+  - key: gh-atom-connectedhomeip
+    name: 'GitHub releases (Atom): project-chip/connectedhomeip'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://github.com/project-chip/connectedhomeip/releases.atom
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: project-chip/connectedhomeip 릴리스 동향 (토큰 불필요 Atom)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 120
+      probe_min_items: 3
+  - key: gh-atom-zephyr
+    name: 'GitHub releases (Atom): zephyrproject-rtos/zephyr'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://github.com/zephyrproject-rtos/zephyr/releases.atom
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: zephyrproject-rtos/zephyr 릴리스 동향 (토큰 불필요 Atom)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 120
+      probe_min_items: 3
+  - key: gh-atom-esp-idf
+    name: 'GitHub releases (Atom): espressif/esp-idf'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://github.com/espressif/esp-idf/releases.atom
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: espressif/esp-idf 릴리스 동향 (토큰 불필요 Atom)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 120
+      probe_min_items: 3
+  - key: gh-atom-zigbee2mqtt
+    name: 'GitHub releases (Atom): Koenkk/zigbee2mqtt'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://github.com/Koenkk/zigbee2mqtt/releases.atom
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: Koenkk/zigbee2mqtt 릴리스 동향 (토큰 불필요 Atom)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 120
+      probe_min_items: 3
+  - key: gh-atom-esphome
+    name: 'GitHub releases (Atom): esphome/esphome'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://github.com/esphome/esphome/releases.atom
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: esphome/esphome 릴리스 동향 (토큰 불필요 Atom)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 120
+      probe_min_items: 3
+  - key: gh-atom-flutter
+    name: 'GitHub releases (Atom): flutter/flutter'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://github.com/flutter/flutter/releases.atom
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: flutter/flutter 릴리스 동향 (토큰 불필요 Atom)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 120
+      probe_min_items: 3
+  - key: gh-atom-react-native
+    name: 'GitHub releases (Atom): facebook/react-native'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://github.com/facebook/react-native/releases.atom
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: facebook/react-native 릴리스 동향 (토큰 불필요 Atom)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 120
+      probe_min_items: 3
+  - key: gh-atom-kotlin
+    name: 'GitHub releases (Atom): JetBrains/kotlin'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://github.com/JetBrains/kotlin/releases.atom
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: JetBrains/kotlin 릴리스 동향 (토큰 불필요 Atom)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 120
+      probe_min_items: 3
+  - key: gh-atom-swift
+    name: 'GitHub releases (Atom): apple/swift'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://github.com/apple/swift/releases.atom
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: apple/swift 릴리스 동향 (토큰 불필요 Atom)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 120
+      probe_min_items: 3
+  - key: gh-atom-llvm-project
+    name: 'GitHub releases (Atom): llvm/llvm-project'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://github.com/llvm/llvm-project/releases.atom
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: llvm/llvm-project 릴리스 동향 (토큰 불필요 Atom)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 120
+      probe_min_items: 3
+  - key: gh-atom-rust
+    name: 'GitHub releases (Atom): rust-lang/rust'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://github.com/rust-lang/rust/releases.atom
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: rust-lang/rust 릴리스 동향 (토큰 불필요 Atom)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 120
+      probe_min_items: 3
+  - key: gh-atom-node
+    name: 'GitHub releases (Atom): nodejs/node'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://github.com/nodejs/node/releases.atom
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: nodejs/node 릴리스 동향 (토큰 불필요 Atom)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 120
+      probe_min_items: 3
+  - key: gh-atom-vscode
+    name: 'GitHub releases (Atom): microsoft/vscode'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://github.com/microsoft/vscode/releases.atom
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: microsoft/vscode 릴리스 동향 (토큰 불필요 Atom)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 120
+      probe_min_items: 3
+  - key: gh-atom-open-webui
+    name: 'GitHub releases (Atom): open-webui/open-webui'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://github.com/open-webui/open-webui/releases.atom
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: open-webui/open-webui 릴리스 동향 (토큰 불필요 Atom)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 120
+      probe_min_items: 3
+  - key: gh-atom-tensorrt-llm
+    name: 'GitHub releases (Atom): NVIDIA/TensorRT-LLM'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://github.com/NVIDIA/TensorRT-LLM/releases.atom
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: NVIDIA/TensorRT-LLM 릴리스 동향 (토큰 불필요 Atom)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 120
+      probe_min_items: 3
+  - key: gh-atom-tvm
+    name: 'GitHub releases (Atom): apache/tvm'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://github.com/apache/tvm/releases.atom
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: apache/tvm 릴리스 동향 (토큰 불필요 Atom)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 120
+      probe_min_items: 3
+  - key: gh-atom-godot
+    name: 'GitHub releases (Atom): godotengine/godot'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://github.com/godotengine/godot/releases.atom
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: godotengine/godot 릴리스 동향 (토큰 불필요 Atom)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 120
+      probe_min_items: 3
+  - key: gh-atom-sherpa-onnx
+    name: 'GitHub releases (Atom): k2-fsa/sherpa-onnx'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://github.com/k2-fsa/sherpa-onnx/releases.atom
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: k2-fsa/sherpa-onnx 릴리스 동향 (토큰 불필요 Atom)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 120
+      probe_min_items: 3
+  - key: pypi-torch
+    name: 'PyPI releases: torch'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://pypi.org/rss/project/torch/releases.xml
+    official_domain: pypi.org
+    operator: Python Software Foundation
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: torch 패키지 릴리스 (AI·디바이스 생태계 의존성)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 180
+  - key: pypi-transformers
+    name: 'PyPI releases: transformers'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://pypi.org/rss/project/transformers/releases.xml
+    official_domain: pypi.org
+    operator: Python Software Foundation
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: transformers 패키지 릴리스 (AI·디바이스 생태계 의존성)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 180
+  - key: pypi-onnxruntime
+    name: 'PyPI releases: onnxruntime'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://pypi.org/rss/project/onnxruntime/releases.xml
+    official_domain: pypi.org
+    operator: Python Software Foundation
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: onnxruntime 패키지 릴리스 (AI·디바이스 생태계 의존성)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 180
+  - key: pypi-mlx
+    name: 'PyPI releases: mlx'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://pypi.org/rss/project/mlx/releases.xml
+    official_domain: pypi.org
+    operator: Python Software Foundation
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: mlx 패키지 릴리스 (AI·디바이스 생태계 의존성)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 180
+  - key: pypi-llama-cpp-python
+    name: 'PyPI releases: llama-cpp-python'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://pypi.org/rss/project/llama-cpp-python/releases.xml
+    official_domain: pypi.org
+    operator: Python Software Foundation
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: llama-cpp-python 패키지 릴리스 (AI·디바이스 생태계 의존성)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 180
+  - key: pypi-ultralytics
+    name: 'PyPI releases: ultralytics'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://pypi.org/rss/project/ultralytics/releases.xml
+    official_domain: pypi.org
+    operator: Python Software Foundation
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: ultralytics 패키지 릴리스 (AI·디바이스 생태계 의존성)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 180
+  - key: pypi-vllm
+    name: 'PyPI releases: vllm'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://pypi.org/rss/project/vllm/releases.xml
+    official_domain: pypi.org
+    operator: Python Software Foundation
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: vllm 패키지 릴리스 (AI·디바이스 생태계 의존성)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 180
+  - key: pypi-mediapipe
+    name: 'PyPI releases: mediapipe'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://pypi.org/rss/project/mediapipe/releases.xml
+    official_domain: pypi.org
+    operator: Python Software Foundation
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: mediapipe 패키지 릴리스 (AI·디바이스 생태계 의존성)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 180
+  - key: pypi-openvino
+    name: 'PyPI releases: openvino'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://pypi.org/rss/project/openvino/releases.xml
+    official_domain: pypi.org
+    operator: Python Software Foundation
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: openvino 패키지 릴리스 (AI·디바이스 생태계 의존성)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 180
+  - key: pypi-executorch
+    name: 'PyPI releases: executorch'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://pypi.org/rss/project/executorch/releases.xml
+    official_domain: pypi.org
+    operator: Python Software Foundation
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: executorch 패키지 릴리스 (AI·디바이스 생태계 의존성)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 180
+  - key: pypi-diffusers
+    name: 'PyPI releases: diffusers'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://pypi.org/rss/project/diffusers/releases.xml
+    official_domain: pypi.org
+    operator: Python Software Foundation
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: diffusers 패키지 릴리스 (AI·디바이스 생태계 의존성)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 180
+  - key: pypi-sentence-transformers
+    name: 'PyPI releases: sentence-transformers'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://pypi.org/rss/project/sentence-transformers/releases.xml
+    official_domain: pypi.org
+    operator: Python Software Foundation
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: sentence-transformers 패키지 릴리스 (AI·디바이스 생태계 의존성)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 180
+  - key: pypi-homeassistant
+    name: 'PyPI releases: homeassistant'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://pypi.org/rss/project/homeassistant/releases.xml
+    official_domain: pypi.org
+    operator: Python Software Foundation
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: homeassistant 패키지 릴리스 (AI·디바이스 생태계 의존성)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 180
+  - key: pypi-esphome
+    name: 'PyPI releases: esphome'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://pypi.org/rss/project/esphome/releases.xml
+    official_domain: pypi.org
+    operator: Python Software Foundation
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: esphome 패키지 릴리스 (AI·디바이스 생태계 의존성)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 180
+  - key: pypi-langchain
+    name: 'PyPI releases: langchain'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://pypi.org/rss/project/langchain/releases.xml
+    official_domain: pypi.org
+    operator: Python Software Foundation
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: langchain 패키지 릴리스 (AI·디바이스 생태계 의존성)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 180
+  - key: pypi-openai
+    name: 'PyPI releases: openai'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://pypi.org/rss/project/openai/releases.xml
+    official_domain: pypi.org
+    operator: Python Software Foundation
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: openai 패키지 릴리스 (AI·디바이스 생태계 의존성)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 180
+  - key: pypi-anthropic
+    name: 'PyPI releases: anthropic'
+    track: oss
+    category: oss_release
+    access_method: feed
+    endpoint_url: https://pypi.org/rss/project/anthropic/releases.xml
+    official_domain: pypi.org
+    operator: Python Software Foundation
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: anthropic 패키지 릴리스 (AI·디바이스 생태계 의존성)
+    storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 180
+  - key: hf-models-trending
+    name: 'Hugging Face models: trending'
+    track: oss
+    category: oss_trend
+    access_method: json_api
+    endpoint_url: https://huggingface.co/api/models?sort=trendingScore&limit=50&full=false
+    official_domain: huggingface.co
+    operator: Hugging Face
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: Hugging Face trending 트렌딩 모델 (온디바이스·멀티모달 AI 신호)
+    storage_right: excerpt_allowed
+    config:
+      preset: huggingface_hub
+      probe_max_age_days: 60
+  - key: hf-models-text-generation
+    name: 'Hugging Face models: text-generation'
+    track: oss
+    category: oss_trend
+    access_method: json_api
+    endpoint_url: https://huggingface.co/api/models?pipeline_tag=text-generation&sort=trendingScore&limit=50&full=false
+    official_domain: huggingface.co
+    operator: Hugging Face
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: Hugging Face text-generation 트렌딩 모델 (온디바이스·멀티모달 AI 신호)
+    storage_right: excerpt_allowed
+    config:
+      preset: huggingface_hub
+      probe_max_age_days: 60
+  - key: hf-models-image-text-to-text
+    name: 'Hugging Face models: image-text-to-text'
+    track: oss
+    category: oss_trend
+    access_method: json_api
+    endpoint_url: https://huggingface.co/api/models?pipeline_tag=image-text-to-text&sort=trendingScore&limit=50&full=false
+    official_domain: huggingface.co
+    operator: Hugging Face
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: Hugging Face image-text-to-text 트렌딩 모델 (온디바이스·멀티모달 AI 신호)
+    storage_right: excerpt_allowed
+    config:
+      preset: huggingface_hub
+      probe_max_age_days: 60
+  - key: hf-models-speech-recognition
+    name: 'Hugging Face models: speech-recognition'
+    track: oss
+    category: oss_trend
+    access_method: json_api
+    endpoint_url: https://huggingface.co/api/models?pipeline_tag=automatic-speech-recognition&sort=trendingScore&limit=50&full=false
+    official_domain: huggingface.co
+    operator: Hugging Face
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: Hugging Face speech-recognition 트렌딩 모델 (온디바이스·멀티모달 AI 신호)
+    storage_right: excerpt_allowed
+    config:
+      preset: huggingface_hub
+      probe_max_age_days: 60
+  - key: hf-models-text-to-speech
+    name: 'Hugging Face models: text-to-speech'
+    track: oss
+    category: oss_trend
+    access_method: json_api
+    endpoint_url: https://huggingface.co/api/models?pipeline_tag=text-to-speech&sort=trendingScore&limit=50&full=false
+    official_domain: huggingface.co
+    operator: Hugging Face
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: Hugging Face text-to-speech 트렌딩 모델 (온디바이스·멀티모달 AI 신호)
+    storage_right: excerpt_allowed
+    config:
+      preset: huggingface_hub
+      probe_max_age_days: 60
+  - key: hf-models-object-detection
+    name: 'Hugging Face models: object-detection'
+    track: oss
+    category: oss_trend
+    access_method: json_api
+    endpoint_url: https://huggingface.co/api/models?pipeline_tag=object-detection&sort=trendingScore&limit=50&full=false
+    official_domain: huggingface.co
+    operator: Hugging Face
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: Hugging Face object-detection 트렌딩 모델 (온디바이스·멀티모달 AI 신호)
+    storage_right: excerpt_allowed
+    config:
+      preset: huggingface_hub
+      probe_max_age_days: 60
+  - key: hf-models-robotics
+    name: 'Hugging Face models: robotics'
+    track: oss
+    category: oss_trend
+    access_method: json_api
+    endpoint_url: https://huggingface.co/api/models?pipeline_tag=robotics&sort=trendingScore&limit=50&full=false
+    official_domain: huggingface.co
+    operator: Hugging Face
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: Hugging Face robotics 트렌딩 모델 (온디바이스·멀티모달 AI 신호)
+    storage_right: excerpt_allowed
+    config:
+      preset: huggingface_hub
+      probe_max_age_days: 60
+  - key: hf-models-gguf
+    name: 'Hugging Face models: gguf'
+    track: oss
+    category: oss_trend
+    access_method: json_api
+    endpoint_url: https://huggingface.co/api/models?library=gguf&sort=trendingScore&limit=50&full=false
+    official_domain: huggingface.co
+    operator: Hugging Face
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: Hugging Face gguf 트렌딩 모델 (온디바이스·멀티모달 AI 신호)
+    storage_right: excerpt_allowed
+    config:
+      preset: huggingface_hub
+      probe_max_age_days: 60

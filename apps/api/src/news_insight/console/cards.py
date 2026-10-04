@@ -199,3 +199,36 @@ def card_failures(session: Session, *, limit: int) -> list[CardFailure]:
         )
         for row, (_, _, card) in zip(items, rows, strict=True)
     ]
+
+
+def card_views(session: Session, item_ids: list[int]) -> dict[int, CardView]:
+    """CardView per item id (items without a card are skipped)."""
+    if not item_ids:
+        return {}
+    rows = list(
+        session.execute(
+            select(Item, Source, ItemCard, Story)
+            .join(Source, Source.id == Item.source_id)
+            .join(ItemCard, ItemCard.item_id == Item.id)
+            .outerjoin(StoryItem, StoryItem.item_id == Item.id)
+            .outerjoin(Story, Story.id == StoryItem.story_id)
+            .where(Item.id.in_(item_ids))
+        ).tuples()
+    )
+    items = item_rows(session, [(item, source) for item, source, _, _ in rows])
+    return {
+        row.id: CardView(
+            item=row,
+            card=card_body(card),
+            story=StoryRef(
+                id=story.id,
+                item_count=story.item_count,
+                source_count=story.source_count,
+                tracks=list(story.tracks),
+                is_representative=story.representative_item_id == row.id,
+            )
+            if story is not None
+            else None,
+        )
+        for row, (_, _, card, story) in zip(items, rows, strict=True)
+    }

@@ -64,6 +64,10 @@ app.add_typer(collect_app, name="collect")
 app.add_typer(dlq_app, name="dlq")
 trends_app = typer.Typer(help="Signal trends from metric snapshots", no_args_is_help=True)
 app.add_typer(trends_app, name="trends")
+daily_app = typer.Typer(
+    help="Daily briefing: 04:40 freeze, 05:00 gated immutable publication", no_args_is_help=True
+)
+app.add_typer(daily_app, name="daily")
 stories_app = typer.Typer(
     help="Issue clustering (exact/near/event) and cross-track identifiers", no_args_is_help=True
 )
@@ -574,3 +578,48 @@ def stories_eval(
             for value in (result.precision, result.recall, result.f1)
         ]
         typer.echo(f"{result.threshold:>9.2f}  {cells[0]:>9}  {cells[1]:>6}  {cells[2]:>4}")
+
+
+def _briefing_date(on: str | None, now: datetime) -> date:
+    return date.fromisoformat(on) if on else now.astimezone(KST).date()
+
+
+@daily_app.command("freeze")
+def daily_freeze(
+    on: Annotated[str | None, typer.Option("--date", help="Briefing date YYYY-MM-DD (KST)")] = None,
+) -> None:
+    """Snapshot today's eligible candidates (idempotent; Celery runs it at 04:40 KST)."""
+    from news_insight.briefing.service import freeze
+
+    now = datetime.now(UTC)
+    with session_scope() as session:
+        snapshot = freeze(session, briefing_date=_briefing_date(on, now), now=now)
+        typer.echo(
+            f"{snapshot.briefing_date} frozen at {_kst(snapshot.frozen_at)}: "
+            f"{len(snapshot.candidate_ids)} candidates"
+        )
+
+
+@daily_app.command("publish")
+def daily_publish(
+    on: Annotated[str | None, typer.Option("--date", help="Briefing date YYYY-MM-DD (KST)")] = None,
+    model: Annotated[str | None, typer.Option(help="Claude model alias")] = None,
+) -> None:
+    """Shortlist the frozen candidates, write the digest, run gates, publish (05:00 KST)."""
+    from news_insight.briefing.service import failing, publish
+
+    now = datetime.now(UTC)
+    with session_scope() as session:
+        briefing = publish(
+            session,
+            briefing_date=_briefing_date(on, now),
+            now=now,
+            client=_claude(),
+            model=model or get_settings().digest_model,
+        )
+        line = (
+            f"{briefing.briefing_date} v{briefing.version} {briefing.status.value} "
+            f"shortlist={len(briefing.shortlist)}"
+        )
+        blocked = failing(briefing.gates)
+    typer.echo(line + (f" failed gates: {', '.join(blocked)}" if blocked else ""))

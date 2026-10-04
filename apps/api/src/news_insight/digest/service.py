@@ -27,10 +27,17 @@ DIGEST_SCHEMA = inline_schema(DigestContent)
 
 
 def generate_digest(
-    session: Session, *, digest_date: date, now: datetime, client: ClaudeClient, model: str
+    session: Session,
+    *,
+    digest_date: date,
+    now: datetime,
+    client: ClaudeClient,
+    model: str,
+    item_ids: set[int] | None = None,
 ) -> Digest:
+    """`item_ids` restricts the input to the frozen daily shortlist (P6)."""
     start, end = digest_window(digest_date)
-    bundle = build_bundle(session, start=start, end=end)
+    bundle = build_bundle(session, start=start, end=end, item_ids=item_ids)
     input_hash = hashlib.sha256(
         json.dumps(bundle.payload, sort_keys=True, ensure_ascii=False).encode("utf-8")
     ).hexdigest()

@@ -3,6 +3,7 @@
 from dataclasses import asdict
 from datetime import UTC, datetime
 from typing import Any
+from zoneinfo import ZoneInfo
 
 from news_insight.collect.dispatch import claim_due_sources
 from news_insight.collect.service import collect_source
@@ -76,6 +77,16 @@ def cluster_stories_task() -> dict[str, Any]:
 def source_quality_task() -> dict[str, Any]:
     with session_scope() as session:
         return asdict(run_quality(session, now=datetime.now(UTC)))
+
+
+@celery_app.task(name="briefing.freeze")
+def briefing_freeze_task() -> int:
+    from news_insight.briefing.service import freeze
+
+    now = datetime.now(UTC)
+    with session_scope() as session:
+        today = now.astimezone(ZoneInfo(get_settings().timezone)).date()
+        return len(freeze(session, briefing_date=today, now=now).candidate_ids)
 
 
 @celery_app.task(name="content.purge_expired")

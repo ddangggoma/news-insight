@@ -6,9 +6,14 @@ import pytest
 import redis
 from alembic import command
 from alembic.config import Config
+from fastapi.testclient import TestClient
 from sqlalchemy import Engine, create_engine, text
 from sqlalchemy.engine import make_url
 from sqlalchemy.orm import Session
+
+from news_insight.config import Settings, get_settings
+from news_insight.db import get_db
+from news_insight.main import create_app
 
 API_ROOT = Path(__file__).resolve().parents[1]
 TEST_DATABASE_URL = os.environ.get(
@@ -58,3 +63,27 @@ def redis_client() -> Iterator[redis.Redis]:
     yield client
     client.flushdb()
     client.close()
+
+
+# console API client shared by console and briefing tests
+CONSOLE_KEY = "test-key"
+
+
+@pytest.fixture
+def headers() -> dict[str, str]:
+    return {"X-Console-Key": CONSOLE_KEY}
+
+
+@pytest.fixture
+def console_client(db_session: Session) -> Iterator[TestClient]:
+    app = create_app()
+
+    def session_override() -> Iterator[Session]:
+        yield db_session
+
+    app.dependency_overrides[get_db] = session_override
+    app.dependency_overrides[get_settings] = lambda: Settings(
+        _env_file=None, console_api_key=CONSOLE_KEY
+    )
+    with TestClient(app) as client:
+        yield client

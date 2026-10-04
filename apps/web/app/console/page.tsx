@@ -70,7 +70,7 @@ export default async function DashboardPage() {
           </p>
           {digest ? (
             <Button asChild size="sm">
-              <Link href={`/console/digests/${digest.digest_date}`}>전체 보기</Link>
+              <Link href="/console/briefing">브리핑 전체 보기</Link>
             </Button>
           ) : null}
         </CardContent>
