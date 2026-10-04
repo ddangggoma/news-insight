@@ -1,0 +1,161 @@
+export type Track = "news" | "community" | "research_ip" | "oss";
+export type Region = "kr" | "global_en" | "jp" | "greater_china" | "eu_other";
+export type Stage = "unverified" | "V0" | "V1" | "V2" | "V3" | "V4" | "V5" | "V6";
+export type SourceStatus = "candidate" | "active" | "paused" | "retired";
+export type Outcome = "success" | "not_modified" | "failed" | "dead_lettered" | "skipped";
+export type DigestStatus = "published" | "fallback";
+
+export interface Page<T> {
+  items: T[];
+  total: number;
+  page: number;
+  size: number;
+}
+
+export interface Overview {
+  generated_at: string;
+  tracks: { track: Track; total: number; active: number; target: number }[];
+  regions: { region: Region; total: number; active: number; capacity: number }[];
+  stages: { stage: Stage; count: number }[];
+  health: {
+    window_hours: number;
+    runs: number;
+    success: number;
+    not_modified: number;
+    failed: number;
+    dead_lettered: number;
+    skipped: number;
+    items_new: number;
+    paused_sources: number;
+    open_dead_letters: number;
+  };
+}
+
+export interface SourceRow {
+  key: string;
+  name: string;
+  track: Track;
+  category: string;
+  region: Region;
+  access_method: string;
+  validation_stage: Stage;
+  status: SourceStatus;
+  paused_reason: string | null;
+  next_due_at: string | null;
+  interval_seconds: number | null;
+  consecutive_failures: number;
+  last_success_at: string | null;
+  items_total: number;
+}
+
+export interface RunOut {
+  id: number;
+  source_key: string;
+  started_at: string;
+  outcome: Outcome;
+  http_status: number | null;
+  elapsed_ms: number | null;
+  items_new: number;
+  items_updated: number;
+  items_unchanged: number;
+  error_code: string | null;
+  error_message: string | null;
+  canary: boolean;
+}
+
+export interface ItemRow {
+  id: number;
+  title: string;
+  url: string;
+  source_key: string;
+  source_name: string;
+  track: Track;
+  category: string;
+  region: Region;
+  published_at: string | null;
+  first_seen_at: string;
+  revision: number;
+  canary: boolean;
+  metrics: Record<string, number>;
+}
+
+export interface SourceDetail {
+  source: SourceRow;
+  endpoint_url: string;
+  official_domain: string;
+  operator: string;
+  language: string;
+  poll_class: string;
+  dx_relevance: string;
+  terms_url: string | null;
+  storage_right: string | null;
+  config: Record<string, unknown>;
+  events: { stage: Stage; outcome: "passed" | "failed" | "reset"; reasons: string[]; created_at: string }[];
+  runs: RunOut[];
+  items: ItemRow[];
+}
+
+export interface DeadLetterOut {
+  id: number;
+  source_key: string;
+  error_code: string;
+  error_message: string;
+  attempts: number;
+  created_at: string;
+  resolved_at: string | null;
+  resolution: string | null;
+}
+
+export interface ItemDetail {
+  item: ItemRow;
+  summary: string | null;
+  body: string | null;
+  author: string | null;
+  revisions: { revision: number; title: string; recorded_at: string }[];
+  metric_history: { captured_at: string; metrics: Record<string, number> }[];
+}
+
+export interface MoverOut {
+  item: ItemRow;
+  current: number;
+  baseline: number;
+  delta: number;
+}
+
+export interface DigestPoint {
+  text: string;
+  item_ids: number[];
+}
+
+export interface DigestOut {
+  digest_date: string;
+  version: number;
+  status: DigestStatus;
+  model: string | null;
+  generated_at: string;
+  window_start: string;
+  window_end: string;
+  item_count: number;
+  cost_usd: number | null;
+  error: string | null;
+  content: {
+    headline: string;
+    overview: string;
+    tracks: {
+      track: Track;
+      summary: string;
+      categories: { category: string; headline: string; points: DigestPoint[] }[];
+    }[];
+    insights: { title: string; body: string; item_ids: number[] }[];
+  };
+  items: { id: number; title: string; url: string; source_name: string; track: Track }[];
+}
+
+export interface DigestSummary {
+  digest_date: string;
+  version: number;
+  status: DigestStatus;
+  headline: string;
+  item_count: number;
+  generated_at: string;
+}

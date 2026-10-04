@@ -9,6 +9,7 @@ x-python-env: &python-env
   LM_STUDIO_MODEL: ${LM_STUDIO_MODEL:-qwen/qwen3.8-27b}
   ADMIN_EMAIL: ${ADMIN_EMAIL:-ddangggoma@gmail.com}
   SOURCE_SECRET_GITHUB_TOKEN: ${SOURCE_SECRET_GITHUB_TOKEN:-}
+  CONSOLE_API_KEY: ${CONSOLE_API_KEY:?CONSOLE_API_KEY is required}
 
 x-python-image: &python-image
   image: news-insight-api:${IMAGE_TAG:-local}
@@ -66,6 +67,7 @@ services:
       context: ./apps/web
     environment:
       API_INTERNAL_URL: http://api:8000
+      CONSOLE_API_KEY: ${CONSOLE_API_KEY:?CONSOLE_API_KEY is required}
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
       interval: 10s
@@ -109,6 +111,8 @@ services:
       PUBLIC_HOST: ${PUBLIC_HOST:-localhost}
       CADDY_HTTPS_PORT: ${CADDY_HTTPS_PORT:-8700}
       CADDY_HTTP_PORT: ${CADDY_HTTP_PORT:-8701}
+      CONSOLE_USER: ${CONSOLE_USER:-admin}
+      CONSOLE_PASSWORD_HASH: ${CONSOLE_PASSWORD_HASH:?run scripts/dev.sh console-password}
     ports:
       - "${CADDY_HTTPS_PORT:-8700}:${CADDY_HTTPS_PORT:-8700}"
       - "${CADDY_HTTP_PORT:-8701}:${CADDY_HTTP_PORT:-8701}"

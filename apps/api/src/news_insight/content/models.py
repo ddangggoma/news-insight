@@ -13,7 +13,15 @@ class Item(Base):
     """Latest stored state of one source item (seen-ledger key: source_id + stable_id)."""
 
     __tablename__ = "items"
-    __table_args__ = (UniqueConstraint("source_id", "stable_id", name="uq_items_source_stable"),)
+    __table_args__ = (
+        UniqueConstraint("source_id", "stable_id", name="uq_items_source_stable"),
+        Index(
+            "ix_items_title_trgm",
+            "title",
+            postgresql_using="gin",
+            postgresql_ops={"title": "gin_trgm_ops"},
+        ),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True)
     source_id: Mapped[int] = mapped_column(ForeignKey("sources.id", ondelete="CASCADE"))

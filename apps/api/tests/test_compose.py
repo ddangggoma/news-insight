@@ -52,3 +52,17 @@ def test_worker_can_reach_host_lm_studio() -> None:
 
     assert "host.docker.internal:host-gateway" in worker["extra_hosts"]
     assert worker["environment"]["LM_STUDIO_MODEL"].endswith("qwen/qwen3.8-27b}")
+
+
+def test_console_key_reaches_api_and_web() -> None:
+    services = load_services()
+
+    assert "CONSOLE_API_KEY" in services["api"]["environment"]
+    assert "CONSOLE_API_KEY" in services["web"]["environment"]
+
+
+def test_caddy_guards_the_console() -> None:
+    caddyfile = (REPO_ROOT / "ops" / "Caddyfile").read_text(encoding="utf-8")
+
+    assert "basic_auth @console" in caddyfile
+    assert "handle @admin_api {" in caddyfile

@@ -19,6 +19,10 @@ class Settings(BaseSettings):
     fetch_max_redirects: int = 3
     fetch_max_bytes: int = 5 * 1024 * 1024
     domain_rate_per_minute: int = 30
+    console_api_key: str = ""
+    claude_cli: str = "claude"
+    digest_model: str = "opus"
+    digest_timeout_seconds: int = 900
 
 
 @lru_cache
