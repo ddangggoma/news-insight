@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     timezone: str = "Asia/Seoul"
     lm_studio_url: str = "http://host.docker.internal:1234"
     lm_studio_model: str = "qwen/qwen3.8-27b"
+    lm_studio_embedding_model: str = "text-embedding-bge-m3"  # multilingual story merging (C1)
     admin_email: str = "ddangggoma@gmail.com"
     public_base_url: str = "https://localhost:8700"
     smtp_host: str = ""

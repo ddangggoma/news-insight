@@ -48,7 +48,12 @@ admin_link()    { (cd "$API" && uv run --env-file "$ROOT/.env" news-insight admi
 # 05:00 KST (launchd): freeze if Celery has not, shortlist, Claude digest, gates, publish
 digest()        { (cd "$API" && uv run --env-file "$ROOT/.env" news-insight daily publish); }
 # Host-side: agy is logged in here, and LM Studio is reached on localhost (not host.docker.internal).
-cards()         { (cd "$API" && LM_STUDIO_URL=http://127.0.0.1:1234 uv run --env-file "$ROOT/.env" news-insight cards run); }
+cards()         {
+  (cd "$API" && LM_STUDIO_URL=http://127.0.0.1:1234 uv run --env-file "$ROOT/.env" news-insight cards run)
+  # CLU-1: merge stories told in other words or languages (bge-m3 + judge); never fails the card run
+  (cd "$API" && LM_STUDIO_URL=http://127.0.0.1:1234 uv run --env-file "$ROOT/.env" news-insight stories semantic) \
+    || echo "stories semantic skipped (LM Studio or Antigravity unavailable)" >&2
+}
 sources_seed()  { (cd "$API" && uv run --env-file "$ROOT/.env" news-insight sources seed); }
 
 verify() {
