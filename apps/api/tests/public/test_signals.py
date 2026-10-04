@@ -273,6 +273,28 @@ def test_research_share_drop_is_tested_for_significance() -> None:
     assert share_drop_z(small) < 2
 
 
+def test_no_cards_without_a_baseline() -> None:
+    # right after collection starts every topic would read as a huge surge
+    fresh = RADAR.model_copy(
+        update={"kpis": RADAR.kpis.model_copy(update={"items": [0, 0, 3, 900]})}
+    )
+    assert radar_signals(fresh) == []
+    assert radar_signals(RADAR) != []
+
+
+def test_a_single_outlet_is_not_a_new_technology_or_a_korean_gap() -> None:
+    dump = topic(
+        "zigbee2mqtt",
+        [0, 0, 0, 572],
+        label="Zigbee2MQTT",
+        state="new",
+        sources=1,
+        regions={"kr": 0, "global_en": 572, "jp": 0, "greater_china": 0, "eu_other": 0},
+    )
+    signals = by_tone(RADAR.model_copy(update={"keywords": [dump], "pairs": []}))
+    assert "new" not in signals and "gap" not in signals
+
+
 def test_an_empty_radar_stays_quiet() -> None:
     assert radar_signals(RADAR.model_copy(update={"themes": [], "keywords": [], "pairs": []})) == []
 

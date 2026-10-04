@@ -20,6 +20,7 @@ from news_insight.digest.models import Digest
 from news_insight.digest.schemas import DigestContent, DigestItemRef, Insight
 from news_insight.public.feed import _reader_item
 from news_insight.public.schemas import ReaderItem
+from news_insight.signals import service as radar_signals
 from news_insight.sources.models import Source
 from news_insight.stories.models import Story, StoryItem
 from news_insight.strategy.models import StrategyRun
@@ -51,6 +52,17 @@ class BriefingStrategy(BaseModel):
     dropped_claims: int
 
 
+class BriefingSignal(BaseModel):
+    """A radar card stored for the briefing date (PRD-1), linked to the radar."""
+
+    tone: str
+    title: str
+    detail: str
+    window_key: str
+    is_current: bool
+    href: str
+
+
 class PublicBriefing(BaseModel):
     briefing_date: date
     version: int
@@ -60,6 +72,7 @@ class PublicBriefing(BaseModel):
     insights: list[Insight]
     sections: list[BriefingSection]
     strategy: BriefingStrategy | None
+    signals: list[BriefingSignal] = []
     refs: list[DigestItemRef]
     gates_passed: int
     gates_total: int
@@ -172,6 +185,17 @@ def public_briefing(session: Session, briefing: Briefing) -> PublicBriefing:
         insights=content.insights if content else [],
         sections=sections,
         strategy=strategy,
+        signals=[
+            BriefingSignal(
+                tone=row.tone,
+                title=row.title,
+                detail=row.detail,
+                window_key=row.window_key,
+                is_current=row.is_current,
+                href=radar_signals.radar_path(row),
+            )
+            for row in radar_signals.for_day(session, briefing.briefing_date)
+        ],
         refs=_refs(session, cited),
         gates_passed=len(blocking) - len(failing(blocking)),
         gates_total=len(blocking),

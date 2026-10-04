@@ -19,6 +19,7 @@ from news_insight.briefing.selection import (
 from news_insight.cards.models import CardStatus, ItemCard
 from news_insight.digest.claude import ClaudeClient
 from news_insight.digest.service import generate_digest
+from news_insight.signals import service as radar_signals
 from news_insight.stories.models import StoryItem
 from news_insight.strategy.service import generate_strategy, strategy_ok
 from news_insight.taxonomy.catalog import TAXONOMY_REVISION
@@ -77,6 +78,7 @@ def publish(
     ).first()
     if same is not None:
         return same  # same input: no-op (immutable versions)
+    signals = radar_signals.evidence(radar_signals.ensure(session, day=briefing_date, now=now))
     digest = (
         generate_digest(
             session,
@@ -85,13 +87,20 @@ def publish(
             client=client,
             model=model,
             item_ids=set(ids),
+            signals=signals,
         )
         if ids
         else None
     )
     strategy = (
         generate_strategy(
-            session, briefing_date=briefing_date, item_ids=ids, now=now, client=client, model=model
+            session,
+            briefing_date=briefing_date,
+            item_ids=ids,
+            now=now,
+            client=client,
+            model=model,
+            signals=signals,
         )
         if ids and with_strategy
         else None

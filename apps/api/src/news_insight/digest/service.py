@@ -3,6 +3,7 @@
 import hashlib
 import json
 from datetime import date, datetime
+from typing import Any
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
@@ -34,12 +35,15 @@ def generate_digest(
     client: ClaudeClient,
     model: str,
     item_ids: set[int] | None = None,
+    signals: list[dict[str, Any]] | None = None,
 ) -> Digest:
-    """`item_ids` restricts the input to the frozen daily shortlist (P6)."""
+    """`item_ids` restricts the input to the frozen daily shortlist (P6); `signals` are the day's
+    radar cards (PRD-1), context for the articles, never evidence on their own."""
     start, end = digest_window(digest_date)
     bundle = build_bundle(session, start=start, end=end, item_ids=item_ids)
+    payload = {**bundle.payload, "radar_signals": signals} if signals else bundle.payload
     input_hash = hashlib.sha256(
-        json.dumps(bundle.payload, sort_keys=True, ensure_ascii=False).encode("utf-8")
+        json.dumps(payload, sort_keys=True, ensure_ascii=False).encode("utf-8")
     ).hexdigest()
     existing = session.scalars(
         select(Digest).where(
@@ -60,7 +64,7 @@ def generate_digest(
         content, error = fallback_content(bundle, reason="no items"), "no items in window"
     else:
         try:
-            result = client.generate(bundle.payload, schema=DIGEST_SCHEMA, model=model)
+            result = client.generate(payload, schema=DIGEST_SCHEMA, model=model)
             validated = validate_content(result.structured, known_ids=bundle.item_ids)
             if validated is None:
                 raise ClaudeError("structured output failed evidence validation")

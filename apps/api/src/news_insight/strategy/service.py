@@ -81,9 +81,14 @@ def generate_strategy(
     now: datetime,
     client: ClaudeClient,
     model: str,
+    signals: list[dict[str, Any]] | None = None,
 ) -> StrategyRun:
+    """`signals`: the day's radar cards (PRD-1), context for the roles next to the articles."""
     input_hash = hashlib.sha256(
-        json.dumps({"ids": sorted(item_ids), "personas": PERSONA_REVISION}).encode()
+        json.dumps(
+            {"ids": sorted(item_ids), "personas": PERSONA_REVISION, "signals": signals or []},
+            ensure_ascii=False,
+        ).encode()
     ).hexdigest()
     existing = session.scalars(
         select(StrategyRun).where(
@@ -95,6 +100,7 @@ def generate_strategy(
     if existing is not None:
         return existing
     items, story_of = _evidence(session, item_ids)
+    context = {"radar_signals": signals} if signals else {}
     run = StrategyRun(
         briefing_date=briefing_date,
         input_hash=input_hash,
@@ -106,7 +112,7 @@ def generate_strategy(
     try:
         roster = [{"key": p.key, "name": p.name, "focus": p.focus} for p in PERSONAS]
         persona_result = client.generate(
-            {"personas": roster, "items": items},
+            {"personas": roster, "items": items, **context},
             schema=PERSONA_SCHEMA,
             model=model,
             system=COMMON_RULES,
@@ -117,7 +123,7 @@ def generate_strategy(
             p.model_dump() for p in validate_personas(persona_result.structured, story_of)
         ]
         writer = client.generate(
-            {"items": items},
+            {"items": items, **context},
             schema=REPORT_SCHEMA,
             model=model,
             system=COMMON_RULES,

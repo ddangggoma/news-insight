@@ -130,3 +130,31 @@ def test_empty_day_skips_claude(db_session: Session) -> None:
 
     assert (digest.status, digest.item_count, claude.calls) == (DigestStatus.FALLBACK, 0, 0)
     assert digest.content["headline"] == "전일 수집된 항목이 없습니다"
+
+
+def test_radar_signals_reach_the_prompt_and_the_input_hash(db_session: Session) -> None:
+    ids = seed(db_session)
+    seen: list[dict[str, Any]] = []
+
+    class Capturing(FakeClaude):
+        def generate(
+            self, payload: dict[str, Any], *, schema: dict[str, Any], model: str
+        ) -> ClaudeResult:
+            seen.append(payload)
+            return super().generate(payload, schema=schema, model=model)
+
+    signals = [{"signal": "급상승", "window": "2026-W40", "topic": "OLED", "detail": "9건"}]
+    plain = generate_digest(
+        db_session, digest_date=DAY, now=NOW, client=Capturing(claude_output(ids)), model="opus"
+    )
+    with_signals = generate_digest(
+        db_session,
+        digest_date=DAY,
+        now=NOW,
+        client=Capturing(claude_output(ids)),
+        model="opus",
+        signals=signals,
+    )
+    assert "radar_signals" not in seen[0]
+    assert seen[1]["radar_signals"] == signals
+    assert plain.input_hash != with_signals.input_hash

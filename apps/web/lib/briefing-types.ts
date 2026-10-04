@@ -29,6 +29,15 @@ export interface StrategyReport {
   risks: StrategyClaim[];
 }
 
+export interface BriefingSignal {
+  tone: string;
+  title: string;
+  detail: string;
+  window_key: string;
+  is_current: boolean;
+  href: string;
+}
+
 export interface PublicBriefing {
   briefing_date: string;
   version: number;
@@ -43,6 +52,8 @@ export interface PublicBriefing {
     review_verdict: string | null;
     dropped_claims: number;
   } | null;
+  /** Radar cards stored for the briefing date (PRD-1), linked to the radar. */
+  signals?: BriefingSignal[];
   refs: ItemRef[];
   gates_passed: number;
   gates_total: number;

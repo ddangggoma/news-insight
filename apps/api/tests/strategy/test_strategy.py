@@ -93,6 +93,7 @@ class StrategyClaude(FakeClaude):
     def __init__(self, fail_at: str | None = None) -> None:
         self.fail_at = fail_at
         self.instructions: list[str] = []
+        self.payload_keys: list[list[str]] = []
 
     def generate(
         self,
@@ -106,6 +107,7 @@ class StrategyClaude(FakeClaude):
         if instruction is None:
             return super().generate(payload, schema=schema, model=model)
         self.instructions.append(instruction)
+        self.payload_keys.append(sorted(payload))
         ids = [item["id"] for item in payload["items"]]
         if self.fail_at and self.fail_at in instruction:
             raise ClaudeError("boom")
@@ -167,6 +169,35 @@ def test_strategy_run_and_publish_gate(db_session: Session) -> None:
         model="opus",
     )
     assert again.id == briefing.strategy_id and len(claude.instructions) == 3 and ids
+
+
+def test_radar_signals_go_to_the_persona_and_writer_roles(db_session: Session) -> None:
+    seed(db_session)
+    ids = sorted(i for (i,) in db_session.execute(select(Item.id)).all())
+    claude = StrategyClaude()
+    signals = [{"signal": "급상승", "window": "2026-W40", "topic": "AI 에이전트", "detail": "9건"}]
+    plain = generate_strategy(
+        db_session, briefing_date=DAY, item_ids=ids, now=FREEZE_AT, client=claude, model="opus"
+    )
+    with_signals = generate_strategy(
+        db_session,
+        briefing_date=DAY,
+        item_ids=ids,
+        now=FREEZE_AT,
+        client=claude,
+        model="opus",
+        signals=signals,
+    )
+    assert plain.input_hash != with_signals.input_hash
+    # persona, writer, reviewer for each run: the reviewer checks claims against articles only
+    assert [("radar_signals" in keys) for keys in claude.payload_keys] == [
+        False,
+        False,
+        False,
+        True,
+        True,
+        False,
+    ]
 
 
 def test_strategy_failure_blocks_publication(db_session: Session) -> None:
