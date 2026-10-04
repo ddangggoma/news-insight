@@ -82,11 +82,14 @@ def source_quality_task() -> dict[str, Any]:
 @celery_app.task(name="briefing.freeze")
 def briefing_freeze_task() -> int:
     from news_insight.briefing.service import freeze
+    from news_insight.signals.service import snapshot
 
     now = datetime.now(UTC)
     with session_scope() as session:
         today = now.astimezone(ZoneInfo(get_settings().timezone)).date()
-        return len(freeze(session, briefing_date=today, now=now).candidate_ids)
+        frozen = freeze(session, briefing_date=today, now=now)
+        snapshot(session, day=today, now=now)  # PRD-1: the radar cards the 05:00 roles will read
+        return len(frozen.candidate_ids)
 
 
 @celery_app.task(name="content.purge_expired")

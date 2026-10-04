@@ -1,4 +1,4 @@
-import { CalendarDays, Compass, Map as MapIcon, TrendingUp, Users } from "lucide-react";
+import { CalendarDays, Compass, Map as MapIcon, Radar as RadarIcon, TrendingUp, Users } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { EvidenceLinks } from "@/components/console/evidence-links";
@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { BriefingEntry, BriefingPersona, PublicBriefing } from "@/lib/briefing-types";
 import { formatBriefingDate } from "@/lib/format";
+import { SIGNAL_META, type SignalTone } from "@/lib/radar-signals";
 import { FIELD_LABEL, IMPACT_LABEL } from "@/lib/taxonomy";
 import { cn } from "@/lib/utils";
 
@@ -68,6 +69,26 @@ function PersonaList({ personas, refs }: { personas: BriefingPersona[]; refs: Pu
       ))}
       {quiet > 0 ? <p className="text-xs text-muted-foreground">신호 없음(no_signal) {quiet}명</p> : null}
     </div>
+  );
+}
+
+/** The radar's statistical cards for the day: the timing evidence the digest and strategy read. */
+function SignalList({ signals }: { signals: NonNullable<PublicBriefing["signals"]> }) {
+  return (
+    <ul className="space-y-2">
+      {signals.map((signal) => (
+        <li key={`${signal.window_key}-${signal.tone}`}>
+          <Link href={signal.href} className="block rounded-lg border p-2.5 transition-colors hover:bg-muted/40">
+            <p className="text-xs font-medium text-primary">
+              {SIGNAL_META[signal.tone as SignalTone]?.label ?? signal.tone} · {signal.window_key}
+              {signal.is_current ? " (진행 중)" : ""}
+            </p>
+            <p className="text-sm leading-snug font-semibold">{signal.title}</p>
+            <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{signal.detail}</p>
+          </Link>
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -179,6 +200,11 @@ export function BriefingAside({ briefing, past }: { briefing: PublicBriefing; pa
   const report = strategy?.report;
   return (
     <div className="space-y-4">
+      {briefing.signals?.length ? (
+        <Panel icon={<RadarIcon className="size-4 text-primary" aria-hidden />} title="레이더 신호">
+          <SignalList signals={briefing.signals} />
+        </Panel>
+      ) : null}
       {strategy ? (
         <Panel icon={<Users className="size-4 text-primary" aria-hidden />} title="페르소나 통찰">
           <Tabs defaultValue="executive" className="gap-3">

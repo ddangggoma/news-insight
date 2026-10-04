@@ -12,7 +12,7 @@
 | 03:00 | 암호화 백업 | 호스트 launchd(`com.newsinsight.backup`, 설치 시) |
 | 03:15 | 만료 본문 삭제 | Celery |
 | 03:30 | V5/V6 소스 품질 판정 | Celery |
-| 04:40 | 후보 동결 | Celery |
+| 04:40 | 후보 동결 + 레이더 신호 저장(`radar_signals`, 이번 주·지난주 카드) | Celery |
 | 05:00 | 다이제스트 → 페르소나·전략 → 게이트 → 발행 | 호스트 launchd(`com.newsinsight.digest`) |
 
 ## 2. 운영 알림
