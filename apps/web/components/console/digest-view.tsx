@@ -19,7 +19,7 @@ export function DigestView({ digest }: { digest: DigestOut }) {
           {digest.model ? <span>· {digest.model}</span> : null}
         </div>
         <h2 className="text-3xl font-semibold tracking-tight text-balance">{content.headline}</h2>
-        <p className="max-w-3xl leading-relaxed text-muted-foreground">{content.overview}</p>
+        <p className="max-w-3xl leading-relaxed text-ink-2">{content.overview}</p>
       </section>
 
       {content.insights.length > 0 ? (
@@ -52,7 +52,7 @@ export function DigestView({ digest }: { digest: DigestOut }) {
               <div className="flex items-center gap-2">
                 <TrackBadge track={track.track} />
               </div>
-              <CardDescription className="leading-relaxed">{track.summary}</CardDescription>
+              <CardDescription className="leading-relaxed text-ink-2">{track.summary}</CardDescription>
             </CardHeader>
             <CardContent className="grid gap-x-8 gap-y-6 md:grid-cols-2 [&>*]:min-w-0">
               {track.categories.map((category) => (
