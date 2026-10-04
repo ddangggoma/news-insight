@@ -7,6 +7,8 @@ from sqlalchemy.orm import Session
 from news_insight.config import Settings, get_settings
 from news_insight.db import get_db
 from news_insight.main import create_app
+from news_insight.public.routes import get_now
+from tests.public.seed import NOW
 
 PUBLIC_KEY = "public-test-key"
 CONSOLE_KEY = "console-test-key"
@@ -25,6 +27,7 @@ def _client(db_session: Session, settings: Settings) -> Iterator[TestClient]:
 
     app.dependency_overrides[get_db] = session_override
     app.dependency_overrides[get_settings] = lambda: settings
+    app.dependency_overrides[get_now] = lambda: NOW
     with TestClient(app) as client:
         yield client
 
