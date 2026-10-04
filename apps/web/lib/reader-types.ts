@@ -169,6 +169,8 @@ export interface Radar {
   engagement: Engagement;
   calendar: RadarCalendar;
   field_links: FieldLink[];
+  /** Rule-based cards computed by the API (public/signals.py), at most one per tone. */
+  signals?: RadarSignal[];
 }
 
 export interface EngagedItem {
@@ -221,3 +223,11 @@ export interface TopicDetail {
 }
 
 export type PublicDigest = Omit<DigestOut, "model" | "cost_usd" | "error">;
+
+export interface RadarSignal {
+  tone: string;
+  title: string;
+  detail: string;
+  focus: { kind: "field" | "theme" | "keyword"; key: string };
+  score: number;
+}

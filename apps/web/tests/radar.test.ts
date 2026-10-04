@@ -24,7 +24,7 @@ import {
   wordCloud,
 } from "@/lib/radar";
 import { formatDay } from "@/lib/format";
-import { radarSignals, shareDropZ } from "@/lib/radar-signals";
+import { radarSignals } from "@/lib/radar-signals";
 import { radarView } from "@/lib/radar-view";
 import type { Radar, Topic } from "@/lib/reader-types";
 
@@ -247,96 +247,16 @@ describe("radar layouts", () => {
 });
 
 describe("radar signals", () => {
-  it("reads surge, new, early, shift, link and cooling signals from the stats", () => {
-    const signals = Object.fromEntries(radarSignals(radar).map((s) => [s.tone, s]));
-    expect(signals.surge.title).toBe("AI 에이전트");
-    expect(signals.surge.detail).toContain("직전 3주");
-    expect(signals.new.focus).toEqual({ kind: "keyword", key: "유리기판" });
-    expect(signals.early.title).toBe("휴머노이드·Embodied AI");
-    expect(signals.shift.title).toBe("XR·공간컴퓨팅·AI 글래스");
-    expect(signals.shift.detail).toContain("직전 3주 같은 시점 55% → 이번 0%");
-    expect(signals.link.title).toBe("HBM4 × 온디바이스 AI");
-    expect(signals.link.detail).toContain("첫 동시 언급");
-    expect(signals.cool.title).toBe("5G-Adv·6G");
-    expect(signals.hype).toBeUndefined();
-  });
-
-  it("flags chatter that outruns research, once per theme", () => {
-    const hot = topic("platform_sw__device_os", [3, 3, 3, 9], { z: 0.8, tracks: mix(6, 2, 1, 0), baseline_tracks: mix(6, 3, 6, 0) });
-    const signals = radarSignals({ ...radar, themes: [...radar.themes, hot] });
-    const hype = signals.find((s) => s.tone === "hype")!;
-    expect(hype.title).toBe("디바이스 OS·플랫폼");
-    expect(hype.detail).toBe("뉴스·커뮤니티 8건으로 평소(3.0건)의 2.7배, 논문·오픈소스는 1건(평소 2.0건): 화제가 실체보다 앞섬");
-    const keys = signals.filter((s) => s.focus.kind === "theme").map((s) => s.focus.key);
-    expect(new Set(keys).size).toBe(keys.length);
-  });
-
-  it("flags thin sourcing and Korean gaps", () => {
-    const narrow = topic("cloud_data__infra_ops", [2, 2, 2, 8], { z: 3, effective_sources: 1.6, baseline_tracks: mix(18) });
-    const vendor = topic("platform_sw__device_os", [2, 2, 2, 6], { z: 2, official: 4, baseline_tracks: mix(15) });
-    const abroad = topic("wasm", [0, 0, 1, 6], { label: "WASM", state: "rising", regions: { kr: 0, global_en: 6, jp: 0, greater_china: 0, eu_other: 0 } });
-    const signals = radarSignals({ ...radar, themes: [narrow, vendor], keywords: [abroad], pairs: [] });
-    const thin = signals.find((s) => s.tone === "thin")!;
-    expect(thin.title).toBe("인프라 운영");
-    expect(thin.detail).toContain("실효 출처 1.6곳");
-    const gap = signals.find((s) => s.tone === "gap")!;
-    expect(gap.title).toBe("WASM");
-    expect(gap.detail).toContain("해외 6건");
-    const onlyVendor = radarSignals({ ...radar, themes: [vendor], keywords: [], pairs: [] }).find((s) => s.tone === "thin")!;
-    expect(onlyVendor.detail).toContain("뉴스 중 공식 발표 67%");
-  });
-
-  it("reads anomaly days, returning keywords, developer pull and new category links", () => {
-    const signals = Object.fromEntries(
-      radarSignals({
-        ...radar,
-        keywords: [
-          topic("메타버스", [0, 0, 0, 4], { label: "메타버스", state: "new", returning: true, first_ever: "2026-01-01T00:00:00Z" }),
-          topic("one ui 9", [0, 0, 2, 9], { label: "One UI 9", state: "surging", debut: true, first_ever: "2026-09-26T00:00:00Z" }),
-        ],
-        pairs: [],
-        engagement: {
-          measured: 30,
-          themes: [
-            { key: "display_av__xr_spatial", score: 80, items: 12 },
-            { key: "ai__ai_agents", score: 20, items: 9 },
-          ],
-          top: [],
-        },
-        calendar: {
-          start: "2026-07-13",
-          days: [],
-          anomalies: [
-            { day: "2026-08-27", field: "ai", count: 40, expected: 13.5, z: 7.2, keywords: [] },
-            { day: "2026-09-30", field: "platform_sw", count: 25, expected: 3.5, z: 11.5, keywords: [{ key: "갤럭시", label: "갤럭시", count: 9 }] },
-          ],
-        },
-        field_links: [{ a: "frontier", b: "security", count: 3, previous: 0 }],
-      }).map((s) => [s.tone, s]),
-    );
-    // only anomalies inside the window count, and the card opens the keyword behind them
-    expect(signals.event.title).toBe("9/30 플랫폼·소프트웨어");
-    expect(signals.event.detail).toBe("하루 25건, 평소 같은 요일 3.5건의 7.1배 · 갤럭시");
-    expect(signals.event.focus).toEqual({ kind: "keyword", key: "갤럭시" });
-    expect(signals.back.title).toBe("메타버스");
-    expect(signals.new.title).toBe("One UI 9");
-    expect(signals.new.detail).toContain("처음 보도된 지 8일");
-    // XR: 6 of 20 mentions (30%) but 80% of the reactions; a theme already on another card is skipped
-    expect(signals.pull.title).toBe("XR·공간컴퓨팅·AI 글래스");
-    expect(signals.pull.detail).toContain("언급 비중 30%인데 반응(스타·포인트 증가) 비중 80%");
-    expect(signals.link.title).toBe("미래 기술 × 보안·신뢰");
-  });
-
-  it("tests a drop in research share for significance", () => {
-    const big = topic("a__b", [10, 10, 10, 30], { tracks: mix(24, 0, 6, 0), baseline_tracks: mix(10, 0, 20, 0) });
-    const small = topic("a__b", [1, 1, 1, 3], { tracks: mix(3, 0, 0, 0), baseline_tracks: mix(1, 0, 2, 0) });
-    // 67% → 20% over 30 reports each: z ≈ 3.6
-    expect(shareDropZ(big)).toBeCloseTo(3.65, 1);
-    expect(shareDropZ(small)).toBeLessThan(2);
+  it("renders the API's cards and drops tones it does not know", () => {
+    const signals = radarSignals({
+      ...radar,
+      signals: [
+        { tone: "surge", title: "AI 에이전트", detail: "9건", focus: { kind: "theme", key: "ai__ai_agents" }, score: 7 },
+        { tone: "someday", title: "?", detail: "", focus: { kind: "theme", key: "x" }, score: 0 },
+      ],
+    });
+    expect(signals).toEqual([{ tone: "surge", title: "AI 에이전트", detail: "9건", focus: { kind: "theme", key: "ai__ai_agents" } }]);
+    expect(radarSignals(radar)).toEqual([]);
     expect(formatDay("2026-09-13T16:00:00Z")).toBe("2026.09.14");
-  });
-
-  it("stays quiet on an empty radar", () => {
-    expect(radarSignals({ ...radar, themes: [], keywords: [], pairs: [] })).toEqual([]);
   });
 });

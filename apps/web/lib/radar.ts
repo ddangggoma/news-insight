@@ -15,10 +15,10 @@ export const BASELINE_UNIT: Record<RadarKind, string> = { day: "일", week: "주
 
 export const STATE_META: Record<TopicState, { label: string; hint: string }> = {
   new: { label: "신규", hint: "직전 기간들에 없다가 2곳 이상 출처에서 처음 등장" },
-  surging: { label: "급상승", hint: "직전 기간 평균 대비 2σ 이상, 1.5배 이상" },
-  rising: { label: "상승", hint: "직전 기간 평균의 1.3배 이상" },
+  surging: { label: "급상승", hint: "직전 기간 평균 대비 +2σ 이상(포아송 기준), 1.5배 이상, 출처 2곳 이상" },
+  rising: { label: "상승", hint: "직전 기간 평균 대비 +1σ 이상(포아송 기준)" },
   steady: { label: "유지", hint: "직전 기간 평균과 비슷" },
-  falling: { label: "하락", hint: "직전 기간 평균의 70% 이하" },
+  falling: { label: "하락", hint: "직전 기간 평균 대비 −1σ 이하(포아송 기준)" },
 };
 export const STATE_ORDER: TopicState[] = ["new", "surging", "rising", "steady", "falling"];
 

@@ -206,7 +206,12 @@ def test_radar_rejects_invalid_parameters(
 
 def test_scores() -> None:
     assert z_score([0, 0, 0, 2]) == 2.0
-    assert z_score([4, 6, 4, 6, 12]) == 7.0  # mean 5, deviation 1
+    # mean 5, observed deviation 1: the Poisson floor (√5) keeps this from reading as 7σ
+    assert z_score([4, 6, 4, 6, 12]) == 3.13
+    # noise from successive differences (±20 → deviation 14.1), above the Poisson floor
+    assert z_score([40, 60, 40, 60, 62]) == 0.85
+    # a steady decline is not noise: 25 → 14 reads as a fall, the plain deviation would hide it
+    assert z_score([45, 39, 20, 28, 9, 16, 19, 14]) == -1.3
     assert lifecycle([0, 0, 0, 3], sources=3) == "new"
     assert lifecycle([0, 0, 0, 3], sources=1) == "steady"  # one outlet is not a new topic
     assert lifecycle([2, 2, 2, 8], sources=4) == "surging"

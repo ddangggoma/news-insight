@@ -238,6 +238,21 @@ class FieldLink(BaseModel):
     previous: int
 
 
+class SignalFocus(BaseModel):
+    kind: str  # field · theme · keyword
+    key: str
+
+
+class RadarSignal(BaseModel):
+    """One card of the radar's rule-based reading (public/signals.py)."""
+
+    tone: str  # surge · event · new · back · early · pull · shift · hype · thin · gap · link · cool
+    title: str
+    detail: str
+    focus: SignalFocus
+    score: float  # the rule's own test statistic, for ordering within a tone
+
+
 class Radar(BaseModel):
     window: RadarWindow
     periods: list[str]
@@ -252,6 +267,7 @@ class Radar(BaseModel):
     field_links: list[FieldLink]
     # first day of the current taxonomy tree: comparisons across it are indicative only
     taxonomy_revised_on: date | None = None
+    signals: list[RadarSignal] = []
 
 
 class TopicDetail(BaseModel):
