@@ -55,6 +55,16 @@ from news_insight.sources.service import (
 from news_insight.stories.service import Thresholds, cluster
 
 app = typer.Typer(help="Daily IT Intelligence operations CLI", no_args_is_help=True)
+
+
+@app.callback()
+def _setup() -> None:
+    """JSON logs on stderr for host jobs (launchd keeps them in ops/logs)."""
+    from news_insight.observability import configure_logging
+
+    configure_logging("cli")
+
+
 sources_app = typer.Typer(help="Source registry and V0-V6 validation ladder", no_args_is_help=True)
 app.add_typer(sources_app, name="sources")
 
@@ -671,13 +681,15 @@ def ops_check(
     apply: Annotated[bool, typer.Option(help="Record alert episodes and send e-mail")] = False,
 ) -> None:
     """Run the health checks (publication SLA, collection, queue, cards) and list findings."""
-    from news_insight.jobs.tasks import queue_length
+    from news_insight.jobs.tasks import queue_length, slow_requests
     from news_insight.ops.checks import run_checks
     from news_insight.ops.service import notify, sync_alerts
 
     now = datetime.now(UTC)
     with session_scope() as session:
-        findings = run_checks(session, now=now, queue_length=queue_length())
+        findings = run_checks(
+            session, now=now, queue_length=queue_length(), slow_requests=slow_requests(now)
+        )
         if apply:
             notify(get_settings(), sync_alerts(session, findings, now=now), now=now)
     if not findings:

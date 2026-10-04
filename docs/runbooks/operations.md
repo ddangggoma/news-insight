@@ -92,3 +92,16 @@ V3(파서 통과) → 24시간 canary 수집 → V4 → 7일 카드 품질(DX �
 ## 9. 7일 번인
 
 P9 완료 기준은 7일 연속 05:00 발행 성공(또는 Fail-safe 정상 동작)입니다. 콘솔 → 운영 알림에서 `publish_sla`가 7일 동안 열리지 않았는지, 데일리 브리핑 이력에 날짜마다 발행본(또는 차단+전일본 유지)이 있는지 확인합니다.
+
+## 10. 성능·관측성 기반 (2026-10-04, 점검표 단계 A)
+
+- **인덱스** (마이그레이션 0016): `items.first_seen_at`, `(source_id, first_seen_at)`, 본문 만료 부분 인덱스, `item_cards.themes` GIN, 지표 스냅샷 `captured_at`. 시간 창 조회 1,018ms → 31ms, 테마 필터 379ms → 2ms.
+- **속도 제한**: Caddy를 `ops/caddy/Dockerfile`로 빌드합니다(`caddy-ratelimit` 포함). IP당 분당 120회, `/radar*`는 20회이고 초과하면 429와 `Retry-After`를 돌려줍니다. 정적 파일은 제외입니다. 값은 `.env`의 `RATE_LIMIT_PAGES`·`RATE_LIMIT_RADAR`로 바꿉니다. Docker Desktop(Mac)에서는 모든 접속이 같은 게이트웨이 IP로 보이므로 한도가 공유됩니다. 리눅스 서버나 도메인 배포에서는 실제 IP 기준입니다.
+- **구조화 로그**: API·Celery·CLI가 모두 JSON 한 줄로 stderr에 남깁니다(`service`, `request_id`, `source_id` 등). 찾을 때는 `docker compose logs api | grep '"level": "warning"'`. API 응답에는 `X-Request-ID`가 붙습니다.
+- **새 알림**:
+  - `api_slow`: 최근 1시간에 5초 넘게 걸린 API 응답이 5건 이상
+  - `cards_failing`: 마지막 카드 실행의 실패율이 30% 이상
+- **배포 직후 캐시**:
+  - 웹은 공개 API의 스키마 해시(`/api/public/version`, 30초 캐시)를 모든 캐시 키에 넣습니다. 응답 모양이 바뀌면 옛 JSON을 쓰지 않습니다.
+  - `scripts/release.sh`는 배포 뒤 웹의 `/internal/revalidate`(콘솔 키 필요, Caddy가 외부에는 404)를 호출해 독자 캐시를 비웁니다.
+- **E2E 브라우저**: 기본은 시스템 Chrome입니다. 컨테이너처럼 Chrome이 없는 곳에서는 `E2E_BROWSER_CHANNEL= npx playwright install chromium && E2E_BROWSER_CHANNEL= scripts/dev.sh web-e2e`로 돌립니다.

@@ -2,6 +2,7 @@ from typing import Any
 
 from celery import Celery
 from celery.schedules import crontab
+from celery.signals import setup_logging
 
 from news_insight.config import get_settings
 
@@ -24,6 +25,14 @@ BEAT_SCHEDULE: dict[str, dict[str, Any]] = {
         "schedule": crontab(hour=3, minute=15),  # Asia/Seoul (celery timezone)
     },
 }
+
+
+@setup_logging.connect
+def _json_logs(**_: Any) -> None:
+    """Celery keeps its own handlers unless this signal is connected."""
+    from news_insight.observability import configure_logging
+
+    configure_logging("worker")
 
 
 def create_celery() -> Celery:

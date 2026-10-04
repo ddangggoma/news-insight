@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import DateTime, ForeignKey, Index, String, Text, UniqueConstraint, false
+from sqlalchemy import DateTime, ForeignKey, Index, String, Text, UniqueConstraint, false, text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -20,6 +20,14 @@ class Item(Base):
             "title",
             postgresql_using="gin",
             postgresql_ops={"title": "gin_trgm_ops"},
+        ),
+        # time windows drive the feed, radar, briefing freeze and card queue (checklist PERF-1)
+        Index("ix_items_first_seen_at", "first_seen_at"),
+        Index("ix_items_source_first_seen", "source_id", "first_seen_at"),
+        Index(
+            "ix_items_body_expires_at",
+            "body_expires_at",
+            postgresql_where=text("body_expires_at IS NOT NULL"),
         ),
     )
 
@@ -71,7 +79,10 @@ class ItemMetricSnapshot(Base):
     """Engagement signals over time (stars, likes, points); deltas feed trend detection."""
 
     __tablename__ = "item_metric_snapshots"
-    __table_args__ = (Index("ix_item_metric_snapshots_item_captured", "item_id", "captured_at"),)
+    __table_args__ = (
+        Index("ix_item_metric_snapshots_item_captured", "item_id", "captured_at"),
+        Index("ix_item_metric_snapshots_captured_at", "captured_at"),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True)
     item_id: Mapped[int] = mapped_column(ForeignKey("items.id", ondelete="CASCADE"))

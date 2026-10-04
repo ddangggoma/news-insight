@@ -103,6 +103,18 @@ def queue_length() -> int | None:
         return None
 
 
+def slow_requests(now: datetime) -> list[str] | None:
+    from news_insight.observability import SLOW_KEY
+    from news_insight.ops.checks import SLOW_WINDOW
+
+    try:
+        since = (now - SLOW_WINDOW).timestamp()
+        raw = get_redis().zrangebyscore(SLOW_KEY, since, "+inf")
+    except Exception:  # noqa: BLE001
+        return None
+    return [r.decode() if isinstance(r, bytes) else str(r) for r in raw]  # type: ignore[union-attr]
+
+
 @celery_app.task(name="ops.check")
 def ops_check_task() -> dict[str, Any]:
     from news_insight.ops.checks import run_checks
@@ -110,7 +122,9 @@ def ops_check_task() -> dict[str, Any]:
 
     now = datetime.now(UTC)
     with session_scope() as session:
-        findings = run_checks(session, now=now, queue_length=queue_length())
+        findings = run_checks(
+            session, now=now, queue_length=queue_length(), slow_requests=slow_requests(now)
+        )
         result = sync_alerts(session, findings, now=now)
         notify(get_settings(), result, now=now)
         return {

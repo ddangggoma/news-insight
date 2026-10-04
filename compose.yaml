@@ -117,11 +117,15 @@ services:
     restart: unless-stopped
 
   caddy:
-    image: caddy:2.10-alpine
+    image: news-insight-caddy:${IMAGE_TAG:-local}
+    build:
+      context: ./ops/caddy
     environment:
       PUBLIC_HOST: ${PUBLIC_HOST:-localhost}
       CADDY_HTTPS_PORT: ${CADDY_HTTPS_PORT:-8700}
       CADDY_HTTP_PORT: ${CADDY_HTTP_PORT:-8701}
+      RATE_LIMIT_PAGES: ${RATE_LIMIT_PAGES:-120}
+      RATE_LIMIT_RADAR: ${RATE_LIMIT_RADAR:-20}
     ports:
       - "${CADDY_HTTPS_PORT:-8700}:${CADDY_HTTPS_PORT:-8700}"
       - "${CADDY_HTTP_PORT:-8701}:${CADDY_HTTP_PORT:-8701}"

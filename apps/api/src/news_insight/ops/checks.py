@@ -28,6 +28,9 @@ DLQ_LIMIT = 50
 QUEUE_LIMIT = 500
 CARD_STALL = timedelta(minutes=40)
 CARD_BACKLOG = 5000
+CARD_FAILURE_RATE = 0.3
+SLOW_WINDOW = timedelta(hours=1)
+SLOW_LIMIT = 5  # responses over 5 s in the last hour
 
 
 @dataclass(frozen=True)
@@ -181,6 +184,17 @@ def check_cards(session: Session, *, now: datetime) -> list[Finding]:
                     "agy 로그인, LM Studio를 확인하세요.",
                 )
             )
+    if last is not None and last.ready + last.failed >= 20:
+        rate = last.failed / (last.ready + last.failed)
+        if rate >= CARD_FAILURE_RATE:
+            findings.append(
+                Finding(
+                    "cards_failing",
+                    Severity.WARNING,
+                    f"마지막 카드 실행 실패율 {rate:.0%}",
+                    f"성공 {last.ready} · 실패 {last.failed}. {(last.note or '')[:200]}",
+                )
+            )
     if pending > CARD_BACKLOG:
         findings.append(
             Finding(
@@ -193,10 +207,37 @@ def check_cards(session: Session, *, now: datetime) -> list[Finding]:
     return findings
 
 
-def run_checks(session: Session, *, now: datetime, queue_length: int | None) -> list[Finding]:
+def check_slow_requests(slow: list[str] | None) -> list[Finding]:
+    """`slow` holds 'stamp path seconds' entries from the last hour (observability)."""
+    if not slow or len(slow) < SLOW_LIMIT:
+        return []
+    paths: dict[str, int] = {}
+    for entry in slow:
+        parts = entry.split(" ")
+        if len(parts) >= 2:
+            paths[parts[1]] = paths.get(parts[1], 0) + 1
+    top = ", ".join(f"{p} {n}회" for p, n in sorted(paths.items(), key=lambda kv: -kv[1])[:3])
+    return [
+        Finding(
+            "api_slow",
+            Severity.WARNING,
+            f"최근 1시간 5초 이상 걸린 API 응답 {len(slow)}건",
+            f"{top}. 캐시가 비어 있거나 집계가 무거운 경로입니다.",
+        )
+    ]
+
+
+def run_checks(
+    session: Session,
+    *,
+    now: datetime,
+    queue_length: int | None,
+    slow_requests: list[str] | None = None,
+) -> list[Finding]:
     return [
         *check_publication(session, now=now),
         *check_collection(session, now=now),
         *check_queue(queue_length),
         *check_cards(session, now=now),
+        *check_slow_requests(slow_requests),
     ]

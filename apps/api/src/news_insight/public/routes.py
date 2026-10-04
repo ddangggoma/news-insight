@@ -4,7 +4,7 @@ from collections.abc import Sequence
 from datetime import UTC, date, datetime
 from typing import Annotated, Literal
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy.orm import Session
 
 from news_insight.console.schemas import Page
@@ -230,3 +230,24 @@ def get_briefing(briefing_date: date, session: DB) -> briefing_queries.PublicBri
     if briefing is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "no published briefing on that date")
     return briefing_queries.public_briefing(session, briefing)
+
+
+@router.get("/version")
+def schema_version(request: Request) -> dict[str, str]:
+    """Hash of the public API's OpenAPI shape. The web server keys its cache on it, so a
+    deploy that changes a response never renders new pages from old cached JSON (PERF-3)."""
+    import hashlib
+    import json
+
+    cached = getattr(request.app.state, "public_schema_version", None)
+    if cached is None:
+        spec = request.app.openapi()
+        public = {
+            path: op for path, op in spec.get("paths", {}).items() if path.startswith("/api/public")
+        }
+        body = json.dumps(
+            {"paths": public, "components": spec.get("components", {})}, sort_keys=True
+        )
+        cached = hashlib.sha256(body.encode()).hexdigest()[:12]
+        request.app.state.public_schema_version = cached
+    return {"schema": cached}
