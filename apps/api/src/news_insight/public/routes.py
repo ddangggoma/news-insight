@@ -4,7 +4,7 @@ from collections.abc import Sequence
 from datetime import UTC, date, datetime
 from typing import Annotated, Literal
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from sqlalchemy.orm import Session
 
 from news_insight.console.schemas import Page
@@ -12,7 +12,7 @@ from news_insight.db import get_db
 from news_insight.digest import service as digest_service
 from news_insight.digest.models import Digest
 from news_insight.digest.schemas import DigestSummary
-from news_insight.public import aggregates
+from news_insight.public import aggregates, radar_cache
 from news_insight.public import briefings as briefing_queries
 from news_insight.public import feed as feed_queries
 from news_insight.public import radar as radar_queries
@@ -157,27 +157,48 @@ def radar_window(now: Now, period: str = "week", key: str | None = None) -> Wind
 
 
 RadarPeriod = Annotated[Window, Depends(radar_window)]
+RadarCache = Annotated[object | None, Depends(radar_cache.cache_client)]
 
 
-@router.get("/radar")
-def get_radar(session: DB, filters: Filters, window: RadarPeriod, now: Now) -> Radar:
-    return radar_queries.radar(session, filters, window, current_key(window.kind, now), now)
+@router.get("/radar", response_model=Radar)
+def get_radar(
+    session: DB, filters: Filters, window: RadarPeriod, now: Now, cache: RadarCache
+) -> Response:
+    body, hit = radar_cache.cached_json(
+        radar_cache.view_key("radar", window, filters),
+        radar_cache.ttl_for(window, now),
+        lambda: radar_queries.radar(session, filters, window, current_key(window.kind, now), now),
+        client=cache,
+    )
+    return Response(
+        body, media_type="application/json", headers={"X-Cache": "hit" if hit else "miss"}
+    )
 
 
-@router.get("/radar/topic")
+@router.get("/radar/topic", response_model=TopicDetail)
 def get_radar_topic(
     session: DB,
     filters: Filters,
     window: RadarPeriod,
+    now: Now,
+    cache: RadarCache,
     kind: Literal["field", "theme", "keyword"],
     value: Annotated[str, Query(min_length=1, max_length=200)],
-) -> TopicDetail:
+) -> Response:
     """One field, theme or keyword (normalized key) over the radar window and its filters."""
     if kind == "field" and value not in FIELD_KEYS:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, f"unknown field '{value}'")
     if kind == "theme" and value not in THEME_KEYS:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, f"unknown theme '{value}'")
-    return radar_queries.topic_detail(session, filters, window, kind=kind, value=value)
+    body, hit = radar_cache.cached_json(
+        radar_cache.view_key("topic", window, filters, {"kind": kind, "value": value}),
+        radar_cache.ttl_for(window, now),
+        lambda: radar_queries.topic_detail(session, filters, window, kind=kind, value=value),
+        client=cache,
+    )
+    return Response(
+        body, media_type="application/json", headers={"X-Cache": "hit" if hit else "miss"}
+    )
 
 
 def _public_digest(session: Session, digest: Digest | None) -> PublicDigest:

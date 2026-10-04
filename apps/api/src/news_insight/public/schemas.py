@@ -147,6 +147,9 @@ class Topic(BaseModel):
     first_seen: dict[str, datetime]  # earliest report per region over the trend span
     official: int  # current-window reports from official vendor sources
     effective_sources: float | None  # 1 / HHI of reports per source in the current window
+    capped: int = 0  # current-window reports, at most 3 per source and day (STAT-1)
+    # mean share within each track (percent), so source-mix changes do not move it (STAT-1)
+    normalized_share: float | None = None
     first_ever: datetime | None = None  # keywords only: first report ever (with the filters)
     returning: bool = False  # "new" in the span but seen before it
     debut: bool = False  # keywords only: first report ever within the last DEBUT_WINDOWS windows

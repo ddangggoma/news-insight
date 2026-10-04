@@ -27,6 +27,8 @@ class Settings(BaseSettings):
     domain_rate_per_minute: int = 30
     console_api_key: str = ""
     public_api_key: str = ""
+    # radar response cache in Redis (PERF-2); on in compose, off for tests and host dev
+    radar_cache: bool = False
     claude_cli: str = "claude"
     digest_model: str = "opus"
     digest_timeout_seconds: int = 900

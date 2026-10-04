@@ -12,6 +12,7 @@ BEAT_SCHEDULE: dict[str, dict[str, Any]] = {
     "sources-auto-validate": {"task": "sources.auto_validate", "schedule": 600.0},
     "stories-cluster": {"task": "stories.cluster", "schedule": 300.0},
     "ops-check": {"task": "ops.check", "schedule": 300.0},
+    "radar-warm": {"task": "radar.warm", "schedule": 600.0},
     "briefing-freeze": {
         "task": "briefing.freeze",
         "schedule": crontab(hour=4, minute=40),  # D15 freeze, 20 min before publication

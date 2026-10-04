@@ -182,26 +182,73 @@ def _series(
     return result
 
 
-def _effective_sources(
+SOURCE_DAY_CAP = 3  # reports one source can add to a topic per day (checklist STAT-1)
+
+
+@dataclass(frozen=True)
+class SourceMix:
+    """Current-window source structure of one topic."""
+
+    effective: float  # 1 / HHI of reports per source: 1 = one outlet, n = n equal
+    capped: dict[str, int]  # reports per track, at most SOURCE_DAY_CAP per source and day
+
+
+def _capped_rows(
+    session: Session, conditions: list[ColumnElement[bool]], window: Window, dimension: str | None
+) -> list[tuple[str | None, int, str, int]]:
+    """(key, source, track, reports) per source and KST day in the window."""
+    day = _kst_day(Item.first_seen_at)
+    if dimension is None:
+        statement = joined(
+            select(null(), Item.source_id, Item.track, func.count(distinct(Item.id)))
+        ).where(*conditions, *_span([window]))
+        group: tuple[Any, ...] = (Item.source_id, Item.track, day)
+    else:
+        key, join, _ = _dimension(dimension)
+        statement = joined(select(key, Item.source_id, Item.track, func.count(distinct(Item.id))))
+        if join is not None:
+            statement = statement.join(join, true())
+        statement = statement.where(*conditions, *_span([window]), key.is_not(None))
+        group = (key, Item.source_id, Item.track, day)
+    return [
+        (None if k is None else str(k), int(source), Track(track).value, int(count))
+        for k, source, track, count in session.execute(statement.group_by(*group)).tuples()
+    ]
+
+
+def _source_mix(
     session: Session, conditions: list[ColumnElement[bool]], window: Window, dimension: str
-) -> dict[str, float]:
-    """1 / Herfindahl index of reports per source in the window: 1 = one outlet, n = n equal."""
-    key, join, _ = _dimension(dimension)
-    statement = joined(select(key, Item.source_id, func.count(distinct(Item.id))))
-    if join is not None:
-        statement = statement.join(join, true())
-    rows = session.execute(
-        statement.where(*conditions, *_span([window]), key.is_not(None)).group_by(
-            key, Item.source_id
-        )
-    ).tuples()
-    shares: dict[str, list[int]] = defaultdict(list)
-    for value, _, count in rows:
-        shares[str(value)].append(int(count))
+) -> dict[str, SourceMix]:
+    per_source: dict[str, dict[int, int]] = defaultdict(lambda: defaultdict(int))
+    capped: dict[str, dict[str, int]] = defaultdict(lambda: defaultdict(int))
+    for key, source, track, count in _capped_rows(session, conditions, window, dimension):
+        assert key is not None
+        per_source[key][source] += count
+        capped[key][track] += min(count, SOURCE_DAY_CAP)
     return {
-        value: round(sum(counts) ** 2 / sum(c * c for c in counts), 2)
-        for value, counts in shares.items()
+        key: SourceMix(
+            effective=round(sum(c.values()) ** 2 / sum(v * v for v in c.values()), 2),
+            capped=dict(capped[key]),
+        )
+        for key, c in per_source.items()
     }
+
+
+def _track_totals(
+    session: Session, conditions: list[ColumnElement[bool]], window: Window
+) -> dict[str, int]:
+    """Capped reports per track in the window: the denominators of the normalised share."""
+    totals: dict[str, int] = defaultdict(int)
+    for _, _, track, count in _capped_rows(session, conditions, window, None):
+        totals[track] += min(count, SOURCE_DAY_CAP)
+    return dict(totals)
+
+
+def normalized_share(capped: dict[str, int], totals: dict[str, int]) -> float | None:
+    """Mean of the topic's share within each track (percent). Every track weighs the same, so
+    adding news or community sources does not inflate topics those tracks favour."""
+    shares = [capped.get(track, 0) / total for track, total in totals.items() if total]
+    return round(sum(shares) / len(shares) * 100, 2) if shares else None
 
 
 def change(count: int, previous: int) -> float | None:
@@ -230,7 +277,9 @@ def lifecycle(counts: list[int], sources: int) -> str | None:
     return "steady" if current >= KEYWORD_MIN_COUNT else None
 
 
-def _topic(key: str, series: Series, effective: float | None = None) -> Topic:
+def _topic(
+    key: str, series: Series, mix: SourceMix | None = None, totals: dict[str, int] | None = None
+) -> Topic:
     return Topic(
         key=key,
         label=series.label,
@@ -247,7 +296,9 @@ def _topic(key: str, series: Series, effective: float | None = None) -> Topic:
         regions=series.regions,
         first_seen=series.first_seen,
         official=series.official,
-        effective_sources=effective,
+        effective_sources=mix.effective if mix else None,
+        capped=sum(mix.capped.values()) if mix else 0,
+        normalized_share=normalized_share(mix.capped, totals) if mix and totals else None,
     )
 
 
@@ -652,11 +703,13 @@ def radar(
     windows = trailing_windows(window, TREND_WINDOWS)
     kpis = _kpis(session, base, windows)
 
+    totals = _track_totals(session, base, window)
+
     def topics(dimension: str, min_total: int = 1) -> list[Topic]:
         series = _series(session, base, windows, dimension, min_total=min_total)
-        effective = _effective_sources(session, base, window, dimension)
+        mixes = _source_mix(session, base, window, dimension)
         return sorted(
-            (_topic(key, s, effective.get(key)) for key, s in series.items()),
+            (_topic(key, s, mixes.get(key), totals) for key, s in series.items()),
             key=lambda t: (-t.counts[-1], -sum(t.counts), t.key),
         )
 
@@ -737,9 +790,10 @@ def topic_detail(
     series = _series(session, base, windows, kind, only=value).get(value)
     counts = series.counts if series else [0] * TREND_WINDOWS
     empty = dict.fromkeys((t.value for t in Track), 0)
-    effective = _effective_sources(session, base, window, kind).get(value)
+    mix = _source_mix(session, base, window, kind).get(value)
+    totals = _track_totals(session, filters.conditions(), window)
     topic = (
-        _topic(value, series, effective)
+        _topic(value, series, mix, totals)
         if series
         else Topic(
             key=value,
