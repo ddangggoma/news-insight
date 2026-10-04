@@ -14,7 +14,14 @@ from typing import Any, Protocol
 
 import httpx
 
-from news_insight.cards.schemas import CARD_BATCH_SCHEMA, CARD_INSTRUCTIONS, CardInput
+from news_insight.cards.schemas import (
+    CARD_BATCH_SCHEMA,
+    CARD_INSTRUCTIONS,
+    CLASSIFY_BATCH_SCHEMA,
+    CLASSIFY_INSTRUCTIONS,
+    CardInput,
+    ClassifyInput,
+)
 from news_insight.digest.claude import safe_env
 
 Runner = Callable[..., subprocess.CompletedProcess[str]]
@@ -65,6 +72,8 @@ class CardEngine(Protocol):
 
     def generate(self, inputs: list[CardInput]) -> EngineOutput: ...
 
+    def classify(self, inputs: list[ClassifyInput]) -> EngineOutput: ...
+
 
 class MeteredEngine(CardEngine, Protocol):
     """An engine with a usage limit it can report (Antigravity)."""
@@ -72,7 +81,7 @@ class MeteredEngine(CardEngine, Protocol):
     def usage(self) -> Quota: ...
 
 
-def _payload(inputs: list[CardInput]) -> str:
+def _payload(inputs: list[CardInput] | list[ClassifyInput]) -> str:
     return json.dumps([card.model_dump() for card in inputs], ensure_ascii=False)
 
 
@@ -132,6 +141,11 @@ class AgyEngine:
         prompt = f"{CARD_INSTRUCTIONS}\n입력:\n{_payload(inputs)}"
         return self.ask(prompt, CARD_BATCH_SCHEMA)
 
+    def classify(self, inputs: list[ClassifyInput]) -> EngineOutput:
+        """Classification only (checklist CLS-2): short input, no translation or summary."""
+        prompt = f"{CLASSIFY_INSTRUCTIONS}\n입력:\n{_payload(inputs)}"
+        return self.ask(prompt, CLASSIFY_BATCH_SCHEMA)
+
     def ask(self, prompt: str, schema: dict[str, Any]) -> EngineOutput:
         """One tool-less structured call (cards, evaluation judgements)."""
         envelope = self._run(
@@ -184,17 +198,23 @@ class QwenEngine:
         self._client = client or httpx.Client(timeout=timeout_seconds, trust_env=False)
 
     def generate(self, inputs: list[CardInput]) -> EngineOutput:
+        return self._chat(CARD_INSTRUCTIONS, _payload(inputs), CARD_BATCH_SCHEMA)
+
+    def classify(self, inputs: list[ClassifyInput]) -> EngineOutput:
+        return self._chat(CLASSIFY_INSTRUCTIONS, _payload(inputs), CLASSIFY_BATCH_SCHEMA)
+
+    def _chat(self, system: str, payload: str, schema: dict[str, Any]) -> EngineOutput:
         body = {
             "model": self._model,
             "temperature": 0,
             "reasoning_effort": "none",
             "messages": [
-                {"role": "system", "content": CARD_INSTRUCTIONS},
-                {"role": "user", "content": _payload(inputs)},
+                {"role": "system", "content": system},
+                {"role": "user", "content": payload},
             ],
             "response_format": {
                 "type": "json_schema",
-                "json_schema": {"name": "cards", "strict": True, "schema": CARD_BATCH_SCHEMA},
+                "json_schema": {"name": "cards", "strict": True, "schema": schema},
             },
         }
         try:
