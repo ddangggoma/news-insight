@@ -598,6 +598,41 @@ def stories_run(
     typer.echo(f"processed={stats.processed} {relations or '-'} refs={stats.refs}")
 
 
+@stories_app.command("semantic")
+def stories_semantic(
+    since_minutes: Annotated[
+        int,
+        typer.Option(help="Look for neighbours of items embedded in the last N minutes (0 = all)"),
+    ] = 60,
+    max_judged: Annotated[int, typer.Option(help="Most candidate pairs to judge per run")] = 200,
+    embed_limit: Annotated[int, typer.Option(help="Most titles to embed per run")] = 500,
+) -> None:
+    """Merge stories that report one event in other words or languages (bge-m3 + LLM judge, CLU-1).
+
+    Host-side: needs LM Studio (embeddings) and Antigravity (judge); runs after `cards run`."""
+    from news_insight.stories.semantic import lm_studio_embed, run
+
+    settings = get_settings()
+    agy, _ = _card_engines(False)
+    assert agy is not None
+    now = datetime.now(UTC)
+    with session_scope() as session:
+        stats = run(
+            session,
+            embed=lm_studio_embed(settings.lm_studio_url, settings.lm_studio_embedding_model),
+            ask=agy.ask,
+            model=settings.lm_studio_embedding_model,
+            now=now,
+            since=now - timedelta(minutes=since_minutes) if since_minutes else None,
+            max_judged=max_judged,
+            embed_limit=embed_limit,
+        )
+    typer.echo(
+        f"embedded={stats.embedded} candidates={stats.candidates} judged={stats.judged} "
+        f"merged={stats.merged} guarded={stats.skipped.get('guard', 0)}"
+    )
+
+
 @stories_app.command("eval")
 def stories_eval(
     size: Annotated[int, typer.Option(help="Candidate pairs to judge")] = 200,

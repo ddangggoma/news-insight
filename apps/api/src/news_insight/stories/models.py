@@ -3,7 +3,7 @@ from enum import StrEnum
 from typing import Any
 
 from sqlalchemy import BigInteger, DateTime, Float, ForeignKey, Index, SmallInteger, String, Text
-from sqlalchemy.dialects.postgresql import ARRAY, JSONB
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB, REAL
 from sqlalchemy.orm import Mapped, mapped_column
 
 from news_insight.db import Base, str_enum
@@ -14,6 +14,7 @@ class Relation(StrEnum):
     EXACT = "exact"  # same URL (AMP/mobile unified) or same content hash
     NEAR = "near"  # near-duplicate report (MinHash >= near threshold)
     EVENT = "event"  # same event: similar title + shared entity keyword + close dates
+    SEMANTIC = "semantic"  # multilingual embedding neighbour confirmed by an LLM judge (C1)
 
 
 class ItemSignature(Base):
@@ -80,3 +81,32 @@ class ItemRef(Base):
     kind: Mapped[str] = mapped_column(String(10), primary_key=True)
     value: Mapped[str] = mapped_column(String(300), primary_key=True)
     meta: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
+
+
+class ItemEmbedding(Base):
+    """Title embedding for multilingual story merging (checklist CLU-1)."""
+
+    __tablename__ = "item_embeddings"
+
+    item_id: Mapped[int] = mapped_column(
+        ForeignKey("items.id", ondelete="CASCADE"), primary_key=True
+    )
+    model: Mapped[str] = mapped_column(String(100))
+    vector: Mapped[list[float]] = mapped_column(ARRAY(REAL))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+
+
+class StoryMergeCheck(Base):
+    """A judged embedding pair (lower item id first), so no pair is asked twice."""
+
+    __tablename__ = "story_merge_checks"
+
+    item_a: Mapped[int] = mapped_column(
+        ForeignKey("items.id", ondelete="CASCADE"), primary_key=True
+    )
+    item_b: Mapped[int] = mapped_column(
+        ForeignKey("items.id", ondelete="CASCADE"), primary_key=True
+    )
+    cosine: Mapped[float] = mapped_column(Float)
+    same: Mapped[bool | None]
+    checked_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
