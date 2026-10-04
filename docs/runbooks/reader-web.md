@@ -71,6 +71,12 @@ PUBLIC_API_KEY=dev-public scripts/dev.sh web-dev
 | `/digests`, `/digests/2026-10-04` | 다이제스트 목록과 본문 (모델·비용 정보 없음) |
 | `/feed.xml` | 다이제스트 RSS (최근 20개) |
 
+### 3.2 레이더 페이지 무게 (WEB-1, 2026-10-05)
+
+- 신호·KPI·카테고리 지도·선택 항목 패널만 서버에서 그리고, 아래 패널 14개는 `Deferred`가 화면 근처에 오거나 브라우저가 한가할 때 그립니다(`components/reader/radar/deferred.tsx`). 레이더 JSON은 `RadarBoard`(`board.tsx`) 속성으로 한 번만 내려갑니다.
+- 항목을 고르면(같은 페이지에서 `focus`만 바뀌는 링크) 페이지를 다시 받지 않고 `/radar/{기간}/{키}/topic`(Next 라우트 → 공개 API `/radar/topic`)만 불러 오른쪽 패널을 바꿉니다. 주소는 `history.pushState`로 바뀌고 뒤로 가기도 됩니다. 기간·범위·필터를 바꾸는 링크는 평소처럼 이동합니다.
+- 측정(운영 DB, W40): 페이지 1,537KB → 382KB(gzip 58KB), 항목 전환 7KB.
+
 ## 4. 숫자 읽는 법
 
 - **기간:** 탐색의 1일·7일·30일은 지금부터 거꾸로 센 구간, 레이더는 KST 달력 기준(주 = ISO 주, 월요일 시작)입니다.
