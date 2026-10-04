@@ -1,7 +1,7 @@
 """Declarative source catalog (YAML) and idempotent seeding into the registry."""
 
 from collections import Counter
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Literal
 from urllib.parse import urlsplit
@@ -21,7 +21,7 @@ from news_insight.sources.enums import (
     Track,
     ValidationStage,
 )
-from news_insight.sources.ladder import reset_validation
+from news_insight.sources.ladder import reset_validation, retire_source
 from news_insight.sources.models import Source
 
 DEFAULT_CATALOG_PATH = Path(__file__).resolve().parents[3] / "catalog" / "sources.yaml"
@@ -91,9 +91,16 @@ class SeedResult:
     created: list[str]
     updated: list[str]
     reset: list[str]
+    retired: list[str] = field(default_factory=list)
+    revived: list[str] = field(default_factory=list)
 
 
-def seed_catalog(session: Session, catalog: Catalog) -> SeedResult:
+REMOVED_REASON = "removed from catalog"
+
+
+def seed_catalog(session: Session, catalog: Catalog, *, prune: bool = False) -> SeedResult:
+    """Upsert entries. With prune, sources missing from the catalog are retired; a retired
+    source that is back in the catalog is revived from scratch."""
     keys = [entry.key for entry in catalog.sources]
     existing = {
         source.key: source for source in session.scalars(select(Source).where(Source.key.in_(keys)))
@@ -101,6 +108,7 @@ def seed_catalog(session: Session, catalog: Catalog) -> SeedResult:
     created: list[str] = []
     updated: list[str] = []
     reset: list[str] = []
+    revived: list[str] = []
     for entry in catalog.sources:
         values = entry.model_dump()
         source = existing.get(entry.key)
@@ -114,6 +122,11 @@ def seed_catalog(session: Session, catalog: Catalog) -> SeedResult:
             )
             created.append(entry.key)
             continue
+        if source.status is SourceStatus.RETIRED:
+            reset_validation(session, source, reason="back in catalog")
+            source.status = SourceStatus.CANDIDATE
+            source.paused_reason = None
+            revived.append(entry.key)
         identity_changed = any(getattr(source, name) != values[name] for name in IDENTITY_FIELDS)
         changed = False
         for name, value in values.items():
@@ -125,5 +138,14 @@ def seed_catalog(session: Session, catalog: Catalog) -> SeedResult:
             reset.append(entry.key)
         elif changed:
             updated.append(entry.key)
+    retired: list[str] = []
+    if prune:
+        for source in session.scalars(
+            select(Source).where(Source.key.not_in(keys), Source.status != SourceStatus.RETIRED)
+        ):
+            retire_source(session, source, reason=REMOVED_REASON)
+            retired.append(source.key)
     session.flush()
-    return SeedResult(created=created, updated=updated, reset=reset)
+    return SeedResult(
+        created=created, updated=updated, reset=reset, retired=retired, revived=revived
+    )

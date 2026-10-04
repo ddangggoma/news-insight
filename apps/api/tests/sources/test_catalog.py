@@ -147,3 +147,28 @@ def test_bundled_catalog_covers_track_targets() -> None:
 
     for track, target in TRACK_TARGETS.items():
         assert counts[track] >= target, f"{track.value}: {counts[track]}/{target}"
+
+
+@pytest.mark.db
+def test_prune_retires_removed_sources_and_reseed_revives(
+    db_session: Session, tmp_path: Path
+) -> None:
+    other = ENTRY.replace("key: example-news", "key: other-news").replace(
+        "www.example.com/feed.xml", "www.other.com/feed.xml"
+    )
+    seed_catalog(db_session, load_catalog(write_catalog(tmp_path, ENTRY + other)))
+    source = db_session.scalars(select(Source).where(Source.key == "other-news")).one()
+    record_check(db_session, source, ValidationStage.V0, CheckResult(passed=True))
+
+    kept = seed_catalog(db_session, load_catalog(write_catalog(tmp_path, ENTRY)))
+    pruned = seed_catalog(db_session, load_catalog(write_catalog(tmp_path, ENTRY)), prune=True)
+    again = seed_catalog(db_session, load_catalog(write_catalog(tmp_path, ENTRY)), prune=True)
+
+    assert kept.retired == [] and pruned.retired == ["other-news"] and again.retired == []
+    assert source.status is SourceStatus.RETIRED
+    assert source.paused_reason == "removed from catalog"
+
+    back = seed_catalog(db_session, load_catalog(write_catalog(tmp_path, ENTRY + other)))
+    assert back.revived == ["other-news"]
+    assert source.status is SourceStatus.CANDIDATE and source.paused_reason is None
+    assert source.validation_stage is ValidationStage.UNVERIFIED

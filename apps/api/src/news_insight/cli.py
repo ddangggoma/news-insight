@@ -136,13 +136,33 @@ def _fail(message: str, code: int = 2) -> typer.Exit:
 @sources_app.command("seed")
 def seed(
     catalog: Annotated[Path, typer.Option(help="Catalog YAML path")] = DEFAULT_CATALOG_PATH,
+    prune: Annotated[
+        bool, typer.Option(help="Retire registered sources that are no longer in the catalog")
+    ] = False,
 ) -> None:
     """Upsert catalog entries; identity changes reset validation."""
     with session_scope() as session:
-        result = seed_catalog(session, load_catalog(catalog))
+        result = seed_catalog(session, load_catalog(catalog), prune=prune)
     typer.echo(
         f"created={len(result.created)} updated={len(result.updated)} reset={len(result.reset)}"
+        f" retired={len(result.retired)} revived={len(result.revived)}"
     )
+
+
+@sources_app.command("retire")
+def retire(
+    key: str,
+    reason: Annotated[str, typer.Option(help="Why the source is retired")],
+) -> None:
+    """Stop collecting a source for good (seeding it again revives it)."""
+    from news_insight.sources.ladder import retire_source
+
+    try:
+        with session_scope() as session:
+            retire_source(session, get_source(session, key), reason=reason)
+    except SourceNotFound as exc:
+        raise _fail(str(exc)) from exc
+    typer.echo(f"{key}: retired ({reason})")
 
 
 @sources_app.command("validate")
@@ -363,10 +383,7 @@ def _probe_line(source: Source, results: list[tuple[ValidationStage, CheckResult
         f"{stage.value}:{'ok' if result.passed else 'FAIL'}" for stage, result in results
     )
     problems = "; ".join(
-        f"{stage.value} {reason}"
-        for stage, result in results
-        if stage is not ValidationStage.V1
-        for reason in result.reasons
+        f"{stage.value} {reason}" for stage, result in results for reason in result.reasons
     )
     line = f"{source.key:<30} {source.track.value:<11} {source.region.value:<13} {marks}"
     return f"{line} | {problems}" if problems else line
