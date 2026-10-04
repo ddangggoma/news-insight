@@ -41,6 +41,8 @@ from news_insight.sources.enums import Region, SourceStatus, Track, ValidationSt
 from news_insight.sources.ladder import LadderError, pause_source, resume_source
 from news_insight.sources.models import Source
 from news_insight.sources.service import SourceNotFound, get_source
+from news_insight.technologies import console as tech_console
+from news_insight.technologies.catalog import TechStatus
 
 router = APIRouter(
     prefix="/api/admin", tags=["console"], dependencies=[Depends(require_console_key)]
@@ -432,3 +434,48 @@ def list_alerts(session: DB, limit: Annotated[int, Query(ge=1, le=200)] = 50) ->
         )
         for a in rows
     ]
+
+
+@router.get("/technologies")
+def get_technologies(
+    session: DB,
+    theme: Annotated[str | None, Query(max_length=80)] = None,
+    status_: Annotated[TechStatus | None, Query(alias="status")] = None,
+    q: Annotated[str | None, Query(max_length=80)] = None,
+) -> list[tech_console.TechnologyOut]:
+    return tech_console.list_technologies(
+        session, now=datetime.now(UTC), theme=theme, status=status_, q=q
+    )
+
+
+@router.get("/technologies/candidates")
+def get_technology_candidates(
+    session: DB,
+    days: Annotated[int, Query(ge=1, le=180)] = 30,
+    min_count: Annotated[int, Query(ge=1, le=1000)] = 10,
+) -> list[tech_console.CandidateOut]:
+    return tech_console.candidate_list(
+        session, now=datetime.now(UTC), days=days, min_count=min_count
+    )
+
+
+@router.post("/technologies", status_code=status.HTTP_201_CREATED)
+def post_technology(session: DB, body: tech_console.TechnologyIn) -> dict[str, str]:
+    try:
+        created = tech_console.create_technology(session, body)
+    except tech_console.RegistryError as exc:
+        raise HTTPException(status.HTTP_409_CONFLICT, str(exc)) from exc
+    session.commit()
+    return {"key": created.key}
+
+
+@router.patch("/technologies/{key}")
+def patch_technology(key: str, session: DB, body: tech_console.TechnologyPatch) -> dict[str, str]:
+    try:
+        tech_console.update_technology(session, key, body)
+    except LookupError as exc:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, f"unknown technology '{key}'") from exc
+    except tech_console.RegistryError as exc:
+        raise HTTPException(status.HTTP_409_CONFLICT, str(exc)) from exc
+    session.commit()
+    return {"key": key}

@@ -132,3 +132,14 @@ def ops_check_task() -> dict[str, Any]:
             "opened": [a.key for a in result.opened],
             "resolved": [a.key for a in result.resolved],
         }
+
+
+@celery_app.task(name="technologies.refresh")
+def technologies_refresh_task() -> dict[str, int]:
+    from news_insight.technologies.service import recompute_all, refresh_labels
+
+    with session_scope() as session:
+        return {
+            "cards_rekeyed": recompute_all(session),
+            "labels": refresh_labels(session, now=datetime.now(UTC)),
+        }

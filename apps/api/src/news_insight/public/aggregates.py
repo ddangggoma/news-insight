@@ -8,10 +8,11 @@ from sqlalchemy.orm import Session
 from news_insight.cards.models import ItemCard
 from news_insight.content.models import Item
 from news_insight.public.filters import AXES, ReaderFilters, in_window, joined
-from news_insight.public.keywords import keyword_key_sql
+from news_insight.public.keywords import keyword_element
 from news_insight.public.periods import Window
 from news_insight.public.schemas import Count, Insights, KeywordTrend
 from news_insight.sources.models import Source
+from news_insight.technologies.service import labels_for
 
 KEYWORD_TOP = 6
 KEYWORD_MIN_COUNT = 2
@@ -66,13 +67,12 @@ def facets(session: Session, filters: ReaderFilters, window: Window) -> dict[str
 def keyword_counts(
     session: Session, conditions: list[ColumnElement[bool]]
 ) -> dict[str, tuple[str, int]]:
-    element = func.jsonb_array_elements_text(ItemCard.keywords).table_valued("value").lateral("kw")
-    normalized = keyword_key_sql(element.c.value)
+    element = keyword_element("kw")
+    normalized = element.c.value
     statement = (
         joined(
             select(
                 normalized,
-                func.mode().within_group(element.c.value),
                 func.count(func.distinct(Item.id)),
             )
         )
@@ -80,11 +80,9 @@ def keyword_counts(
         .where(*conditions)
         .group_by(normalized)
     )
-    return {
-        str(key): (str(label), int(count))
-        for key, label, count in session.execute(statement).tuples()
-        if key
-    }
+    counts = {str(key): int(count) for key, count in session.execute(statement).tuples() if key}
+    labels = labels_for(session, counts)
+    return {key: (labels[key], count) for key, count in counts.items()}
 
 
 def _total(session: Session, conditions: list[ColumnElement[bool]]) -> int:

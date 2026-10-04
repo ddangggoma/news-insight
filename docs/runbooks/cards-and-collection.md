@@ -209,3 +209,17 @@ uv run --env-file ../../.env news-insight sources retire <key> --reason "사유"
 - **실패 처리:** 재분류가 3번 실패한 카드는 분류를 비우고 현재 리비전으로 표시해 대기열에서 빠집니다(`error`에 "classification gave up" 기록).
 - **상태 확인:** `news-insight cards status`의 `reclassify=`, 콘솔 카드 화면의 "재분류 대기"에서 남은 건수를 봅니다.
 - **미분류 신호:** 분류기가 테마 목록에 맞지 않는 핵심 기술을 `topic_candidates`(0~2개)로 남깁니다. 콘솔 → **미분류 신호**에서 후보별 건수, 최근 7일 건수, 분야 분포, 예시 기사를 보고 월 1회 기술 레지스트리나 테마 개정에 반영합니다.
+
+## 14. 기술 레지스트리 (분류 3단계, 점검표 KW-1)
+
+- **원본:** 시드는 `apps/api/catalog/technologies.yaml`(274개)에 있고, 운영 중 편집은 DB(`technologies`, `technology_aliases`)에서 합니다. 콘솔 → **기술 레지스트리**에서 이름·테마·종류(기술/표준/규제/제품군)·상태(활성/감시/무시)·별칭을 고칩니다. 콘솔에서 고친 항목은 다시 시드해도 덮어쓰지 않습니다.
+- **정규화:** 카드 키워드는 DB 트리거(`canonical_keyword_keys`)가 저장 시점에 기술 키로 바꿔 `item_cards.technology_keys`(GIN)에 넣습니다. 규칙은 소문자로 바꾸고 공백·하이픈·밑줄·가운뎃점을 지운 뒤 별칭을 적용하는 것입니다. 레이더·인사이트는 이 배열을 그대로 집계합니다. 요청마다 정규식을 돌리지 않습니다.
+- **후보 대기열:** 최근 30일 DX 관련 카드에서 10건 이상 나왔는데 레지스트리에 없는 키를 보여 줍니다. 각 후보를 "기술로", "별칭으로"(기존 키에 합침), "무시" 중 하나로 처리합니다. 처리하면 해당 카드 키를 그 자리에서 다시 계산합니다.
+- **표시 이름:** 레지스트리 이름 → `keyword_labels`(가장 흔한 표기, 매일 03:45 갱신) → 키 순서로 고릅니다.
+- **명령:**
+  ```bash
+  uv run --env-file ../../.env news-insight technologies seed        # YAML 반영 + 카드 키·이름 재계산
+  uv run --env-file ../../.env news-insight technologies recompute   # 재계산만
+  uv run --env-file ../../.env news-insight technologies candidates  # 후보 목록
+  ```
+- 배포 직후 한 번 `technologies seed`를 실행해야 별칭이 적용됩니다(마이그레이션은 표만 만듭니다).

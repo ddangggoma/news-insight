@@ -1,0 +1,313 @@
+# Technology registry seed (plan 09 §3-3): the third level of the technology axis.
+#
+# key     canonical keyword key (lower case; spaces, hyphens, underscores and middle dots
+#         removed). Card keywords are normalised to these keys when cards are stored.
+# label   display name
+# theme   taxonomy v2 theme key (field__theme)
+# aliases other spellings and translations (normalised when loaded)
+# kind    technology (default) | standard | regulation | product_family
+# status  active (default) | watch — watch items are promoted by the monthly review
+#
+# Edit in the console (기술 레지스트리) for day-to-day changes; this file is the seed that
+# `news-insight technologies seed` upserts (existing console edits are kept).
+version: 1
+technologies:
+  # ── ai · AI 모델·에이전트 ──
+  - {key: llm, label: LLM, theme: ai__foundation_models, aliases: [대형언어모델, 거대언어모델, 대규모언어모델, largelanguagemodel, largelanguagemodels]}
+  - {key: 생성형ai, label: 생성형 AI, theme: ai__foundation_models, aliases: [generativeai, genai, 생성ai, 생성인공지능]}
+  - {key: 기반모델, label: 기반모델, theme: ai__foundation_models, aliases: [foundationmodel, foundationmodels, 파운데이션모델]}
+  - {key: 추론모델, label: 추론 모델, theme: ai__foundation_models, aliases: [reasoningmodel, reasoningmodels, 리즈닝모델]}
+  - {key: 오픈웨이트모델, label: 오픈 웨이트 모델, theme: ai__foundation_models, aliases: [openweight, openweights, openweightmodel, 오픈소스llm, opensourcellm]}
+  - {key: gpt, label: GPT, theme: ai__foundation_models, kind: product_family, aliases: [chatgpt, gpt5, gpt4o, gpt4]}
+  - {key: gemini, label: Gemini, theme: ai__foundation_models, kind: product_family, aliases: [제미나이, 제미니, googlegemini]}
+  - {key: claude, label: Claude, theme: ai__foundation_models, kind: product_family, aliases: [클로드, anthropicclaude]}
+  - {key: llama, label: Llama, theme: ai__foundation_models, kind: product_family, aliases: [라마, metallama]}
+  - {key: 멀티모달, label: 멀티모달, theme: ai__multimodal_perception, aliases: [multimodal, 멀티모달ai, multimodalai, 멀티모달모델]}
+  - {key: 컴퓨터비전, label: 컴퓨터 비전, theme: ai__multimodal_perception, aliases: [computervision, 비전ai, visionai]}
+  - {key: 음성인식, label: 음성 인식, theme: ai__multimodal_perception, aliases: [asr, speechrecognition, stt, speechtotext]}
+  - {key: 음성합성, label: 음성 합성, theme: ai__multimodal_perception, aliases: [tts, texttospeech, speechsynthesis]}
+  - {key: 동영상생성, label: 동영상 생성, theme: ai__multimodal_perception, aliases: [videogeneration, 비디오생성, 영상생성ai]}
+  - {key: 이미지생성, label: 이미지 생성, theme: ai__multimodal_perception, aliases: [imagegeneration, texttoimage, 이미지생성ai]}
+  - {key: ai에이전트, label: AI 에이전트, theme: ai__ai_agents, aliases: [aiagent, aiagents, 에이전트ai, 에이전트]}
+  - {key: 에이전틱ai, label: 에이전틱 AI, theme: ai__ai_agents, aliases: [agenticai, 에이전틱]}
+  - {key: mcp, label: MCP, theme: ai__ai_agents, kind: standard, aliases: [modelcontextprotocol]}
+  - {key: a2a, label: A2A, theme: ai__ai_agents, kind: standard, aliases: [agent2agent, agenttoagent]}
+  - {key: 컴퓨터사용에이전트, label: 컴퓨터 사용 에이전트, theme: ai__ai_agents, aliases: [computeruse, computeruseagent, 브라우저에이전트, browseragent]}
+  - {key: 멀티에이전트, label: 멀티에이전트, theme: ai__ai_agents, aliases: [multiagent, multiagentsystem, 멀티에이전트시스템]}
+  - {key: 온디바이스ai, label: 온디바이스 AI, theme: ai__on_device_ai, aliases: [ondeviceai, ondevice, 엣지ai, edgeai]}
+  - {key: 온디바이스llm, label: 온디바이스 LLM, theme: ai__on_device_ai, aliases: [ondevicellm, 로컬llm, localllm]}
+  - {key: litert, label: LiteRT, theme: ai__on_device_ai, kind: product_family, aliases: [tensorflowlite, tflite]}
+  - {key: onnxruntime, label: ONNX Runtime, theme: ai__on_device_ai, kind: product_family, aliases: [onnx]}
+  - {key: executorch, label: ExecuTorch, theme: ai__on_device_ai, kind: product_family}
+  - {key: 실시간통역, label: 실시간 통역, theme: ai__on_device_ai, aliases: [livetranslate, 실시간번역, 통역ai]}
+  - {key: ai컴패니언, label: AI 컴패니언, theme: ai__on_device_ai, status: watch, aliases: [aicompanion, aicompanions]}
+  - {key: 갤럭시ai, label: Galaxy AI, theme: ai__on_device_ai, kind: product_family, aliases: [galaxyai]}
+  - {key: appleintelligence, label: Apple Intelligence, theme: ai__on_device_ai, kind: product_family, aliases: [애플인텔리전스]}
+  - {key: slm, label: SLM, theme: ai__model_efficiency, aliases: [소형언어모델, 소규모언어모델, smalllanguagemodel, smalllanguagemodels]}
+  - {key: 양자화, label: 양자화, theme: ai__model_efficiency, aliases: [quantization, 모델양자화, 4비트양자화]}
+  - {key: 지식증류, label: 지식 증류, theme: ai__model_efficiency, aliases: [distillation, knowledgedistillation, 증류]}
+  - {key: moe, label: MoE, theme: ai__model_efficiency, aliases: [mixtureofexperts, 전문가혼합]}
+  - {key: 투기적디코딩, label: 투기적 디코딩, theme: ai__model_efficiency, aliases: [speculativedecoding]}
+  - {key: 프루닝, label: 프루닝, theme: ai__model_efficiency, aliases: [pruning, 가지치기]}
+  - {key: 코딩에이전트, label: 코딩 에이전트, theme: ai__ai_coding, aliases: [codingagent, codingagents, ai코딩에이전트, ai코딩]}
+  - {key: 바이브코딩, label: 바이브 코딩, theme: ai__ai_coding, aliases: [vibecoding]}
+  - {key: githubcopilot, label: GitHub Copilot, theme: ai__ai_coding, kind: product_family, aliases: [깃허브코파일럿]}
+  - {key: claudecode, label: Claude Code, theme: ai__ai_coding, kind: product_family, aliases: [클로드코드]}
+  - {key: cursor, label: Cursor, theme: ai__ai_coding, kind: product_family, aliases: [커서]}
+  - {key: ai코드리뷰, label: AI 코드 리뷰, theme: ai__ai_coding, aliases: [aicodereview, 코드리뷰ai]}
+  - {key: ai안전성, label: AI 안전성, theme: ai__ai_safety_eval, aliases: [aisafety, ai안전, 안전성평가]}
+  - {key: 해석가능성, label: 해석 가능성, theme: ai__ai_safety_eval, aliases: [interpretability, mechanisticinterpretability, 기계적해석가능성]}
+  - {key: ai벤치마크, label: AI 벤치마크, theme: ai__ai_safety_eval, aliases: [aibenchmark, llm벤치마크]}
+  - {key: 환각, label: 환각, theme: ai__ai_safety_eval, aliases: [hallucination, 할루시네이션]}
+  - {key: rag, label: RAG, theme: cloud_data__data_ml_platform, aliases: [검색증강생성, retrievalaugmentedgeneration]}
+
+  # ── semis · 반도체·컴퓨팅 HW ──
+  - {key: npu, label: NPU, theme: semis__ap_soc_npu, aliases: [신경망처리장치, neuralprocessingunit]}
+  - {key: ap, label: 모바일 AP, theme: semis__ap_soc_npu, aliases: [모바일ap, applicationprocessor, mobileap]}
+  - {key: 엑시노스, label: Exynos, theme: semis__ap_soc_npu, kind: product_family, aliases: [exynos]}
+  - {key: 스냅드래곤, label: Snapdragon, theme: semis__ap_soc_npu, kind: product_family, aliases: [snapdragon, 스냅드래곤8엘리트]}
+  - {key: 디멘시티, label: Dimensity, theme: semis__ap_soc_npu, kind: product_family, aliases: [dimensity]}
+  - {key: 애플실리콘, label: Apple Silicon, theme: semis__ap_soc_npu, kind: product_family, aliases: [applesilicon, a19, m5칩]}
+  - {key: 2나노, label: 2nm 공정, theme: semis__ap_soc_npu, aliases: [2nm, 2나노공정, sf2, n2]}
+  - {key: gaa, label: GAA, theme: semis__ap_soc_npu, aliases: [gateallaround]}
+  - {key: riscv, label: RISC-V, theme: semis__ap_soc_npu, aliases: [리스크파이브]}
+  - {key: gpu, label: GPU, theme: semis__ap_soc_npu, aliases: [그래픽처리장치]}
+  - {key: hbm, label: HBM, theme: semis__memory_storage, aliases: [고대역폭메모리, highbandwidthmemory, hbm4, hbm3e]}
+  - {key: cxl, label: CXL, theme: semis__memory_storage, kind: standard, aliases: [computeexpresslink]}
+  - {key: lpddr, label: LPDDR, theme: semis__memory_storage, aliases: [lpddr5x, lpddr6, lpddr5]}
+  - {key: ufs, label: UFS, theme: semis__memory_storage, kind: standard, aliases: [ufs4, universalflashstorage]}
+  - {key: 낸드, label: 낸드플래시, theme: semis__memory_storage, aliases: [nand, nandflash, 낸드플래시]}
+  - {key: d램, label: D램, theme: semis__memory_storage, aliases: [dram, 디램]}
+  - {key: pim, label: PIM, theme: semis__memory_storage, aliases: [processinginmemory, 지능형메모리]}
+  - {key: 칩렛, label: 칩렛, theme: semis__packaging_chiplet, aliases: [chiplet, chiplets]}
+  - {key: 첨단패키징, label: 첨단 패키징, theme: semis__packaging_chiplet, aliases: [advancedpackaging, 어드밴스드패키징]}
+  - {key: cowos, label: CoWoS, theme: semis__packaging_chiplet}
+  - {key: ucie, label: UCIe, theme: semis__packaging_chiplet, kind: standard}
+  - {key: 하이브리드본딩, label: 하이브리드 본딩, theme: semis__packaging_chiplet, aliases: [hybridbonding]}
+  - {key: 유리기판, label: 유리기판, theme: semis__packaging_chiplet, aliases: [glasssubstrate, glasscore]}
+  - {key: 이미지센서, label: 이미지센서, theme: semis__sensor_chips, aliases: [imagesensor, cmosimagesensor, cis, 아이소셀, isocell]}
+  - {key: mems, label: MEMS, theme: semis__sensor_chips, aliases: [멤스]}
+  - {key: tof센서, label: ToF 센서, theme: semis__sensor_chips, aliases: [tof, timeofflight]}
+  - {key: 라이다, label: 라이다, theme: semis__sensor_chips, aliases: [lidar]}
+  - {key: gan, label: GaN, theme: semis__power_rf_semis, aliases: [질화갈륨, galliumnitride]}
+  - {key: sic, label: SiC, theme: semis__power_rf_semis, aliases: [탄화규소, siliconcarbide]}
+  - {key: 전력반도체, label: 전력반도체, theme: semis__power_rf_semis, aliases: [powersemiconductor, 파워반도체]}
+  - {key: rf프런트엔드, label: RF 프런트엔드, theme: semis__power_rf_semis, aliases: [rffrontend, rffe, rf칩]}
+  - {key: 모뎀칩, label: 모뎀 칩, theme: semis__power_rf_semis, aliases: [modem, 모뎀, 5g모뎀]}
+
+  # ── display_av · 디스플레이·영상·오디오 ──
+  - {key: oled, label: OLED, theme: display_av__display_panel, aliases: [유기발광다이오드, amoled]}
+  - {key: qdoled, label: QD-OLED, theme: display_av__display_panel, aliases: [퀀텀닷oled]}
+  - {key: 마이크로led, label: MicroLED, theme: display_av__display_panel, aliases: [microled]}
+  - {key: 마이크로rgb, label: Micro RGB, theme: display_av__display_panel, aliases: [microrgb]}
+  - {key: 미니led, label: Mini LED, theme: display_av__display_panel, aliases: [miniled, 미니led]}
+  - {key: 퀀텀닷, label: 퀀텀닷, theme: display_av__display_panel, aliases: [quantumdot, qd, qled]}
+  - {key: 폴더블디스플레이, label: 폴더블 디스플레이, theme: display_av__display_panel, aliases: [foldabledisplay, 폴더블패널, 폴더블oled]}
+  - {key: 롤러블, label: 롤러블 디스플레이, theme: display_av__display_panel, aliases: [rollable, 롤러블디스플레이]}
+  - {key: oledos, label: OLEDoS, theme: display_av__display_panel, aliases: [oledonsilicon, 마이크로oled, microoled]}
+  - {key: ltpo, label: LTPO, theme: display_av__display_panel}
+  - {key: ai업스케일링, label: AI 업스케일링, theme: display_av__picture_processing, aliases: [aiupscaling, 업스케일링, upscaling, 슈퍼해상도, superresolution]}
+  - {key: hdr, label: HDR, theme: display_av__picture_processing, aliases: [hdr10, hdr10plus, 돌비비전, dolbyvision]}
+  - {key: 화질엔진, label: 화질 엔진, theme: display_av__picture_processing, aliases: [pictureengine, 화질칩, 영상프로세서]}
+  - {key: 프레임생성, label: 프레임 생성, theme: display_av__picture_processing, aliases: [framegeneration, 모션보간]}
+  - {key: 컴퓨테이셔널포토그래피, label: 컴퓨테이셔널 포토그래피, theme: display_av__camera_imaging, aliases: [computationalphotography, ai카메라, aicamera]}
+  - {key: 망원카메라, label: 망원 카메라, theme: display_av__camera_imaging, aliases: [telephoto, 페리스코프, periscope, 줌카메라]}
+  - {key: 카메라모듈, label: 카메라 모듈, theme: display_av__camera_imaging, aliases: [cameramodule]}
+  - {key: 공간오디오, label: 공간 오디오, theme: display_av__audio_acoustics, aliases: [spatialaudio, 돌비애트모스, dolbyatmos, 360오디오]}
+  - {key: 노이즈캔슬링, label: 노이즈 캔슬링, theme: display_av__audio_acoustics, aliases: [anc, noisecancelling, activenoisecancellation]}
+  - {key: leaudio, label: LE Audio, theme: display_av__audio_acoustics, kind: standard, aliases: [bluetoothleaudio, auracast, 오라캐스트]}
+  - {key: 사운드바, label: 사운드바, theme: display_av__audio_acoustics, kind: product_family, aliases: [soundbar]}
+  - {key: av1, label: AV1, theme: display_av__codec_streaming, kind: standard, aliases: [av1코덱]}
+  - {key: vvc, label: VVC, theme: display_av__codec_streaming, kind: standard, aliases: [h266, versatilevideocoding]}
+  - {key: atsc30, label: ATSC 3.0, theme: display_av__codec_streaming, kind: standard, aliases: [atsc3, nextgentv]}
+  - {key: fast채널, label: FAST 채널, theme: display_av__codec_streaming, aliases: [freeadsupportedtv, 광고기반무료tv, fasttv]}
+  - {key: 스트리밍, label: 스트리밍 기술, theme: display_av__codec_streaming, aliases: [streaming, ott]}
+  - {key: xr, label: XR, theme: display_av__xr_spatial, aliases: [확장현실, extendedreality]}
+  - {key: 스마트글래스, label: 스마트 글래스, theme: display_av__xr_spatial, status: watch, aliases: [smartglasses, ai글래스, aiglasses, ar글래스, arglasses]}
+  - {key: androidxr, label: Android XR, theme: display_av__xr_spatial, kind: product_family, aliases: [안드로이드xr]}
+  - {key: visionpro, label: Vision Pro, theme: display_av__xr_spatial, kind: product_family, aliases: [비전프로, applevisionpro]}
+  - {key: 공간컴퓨팅, label: 공간 컴퓨팅, theme: display_av__xr_spatial, aliases: [spatialcomputing]}
+  - {key: vr, label: VR, theme: display_av__xr_spatial, aliases: [가상현실, virtualreality, vr헤드셋]}
+  - {key: ar, label: AR, theme: display_av__xr_spatial, aliases: [증강현실, augmentedreality]}
+
+  # ── connectivity · 무선·네트워크 ──
+  - {key: 5gadvanced, label: 5G-Advanced, theme: connectivity__cellular_5g_6g, aliases: [5g어드밴스드, 55g, 5gadv]}
+  - {key: 6g, label: 6G, theme: connectivity__cellular_5g_6g, status: watch, aliases: [6세대이동통신, 6thgeneration]}
+  - {key: 5g, label: 5G, theme: connectivity__cellular_5g_6g, aliases: [5세대이동통신, 5gnr]}
+  - {key: redcap, label: RedCap, theme: connectivity__cellular_5g_6g, aliases: [reducedcapability]}
+  - {key: 앰비언트iot, label: 앰비언트 IoT, theme: connectivity__cellular_5g_6g, status: watch, aliases: [ambientiot]}
+  - {key: 3gpp, label: 3GPP, theme: connectivity__cellular_5g_6g, kind: standard, aliases: [release20, rel20, release19]}
+  - {key: 주파수경매, label: 주파수 할당, theme: connectivity__cellular_5g_6g, aliases: [spectrum, 주파수, 주파수할당, spectrumauction]}
+  - {key: openran, label: Open RAN, theme: connectivity__ran_core, aliases: [오픈랜, oran, 오픈ran]}
+  - {key: vran, label: vRAN, theme: connectivity__ran_core, aliases: [가상화ran, virtualizedran]}
+  - {key: airan, label: AI-RAN, theme: connectivity__ran_core, aliases: [ai랜]}
+  - {key: 기지국, label: 기지국, theme: connectivity__ran_core, aliases: [basestation, massivemimo, 매시브mimo]}
+  - {key: 코어망, label: 코어망, theme: connectivity__ran_core, aliases: [corenetwork, 5g코어, 5gcore]}
+  - {key: 네트워크슬라이싱, label: 네트워크 슬라이싱, theme: connectivity__ran_core, aliases: [networkslicing]}
+  - {key: wifi7, label: Wi-Fi 7, theme: connectivity__short_range_wireless, kind: standard, aliases: [와이파이7, 80211be]}
+  - {key: wifi8, label: Wi-Fi 8, theme: connectivity__short_range_wireless, kind: standard, status: watch, aliases: [와이파이8, 80211bn]}
+  - {key: uwb, label: UWB, theme: connectivity__short_range_wireless, aliases: [초광대역, ultrawideband]}
+  - {key: 블루투스, label: Bluetooth, theme: connectivity__short_range_wireless, kind: standard, aliases: [bluetooth, ble, 블루투스le]}
+  - {key: nfc, label: NFC, theme: connectivity__short_range_wireless, aliases: [근거리무선통신]}
+  - {key: ntn, label: NTN, theme: connectivity__satellite_ntn, aliases: [비지상네트워크, nonterrestrialnetwork, 위성직접통신]}
+  - {key: d2d, label: 위성 D2D, theme: connectivity__satellite_ntn, status: watch, aliases: [directtodevice, directtocell, 위성d2d, 위성문자]}
+  - {key: 스타링크, label: Starlink, theme: connectivity__satellite_ntn, kind: product_family, aliases: [starlink]}
+  - {key: 저궤도위성, label: 저궤도 위성, theme: connectivity__satellite_ntn, aliases: [저궤도, leosatellite, 저궤도통신]}
+  - {key: matter, label: Matter, theme: connectivity__smart_home_iot, kind: standard, aliases: [매터, matterprotocol]}
+  - {key: thread, label: Thread, theme: connectivity__smart_home_iot, kind: standard, aliases: [스레드]}
+  - {key: smartthings, label: SmartThings, theme: connectivity__smart_home_iot, kind: product_family, aliases: [스마트싱스]}
+  - {key: 스마트홈, label: 스마트홈, theme: connectivity__smart_home_iot, aliases: [smarthome, 홈iot, homeiot]}
+  - {key: 홈허브, label: 홈 허브, theme: connectivity__smart_home_iot, aliases: [homehub, 스마트홈허브]}
+  - {key: zigbee, label: Zigbee, theme: connectivity__smart_home_iot, kind: standard, aliases: [지그비]}
+  - {key: homeassistant, label: Home Assistant, theme: connectivity__smart_home_iot, kind: product_family, aliases: [홈어시스턴트]}
+  - {key: 네트워크자동화, label: 네트워크 자동화, theme: connectivity__network_ops, aliases: [networkautomation, 자율네트워크, autonomousnetwork]}
+  - {key: 광통신, label: 광통신, theme: connectivity__network_ops, aliases: [opticalnetwork, 광전송]}
+
+  # ── platform_sw · 플랫폼·소프트웨어 ──
+  - {key: android, label: Android, theme: platform_sw__device_os, kind: product_family, aliases: [안드로이드, android16, android17]}
+  - {key: oneui, label: One UI, theme: platform_sw__device_os, kind: product_family, aliases: [원ui, oneui8, oneui9]}
+  - {key: ios, label: iOS, theme: platform_sw__device_os, kind: product_family, aliases: [ios26, ios27]}
+  - {key: tizen, label: Tizen, theme: platform_sw__device_os, kind: product_family, aliases: [타이젠]}
+  - {key: webos, label: webOS, theme: platform_sw__device_os, kind: product_family, aliases: [웹os]}
+  - {key: wearos, label: Wear OS, theme: platform_sw__device_os, kind: product_family, aliases: [웨어os]}
+  - {key: harmonyos, label: HarmonyOS, theme: platform_sw__device_os, kind: product_family, aliases: [하모니os, 훙멍]}
+  - {key: 앱스토어, label: 앱 스토어, theme: platform_sw__app_ecosystem, aliases: [appstore, 앱마켓, googleplay, 구글플레이]}
+  - {key: 모바일결제, label: 모바일 결제, theme: platform_sw__app_ecosystem, aliases: [mobilepayment, 삼성페이, samsungpay, applepay, 애플페이]}
+  - {key: 슈퍼앱, label: 슈퍼앱, theme: platform_sw__app_ecosystem, aliases: [superapp]}
+  - {key: rust, label: Rust, theme: platform_sw__developer_tools, kind: product_family, aliases: [러스트]}
+  - {key: kotlin, label: Kotlin, theme: platform_sw__developer_tools, kind: product_family, aliases: [코틀린]}
+  - {key: python, label: Python, theme: platform_sw__developer_tools, kind: product_family, aliases: [파이썬]}
+  - {key: typescript, label: TypeScript, theme: platform_sw__developer_tools, kind: product_family, aliases: [타입스크립트]}
+  - {key: llvm, label: LLVM, theme: platform_sw__developer_tools, kind: product_family}
+  - {key: vscode, label: VS Code, theme: platform_sw__developer_tools, kind: product_family, aliases: [visualstudiocode]}
+  - {key: webgpu, label: WebGPU, theme: platform_sw__web_cross_platform, kind: standard}
+  - {key: webassembly, label: WebAssembly, theme: platform_sw__web_cross_platform, kind: standard, aliases: [wasm, 웹어셈블리]}
+  - {key: flutter, label: Flutter, theme: platform_sw__web_cross_platform, kind: product_family, aliases: [플러터]}
+  - {key: reactnative, label: React Native, theme: platform_sw__web_cross_platform, kind: product_family, aliases: [리액트네이티브]}
+  - {key: 접근성, label: 접근성, theme: platform_sw__ux_accessibility, aliases: [accessibility, a11y, 디지털접근성]}
+  - {key: 디자인시스템, label: 디자인 시스템, theme: platform_sw__ux_accessibility, aliases: [designsystem, materialdesign, 머티리얼디자인]}
+
+  # ── cloud_data · 클라우드·데이터센터 ──
+  - {key: ai데이터센터, label: AI 데이터센터, theme: cloud_data__ai_datacenter, aliases: [aidatacenter, 하이퍼스케일데이터센터, hyperscaledatacenter, 데이터센터, datacenter]}
+  - {key: 액체냉각, label: 액체 냉각, theme: cloud_data__ai_datacenter, aliases: [liquidcooling, 수냉식냉각, 침지냉각, immersioncooling]}
+  - {key: cpo, label: CPO, theme: cloud_data__ai_datacenter, status: watch, aliases: [copackagedoptics, 코패키지드옵틱스]}
+  - {key: 실리콘포토닉스, label: 실리콘 포토닉스, theme: cloud_data__ai_datacenter, aliases: [siliconphotonics]}
+  - {key: smr, label: SMR, theme: cloud_data__ai_datacenter, aliases: [소형모듈원전, smallmodularreactor]}
+  - {key: gpu클러스터, label: GPU 클러스터, theme: cloud_data__ai_datacenter, aliases: [gpucluster, ai슈퍼컴퓨터, aisupercomputer]}
+  - {key: 소버린클라우드, label: 소버린 클라우드, theme: cloud_data__cloud_platforms, aliases: [sovereigncloud, 소버린ai, sovereignai, 데이터주권]}
+  - {key: 하이브리드클라우드, label: 하이브리드 클라우드, theme: cloud_data__cloud_platforms, aliases: [hybridcloud, 멀티클라우드, multicloud]}
+  - {key: aws, label: AWS, theme: cloud_data__cloud_platforms, kind: product_family, aliases: [amazonwebservices]}
+  - {key: azure, label: Azure, theme: cloud_data__cloud_platforms, kind: product_family, aliases: [애저, microsoftazure]}
+  - {key: 엣지컴퓨팅, label: 엣지 컴퓨팅, theme: cloud_data__edge_cloud, aliases: [edgecomputing, mec, 모바일엣지컴퓨팅]}
+  - {key: mlops, label: MLOps, theme: cloud_data__data_ml_platform, aliases: [머신러닝운영]}
+  - {key: 벡터db, label: 벡터 DB, theme: cloud_data__data_ml_platform, aliases: [vectordatabase, vectordb, 벡터데이터베이스]}
+  - {key: 데이터레이크하우스, label: 데이터 레이크하우스, theme: cloud_data__data_ml_platform, aliases: [lakehouse, 레이크하우스]}
+  - {key: kubernetes, label: Kubernetes, theme: cloud_data__infra_ops, kind: product_family, aliases: [k8s, 쿠버네티스]}
+  - {key: 관측성, label: 관측성, theme: cloud_data__infra_ops, aliases: [observability, opentelemetry]}
+  - {key: finops, label: FinOps, theme: cloud_data__infra_ops, aliases: [클라우드비용최적화]}
+
+  # ── security · 보안·신뢰 ──
+  - {key: knox, label: Knox, theme: security__device_security, kind: product_family, aliases: [삼성녹스, samsungknox]}
+  - {key: tee, label: TEE, theme: security__device_security, aliases: [trustedexecutionenvironment, 신뢰실행환경, trustzone]}
+  - {key: 보안칩, label: 보안 칩, theme: security__device_security, aliases: [securityelement, se칩, secureelement]}
+  - {key: 펌웨어보안, label: 펌웨어 보안, theme: security__device_security, aliases: [firmwaresecurity, 부트로더]}
+  - {key: 랜섬웨어, label: 랜섬웨어, theme: security__app_cloud_security, aliases: [ransomware]}
+  - {key: 클라우드보안, label: 클라우드 보안, theme: security__app_cloud_security, aliases: [cloudsecurity, cnapp]}
+  - {key: 피싱, label: 피싱, theme: security__app_cloud_security, aliases: [phishing, 스미싱]}
+  - {key: 패스키, label: 패스키, theme: security__identity_auth, kind: standard, aliases: [passkey, passkeys, fido2, fido]}
+  - {key: 제로트러스트, label: 제로트러스트, theme: security__identity_auth, aliases: [zerotrust]}
+  - {key: 생체인증, label: 생체 인증, theme: security__identity_auth, aliases: [biometric, 지문인식, 얼굴인식, faceid]}
+  - {key: 포스트양자암호, label: PQC, theme: security__privacy_crypto, status: watch, aliases: [pqc, postquantumcryptography, 양자내성암호, mlkem, mldsa]}
+  - {key: 기밀컴퓨팅, label: 기밀 컴퓨팅, theme: security__privacy_crypto, status: watch, aliases: [confidentialcomputing]}
+  - {key: 연합학습, label: 연합 학습, theme: security__privacy_crypto, aliases: [federatedlearning]}
+  - {key: 차등프라이버시, label: 차등 프라이버시, theme: security__privacy_crypto, aliases: [differentialprivacy]}
+  - {key: 동형암호, label: 동형암호, theme: security__privacy_crypto, aliases: [homomorphicencryption]}
+  - {key: c2pa, label: C2PA, theme: security__ai_security_provenance, kind: standard, aliases: [contentcredentials, 콘텐츠자격증명, 콘텐츠출처]}
+  - {key: 딥페이크, label: 딥페이크, theme: security__ai_security_provenance, aliases: [deepfake, deepfakes, 딥페이크탐지]}
+  - {key: ai워터마크, label: AI 워터마크, theme: security__ai_security_provenance, aliases: [watermarking, aiwatermark, synthid, 생성워터마킹]}
+  - {key: 프롬프트인젝션, label: 프롬프트 인젝션, theme: security__ai_security_provenance, aliases: [promptinjection, 탈옥, jailbreak]}
+  - {key: ai레드팀, label: AI 레드팀, theme: security__ai_security_provenance, aliases: [airedteam, 레드팀]}
+  - {key: sbom, label: SBOM, theme: security__software_supply_chain, kind: standard, aliases: [softwarebillofmaterials]}
+  - {key: cve, label: CVE·취약점, theme: security__software_supply_chain, aliases: [취약점, vulnerability, 제로데이, zeroday]}
+  - {key: 공급망공격, label: SW 공급망 공격, theme: security__software_supply_chain, aliases: [supplychainattack, 오픈소스공급망]}
+
+  # ── robotics_mobility · 로보틱스·모빌리티 ──
+  - {key: 로봇청소기, label: 로봇청소기, theme: robotics_mobility__home_service_robot, kind: product_family, aliases: [robotvacuum, 로봇청소기]}
+  - {key: 홈로봇, label: 홈 로봇, theme: robotics_mobility__home_service_robot, aliases: [homerobot, 가정용로봇, 볼리, ballie]}
+  - {key: 서비스로봇, label: 서비스 로봇, theme: robotics_mobility__home_service_robot, aliases: [servicerobot, 배달로봇, 서빙로봇]}
+  - {key: 휴머노이드, label: 휴머노이드, theme: robotics_mobility__humanoid_embodied, aliases: [humanoid, humanoidrobot, humanoidrobots, 휴머노이드로봇]}
+  - {key: vla모델, label: VLA 모델, theme: robotics_mobility__humanoid_embodied, aliases: [vla, visionlanguageaction, visionlanguageactionmodel]}
+  - {key: 월드모델, label: 월드 모델, theme: robotics_mobility__humanoid_embodied, status: watch, aliases: [worldmodel, worldmodels, worldfoundationmodel, 세계모델]}
+  - {key: 피지컬ai, label: 피지컬 AI, theme: robotics_mobility__humanoid_embodied, status: watch, aliases: [physicalai, 물리ai]}
+  - {key: embodiedai, label: Embodied AI, theme: robotics_mobility__humanoid_embodied, aliases: [체화ai, 임바디드ai]}
+  - {key: 자율주행, label: 자율주행, theme: robotics_mobility__autonomous_driving, aliases: [autonomousdriving, selfdriving, 자율주행차, 로보택시, robotaxi]}
+  - {key: adas, label: ADAS, theme: robotics_mobility__autonomous_driving, aliases: [첨단운전자보조시스템]}
+  - {key: 드론, label: 드론, theme: robotics_mobility__autonomous_driving, aliases: [drone, uav, 무인기]}
+  - {key: sdv, label: SDV, theme: robotics_mobility__sdv_cockpit, aliases: [softwaredefinedvehicle, 소프트웨어정의차량, 소프트웨어중심차량]}
+  - {key: 디지털콕핏, label: 디지털 콕핏, theme: robotics_mobility__sdv_cockpit, aliases: [digitalcockpit, 인포테인먼트, infotainment, ivi]}
+  - {key: 존아키텍처, label: 존 아키텍처, theme: robotics_mobility__sdv_cockpit, aliases: [zonalarchitecture, zonal]}
+  - {key: aaos, label: Android Automotive, theme: robotics_mobility__sdv_cockpit, kind: product_family, aliases: [androidautomotive, 차량os]}
+  - {key: ota, label: OTA 업데이트, theme: robotics_mobility__sdv_cockpit, aliases: [overtheair, 무선업데이트]}
+  - {key: 디지털트윈, label: 디지털 트윈, theme: robotics_mobility__sensing_digital_twin, aliases: [digitaltwin, digitaltwins]}
+  - {key: 센서퓨전, label: 센서 퓨전, theme: robotics_mobility__sensing_digital_twin, aliases: [sensorfusion]}
+  - {key: omniverse, label: Omniverse, theme: robotics_mobility__sensing_digital_twin, kind: product_family, aliases: [옴니버스, isaacsim]}
+
+  # ── health_tech · 헬스테크 ──
+  - {key: 커프리스혈압, label: 커프리스 혈압, theme: health_tech__biosensing, aliases: [cufflessbloodpressure, 혈압측정]}
+  - {key: 비침습혈당, label: 비침습 혈당, theme: health_tech__biosensing, aliases: [noninvasiveglucose, 무채혈혈당, 혈당측정]}
+  - {key: ppg, label: PPG, theme: health_tech__biosensing, aliases: [광혈류측정]}
+  - {key: ecg, label: ECG, theme: health_tech__biosensing, aliases: [심전도, ekg]}
+  - {key: 수면무호흡, label: 수면무호흡 감지, theme: health_tech__biosensing, aliases: [sleepapnea, 수면분석, sleeptracking]}
+  - {key: 디지털바이오마커, label: 디지털 바이오마커, theme: health_tech__biosensing, aliases: [digitalbiomarker, 바이오마커]}
+  - {key: samd, label: SaMD, theme: health_tech__medical_ai_samd, aliases: [softwareasamedicaldevice, 소프트웨어의료기기, 디지털의료기기]}
+  - {key: fda승인, label: FDA 인허가, theme: health_tech__medical_ai_samd, kind: regulation, aliases: [fdaapproval, fdaclearance, 510k, denovo]}
+  - {key: 의료ai, label: 의료 AI, theme: health_tech__medical_ai_samd, aliases: [medicalai, 의료인공지능, 진단ai]}
+  - {key: 원격진료, label: 원격진료, theme: health_tech__remote_care, aliases: [telehealth, telemedicine, 비대면진료]}
+  - {key: rpm, label: 원격 환자 모니터링, theme: health_tech__remote_care, aliases: [remotepatientmonitoring, 원격모니터링]}
+  - {key: fhir, label: FHIR, theme: health_tech__health_data_interop, kind: standard, aliases: [hl7, hl7fhir]}
+  - {key: healthconnect, label: Health Connect, theme: health_tech__health_data_interop, kind: product_family, aliases: [헬스커넥트, healthkit, 헬스킷]}
+  - {key: 의료마이데이터, label: 의료 마이데이터, theme: health_tech__health_data_interop, aliases: [건강정보고속도로]}
+  - {key: 에이징테크, label: 에이징테크, theme: health_tech__aging_care, aliases: [agetech, agingtech]}
+  - {key: 낙상감지, label: 낙상 감지, theme: health_tech__aging_care, aliases: [falldetection]}
+  - {key: 돌봄로봇, label: 돌봄 로봇, theme: health_tech__aging_care, aliases: [carerobot, 케어로봇]}
+
+  # ── energy · 에너지·지속가능성 ──
+  - {key: 전고체배터리, label: 전고체 배터리, theme: energy__battery_charging, aliases: [solidstatebattery, allsolidstatebattery]}
+  - {key: 실리콘음극재, label: 실리콘 음극재, theme: energy__battery_charging, aliases: [siliconanode, 실리콘카본]}
+  - {key: 고속충전, label: 고속 충전, theme: energy__battery_charging, aliases: [fastcharging, 초고속충전]}
+  - {key: 무선충전, label: 무선 충전, theme: energy__battery_charging, aliases: [wirelesscharging, qi2, qi]}
+  - {key: hems, label: HEMS, theme: energy__home_energy, aliases: [홈에너지관리, homeenergymanagement]}
+  - {key: 히트펌프, label: 히트펌프, theme: energy__home_energy, aliases: [heatpump]}
+  - {key: 가정용ess, label: 가정용 ESS, theme: energy__home_energy, aliases: [homebattery, 홈배터리, ess]}
+  - {key: 수요반응, label: 수요반응, theme: energy__home_energy, aliases: [demandresponse]}
+  - {key: 저전력설계, label: 저전력 설계, theme: energy__power_efficiency, aliases: [lowpower, 전력효율, energyefficiency]}
+  - {key: 수리권, label: 수리권, theme: energy__circular_materials, aliases: [righttorepair, 수리용이성, 수리성]}
+  - {key: 재생소재, label: 재생 소재, theme: energy__circular_materials, aliases: [recycledmaterial, 재활용소재, 리사이클]}
+  - {key: 배터리여권, label: 배터리 여권, theme: energy__circular_materials, kind: regulation, aliases: [batterypassport]}
+
+  # ── manufacturing · 제조 기술 ──
+  - {key: 스마트팩토리, label: 스마트 팩토리, theme: manufacturing__smart_factory, aliases: [smartfactory, 스마트공장, 지능형공장]}
+  - {key: 산업ai, label: 산업 AI, theme: manufacturing__smart_factory, aliases: [industrialai, 제조ai]}
+  - {key: 비전검사, label: 비전 검사, theme: manufacturing__quality_inspection, aliases: [machinevision, 머신비전, 외관검사]}
+  - {key: 협동로봇, label: 협동로봇, theme: manufacturing__factory_robotics, aliases: [cobot, collaborativerobot, 코봇]}
+  - {key: 산업용로봇, label: 산업용 로봇, theme: manufacturing__factory_robotics, aliases: [industrialrobot]}
+  - {key: 물류자동화, label: 물류 자동화, theme: manufacturing__logistics_automation, aliases: [logisticsautomation, 창고자동화, amr]}
+
+  # ── frontier · 미래 기술 ──
+  - {key: 양자컴퓨터, label: 양자컴퓨터, theme: frontier__quantum, aliases: [양자컴퓨팅, quantumcomputing, quantumcomputer]}
+  - {key: 양자오류정정, label: 양자 오류 정정, theme: frontier__quantum, aliases: [quantumerrorcorrection, qec, 논리큐비트]}
+  - {key: 양자통신, label: 양자 통신, theme: frontier__quantum, aliases: [quantumcommunication, qkd, 양자암호통신]}
+  - {key: 뉴로모픽, label: 뉴로모픽, theme: frontier__neuromorphic_photonic, aliases: [neuromorphic, 뉴로모픽칩]}
+  - {key: 광컴퓨팅, label: 광 컴퓨팅, theme: frontier__neuromorphic_photonic, aliases: [photoniccomputing, opticalcomputing]}
+  - {key: 2d소재, label: 2D 소재, theme: frontier__advanced_materials, aliases: [2dmaterials, 그래핀, graphene]}
+  - {key: 메타물질, label: 메타물질, theme: frontier__advanced_materials, aliases: [metamaterial, metasurface, 메타렌즈]}
+  - {key: bci, label: BCI, theme: frontier__neurotech_bci, aliases: [braincomputerinterface, 뇌컴퓨터인터페이스, 뉴럴링크, neuralink]}
+
+  # ── 규제·정책 항목 (kind=regulation; 신호 유형 '규제'와 함께 추적) ──
+  - {key: euaiact, label: EU AI Act, theme: ai__ai_safety_eval, kind: regulation, aliases: [eu인공지능법, 유럽연합ai법, eu인공지능규제법, aiact]}
+  - {key: ai기본법, label: AI 기본법, theme: ai__ai_safety_eval, kind: regulation, aliases: [인공지능기본법]}
+  - {key: cra, label: EU CRA, theme: security__device_security, kind: regulation, aliases: [cyberresilienceact, 사이버복원력법]}
+  - {key: dpp, label: EU DPP·ESPR, theme: energy__circular_materials, kind: regulation, aliases: [digitalproductpassport, 디지털제품여권, espr, 에코디자인]}
+  - {key: nistir8547, label: NIST IR 8547, theme: security__privacy_crypto, kind: regulation, aliases: [nist8547]}
+  - {key: dma, label: EU DMA, theme: platform_sw__app_ecosystem, kind: regulation, aliases: [digitalmarketsact, 디지털시장법]}
+  - {key: 수출통제, label: 수출 통제, theme: semis__ap_soc_npu, kind: regulation, aliases: [exportcontrol, exportcontrols, 반도체수출규제]}
