@@ -521,7 +521,7 @@ def cards_status() -> None:
 @stories_app.command("run")
 def stories_run(
     limit: Annotated[int, typer.Option(help="Maximum items to cluster")] = 5000,
-    near: Annotated[float, typer.Option(help="Near-duplicate MinHash threshold")] = 0.6,
+    near: Annotated[float, typer.Option(help="Near-duplicate MinHash threshold")] = 0.45,
     event: Annotated[float, typer.Option(help="Same-event MinHash threshold")] = 0.35,
 ) -> None:
     """Attach carded items to stories (exact duplicate, near duplicate, same event or new)."""

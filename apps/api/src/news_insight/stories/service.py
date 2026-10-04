@@ -34,7 +34,9 @@ SessionScope = Callable[[], AbstractContextManager[Session]]
 
 @dataclass(frozen=True)
 class Thresholds:
-    near: float = 0.6
+    # tuned 2026-10-04 with `stories eval` (200 LLM-judged production pairs): precision is
+    # flat (~0.83) across 0.3-0.8 while recall at 0.6 was 0.41 vs 0.81 at 0.45
+    near: float = 0.45
     event: float = 0.35
 
 
@@ -75,9 +77,12 @@ def _attach(session: Session, story: Story, item: Item, card: ItemCard, now: dat
         story.max_relevance = relevance
         story.representative_item_id = item.id
         story.title_ko = card.title_ko
+    # distinct publishers, not catalog sources: many HN/Naver query sources share one site
     story.source_count = (
         session.scalar(
-            select(func.count(func.distinct(Item.source_id)))
+            select(func.count(func.distinct(Source.official_domain)))
+            .select_from(Item)
+            .join(Source, Source.id == Item.source_id)
             .join(StoryItem, StoryItem.item_id == Item.id)
             .where(StoryItem.story_id == story.id)
         )

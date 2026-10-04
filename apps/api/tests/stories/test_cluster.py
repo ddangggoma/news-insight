@@ -41,7 +41,12 @@ def add(
         )
     ).one_or_none()
     if source is None:
-        source = build_source(key=source_key, name=source_key, track=track)
+        source = build_source(
+            key=source_key,
+            name=source_key,
+            track=track,
+            official_domain=f"{source_key.split('-')[0]}.com",
+        )
         db_session.add(source)
         db_session.flush()
     ingest_items(
@@ -56,7 +61,9 @@ def add(
         canary=True,
     )
     for url, title, _, keywords, relevance in rows:
-        item = db_session.scalars(select(Item).where(Item.url == url)).one()
+        item = db_session.scalars(
+            select(Item).where(Item.url == url, Item.source_id == source.id)
+        ).one()
         db_session.add(
             ItemCard(
                 item_id=item.id,
@@ -177,3 +184,19 @@ def test_old_stories_are_not_extended_and_refs_are_recorded(db_session: Session)
     assert story_of(db_session, "https://arxiv.org/abs/2610.01985v1")[1] == "seed"
     refs = set(db_session.execute(select(ItemRef.kind, ItemRef.value)).tuples())
     assert refs == {("arxiv", "2610.01985"), ("github", "apple/ml-x")}
+
+
+def test_query_sources_of_one_site_count_as_one_publisher(db_session: Session) -> None:
+    url = "https://news.ycombinator.com/item?id=42"
+    add(db_session, "hn-ai", Track.COMMUNITY, [(url, "Show HN: 에이전트 보험", None, ["보험"], 30)])
+    add(
+        db_session,
+        "hn-agent",
+        Track.COMMUNITY,
+        [(url, "Show HN: 에이전트 보험", None, ["보험"], 30)],
+    )
+
+    cluster(scope_for(db_session), now=NOW)
+
+    story = db_session.scalars(select(Story)).one()
+    assert (story.item_count, story.source_count) == (2, 1)
