@@ -477,6 +477,7 @@ def cards_run(
         agy, qwen = _card_engines(qwen_only)
         policy = CardPolicy(
             agy_batch=settings.card_agy_batch,
+            agy_parallel=settings.card_agy_parallel,
             qwen_batch=settings.card_qwen_batch,
             min_weekly=settings.card_agy_min_weekly,
             min_five_hour=settings.card_agy_min_five_hour,
