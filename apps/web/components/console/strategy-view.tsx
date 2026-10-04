@@ -1,9 +1,9 @@
 import { Compass, ShieldCheck, Users } from "lucide-react";
 
-import { shortBusiness } from "@/components/console/classification";
 import { EvidenceLinks } from "@/components/console/evidence-links";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FIELD_LABEL } from "@/lib/taxonomy";
 import type { StrategyClaim, StrategyOut } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -42,12 +42,12 @@ export function StrategyView({ strategy }: { strategy: StrategyOut }) {
           </CardHeader>
           <CardContent className="space-y-6">
             <p className="leading-relaxed">{report.summary}</p>
-            {report.businesses.length > 0 ? (
+            {(report.fields ?? []).length > 0 ? (
               <div className="grid gap-6 lg:grid-cols-2 [&>*]:min-w-0">
-                {report.businesses.map((section) => (
-                  <div key={section.business} className="space-y-2">
+                {(report.fields ?? []).map((section) => (
+                  <div key={section.field} className="space-y-2">
                     <p className="text-sm font-semibold">
-                      <span className="mr-2 rounded bg-primary/10 px-1.5 py-0.5 text-xs text-primary">{shortBusiness(section.business)}</span>
+                      <span className="mr-2 rounded bg-primary/10 px-1.5 py-0.5 text-xs text-primary">{FIELD_LABEL[section.field] ?? section.field}</span>
                       {section.summary}
                     </p>
                     <Claims claims={section.claims} items={strategy.items} />

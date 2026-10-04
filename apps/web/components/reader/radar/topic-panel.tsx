@@ -7,7 +7,6 @@ import { Change, KeywordBadge, Legend, StateBadge } from "@/components/reader/ra
 import { formatDateTime, formatDay, formatRelative, REGION_LABEL, TRACK_LABEL } from "@/lib/format";
 import {
   BASELINE_UNIT,
-  businessShort,
   focusParam,
   formatZ,
   last,
@@ -26,7 +25,7 @@ import {
 import { withQuery } from "@/lib/query";
 import type { Radar, TopicDetail, TrackMix } from "@/lib/reader-types";
 import type { Region, Track } from "@/lib/types";
-import { BUSINESS_LABEL, FIELD_LABEL, IMPACT_LABEL, THEME_LABEL } from "@/lib/taxonomy";
+import { FIELD_LABEL, IMPACT_LABEL, SIGNAL_LABEL, THEME_LABEL } from "@/lib/taxonomy";
 import { cn } from "@/lib/utils";
 
 const KIND_LABEL = { field: "카테고리", theme: "테마", keyword: "기술" } as const;
@@ -151,7 +150,7 @@ export function TopicPanel({ detail, radar, view }: { detail: TopicDetail; radar
     field: kind === "field" ? topic.key : undefined,
     theme: kind === "theme" ? topic.key : undefined,
     q: kind === "keyword" ? topicLabel(kind, topic) : undefined,
-    business: view.business,
+    signal: view.signal,
     scope: view.scope !== "relevant" ? view.scope : undefined,
     period,
   });
@@ -260,9 +259,9 @@ export function TopicPanel({ detail, radar, view }: { detail: TopicDetail; radar
           </Section>
         ) : null}
 
-        {detail.businesses.length ? (
-          <Section title="연관 DX 사업부">
-            <Bars rows={detail.businesses} label={(key) => `${businessShort(key)} · ${(BUSINESS_LABEL[key] ?? key).split(" · ")[1] ?? ""}`} total={current} />
+        {detail.signal_types.length ? (
+          <Section title="신호 유형">
+            <Bars rows={detail.signal_types} label={(key) => SIGNAL_LABEL[key] ?? key} total={current} />
           </Section>
         ) : null}
 

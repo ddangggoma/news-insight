@@ -5,10 +5,10 @@ from typing import Any
 from pydantic import BaseModel, Field, ValidationError, field_validator, model_validator
 
 from news_insight.taxonomy.catalog import (
-    BUSINESS_KEYS,
     FIELD_KEYS,
     IMPACT_KEYS,
     SCOPE_KEYS,
+    SIGNAL_TYPE_KEYS,
     THEME_KEYS,
     prompt_outline,
 )
@@ -16,7 +16,6 @@ from news_insight.taxonomy.catalog import (
 MAX_SUMMARY_LINES = 3
 MAX_KEYWORDS = 5
 MAX_THEMES = 2
-MAX_BUSINESSES = 2
 MAX_TOPIC_CANDIDATES = 2
 
 
@@ -48,7 +47,7 @@ class Classification(BaseModel):
     id: int
     field: str | None = None
     themes: list[str] = Field(default_factory=list)
-    businesses: list[str] = Field(default_factory=list)
+    signal_type: str | None = None
     impact: str | None = None
     scope: str | None = None
     relevance: int | None = None
@@ -74,11 +73,10 @@ class Classification(BaseModel):
             if key in THEME_KEYS and key not in themes:
                 themes.append(key)
         self.themes = themes[:MAX_THEMES]
-        if self.field is None and self.themes:
+        if self.themes:
+            # the primary field follows the first (most specific) theme
             self.field = self.themes[0].split("__", 1)[0]
-        self.businesses = [b for b in dict.fromkeys(self.businesses) if b in BUSINESS_KEYS][
-            :MAX_BUSINESSES
-        ]
+        self.signal_type = self.signal_type if self.signal_type in SIGNAL_TYPE_KEYS else None
         self.impact = self.impact if self.impact in IMPACT_KEYS else None
         self.scope = self.scope if self.scope in SCOPE_KEYS else None
         if self.relevance is not None:
@@ -111,7 +109,7 @@ class CardDraft(Classification):
 CLASSIFICATION_PROPERTIES: dict[str, Any] = {
     "field": {"type": "string", "enum": sorted(FIELD_KEYS)},
     "themes": {"type": "array", "items": {"type": "string", "enum": sorted(THEME_KEYS)}},
-    "businesses": {"type": "array", "items": {"type": "string", "enum": sorted(BUSINESS_KEYS)}},
+    "signal_type": {"type": "string", "enum": sorted(SIGNAL_TYPE_KEYS)},
     "impact": {"type": "string", "enum": sorted(IMPACT_KEYS)},
     "scope": {"type": "string", "enum": sorted(SCOPE_KEYS)},
     "relevance": {"type": "integer", "minimum": 0, "maximum": 100},
@@ -147,15 +145,20 @@ CARD_BATCH_SCHEMA = _batch_schema(
 CLASSIFY_BATCH_SCHEMA = _batch_schema(CLASSIFICATION_PROPERTIES)
 
 CLASSIFICATION_RULES = [
-    "  field: 아래 분야 키 하나. themes: 그 분야의 테마 키 1~2개(분야__테마 형식).",
-    "  businesses: 관련 DX 사업부 0~2개 — mx(모바일·온디바이스 AI), vd(디스플레이·영상),",
-    "    da(생활가전·홈로봇), networks(5G Adv·6G·통신), health(디지털 헬스·의료기기),",
-    "    harman(전장·SDV). 관련 없으면 빈 배열.",
-    "  impact: DX 사업 관점 opportunity(기회) / risk(위험) / watch(관찰).",
-    "  scope: dx(DX 제품·기술 직접)",
+    "  themes: 기사의 핵심 '기술'을 담는 테마 키 1~2개(분야__테마 형식, 서로 다른 분야도 가능).",
+    "    정책·시장·실적·출시 기사도 그 대상 기술의 테마를 고른다. 제품명이 아니라 기술로 고른다.",
+    "    기술과 관계없는 기사(scope=irrelevant)만 빈 배열.",
+    "  field: 첫 번째 테마의 분야 키.",
+    "  signal_type: 어떤 종류의 소식인지 하나 — research(연구·논문·벤치마크)",
+    "    / launch(제품·기능 출시·리뷰) / standard(표준·인증) / regulation(정책·규제·준수)",
+    "    / market(시장·경쟁·제휴·M&A) / finance(투자·실적·CAPEX)",
+    "    / ecosystem(오픈소스·개발자 생태계) / security_event(취약점·보안 사고)",
+    "    / supply(공급망·생산) / ip(특허·소송·라이선스).",
+    "  impact: DX(완제품·디바이스) 관점 opportunity(기회) / risk(위험) / watch(관찰).",
+    "  scope: dx(완제품·디바이스 제품·기술 직접)",
     "    / dx_dependency(완제품 성능·원가에 직결되는 부품·기술 의존성)",
     "    / excluded(메모리·파운드리 증설 같은 반도체 자산 투자 자체)",
-    "    / irrelevant(DX와 무관: 정치·연예·일반 사회·게임 운영·금융 일반·개인 잡담 등).",
+    "    / irrelevant(기술과 무관: 정치·연예·일반 사회·게임 운영·금융 일반·개인 잡담 등).",
     "  relevance: DX 기술 전략 담당자에게 유용한 정도 0~100.",
     "  topic_candidates: 테마 목록이 이 기사의 핵심 기술을 잘 담지 못할 때만 그 기술·주제를",
     "    짧은 한국어 명사구로 0~2개(예: '위성 직접통신', '액체냉각'). 잘 맞으면 빈 배열.",

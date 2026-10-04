@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { TrackBadge } from "@/components/console/badges";
-import { BusinessTag, FieldTag, ImpactBadge } from "@/components/reader/labels";
+import { SignalTag, FieldTag, ImpactBadge } from "@/components/reader/labels";
 import { ApiError } from "@/lib/api";
 import { formatDateTime, formatRelative, REGION_LABEL } from "@/lib/format";
 import { readerGet } from "@/lib/reader-api";
@@ -50,9 +50,7 @@ export function ItemDetailView({ detail }: { detail: ReaderItemDetail }) {
     <article className="space-y-5">
       <div className="flex flex-wrap items-center gap-1.5">
         <FieldTag field={item.field} />
-        {item.businesses.map((business) => (
-          <BusinessTag key={business} business={business} />
-        ))}
+        <SignalTag signal={item.signal_type} />
         <ImpactBadge impact={item.impact} />
       </div>
       <header className="space-y-1.5">

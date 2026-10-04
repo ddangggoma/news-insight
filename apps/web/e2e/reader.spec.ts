@@ -50,7 +50,7 @@ test.describe("reader", () => {
     expect(overflow).toBeLessThanOrEqual(0);
   });
 
-  test("radar opens the current month, focuses a theme and filters by DX business", async ({ page }) => {
+  test("radar opens the current month, focuses a theme and filters by signal type", async ({ page }) => {
     await page.goto("/radar?period=month");
     await expect(page).toHaveURL(/\/radar\/month\/\d{4}-\d{2}$/);
     await expect(page.getByRole("heading", { level: 1, name: /기술 레이더/ })).toBeVisible();
@@ -59,9 +59,9 @@ test.describe("reader", () => {
     await theme.click();
     await expect(page).toHaveURL(/focus=theme%3A/);
     await expect(page.getByRole("complementary", { name: "선택한 항목" }).getByRole("heading", { level: 2 })).toContainText(name);
-    await page.getByRole("group", { name: "DX 사업부 필터" }).getByRole("link", { name: "MX" }).click();
-    await expect(page).toHaveURL(/business=mx/);
-    await expect(page.getByRole("group", { name: "DX 사업부 필터" }).getByRole("link", { name: "MX" })).toHaveAttribute("aria-pressed", "true");
+    await page.getByRole("group", { name: "신호 유형 필터" }).getByRole("link", { name: "제품·기능 출시" }).click();
+    await expect(page).toHaveURL(/signal=launch/);
+    await expect(page.getByRole("group", { name: "신호 유형 필터" }).getByRole("link", { name: "제품·기능 출시" })).toHaveAttribute("aria-pressed", "true");
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     expect(overflow).toBeLessThanOrEqual(0);
   });

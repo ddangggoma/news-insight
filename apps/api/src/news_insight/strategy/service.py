@@ -54,8 +54,9 @@ def _evidence(session: Session, item_ids: list[int]) -> tuple[list[dict[str, Any
             "summary": " ".join(card.summary_ko)[:300],
             "source": source.name,
             "track": item.track.value,
-            "businesses": list(card.businesses or []),
             "field": card.field,
+            "themes": list(card.themes or []),
+            "signal_type": card.signal_type,
             "impact": card.impact,
         }
         for item, source, card, _ in rows

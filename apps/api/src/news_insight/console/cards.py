@@ -37,7 +37,7 @@ def list_cards(
     size: int,
     now: datetime,
     field: str | None = None,
-    business: str | None = None,
+    signal_type: str | None = None,
     impact: str | None = None,
     scope: str | None = None,
     dedup: bool = False,
@@ -45,8 +45,8 @@ def list_cards(
     conditions = [ItemCard.status == CardStatus.READY]
     if field:
         conditions.append(ItemCard.field == field)
-    if business:
-        conditions.append(ItemCard.businesses.contains([business]))
+    if signal_type:
+        conditions.append(ItemCard.signal_type == signal_type)
     if impact:
         conditions.append(ItemCard.impact == impact)
     if scope == "relevant":

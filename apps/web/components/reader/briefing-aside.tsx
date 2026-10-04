@@ -7,7 +7,7 @@ import Link from "next/link";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { BriefingEntry, BriefingPersona, PublicBriefing } from "@/lib/briefing-types";
 import { formatBriefingDate } from "@/lib/format";
-import { BUSINESS_LABEL, IMPACT_LABEL } from "@/lib/taxonomy";
+import { FIELD_LABEL, IMPACT_LABEL } from "@/lib/taxonomy";
 import { cn } from "@/lib/utils";
 
 const GROUPS = [
@@ -20,7 +20,7 @@ const HORIZONS = [
   ["3y", "3년"],
   ["5y", "5년"],
 ] as const;
-const shortLabel = (key: string) => (BUSINESS_LABEL[key] ?? key).split(" · ")[0];
+const fieldLabel = (key: string) => FIELD_LABEL[key] ?? key;
 const IMPACT_STYLE: Record<string, string> = {
   opportunity: "bg-impact-opportunity/12 text-impact-opportunity",
   risk: "bg-impact-risk/12 text-impact-risk",
@@ -78,7 +78,7 @@ function citations(briefing: PublicBriefing): [number, number][] {
   briefing.strategy?.personas.filter((p) => p.status === "insight").forEach((p) => add(p.item_ids));
   const report = briefing.strategy?.report;
   if (report) {
-    [...report.businesses.flatMap((b) => b.claims), ...report.roadmap, ...report.opportunities, ...report.risks].forEach(
+    [...(report.fields ?? []).flatMap((f) => f.claims), ...report.roadmap, ...report.opportunities, ...report.risks].forEach(
       (claim) => add(claim.item_ids),
     );
   }
@@ -116,23 +116,23 @@ function EvidenceMap({ briefing }: { briefing: PublicBriefing }) {
 
 function MarketImpact({ briefing }: { briefing: PublicBriefing }) {
   const cards = briefing.sections.flatMap((section) => section.items);
-  const rows = Object.keys(BUSINESS_LABEL)
-    .map((business) => {
-      const mine = cards.filter((card) => card.businesses.includes(business));
+  const rows = Object.keys(FIELD_LABEL)
+    .map((field) => {
+      const mine = cards.filter((card) => card.field === field);
       const byImpact = Object.fromEntries(
         Object.keys(IMPACT_LABEL).map((impact) => [impact, mine.filter((c) => c.impact === impact).length]),
       );
-      return { business, total: mine.length, byImpact };
+      return { field, total: mine.length, byImpact };
     })
     .filter((row) => row.total > 0)
     .sort((a, b) => b.total - a.total);
-  if (rows.length === 0) return <p className="text-sm text-muted-foreground">사업부로 분류된 기사가 없습니다.</p>;
+  if (rows.length === 0) return <p className="text-sm text-muted-foreground">기술 분야로 분류된 기사가 없습니다.</p>;
   const max = Math.max(...rows.map((row) => row.total));
   return (
     <div className="space-y-2">
       {rows.map((row) => (
-        <div key={row.business} className="grid grid-cols-[64px_1fr_24px] items-center gap-2 text-xs">
-          <span className="truncate font-medium">{shortLabel(row.business)}</span>
+        <div key={row.field} className="grid grid-cols-[112px_1fr_24px] items-center gap-2 text-xs">
+          <span className="truncate font-medium" title={fieldLabel(row.field)}>{fieldLabel(row.field)}</span>
           <div className="flex h-2.5 overflow-hidden rounded-full bg-muted" style={{ width: `${(row.total / max) * 100}%` }}>
             {Object.entries(row.byImpact).map(([impact, count]) =>
               count > 0 ? (

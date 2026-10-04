@@ -24,9 +24,9 @@ def test_facets_count_reports_in_the_window(
     public_client: TestClient, public_headers: dict[str, str]
 ) -> None:
     body = get(public_client, public_headers, "facets")
-    assert body["field"] == {"ai_data": 2, "display_media": 2}
-    assert body["theme"] == {"ai_data__ai_agents": 2, "display_media__oled_microled": 2}
-    assert body["business"] == {"mx": 3, "vd": 2}
+    assert body["field"] == {"ai": 2, "display_av": 2}
+    assert body["theme"] == {"ai__ai_agents": 2, "display_av__display_panel": 2}
+    assert body["signal"] == {"launch": 2, "research": 1, "ecosystem": 1}
     assert body["impact"] == {"opportunity": 3, "watch": 1}
     assert body["track"] == {"news": 2, "research_ip": 1, "oss": 1}
     assert body["region"] == {"global_en": 3, "kr": 1}
@@ -36,9 +36,9 @@ def test_facets_count_reports_in_the_window(
 def test_facet_ignores_its_own_axis_but_applies_the_others(
     public_client: TestClient, public_headers: dict[str, str]
 ) -> None:
-    body = get(public_client, public_headers, "facets", field="ai_data")
-    assert body["field"] == {"ai_data": 2, "display_media": 2}
-    assert body["business"] == {"mx": 2}
+    body = get(public_client, public_headers, "facets", field="ai")
+    assert body["field"] == {"ai": 2, "display_av": 2}
+    assert body["signal"] == {"launch": 2}
     assert body["track"] == {"news": 2}
 
 
@@ -61,8 +61,12 @@ def test_insights_compare_keywords_with_the_previous_window(
     assert keywords["oled"]["is_new"] is True
     assert keywords["oled"]["change"] is None
     assert set(body["related_keywords"]) == {"갤럭시", "번인"}
-    assert body["fields"] == [{"key": "ai_data", "count": 2}, {"key": "display_media", "count": 2}]
-    assert body["businesses"] == [{"key": "mx", "count": 3}, {"key": "vd", "count": 2}]
+    assert body["fields"] == [{"key": "ai", "count": 2}, {"key": "display_av", "count": 2}]
+    assert body["signal_types"] == [
+        {"key": "launch", "count": 2},
+        {"key": "ecosystem", "count": 1},
+        {"key": "research", "count": 1},
+    ]
     assert body["impacts"] == [{"key": "opportunity", "count": 3}, {"key": "watch", "count": 1}]
 
 

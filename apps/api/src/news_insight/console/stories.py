@@ -73,7 +73,7 @@ def list_stories(
     min_size: int,
     min_tracks: int,
     track: Track | None,
-    business: str | None,
+    signal_type: str | None,
     page: int,
     size: int,
     now: datetime,
@@ -85,8 +85,8 @@ def list_stories(
     ]
     if track is not None:
         conditions.append(Story.tracks.contains([track.value]))
-    if business:
-        conditions.append(ItemCard.businesses.contains([business]))
+    if signal_type:
+        conditions.append(ItemCard.signal_type == signal_type)
     base = (
         select(Story, Item, Source, ItemCard)
         .join(Item, Item.id == Story.representative_item_id)

@@ -65,8 +65,8 @@ class FakeEngine:
         cards = [
             {
                 "id": entry.id,
-                "field": "ai_data",
-                "themes": ["ai_data__ai_agents"],
+                "field": "ai",
+                "themes": ["ai__ai_agents"],
                 "scope": "dx",
                 "relevance": 70,
                 "topic_candidates": ["위성 직접통신", "  위성  직접통신 "],
@@ -210,7 +210,7 @@ def test_older_taxonomy_reclassifies_without_regenerating_text(db_session: Sessi
     assert qwen.batches == [] and len(qwen.classified) == 1
     assert stats.classified == 1 and classify_pending_count(db_session) == 0
     assert card.title_ko == title_before and card.taxonomy_revision == TAXONOMY_REVISION
-    assert card.themes == ["ai_data__ai_agents"]
+    assert card.themes == ["ai__ai_agents"]
     assert card.topic_candidates == ["위성 직접통신"]
 
 
@@ -251,7 +251,7 @@ def test_classification_gives_up_after_repeated_failures(db_session: Session) ->
     seed(db_session, ["a"])
     run_cards(scope_for(db_session), agy=None, qwen=FakeEngine("qwen"), policy=POLICY)
     card = cards(db_session)["a"]
-    card.taxonomy_revision, card.field = "old", "ai_data"
+    card.taxonomy_revision, card.field = "old", "ai"
     db_session.flush()
 
     class Empty(FakeEngine):

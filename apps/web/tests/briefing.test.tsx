@@ -6,16 +6,16 @@ import type { PublicBriefing } from "@/lib/briefing-types";
 import { formatBriefingDate } from "@/lib/format";
 import type { ReaderItem } from "@/lib/reader-types";
 
-const item = (id: number, business: string, impact: string): ReaderItem => ({
+const item = (id: number, field: string, impact: string): ReaderItem => ({
   id,
   url: `https://example.com/${id}`,
   title: `Item ${id}`,
   title_ko: `기사 ${id}`,
   summary_ko: [],
   keywords: [],
-  field: "mobile_edge",
+  field,
   themes: [],
-  businesses: [business],
+  signal_type: "launch",
   impact,
   scope: "dx",
   relevance: 70,
@@ -35,7 +35,7 @@ const BRIEFING: PublicBriefing = {
   headline: "헤드라인",
   overview: null,
   insights: [{ title: "i", body: "b", item_ids: [1, 2] }],
-  sections: [{ track: "news", summary: null, items: [item(1, "mx", "opportunity"), item(2, "mx", "risk"), item(3, "vd", "watch")] }],
+  sections: [{ track: "news", summary: null, items: [item(1, "ai", "opportunity"), item(2, "ai", "risk"), item(3, "display_av", "watch")] }],
   strategy: {
     personas: [
       { key: "ceo", name: "CEO", group: "executive", status: "insight", headline: "NPU 일정 점검", insight: "x", actions: [], item_ids: [1, 2] },
@@ -53,14 +53,14 @@ const BRIEFING: PublicBriefing = {
 };
 
 describe("briefing aside", () => {
-  it("shows persona insights, citation counts and impact by business", () => {
+  it("shows persona insights, citation counts and impact by field", () => {
     render(<BriefingAside briefing={BRIEFING} past={[]} />);
 
     expect(screen.getByText("NPU 일정 점검")).toBeInTheDocument();
     expect(screen.getByText(/신호 없음\(no_signal\) 1명/)).toBeInTheDocument();
     expect(screen.getAllByText(/인용 2회/)).toHaveLength(2);
-    expect(screen.getByText("MX")).toBeInTheDocument();
-    expect(screen.getByText("VD")).toBeInTheDocument();
+    expect(screen.getByText("AI 모델·에이전트")).toBeInTheDocument();
+    expect(screen.getByText("디스플레이·영상·오디오")).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "지난 브리핑" })).not.toBeInTheDocument();
   });
 

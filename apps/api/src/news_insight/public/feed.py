@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from news_insight.cards.models import CardStatus, ItemCard
 from news_insight.console.queries import latest_metrics
 from news_insight.content.models import Item
-from news_insight.public.filters import ReaderFilters, in_window, joined
+from news_insight.public.filters import ReaderFilters, in_current_tree, in_window, joined
 from news_insight.public.periods import Window
 from news_insight.public.schemas import (
     FeedPage,
@@ -20,7 +20,6 @@ from news_insight.public.schemas import (
 )
 from news_insight.sources.models import Source
 from news_insight.stories.models import ItemRef, Story, StoryItem
-from news_insight.taxonomy.catalog import TAXONOMY_REVISION
 
 Sort = Literal["recent", "relevance", "coverage"]
 
@@ -37,7 +36,7 @@ def _reader_item(
         keywords=list(card.keywords),
         field=card.field,
         themes=list(card.themes or []),
-        businesses=list(card.businesses or []),
+        signal_type=card.signal_type,
         impact=card.impact,
         scope=card.scope,
         relevance=card.relevance,
@@ -134,7 +133,7 @@ def _published(session: Session, item_ids: list[int]) -> list[tuple[Item, Source
             .where(
                 Item.id.in_(item_ids),
                 ItemCard.status == CardStatus.READY,
-                ItemCard.taxonomy_revision == TAXONOMY_REVISION,
+                in_current_tree(),
             )
             .order_by(Item.first_seen_at.desc(), Item.id.desc())
         ).tuples()
@@ -160,7 +159,7 @@ def item_detail(session: Session, item_id: int) -> ReaderItemDetail | None:
             joined(select(Item, Source, ItemCard, Story)).where(
                 Item.id == item_id,
                 ItemCard.status == CardStatus.READY,
-                ItemCard.taxonomy_revision == TAXONOMY_REVISION,
+                in_current_tree(),
             )
         )
         .tuples()
@@ -207,7 +206,7 @@ def item_detail(session: Session, item_id: int) -> ReaderItemDetail | None:
                 .where(
                     ItemCard.field == card.field,
                     ItemCard.status == CardStatus.READY,
-                    ItemCard.taxonomy_revision == TAXONOMY_REVISION,
+                    in_current_tree(),
                     ItemCard.scope.in_(("dx", "dx_dependency")),
                     Item.id != item.id,
                 )

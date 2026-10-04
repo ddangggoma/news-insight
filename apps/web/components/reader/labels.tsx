@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { BUSINESS_LABEL, FIELD_LABEL, IMPACT_LABEL } from "@/lib/taxonomy";
+import { FIELD_LABEL, IMPACT_LABEL, SIGNAL_LABEL } from "@/lib/taxonomy";
 
 const IMPACT_CLASS: Record<string, string> = {
   opportunity: "bg-impact-opportunity/12 text-impact-opportunity",
@@ -25,15 +25,12 @@ export function FieldTag({ field }: { field: string | null }) {
   );
 }
 
-/** "MX · 모바일·온디바이스 AI" → "MX" for compact tags; the full name goes in the title. */
-export function BusinessTag({ business }: { business: string }) {
-  const label = BUSINESS_LABEL[business] ?? business;
+/** Kind of news (research, launch, regulation, …): taxonomy v2 signal type. */
+export function SignalTag({ signal }: { signal: string | null }) {
+  if (!signal) return null;
   return (
-    <span
-      title={label}
-      className="rounded-md border border-dashed px-2 py-px text-xs font-medium whitespace-nowrap text-ink-2"
-    >
-      {label.split(" · ")[0]}
+    <span className="rounded-md border border-dashed px-2 py-px text-xs font-medium whitespace-nowrap text-ink-2">
+      {SIGNAL_LABEL[signal] ?? signal}
     </span>
   );
 }

@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { TrackBadge } from "@/components/console/badges";
-import { BusinessTag, FieldTag, ImpactBadge } from "@/components/reader/labels";
+import { SignalTag, FieldTag, ImpactBadge } from "@/components/reader/labels";
 import { formatNumber, formatRelative, REGION_LABEL } from "@/lib/format";
 import type { ReaderItem } from "@/lib/reader-types";
 
@@ -18,9 +18,7 @@ export function StoryRow({ item, now }: { item: ReaderItem; now?: Date }) {
     <article className="grid gap-1.5 border-b py-4 [content-visibility:auto] [contain-intrinsic-size:auto_140px]">
       <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
         <FieldTag field={item.field} />
-        {item.businesses.map((business) => (
-          <BusinessTag key={business} business={business} />
-        ))}
+        <SignalTag signal={item.signal_type} />
         <TrackBadge track={item.track} />
         <span className="truncate">{item.source_name}</span>
         <time className="ml-auto shrink-0" dateTime={item.first_seen_at}>

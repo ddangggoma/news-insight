@@ -14,9 +14,9 @@ const item: ReaderItem = {
   title_ko: "에이전트 기능을 OS 계층으로",
   summary_ko: ["여러 제조사가 발표했습니다.", "권한 모델도 바뀝니다."],
   keywords: ["에이전트 OS", "AI"],
-  field: "ai_data",
-  themes: ["ai_data__ai_agents"],
-  businesses: ["mx", "da"],
+  field: "ai",
+  themes: ["ai__ai_agents"],
+  signal_type: "research",
   impact: "opportunity",
   scope: "dx",
   relevance: 88,
@@ -33,8 +33,8 @@ describe("StoryRow", () => {
   it("links the Korean title to the article and shows its classification and coverage", () => {
     render(<StoryRow item={item} now={new Date("2026-10-04T03:00:00Z")} />);
     expect(screen.getByRole("link", { name: "에이전트 기능을 OS 계층으로" })).toHaveAttribute("href", "/items/42");
-    expect(screen.getByText("AI·데이터")).toBeInTheDocument();
-    expect(screen.getByText("MX")).toHaveAttribute("title", "MX · 모바일·온디바이스 AI");
+    expect(screen.getByText("AI 모델·에이전트")).toBeInTheDocument();
+    expect(screen.getByText("연구·논문")).toBeInTheDocument();
     expect(screen.getByText("기회")).toBeInTheDocument();
     expect(screen.getByText("관련 보도 3건 · 매체 2곳")).toBeInTheDocument();
     expect(screen.getByText("★ 2,312")).toBeInTheDocument();
@@ -52,8 +52,8 @@ describe("InsightPanel", () => {
       { key: "oled", label: "OLED", count: 2, previous: 4, change: -50, is_new: false },
     ],
     related_keywords: ["번인"],
-    fields: [{ key: "ai_data", count: 6 }],
-    businesses: [{ key: "mx", count: 5 }],
+    fields: [{ key: "ai", count: 6 }],
+    signal_types: [{ key: "research", count: 5 }],
     impacts: [{ key: "opportunity", count: 7 }, { key: "risk", count: 3 }],
   };
 

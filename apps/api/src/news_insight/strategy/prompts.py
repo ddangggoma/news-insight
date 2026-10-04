@@ -16,8 +16,8 @@ PERSONA_INSTRUCTION = (
     "headline·insight·actions(1~3개)·item_ids를, 근거가 부족하면 status=no_signal을 낸다. 모든 key를 빠짐없이 돌려준다.\n"
 )
 WRITER_INSTRUCTION = (
-    "오늘의 데일리 DX 전략 보고서를 쓴다: summary(경영진 요약), businesses(mx·vd·da·networks·health·harman 중 "
-    "신호가 있는 사업부별 summary와 claims), roadmap(1y·3y·5y 시사점), opportunities, risks. 모든 claim은 "
+    "오늘의 데일리 DX 전략 보고서를 쓴다: summary(경영진 요약), fields(신호가 있는 기술 분야 키별 summary와 "
+    "claims — 입력 기사의 field 값 중에서 고른다), roadmap(1y·3y·5y 시사점), opportunities, risks. 모든 claim은 "
     "서로 다른 story 2건 이상의 item_ids를 단다."
 )
 REVIEWER_INSTRUCTION = (

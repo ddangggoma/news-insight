@@ -13,7 +13,7 @@ pytestmark = pytest.mark.db
 
 def published(db_session: Session) -> Briefing:
     seed(db_session)
-    db_session.execute(update(ItemCard).values(field="ai_data", impact="opportunity"))
+    db_session.execute(update(ItemCard).values(field="ai", impact="opportunity"))
     briefing = publish(
         db_session,
         briefing_date=DAY,
@@ -46,7 +46,7 @@ def test_latest_briefing_by_track(
     assert body["briefing_date"] == str(DAY) and body["headline"] == "헤드라인"
     assert [s["track"] for s in body["sections"]] == ["news", "research_ip", "oss", "community"]
     item = body["sections"][0]["items"][0]
-    assert item["field"] == "ai_data" and "source_key" not in item and "engine" not in item
+    assert item["field"] == "ai" and "source_key" not in item and "engine" not in item
     assert body["gates_passed"] == body["gates_total"] > 0
     assert {ref["id"] for ref in body["refs"]} >= set(body["insights"][0]["item_ids"])
     assert body["previous_date"] is None and body["next_date"] is None

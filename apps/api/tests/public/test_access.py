@@ -28,21 +28,15 @@ def test_public_api_is_closed_without_a_configured_key(unconfigured_client: Test
     assert response.status_code == 503
 
 
-def test_taxonomy_lists_p4_axes(public_client: TestClient, public_headers: dict[str, str]) -> None:
+def test_taxonomy_lists_v2_axes(public_client: TestClient, public_headers: dict[str, str]) -> None:
     body = public_client.get("/api/public/taxonomy", headers=public_headers).json()
     assert body["revision"]
-    assert len(body["fields"]) == 15
-    assert all(len(field["themes"]) == 5 for field in body["fields"])
-    assert body["fields"][0]["key"] == "ai_data"
-    assert body["fields"][0]["themes"][0]["key"].startswith("ai_data__")
-    assert [node["key"] for node in body["businesses"]] == [
-        "mx",
-        "vd",
-        "da",
-        "networks",
-        "health",
-        "harman",
-    ]
+    assert len(body["fields"]) == 12
+    assert all(4 <= len(field["themes"]) <= 7 for field in body["fields"])
+    assert body["fields"][0]["key"] == "ai"
+    assert body["fields"][0]["themes"][0]["key"].startswith("ai__")
+    assert [node["key"] for node in body["signal_types"]][:3] == ["research", "launch", "standard"]
+    assert "businesses" not in body
     assert [node["key"] for node in body["impacts"]] == ["opportunity", "risk", "watch"]
     assert [node["key"] for node in body["scopes"]][:2] == ["dx", "dx_dependency"]
 

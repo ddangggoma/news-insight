@@ -37,11 +37,11 @@ from news_insight.public.schemas import (
     TopicDetail,
 )
 from news_insight.taxonomy.catalog import (
-    BUSINESSES,
     FIELD_KEYS,
     FIELDS,
     IMPACTS,
     SCOPES,
+    SIGNAL_TYPES,
     TAXONOMY_REVISION,
     THEME_KEYS,
     Node,
@@ -70,7 +70,7 @@ def reader_filters(
     q: str | None = None,
     field: Values = None,
     theme: Values = None,
-    business: Values = None,
+    signal: Values = None,
     impact: Values = None,
     track: Values = None,
     region: Values = None,
@@ -81,7 +81,7 @@ def reader_filters(
             q=q,
             field=field,
             theme=theme,
-            business=business,
+            signal=signal,
             impact=impact,
             track=track,
             region=region,
@@ -113,7 +113,7 @@ def get_taxonomy() -> TaxonomyOut:
             TaxonomyField(key=field.key, label=field.name, themes=_nodes(field.themes))
             for field in FIELDS
         ],
-        businesses=_nodes(BUSINESSES),
+        signal_types=_nodes(SIGNAL_TYPES),
         impacts=_nodes(IMPACTS),
         scopes=_nodes(SCOPES),
     )

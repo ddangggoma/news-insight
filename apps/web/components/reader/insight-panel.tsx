@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import type { Insights } from "@/lib/reader-types";
 import { type ReaderFilters, setHref } from "@/lib/reader-filters";
-import { BUSINESS_LABEL, FIELD_LABEL, IMPACT_LABEL } from "@/lib/taxonomy";
+import { FIELD_LABEL, IMPACT_LABEL, SIGNAL_LABEL } from "@/lib/taxonomy";
 import { formatNumber } from "@/lib/format";
 
 const IMPACT_COLOR: Record<string, string> = {
@@ -73,8 +73,8 @@ export function InsightPanel({ insights, filters }: { insights: Insights; filter
         <Share rows={insights.fields} labels={FIELD_LABEL} total={insights.total} />
       </section>
       <section>
-        <h2 className="mb-2 text-sm font-bold">DX 사업부</h2>
-        <Share rows={insights.businesses} labels={BUSINESS_LABEL} total={insights.total} />
+        <h2 className="mb-2 text-sm font-bold">신호 유형</h2>
+        <Share rows={insights.signal_types} labels={SIGNAL_LABEL} total={insights.total} />
       </section>
       <section>
         <h2 className="mb-2 text-sm font-bold">영향 분포</h2>

@@ -129,7 +129,8 @@ def classify_input(item: Item, card: ItemCard) -> ClassifyInput:
 
 
 def _apply_classification(card: ItemCard, draft: Classification) -> None:
-    card.field, card.themes, card.businesses = draft.field, draft.themes, draft.businesses
+    card.field, card.themes, card.signal_type = draft.field, draft.themes, draft.signal_type
+    card.businesses = []  # taxonomy v2 has no business axis (column dropped after reclassification)
     card.impact, card.scope, card.relevance = draft.impact, draft.scope, draft.relevance
     card.topic_candidates = draft.topic_candidates
     card.taxonomy_revision = TAXONOMY_REVISION
@@ -147,7 +148,7 @@ def store_classification(
         return True
     card.classify_attempts += 1
     if card.classify_attempts >= MAX_CLASSIFY_ATTEMPTS:
-        card.field, card.themes, card.businesses = None, [], []
+        card.field, card.themes, card.signal_type = None, [], None
         card.impact, card.topic_candidates = None, []
         card.taxonomy_revision = TAXONOMY_REVISION
         card.classify_attempts = 0
@@ -320,7 +321,9 @@ def _plan_round(
     batch = policy.agy_batch if use_agy else policy.qwen_batch
     classify_batch = policy.classify_batch if use_agy else policy.qwen_classify_batch
     with open_session() as session:
-        stale = classify_pending_items(session, limit=classify_batch, exclude=classify_attempted)
+        stale = classify_pending_items(
+            session, limit=classify_batch * lanes, exclude=classify_attempted
+        )
         # keep one lane for reclassification while new items also wait (Antigravity only)
         card_lanes = lanes - 1 if stale and lanes > 1 else lanes
         inputs = [
@@ -328,8 +331,15 @@ def _plan_round(
             for item, source in pending_items(session, limit=batch * card_lanes, exclude=attempted)
         ]
         jobs = [Job("card", inputs[i : i + batch]) for i in range(0, len(inputs), batch)]
-        if stale and (lanes > 1 or not jobs):
-            jobs.append(Job("classify", [classify_input(item, card) for item, card in stale]))
+        stale_inputs = [classify_input(item, card) for item, card in stale]
+        if stale_inputs and not jobs:
+            # nothing new to card: every lane reclassifies (a taxonomy revision lands fast)
+            jobs = [
+                Job("classify", stale_inputs[i : i + classify_batch])
+                for i in range(0, len(stale_inputs), classify_batch)
+            ]
+        elif stale_inputs and lanes > 1:
+            jobs.append(Job("classify", stale_inputs[:classify_batch]))
     attempted.update(entry.id for entry in inputs)  # retries wait for the next run
     for job in jobs:
         if job.kind == "classify":

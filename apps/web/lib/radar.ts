@@ -2,7 +2,7 @@ import { withQuery } from "@/lib/query";
 import type { Scope } from "@/lib/reader-filters";
 import type { Radar, RadarKind, Topic, TopicKind, TopicState, TrackMix } from "@/lib/reader-types";
 import type { Region } from "@/lib/types";
-import { BUSINESS_LABEL, FIELD_LABEL, THEME_LABEL } from "@/lib/taxonomy";
+import { FIELD_LABEL, SIGNAL_LABEL, THEME_LABEL } from "@/lib/taxonomy";
 
 export const RADAR_KINDS: Record<RadarKind, string> = { day: "일간", week: "주간", month: "월간", quarter: "분기" };
 
@@ -28,7 +28,7 @@ export type Focus = { kind: TopicKind; key: string };
 
 export type RadarView = {
   scope: Scope;
-  business: string[];
+  signal: string[];
   field: string | null;
   focus: Focus | null;
 };
@@ -56,15 +56,15 @@ export function sameFocus(a: Focus | null, b: Focus | null): boolean {
 export function radarHref(kind: string, key: string, view: Partial<RadarView>): string {
   return withQuery(`/radar/${kind}/${key}`, {
     scope: view.scope && view.scope !== "relevant" ? view.scope : undefined,
-    business: view.business?.length ? view.business : undefined,
+    signal: view.signal?.length ? view.signal : undefined,
     field: view.field ?? undefined,
     focus: view.focus ? focusParam(view.focus) : undefined,
   });
 }
 
-/** API filters for a view: the field drill-down and DX businesses narrow every number. */
+/** API filters for a view: the field drill-down and signal types narrow every number. */
 export function radarFilters(view: RadarView): Record<string, string | string[] | undefined> {
-  return { scope: view.scope, business: view.business, field: view.field ?? undefined };
+  return { scope: view.scope, signal: view.signal, field: view.field ?? undefined };
 }
 
 // ── labels and numbers ───────────────────────────────────────────────────────────────────
@@ -75,8 +75,8 @@ export function topicLabel(kind: TopicKind, topic: Pick<Topic, "key" | "label">)
   return topic.label ?? topic.key;
 }
 
-export function businessShort(key: string): string {
-  return (BUSINESS_LABEL[key] ?? key).split(" · ")[0];
+export function signalLabel(key: string): string {
+  return SIGNAL_LABEL[key] ?? key;
 }
 
 /** Axis label for a period key: W40, 9월, Q3, 10/4. */

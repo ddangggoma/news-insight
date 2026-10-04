@@ -28,9 +28,10 @@ def _grouped(session: Session, key: Any, conditions: list[ColumnElement[bool]]) 
 def _axis_counts(
     session: Session, axis: str, conditions: list[ColumnElement[bool]]
 ) -> dict[str, int]:
-    if axis in ("theme", "business"):
-        column = ItemCard.themes if axis == "theme" else ItemCard.businesses
-        element = func.jsonb_array_elements_text(column).table_valued("value").lateral("element")
+    if axis == "theme":
+        element = (
+            func.jsonb_array_elements_text(ItemCard.themes).table_valued("value").lateral("element")
+        )
         statement = (
             joined(select(element.c.value, func.count(func.distinct(Item.id))))
             .join(element, true())
@@ -41,6 +42,7 @@ def _axis_counts(
     key: Any = {
         "field": ItemCard.field,
         "impact": ItemCard.impact,
+        "signal": ItemCard.signal_type,
         "track": Item.track,
         "region": Source.region,
     }[axis]
@@ -122,6 +124,6 @@ def insights(session: Session, filters: ReaderFilters, window: Window) -> Insigh
         keywords=[trend(key, label, count) for key, (label, count) in top],
         related_keywords=[label for key, (label, _) in ranked if key not in top_keys][:RELATED_TOP],
         fields=counts(_grouped(session, ItemCard.field, current)),
-        businesses=counts(_axis_counts(session, "business", current)),
+        signal_types=counts(_axis_counts(session, "signal", current)),
         impacts=counts(_grouped(session, ItemCard.impact, current)),
     )

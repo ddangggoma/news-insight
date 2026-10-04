@@ -38,8 +38,8 @@ def test_default_feed_is_dx_relevant_last_7_days_one_row_per_story(
     assert body["items_total"] == 4
     lead = body["items"][0]
     assert lead["title_ko"] == "[KO] Galaxy agent OS"
-    assert lead["field"] == "ai_data"
-    assert lead["businesses"] == ["mx"]
+    assert lead["field"] == "ai"
+    assert lead["signal_type"] == "launch" and "businesses" not in lead
     assert lead["story"] == {
         "id": lead["story"]["id"],
         "item_count": 2,
@@ -65,15 +65,11 @@ def test_filters_are_or_within_an_axis_and_and_across_axes(
     def pick(**params: Any) -> set[str]:
         return set(titles(feed(public_client, public_headers, **params)))
 
-    assert pick(field="display_media") == {"OLED burn-in compensation", "oled-compensation repo"}
-    assert pick(business="mx") == {"Galaxy agent OS", "oled-compensation repo"}
-    assert pick(business=["vd", "mx"]) == {
-        "Galaxy agent OS",
-        "OLED burn-in compensation",
-        "oled-compensation repo",
-    }
-    assert pick(field="display_media", business="mx") == {"oled-compensation repo"}
-    assert pick(theme="display_media__oled_microled") == {
+    assert pick(field="display_av") == {"OLED burn-in compensation", "oled-compensation repo"}
+    assert pick(signal="launch") == {"Galaxy agent OS"}
+    assert pick(signal=["research", "launch"]) == {"Galaxy agent OS", "OLED burn-in compensation"}
+    assert pick(field="display_av", signal="ecosystem") == {"oled-compensation repo"}
+    assert pick(theme="display_av__display_panel") == {
         "OLED burn-in compensation",
         "oled-compensation repo",
     }
@@ -133,8 +129,8 @@ def test_paging(
     "params",
     [
         {"field": "nope"},
-        {"theme": "ai_data__nope"},
-        {"business": "nope"},
+        {"theme": "ai__nope"},
+        {"signal": "nope"},
         {"impact": "nope"},
         {"track": "nope"},
         {"region": "nope"},

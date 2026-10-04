@@ -23,7 +23,7 @@ export interface BriefingPersona {
 
 export interface StrategyReport {
   summary: string;
-  businesses: { business: string; summary: string; claims: StrategyClaim[] }[];
+  fields: { field: string; summary: string; claims: StrategyClaim[] }[];
   roadmap: (StrategyClaim & { horizon: "1y" | "3y" | "5y" })[];
   opportunities: StrategyClaim[];
   risks: StrategyClaim[];

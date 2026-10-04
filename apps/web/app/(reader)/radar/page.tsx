@@ -12,6 +12,6 @@ export default async function RadarIndex({ searchParams }: { searchParams: Promi
   const requested = param(sp, "period") ?? "week";
   const period = isRadarKind(requested) ? requested : "week";
   const view = radarView(sp);
-  const radar = await readerGet<Radar>("/radar", { period, scope: view.scope, business: view.business, field: view.field ?? undefined }, REVALIDATE.radarOpen);
+  const radar = await readerGet<Radar>("/radar", { period, scope: view.scope, signal: view.signal, field: view.field ?? undefined }, REVALIDATE.radarOpen);
   redirect(radarHref(radar.window.kind, radar.window.key, view));
 }

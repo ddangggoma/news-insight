@@ -106,7 +106,8 @@ def build_bundle(
                             if item.summary
                             else None,
                             "metrics": metrics.get(item.id, {}),
-                            "businesses": list(card.businesses) if card is not None else [],
+                            "themes": list(card.themes) if card is not None else [],
+                            "signal_type": card.signal_type if card is not None else None,
                             "covered_by_sources": story.source_count if story is not None else 1,
                         }
                         for item, source, card, story in top

@@ -3,15 +3,15 @@ import { REGION_LABEL, TRACK_LABEL } from "@/lib/format";
 import type { QueryValue } from "@/lib/query";
 import { withQuery } from "@/lib/query";
 import type { SearchParams } from "@/lib/params";
-import { BUSINESS_LABEL, FIELD_LABEL, IMPACT_LABEL, THEME_LABEL } from "@/lib/taxonomy";
+import { FIELD_LABEL, IMPACT_LABEL, SIGNAL_LABEL, THEME_LABEL } from "@/lib/taxonomy";
 
-export const AXES = ["field", "theme", "business", "impact", "track", "region"] as const;
+export const AXES = ["field", "theme", "signal", "impact", "track", "region"] as const;
 export type Axis = (typeof AXES)[number];
 
 export const AXIS_LABELS: Record<Axis, Record<string, string>> = {
   field: FIELD_LABEL,
   theme: THEME_LABEL,
-  business: BUSINESS_LABEL,
+  signal: SIGNAL_LABEL,
   impact: IMPACT_LABEL,
   track: TRACK_LABEL,
   region: REGION_LABEL,
