@@ -93,3 +93,28 @@ def briefing_freeze_task() -> int:
 def purge_expired_task() -> int:
     with session_scope() as session:
         return purge_expired_bodies(session, datetime.now(UTC))
+
+
+def queue_length() -> int | None:
+    try:
+        length: int = get_redis().llen("celery")  # type: ignore[assignment]
+        return length
+    except Exception:  # noqa: BLE001 - an unreachable Redis is itself an alert
+        return None
+
+
+@celery_app.task(name="ops.check")
+def ops_check_task() -> dict[str, Any]:
+    from news_insight.ops.checks import run_checks
+    from news_insight.ops.service import notify, sync_alerts
+
+    now = datetime.now(UTC)
+    with session_scope() as session:
+        findings = run_checks(session, now=now, queue_length=queue_length())
+        result = sync_alerts(session, findings, now=now)
+        notify(get_settings(), result, now=now)
+        return {
+            "open": [a.key for a in result.open],
+            "opened": [a.key for a in result.opened],
+            "resolved": [a.key for a in result.resolved],
+        }

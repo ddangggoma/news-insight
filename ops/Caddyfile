@@ -24,13 +24,20 @@
 
 	# /console is guarded by the web server's magic-link session (P8).
 
+	# Next.js hydration and next-themes use inline scripts/styles; everything else is same-origin.
 	header {
+		Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+		Cross-Origin-Opener-Policy same-origin
 		X-Content-Type-Options nosniff
 		X-Frame-Options DENY
 		Referrer-Policy strict-origin-when-cross-origin
 		Permissions-Policy "camera=(), microphone=(), geolocation=()"
 		-Server
 	}
+
+	# HSTS only on a real domain: on localhost it would also force HTTPS on the dev ports.
+	@public_domain not host localhost 127.0.0.1
+	header @public_domain Strict-Transport-Security "max-age=31536000; includeSubDomains"
 
 	handle /api/* {
 		reverse_proxy api:8000

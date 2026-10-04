@@ -1,17 +1,21 @@
 import type { ReactNode } from "react";
 
 import { logout } from "@/app/login/actions";
+import { AlertBanner } from "@/components/console/alert-banner";
 import { AppSidebar } from "@/components/console/app-sidebar";
 import { ThemeToggle } from "@/components/console/theme-toggle";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { api } from "@/lib/api";
 import { requireAdmin } from "@/lib/session";
+import type { AlertOut } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
 export default async function ConsoleLayout({ children }: { children: ReactNode }) {
   const admin = await requireAdmin();
+  const alerts = await api.get<AlertOut[]>("/api/admin/alerts", { limit: 20 }).catch(() => []);
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -30,6 +34,7 @@ export default async function ConsoleLayout({ children }: { children: ReactNode 
             <ThemeToggle />
           </div>
         </header>
+        <AlertBanner alerts={alerts} />
         <main className="mx-auto w-full max-w-7xl flex-1 space-y-6 p-4 md:p-6">{children}</main>
       </SidebarInset>
     </SidebarProvider>

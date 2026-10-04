@@ -81,6 +81,8 @@ digest_app = typer.Typer(
     help="Daily digest generated with the Claude CLI (05:00 KST)", no_args_is_help=True
 )
 app.add_typer(digest_app, name="digest")
+ops_app = typer.Typer(help="Operational health checks and alerts", no_args_is_help=True)
+app.add_typer(ops_app, name="ops")
 admin_app = typer.Typer(help="Admin magic-link login", no_args_is_help=True)
 app.add_typer(admin_app, name="admin")
 
@@ -662,3 +664,25 @@ def admin_link() -> None:
         typer.echo("too many login links in the last 15 minutes; try again later", err=True)
         raise typer.Exit(1)
     typer.echo(login_url(settings, issued.token))
+
+
+@ops_app.command("check")
+def ops_check(
+    apply: Annotated[bool, typer.Option(help="Record alert episodes and send e-mail")] = False,
+) -> None:
+    """Run the health checks (publication SLA, collection, queue, cards) and list findings."""
+    from news_insight.jobs.tasks import queue_length
+    from news_insight.ops.checks import run_checks
+    from news_insight.ops.service import notify, sync_alerts
+
+    now = datetime.now(UTC)
+    with session_scope() as session:
+        findings = run_checks(session, now=now, queue_length=queue_length())
+        if apply:
+            notify(get_settings(), sync_alerts(session, findings, now=now), now=now)
+    if not findings:
+        typer.echo("all checks passed")
+    for finding in findings:
+        typer.echo(f"[{finding.severity.value}] {finding.key}: {finding.title}")
+        if finding.detail:
+            typer.echo(f"    {finding.detail}")

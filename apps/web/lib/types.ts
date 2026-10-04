@@ -370,3 +370,15 @@ export interface StrategyOut {
   cost_usd: number | null;
   items: DigestOut["items"];
 }
+
+export interface AlertOut {
+  id: number;
+  key: string;
+  severity: "critical" | "warning" | "info";
+  title: string;
+  detail: string;
+  opened_at: string;
+  last_seen_at: string;
+  resolved_at: string | null;
+  notified_at: string | null;
+}
