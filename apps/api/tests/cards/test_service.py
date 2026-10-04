@@ -20,12 +20,12 @@ from news_insight.cards.service import (
     pending_items,
     run_cards,
 )
-from news_insight.taxonomy.catalog import TAXONOMY_REVISION
 from news_insight.collect.contracts import RawItem
 from news_insight.content.ingest import ingest_items
 from news_insight.content.models import Item
 from news_insight.sources.enums import StorageRight
 from news_insight.sources.models import Source
+from news_insight.taxonomy.catalog import TAXONOMY_REVISION
 from tests.factories import build_source
 
 pytestmark = pytest.mark.db

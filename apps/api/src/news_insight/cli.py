@@ -541,7 +541,8 @@ def cards_run(
         record_run(session_scope, started, stats)
     batches = " ".join(f"{name}={count}" for name, count in sorted(stats.batches.items()))
     typer.echo(
-        f"ready={stats.ready} failed={stats.failed} batches: {batches or '-'} "
+        f"ready={stats.ready} failed={stats.failed} classified={stats.classified} "
+        f"batches: {batches or '-'} "
         f"quota={stats.quota or '-'}"
     )
     for note in stats.notes:
@@ -557,16 +558,19 @@ def cards_status() -> None:
             .tuples()
             .all()
         )
+        from news_insight.cards.service import classify_pending_count
+
         pending = pending_count(session)
+        reclassify = classify_pending_count(session)
         last = session.scalars(select(CardRun).order_by(CardRun.id.desc()).limit(1)).first()
         line = (
-            f"pending={pending} ready={counts.get(CardStatus.READY, 0)} "
+            f"pending={pending} reclassify={reclassify} ready={counts.get(CardStatus.READY, 0)} "
             f"failed={counts.get(CardStatus.FAILED, 0)}"
         )
         if last is not None:
             line += (
                 f"\nlast run {_kst(last.started_at)}: ready={last.ready} failed={last.failed} "
-                f"batches={last.batches} quota={last.quota}"
+                f"classified={last.classified} batches={last.batches} quota={last.quota}"
             )
     typer.echo(line)
 

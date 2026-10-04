@@ -105,3 +105,17 @@ P9 완료 기준은 7일 연속 05:00 발행 성공(또는 Fail-safe 정상 동�
   - 웹은 공개 API의 스키마 해시(`/api/public/version`, 30초 캐시)를 모든 캐시 키에 넣습니다. 응답 모양이 바뀌면 옛 JSON을 쓰지 않습니다.
   - `scripts/release.sh`는 배포 뒤 웹의 `/internal/revalidate`(콘솔 키 필요, Caddy가 외부에는 404)를 호출해 독자 캐시를 비웁니다.
 - **E2E 브라우저**: 기본은 시스템 Chrome입니다. 컨테이너처럼 Chrome이 없는 곳에서는 `E2E_BROWSER_CHANNEL= npx playwright install chromium && E2E_BROWSER_CHANNEL= scripts/dev.sh web-e2e`로 돌립니다.
+
+## 11. 운영 트리와 개발 트리 분리 (2026-10-04)
+
+- 운영은 `/Users/ggoma/WorkSpace/NEWS_INSIGHT-live`에서 합니다. 이 트리는 `origin/main`에 고정된 git worktree이고 `.env`는 개발 트리의 파일을 가리키는 심볼릭 링크입니다.
+  - launchd 카드(10분)·다이제스트(05:00) 작업은 이 트리에서 돌고, 로그는 `NEWS_INSIGHT-live/ops/logs/`에 남습니다.
+  - 배포도 이 트리에서 `docker compose up -d --build`(또는 `scripts/release.sh`)로 합니다.
+- 새 main을 반영하는 순서:
+  ```bash
+  cd /Users/ggoma/WorkSpace/NEWS_INSIGHT-live && git fetch -q origin && git checkout -q --detach origin/main
+  docker compose up -d --build
+  ```
+  마이그레이션은 compose의 migrate 서비스가 실행합니다.
+- 개발 트리(`NEWS_INSIGHT`)에서는 어떤 브랜치를 체크아웃해도 운영 작업에 영향이 없습니다.
+- `scripts/dev.sh verify`는 더 이상 운영 DB를 마이그레이션하지 않습니다. 마이그레이션 검사는 임시 DB(`news_insight_check`)에서 합니다.
