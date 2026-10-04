@@ -1,7 +1,9 @@
 # 웹 리디자인 & 기간별 인사이트 분석 — 계획안
 
-> **상태:** 제안 (시안 선택 대기). 코드 변경 없음.
+> **상태:** R1·R2 진행 중, 시안 선택 대기.
 > **시안 페이지:** https://claude.ai/artifact/7PDUTUyp4HVMQZ1dVMzVLo (데스크톱·태블릿·모바일 폭 전환, 예시 데이터)
+> **HTML 시안 (예시 데이터, 브라우저로 바로 열기):** [`docs/design/mockups/mockup-a-briefing.html`](../../design/mockups/mockup-a-briefing.html), [`mockup-b-explore.html`](../../design/mockups/mockup-b-explore.html), [`mockup-c-radar.html`](../../design/mockups/mockup-c-radar.html)
+> **분류 선택 위자드:** https://claude.ai/artifact/3fEunMiBCX6wjmSJkHLMP9
 > **관련 로드맵:** P4(분류), P7(전략 보고서), P8(독자 웹) — [`2026-10-03-00-roadmap.md`](2026-10-03-00-roadmap.md)
 
 ## 0. 확정한 방향 (2026-10-04)
@@ -12,6 +14,9 @@
 | 탐색 축 | 기술 분야 15 × 제품군 11 (2축), 보조 축은 트랙·지역·영향(기회·위험·관찰) |
 | 분석 주기 | 일간·주간·월간·분기 리포트와 롤업 지표 |
 | 기준 화면 | 데스크톱 우선, 모바일은 탭·시트로 접기 |
+| 공개 범위 | 독자 웹은 로그인 없이 공개 (관리 영역만 보호) |
+| 리포트 생성 | 주·월·분기 리포트도 호스트 Claude CLI로 작성 (성능 우선) |
+| 착수 | R1(토큰)과 R2(분류)를 병렬 진행 |
 
 ## 1. 현황 진단
 
@@ -70,12 +75,13 @@
 /admin/*                   현 /console 이전
 ```
 
-**기술 분야 15 (초안):** 온디바이스 AI·모델(AI), 디스플레이(DSP), 통신·네트워크(NET), 칩셋·부품(CHIP), 카메라·센서(CAM), 배터리·전력(PWR), 로보틱스(ROB), XR·공간 컴퓨팅(XR), 헬스·바이오센싱(HLT), 보안·프라이버시(SEC), OS·플랫폼(OS), 클라우드·엣지(CLD), 모빌리티·SDV(MOB), 소재·지속가능성(MAT), 정책·규제·표준(POL)
+**분류 체계 v1 (위자드로 확정, 2026-10-04)** — 원본은 `apps/api/catalog/taxonomy.yaml`
 
-**제품군 11 (초안):** 스마트폰, 폴더블, 태블릿·PC, 웨어러블, TV·모니터, 생활가전, 홈로봇·IoT, XR 기기, 네트워크 장비, 전장, 의료기기
-
-- 기사당 분야 최대 2개, 제품군 0~2개, 영향 1개
-- 반도체 자산 투자 기사는 기존 규칙대로 제외, 완제품에 영향을 주는 부품 이슈만 CHIP
+- **기술 분야 23:** 온디바이스 AI·모델(ai), 디스플레이(display), 통신·네트워크(network), 칩셋·부품(chipset), 카메라·센서(camera), 배터리·전력(power), 로보틱스(robotics), XR·공간 컴퓨팅(xr), 헬스·바이오센싱(health), 보안·프라이버시(security), OS·플랫폼(platform), 클라우드·엣지(cloud), 모빌리티·SDV(mobility), 소재·지속가능성(materials), 정책·규제·표준(policy), 오디오·음향(audio), 스마트홈 연결(smarthome), 생성형 AI 서비스(genai_service), 개발 도구·SDK(devtools), 결제·디지털 지갑(commerce), 에너지 관리(energy), 스마트 제조(manufacturing), 양자 기술(quantum)
+- **제품군 18:** 스마트폰(phone), 폴더블(foldable), 태블릿·PC(tablet_pc), 웨어러블(wearable), TV·모니터(tv_monitor), 생활가전(appliance), 홈로봇·IoT(home_robot_iot), XR 기기(xr_device), 네트워크 장비(network_equipment), 전장(automotive), 의료기기(medical_device), 이어버드·오디오(earbuds_audio), 스마트 스피커·허브(smart_speaker), 상업용 디스플레이(signage), 공조·HVAC(hvac), 가정용 에너지 기기(home_energy), PC 주변기기(pc_peripheral), 카메라·드론(camera_drone)
+- **규칙:** 기사당 분야 최대 3개, 제품군 0~3개, 영향 1개(기회·위험·관찰). 사업부 축은 따로 두지 않음
+- 겹치는 항목(ai↔genai_service, platform↔smarthome, power↔energy, wearable↔earbuds_audio, appliance↔hvac, tv_monitor↔signage)은 노드 설명에 경계를 적어 분류 프롬프트에 넣음
+- 반도체 자산 투자 기사는 기존 규칙대로 제외, 스마트 제조도 설비 투자 기사는 제외
 
 ## 4. 시안 3종
 
@@ -165,10 +171,12 @@
 
 각 단계는 착수 시점에 TDD 단위 상세 계획을 별도로 작성합니다.
 
-## 7. 결정할 것
+## 7. 결정 현황
 
-1. 시안 선택 — A·B·C 중 하나, 또는 추천 조합(홈 A, 탐색 B, 리포트 C)
-2. 분류 체계 확정 — 분야 15·제품군 11 초안의 가감, 사업부 축을 별도로 둘지
-3. 공개 범위 — 독자 웹을 로그인 없이 공개할지(P8 기준은 공개)
-4. 리포트 생성 모델 — 주·월·분기 리포트를 호스트 Claude CLI로 쓸지, 로컬 Qwen으로 쓸지(D1은 P7에서 외부 LLM 미사용)
-5. 착수 순서 — R1(토큰)부터 반영할지, R2(분류)부터 시작할지
+| 항목 | 결정 |
+|---|---|
+| 시안 선택 | 대기 — HTML 시안을 보고 결정 |
+| 분류 체계 | 확정 — 분야 23, 제품군 18, 기사당 최대 3·3 (3장) |
+| 공개 범위 | 로그인 없이 공개 |
+| 리포트 생성 모델 | 호스트 Claude CLI (P7의 D1 "외부 LLM 미사용"과 다르므로 P7 착수 시 결정 기록 갱신 필요) |
+| 착수 순서 | R1·R2 병렬 |

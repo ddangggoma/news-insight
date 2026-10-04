@@ -1,0 +1,544 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>시안 C · 토픽 레이더형 — DX 인텔리전스</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+/* 공통 토큰: 시안 A·B·C가 함께 쓰는 디자인 시스템 초안 (계획서 02장) */
+:root {
+  --bg: oklch(0.985 0.003 250);
+  --surface: oklch(1 0 0);
+  --surface-2: oklch(0.965 0.006 250);
+  --line: oklch(0.91 0.008 250);
+  --ink: oklch(0.22 0.02 255);
+  --ink-2: oklch(0.38 0.02 255);
+  --ink-3: oklch(0.5 0.015 255);
+  --accent: oklch(0.5 0.13 250);
+  --accent-soft: oklch(0.95 0.03 250);
+  --on-accent: oklch(0.99 0 0);
+  --up: oklch(0.5 0.13 155);
+  --down: oklch(0.55 0.18 25);
+  --warn: oklch(0.58 0.13 70);
+  --t-news: oklch(0.52 0.13 250);
+  --t-community: oklch(0.56 0.15 50);
+  --t-research: oklch(0.5 0.14 300);
+  --t-oss: oklch(0.5 0.12 160);
+  --heat: oklch(0.66 0.17 45);
+  --heat-soft: oklch(0.965 0.03 60);
+  --heat-ink: oklch(0.47 0.14 40);
+  --heat-hot-ink: oklch(0.2 0.03 40);
+  --overlay: oklch(0.2 0.02 255 / 0.4);
+  --shadow: 0 1px 2px oklch(0.2 0.02 255 / 0.06), 0 10px 30px oklch(0.2 0.02 255 / 0.08);
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", "JetBrains Mono", Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: oklch(0.17 0.01 255); --surface: oklch(0.21 0.012 255); --surface-2: oklch(0.25 0.014 255);
+    --line: oklch(0.32 0.014 255); --ink: oklch(0.95 0.005 255); --ink-2: oklch(0.83 0.01 255); --ink-3: oklch(0.7 0.012 255);
+    --accent: oklch(0.74 0.12 250); --accent-soft: oklch(0.3 0.05 250); --on-accent: oklch(0.18 0.02 255);
+    --up: oklch(0.76 0.14 155); --down: oklch(0.73 0.15 25); --warn: oklch(0.8 0.13 80);
+    --t-news: oklch(0.74 0.12 250); --t-community: oklch(0.77 0.13 55); --t-research: oklch(0.75 0.12 300); --t-oss: oklch(0.76 0.12 160);
+    --heat: oklch(0.74 0.15 50); --heat-soft: oklch(0.29 0.05 50); --heat-ink: oklch(0.82 0.12 55); --heat-hot-ink: oklch(0.17 0.02 40);
+    --overlay: oklch(0 0 0 / 0.55);
+    --shadow: 0 1px 0 oklch(1 0 0 / 0.04), 0 10px 30px oklch(0 0 0 / 0.4);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: oklch(0.17 0.01 255); --surface: oklch(0.21 0.012 255); --surface-2: oklch(0.25 0.014 255);
+  --line: oklch(0.32 0.014 255); --ink: oklch(0.95 0.005 255); --ink-2: oklch(0.83 0.01 255); --ink-3: oklch(0.7 0.012 255);
+  --accent: oklch(0.74 0.12 250); --accent-soft: oklch(0.3 0.05 250); --on-accent: oklch(0.18 0.02 255);
+  --up: oklch(0.76 0.14 155); --down: oklch(0.73 0.15 25); --warn: oklch(0.8 0.13 80);
+  --t-news: oklch(0.74 0.12 250); --t-community: oklch(0.77 0.13 55); --t-research: oklch(0.75 0.12 300); --t-oss: oklch(0.76 0.12 160);
+  --heat: oklch(0.74 0.15 50); --heat-soft: oklch(0.29 0.05 50); --heat-ink: oklch(0.82 0.12 55); --heat-hot-ink: oklch(0.17 0.02 40);
+  --overlay: oklch(0 0 0 / 0.55);
+  --shadow: 0 1px 0 oklch(1 0 0 / 0.04), 0 10px 30px oklch(0 0 0 / 0.4);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-sans); font-size: 15px; line-height: 1.65; word-break: keep-all; overflow-wrap: anywhere; -webkit-font-smoothing: antialiased; }
+h1, h2, h3, h4, h5 { margin: 0; line-height: 1.35; text-wrap: balance; }
+p { margin: 0; text-wrap: pretty; }
+a { color: inherit; }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
+.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.up { color: var(--up); } .down { color: var(--down); } .muted { color: var(--ink-3); }
+
+/* 상단 고정 바 */
+.demo-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 6px 16px; font-size: 12.5px; background: var(--heat-soft); color: var(--heat-ink); border-bottom: 1px solid var(--line); }
+.demo-bar b { font-weight: 700; }
+.demo-bar nav { display: flex; gap: 4px; margin-left: auto; flex-wrap: wrap; }
+.demo-bar nav a { text-decoration: none; padding: 2px 9px; border-radius: 6px; color: var(--ink-2); }
+.demo-bar nav a[aria-current="page"] { background: var(--surface); color: var(--ink); font-weight: 600; }
+
+.app-head { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 10px 20px; background: color-mix(in oklab, var(--surface) 90%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.brand { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 16px; white-space: nowrap; text-decoration: none; color: var(--ink); }
+.logo { width: 26px; height: 26px; border-radius: 7px; display: grid; place-items: center; background: var(--accent); color: var(--on-accent); font-size: 12px; font-weight: 800; }
+.spacer { flex: 1; }
+.seg { display: inline-flex; background: var(--surface-2); border-radius: 9px; padding: 3px; gap: 2px; }
+.seg button { border: 0; background: transparent; color: var(--ink-2); font-size: 13.5px; padding: 5px 12px; border-radius: 7px; white-space: nowrap; }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); font-weight: 600; box-shadow: 0 1px 2px oklch(0.2 0.02 255 / 0.14); }
+.icon-btn { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 5px 10px; font-size: 13px; color: var(--ink-2); white-space: nowrap; }
+.icon-btn:hover { color: var(--ink); }
+.head-link { font-size: 13.5px; color: var(--ink-2); text-decoration: none; white-space: nowrap; }
+.head-link:hover { color: var(--ink); }
+
+/* 태그 · 영향 · 트랙 */
+.tag { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 500; padding: 1px 8px; border-radius: 6px; white-space: nowrap; line-height: 1.7; }
+.tag.field { color: var(--ink-2); background: var(--surface-2); border: 1px solid var(--line); }
+.tag.product { color: var(--ink-2); border: 1px dashed var(--line); }
+.dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; flex: none; }
+.d-news { background: var(--t-news); } .d-community { background: var(--t-community); } .d-research { background: var(--t-research); } .d-oss { background: var(--t-oss); }
+.impact { font-size: 11.5px; font-weight: 600; padding: 1px 8px; border-radius: 999px; white-space: nowrap; }
+.i-opp { color: var(--up); background: color-mix(in oklab, var(--up) 13%, transparent); }
+.i-risk { color: var(--down); background: color-mix(in oklab, var(--down) 12%, transparent); }
+.i-watch { color: var(--ink-2); background: var(--surface-2); }
+.new-badge { font-size: 10.5px; font-weight: 700; color: var(--heat-ink); background: var(--heat-soft); padding: 0 5px; border-radius: 4px; margin-left: 4px; }
+.kwchips { display: flex; flex-wrap: wrap; gap: 6px; }
+.kwchips span, .kwchips button { font-size: 12.5px; padding: 2px 9px; border-radius: 6px; background: var(--surface-2); color: var(--ink-2); border: 0; }
+.kwchips .hot { background: var(--heat-soft); color: var(--heat-ink); font-weight: 600; }
+.spark { display: block; overflow: visible; }
+
+/* 기사 상세 시트 (B·C 공용) */
+.sheet-backdrop { position: fixed; inset: 0; background: var(--overlay); z-index: 50; }
+.sheet { position: fixed; z-index: 60; top: 0; right: 0; bottom: 0; width: min(520px, 100%); background: var(--surface); box-shadow: var(--shadow); padding: 22px 24px 32px; overflow-y: auto; display: grid; gap: 14px; align-content: start; }
+.sheet h2 { font-size: 21px; font-weight: 700; line-height: 1.4; }
+.sheet .orig { font-size: 13px; color: var(--ink-3); }
+.sheet ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; color: var(--ink); font-size: 15.5px; line-height: 1.75; }
+.sheet .meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 12.5px; color: var(--ink-3); }
+.sheet h4 { font-size: 13px; color: var(--ink-3); font-weight: 600; margin-top: 6px; }
+.sheet .related { display: grid; gap: 8px; }
+.sheet .related button { text-align: left; border: 1px solid var(--line); background: var(--bg); border-radius: 8px; padding: 9px 12px; font-size: 14px; line-height: 1.45; }
+.sheet .close { justify-self: end; }
+.sheet .src-link { font-size: 13.5px; color: var(--accent); }
+
+/* 시안 C: KPI 띠 / 히트맵 + 상세 / 모멘텀·하이프 지도 / 키워드 수명주기 */
+.logo { background: var(--heat); color: var(--heat-hot-ink); }
+.seg button[aria-pressed="true"] { color: var(--heat-ink); }
+.range { font-size: 13.5px; color: var(--ink-2); white-space: nowrap; }
+.wrap { max-width: 1440px; margin-inline: auto; padding: 20px 24px 60px; display: grid; gap: 18px; }
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 2px; }
+.kpi span { font-size: 12.5px; color: var(--ink-3); }
+.kpi b { font-size: 24px; font-weight: 600; line-height: 1.3; }
+.kpi b.txt { font-size: 18px; }
+.kpi small { font-size: 12.5px; color: var(--ink-3); }
+.box { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; display: grid; gap: 12px; min-width: 0; align-content: start; }
+.box-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.box-head h2 { font-size: 15.5px; font-weight: 700; }
+.box-head span { font-size: 12.5px; color: var(--ink-3); }
+.main { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(320px, 1fr); gap: 18px; align-items: start; }
+.heat-wrap { overflow-x: auto; }
+table.heat { border-collapse: separate; border-spacing: 3px; width: 100%; font-size: 12px; }
+.heat th { font-weight: 500; color: var(--ink-3); font-size: 12px; padding: 2px 4px; white-space: nowrap; }
+.heat thead th { text-align: center; vertical-align: bottom; }
+.heat tbody th { text-align: right; color: var(--ink-2); position: sticky; left: 0; background: var(--surface); z-index: 1; }
+.heat td { padding: 0; min-width: 52px; }
+.heat button { width: 100%; height: 40px; border: 0; border-radius: 6px; display: grid; place-items: center; line-height: 1.1; font-family: var(--font-mono); font-size: 12px; color: var(--ink-2);
+  background: color-mix(in oklab, var(--heat) calc(var(--v) * 1%), var(--surface-2)); }
+.heat button.hot { color: var(--heat-hot-ink); font-weight: 600; }
+.heat button small { font-size: 10px; }
+.heat button[aria-pressed="true"] { outline: 2px solid var(--ink); outline-offset: 1px; }
+.heat button:hover { filter: brightness(0.96); }
+.legend { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ink-3); flex-wrap: wrap; }
+.legend i { height: 8px; flex: 0 0 120px; border-radius: 4px; background: linear-gradient(90deg, var(--surface-2), var(--heat)); }
+.toggle { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 4px 10px; font-size: 12.5px; color: var(--ink-2); }
+.detail { position: sticky; top: 76px; }
+.detail h3 { font-size: 19px; font-weight: 700; }
+.detail .sub { font-size: 12.5px; color: var(--ink-3); }
+.detail .block { display: grid; gap: 6px; }
+.chain { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 12.5px; color: var(--ink-2); }
+.chain b { font-weight: 600; padding: 2px 9px; border-radius: 6px; background: var(--surface-2); }
+.arts { display: grid; gap: 6px; }
+.arts button { text-align: left; border: 1px solid var(--line); background: var(--bg); border-radius: 9px; padding: 9px 11px; display: grid; gap: 2px; font-size: 14px; line-height: 1.45; }
+.arts button:hover { border-color: var(--heat); }
+.arts button span { font-size: 12px; color: var(--ink-3); }
+.lower { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+table.mom { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.mom th { text-align: left; font-size: 12px; color: var(--ink-3); font-weight: 600; padding: 6px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.mom td { padding: 7px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.mom td.r, .mom th.r { text-align: right; }
+.mom tr:last-child td { border-bottom: 0; }
+.state { font-size: 11.5px; font-weight: 600; padding: 1px 8px; border-radius: 999px; }
+.st-new { color: var(--heat-ink); background: var(--heat-soft); }
+.st-rise { color: var(--up); background: color-mix(in oklab, var(--up) 13%, transparent); }
+.st-steady { color: var(--ink-2); background: var(--surface-2); }
+.st-fall { color: var(--down); background: color-mix(in oklab, var(--down) 12%, transparent); }
+.hype svg { width: 100%; height: auto; display: block; }
+.hype text { font-family: var(--font-sans); }
+.life { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.life > div { display: grid; gap: 6px; align-content: start; }
+.life h3 { font-size: 12.5px; font-weight: 700; color: var(--ink-3); display: flex; gap: 6px; align-items: center; }
+.life .kwl { display: grid; grid-template-columns: minmax(0, 1fr) 56px 50px; gap: 6px; align-items: center; font-size: 13.5px; padding: 5px 9px; border-radius: 8px; background: var(--surface-2); }
+.life .kwl .num { font-size: 12px; text-align: right; }
+
+@media (max-width: 1100px) {
+  .main, .lower { grid-template-columns: minmax(0, 1fr); }
+  .detail { position: static; }
+}
+@media (max-width: 720px) {
+  .wrap { padding: 14px 16px 40px; }
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .life { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .app-head { padding: 8px 16px; gap: 8px; }
+  .app-head .head-link, .range { display: none; }
+  .mom .hide-sm { display: none; }
+}
+@media (max-width: 440px) { .life { grid-template-columns: minmax(0, 1fr); } }
+</style>
+</head>
+<body>
+<div class="demo-bar"><b>예시 데이터</b> 시안 C · 토픽 레이더형 — 실제 수집 데이터가 아닙니다
+  <nav aria-label="시안"><a href="mockup-a-briefing.html">A 브리핑</a><a href="mockup-b-explore.html">B 탐색</a><a href="mockup-c-radar.html" aria-current="page">C 레이더</a></nav>
+</div>
+<header class="app-head">
+  <a class="brand" href="#"><span class="logo">DX</span>DX 인텔리전스</a>
+  <div class="seg" id="period" aria-label="기간">
+    <button aria-pressed="false" data-p="day">일간</button><button aria-pressed="true" data-p="week">주간</button><button aria-pressed="false" data-p="month">월간</button><button aria-pressed="false" data-p="quarter">분기</button>
+  </div>
+  <span class="range num" id="range"></span>
+  <span class="spacer"></span>
+  <a class="head-link" href="mockup-a-briefing.html">오늘 브리핑</a>
+  <a class="head-link" href="mockup-b-explore.html">탐색</a>
+  <button class="icon-btn" id="theme" aria-label="밝게/어둡게 전환">◐</button>
+</header>
+<div class="wrap">
+  <div class="kpis" id="kpis"></div>
+  <div class="main">
+    <section class="box">
+      <div class="box-head"><h2>기술 분야 × 제품군</h2><span>칸 = 기사 수 · 아래 숫자 = 이전 기간 대비</span></div>
+      <div class="heat-wrap"><table class="heat" id="heat"></table></div>
+      <div class="legend"><span>적음</span><i></i><span>많음</span><span style="flex:1"></span><button class="toggle" id="all">전체 23 × 18 보기</button></div>
+    </section>
+    <section class="box detail" id="detail" aria-live="polite"></section>
+  </div>
+  <div class="lower">
+    <section class="box">
+      <div class="box-head"><h2>분야 모멘텀</h2><span>기사 수 · 변화 · 최근 8개 기간 추세</span></div>
+      <div style="overflow-x:auto"><table class="mom" id="mom"></table></div>
+    </section>
+    <section class="box hype">
+      <div class="box-head"><h2>관심 대비 실체</h2><span>가로 = 언론·커뮤니티 증가율, 세로 = 논문·오픈소스 증가율</span></div>
+      <div id="hype"></div>
+      <p style="font-size:13px;color:var(--ink-2)">오른쪽 아래는 화제는 많지만 연구·구현 활동이 따라오지 않는 분야, 왼쪽 위는 조용히 연구가 쌓이는 분야입니다.</p>
+    </section>
+  </div>
+  <section class="box">
+    <div class="box-head"><h2>키워드 수명주기</h2><span>신규 → 급상승 → 지속 → 하락</span></div>
+    <div class="life" id="life"></div>
+  </section>
+</div>
+<script>
+// 예시(가라) 데이터 — 실제 수집 데이터가 아닙니다. 분류 키는 R2의 taxonomy.yaml 초안과 같습니다.
+var FIELD = {
+  ai: '온디바이스 AI', display: '디스플레이', network: '통신·네트워크', chipset: '칩셋·부품', camera: '카메라·센서',
+  power: '배터리·전력', robotics: '로보틱스', xr: 'XR·공간 컴퓨팅', health: '헬스·바이오센싱', security: '보안·프라이버시',
+  platform: 'OS·플랫폼', cloud: '클라우드·엣지', mobility: '모빌리티·SDV', materials: '소재·지속가능성', policy: '정책·규제·표준',
+  audio: '오디오·음향', smarthome: '스마트홈 연결', genai_service: '생성형 AI 서비스', devtools: '개발 도구·SDK',
+  commerce: '결제·디지털 지갑', energy: '에너지 관리', manufacturing: '스마트 제조', quantum: '양자 기술'
+};
+var PRODUCT = {
+  phone: '스마트폰', foldable: '폴더블', tablet_pc: '태블릿·PC', wearable: '웨어러블', tv_monitor: 'TV·모니터',
+  appliance: '생활가전', home_robot_iot: '홈로봇·IoT', xr_device: 'XR 기기', network_equipment: '네트워크 장비',
+  automotive: '전장', medical_device: '의료기기',
+  earbuds_audio: '이어버드·오디오', smart_speaker: '스마트 스피커·허브', signage: '상업용 디스플레이', hvac: '공조·HVAC',
+  home_energy: '가정용 에너지 기기', pc_peripheral: 'PC 주변기기', camera_drone: '카메라·드론'
+};
+var TRACK = { news: '뉴스·공식', community: '커뮤니티', research: '논문·특허', oss: '오픈소스' };
+var REGION = { kr: '한국', global_en: '글로벌', jp: '일본', greater_china: '중화권', eu_other: '유럽' };
+var IMPACT = { opp: ['i-opp', '기회'], risk: ['i-risk', '위험'], watch: ['i-watch', '관찰'] };
+
+// t: 한국어 제목, o: 원문 제목, s: 요약, f: 분야, p: 제품군, tr: 트랙, src: 출처, rg: 지역, im: 영향, h: 몇 시간 전, kw: 키워드, m: 반응 지표
+var ARTICLES = [
+  { t: '소형 언어모델 4비트 양자화 도구, 일주일 새 스타 2,300개 증가', o: 'Tiny LLM quantization toolkit gains 2.3k stars in a week', s: ['모바일 NPU에서 70억 파라미터 모델을 돌리는 양자화 라이브러리가 급성장했습니다.', '이슈 트래커에 칩셋별 지연 시간 비교가 올라오고 있습니다.'], f: ['ai'], p: ['phone'], tr: 'oss', src: 'GitHub', rg: 'global_en', im: 'opp', h: 3, kw: ['4비트 양자화', 'NPU', '소형 언어모델'], m: '★ +2,312' },
+  { t: 'NPU 전력 효율 연구 3편 동시 공개, 추론당 에너지 30~40% 절감 보고', o: 'Energy-efficient on-device inference via mixed precision', s: ['세 논문 모두 혼합 정밀도와 메모리 접근 최소화를 핵심으로 듭니다.', '배터리 지속 시간이 온디바이스 AI 경쟁의 다음 축이 될 수 있습니다.'], f: ['ai', 'power'], p: ['phone'], tr: 'research', src: 'arXiv', rg: 'global_en', im: 'opp', h: 8, kw: ['저전력 NPU', '혼합 정밀도'] },
+  { t: '로컬 AI 비서의 개인 데이터 보관 방식, 유럽 규제 당국 질의 보도', o: 'EU regulators question on-device assistant data handling', s: ['기기 안에서만 처리한다는 설명과 달리 일부 기능이 클라우드 보조 처리를 쓴다는 지적이 나왔습니다.', '출시 일정에 영향을 줄 수 있는 사안입니다.'], f: ['security', 'ai'], p: ['phone'], tr: 'news', src: 'heise online', rg: 'eu_other', im: 'risk', h: 20, kw: ['프라이버시', 'EU 규제', 'AI 비서'] },
+  { t: '음성 비서 로컬 처리 지연 시간 비교 글, 점수 412점', o: 'Ask HN: Comparing local voice assistant latency', s: ['개발자들이 직접 측정한 응답 지연을 기기별로 비교했습니다.', '첫 토큰까지 걸리는 시간이 체감 품질의 핵심이라는 의견이 많았습니다.'], f: ['ai'], p: ['phone', 'home_robot_iot'], tr: 'community', src: 'Hacker News', rg: 'global_en', im: 'watch', h: 26, kw: ['지연 시간', '음성 비서'], m: '▲ 412' },
+  { t: '에이전트 기능을 OS 계층에 넣는 발표 잇따라', o: 'Phone makers move AI agents into the OS layer', s: ['여러 제조사가 앱 단위 AI 기능을 시스템 기본 기능으로 옮긴다고 밝혔습니다.', '앱 개발자용 권한 모델 변화가 함께 논의되고 있습니다.'], f: ['ai', 'platform'], p: ['phone', 'tablet_pc'], tr: 'news', src: 'The Verge', rg: 'global_en', im: 'opp', h: 5, kw: ['에이전트 OS', 'AI 에이전트'] },
+  { t: '국내 제조사 온디바이스 AI 번역 기능 확대 발표', s: ['통화·메시지 실시간 번역 지원 언어가 늘었습니다.', '서버 연결 없이 동작하는 범위가 넓어졌다는 점이 강조됐습니다.'], f: ['ai'], p: ['phone', 'wearable'], tr: 'news', src: '전자신문', rg: 'kr', im: 'opp', h: 11, kw: ['실시간 번역', '온디바이스 AI'] },
+  { t: 'OLED 번인 보정 알고리즘, 소비 전력 18% 절감 보고', o: 'Burn-in compensation for OLED with lower power draw', s: ['픽셀 열화 예측 모델로 보정 전류를 줄이는 방식입니다.', 'TV와 모니터 모두에 적용 가능하다고 밝혔습니다.'], f: ['display', 'power'], p: ['tv_monitor'], tr: 'research', src: 'arXiv', rg: 'global_en', im: 'opp', h: 14, kw: ['번인 보정', 'OLED'] },
+  { t: '마이크로 LED 대형 TV 원가 하락 전망 기사 증가', o: 'MicroLED TV costs expected to fall faster', s: ['전사 공정 수율 개선이 원가 하락의 주요 이유로 꼽혔습니다.', '중화권 매체에서 먼저 보도된 뒤 영어권으로 확산됐습니다.'], f: ['display'], p: ['tv_monitor'], tr: 'news', src: 'DigiTimes', rg: 'greater_china', im: 'opp', h: 30, kw: ['microLED', '원가'] },
+  { t: '폴더블 패널 주름 측정 표준화 논의 시작', s: ['패널 주름 깊이를 같은 방법으로 재자는 업계 논의가 시작됐습니다.', '리뷰 매체마다 측정 방식이 달라 비교가 어렵다는 지적이 배경입니다.'], f: ['display', 'policy'], p: ['foldable'], tr: 'news', src: 'ITmedia', rg: 'jp', im: 'watch', h: 40, kw: ['폴더블 주름', '표준'] },
+  { t: '롤러블 노트북 시제품 리뷰, 힌지 내구성 평가 엇갈려', s: ['화면을 말아 넣는 구조의 첫 시제품 리뷰가 나왔습니다.', '휴대성은 호평, 힌지 소음과 무게는 아쉽다는 평가입니다.'], f: ['display'], p: ['foldable', 'tablet_pc'], tr: 'news', src: 'Engadget', rg: 'global_en', im: 'watch', h: 52, kw: ['롤러블', '힌지'] },
+  { t: '3GPP, 6G 무선 인터페이스 연구 항목 일정 공개', o: '3GPP outlines 6G radio study timeline', s: ['무선 인터페이스 연구 항목의 단계별 일정이 공개됐습니다.', '단말 전력 절감 기능이 주요 요구 사항으로 들어갔습니다.'], f: ['network', 'policy'], p: ['network_equipment', 'phone'], tr: 'news', src: '3GPP', rg: 'global_en', im: 'watch', h: 9, kw: ['6G', '3GPP'] },
+  { t: 'Wi-Fi 8 초안 논의, 가전 연결 신뢰성 기능 포함', o: 'Wi-Fi 8 draft focuses on ultra high reliability', s: ['처리량보다 지연과 연결 신뢰성을 앞세운 초안입니다.', '가전과 IoT 기기의 연결 품질 개선이 기대됩니다.'], f: ['network'], p: ['appliance', 'home_robot_iot'], tr: 'news', src: 'IEEE Spectrum', rg: 'global_en', im: 'watch', h: 16, kw: ['Wi-Fi 8', '연결 신뢰성'] },
+  { t: '위성 직접 통신(NTN) 문자 서비스 국내 시험 결과 공개', s: ['일반 스마트폰으로 위성 문자를 주고받는 시험 결과가 나왔습니다.', '재난 상황 연락 수단으로서의 활용이 강조됐습니다.'], f: ['network'], p: ['phone'], tr: 'news', src: 'ZDNet Korea', rg: 'kr', im: 'opp', h: 22, kw: ['위성 통신', 'NTN'] },
+  { t: 'vRAN 오픈소스 프로젝트 릴리스, 에너지 절감 모드 추가', o: 'Open vRAN stack adds energy saving mode', s: ['트래픽이 적은 시간대에 셀을 재우는 기능이 들어갔습니다.', '통신사 시험망 적용 사례가 함께 공개됐습니다.'], f: ['network', 'cloud'], p: ['network_equipment'], tr: 'oss', src: 'GitHub', rg: 'global_en', im: 'opp', h: 33, kw: ['vRAN', '에너지 절감'], m: '★ +540' },
+  { t: '스마트워치 혈압 측정 기능, 유럽 의료기기 인증 논의 확대', o: 'Smartwatch blood pressure features face EU scrutiny', s: ['인증 범위를 두고 규제 당국과 업계의 논의가 이어지고 있습니다.', '기능 출시 일정에 영향을 줄 수 있습니다.'], f: ['health', 'policy'], p: ['wearable', 'medical_device'], tr: 'news', src: 'heise online', rg: 'eu_other', im: 'risk', h: 18, kw: ['혈압 측정', '의료기기 인증'] },
+  { t: '광혈류 센서 기반 혈압 추정 정확도 연구', o: 'PPG-based cuffless blood pressure estimation', s: ['다양한 피부색과 연령대에서 정확도를 비교한 연구입니다.', '개인별 보정이 정확도에 큰 영향을 준다고 보고했습니다.'], f: ['health', 'camera'], p: ['wearable'], tr: 'research', src: 'Europe PMC', rg: 'global_en', im: 'opp', h: 28, kw: ['광혈류 센서', '혈압 측정'] },
+  { t: '스마트 링 수면 분석 오픈소스, 원시 데이터 해석 도구 공개', s: ['링형 기기에서 받은 원시 데이터를 해석하는 도구입니다.', '수면 단계 분류 모델을 기기 안에서 돌릴 수 있게 했습니다.'], f: ['health', 'ai'], p: ['wearable'], tr: 'oss', src: 'GitHub', rg: 'global_en', im: 'watch', h: 44, kw: ['수면 분석', '스마트 링'], m: '★ +380' },
+  { t: '중국 웨어러블 업체들, 혈당 추정 기능 경쟁 가열', s: ['비침습 혈당 추정 기능을 내세운 신제품이 잇따랐습니다.', '정확도 검증 자료가 부족하다는 지적도 함께 나왔습니다.'], f: ['health'], p: ['wearable'], tr: 'news', src: '36Kr', rg: 'greater_china', im: 'watch', h: 60, kw: ['혈당 추정', '웨어러블'] },
+  { t: '가정용 로봇 청소기 로컬 제어 펌웨어 토론 활발', o: 'Local-only firmware for robot vacuums', s: ['클라우드 없이 로봇 청소기를 제어하는 펌웨어가 화제였습니다.', '프라이버시와 장기 지원에 대한 요구가 많았습니다.'], f: ['robotics', 'security'], p: ['home_robot_iot'], tr: 'community', src: 'Hacker News', rg: 'global_en', im: 'watch', h: 12, kw: ['로컬 제어', '로봇 청소기'], m: '▲ 286' },
+  { t: '휴머노이드 가사 시연 영상 확산, 실사용 거리에는 의문', s: ['빨래 개기와 식기 정리 시연 영상이 널리 공유됐습니다.', '원격 조작 여부와 속도에 대한 질문이 이어졌습니다.'], f: ['robotics', 'ai'], p: ['home_robot_iot'], tr: 'news', src: 'TechCrunch', rg: 'global_en', im: 'watch', h: 36, kw: ['휴머노이드', '가사 로봇'] },
+  { t: '로봇 파운데이션 모델, 적은 시연으로 새 작업 학습', o: 'Few-shot task learning for household robots', s: ['수십 번의 시연만으로 새 가사 작업을 익히는 방법입니다.', '가정 환경의 물체 다양성을 다룬 점이 특징입니다.'], f: ['robotics', 'ai'], p: ['home_robot_iot'], tr: 'research', src: 'arXiv', rg: 'global_en', im: 'opp', h: 48, kw: ['로봇 파운데이션 모델', '퓨샷 학습'] },
+  { t: '일본 가전업계, 반려동물 돌봄 로봇 시장 확대 전망', s: ['고령 1인 가구 증가와 함께 돌봄 로봇 수요가 늘 것이라는 전망입니다.', '가전 연동 기능이 경쟁 요소로 꼽혔습니다.'], f: ['robotics'], p: ['home_robot_iot', 'appliance'], tr: 'news', src: 'ITmedia', rg: 'jp', im: 'opp', h: 70, kw: ['돌봄 로봇', '반려동물'] },
+  { t: '스마트 글래스용 저전력 디스플레이 모듈 공개', s: ['일반 안경 무게에 가까운 디스플레이 모듈이 공개됐습니다.', '배터리 지속 시간이 하루를 넘는다고 밝혔습니다.'], f: ['xr', 'display', 'power'], p: ['xr_device'], tr: 'news', src: 'The Verge', rg: 'global_en', im: 'opp', h: 24, kw: ['스마트 글래스', '저전력 디스플레이'] },
+  { t: '공간 컴퓨팅 앱 생태계, 생산성 앱 비중 증가', s: ['신규 앱 중 생산성 범주가 처음으로 엔터테인먼트를 앞섰습니다.', '기업용 수요가 생태계를 이끌고 있다는 분석입니다.'], f: ['xr', 'platform'], p: ['xr_device'], tr: 'news', src: 'Engadget', rg: 'global_en', im: 'watch', h: 58, kw: ['공간 컴퓨팅', '앱 생태계'] },
+  { t: 'XR 헤드셋 손 추적 오픈소스 모델, 지연 시간 절반으로', o: 'Open hand-tracking model halves latency', s: ['헤드셋 칩에서 돌아가는 경량 손 추적 모델입니다.', '여러 제조사 기기에서 시험한 결과가 함께 공개됐습니다.'], f: ['xr', 'ai', 'camera'], p: ['xr_device'], tr: 'oss', src: 'GitHub', rg: 'global_en', im: 'opp', h: 66, kw: ['손 추적', 'XR'], m: '★ +610' },
+  { t: '차량용 OS OTA 업데이트 보안 권고 발표', o: 'Security advisory: OTA update verification bypass', s: ['업데이트 서명 검증을 우회할 수 있는 취약점이 공개됐습니다.', '패치가 배포됐으며 차량 제조사별 적용 일정이 다릅니다.'], f: ['security', 'mobility'], p: ['automotive'], tr: 'oss', src: 'GitHub Advisory', rg: 'global_en', im: 'risk', h: 7, kw: ['OTA', '보안 권고'] },
+  { t: 'SDV 전환 가속, 차량 인포테인먼트에 생성형 AI 탑재 늘어', s: ['차량 음성 비서에 대형 모델을 붙이는 사례가 늘었습니다.', '통신이 끊긴 상황을 위한 온디바이스 처리도 함께 강조됩니다.'], f: ['mobility', 'ai'], p: ['automotive'], tr: 'news', src: 'TechCrunch', rg: 'global_en', im: 'opp', h: 19, kw: ['SDV', '차량 AI 비서'] },
+  { t: '중국 전기차 업체, 스마트폰과 차량 화면 연동 기능 경쟁', s: ['스마트폰 앱을 차량 화면으로 그대로 옮기는 기능이 확산되고 있습니다.', '휴대폰 제조사와 자동차 회사의 협업이 늘었습니다.'], f: ['mobility', 'platform'], p: ['automotive', 'phone'], tr: 'news', src: '36Kr', rg: 'greater_china', im: 'watch', h: 41, kw: ['폰-차량 연동', '디지털 콕핏'] },
+  { t: '패스키 도입 확대, 스마트폰 기본 로그인 방식으로', s: ['주요 서비스들이 비밀번호 대신 패스키를 기본으로 제시하기 시작했습니다.', '기기 분실 시 복구 절차가 과제로 남았습니다.'], f: ['security', 'commerce'], p: ['phone', 'tablet_pc'], tr: 'news', src: 'Ars Technica', rg: 'global_en', im: 'opp', h: 27, kw: ['패스키', '인증'] },
+  { t: '스마트 TV 광고 추적 실태 조사 공개', o: 'Study: smart TVs track viewing for ads', s: ['시청 화면을 분석해 광고에 쓰는 기능의 기본 설정 실태를 조사했습니다.', '설정을 끄기 어렵게 만든 사례가 지적됐습니다.'], f: ['security', 'policy'], p: ['tv_monitor'], tr: 'research', src: 'arXiv', rg: 'eu_other', im: 'risk', h: 50, kw: ['TV 광고 추적', '프라이버시'] },
+  { t: 'Matter 1.4 지원 기기 목록 확대, 에너지 관리 기기 포함', s: ['히트펌프와 가정용 배터리가 새로 지원 범위에 들어갔습니다.', '가전 간 에너지 최적화가 가능해질 전망입니다.'], f: ['smarthome', 'energy'], p: ['hvac', 'home_energy', 'home_robot_iot'], tr: 'news', src: 'The Verge', rg: 'global_en', im: 'opp', h: 34, kw: ['Matter 1.4', '에너지 관리'] },
+  { t: '가전 제어 앱 통합 요구, 커뮤니티 설문 결과', s: ['가전마다 앱이 따로 있어 불편하다는 응답이 다수였습니다.', '스마트홈 표준 지원 여부가 구매 기준으로 떠올랐습니다.'], f: ['smarthome', 'platform'], p: ['appliance', 'smart_speaker'], tr: 'community', src: 'Reddit r/homeautomation', rg: 'global_en', im: 'watch', h: 62, kw: ['스마트홈', '앱 통합'], m: '▲ 1.2k' },
+  { t: '실리콘 음극 배터리 스마트폰 확산, 용량 10% 이상 증가', s: ['같은 크기에서 용량을 늘린 실리콘 음극 배터리 채택이 늘었습니다.', '수명과 팽창 관리가 과제로 꼽혔습니다.'], f: ['power', 'materials'], p: ['phone', 'foldable'], tr: 'news', src: 'DigiTimes', rg: 'greater_china', im: 'opp', h: 15, kw: ['실리콘 음극', '배터리 용량'] },
+  { t: '유럽 배터리 교체 의무 규정 세부 지침 공개', s: ['사용자가 직접 배터리를 바꿀 수 있어야 한다는 규정의 세부 지침입니다.', '방수 등급과의 충돌이 업계 쟁점입니다.'], f: ['policy', 'power', 'materials'], p: ['phone', 'wearable'], tr: 'news', src: 'heise online', rg: 'eu_other', im: 'risk', h: 38, kw: ['배터리 교체 의무', 'EU 규제'] },
+  { t: '모바일 SoC 신제품 벤치마크, AI 성능 비중 커져', s: ['새 칩셋 비교에서 NPU 성능 지표가 처음으로 전면에 나왔습니다.', '발열 관리가 실사용 성능을 좌우한다는 평가입니다.'], f: ['chipset', 'ai'], p: ['phone', 'tablet_pc'], tr: 'community', src: 'XDA Forums', rg: 'global_en', im: 'watch', h: 21, kw: ['모바일 SoC', 'NPU 벤치마크'], m: '▲ 640' },
+  { t: '메모리 가격 상승, 중저가 스마트폰 원가 부담 커져', s: ['부품 가격 상승이 중저가 모델 사양 조정으로 이어질 수 있다는 분석입니다.', '완제품 가격 인상 가능성이 거론됩니다.'], f: ['chipset'], p: ['phone'], tr: 'news', src: 'ZDNet Korea', rg: 'kr', im: 'risk', h: 46, kw: ['메모리 가격', '원가'] },
+  { t: '이미지 센서 적층 구조 연구, 저조도 노이즈 절반', o: 'Stacked sensor architecture halves low-light noise', s: ['화소 아래에 회로를 쌓는 구조로 저조도 성능을 높였습니다.', '스마트폰 카메라 크기를 늘리지 않고 개선할 수 있습니다.'], f: ['camera'], p: ['phone'], tr: 'research', src: 'IEEE Xplore', rg: 'global_en', im: 'opp', h: 54, kw: ['이미지 센서', '저조도'] },
+  { t: '계산 사진 오픈소스 파이프라인, 모바일 RAW 처리 지원', s: ['스마트폰 RAW 사진을 처리하는 오픈소스 파이프라인입니다.', '기기 안에서 실시간 처리가 가능하다고 밝혔습니다.'], f: ['camera', 'ai'], p: ['phone'], tr: 'oss', src: 'GitHub', rg: 'global_en', im: 'watch', h: 72, kw: ['계산 사진', 'RAW'], m: '★ +290' },
+  { t: '하이브리드 AI 추론, 기기와 클라우드 분담 기준 논의', s: ['어떤 요청을 기기에서, 어떤 요청을 서버에서 처리할지 기준을 다룬 글입니다.', '비용과 프라이버시를 함께 고려해야 한다는 의견이 많았습니다.'], f: ['cloud', 'genai_service', 'ai'], p: ['phone', 'tablet_pc'], tr: 'community', src: 'DEV Community', rg: 'global_en', im: 'watch', h: 31, kw: ['하이브리드 AI', '엣지 추론'], m: '♥ 210' },
+  { t: '엣지 서버용 경량 추론 런타임 1.0 릴리스', s: ['가정용 허브와 공유기에서 돌아가는 추론 런타임입니다.', '스마트홈 기기의 로컬 처리를 노린다고 밝혔습니다.'], f: ['cloud', 'ai'], p: ['home_robot_iot', 'network_equipment'], tr: 'oss', src: 'GitHub', rg: 'global_en', im: 'opp', h: 56, kw: ['엣지 추론', '추론 런타임'], m: '★ +450' },
+  { t: '재생 플라스틱 비중 높인 가전 신제품 잇따라', s: ['외관 부품의 재생 소재 비율을 공개하는 제품이 늘었습니다.', '유럽 에코디자인 규정 대응이 배경으로 꼽혔습니다.'], f: ['materials', 'policy'], p: ['appliance', 'tv_monitor'], tr: 'news', src: '전자신문', rg: 'kr', im: 'opp', h: 64, kw: ['재생 소재', '에코디자인'] },
+  { t: 'AI 기본법 하위 규정 의견 수렴 시작', s: ['고영향 AI 판단 기준과 사업자 의무를 다룬 하위 규정 초안입니다.', '기기 내장 AI 기능도 적용 범위인지가 쟁점입니다.'], f: ['policy', 'ai'], p: ['phone', 'appliance'], tr: 'news', src: '과학기술정보통신부', rg: 'kr', im: 'watch', h: 10, kw: ['AI 기본법', '고영향 AI'] },
+  { t: '양자 내성 암호, 스마트폰 기본 메신저에 적용 확대', o: 'Post-quantum encryption rolls into default messengers', s: ['기본 메신저 앱들이 양자 내성 키 교환을 기본값으로 켜기 시작했습니다.', '구형 기기의 성능 부담이 과제로 지적됐습니다.'], f: ['quantum', 'security'], p: ['phone'], tr: 'news', src: 'Ars Technica', rg: 'global_en', im: 'watch', h: 29, kw: ['양자 내성 암호', 'PQC'] },
+  { t: 'AI 코딩 도구로 만든 스마트홈 앱 비중 증가, 품질 논쟁', s: ['개발자 설문에서 AI 코딩 도구 사용률이 크게 늘었습니다.', '기기 연동 코드의 보안 검토가 부족하다는 우려도 나왔습니다.'], f: ['devtools', 'genai_service'], p: ['smart_speaker'], tr: 'community', src: 'Stack Overflow', rg: 'global_en', im: 'watch', h: 39, kw: ['AI 코딩 도구', '개발자 설문'], m: '▲ 233' },
+  { t: '사운드바·이어버드 공간 음향 표준 통합 움직임', s: ['서로 다른 공간 음향 포맷을 하나로 묶자는 논의가 시작됐습니다.', 'TV와 이어버드 간 연동 경험이 핵심 쟁점입니다.'], f: ['audio', 'policy'], p: ['earbuds_audio', 'tv_monitor'], tr: 'news', src: 'What Hi-Fi?', rg: 'eu_other', im: 'opp', h: 43, kw: ['공간 음향', '오디오 표준'] },
+  { t: '가전 공장 품질 검사에 비전 AI 도입 사례 공개', s: ['외관 불량 검출을 비전 AI로 자동화한 사례입니다.', '검사 시간 단축과 불량 유출 감소가 보고됐습니다.'], f: ['manufacturing', 'ai', 'camera'], p: ['appliance'], tr: 'news', src: '전자신문', rg: 'kr', im: 'opp', h: 68, kw: ['비전 AI', '품질 검사'] },
+  { t: '상업용 LED 월, 매장 사이니지 시장 회복세', s: ['리테일 매장 디지털 사이니지 교체 수요가 회복되고 있습니다.', '저전력 패널과 원격 관리 기능이 선택 기준입니다.'], f: ['display'], p: ['signage'], tr: 'news', src: 'DigiTimes', rg: 'greater_china', im: 'opp', h: 74, kw: ['LED 월', '사이니지'] },
+  { t: '모바일 결제 단말 없이 폰으로 카드 결제 받는 기능 확대', s: ['소상공인이 스마트폰만으로 카드 결제를 받는 기능이 국내에도 확대됩니다.', '보안 인증 요건이 함께 공개됐습니다.'], f: ['commerce', 'security'], p: ['phone'], tr: 'news', src: 'ZDNet Korea', rg: 'kr', im: 'opp', h: 35, kw: ['소프트 POS', '모바일 결제'] },
+  { t: '초음파 진단기기 AI 판독 보조 기능 허가 사례 증가', s: ['초음파 영상에서 이상 소견을 표시하는 보조 기능 허가가 늘었습니다.', '판독 시간 단축 효과가 보고됐습니다.'], f: ['health', 'ai'], p: ['medical_device'], tr: 'news', src: 'Europe PMC', rg: 'global_en', im: 'opp', h: 75, kw: ['AI 판독 보조', '초음파'] }
+];
+
+// 기간별 브리핑 요약 (A·C 공용)
+var PERIODS = {
+  day: { label: '일간', range: '2026년 10월 4일 일요일', n: 1284, sources: 312, prev: 1196 },
+  week: { label: '주간', range: '2026-W40 · 9월 28일 – 10월 4일', n: 8912, sources: 684, prev: 8391 },
+  month: { label: '월간', range: '2026년 9월', n: 37406, sources: 903, prev: 34118 },
+  quarter: { label: '분기', range: '2026년 3분기 (7–9월)', n: 104882, sources: 1012, prev: 88620 }
+};
+
+// 키워드 추세 (최근 8개 기간)
+var KEYWORDS = [
+  { k: '저전력 NPU', f: 'ai', state: 'rise', d: '+212%', z: 4.1, s: [3, 4, 3, 5, 4, 6, 9, 14] },
+  { k: 'Wi-Fi 8', f: 'network', state: 'new', d: '신규', z: 3.6, s: [0, 0, 0, 0, 1, 2, 4, 9] },
+  { k: '에이전트 OS', f: 'platform', state: 'new', d: '신규', z: 3.2, s: [0, 0, 0, 1, 1, 3, 5, 8] },
+  { k: '4비트 양자화', f: 'ai', state: 'rise', d: '+140%', z: 2.9, s: [3, 3, 4, 4, 5, 6, 8, 11] },
+  { k: 'microLED', f: 'display', state: 'rise', d: '+64%', z: 2.7, s: [4, 5, 4, 5, 6, 6, 7, 9] },
+  { k: '혈압 측정', f: 'health', state: 'rise', d: '+48%', z: 2.1, s: [3, 3, 4, 3, 4, 5, 5, 7] },
+  { k: '패스키', f: 'security', state: 'steady', d: '±4%', z: 0.4, s: [6, 6, 7, 6, 7, 6, 7, 7] },
+  { k: 'Matter 1.4', f: 'platform', state: 'steady', d: '±2%', z: 0.2, s: [5, 5, 6, 5, 6, 6, 5, 6] },
+  { k: '위성 통신', f: 'network', state: 'steady', d: '±6%', z: 0.5, s: [4, 5, 5, 4, 5, 5, 6, 5] },
+  { k: '실리콘 음극', f: 'power', state: 'rise', d: '+37%', z: 1.8, s: [2, 3, 3, 3, 4, 4, 5, 6] },
+  { k: '미니 LED', f: 'display', state: 'fall', d: '−38%', z: -1.9, s: [9, 8, 8, 7, 6, 5, 5, 4] },
+  { k: '메타버스', f: 'xr', state: 'fall', d: '−52%', z: -2.3, s: [8, 7, 6, 5, 4, 4, 3, 2] },
+  { k: 'NFT', f: 'policy', state: 'fall', d: '−71%', z: -2.8, s: [7, 6, 4, 3, 3, 2, 1, 1] },
+  { k: '휴머노이드', f: 'robotics', state: 'rise', d: '+33%', z: 1.6, s: [3, 4, 4, 5, 5, 6, 6, 7] }
+];
+
+function hoursLabel(h) { return h < 1 ? '방금' : h < 24 ? h + '시간 전' : Math.round(h / 24) + '일 전'; }
+function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+function spark(values, w, h, color, fill) {
+  var max = Math.max.apply(null, values), min = Math.min.apply(null, values);
+  var span = max - min || 1, step = w / (values.length - 1);
+  var pts = values.map(function (v, i) { return [i * step, h - 2 - ((v - min) / span) * (h - 4)]; });
+  var line = pts.map(function (p) { return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' ');
+  var last = pts[pts.length - 1];
+  return '<svg class="spark" width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" aria-hidden="true">' +
+    (fill === false ? '' : '<polygon points="0,' + h + ' ' + line + ' ' + w + ',' + h + '" fill="' + color + '" fill-opacity="0.14"></polygon>') +
+    '<polyline points="' + line + '" fill="none" stroke="' + color + '" stroke-width="1.6" stroke-linejoin="round"></polyline>' +
+    '<circle cx="' + last[0] + '" cy="' + last[1] + '" r="2.4" fill="' + color + '"></circle></svg>';
+}
+function countBy(list, key) {
+  var c = {};
+  list.forEach(function (a) { (Array.isArray(a[key]) ? a[key] : [a[key]]).forEach(function (v) { c[v] = (c[v] || 0) + 1; }); });
+  return c;
+}
+
+// 기사 상세 시트 (B·C)
+function openSheet(a) {
+  closeSheet();
+  var bd = document.createElement('div'); bd.className = 'sheet-backdrop'; bd.id = 'sheet-bd';
+  var sh = document.createElement('aside'); sh.className = 'sheet'; sh.id = 'sheet'; sh.setAttribute('role', 'dialog'); sh.setAttribute('aria-modal', 'true'); sh.setAttribute('aria-label', '기사 상세');
+  var related = ARTICLES.filter(function (x) { return x !== a && x.f.some(function (f) { return a.f.indexOf(f) >= 0; }); }).slice(0, 4);
+  sh.innerHTML = '<button class="icon-btn close" id="sheet-close">닫기 ✕</button>' +
+    '<div class="meta">' + a.f.map(function (f) { return '<span class="tag field">' + FIELD[f] + '</span>'; }).join('') + a.p.map(function (p) { return '<span class="tag product">' + PRODUCT[p] + '</span>'; }).join('') + '<span class="impact ' + IMPACT[a.im][0] + '">' + IMPACT[a.im][1] + '</span></div>' +
+    '<h2>' + esc(a.t) + '</h2>' + (a.o ? '<p class="orig">원문 제목: ' + esc(a.o) + '</p>' : '') +
+    '<div class="meta"><span class="dot d-' + a.tr + '"></span>' + TRACK[a.tr] + ' · ' + esc(a.src) + ' · ' + REGION[a.rg] + ' · ' + hoursLabel(a.h) + (a.m ? ' · <span class="num">' + a.m + '</span>' : '') + '</div>' +
+    '<h4>한국어 요약</h4><ul>' + a.s.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') + '</ul>' +
+    '<h4>키워드</h4><div class="kwchips">' + a.kw.map(function (k) { return '<span>#' + esc(k) + '</span>'; }).join('') + '</div>' +
+    '<a class="src-link" href="#" onclick="return false">원문 보기 ↗ (예시 링크)</a>' +
+    '<h4>같은 분야 기사</h4><div class="related">' + related.map(function (r) { return '<button data-article="' + ARTICLES.indexOf(r) + '">' + esc(r.t) + '</button>'; }).join('') + '</div>';
+  document.body.appendChild(bd); document.body.appendChild(sh);
+  bd.addEventListener('click', closeSheet);
+  document.getElementById('sheet-close').addEventListener('click', closeSheet);
+  document.getElementById('sheet-close').focus();
+}
+function closeSheet() { ['sheet', 'sheet-bd'].forEach(function (id) { var el = document.getElementById(id); if (el) el.remove(); }); }
+document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeSheet(); });
+document.addEventListener('click', function (e) {
+  var b = e.target.closest('[data-article]');
+  if (b) { e.preventDefault(); openSheet(ARTICLES[+b.dataset.article]); }
+});
+
+// 테마 전환
+function initTheme() {
+  var btn = document.getElementById('theme');
+  if (!btn) return;
+  btn.addEventListener('click', function () {
+    var root = document.documentElement;
+    var dark = root.dataset.theme ? root.dataset.theme === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+    root.dataset.theme = dark ? 'light' : 'dark';
+  });
+}
+
+(function () {
+  var period = 'week', showAll = false, sel = ['ai', 'phone'];
+  var SCALE = { day: 1, week: 6.9, month: 29, quarter: 82 };
+  function rnd(s) { var h = 2166136261; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return ((h >>> 0) % 10000) / 10000; }
+  var pairCount = {};
+  ARTICLES.forEach(function (a) { a.f.forEach(function (f) { a.p.forEach(function (p) { pairCount[f + '|' + p] = (pairCount[f + '|' + p] || 0) + 1; }); }); });
+  var fieldCount = countBy(ARTICLES, 'f'), productCount = countBy(ARTICLES, 'p');
+  function cell(f, p) {
+    var base = (pairCount[f + '|' + p] || 0) * 9 + (fieldCount[f] || 0) * (productCount[p] || 0) * 0.35;
+    var noise = rnd(f + p) * 6;
+    var v = Math.round((base + noise) * SCALE[period] * (rnd(f + p + period) * 0.4 + 0.8));
+    var ch = Math.round((rnd(p + f + period + 'c') - 0.35) * 70);
+    if (f === 'ai' && p === 'phone') ch = { day: 18, week: 41, month: 26, quarter: 33 }[period];
+    if (f === 'health' && p === 'wearable') ch = { day: 9, week: 28, month: 52, quarter: 47 }[period];
+    return { v: v, ch: ch };
+  }
+  function trendFor(f, p) {
+    var c = cell(f, p), out = [];
+    for (var i = 0; i < 7; i++) out.push(Math.max(0, Math.round(c.v / (1 + c.ch / 100) * (0.75 + rnd(f + p + period + i) * 0.35))));
+    out.push(c.v); return out;
+  }
+  function fieldsOrdered() { return Object.keys(FIELD).sort(function (a, b) { return (fieldCount[b] || 0) - (fieldCount[a] || 0); }); }
+  function productsOrdered() { return Object.keys(PRODUCT).sort(function (a, b) { return (productCount[b] || 0) - (productCount[a] || 0); }); }
+
+  function renderKpis() {
+    var P = PERIODS[period], diff = (P.n - P.prev) / P.prev * 100, best = null;
+    fieldsOrdered().forEach(function (f) { productsOrdered().forEach(function (p) { var c = cell(f, p); if (c.v > 10 * SCALE[period] && (!best || c.ch > best.ch)) best = { f: f, p: p, ch: c.ch }; }); });
+    var newKw = { day: 9, week: 37, month: 84, quarter: 171 }[period], chains = { day: 1, week: 5, month: 14, quarter: 31 }[period];
+    document.getElementById('range').textContent = P.range;
+    document.getElementById('kpis').innerHTML =
+      '<div class="kpi"><span>분석 기사</span><b class="num">' + P.n.toLocaleString('ko-KR') + '</b><small class="num ' + (diff >= 0 ? 'up' : 'down') + '">' + (diff >= 0 ? '▲ ' : '▼ ') + Math.abs(diff).toFixed(1) + '% 이전 기간 대비</small></div>' +
+      '<div class="kpi"><span>신규 키워드</span><b class="num">' + newKw + '</b><small>독립 출처 3곳 이상</small></div>' +
+      '<div class="kpi"><span>가장 빠르게 뜨는 칸</span><b class="txt">' + FIELD[best.f] + ' × ' + PRODUCT[best.p] + '</b><small class="num up">▲ ' + best.ch + '%</small></div>' +
+      '<div class="kpi"><span>교차 신호 체인</span><b class="num">' + chains + '</b><small>논문 → 구현 → 커뮤니티 → 언론</small></div>';
+  }
+
+  function renderHeat() {
+    var fs = fieldsOrdered(), ps = productsOrdered();
+    if (!showAll) { fs = fs.slice(0, 12); ps = ps.slice(0, 10); }
+    var max = 0; fs.forEach(function (f) { ps.forEach(function (p) { max = Math.max(max, cell(f, p).v); }); });
+    var html = '<thead><tr><th></th>' + ps.map(function (p) { return '<th scope="col">' + PRODUCT[p] + '</th>'; }).join('') + '</tr></thead><tbody>';
+    fs.forEach(function (f) {
+      html += '<tr><th scope="row">' + FIELD[f] + '</th>';
+      ps.forEach(function (p) {
+        var c = cell(f, p), v = Math.round(Math.sqrt(c.v / max) * 92);
+        var arrow = c.ch > 0 ? '▲' + c.ch + '%' : c.ch < 0 ? '▼' + (-c.ch) + '%' : '–';
+        var on = sel[0] === f && sel[1] === p;
+        html += '<td><button class="' + (v >= 50 ? 'hot' : '') + '" style="--v:' + v + '" data-f="' + f + '" data-p="' + p + '" aria-pressed="' + on + '" aria-label="' + FIELD[f] + ' × ' + PRODUCT[p] + ' ' + c.v + '건, ' + arrow + '">' + c.v.toLocaleString('ko-KR') + '<small>' + arrow + '</small></button></td>';
+      });
+      html += '</tr>';
+    });
+    document.getElementById('heat').innerHTML = html + '</tbody>';
+    document.getElementById('all').textContent = showAll ? '상위 12 × 10만 보기' : '전체 23 × 18 보기';
+  }
+
+  function renderDetail() {
+    var f = sel[0], p = sel[1], c = cell(f, p);
+    var arts = ARTICLES.filter(function (a) { return a.f.indexOf(f) >= 0 && a.p.indexOf(p) >= 0; });
+    var fallback = !arts.length;
+    if (fallback) arts = ARTICLES.filter(function (a) { return a.f.indexOf(f) >= 0; });
+    var kws = {}; arts.forEach(function (a) { a.kw.forEach(function (k) { kws[k] = (kws[k] || 0) + 1; }); });
+    var hot = {}; KEYWORDS.forEach(function (k) { if (k.state === 'new' || k.state === 'rise') hot[k.k] = 1; });
+    var tr = arts.map(function (a) { return a.tr; });
+    var chain = ['research', 'oss', 'community', 'news'].filter(function (t) { return tr.indexOf(t) >= 0; }).map(function (t) { return TRACK[t]; });
+    var days = Math.round(6 + rnd(f + p) * 14);
+    document.getElementById('detail').innerHTML =
+      '<div class="block"><span class="sub">선택한 칸</span><h3>' + FIELD[f] + ' × ' + PRODUCT[p] + '</h3>' +
+      '<span class="sub"><b class="num" style="color:var(--ink)">' + c.v.toLocaleString('ko-KR') + '건</b> · <span class="num ' + (c.ch >= 0 ? 'up' : 'down') + '">' + (c.ch >= 0 ? '▲ ' : '▼ ') + Math.abs(c.ch) + '%</span> 이전 기간 대비</span></div>' +
+      '<div class="block"><span class="sub">최근 8개 기간 추세</span>' + spark(trendFor(f, p), 300, 56, 'var(--heat)') + '</div>' +
+      '<div class="block"><span class="sub">핵심 키워드 (색 = 신규·급상승)</span><div class="kwchips">' + Object.keys(kws).slice(0, 8).map(function (k) { return '<span class="' + (hot[k] ? 'hot' : '') + '">' + esc(k) + '</span>'; }).join('') + '</div></div>' +
+      '<div class="block"><span class="sub">교차 신호 체인' + (chain.length > 1 ? ' · 첫 신호에서 언론까지 평균 ' + days + '일' : '') + '</span><div class="chain">' + (chain.length ? chain.map(function (s) { return '<b>' + s + '</b>'; }).join('<span>→</span>') : '<span class="muted">아직 연결된 신호가 없습니다</span>') + '</div></div>' +
+      '<div class="block"><span class="sub">대표 기사' + (fallback ? ' (같은 분야)' : '') + '</span><div class="arts">' + arts.slice(0, 4).map(function (a) { return '<button data-article="' + ARTICLES.indexOf(a) + '">' + esc(a.t) + '<span>' + TRACK[a.tr] + ' · ' + esc(a.src) + ' · ' + hoursLabel(a.h) + '</span></button>'; }).join('') + '</div></div>' +
+      '<a class="head-link" style="color:var(--accent)" href="mockup-b-explore.html">이 조합으로 탐색 열기 →</a>';
+  }
+
+  function fieldStats(f) {
+    var total = 0, chs = [];
+    productsOrdered().forEach(function (p) { var c = cell(f, p); total += c.v; chs.push(c.ch); });
+    var ch = Math.round(chs.reduce(function (a, b) { return a + b; }, 0) / chs.length + (rnd(f + period + 'm') - 0.4) * 20);
+    var trend = []; for (var i = 0; i < 7; i++) trend.push(Math.round(total / (1 + ch / 100) * (0.8 + rnd(f + i + period) * 0.3))); trend.push(total);
+    var stt = ch > 25 ? 'rise' : ch < -10 ? 'fall' : 'steady';
+    if (f === 'genai_service' || f === 'quantum') stt = 'new';
+    return { total: total, ch: ch, trend: trend, state: stt };
+  }
+  function renderMomentum() {
+    var STATE = { new: ['st-new', '신규'], rise: ['st-rise', '급상승'], steady: ['st-steady', '지속'], fall: ['st-fall', '하락'] };
+    var rows = Object.keys(FIELD).map(function (f) { var s = fieldStats(f); s.f = f; return s; }).sort(function (a, b) { return b.ch - a.ch; }).slice(0, 12);
+    var sum = rows.reduce(function (a, r) { return a + r.total; }, 0);
+    document.getElementById('mom').innerHTML = '<thead><tr><th>분야</th><th class="r">기사</th><th class="r">변화</th><th class="hide-sm">추세</th><th class="r hide-sm">점유율</th><th>상태</th></tr></thead><tbody>' +
+      rows.map(function (r) {
+        return '<tr><td>' + FIELD[r.f] + '</td><td class="r num">' + r.total.toLocaleString('ko-KR') + '</td><td class="r num ' + (r.ch >= 0 ? 'up' : 'down') + '">' + (r.ch >= 0 ? '+' : '') + r.ch + '%</td>' +
+          '<td class="hide-sm">' + spark(r.trend, 80, 20, r.ch >= 0 ? 'var(--up)' : 'var(--down)', false) + '</td><td class="r num hide-sm">' + (r.total / sum * 100).toFixed(1) + '%</td>' +
+          '<td><span class="state ' + STATE[r.state][0] + '">' + STATE[r.state][1] + '</span></td></tr>';
+      }).join('') + '</tbody>';
+  }
+
+  function renderHype() {
+    var W = 520, H = 300, L = 44, R = 16, T = 16, B = 36;
+    var pts = Object.keys(FIELD).slice(0, 12).map(function (f) {
+      return { f: f, x: Math.round((rnd(f + period + 'x') - 0.25) * 120), y: Math.round((rnd(f + period + 'y') - 0.3) * 100) };
+    });
+    var special = { robotics: { x: 140, y: 6 }, xr: { x: 32, y: -18 }, network: { x: 8, y: 62 }, quantum: { x: -4, y: 48 } };
+    pts.forEach(function (p) { if (special[p.f]) { p.x = special[p.f].x; p.y = special[p.f].y; } });
+    var xMin = -40, xMax = 160, yMin = -40, yMax = 80;
+    function sx(v) { return L + (v - xMin) / (xMax - xMin) * (W - L - R); }
+    function sy(v) { return T + (yMax - v) / (yMax - yMin) * (H - T - B); }
+    var g = '';
+    [-40, 0, 40, 80, 120, 160].forEach(function (v) { g += '<line x1="' + sx(v) + '" x2="' + sx(v) + '" y1="' + T + '" y2="' + (H - B) + '" stroke="var(--line)" stroke-width="1"></line><text x="' + sx(v) + '" y="' + (H - B + 16) + '" font-size="11" text-anchor="middle" fill="var(--ink-3)">' + v + '%</text>'; });
+    [-40, 0, 40, 80].forEach(function (v) { g += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + sy(v) + '" y2="' + sy(v) + '" stroke="var(--line)" stroke-width="1"></line><text x="' + (L - 6) + '" y="' + (sy(v) + 4) + '" font-size="11" text-anchor="end" fill="var(--ink-3)">' + v + '%</text>'; });
+    g += '<line x1="' + sx(0) + '" x2="' + sx(0) + '" y1="' + T + '" y2="' + (H - B) + '" stroke="var(--ink-3)" stroke-width="1"></line><line x1="' + L + '" x2="' + (W - R) + '" y1="' + sy(0) + '" y2="' + sy(0) + '" stroke="var(--ink-3)" stroke-width="1"></line>';
+    g += '<line x1="' + sx(-40) + '" y1="' + sy(-40) + '" x2="' + sx(80) + '" y2="' + sy(80) + '" stroke="var(--ink-3)" stroke-dasharray="4 4" stroke-width="1"></line>';
+    var placed = [];
+    pts.sort(function (a, b) { return sy(a.y) - sy(b.y); }).forEach(function (p) {
+      var gap = p.x - p.y, col = gap > 60 ? 'var(--down)' : gap < -30 ? 'var(--up)' : 'var(--heat)';
+      var lx = sx(p.x) + 7, ly = sy(p.y) + 4, lw = FIELD[p.f].length * 11;
+      if (lx + lw > W - R) lx = sx(p.x) - 7 - lw;
+      placed.forEach(function (q) { if (Math.abs(q.x - lx) < Math.max(q.w, lw) && Math.abs(q.y - ly) < 13) ly = q.y + 13; });
+      placed.push({ x: lx, y: ly, w: lw });
+      g += '<circle cx="' + sx(p.x) + '" cy="' + sy(p.y) + '" r="5" fill="' + col + '"></circle><text x="' + lx + '" y="' + ly + '" font-size="11.5" fill="var(--ink-2)">' + FIELD[p.f] + '</text>';
+    });
+    document.getElementById('hype').innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="분야별 언론 증가율과 연구·구현 증가율 산점도">' + g + '</svg>';
+  }
+
+  function renderLife() {
+    var lanes = [['new', '신규 등장', 'st-new'], ['rise', '급상승', 'st-rise'], ['steady', '지속 관심', 'st-steady'], ['fall', '하락', 'st-fall']];
+    document.getElementById('life').innerHTML = lanes.map(function (l) {
+      var items = KEYWORDS.filter(function (k) { return k.state === l[0]; });
+      return '<div><h3><span class="state ' + l[2] + '">' + l[1] + '</span><span class="num">' + items.length + '</span></h3>' + items.map(function (k) {
+        var neg = k.d.indexOf('−') === 0;
+        return '<div class="kwl"><span>' + k.k + '</span>' + spark(k.s, 56, 16, neg ? 'var(--down)' : 'var(--heat)', false) + '<span class="num ' + (neg ? 'down' : k.state === 'steady' ? '' : 'up') + '">' + k.d + '</span></div>';
+      }).join('') + '</div>';
+    }).join('');
+  }
+
+  function renderAll() { renderKpis(); renderHeat(); renderDetail(); renderMomentum(); renderHype(); renderLife(); }
+
+  document.getElementById('heat').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-f]'); if (!b) return;
+    sel = [b.dataset.f, b.dataset.p]; renderHeat(); renderDetail();
+    if (window.innerWidth <= 1100) document.getElementById('detail').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+  document.getElementById('all').addEventListener('click', function () { showAll = !showAll; renderHeat(); });
+  var btns = document.querySelectorAll('#period button');
+  btns.forEach(function (b) { b.addEventListener('click', function () { btns.forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); }); period = b.dataset.p; renderAll(); }); });
+  renderAll();
+  initTheme();
+})();
+</script>
+</body>
+</html>
