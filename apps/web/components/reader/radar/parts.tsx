@@ -23,7 +23,7 @@ export function Panel({
   className?: string;
 }) {
   return (
-    <section id={id} aria-labelledby={id ? `${id}-title` : undefined} className={cn("min-w-0 rounded-2xl border bg-card p-4 shadow-xs md:p-5", className)}>
+    <section id={id} aria-labelledby={id ? `${id}-title` : undefined} className={cn("min-w-0 scroll-mt-28 rounded-2xl border bg-card p-4 shadow-xs md:p-5", className)}>
       <header className="mb-3 flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
         <div className="min-w-0">
           <h2 id={id ? `${id}-title` : undefined} className="text-[15px] font-bold tracking-tight">

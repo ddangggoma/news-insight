@@ -4,7 +4,7 @@ import { ViewTransition } from "react";
 
 import { ChartTips } from "@/components/reader/radar/chart-tips";
 import { Change, Legend, StateBadge } from "@/components/reader/radar/parts";
-import { formatRelative, REGION_LABEL, TRACK_LABEL } from "@/lib/format";
+import { formatDateTime, formatRelative, REGION_LABEL, TRACK_LABEL } from "@/lib/format";
 import {
   BASELINE_UNIT,
   businessShort,
@@ -13,7 +13,9 @@ import {
   last,
   mean,
   periodLabel,
+  projected,
   radarHref,
+  REGIONS,
   type RadarView,
   researchShare,
   STAGE_META,
@@ -36,9 +38,9 @@ const TRACK_FILL: Record<Track, string> = {
   news: "var(--viz-news)",
 };
 
-function Trend({ counts, periods }: { counts: number[]; periods: string[] }) {
+function Trend({ counts, periods, forecast }: { counts: number[]; periods: string[]; forecast: number | null }) {
   const W = 320, H = 120, B = 18, T = 14;
-  const max = Math.max(...counts, 1);
+  const max = Math.max(...counts, forecast ?? 0, 1);
   const base = mean(counts.slice(0, -1));
   const slot = W / counts.length;
   const bar = Math.min(24, slot * 0.6);
@@ -51,8 +53,11 @@ function Trend({ counts, periods }: { counts: number[]; periods: string[] }) {
         const h = H - B - y(count);
         const current = i === counts.length - 1;
         return (
-          <g key={periods[i]} data-tip={`${periods[i]}\n${count}건`}>
+          <g key={periods[i]} data-tip={`${periods[i]}\n${count}건${current && forecast !== null ? `\n지금 속도면 약 ${forecast}건` : ""}`}>
             <rect x={i * slot} y={0} width={slot} height={H} fill="transparent" />
+            {current && forecast !== null && forecast > count ? (
+              <rect x={x} y={y(forecast)} width={bar} height={H - B - y(forecast)} rx={4} fill="var(--primary)" fillOpacity={0.14} />
+            ) : null}
             {count ? (
               <path
                 d={`M${x},${H - B} v${-Math.max(h - 4, 0)} q0,-4 4,-4 h${bar - 8} q4,0 4,4 v${Math.max(h - 4, 0)} z`}
@@ -61,7 +66,7 @@ function Trend({ counts, periods }: { counts: number[]; periods: string[] }) {
               />
             ) : null}
             {current || count === max ? (
-              <text x={x + bar / 2} y={y(count) - 4} fontSize={11} fontWeight={700} textAnchor="middle" fill="var(--foreground)">
+              <text x={x + bar / 2} y={y(current && forecast !== null ? Math.max(count, forecast) : count) - 4} fontSize={11} fontWeight={700} textAnchor="middle" fill="var(--foreground)">
                 {count}
               </text>
             ) : null}
@@ -131,6 +136,7 @@ export function TopicPanel({ detail, radar, view }: { detail: TopicDetail; radar
   const share = researchShare(topic.tracks);
   const before = researchShare(topic.previous_tracks);
   const stage = stageOf(share);
+  const firstSeen = (Object.entries(topic.first_seen) as [Region, string][]).sort((a, b) => Date.parse(a[1]) - Date.parse(b[1]));
   const impactTotal = topic.impacts.opportunity + topic.impacts.risk + topic.impacts.watch;
   const at = (focus: { kind: "field" | "theme" | "keyword"; key: string }) => radarHref(radar.window.kind, radar.window.key, { ...view, focus });
   const field = kind === "field" ? topic.key : kind === "theme" ? topic.key.split("__")[0] : topic.field;
@@ -160,12 +166,14 @@ export function TopicPanel({ detail, radar, view }: { detail: TopicDetail; radar
             {topicLabel(kind, topic)}
             <StateBadge state={topic.state} />
           </h2>
-          <dl className="mt-3 grid grid-cols-4 gap-2 text-center">
+          <dl className="mt-3 grid grid-cols-3 gap-2 text-center">
             {[
               ["언급", `${current}건`],
               ["직전 대비", <Change key="c" value={topic.change} />],
               ["모멘텀", formatZ(topic.z)],
               ["출처", `${topic.sources}곳`],
+              ["실효 출처", topic.effective_sources !== null ? `${topic.effective_sources.toFixed(1)}곳` : "–"],
+              ["공식 발표", current ? `${Math.round((topic.official / current) * 100)}%` : "–"],
             ].map(([label, value]) => (
               <div key={String(label)} className="rounded-xl bg-muted/70 px-1 py-2">
                 <dt className="text-[11px] text-muted-foreground">{label}</dt>
@@ -176,7 +184,7 @@ export function TopicPanel({ detail, radar, view }: { detail: TopicDetail; radar
         </header>
 
         <Section title={`최근 ${topic.counts.length}개 기간 (선 = 직전 ${topic.counts.length - 1}${BASELINE_UNIT[radar.window.kind]} 평균)`}>
-          <Trend counts={topic.counts} periods={radar.periods} />
+          <Trend counts={topic.counts} periods={radar.periods} forecast={projected(current, radar.window.elapsed)} />
         </Section>
 
         <Section title="신호 단계 · 트랙 구성">
@@ -248,15 +256,25 @@ export function TopicPanel({ detail, radar, view }: { detail: TopicDetail; radar
           </Section>
         ) : null}
 
-        {detail.regions.length ? (
-          <Section title="지역">
-            <p className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-ink-2">
-              {detail.regions.map((region) => (
-                <span key={region.key}>
-                  {REGION_LABEL[region.key as Region] ?? region.key} <b className="tabular-nums">{region.count}</b>
-                </span>
-              ))}
-            </p>
+        {current ? (
+          <Section title="지역 · 처음 보도된 순서">
+            <Bars
+              rows={REGIONS.filter((r) => topic.regions[r]).map((r) => ({ key: r, count: topic.regions[r] }))}
+              label={(key) => REGION_LABEL[key as Region] ?? key}
+              total={current}
+            />
+            {firstSeen.length > 1 ? (
+              <ol className="mt-2 flex flex-wrap items-center gap-x-1 gap-y-1 text-xs text-ink-2">
+                {firstSeen.map(([region, at], i) => (
+                  <li key={region} className="flex items-center gap-1">
+                    {i ? <span className="text-muted-foreground">→</span> : null}
+                    <span className={cn("rounded-full px-1.5 py-px", region === "kr" ? "bg-primary/12 font-semibold text-primary" : "bg-muted")}>
+                      {REGION_LABEL[region]} {i ? `+${((Date.parse(at) - Date.parse(firstSeen[0][1])) / 86_400_000).toFixed(1)}일` : formatDateTime(at).split(" ")[0]}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            ) : null}
           </Section>
         ) : null}
 

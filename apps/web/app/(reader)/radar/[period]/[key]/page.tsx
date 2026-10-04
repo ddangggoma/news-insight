@@ -5,6 +5,9 @@ import { FocusScroll } from "@/components/reader/radar/focus-scroll";
 import { CategoryTreemap, PositioningMatrix, TimingHeatmap } from "@/components/reader/radar/landscape";
 import { KpiStrip, SignalCards } from "@/components/reader/radar/overview";
 import { Panel } from "@/components/reader/radar/parts";
+import { FlowDiagram, ImpactBalance, RankBump } from "@/components/reader/radar/dynamics";
+import { KoreaWatch, RegionLens } from "@/components/reader/radar/regions";
+import { SectionNav } from "@/components/reader/radar/section-nav";
 import { CategoryShare, MaturityBars } from "@/components/reader/radar/structure";
 import { ConvergenceNetwork, EmergingTable, PairList, TechCloud } from "@/components/reader/radar/technology";
 import { TopicPanel } from "@/components/reader/radar/topic-panel";
@@ -57,8 +60,9 @@ export default async function RadarPage({ params, searchParams }: Props) {
         </div>
       </header>
       <RadarControls radar={radar} view={view} />
+      <SectionNav />
 
-      <section aria-labelledby="signals-title" className="space-y-3">
+      <section id="signals" aria-labelledby="signals-title" className="scroll-mt-28 space-y-3">
         <h2 id="signals-title" className="text-sm font-bold">
           지금 볼 신호 <span className="font-normal text-muted-foreground">· 눌러서 오른쪽에서 자세히</span>
         </h2>
@@ -67,7 +71,7 @@ export default async function RadarPage({ params, searchParams }: Props) {
       <KpiStrip radar={radar} />
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start">
-        <aside aria-label="선택한 항목" aria-live="polite" className="min-w-0 lg:sticky lg:top-20 lg:order-2 lg:max-h-[calc(100dvh-6rem)] lg:overflow-y-auto lg:overscroll-contain">
+        <aside aria-label="선택한 항목" aria-live="polite" className="min-w-0 lg:sticky lg:top-28 lg:order-2 lg:max-h-[calc(100dvh-8rem)] lg:overflow-y-auto lg:overscroll-contain">
           <FocusScroll focusKey={view.focus ? focusParam(view.focus) : ""}>
             <div className="rounded-2xl border bg-card p-4 shadow-xs md:p-5">
               {detail ? <TopicPanel detail={detail} radar={radar} view={view} /> : <p className="text-sm text-muted-foreground">이 기간에 분류된 기사가 아직 없습니다.</p>}
@@ -99,6 +103,10 @@ export default async function RadarPage({ params, searchParams }: Props) {
             </Panel>
           </div>
 
+          <Panel id="rank" title="테마 순위 변화" question="누가 치고 올라오고, 누가 밀려나나?" note="이번 기간 언급량 상위 10개 테마의 기간별 순위. 첫 기간 대비 3계단 이상 움직인 선만 색으로 강조합니다.">
+            <RankBump radar={radar} view={view} />
+          </Panel>
+
           <div className="grid gap-5 xl:grid-cols-2">
             <Panel id="cloud" title="기술 워드 클라우드" question="이번 기간 많이 말해진 기술은?" note="카드 키워드를 띄어쓰기·대소문자 무시하고 묶었습니다. 2번 이상 언급된 기술만.">
               <TechCloud radar={radar} view={view} />
@@ -108,6 +116,18 @@ export default async function RadarPage({ params, searchParams }: Props) {
             </Panel>
           </div>
 
+          <Panel
+            id="regions"
+            title="지역 관점"
+            question="해외에서 뜨는데 국내는 조용한 것은? 국내가 유독 많이 다루는 것은?"
+            note="특화 지수 = 그 지역 보도 중 테마 비중 ÷ 전체 보도 중 테마 비중. 국내 반영 지연은 직전 7기간 안에 처음 등장한 신규·급상승 기술만 봅니다."
+          >
+            <div className="grid gap-5 xl:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] [&>*]:min-w-0">
+              <RegionLens radar={radar} view={view} />
+              <KoreaWatch radar={radar} view={view} />
+            </div>
+          </Panel>
+
           <Panel id="share" title="카테고리 점유율" question="관심의 무게중심은 어디로 옮겨가고 있나?" note="전체 분석 기사 중 카테고리별 비중(Share of Voice). 모든 칸이 같은 세로 눈금을 씁니다.">
             <CategoryShare radar={radar} view={view} />
           </Panel>
@@ -115,6 +135,20 @@ export default async function RadarPage({ params, searchParams }: Props) {
           <div className="grid gap-5 xl:grid-cols-2">
             <Panel id="maturity" title="신호 단계" question="연구 단계인가, 시장에 나왔나?" note="논문·오픈소스 비중이 높으면 초기, 뉴스·커뮤니티가 대부분이면 상용·화제 단계입니다. 비중이 줄면 상용화로 이동 중.">
               <MaturityBars radar={radar} view={view} />
+            </Panel>
+            <Panel id="impact" title="기회 · 위험 균형" question="어느 테마가 기회로, 어느 테마가 위험으로 읽히나?" note="카드 분류의 영향(기회·관찰·위험) 비율. 순기회 = (기회 − 위험) ÷ 전체 × 100.">
+              <ImpactBalance radar={radar} view={view} />
+            </Panel>
+          </div>
+
+          <div className="grid gap-5 xl:grid-cols-2">
+            <Panel
+              id="flows"
+              title="확산 경로"
+              question="어느 트랙에서 먼저 나오고, 얼마 만에 옮겨가나?"
+              note="같은 이슈로 묶인 보도와 같은 arXiv·DOI·저장소를 가리키는 보도를 이어, 이번 기간에 새 트랙에 도달한 경우만 셉니다."
+            >
+              <FlowDiagram radar={radar} />
             </Panel>
             <Panel id="network" title="기술 융합 네트워크" question="어떤 기술이 함께 이야기되기 시작했나?" note="같은 기사에 함께 나온 기술 쌍. 배수 = 우연히 함께 나올 기대치 대비(lift).">
               <ConvergenceNetwork radar={radar} view={view} />

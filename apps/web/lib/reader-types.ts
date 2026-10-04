@@ -113,6 +113,14 @@ export interface Topic {
   tracks: TrackMix;
   previous_tracks: TrackMix;
   impacts: Record<"opportunity" | "risk" | "watch", number>;
+  /** Current window by source region. */
+  regions: Record<Region, number>;
+  /** Earliest report per region over the trend span (ISO time); regions without reports are absent. */
+  first_seen: Partial<Record<Region, string>>;
+  /** Current-window reports from official vendor sources. */
+  official: number;
+  /** 1 / HHI of reports per source: 1 = a single outlet. */
+  effective_sources: number | null;
 }
 
 export interface KeywordPair {
@@ -121,6 +129,13 @@ export interface KeywordPair {
   count: number;
   lift: number;
   is_new: boolean;
+}
+
+export interface FlowLink {
+  source: Track;
+  target: Track;
+  count: number;
+  median_hours: number;
 }
 
 export interface Radar {
@@ -138,6 +153,8 @@ export interface Radar {
   themes: Topic[];
   keywords: Topic[];
   pairs: KeywordPair[];
+  /** Track-to-track hand-offs completed in the window. */
+  flows: { chains: number; origins: Partial<Record<Track, number>>; links: FlowLink[] };
 }
 
 export interface TopicDetail {

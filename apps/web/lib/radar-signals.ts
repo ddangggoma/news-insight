@@ -4,15 +4,17 @@ import {
   formatChange,
   formatZ,
   keywordIndex,
+  koreaGaps,
   last,
   mean,
   researchShare,
+  STATE_META,
   topicLabel,
 } from "@/lib/radar";
 import type { Radar, Topic, TrackMix } from "@/lib/reader-types";
 import { FIELD_LABEL } from "@/lib/taxonomy";
 
-export type SignalTone = "surge" | "new" | "early" | "shift" | "hype" | "link" | "cool";
+export type SignalTone = "surge" | "new" | "early" | "shift" | "hype" | "thin" | "gap" | "link" | "cool";
 
 export type Signal = { tone: SignalTone; title: string; detail: string; focus: Focus };
 
@@ -23,6 +25,8 @@ export const SIGNAL_META: Record<SignalTone, { label: string }> = {
   shift: { label: "상용화 이동" },
   hype: { label: "화제 과열" },
   link: { label: "융합 신호" },
+  thin: { label: "검증 필요" },
+  gap: { label: "국내 공백" },
   cool: { label: "관심 감소" },
 };
 
@@ -143,6 +147,42 @@ export function radarSignals(radar: Radar): Signal[] {
       title: `${a ? topicLabel("keyword", a) : link.a} × ${b ? topicLabel("keyword", b) : link.b}`,
       detail: `함께 언급 ${link.count}건, 우연 대비 ${link.lift.toFixed(1)}배${link.is_new ? " · 이번 기간 첫 동시 언급" : ""}${new Set(fields).size === 2 ? ` · ${fields.map((f) => FIELD_LABEL[f]).join("↔")}` : ""}`,
       focus: { kind: "keyword", key: link.a },
+    });
+  }
+
+  // a rise carried by one or two outlets, or mostly by vendors' own announcements
+  const thin = top(
+    unused(themes).filter((t) => {
+      const count = last(t.counts);
+      const narrow = t.effective_sources !== null && t.effective_sources < 2.5;
+      return count >= 5 && t.z >= 1 && (narrow || t.official / count > 0.5);
+    }),
+    (t) => t.z,
+  );
+  if (thin) {
+    const count = last(thin.counts);
+    const parts = [
+      thin.effective_sources !== null ? `실효 출처 ${thin.effective_sources.toFixed(1)}곳` : "",
+      thin.official ? `공식 발표 ${Math.round((thin.official / count) * 100)}%` : "",
+    ].filter(Boolean);
+    push({
+      tone: "thin",
+      title: topicLabel("theme", thin),
+      detail: `${count}건, ${formatZ(thin.z)} 상승이지만 ${parts.join(" · ")}: 독립 보도로 확인 필요`,
+      focus: theme(thin),
+    });
+  }
+
+  const gap = koreaGaps(radar, 3);
+  if (gap.length) {
+    const lead = gap[0];
+    const abroad = last(lead.counts);
+    const others = gap.slice(1).map((k) => topicLabel("keyword", k));
+    push({
+      tone: "gap",
+      title: topicLabel("keyword", lead),
+      detail: `해외 ${abroad}건 · ${lead.state ? STATE_META[lead.state].label : ""}, 국내 출처 0건${others.length ? ` · 같은 상황: ${others.join(", ")}` : ""}`,
+      focus: { kind: "keyword", key: lead.key },
     });
   }
 

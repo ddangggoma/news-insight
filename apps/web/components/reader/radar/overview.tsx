@@ -1,10 +1,10 @@
-import { ArrowRightLeft, FlaskConical, Flame, Link2, Sparkles, TrendingDown, TrendingUp } from "lucide-react";
+import { ArrowRightLeft, FlaskConical, Flame, Globe2, Link2, SearchCheck, Sparkles, TrendingDown, TrendingUp } from "lucide-react";
 import Link from "next/link";
 
 import { Change } from "@/components/reader/radar/parts";
 import { Sparkline } from "@/components/reader/sparkline";
 import { formatNumber } from "@/lib/format";
-import { changePercent, formatPoints, last, radarHref, type RadarView } from "@/lib/radar";
+import { changePercent, formatPoints, last, projected, radarHref, type RadarView } from "@/lib/radar";
 import { radarSignals, SIGNAL_META, type SignalTone } from "@/lib/radar-signals";
 import type { Radar } from "@/lib/reader-types";
 import { cn } from "@/lib/utils";
@@ -32,10 +32,16 @@ export function KpiStrip({ radar }: { radar: Radar }) {
   const surgingTech = radar.keywords.filter((k) => k.state === "surging").length;
   const activeThemes = radar.themes.filter((t) => last(t.counts) > 0);
   const risingThemes = activeThemes.filter((t) => t.z >= 1).length;
+  const pace = projected(last(kpis.items), radar.window.elapsed);
   const vs = (values: number[]) => <><Change value={changePercent(last(values), values[values.length - 2] ?? 0)} /> 직전 기간 대비</>;
   return (
     <dl className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
-      <Tile label="분석 기사" value={formatNumber(last(kpis.items))} note={vs(kpis.items)} trend={kpis.items} />
+      <Tile
+        label="분석 기사"
+        value={formatNumber(last(kpis.items))}
+        note={pace ? <>{vs(kpis.items)} · 지금 속도면 약 {formatNumber(pace)}건</> : vs(kpis.items)}
+        trend={kpis.items}
+      />
       <Tile label="이슈 (중복 보도 묶음)" value={formatNumber(last(kpis.stories))} note={<>새 이슈 {kpis.new_stories} · 여러 트랙 {kpis.cross_track_stories}</>} trend={kpis.stories} />
       <Tile label="참여 출처" value={formatNumber(last(kpis.sources))} note={vs(kpis.sources)} trend={kpis.sources} />
       <Tile
@@ -56,6 +62,8 @@ const SIGNAL_ICON: Record<SignalTone, typeof Flame> = {
   early: FlaskConical,
   shift: ArrowRightLeft,
   hype: TrendingUp,
+  thin: SearchCheck,
+  gap: Globe2,
   link: Link2,
   cool: TrendingDown,
 };
@@ -65,6 +73,8 @@ const SIGNAL_TONE: Record<SignalTone, string> = {
   early: "text-track-research bg-track-research/12",
   shift: "text-track-oss bg-track-oss/12",
   hype: "text-track-community bg-track-community/12",
+  thin: "text-impact-risk bg-impact-risk/12",
+  gap: "text-track-news bg-track-news/12",
   link: "text-track-news bg-track-news/12",
   cool: "text-state-cool bg-state-cool/12",
 };

@@ -1,6 +1,7 @@
 import { withQuery } from "@/lib/query";
 import type { Scope } from "@/lib/reader-filters";
 import type { Radar, RadarKind, Topic, TopicKind, TopicState, TrackMix } from "@/lib/reader-types";
+import type { Region } from "@/lib/types";
 import { BUSINESS_LABEL, FIELD_LABEL, THEME_LABEL } from "@/lib/taxonomy";
 
 export const RADAR_KINDS: Record<RadarKind, string> = { day: "일간", week: "주간", month: "월간", quarter: "분기" };
@@ -347,4 +348,77 @@ export function initialFocus(radar: Radar, requested: Focus | null): Focus | nul
     .sort((a, b) => b.z - a.z || last(b.counts) - last(a.counts));
   if (ranked.length) return { kind: "theme", key: ranked[0].key };
   return radar.fields.length ? { kind: "field", key: radar.fields[0].key } : null;
+}
+
+// ── regions, ranks, projection ───────────────────────────────────────────────────────────
+
+export const REGIONS: Region[] = ["kr", "global_en", "jp", "greater_china", "eu_other"];
+
+/** Reports per region in the window: every item has one field, so field totals are item totals. */
+export function regionTotals(radar: Radar): Record<Region, number> {
+  const totals = Object.fromEntries(REGIONS.map((r) => [r, 0])) as Record<Region, number>;
+  for (const field of radar.fields) for (const r of REGIONS) totals[r] += field.regions[r] ?? 0;
+  return totals;
+}
+
+/**
+ * Location quotient: the topic's share of one region's coverage over its share of all coverage.
+ * 1 = in line, 2 = that region talks about it twice as much, 0.5 = half. Null when the region
+ * would be expected to carry fewer than MIN_EXPECTED reports anyway: a zero there is not a gap.
+ */
+export const MIN_EXPECTED = 1.5;
+
+export function specialization(topic: Topic, region: Region, totals: Record<Region, number>): number | null {
+  const all = REGIONS.reduce((sum, r) => sum + totals[r], 0);
+  const count = last(topic.counts);
+  if (!totals[region] || !all || !count || (count * totals[region]) / all < MIN_EXPECTED) return null;
+  return (topic.regions[region] / totals[region]) / (count / all);
+}
+
+const DAY = 86_400_000;
+
+/** Days between the first report anywhere and the first Korean report; null when either is missing. */
+export function koreaLagDays(topic: Topic): number | null {
+  const kr = topic.first_seen.kr;
+  const others = REGIONS.filter((r) => r !== "kr")
+    .map((r) => topic.first_seen[r])
+    .filter((t): t is string => !!t)
+    .map((t) => Date.parse(t));
+  if (!kr || !others.length) return null;
+  return (Date.parse(kr) - Math.min(...others)) / DAY;
+}
+
+/** Technologies moving abroad that Korean sources have not picked up yet. */
+export function koreaGaps(radar: Radar, limit = 6): Topic[] {
+  return radar.keywords
+    .filter((k) => (k.state === "new" || k.state === "surging" || k.state === "rising") && k.regions.kr === 0 && last(k.counts) >= 4)
+    .sort((a, b) => last(b.counts) - last(a.counts) || b.z - a.z)
+    .slice(0, limit);
+}
+
+/** Current-window count at the pace so far; null for a closed window or too early to tell. */
+export function projected(count: number, elapsed: number | null): number | null {
+  if (elapsed === null || elapsed >= 1 || elapsed < 0.15) return null;
+  return Math.round(count / elapsed);
+}
+
+/** Rank (1 = most mentioned) of each topic in every window, for the `top` topics of the last window. */
+export function rankSeries(topics: Topic[], top = 10): { topic: Topic; ranks: (number | null)[] }[] {
+  const windows = topics[0]?.counts.length ?? 0;
+  const ranksByWindow = Array.from({ length: windows }, (_, i) => {
+    const ordered = topics.filter((t) => t.counts[i] > 0).sort((a, b) => b.counts[i] - a.counts[i] || a.key.localeCompare(b.key));
+    return new Map(ordered.map((t, rank) => [t.key, rank + 1]));
+  });
+  return [...topics]
+    .filter((t) => last(t.counts) > 0)
+    .sort((a, b) => last(b.counts) - last(a.counts) || a.key.localeCompare(b.key))
+    .slice(0, top)
+    .map((topic) => ({ topic, ranks: ranksByWindow.map((ranks) => ranks.get(topic.key) ?? null) }));
+}
+
+/** Net opportunity: (opportunity − risk) ÷ all classified reports, −1…1. */
+export function netOpportunity(topic: Topic): number | null {
+  const { opportunity, risk, watch } = topic.impacts;
+  const total = opportunity + risk + watch;
+  return total ? (opportunity - risk) / total : null;
 }

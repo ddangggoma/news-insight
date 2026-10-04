@@ -2,6 +2,13 @@ import { describe, expect, it } from "vitest";
 
 import {
   forceLayout,
+  koreaGaps,
+  koreaLagDays,
+  netOpportunity,
+  projected,
+  rankSeries,
+  regionTotals,
+  specialization,
   formatChange,
   formatPoints,
   formatZ,
@@ -35,6 +42,10 @@ function topic(key: string, counts: number[], patch: Partial<Topic> = {}): Topic
     tracks: mix(last(counts)),
     previous_tracks: mix(counts[counts.length - 2]),
     impacts: { opportunity: 0, risk: 0, watch: 0 },
+    regions: { kr: 0, global_en: last(counts), jp: 0, greater_china: 0, eu_other: 0 },
+    first_seen: {},
+    official: 0,
+    effective_sources: 3,
     ...patch,
   };
 }
@@ -68,6 +79,7 @@ const radar: Radar = {
     { a: "hbm4", b: "온디바이스ai", count: 3, lift: 3.2, is_new: true },
     { a: "hbm4", b: "유리기판", count: 2, lift: 1.5, is_new: false },
   ],
+  flows: { chains: 0, origins: {}, links: [] },
 };
 
 describe("radar URL state", () => {
@@ -123,6 +135,57 @@ describe("radar numbers", () => {
   it("opens the requested topic, else the theme with the strongest momentum", () => {
     expect(initialFocus(radar, { kind: "keyword", key: "hbm4" })).toEqual({ kind: "keyword", key: "hbm4" });
     expect(initialFocus(radar, null)).toEqual({ kind: "theme", key: "ai_data__ai_agents" });
+  });
+});
+
+describe("radar regions, ranks and projection", () => {
+  it("measures regional specialization and holds back thin cells", () => {
+    const field = topic("ai_data", [0, 10], { regions: { kr: 6, global_en: 4, jp: 0, greater_china: 0, eu_other: 0 } });
+    const other = topic("semiconductor", [0, 10], { regions: { kr: 2, global_en: 7, jp: 1, greater_china: 0, eu_other: 0 } });
+    const totals = regionTotals({ ...radar, fields: [field, other] });
+    expect(totals).toEqual({ kr: 8, global_en: 11, jp: 1, greater_china: 0, eu_other: 0 });
+    // Korea: 6 of 8 Korean reports vs 10 of 20 overall
+    expect(specialization(field, "kr", totals)).toBeCloseTo(1.5);
+    expect(specialization(field, "global_en", totals)).toBeCloseTo((4 / 11) / 0.5);
+    // Japan would expect 0.5 reports: a zero there is not a gap
+    expect(specialization(field, "jp", totals)).toBeNull();
+    expect(specialization(field, "greater_china", totals)).toBeNull();
+  });
+
+  it("finds Korean gaps and lags", () => {
+    const gaps = koreaGaps({
+      ...radar,
+      keywords: [
+        topic("x", [0, 0, 0, 5], { state: "rising", regions: { kr: 0, global_en: 5, jp: 0, greater_china: 0, eu_other: 0 } }),
+        topic("y", [0, 0, 0, 5], { state: "rising", regions: { kr: 1, global_en: 4, jp: 0, greater_china: 0, eu_other: 0 } }),
+        topic("z", [0, 0, 0, 3], { state: "new" }),
+        topic("w", [5, 5, 5, 6], { state: "steady" }),
+      ],
+    });
+    expect(gaps.map((k) => k.key)).toEqual(["x"]);
+    const lagged = topic("k", [0, 1], { first_seen: { global_en: "2026-09-01T00:00:00Z", jp: "2026-09-02T00:00:00Z", kr: "2026-09-04T12:00:00Z" } });
+    expect(koreaLagDays(lagged)).toBe(3.5);
+    expect(koreaLagDays(topic("k", [0, 1], { first_seen: { global_en: "2026-09-01T00:00:00Z" } }))).toBeNull();
+  });
+
+  it("projects the open window at the current pace, not too early and never for a closed one", () => {
+    expect(projected(30, 0.5)).toBe(60);
+    expect(projected(3, 0.1)).toBeNull();
+    expect(projected(30, null)).toBeNull();
+    expect(projected(30, 1)).toBeNull();
+  });
+
+  it("ranks topics per window and scores net opportunity", () => {
+    const series = rankSeries(
+      [topic("a", [5, 1, 9]), topic("b", [1, 5, 8]), topic("c", [0, 3, 1]), topic("d", [9, 9, 0])],
+      2,
+    );
+    expect(series.map((row) => [row.topic.key, row.ranks])).toEqual([
+      ["a", [2, 4, 1]],
+      ["b", [3, 2, 2]],
+    ]);
+    expect(netOpportunity(topic("a", [1], { impacts: { opportunity: 6, risk: 2, watch: 2 } }))).toBeCloseTo(0.4);
+    expect(netOpportunity(topic("a", [1]))).toBeNull();
   });
 });
 
@@ -199,6 +262,21 @@ describe("radar signals", () => {
     expect(hype.detail).toBe("뉴스·커뮤니티 ▲167%, 논문·오픈소스 ▼50%: 화제가 실체보다 앞섬");
     const keys = signals.filter((s) => s.focus.kind === "theme").map((s) => s.focus.key);
     expect(new Set(keys).size).toBe(keys.length);
+  });
+
+  it("flags thin sourcing and Korean gaps", () => {
+    const narrow = topic("cloud_infra__kubernetes_container", [2, 2, 2, 8], { z: 3, effective_sources: 1.6 });
+    const vendor = topic("mobile_edge__android_mobile_os", [2, 2, 2, 6], { z: 2, official: 4 });
+    const abroad = topic("wasm", [0, 0, 1, 6], { label: "WASM", state: "rising", regions: { kr: 0, global_en: 6, jp: 0, greater_china: 0, eu_other: 0 } });
+    const signals = radarSignals({ ...radar, themes: [narrow, vendor], keywords: [abroad], pairs: [] });
+    const thin = signals.find((s) => s.tone === "thin")!;
+    expect(thin.title).toBe("Kubernetes·컨테이너");
+    expect(thin.detail).toContain("실효 출처 1.6곳");
+    const gap = signals.find((s) => s.tone === "gap")!;
+    expect(gap.title).toBe("WASM");
+    expect(gap.detail).toContain("해외 6건");
+    const onlyVendor = radarSignals({ ...radar, themes: [vendor], keywords: [], pairs: [] }).find((s) => s.tone === "thin")!;
+    expect(onlyVendor.detail).toContain("공식 발표 67%");
   });
 
   it("stays quiet on an empty radar", () => {
