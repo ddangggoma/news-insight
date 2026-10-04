@@ -138,7 +138,10 @@ THEMES = [
             Kw("컴퓨터 사용 에이전트"),
             Kw("A2A 프로토콜", 1, start=DAYS - 60),
         ],
-        also=(("ai_data__edge_ai", 0.15),),
+        also=(
+            ("software_dev__developer_experience", 0.15),
+            ("ai_data__edge_ai", 0.15),
+        ),
         stars=2.5,
         chains=30,
     ),
@@ -195,6 +198,7 @@ THEMES = [
         regions={KR: 0.55, EN: 0.3, JP: 0.05, CN: 0.07, EU: 0.03},
         impacts=(0.5, 0.3, 0.2),
         keywords=[Kw("HBM4", 3), Kw("CXL"), Kw("LPDDR6"), Kw("PIM")],
+        also=(("cloud_infra__finops_green_compute", 0.15),),
     ),
     Theme(
         "semiconductor__advanced_packaging",
@@ -222,6 +226,7 @@ THEMES = [
         (7, 3, 0, 0),
         official=0.25,
         keywords=[Kw("갤럭시", 2), Kw("폴더블"), Kw("아이폰"), Kw("트라이폴드")],
+        also=(("ai_data__edge_ai", 0.3),),
     ),
     Theme(
         "mobile_edge__android_mobile_os",
@@ -373,6 +378,7 @@ THEMES = [
             Kw("SDV"),
             Kw("자율주행 레벨3", variants=("자율 주행 레벨3",)),
         ],
+        also=(("ai_data__multimodal", 0.2),),
     ),
     Theme(
         "manufacturing_supply__supply_resilience",
