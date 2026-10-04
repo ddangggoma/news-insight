@@ -45,7 +45,14 @@
 
 ## 4. DLQ 처리
 
-콘솔 → DLQ에서 항목마다 **재시도** 또는 **종결**합니다. 같은 소스가 반복되면:
+콘솔 → DLQ에서 항목마다 **재시도** 또는 **종결**합니다.
+
+- 같은 소스가 같은 오류로 **두 번째** DLQ에 가면 새 항목을 만들지 않고 기존 항목의 시도 수를 늘리며 소스를 일시정지합니다(사유 `repeated <코드>`). 차단하는 사이트를 주기마다 다시 두드리지 않기 위해서입니다. 재시도하려면 소스를 재개한 뒤 DLQ에서 재시도합니다.
+- 콘텐츠 형식 오류(`blocked_mime`, 점검·동의 페이지가 잠깐 나오는 경우)도 두 번째에 정지합니다. 사설 주소 같은 다른 `blocked_*`는 첫 번째에 바로 정지합니다.
+- 서버가 기다릴 시간을 알려 주면(429 `Retry-After`, Stack Exchange `throttle_violation`) 그만큼(최대 24시간) 뒤에 재시도하고 DLQ에 넣지 않습니다.
+- 403 봇 차단(예: phonearena, euractiv, ericsson, huawei-central, pew)은 우회하지 않습니다. 정지된 채로 두거나 카탈로그에서 빼세요.
+
+같은 소스가 반복되면:
 - `config_error`(키·설정): `.env`의 `SOURCE_SECRET_*` 확인 후 `docker compose up -d` → 재시도
 - `http_4xx`·`robots_disallowed`: 사이트 정책 변화. 소스를 일시정지하거나 카탈로그에서 빼고 `sources seed --prune`(cards-and-collection.md §12)
 - `parse_error`: 사이트 구조 변경. 카탈로그 설정(선택자·피드 주소) 수정 후 시드

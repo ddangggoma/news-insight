@@ -32,6 +32,9 @@ COLLECTABLE_STAGES = frozenset(STAGE_ORDER[STAGE_ORDER.index(ValidationStage.V3)
 LOCAL_RATE_LIMIT_DELAY = timedelta(seconds=60)
 MESSAGE_LIMIT = 2000
 PAUSING_CODES = frozenset({"selector_drift", "config_error"})
+# A wrong content type is often a temporary maintenance or consent page: two strikes, not one.
+SECOND_STRIKE_CODES = frozenset({"blocked_mime"})
+MAX_RETRY_AFTER = timedelta(hours=24)
 
 
 def is_collectable(source: Source) -> bool:
@@ -166,26 +169,47 @@ def _handle_failure(
     run.outcome = FetchOutcome.FAILED
     run.http_status = exc.status_code
     run.error_message = message
-    pauses = exc.code in PAUSING_CODES or exc.code.startswith("blocked_")
+    pauses = exc.code in PAUSING_CODES or (
+        exc.code.startswith("blocked_") and exc.code not in SECOND_STRIKE_CODES
+    )
     if exc.retryable and not pauses and run.attempt <= MAX_RETRIES:
         runtime.consecutive_failures = run.attempt
-        runtime.next_due_at = now + timedelta(seconds=retry_delay(run.attempt))
+        delay = timedelta(seconds=retry_delay(run.attempt))
+        if exc.retry_after:
+            delay = max(delay, min(timedelta(seconds=exc.retry_after), MAX_RETRY_AFTER))
+        runtime.next_due_at = now + delay
         return _finish(session, run, now, error_code=exc.code)
 
-    session.add(
-        DeadLetter(
-            source_id=source.id,
-            fetch_run_id=run.id,
-            error_code=exc.code,
-            error_message=message,
-            attempts=run.attempt,
+    # The same unresolved failure again: fold it into the open letter and stop polling the
+    # source, so a blocked site is not hit (and the DLQ not refilled) on every interval.
+    open_letter = session.scalars(
+        select(DeadLetter).where(
+            DeadLetter.source_id == source.id,
+            DeadLetter.error_code == exc.code,
+            DeadLetter.resolved_at.is_(None),
         )
-    )
+    ).first()
+    if open_letter is not None:
+        open_letter.attempts += run.attempt
+        open_letter.fetch_run_id = run.id
+        open_letter.error_message = message
+        pauses = True
+    else:
+        session.add(
+            DeadLetter(
+                source_id=source.id,
+                fetch_run_id=run.id,
+                error_code=exc.code,
+                error_message=message,
+                attempts=run.attempt,
+            )
+        )
     run.outcome = FetchOutcome.DEAD_LETTERED
     runtime.consecutive_failures = 0
     runtime.next_due_at = now + timedelta(seconds=runtime.interval_seconds)
     if pauses:
-        pause_source(session, source, reason=f"{exc.code}: {message}"[:500])
+        prefix = "repeated " if open_letter is not None else ""
+        pause_source(session, source, reason=f"{prefix}{exc.code}: {message}"[:500])
     return _finish(session, run, now, error_code=exc.code)
 
 
