@@ -7,9 +7,10 @@ import { PageHeader } from "@/components/console/page-header";
 import { PaginationBar } from "@/components/console/pagination-bar";
 import { StatCard } from "@/components/console/stat-card";
 import { api } from "@/lib/api";
-import { CATEGORY_LABEL, formatNumber, formatRelative, REGION_LABEL, TRACK_LABEL } from "@/lib/format";
+import { CATEGORY_LABEL, formatNumber, formatPercent, formatRelative, REGION_LABEL, TRACK_LABEL } from "@/lib/format";
 import { pageParam, param, type SearchParams } from "@/lib/params";
-import type { CardStats, CardView, Page, Region, Track } from "@/lib/types";
+import { BUSINESS_LABEL, FIELD_LABEL, IMPACT_LABEL, SCOPE_LABEL } from "@/lib/taxonomy";
+import type { CardFailure, CardStats, CardView, Page, Region, Track } from "@/lib/types";
 
 export const metadata = { title: "카드 뉴스" };
 
@@ -27,12 +28,26 @@ export default async function CardsPage({ searchParams }: { searchParams: Promis
     region: param(sp, "region"),
     days: param(sp, "days"),
     q: param(sp, "q"),
+    field: param(sp, "field"),
+    business: param(sp, "business"),
+    impact: param(sp, "impact"),
+    scope: param(sp, "scope"),
+    view: param(sp, "view"),
   };
   const page = pageParam(sp);
-  const [data, stats] = await Promise.all([
-    api.get<Page<CardView>>("/api/admin/cards", { ...filters, page }),
+  const [data, stats, failures] = await Promise.all([
+    api.get<Page<CardView>>("/api/admin/cards", {
+      ...filters,
+      view: undefined,
+      dedup: filters.view === "story" ? "true" : undefined,
+      page,
+    }),
     api.get<CardStats>("/api/admin/cards/stats"),
+    api.get<CardFailure[]>("/api/admin/cards/failures", { limit: 20 }),
   ]);
+  const scope7 = stats.scope_7d ?? {};
+  const classified7 = Object.entries(scope7).filter(([k]) => k !== "unclassified").reduce((sum, [, v]) => sum + v, 0);
+  const relevant7 = (scope7.dx ?? 0) + (scope7.dx_dependency ?? 0);
   const quota = stats.last_run?.quota;
   const engines = Object.entries(stats.by_engine)
     .map(([engine, count]) => `${ENGINE_LABEL[engine] ?? engine} ${formatNumber(count)}`)
@@ -45,7 +60,12 @@ export default async function CardsPage({ searchParams }: { searchParams: Promis
       />
       <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4 [&>*]:min-w-0">
         <StatCard title="오늘 만든 카드" value={formatNumber(stats.ready_today)} hint={`누적 ${formatNumber(stats.ready)}건`} icon={Sparkles} />
-        <StatCard title="생성 대기" value={formatNumber(stats.pending)} hint="10분마다 자동 처리" icon={Clock} />
+        <StatCard
+          title="생성 대기"
+          value={formatNumber(stats.pending)}
+          hint={`7일 성공률 ${formatPercent(stats.success_rate_7d ?? Number.NaN)} · DX 관련 ${formatPercent(classified7 ? relevant7 / classified7 : Number.NaN)}`}
+          icon={Clock}
+        />
         <StatCard title="엔진별 카드" value={engines || "—"} hint={stats.failed ? `실패 ${formatNumber(stats.failed)}건 (3회 재시도 후)` : "실패 없음"} icon={stats.failed ? TriangleAlert : Cpu} />
         <StatCard
           title="Antigravity 한도"
@@ -59,6 +79,21 @@ export default async function CardsPage({ searchParams }: { searchParams: Promis
           { name: "track", label: "트랙", value: filters.track, options: options<Track>(TRACK_LABEL) },
           { name: "category", label: "범주", value: filters.category, options: options(CATEGORY_LABEL) },
           { name: "region", label: "지역", value: filters.region, options: options<Region>(REGION_LABEL) },
+          { name: "business", label: "사업부", value: filters.business, options: options(BUSINESS_LABEL) },
+          { name: "field", label: "분야", value: filters.field, options: options(FIELD_LABEL) },
+          { name: "impact", label: "영향", value: filters.impact, options: options(IMPACT_LABEL) },
+          {
+            name: "scope",
+            label: "범위",
+            value: filters.scope,
+            options: [{ value: "relevant", label: "DX 관련만" }, ...options(SCOPE_LABEL)],
+          },
+          {
+            name: "view",
+            label: "보기",
+            value: filters.view,
+            options: [{ value: "story", label: "이슈별 1건 (중복 묶기)" }],
+          },
           {
             name: "days",
             label: "기간",
@@ -84,6 +119,21 @@ export default async function CardsPage({ searchParams }: { searchParams: Promis
         </div>
       )}
       <PaginationBar pathname="/console/cards" params={filters} page={page} size={data.size} total={data.total} />
+      {failures.length > 0 ? (
+        <details className="rounded-xl border bg-card p-4 text-sm">
+          <summary className="cursor-pointer font-medium">최근 실패한 카드 {failures.length}건 (보존 검증·출력 누락)</summary>
+          <ul className="mt-3 divide-y">
+            {failures.map((failure) => (
+              <li key={failure.item.id} className="flex flex-wrap items-center gap-2 py-2">
+                <a href={failure.item.url} target="_blank" rel="noreferrer" className="min-w-0 flex-1 truncate hover:underline">
+                  {failure.item.title}
+                </a>
+                <span className="text-xs text-muted-foreground">{failure.error ?? "알 수 없음"} · 시도 {failure.attempts}회</span>
+              </li>
+            ))}
+          </ul>
+        </details>
+      ) : null}
     </>
   );
 }

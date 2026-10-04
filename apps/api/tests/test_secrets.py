@@ -42,3 +42,40 @@ def test_unsupported_scheme_is_rejected() -> None:
 
     with pytest.raises(SecretError, match="unsupported auth scheme"):
         resolve_auth_headers(config, environ={"SOURCE_SECRET_TOKEN": "x"})
+
+
+def test_header_scheme_with_prefix() -> None:
+    config = {
+        "auth": {
+            "secret": "KAKAO_REST_KEY",
+            "scheme": "header",
+            "header": "Authorization",
+            "prefix": "KakaoAK ",
+        }
+    }
+
+    headers = resolve_auth_headers(config, environ={"SOURCE_SECRET_KAKAO_REST_KEY": "k1"})
+
+    assert headers == {"Authorization": "KakaoAK k1"}
+
+
+def test_multiple_header_secrets() -> None:
+    config = {
+        "auth": {
+            "scheme": "headers",
+            "headers": {
+                "X-Naver-Client-Id": "NAVER_CLIENT_ID",
+                "X-Naver-Client-Secret": "NAVER_CLIENT_SECRET",
+            },
+        }
+    }
+    environ = {"SOURCE_SECRET_NAVER_CLIENT_ID": "id", "SOURCE_SECRET_NAVER_CLIENT_SECRET": "pw"}
+
+    assert resolve_auth_headers(config, environ=environ) == {
+        "X-Naver-Client-Id": "id",
+        "X-Naver-Client-Secret": "pw",
+    }
+    with pytest.raises(SecretError, match="SOURCE_SECRET_NAVER_CLIENT_SECRET"):
+        resolve_auth_headers(config, environ={"SOURCE_SECRET_NAVER_CLIENT_ID": "id"})
+    with pytest.raises(SecretError, match="must map"):
+        resolve_auth_headers({"auth": {"scheme": "headers"}}, environ=environ)

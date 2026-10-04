@@ -129,11 +129,33 @@ class CardBody(BaseModel):
     engine: str | None
     model: str | None
     generated_at: datetime
+    field: str | None = None
+    themes: list[str] = []
+    businesses: list[str] = []
+    impact: str | None = None
+    scope: str | None = None
+    relevance: int | None = None
+
+
+class StoryRef(BaseModel):
+    id: int
+    item_count: int
+    source_count: int
+    tracks: list[str]
+    is_representative: bool
+
+
+class CardFailure(BaseModel):
+    item: ItemRow
+    error: str | None
+    attempts: int
+    generated_at: datetime
 
 
 class CardView(BaseModel):
     item: ItemRow
     card: CardBody
+    story: StoryRef | None = None
 
 
 class CardRunOut(BaseModel):
@@ -151,6 +173,8 @@ class CardStats(BaseModel):
     failed: int
     pending: int
     ready_today: int
+    success_rate_7d: float | None = None
+    scope_7d: dict[str, int] = {}
     by_engine: dict[str, int]
     last_run: CardRunOut | None
 
@@ -216,3 +240,18 @@ class PauseBody(BaseModel):
 
 class Queued(BaseModel):
     queued: bool
+
+
+class SourceQualityRow(BaseModel):
+    key: str
+    name: str
+    track: Track
+    category: str
+    region: Region
+    validation_stage: ValidationStage
+    status: SourceStatus
+    paused_reason: str | None
+    items_7d: int
+    classified_7d: int
+    relevance: float | None
+    translation: float | None

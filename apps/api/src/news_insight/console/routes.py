@@ -4,14 +4,18 @@ from datetime import UTC, date, datetime
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi.responses import Response
 from sqlalchemy.orm import Session
 
 from news_insight.collect.dead_letters import DeadLetterError, dismiss, retry
 from news_insight.collect.models import DeadLetter, FetchOutcome
 from news_insight.console import cards as card_queries
 from news_insight.console import queries
+from news_insight.console import reviews as review_queries
+from news_insight.console import stories as story_queries
 from news_insight.console.auth import require_console_key
 from news_insight.console.schemas import (
+    CardFailure,
     CardStats,
     CardView,
     DeadLetterOut,
@@ -24,6 +28,7 @@ from news_insight.console.schemas import (
     Queued,
     RunOut,
     SourceDetail,
+    SourceQualityRow,
     SourceRow,
 )
 from news_insight.db import get_db
@@ -81,6 +86,15 @@ def list_sources(
         page=page,
         size=size,
     )
+
+
+@router.get("/sources/quality")
+def sources_quality(
+    session: DB,
+    order: Literal["worst", "best"] = "worst",
+    limit: Annotated[int, Query(ge=1, le=500)] = 200,
+) -> list[SourceQualityRow]:
+    return queries.source_quality(session, now=datetime.now(UTC), order=order, limit=limit)
 
 
 @router.get("/sources/{key}")
@@ -237,6 +251,11 @@ def list_cards(
     region: Region | None = None,
     days: Annotated[int | None, Query(ge=1, le=365)] = None,
     q: str | None = None,
+    field: str | None = None,
+    business: str | None = None,
+    impact: str | None = None,
+    scope: str | None = None,
+    dedup: bool = False,
     page: PageQ = 1,
     size: SizeQ = 60,
 ) -> Page[CardView]:
@@ -250,9 +269,89 @@ def list_cards(
         page=page,
         size=size,
         now=datetime.now(UTC),
+        field=field,
+        business=business,
+        impact=impact,
+        scope=scope,
+        dedup=dedup,
     )
+
+
+@router.get("/cards/failures")
+def get_card_failures(
+    session: DB, limit: Annotated[int, Query(ge=1, le=200)] = 50
+) -> list[CardFailure]:
+    return card_queries.card_failures(session, limit=limit)
 
 
 @router.get("/cards/stats")
 def get_card_stats(session: DB) -> CardStats:
     return card_queries.card_stats(session, now=datetime.now(UTC))
+
+
+@router.get("/reviews/sample")
+def review_sample(
+    session: DB,
+    seed: Annotated[str, Query(min_length=1, max_length=40)],
+    size: Annotated[int, Query(ge=1, le=200)] = 30,
+    track: Track | None = None,
+    days: Annotated[int | None, Query(ge=1, le=365)] = None,
+) -> review_queries.ReviewSample:
+    return review_queries.sample(
+        session, seed=seed, size=size, track=track, days=days, now=datetime.now(UTC)
+    )
+
+
+@router.post("/reviews")
+def record_review(body: review_queries.ReviewBody, session: DB) -> review_queries.ReviewOut:
+    try:
+        return review_queries.record(session, body, now=datetime.now(UTC))
+    except LookupError as exc:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, str(exc)) from exc
+
+
+@router.get("/reviews/stats")
+def review_stats(session: DB) -> review_queries.ReviewStats:
+    return review_queries.stats(session)
+
+
+@router.get("/reviews/export.csv")
+def review_export(session: DB) -> Response:
+    return Response(
+        content=review_queries.export_csv(session),
+        media_type="text/csv; charset=utf-8",
+        headers={"Content-Disposition": 'attachment; filename="relevance-reviews.csv"'},
+    )
+
+
+@router.get("/stories")
+def list_stories(
+    session: DB,
+    days: Annotated[int, Query(ge=1, le=30)] = 1,
+    min_size: Annotated[int, Query(ge=1, le=100)] = 2,
+    min_tracks: Annotated[int, Query(ge=1, le=4)] = 1,
+    track: Track | None = None,
+    business: str | None = None,
+    page: PageQ = 1,
+    size: SizeQ = 30,
+) -> Page[story_queries.StoryView]:
+    return story_queries.list_stories(
+        session,
+        days=days,
+        min_size=min_size,
+        min_tracks=min_tracks,
+        track=track,
+        business=business,
+        page=page,
+        size=size,
+        now=datetime.now(UTC),
+    )
+
+
+@router.get("/signals")
+def list_signals(
+    session: DB,
+    days: Annotated[int, Query(ge=1, le=90)] = 7,
+    limit: Annotated[int, Query(ge=1, le=200)] = 50,
+) -> list[story_queries.SignalChain]:
+    return story_queries.list_signals(session, days=days, now=datetime.now(UTC), limit=limit)

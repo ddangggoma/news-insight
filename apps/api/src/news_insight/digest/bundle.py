@@ -8,14 +8,18 @@ from zoneinfo import ZoneInfo
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from news_insight.cards.models import ItemCard
 from news_insight.console.queries import latest_metrics
 from news_insight.content.models import Item
 from news_insight.content.normalize import truncate
 from news_insight.sources.enums import Track
 from news_insight.sources.models import Source
+from news_insight.stories.models import Story, StoryItem
 
 KST = ZoneInfo("Asia/Seoul")
 SUMMARY_LIMIT = 280
+OFF_TOPIC = frozenset({"irrelevant", "excluded"})
+Row = tuple[Item, Source, ItemCard | None, Story | None]
 
 
 @dataclass(frozen=True)
@@ -34,23 +38,39 @@ def digest_window(digest_date: date) -> tuple[datetime, datetime]:
 def build_bundle(
     session: Session, *, start: datetime, end: datetime, per_category: int = 12
 ) -> Bundle:
-    pairs = list(
+    """Previous-day items, minus what P4 marked off-topic, one item per story.
+
+    Items classified `irrelevant` or `excluded` (semiconductor asset investment) are left out;
+    a story contributes only its representative, carrying how many sources covered it.
+    """
+    rows = list(
         session.execute(
-            select(Item, Source)
+            select(Item, Source, ItemCard, Story)
             .join(Source, Source.id == Item.source_id)
+            .outerjoin(ItemCard, ItemCard.item_id == Item.id)
+            .outerjoin(StoryItem, StoryItem.item_id == Item.id)
+            .outerjoin(Story, Story.id == StoryItem.story_id)
             .where(Item.first_seen_at >= start, Item.first_seen_at < end)
         ).tuples()
     )
-    metrics = latest_metrics(session, [item.id for item, _ in pairs])
-    grouped: dict[Track, dict[str, list[tuple[Item, Source]]]] = {}
-    for item, source in pairs:
-        grouped.setdefault(item.track, {}).setdefault(source.category, []).append((item, source))
+    kept = [
+        (item, source, card, story)
+        for item, source, card, story in rows
+        if not (card is not None and card.scope in OFF_TOPIC)
+        and (story is None or story.representative_item_id == item.id)
+    ]
+    metrics = latest_metrics(session, [item.id for item, *_ in kept])
+    grouped: dict[Track, dict[str, list[Row]]] = {}
+    for row in kept:
+        grouped.setdefault(row[0].track, {}).setdefault(row[1].category, []).append(row)
 
-    def rank(pair: tuple[Item, Source]) -> tuple[int, float]:
-        item, _ = pair
+    def rank(row: Row) -> tuple[int, int, int, float]:
+        item, _, card, story = row
+        coverage = story.source_count if story is not None else 1
+        relevance = card.relevance if card is not None and card.relevance is not None else 50
         score = max(metrics.get(item.id, {}).values(), default=0)
         published = (item.published_at or item.first_seen_at).timestamp()
-        return (score, published)
+        return (coverage, relevance, score, published)
 
     tracks: list[dict[str, Any]] = []
     chosen: set[int] = set()
@@ -61,7 +81,7 @@ def build_bundle(
         sections = []
         for category, members in sorted(categories.items()):
             top = sorted(members, key=rank, reverse=True)[:per_category]
-            chosen.update(item.id for item, _ in top)
+            chosen.update(row[0].id for row in top)
             sections.append(
                 {
                     "category": category,
@@ -69,6 +89,7 @@ def build_bundle(
                         {
                             "id": item.id,
                             "title": item.title,
+                            "title_ko": card.title_ko if card is not None else None,
                             "source": source.name,
                             "region": source.region.value,
                             "published_at": (item.published_at or item.first_seen_at).isoformat(),
@@ -76,8 +97,10 @@ def build_bundle(
                             if item.summary
                             else None,
                             "metrics": metrics.get(item.id, {}),
+                            "businesses": list(card.businesses) if card is not None else [],
+                            "covered_by_sources": story.source_count if story is not None else 1,
                         }
-                        for item, source in top
+                        for item, source, card, story in top
                     ],
                 }
             )
@@ -92,4 +115,4 @@ def build_bundle(
         "window": {"start": start.isoformat(), "end": end.isoformat()},
         "tracks": tracks,
     }
-    return Bundle(payload=payload, item_ids=chosen, item_count=len(pairs))
+    return Bundle(payload=payload, item_ids=chosen, item_count=len(kept))

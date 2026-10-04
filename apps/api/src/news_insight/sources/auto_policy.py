@@ -1,9 +1,11 @@
-"""V1 auto-approval for public feeds and official APIs (roadmap D17).
+"""V1 auto-approval (roadmap D17, extended by D20 for personal use).
 
-A source without a reviewed `terms_url` may pass V1 automatically when:
-- it uses a syndication or official API channel (never the HTML crawler),
-- the host's robots.txt does not disallow the endpoint for our user agent
-  (a missing robots.txt allows; an unreachable or failing one does not),
+A source without a reviewed `terms_url` passes V1 automatically when:
+- publisher pages (feed, sitemap, crawler) are allowed by the host's robots.txt for our
+  user agent (missing robots.txt allows; an unreachable or failing one does not);
+  documented APIs (JSON/research APIs, GitHub, ATproto, ActivityPub) are governed by
+  their API terms instead of robots.txt,
+- a crawler declares selectors or `mode: auto`,
 - any referenced credential is configured.
 Auto-approved sources keep at most a 500-character excerpt (`excerpt_allowed`).
 """
@@ -19,9 +21,9 @@ from news_insight.sources.enums import AccessMethod, StorageRight
 from news_insight.sources.ladder import CheckResult
 from news_insight.sources.models import Source
 
-AUTO_APPROVABLE = frozenset(
+ROBOTS_METHODS = frozenset({AccessMethod.FEED, AccessMethod.SITEMAP, AccessMethod.CRAWLER})
+API_METHODS = frozenset(
     {
-        AccessMethod.FEED,
         AccessMethod.JSON_API,
         AccessMethod.RESEARCH_API,
         AccessMethod.GITHUB,
@@ -29,6 +31,7 @@ AUTO_APPROVABLE = frozenset(
         AccessMethod.ACTIVITYPUB,
     }
 )
+AUTO_APPROVABLE = ROBOTS_METHODS | API_METHODS
 AUTO_STORAGE_RIGHT = StorageRight.EXCERPT_ALLOWED
 ROBOTS_MIME = frozenset({"text/plain", "text/html", "application/octet-stream", ""})
 ROBOTS_AGENT = DEFAULT_USER_AGENT.split("/", 1)[0]
@@ -64,11 +67,20 @@ def check_auto_policy(source: Source, fetcher: SafeFetcher) -> CheckResult:
     if source.config.get("manual_review") is True:
         reasons.append("config.manual_review=true: terms_url review required")
         return CheckResult.from_reasons(reasons, metrics)
-    endpoint = expand_macros(source.endpoint_url, now=datetime.now(UTC))
-    allowed, evidence = robots_verdict(fetcher, endpoint)
-    metrics["robots"] = evidence
-    if not allowed:
-        reasons.append(evidence)
+    if (
+        source.access_method is AccessMethod.CRAWLER
+        and source.config.get("mode") != "auto"
+        and not source.config.get("selectors")
+    ):
+        reasons.append("crawler needs config.selectors or config.mode=auto")
+    if source.access_method in ROBOTS_METHODS:
+        target = str(source.config.get("list_url") or source.endpoint_url)
+        allowed, evidence = robots_verdict(fetcher, expand_macros(target, now=datetime.now(UTC)))
+        metrics["robots"] = evidence
+        if not allowed:
+            reasons.append(evidence)
+    else:
+        metrics["robots"] = "not applicable: documented API"
     try:
         resolve_auth_headers(source.config)
     except SecretError as exc:

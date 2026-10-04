@@ -2423,256 +2423,341 @@ sources:
     name: 'YouTube: Google for Developers'
     track: community
     category: video_channel
-    access_method: feed
-    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UC_x5XG1OV2P6uZZ5FSM9Ttw
-    official_domain: youtube.com
-    operator: Google LLC
+    access_method: json_api
+    endpoint_url: https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=UU_x5XG1OV2P6uZZ5FSM9Ttw
+    official_domain: googleapis.com
+    operator: Google LLC (YouTube Data API)
     region: global_en
     language: en
     poll_class: community
     dx_relevance: 구글 개발자 플랫폼 공식 영상
     storage_right: excerpt_allowed
     config:
+      preset: youtube_playlist
+      auth:
+        secret: YOUTUBE_API_KEY
+        scheme: header
+        header: X-Goog-Api-Key
       probe_max_age_days: 60
   - key: youtube-android-developers
     name: 'YouTube: Android Developers'
     track: community
     category: video_channel
-    access_method: feed
-    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCVHFbqXqoYvEWM1Ddxl0QDg
-    official_domain: youtube.com
-    operator: Google LLC
+    access_method: json_api
+    endpoint_url: https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=UUVHFbqXqoYvEWM1Ddxl0QDg
+    official_domain: googleapis.com
+    operator: Google LLC (YouTube Data API)
     region: global_en
     language: en
     poll_class: community
     dx_relevance: 안드로이드 플랫폼 공식 영상
     storage_right: excerpt_allowed
     config:
+      preset: youtube_playlist
+      auth:
+        secret: YOUTUBE_API_KEY
+        scheme: header
+        header: X-Goog-Api-Key
       probe_max_age_days: 60
   - key: youtube-samsung
     name: 'YouTube: Samsung'
     track: community
     category: video_channel
-    access_method: feed
-    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCWwgaK7x0_FR1goeSRazfsQ
-    official_domain: youtube.com
-    operator: Samsung Electronics
+    access_method: json_api
+    endpoint_url: https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=UUWwgaK7x0_FR1goeSRazfsQ
+    official_domain: googleapis.com
+    operator: Google LLC (YouTube Data API)
     region: global_en
     language: en
     poll_class: community
     dx_relevance: DX 제품 공식 발표 영상
     storage_right: excerpt_allowed
     config:
+      preset: youtube_playlist
+      auth:
+        secret: YOUTUBE_API_KEY
+        scheme: header
+        header: X-Goog-Api-Key
       probe_max_age_days: 60
   - key: youtube-nvidia
     name: 'YouTube: NVIDIA'
     track: community
     category: video_channel
-    access_method: feed
-    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCHuiy8bXnmK5nisYHUd1J5g
-    official_domain: youtube.com
-    operator: NVIDIA
+    access_method: json_api
+    endpoint_url: https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=UUHuiy8bXnmK5nisYHUd1J5g
+    official_domain: googleapis.com
+    operator: Google LLC (YouTube Data API)
     region: global_en
     language: en
     poll_class: community
     dx_relevance: 엣지 AI·로보틱스 공식 영상
     storage_right: excerpt_allowed
     config:
+      preset: youtube_playlist
+      auth:
+        secret: YOUTUBE_API_KEY
+        scheme: header
+        header: X-Goog-Api-Key
       probe_max_age_days: 60
   - key: youtube-microsoft-developer
     name: 'YouTube: Microsoft Developer'
     track: community
     category: video_channel
-    access_method: feed
-    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCsMica-v34Irf9KVTh6xx-g
-    official_domain: youtube.com
-    operator: Microsoft
+    access_method: json_api
+    endpoint_url: https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=UUsMica-v34Irf9KVTh6xx-g
+    official_domain: googleapis.com
+    operator: Google LLC (YouTube Data API)
     region: global_en
     language: en
     poll_class: community
     dx_relevance: 개발자 플랫폼 공식 영상
     storage_right: excerpt_allowed
     config:
+      preset: youtube_playlist
+      auth:
+        secret: YOUTUBE_API_KEY
+        scheme: header
+        header: X-Goog-Api-Key
       probe_max_age_days: 60
   - key: youtube-deepmind
     name: 'YouTube: Google DeepMind'
     track: community
     category: video_channel
-    access_method: feed
-    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCP7jMXSY2xbc3KCAE0MHQ-A
-    official_domain: youtube.com
-    operator: Google LLC
+    access_method: json_api
+    endpoint_url: https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=UUP7jMXSY2xbc3KCAE0MHQ-A
+    official_domain: googleapis.com
+    operator: Google LLC (YouTube Data API)
     region: global_en
     language: en
     poll_class: community
     dx_relevance: AI 연구 공식 영상
     storage_right: excerpt_allowed
     config:
+      preset: youtube_playlist
+      auth:
+        secret: YOUTUBE_API_KEY
+        scheme: header
+        header: X-Goog-Api-Key
       probe_max_age_days: 60
   - key: youtube-apple
     name: 'YouTube: Apple'
     track: community
     category: video_channel
-    access_method: feed
-    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCE_M8A5yxnLfW0KghEeajjw
-    official_domain: youtube.com
-    operator: Apple Inc.
+    access_method: json_api
+    endpoint_url: https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=UUE_M8A5yxnLfW0KghEeajjw
+    official_domain: googleapis.com
+    operator: Google LLC (YouTube Data API)
     region: global_en
     language: en
     poll_class: community
     dx_relevance: 경쟁사 제품 발표 영상
     storage_right: excerpt_allowed
     config:
+      preset: youtube_playlist
+      auth:
+        secret: YOUTUBE_API_KEY
+        scheme: header
+        header: X-Goog-Api-Key
       probe_max_age_days: 60
   - key: youtube-huggingface
     name: 'YouTube: Hugging Face'
     track: community
     category: video_channel
-    access_method: feed
-    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCHlNU7kIZhRgSbhHvFoy72w
-    official_domain: youtube.com
-    operator: Hugging Face
+    access_method: json_api
+    endpoint_url: https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=UUHlNU7kIZhRgSbhHvFoy72w
+    official_domain: googleapis.com
+    operator: Google LLC (YouTube Data API)
     region: global_en
     language: en
     poll_class: community
     dx_relevance: 오픈 모델 생태계 영상
     storage_right: excerpt_allowed
     config:
+      preset: youtube_playlist
+      auth:
+        secret: YOUTUBE_API_KEY
+        scheme: header
+        header: X-Goog-Api-Key
       probe_max_age_days: 60
   - key: youtube-two-minute-papers
     name: 'YouTube: Two Minute Papers'
     track: community
     category: video_channel
-    access_method: feed
-    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCbfYPyITQ-7l4upoX8nvctg
-    official_domain: youtube.com
-    operator: Károly Zsolnai-Fehér
+    access_method: json_api
+    endpoint_url: https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=UUbfYPyITQ-7l4upoX8nvctg
+    official_domain: googleapis.com
+    operator: Google LLC (YouTube Data API)
     region: global_en
     language: en
     poll_class: community
     dx_relevance: AI 논문 해설 영상
     storage_right: excerpt_allowed
     config:
+      preset: youtube_playlist
+      auth:
+        secret: YOUTUBE_API_KEY
+        scheme: header
+        header: X-Goog-Api-Key
       probe_max_age_days: 60
   - key: youtube-computerphile
     name: 'YouTube: Computerphile'
     track: community
     category: video_channel
-    access_method: feed
-    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UC9-y-6csu5WGm29I7JiwpnA
-    official_domain: youtube.com
-    operator: Brady Haran
+    access_method: json_api
+    endpoint_url: https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=UU9-y-6csu5WGm29I7JiwpnA
+    official_domain: googleapis.com
+    operator: Google LLC (YouTube Data API)
     region: global_en
     language: en
     poll_class: community
     dx_relevance: 컴퓨팅 원리 해설 영상
     storage_right: excerpt_allowed
     config:
+      preset: youtube_playlist
+      auth:
+        secret: YOUTUBE_API_KEY
+        scheme: header
+        header: X-Goog-Api-Key
       probe_max_age_days: 60
   - key: youtube-fireship
     name: 'YouTube: Fireship'
     track: community
     category: video_channel
-    access_method: feed
-    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCsBjURrPoezykLs9EqgamOA
-    official_domain: youtube.com
-    operator: Fireship
+    access_method: json_api
+    endpoint_url: https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=UUsBjURrPoezykLs9EqgamOA
+    official_domain: googleapis.com
+    operator: Google LLC (YouTube Data API)
     region: global_en
     language: en
     poll_class: community
     dx_relevance: 개발 트렌드 요약 영상
     storage_right: excerpt_allowed
     config:
+      preset: youtube_playlist
+      auth:
+        secret: YOUTUBE_API_KEY
+        scheme: header
+        header: X-Goog-Api-Key
       probe_max_age_days: 60
   - key: youtube-mkbhd
     name: 'YouTube: Marques Brownlee'
     track: community
     category: video_channel
-    access_method: feed
-    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCBJycsmduvYEL83R_U4JriQ
-    official_domain: youtube.com
-    operator: MKBHD
+    access_method: json_api
+    endpoint_url: https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=UUBJycsmduvYEL83R_U4JriQ
+    official_domain: googleapis.com
+    operator: Google LLC (YouTube Data API)
     region: global_en
     language: en
     poll_class: community
     dx_relevance: 스마트폰·가전 리뷰 반응
     storage_right: excerpt_allowed
     config:
+      preset: youtube_playlist
+      auth:
+        secret: YOUTUBE_API_KEY
+        scheme: header
+        header: X-Goog-Api-Key
       probe_max_age_days: 60
   - key: youtube-linus-tech-tips
     name: 'YouTube: Linus Tech Tips'
     track: community
     category: video_channel
-    access_method: feed
-    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCXuqSBlHAE6Xw-yeJA0Tunw
-    official_domain: youtube.com
-    operator: Linus Media Group
+    access_method: json_api
+    endpoint_url: https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=UUXuqSBlHAE6Xw-yeJA0Tunw
+    official_domain: googleapis.com
+    operator: Google LLC (YouTube Data API)
     region: global_en
     language: en
     poll_class: community
     dx_relevance: PC·디스플레이 하드웨어 리뷰
     storage_right: excerpt_allowed
     config:
+      preset: youtube_playlist
+      auth:
+        secret: YOUTUBE_API_KEY
+        scheme: header
+        header: X-Goog-Api-Key
       probe_max_age_days: 60
   - key: youtube-the-verge
     name: 'YouTube: The Verge'
     track: community
     category: video_channel
-    access_method: feed
-    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCddiUEpeqJcYeBxX1IVBKvQ
-    official_domain: youtube.com
-    operator: Vox Media
+    access_method: json_api
+    endpoint_url: https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=UUddiUEpeqJcYeBxX1IVBKvQ
+    official_domain: googleapis.com
+    operator: Google LLC (YouTube Data API)
     region: global_en
     language: en
     poll_class: community
     dx_relevance: 테크 제품 리뷰 영상
     storage_right: excerpt_allowed
     config:
+      preset: youtube_playlist
+      auth:
+        secret: YOUTUBE_API_KEY
+        scheme: header
+        header: X-Goog-Api-Key
       probe_max_age_days: 60
   - key: youtube-asianometry
     name: 'YouTube: Asianometry'
     track: community
     category: video_channel
-    access_method: feed
-    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UC1LpsuAUaKoMzzJSEt5WImw
-    official_domain: youtube.com
-    operator: Asianometry
+    access_method: json_api
+    endpoint_url: https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=UU1LpsuAUaKoMzzJSEt5WImw
+    official_domain: googleapis.com
+    operator: Google LLC (YouTube Data API)
     region: global_en
     language: en
     poll_class: community
     dx_relevance: 아시아 전자 산업 공급망 분석 영상
     storage_right: excerpt_allowed
     config:
+      preset: youtube_playlist
+      auth:
+        secret: YOUTUBE_API_KEY
+        scheme: header
+        header: X-Goog-Api-Key
       probe_max_age_days: 60
   - key: youtube-itsub
     name: 'YouTube: ITSub잇섭'
     track: community
     category: video_channel
-    access_method: feed
-    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCdUcjkyZtf-1WJyPPiETF1g
-    official_domain: youtube.com
-    operator: ITSub
+    access_method: json_api
+    endpoint_url: https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=UUdUcjkyZtf-1WJyPPiETF1g
+    official_domain: googleapis.com
+    operator: Google LLC (YouTube Data API)
     region: kr
     language: ko
     poll_class: community
     dx_relevance: 국내 IT 기기 리뷰 반응
     storage_right: excerpt_allowed
     config:
+      preset: youtube_playlist
+      auth:
+        secret: YOUTUBE_API_KEY
+        scheme: header
+        header: X-Goog-Api-Key
       probe_max_age_days: 60
   - key: youtube-lex-fridman
     name: 'YouTube: Lex Fridman'
     track: community
     category: video_channel
-    access_method: feed
-    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCSHZKyawb77ixDdsGog4iWA
-    official_domain: youtube.com
-    operator: Lex Fridman
+    access_method: json_api
+    endpoint_url: https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=UUSHZKyawb77ixDdsGog4iWA
+    official_domain: googleapis.com
+    operator: Google LLC (YouTube Data API)
     region: global_en
     language: en
     poll_class: community
     dx_relevance: AI·테크 인물 인터뷰 영상
     storage_right: excerpt_allowed
     config:
+      preset: youtube_playlist
+      auth:
+        secret: YOUTUBE_API_KEY
+        scheme: header
+        header: X-Goog-Api-Key
       probe_max_age_days: 60
   - key: bluesky-official
     name: Bluesky Official Account
@@ -3095,93 +3180,122 @@ sources:
     name: 'YouTube: IBM Technology'
     track: community
     category: video_channel
-    access_method: feed
-    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCKWaEZ-_VweaEx1j62do_vQ
-    official_domain: youtube.com
-    operator: IBM
+    access_method: json_api
+    endpoint_url: https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=UUKWaEZ-_VweaEx1j62do_vQ
+    official_domain: googleapis.com
+    operator: Google LLC (YouTube Data API)
     region: global_en
     language: en
     poll_class: community
     dx_relevance: 엔터프라이즈 AI 기술 해설
     storage_right: excerpt_allowed
     config:
+      preset: youtube_playlist
+      auth:
+        secret: YOUTUBE_API_KEY
+        scheme: header
+        header: X-Goog-Api-Key
       probe_max_age_days: 60
   - key: youtube-mrwhosetheboss
     name: 'YouTube: Mrwhosetheboss'
     track: community
     category: video_channel
-    access_method: feed
-    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCMiJRAwDNSNzuYeN2uWa0pA
-    official_domain: youtube.com
-    operator: Arun Maini
+    access_method: json_api
+    endpoint_url: https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=UUMiJRAwDNSNzuYeN2uWa0pA
+    official_domain: googleapis.com
+    operator: Google LLC (YouTube Data API)
     region: eu_other
     language: en
     poll_class: community
     dx_relevance: 스마트폰 비교 리뷰 반응
     storage_right: excerpt_allowed
     config:
+      preset: youtube_playlist
+      auth:
+        secret: YOUTUBE_API_KEY
+        scheme: header
+        header: X-Goog-Api-Key
       probe_max_age_days: 60
   - key: youtube-dave2d
     name: 'YouTube: Dave2D'
     track: community
     category: video_channel
-    access_method: feed
-    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCVYamHliCI9rw1tHR1xbkfw
-    official_domain: youtube.com
-    operator: Dave Lee
+    access_method: json_api
+    endpoint_url: https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=UUVYamHliCI9rw1tHR1xbkfw
+    official_domain: googleapis.com
+    operator: Google LLC (YouTube Data API)
     region: global_en
     language: en
     poll_class: community
     dx_relevance: 노트북·디바이스 리뷰
     storage_right: excerpt_allowed
     config:
+      preset: youtube_playlist
+      auth:
+        secret: YOUTUBE_API_KEY
+        scheme: header
+        header: X-Goog-Api-Key
       probe_max_age_days: 60
   - key: youtube-jerryrigeverything
     name: 'YouTube: JerryRigEverything'
     track: community
     category: video_channel
-    access_method: feed
-    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCWFKCr40YwOZQx8FHU_ZqqQ
-    official_domain: youtube.com
-    operator: Zack Nelson
+    access_method: json_api
+    endpoint_url: https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=UUWFKCr40YwOZQx8FHU_ZqqQ
+    official_domain: googleapis.com
+    operator: Google LLC (YouTube Data API)
     region: global_en
     language: en
     poll_class: community
     dx_relevance: 스마트폰 내구성 리뷰
     storage_right: excerpt_allowed
     config:
+      preset: youtube_playlist
+      auth:
+        secret: YOUTUBE_API_KEY
+        scheme: header
+        header: X-Goog-Api-Key
       probe_max_age_days: 60
   - key: youtube-techlinked
     name: 'YouTube: TechLinked'
     track: community
     category: video_channel
-    access_method: feed
-    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCeeFfhMcJa1kjtfZAGskOCA
-    official_domain: youtube.com
-    operator: Linus Media Group
+    access_method: json_api
+    endpoint_url: https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=UUeeFfhMcJa1kjtfZAGskOCA
+    official_domain: googleapis.com
+    operator: Google LLC (YouTube Data API)
     region: global_en
     language: en
     poll_class: community
     dx_relevance: 테크 뉴스 요약 영상
     storage_right: excerpt_allowed
     config:
+      preset: youtube_playlist
+      auth:
+        secret: YOUTUBE_API_KEY
+        scheme: header
+        header: X-Goog-Api-Key
       probe_max_age_days: 60
   - key: youtube-unbox-therapy
     name: 'YouTube: Unbox Therapy'
     track: community
     category: video_channel
-    access_method: feed
-    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCsTcErHg8oDvUnTzoqsYeNw
-    official_domain: youtube.com
-    operator: Lewis Hilsenteger
+    access_method: json_api
+    endpoint_url: https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=UUsTcErHg8oDvUnTzoqsYeNw
+    official_domain: googleapis.com
+    operator: Google LLC (YouTube Data API)
     region: global_en
     language: en
     poll_class: community
     dx_relevance: 신제품 언박싱 반응
     storage_right: excerpt_allowed
     config:
+      preset: youtube_playlist
+      auth:
+        secret: YOUTUBE_API_KEY
+        scheme: header
+        header: X-Goog-Api-Key
       probe_max_age_days: 60
-  # ── Track 3: 논문·학회·표준·특허 ──
   - key: arxiv-cs-ai
     name: arXiv cs.AI (API)
     track: research_ip
@@ -7643,226 +7757,301 @@ sources:
     name: 'YouTube: Engadget'
     track: community
     category: video_channel
-    access_method: feed
-    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UC-6OW5aJYBFM33zXQlBKPNA
-    official_domain: youtube.com
-    operator: Google LLC (YouTube)
+    access_method: json_api
+    endpoint_url: https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=UU-6OW5aJYBFM33zXQlBKPNA
+    official_domain: googleapis.com
+    operator: Google LLC (YouTube Data API)
     region: global_en
     language: en
     poll_class: community
     dx_relevance: 'YouTube Engadget: 기기 리뷰·기술 해설 영상'
     storage_right: excerpt_allowed
     config:
+      preset: youtube_playlist
+      auth:
+        secret: YOUTUBE_API_KEY
+        scheme: header
+        header: X-Goog-Api-Key
       probe_max_age_days: 60
   - key: youtube-cnet
     name: 'YouTube: CNET'
     track: community
     category: video_channel
-    access_method: feed
-    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCOmcA3f_RrH6b9NmcNa4tdg
-    official_domain: youtube.com
-    operator: Google LLC (YouTube)
+    access_method: json_api
+    endpoint_url: https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=UUOmcA3f_RrH6b9NmcNa4tdg
+    official_domain: googleapis.com
+    operator: Google LLC (YouTube Data API)
     region: global_en
     language: en
     poll_class: community
     dx_relevance: 'YouTube CNET: 기기 리뷰·기술 해설 영상'
     storage_right: excerpt_allowed
     config:
+      preset: youtube_playlist
+      auth:
+        secret: YOUTUBE_API_KEY
+        scheme: header
+        header: X-Goog-Api-Key
       probe_max_age_days: 60
   - key: youtube-hardware-unboxed
     name: 'YouTube: Hardware Unboxed'
     track: community
     category: video_channel
-    access_method: feed
-    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCI8iQa1hv7oV_Z8D35vVuSg
-    official_domain: youtube.com
-    operator: Google LLC (YouTube)
+    access_method: json_api
+    endpoint_url: https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=UUI8iQa1hv7oV_Z8D35vVuSg
+    official_domain: googleapis.com
+    operator: Google LLC (YouTube Data API)
     region: global_en
     language: en
     poll_class: community
     dx_relevance: 'YouTube Hardware Unboxed: 기기 리뷰·기술 해설 영상'
     storage_right: excerpt_allowed
     config:
+      preset: youtube_playlist
+      auth:
+        secret: YOUTUBE_API_KEY
+        scheme: header
+        header: X-Goog-Api-Key
       probe_max_age_days: 60
   - key: youtube-snazzy-labs
     name: 'YouTube: Snazzy Labs'
     track: community
     category: video_channel
-    access_method: feed
-    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCO2x-p9gg9TLKneXlibGR7w
-    official_domain: youtube.com
-    operator: Google LLC (YouTube)
+    access_method: json_api
+    endpoint_url: https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=UUO2x-p9gg9TLKneXlibGR7w
+    official_domain: googleapis.com
+    operator: Google LLC (YouTube Data API)
     region: global_en
     language: en
     poll_class: community
     dx_relevance: 'YouTube Snazzy Labs: 기기 리뷰·기술 해설 영상'
     storage_right: excerpt_allowed
     config:
+      preset: youtube_playlist
+      auth:
+        secret: YOUTUBE_API_KEY
+        scheme: header
+        header: X-Goog-Api-Key
       probe_max_age_days: 60
   - key: youtube-android-authority
     name: 'YouTube: Android Authority'
     track: community
     category: video_channel
-    access_method: feed
-    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCgyqtNWZmIxTx3b6OxTSALw
-    official_domain: youtube.com
-    operator: Google LLC (YouTube)
+    access_method: json_api
+    endpoint_url: https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=UUgyqtNWZmIxTx3b6OxTSALw
+    official_domain: googleapis.com
+    operator: Google LLC (YouTube Data API)
     region: global_en
     language: en
     poll_class: community
     dx_relevance: 'YouTube Android Authority: 기기 리뷰·기술 해설 영상'
     storage_right: excerpt_allowed
     config:
+      preset: youtube_playlist
+      auth:
+        secret: YOUTUBE_API_KEY
+        scheme: header
+        header: X-Goog-Api-Key
       probe_max_age_days: 60
   - key: youtube-ijustine
     name: 'YouTube: iJustine'
     track: community
     category: video_channel
-    access_method: feed
-    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCey_c7U86mJGz1VJWH5CYPA
-    official_domain: youtube.com
-    operator: Google LLC (YouTube)
+    access_method: json_api
+    endpoint_url: https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=UUey_c7U86mJGz1VJWH5CYPA
+    official_domain: googleapis.com
+    operator: Google LLC (YouTube Data API)
     region: global_en
     language: en
     poll_class: community
     dx_relevance: 'YouTube iJustine: 기기 리뷰·기술 해설 영상'
     storage_right: excerpt_allowed
     config:
+      preset: youtube_playlist
+      auth:
+        secret: YOUTUBE_API_KEY
+        scheme: header
+        header: X-Goog-Api-Key
       probe_max_age_days: 60
   - key: youtube-austin-evans
     name: 'YouTube: Austin Evans'
     track: community
     category: video_channel
-    access_method: feed
-    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCXGgrKt94gR6lmN4aN3mYTg
-    official_domain: youtube.com
-    operator: Google LLC (YouTube)
+    access_method: json_api
+    endpoint_url: https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=UUXGgrKt94gR6lmN4aN3mYTg
+    official_domain: googleapis.com
+    operator: Google LLC (YouTube Data API)
     region: global_en
     language: en
     poll_class: community
     dx_relevance: 'YouTube Austin Evans: 기기 리뷰·기술 해설 영상'
     storage_right: excerpt_allowed
     config:
+      preset: youtube_playlist
+      auth:
+        secret: YOUTUBE_API_KEY
+        scheme: header
+        header: X-Goog-Api-Key
       probe_max_age_days: 60
   - key: youtube-wall-street-journal-tech
     name: 'YouTube: WSJ Tech'
     track: community
     category: video_channel
-    access_method: feed
-    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCK7tptUDHh-RYDsdxO1-5QQ
-    official_domain: youtube.com
-    operator: Google LLC (YouTube)
+    access_method: json_api
+    endpoint_url: https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=UUK7tptUDHh-RYDsdxO1-5QQ
+    official_domain: googleapis.com
+    operator: Google LLC (YouTube Data API)
     region: global_en
     language: en
     poll_class: community
     dx_relevance: 'YouTube WSJ Tech: 기기 리뷰·기술 해설 영상'
     storage_right: excerpt_allowed
     config:
+      preset: youtube_playlist
+      auth:
+        secret: YOUTUBE_API_KEY
+        scheme: header
+        header: X-Goog-Api-Key
       probe_max_age_days: 60
   - key: youtube-bloomberg-technology
     name: 'YouTube: Bloomberg Technology'
     track: community
     category: video_channel
-    access_method: feed
-    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCrM7B7SL_g1edFOnmj-SDKg
-    official_domain: youtube.com
-    operator: Google LLC (YouTube)
+    access_method: json_api
+    endpoint_url: https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=UUrM7B7SL_g1edFOnmj-SDKg
+    official_domain: googleapis.com
+    operator: Google LLC (YouTube Data API)
     region: global_en
     language: en
     poll_class: community
     dx_relevance: 'YouTube Bloomberg Technology: 기기 리뷰·기술 해설 영상'
     storage_right: excerpt_allowed
     config:
+      preset: youtube_playlist
+      auth:
+        secret: YOUTUBE_API_KEY
+        scheme: header
+        header: X-Goog-Api-Key
       probe_max_age_days: 60
   - key: youtube-cnbc-tech
     name: 'YouTube: CNBC Television'
     track: community
     category: video_channel
-    access_method: feed
-    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCrp_UI8XtuYfpiqluWLD7Lw
-    official_domain: youtube.com
-    operator: Google LLC (YouTube)
+    access_method: json_api
+    endpoint_url: https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=UUrp_UI8XtuYfpiqluWLD7Lw
+    official_domain: googleapis.com
+    operator: Google LLC (YouTube Data API)
     region: global_en
     language: en
     poll_class: community
     dx_relevance: 'YouTube CNBC Television: 기기 리뷰·기술 해설 영상'
     storage_right: excerpt_allowed
     config:
+      preset: youtube_playlist
+      auth:
+        secret: YOUTUBE_API_KEY
+        scheme: header
+        header: X-Goog-Api-Key
       probe_max_age_days: 60
   - key: youtube-veritasium
     name: 'YouTube: Veritasium'
     track: community
     category: video_channel
-    access_method: feed
-    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCHnyfMqiRRG1u-2MsSQLbXA
-    official_domain: youtube.com
-    operator: Google LLC (YouTube)
+    access_method: json_api
+    endpoint_url: https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=UUHnyfMqiRRG1u-2MsSQLbXA
+    official_domain: googleapis.com
+    operator: Google LLC (YouTube Data API)
     region: global_en
     language: en
     poll_class: community
     dx_relevance: 'YouTube Veritasium: 기기 리뷰·기술 해설 영상'
     storage_right: excerpt_allowed
     config:
+      preset: youtube_playlist
+      auth:
+        secret: YOUTUBE_API_KEY
+        scheme: header
+        header: X-Goog-Api-Key
       probe_max_age_days: 60
   - key: youtube-techaltar
     name: 'YouTube: TechAltar'
     track: community
     category: video_channel
-    access_method: feed
-    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCtZO3K2p8mqFwiKWb9k7fXA
-    official_domain: youtube.com
-    operator: Google LLC (YouTube)
+    access_method: json_api
+    endpoint_url: https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=UUtZO3K2p8mqFwiKWb9k7fXA
+    official_domain: googleapis.com
+    operator: Google LLC (YouTube Data API)
     region: global_en
     language: en
     poll_class: community
     dx_relevance: 'YouTube TechAltar: 기기 리뷰·기술 해설 영상'
     storage_right: excerpt_allowed
     config:
+      preset: youtube_playlist
+      auth:
+        secret: YOUTUBE_API_KEY
+        scheme: header
+        header: X-Goog-Api-Key
       probe_max_age_days: 60
   - key: youtube-coldfusion
     name: 'YouTube: ColdFusion'
     track: community
     category: video_channel
-    access_method: feed
-    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UC4QZ_LsYcvcq7qOsOhpAX4A
-    official_domain: youtube.com
-    operator: Google LLC (YouTube)
+    access_method: json_api
+    endpoint_url: https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=UU4QZ_LsYcvcq7qOsOhpAX4A
+    official_domain: googleapis.com
+    operator: Google LLC (YouTube Data API)
     region: global_en
     language: en
     poll_class: community
     dx_relevance: 'YouTube ColdFusion: 기기 리뷰·기술 해설 영상'
     storage_right: excerpt_allowed
     config:
+      preset: youtube_playlist
+      auth:
+        secret: YOUTUBE_API_KEY
+        scheme: header
+        header: X-Goog-Api-Key
       probe_max_age_days: 60
   - key: youtube-3blue1brown
     name: 'YouTube: 3Blue1Brown'
     track: community
     category: video_channel
-    access_method: feed
-    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UCYO_jab_esuFRV4b17AJtAw
-    official_domain: youtube.com
-    operator: Google LLC (YouTube)
+    access_method: json_api
+    endpoint_url: https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=UUYO_jab_esuFRV4b17AJtAw
+    official_domain: googleapis.com
+    operator: Google LLC (YouTube Data API)
     region: global_en
     language: en
     poll_class: community
     dx_relevance: 'YouTube 3Blue1Brown: 기기 리뷰·기술 해설 영상'
     storage_right: excerpt_allowed
     config:
+      preset: youtube_playlist
+      auth:
+        secret: YOUTUBE_API_KEY
+        scheme: header
+        header: X-Goog-Api-Key
       probe_max_age_days: 60
   - key: youtube-boston-dynamics-yt
     name: 'YouTube: Boston Dynamics'
     track: community
     category: video_channel
-    access_method: feed
-    endpoint_url: https://www.youtube.com/feeds/videos.xml?channel_id=UC7vVhkEfw4nOGp8TyDk7RcQ
-    official_domain: youtube.com
-    operator: Google LLC (YouTube)
+    access_method: json_api
+    endpoint_url: https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=UU7vVhkEfw4nOGp8TyDk7RcQ
+    official_domain: googleapis.com
+    operator: Google LLC (YouTube Data API)
     region: global_en
     language: en
     poll_class: community
     dx_relevance: 'YouTube Boston Dynamics: 기기 리뷰·기술 해설 영상'
     storage_right: excerpt_allowed
     config:
+      preset: youtube_playlist
+      auth:
+        secret: YOUTUBE_API_KEY
+        scheme: header
+        header: X-Goog-Api-Key
       probe_max_age_days: 60
   - key: hn-foldable
     name: 'Hacker News search: foldable'
@@ -15635,3 +15824,2963 @@ sources:
       preset: github_advisories
       auth: *id001
       probe_url: https://api.github.com/rate_limit
+
+  # ── 국내 보강: 네이버 검색 API (NAVER_CLIENT_ID/SECRET 필요) (50) ──
+  - key: naver-news-5c40969d
+    name: '네이버 뉴스 검색: 삼성전자 갤럭시'
+    track: news
+    category: independent_media
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/news.json?query=%EC%82%BC%EC%84%B1%EC%A0%84%EC%9E%90%20%EA%B0%A4%EB%9F%AD%EC%8B%9C&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '''삼성전자 갤럭시'' 키워드의 국내 언론 보도 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_news_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-news-d1d26721
+    name: '네이버 뉴스 검색: 온디바이스 AI'
+    track: news
+    category: independent_media
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/news.json?query=%EC%98%A8%EB%94%94%EB%B0%94%EC%9D%B4%EC%8A%A4%20AI&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '''온디바이스 AI'' 키워드의 국내 언론 보도 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_news_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-news-05a7df7e
+    name: '네이버 뉴스 검색: AI 스마트폰'
+    track: news
+    category: independent_media
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/news.json?query=AI%20%EC%8A%A4%EB%A7%88%ED%8A%B8%ED%8F%B0&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '''AI 스마트폰'' 키워드의 국내 언론 보도 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_news_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-news-c8108c55
+    name: '네이버 뉴스 검색: 폴더블폰'
+    track: news
+    category: independent_media
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/news.json?query=%ED%8F%B4%EB%8D%94%EB%B8%94%ED%8F%B0&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '''폴더블폰'' 키워드의 국내 언론 보도 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_news_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-news-debd2d93
+    name: '네이버 뉴스 검색: 갤럭시 링'
+    track: news
+    category: independent_media
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/news.json?query=%EA%B0%A4%EB%9F%AD%EC%8B%9C%20%EB%A7%81&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '''갤럭시 링'' 키워드의 국내 언론 보도 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_news_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-news-30aee888
+    name: '네이버 뉴스 검색: 스마트워치'
+    track: news
+    category: independent_media
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/news.json?query=%EC%8A%A4%EB%A7%88%ED%8A%B8%EC%9B%8C%EC%B9%98&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '''스마트워치'' 키워드의 국내 언론 보도 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_news_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-news-44885add
+    name: '네이버 뉴스 검색: 웨어러블 기기'
+    track: news
+    category: independent_media
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/news.json?query=%EC%9B%A8%EC%96%B4%EB%9F%AC%EB%B8%94%20%EA%B8%B0%EA%B8%B0&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '''웨어러블 기기'' 키워드의 국내 언론 보도 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_news_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-news-0c9b2f3f
+    name: '네이버 뉴스 검색: OLED'
+    track: news
+    category: independent_media
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/news.json?query=OLED&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '''OLED'' 키워드의 국내 언론 보도 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_news_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-news-0e2de1d0
+    name: '네이버 뉴스 검색: 마이크로LED'
+    track: news
+    category: independent_media
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/news.json?query=%EB%A7%88%EC%9D%B4%ED%81%AC%EB%A1%9CLED&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '''마이크로LED'' 키워드의 국내 언론 보도 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_news_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-news-b2dc1245
+    name: '네이버 뉴스 검색: 디스플레이 패널'
+    track: news
+    category: independent_media
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/news.json?query=%EB%94%94%EC%8A%A4%ED%94%8C%EB%A0%88%EC%9D%B4%20%ED%8C%A8%EB%84%90&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '''디스플레이 패널'' 키워드의 국내 언론 보도 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_news_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-news-a5ff25d1
+    name: '네이버 뉴스 검색: LG디스플레이'
+    track: news
+    category: independent_media
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/news.json?query=LG%EB%94%94%EC%8A%A4%ED%94%8C%EB%A0%88%EC%9D%B4&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '''LG디스플레이'' 키워드의 국내 언론 보도 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_news_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-news-631b28df
+    name: '네이버 뉴스 검색: 삼성디스플레이'
+    track: news
+    category: independent_media
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/news.json?query=%EC%82%BC%EC%84%B1%EB%94%94%EC%8A%A4%ED%94%8C%EB%A0%88%EC%9D%B4&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '''삼성디스플레이'' 키워드의 국내 언론 보도 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_news_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-news-d59b61a2
+    name: '네이버 뉴스 검색: 스마트홈'
+    track: news
+    category: independent_media
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/news.json?query=%EC%8A%A4%EB%A7%88%ED%8A%B8%ED%99%88&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '''스마트홈'' 키워드의 국내 언론 보도 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_news_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-news-05b39ae7
+    name: '네이버 뉴스 검색: 로봇청소기'
+    track: news
+    category: independent_media
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/news.json?query=%EB%A1%9C%EB%B4%87%EC%B2%AD%EC%86%8C%EA%B8%B0&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '''로봇청소기'' 키워드의 국내 언론 보도 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_news_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-news-ad0c14b2
+    name: '네이버 뉴스 검색: 휴머노이드 로봇'
+    track: news
+    category: independent_media
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/news.json?query=%ED%9C%B4%EB%A8%B8%EB%85%B8%EC%9D%B4%EB%93%9C%20%EB%A1%9C%EB%B4%87&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '''휴머노이드 로봇'' 키워드의 국내 언론 보도 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_news_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-news-37dd5139
+    name: '네이버 뉴스 검색: 가정용 로봇'
+    track: news
+    category: independent_media
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/news.json?query=%EA%B0%80%EC%A0%95%EC%9A%A9%20%EB%A1%9C%EB%B4%87&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '''가정용 로봇'' 키워드의 국내 언론 보도 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_news_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-news-963c42dd
+    name: '네이버 뉴스 검색: LG전자 가전'
+    track: news
+    category: independent_media
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/news.json?query=LG%EC%A0%84%EC%9E%90%20%EA%B0%80%EC%A0%84&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '''LG전자 가전'' 키워드의 국내 언론 보도 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_news_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-news-ac9f1495
+    name: '네이버 뉴스 검색: 삼성전자 가전'
+    track: news
+    category: independent_media
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/news.json?query=%EC%82%BC%EC%84%B1%EC%A0%84%EC%9E%90%20%EA%B0%80%EC%A0%84&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '''삼성전자 가전'' 키워드의 국내 언론 보도 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_news_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-news-e27f505c
+    name: '네이버 뉴스 검색: 6G'
+    track: news
+    category: independent_media
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/news.json?query=6G&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '''6G'' 키워드의 국내 언론 보도 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_news_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-news-c547d0a0
+    name: '네이버 뉴스 검색: 5G 특화망'
+    track: news
+    category: independent_media
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/news.json?query=5G%20%ED%8A%B9%ED%99%94%EB%A7%9D&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '''5G 특화망'' 키워드의 국내 언론 보도 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_news_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-news-2cd69c2c
+    name: '네이버 뉴스 검색: 위성통신'
+    track: news
+    category: independent_media
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/news.json?query=%EC%9C%84%EC%84%B1%ED%86%B5%EC%8B%A0&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '''위성통신'' 키워드의 국내 언론 보도 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_news_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-news-a8f9b5e1
+    name: '네이버 뉴스 검색: 전장 부품'
+    track: news
+    category: independent_media
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/news.json?query=%EC%A0%84%EC%9E%A5%20%EB%B6%80%ED%92%88&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '''전장 부품'' 키워드의 국내 언론 보도 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_news_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-news-feac3f69
+    name: '네이버 뉴스 검색: 소프트웨어 중심 자동차'
+    track: news
+    category: independent_media
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/news.json?query=%EC%86%8C%ED%94%84%ED%8A%B8%EC%9B%A8%EC%96%B4%20%EC%A4%91%EC%8B%AC%20%EC%9E%90%EB%8F%99%EC%B0%A8&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '''소프트웨어 중심 자동차'' 키워드의 국내 언론 보도 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_news_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-news-079d8a80
+    name: '네이버 뉴스 검색: 자율주행'
+    track: news
+    category: independent_media
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/news.json?query=%EC%9E%90%EC%9C%A8%EC%A3%BC%ED%96%89&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '''자율주행'' 키워드의 국내 언론 보도 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_news_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-news-060f00be
+    name: '네이버 뉴스 검색: 전기차 배터리'
+    track: news
+    category: independent_media
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/news.json?query=%EC%A0%84%EA%B8%B0%EC%B0%A8%20%EB%B0%B0%ED%84%B0%EB%A6%AC&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '''전기차 배터리'' 키워드의 국내 언론 보도 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_news_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-news-0e7bb7ce
+    name: '네이버 뉴스 검색: 디지털헬스'
+    track: news
+    category: independent_media
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/news.json?query=%EB%94%94%EC%A7%80%ED%84%B8%ED%97%AC%EC%8A%A4&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '''디지털헬스'' 키워드의 국내 언론 보도 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_news_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-news-5cd40d14
+    name: '네이버 뉴스 검색: 의료기기 AI'
+    track: news
+    category: independent_media
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/news.json?query=%EC%9D%98%EB%A3%8C%EA%B8%B0%EA%B8%B0%20AI&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '''의료기기 AI'' 키워드의 국내 언론 보도 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_news_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-news-aa6f5cfc
+    name: '네이버 뉴스 검색: 원격의료'
+    track: news
+    category: independent_media
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/news.json?query=%EC%9B%90%EA%B2%A9%EC%9D%98%EB%A3%8C&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '''원격의료'' 키워드의 국내 언론 보도 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_news_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-news-46cbb8a4
+    name: '네이버 뉴스 검색: 디지털치료제'
+    track: news
+    category: independent_media
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/news.json?query=%EB%94%94%EC%A7%80%ED%84%B8%EC%B9%98%EB%A3%8C%EC%A0%9C&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '''디지털치료제'' 키워드의 국내 언론 보도 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_news_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-news-03deac96
+    name: '네이버 뉴스 검색: 생성형 AI'
+    track: news
+    category: independent_media
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/news.json?query=%EC%83%9D%EC%84%B1%ED%98%95%20AI&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '''생성형 AI'' 키워드의 국내 언론 보도 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_news_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-news-049bc9e1
+    name: '네이버 뉴스 검색: AI 반도체'
+    track: news
+    category: independent_media
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/news.json?query=AI%20%EB%B0%98%EB%8F%84%EC%B2%B4&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '''AI 반도체'' 키워드의 국내 언론 보도 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_news_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-news-06ffe3e2
+    name: '네이버 뉴스 검색: NPU'
+    track: news
+    category: independent_media
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/news.json?query=NPU&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '''NPU'' 키워드의 국내 언론 보도 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_news_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-news-c3c842c3
+    name: '네이버 뉴스 검색: 엔비디아'
+    track: news
+    category: independent_media
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/news.json?query=%EC%97%94%EB%B9%84%EB%94%94%EC%95%84&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '''엔비디아'' 키워드의 국내 언론 보도 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_news_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-news-8be1f625
+    name: '네이버 뉴스 검색: 퀄컴'
+    track: news
+    category: independent_media
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/news.json?query=%ED%80%84%EC%BB%B4&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '''퀄컴'' 키워드의 국내 언론 보도 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_news_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-news-20adf68e
+    name: '네이버 뉴스 검색: 아이폰'
+    track: news
+    category: independent_media
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/news.json?query=%EC%95%84%EC%9D%B4%ED%8F%B0&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '''아이폰'' 키워드의 국내 언론 보도 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_news_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-news-05c08c45
+    name: '네이버 뉴스 검색: 구글 픽셀'
+    track: news
+    category: independent_media
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/news.json?query=%EA%B5%AC%EA%B8%80%20%ED%94%BD%EC%85%80&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '''구글 픽셀'' 키워드의 국내 언론 보도 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_news_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-news-de5937fd
+    name: '네이버 뉴스 검색: XR 헤드셋'
+    track: news
+    category: independent_media
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/news.json?query=XR%20%ED%97%A4%EB%93%9C%EC%85%8B&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '''XR 헤드셋'' 키워드의 국내 언론 보도 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_news_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-news-13b28434
+    name: '네이버 뉴스 검색: 스마트 안경'
+    track: news
+    category: independent_media
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/news.json?query=%EC%8A%A4%EB%A7%88%ED%8A%B8%20%EC%95%88%EA%B2%BD&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '''스마트 안경'' 키워드의 국내 언론 보도 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_news_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-news-706c27eb
+    name: '네이버 뉴스 검색: AI PC'
+    track: news
+    category: independent_media
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/news.json?query=AI%20PC&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '''AI PC'' 키워드의 국내 언론 보도 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_news_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-news-005f9ebb
+    name: '네이버 뉴스 검색: 갤럭시 AI'
+    track: news
+    category: independent_media
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/news.json?query=%EA%B0%A4%EB%9F%AD%EC%8B%9C%20AI&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '''갤럭시 AI'' 키워드의 국내 언론 보도 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_news_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-blog-05bc495f
+    name: '네이버 블로그 검색: 갤럭시 리뷰'
+    track: community
+    category: open_social
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/blog.json?query=%EA%B0%A4%EB%9F%AD%EC%8B%9C%20%EB%A6%AC%EB%B7%B0&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: community
+    dx_relevance: '''갤럭시 리뷰'' 키워드의 국내 블로그 반응 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_blog_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-blog-dc189770
+    name: '네이버 블로그 검색: 아이폰 리뷰'
+    track: community
+    category: open_social
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/blog.json?query=%EC%95%84%EC%9D%B4%ED%8F%B0%20%EB%A6%AC%EB%B7%B0&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: community
+    dx_relevance: '''아이폰 리뷰'' 키워드의 국내 블로그 반응 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_blog_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-blog-07890a0c
+    name: '네이버 블로그 검색: 스마트워치 리뷰'
+    track: community
+    category: open_social
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/blog.json?query=%EC%8A%A4%EB%A7%88%ED%8A%B8%EC%9B%8C%EC%B9%98%20%EB%A6%AC%EB%B7%B0&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: community
+    dx_relevance: '''스마트워치 리뷰'' 키워드의 국내 블로그 반응 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_blog_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-blog-149ce145
+    name: '네이버 블로그 검색: 로봇청소기 후기'
+    track: community
+    category: open_social
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/blog.json?query=%EB%A1%9C%EB%B4%87%EC%B2%AD%EC%86%8C%EA%B8%B0%20%ED%9B%84%EA%B8%B0&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: community
+    dx_relevance: '''로봇청소기 후기'' 키워드의 국내 블로그 반응 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_blog_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-blog-6654f99f
+    name: '네이버 블로그 검색: OLED TV 후기'
+    track: community
+    category: open_social
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/blog.json?query=OLED%20TV%20%ED%9B%84%EA%B8%B0&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: community
+    dx_relevance: '''OLED TV 후기'' 키워드의 국내 블로그 반응 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_blog_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-blog-d1d26721
+    name: '네이버 블로그 검색: 온디바이스 AI'
+    track: community
+    category: open_social
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/blog.json?query=%EC%98%A8%EB%94%94%EB%B0%94%EC%9D%B4%EC%8A%A4%20AI&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: community
+    dx_relevance: '''온디바이스 AI'' 키워드의 국내 블로그 반응 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_blog_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-blog-12c8b5da
+    name: '네이버 블로그 검색: AI PC 후기'
+    track: community
+    category: open_social
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/blog.json?query=AI%20PC%20%ED%9B%84%EA%B8%B0&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: community
+    dx_relevance: '''AI PC 후기'' 키워드의 국내 블로그 반응 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_blog_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-blog-d1a07288
+    name: '네이버 블로그 검색: 스마트홈 구축'
+    track: community
+    category: open_social
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/blog.json?query=%EC%8A%A4%EB%A7%88%ED%8A%B8%ED%99%88%20%EA%B5%AC%EC%B6%95&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: community
+    dx_relevance: '''스마트홈 구축'' 키워드의 국내 블로그 반응 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_blog_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-blog-cca09b5b
+    name: '네이버 블로그 검색: 무선이어폰 리뷰'
+    track: community
+    category: open_social
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/blog.json?query=%EB%AC%B4%EC%84%A0%EC%9D%B4%EC%96%B4%ED%8F%B0%20%EB%A6%AC%EB%B7%B0&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: community
+    dx_relevance: '''무선이어폰 리뷰'' 키워드의 국내 블로그 반응 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_blog_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+  - key: naver-blog-4a8ca658
+    name: '네이버 블로그 검색: 폴더블폰 후기'
+    track: community
+    category: open_social
+    access_method: json_api
+    endpoint_url: https://openapi.naver.com/v1/search/blog.json?query=%ED%8F%B4%EB%8D%94%EB%B8%94%ED%8F%B0%20%ED%9B%84%EA%B8%B0&display=100&sort=date
+    official_domain: naver.com
+    operator: NAVER Corp. (Search API)
+    region: kr
+    language: ko
+    poll_class: community
+    dx_relevance: '''폴더블폰 후기'' 키워드의 국내 블로그 반응 (네이버 검색 API)'
+    storage_right: excerpt_allowed
+    config:
+      preset: naver_blog_search
+      auth:
+        scheme: headers
+        headers:
+          X-Naver-Client-Id: NAVER_CLIENT_ID
+          X-Naver-Client-Secret: NAVER_CLIENT_SECRET
+      timezone: Asia/Seoul
+
+  # ── 대상 우선 보강 (RSS 없음 → 사이트맵·자동 크롤러, Phase 3.7) (118) ──
+  - key: bosch-press-web
+    name: Bosch Press
+    track: news
+    category: official_vendor
+    access_method: crawler
+    endpoint_url: https://www.bosch-presse.de/
+    official_domain: bosch-presse.de
+    operator: Bosch Press
+    region: eu_other
+    language: de
+    poll_class: news
+    dx_relevance: 'Bosch Press: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      mode: auto
+      timezone: Europe/Berlin
+      enrich_limit: 12
+  - key: cea-leti-web
+    name: CEA-Leti News
+    track: news
+    category: research_org
+    access_method: sitemap
+    endpoint_url: https://www.leti-cea.com/sitemap.xml
+    official_domain: leti-cea.com
+    operator: CEA-Leti News
+    region: eu_other
+    language: en
+    poll_class: news
+    dx_relevance: 'CEA-Leti News: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Europe/Berlin
+      enrich_limit: 15
+  - key: computerweekly-web
+    name: Computer Weekly
+    track: news
+    category: independent_media
+    access_method: sitemap
+    endpoint_url: https://www.computerweekly.com/googleNews.xml
+    official_domain: computerweekly.com
+    operator: Computer Weekly
+    region: eu_other
+    language: en
+    poll_class: news
+    dx_relevance: 'Computer Weekly: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Europe/Berlin
+      enrich_limit: 15
+  - key: continental-press-web
+    name: Continental Press
+    track: news
+    category: official_vendor
+    access_method: sitemap
+    endpoint_url: https://www.continental.com/en/xmlsitemap
+    official_domain: continental.com
+    operator: Continental Press
+    region: eu_other
+    language: en
+    poll_class: news
+    dx_relevance: 'Continental Press: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Europe/Berlin
+      enrich_limit: 15
+  - key: enisa-news-web
+    name: ENISA News
+    track: news
+    category: government
+    access_method: sitemap
+    endpoint_url: https://www.enisa.europa.eu/sitemap.xml
+    official_domain: europa.eu
+    operator: ENISA News
+    region: eu_other
+    language: en
+    poll_class: news
+    dx_relevance: 'ENISA News: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Europe/Berlin
+      enrich_limit: 15
+  - key: epfl-news-web
+    name: EPFL News
+    track: news
+    category: research_org
+    access_method: crawler
+    endpoint_url: https://actu.epfl.ch/
+    official_domain: epfl.ch
+    operator: EPFL News
+    region: eu_other
+    language: en
+    poll_class: news
+    dx_relevance: 'EPFL News: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      mode: auto
+      timezone: Europe/Berlin
+      enrich_limit: 12
+  - key: heise-mac-and-i-web
+    name: Mac & i
+    track: news
+    category: independent_media
+    access_method: crawler
+    endpoint_url: https://www.heise.de/
+    official_domain: heise.de
+    operator: Mac & i
+    region: eu_other
+    language: de
+    poll_class: news
+    dx_relevance: 'Mac & i: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      mode: auto
+      timezone: Europe/Berlin
+      enrich_limit: 12
+  - key: ico-news-web
+    name: ICO News
+    track: news
+    category: government
+    access_method: sitemap
+    endpoint_url: https://ico.org.uk/sitemap/
+    official_domain: ico.org.uk
+    operator: ICO News
+    region: eu_other
+    language: en
+    poll_class: news
+    dx_relevance: 'ICO News: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Europe/Berlin
+      enrich_limit: 15
+  - key: imec-news-web
+    name: imec News
+    track: news
+    category: research_org
+    access_method: sitemap
+    endpoint_url: https://www.imec-int.com/sitemap.xml
+    official_domain: imec-int.com
+    operator: imec News
+    region: eu_other
+    language: en
+    poll_class: news
+    dx_relevance: 'imec News: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Europe/Berlin
+      enrich_limit: 15
+  - key: infineon-news-web
+    name: Infineon Press
+    track: news
+    category: official_vendor
+    access_method: sitemap
+    endpoint_url: https://www.infineon.com/sitemap-index.xml
+    official_domain: infineon.com
+    operator: Infineon Press
+    region: eu_other
+    language: en
+    poll_class: news
+    dx_relevance: 'Infineon Press: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Europe/Berlin
+      enrich_limit: 15
+  - key: mistral-news-web
+    name: Mistral AI News
+    track: news
+    category: official_vendor
+    access_method: sitemap
+    endpoint_url: https://mistral.ai/sitemap-index.xml
+    official_domain: mistral.ai
+    operator: Mistral AI News
+    region: eu_other
+    language: en
+    poll_class: news
+    dx_relevance: 'Mistral AI News: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Europe/Berlin
+      enrich_limit: 15
+  - key: mpg-news-web
+    name: Max Planck Society News
+    track: news
+    category: research_org
+    access_method: sitemap
+    endpoint_url: https://www.mpg.de/sitemap.xml
+    official_domain: mpg.de
+    operator: Max Planck Society News
+    region: eu_other
+    language: en
+    poll_class: news
+    dx_relevance: 'Max Planck Society News: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Europe/Berlin
+      enrich_limit: 15
+  - key: o-ran-news-web
+    name: O-RAN Alliance
+    track: news
+    category: government
+    access_method: sitemap
+    endpoint_url: https://www.o-ran.org/sitemap.xml
+    official_domain: o-ran.org
+    operator: O-RAN Alliance
+    region: eu_other
+    language: en
+    poll_class: news
+    dx_relevance: 'O-RAN Alliance: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Europe/Berlin
+      enrich_limit: 15
+  - key: signify-news-web
+    name: Signify News
+    track: news
+    category: official_vendor
+    access_method: sitemap
+    endpoint_url: https://www.signify.com/sitemap-signify-cs_CZ-web-index.xml
+    official_domain: signify.com
+    operator: Signify News
+    region: eu_other
+    language: en
+    poll_class: news
+    dx_relevance: 'Signify News: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Europe/Berlin
+      enrich_limit: 15
+  - key: st-newsroom-web
+    name: STMicroelectronics Newsroom
+    track: news
+    category: official_vendor
+    access_method: crawler
+    endpoint_url: https://newsroom.st.com/
+    official_domain: st.com
+    operator: STMicroelectronics Newsroom
+    region: eu_other
+    language: en
+    poll_class: news
+    dx_relevance: 'STMicroelectronics Newsroom: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      mode: auto
+      timezone: Europe/Berlin
+      enrich_limit: 12
+  - key: withings-blog-web
+    name: Withings Blog
+    track: news
+    category: official_vendor
+    access_method: sitemap
+    endpoint_url: https://www.withings.com/sitemap.xml
+    official_domain: withings.com
+    operator: Withings Blog
+    region: eu_other
+    language: en
+    poll_class: news
+    dx_relevance: 'Withings Blog: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Europe/Berlin
+      enrich_limit: 15
+  - key: a-star-news-web
+    name: A*STAR News
+    track: news
+    category: research_org
+    access_method: sitemap
+    endpoint_url: https://www.a-star.edu.sg/sitemap.xml
+    official_domain: a-star.edu.sg
+    operator: A*STAR News
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 'A*STAR News: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: UTC
+      enrich_limit: 15
+  - key: anthropic-web
+    name: Anthropic News
+    track: news
+    category: official_vendor
+    access_method: sitemap
+    endpoint_url: https://www.anthropic.com/sitemap.xml
+    official_domain: anthropic.com
+    operator: Anthropic News
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 'Anthropic News: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: UTC
+      enrich_limit: 15
+  - key: axios-tech
+    name: Axios Technology
+    track: news
+    category: independent_media
+    access_method: sitemap
+    endpoint_url: https://www.axios.com/sitemap.xml
+    official_domain: axios.com
+    operator: Axios Technology
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 'Axios Technology: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: UTC
+      enrich_limit: 15
+  - key: bloomberg-tech
+    name: Bloomberg Technology
+    track: news
+    category: independent_media
+    access_method: sitemap
+    endpoint_url: https://www.bloomberg.com/sitemaps/news/latest.xml
+    official_domain: bloomberg.com
+    operator: Bloomberg Technology
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 'Bloomberg Technology: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: UTC
+      enrich_limit: 15
+  - key: boston-dynamics-blog-web
+    name: Boston Dynamics Blog
+    track: news
+    category: official_vendor
+    access_method: sitemap
+    endpoint_url: https://bostondynamics.com/sitemap_index.xml
+    official_domain: bostondynamics.com
+    operator: Boston Dynamics Blog
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 'Boston Dynamics Blog: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: UTC
+      enrich_limit: 15
+  - key: brookings-tech-web
+    name: Brookings Technology
+    track: news
+    category: research_org
+    access_method: crawler
+    endpoint_url: https://www.brookings.edu/topics/technology-innovation/
+    official_domain: brookings.edu
+    operator: Brookings Technology
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 'Brookings Technology: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      mode: auto
+      timezone: UTC
+      enrich_limit: 12
+  - key: businessinsider-tech
+    name: Business Insider Tech
+    track: news
+    category: independent_media
+    access_method: feed
+    official_domain: businessinsider.com
+    operator: Business Insider Tech
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 'Business Insider Tech: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    endpoint_url: https://feeds.businessinsider.com/custom/all
+  - key: cmu-news-web
+    name: Carnegie Mellon News
+    track: news
+    category: research_org
+    access_method: crawler
+    endpoint_url: https://www.cmu.edu/news/
+    official_domain: cmu.edu
+    operator: Carnegie Mellon News
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 'Carnegie Mellon News: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      mode: auto
+      timezone: UTC
+      enrich_limit: 12
+  - key: cnbc-tech
+    name: CNBC Technology
+    track: news
+    category: independent_media
+    access_method: sitemap
+    endpoint_url: https://www.cnbc.com/sitemap_news.xml
+    official_domain: cnbc.com
+    operator: CNBC Technology
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 'CNBC Technology: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: UTC
+      enrich_limit: 15
+  - key: counterpoint-web
+    name: Counterpoint Research Insights
+    track: news
+    category: research_org
+    access_method: crawler
+    endpoint_url: https://www.counterpointresearch.com/insight
+    official_domain: counterpointresearch.com
+    operator: Counterpoint Research Insights
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 'Counterpoint Research Insights: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      mode: auto
+      timezone: UTC
+      enrich_limit: 12
+  - key: covesa-web
+    name: COVESA
+    track: news
+    category: government
+    access_method: sitemap
+    endpoint_url: https://covesa.global/sitemap_index.xml
+    official_domain: covesa.global
+    operator: COVESA
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 'COVESA: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: UTC
+      enrich_limit: 15
+  - key: csis-tech-web
+    name: CSIS Technology
+    track: news
+    category: research_org
+    access_method: sitemap
+    endpoint_url: https://www.csis.org/sitemap.xml
+    official_domain: csis.org
+    operator: CSIS Technology
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 'CSIS Technology: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: UTC
+      enrich_limit: 15
+  - key: digitaltrends-web
+    name: Digital Trends
+    track: news
+    category: independent_media
+    access_method: sitemap
+    endpoint_url: https://www.digitaltrends.com/sitemap-google-news-sitemap_1.xml
+    official_domain: digitaltrends.com
+    operator: Digital Trends
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 'Digital Trends: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: UTC
+      enrich_limit: 15
+  - key: fortune-tech
+    name: Fortune Tech
+    track: news
+    category: independent_media
+    access_method: feed
+    official_domain: fortune.com
+    operator: Fortune Tech
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 'Fortune Tech: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    endpoint_url: https://fortune.com/feed
+  - key: google-developers-blog-web
+    name: Google Developers Blog
+    track: news
+    category: official_vendor
+    access_method: sitemap
+    endpoint_url: https://developers.googleblog.com/sitemap.xml
+    official_domain: googleblog.com
+    operator: Google Developers Blog
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 'Google Developers Blog: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: UTC
+      enrich_limit: 15
+  - key: gsmarena-news-web
+    name: GSMArena News
+    track: news
+    category: independent_media
+    access_method: crawler
+    endpoint_url: https://www.gsmarena.com/news.php3
+    official_domain: gsmarena.com
+    operator: GSMArena News
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 'GSMArena News: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      mode: auto
+      timezone: UTC
+      enrich_limit: 12
+  - key: imda-sg-web
+    name: IMDA Singapore
+    track: news
+    category: government
+    access_method: sitemap
+    endpoint_url: https://www.imda.gov.sg/sitemap.xml
+    official_domain: imda.gov.sg
+    operator: IMDA Singapore
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 'IMDA Singapore: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: UTC
+      enrich_limit: 15
+  - key: intel-web
+    name: Intel Newsroom
+    track: news
+    category: official_vendor
+    access_method: sitemap
+    endpoint_url: https://www.intc.com/sitemap.xml
+    official_domain: intc.com
+    operator: Intel Newsroom
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 'Intel Newsroom: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: UTC
+      enrich_limit: 15
+  - key: jedec-news-web
+    name: JEDEC News
+    track: news
+    category: government
+    access_method: sitemap
+    endpoint_url: https://www.jedec.org/sitemap.xml
+    official_domain: jedec.org
+    operator: JEDEC News
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 'JEDEC News: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: UTC
+      enrich_limit: 15
+  - key: massdevice-web
+    name: MassDevice
+    track: news
+    category: independent_media
+    access_method: sitemap
+    endpoint_url: https://www.massdevice.com/sitemap_index.xml
+    official_domain: massdevice.com
+    operator: MassDevice
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 'MassDevice: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: UTC
+      enrich_limit: 15
+  - key: mila-news-web
+    name: Mila News
+    track: news
+    category: research_org
+    access_method: sitemap
+    endpoint_url: https://mila.quebec/sitemap.xml
+    official_domain: mila.quebec
+    operator: Mila News
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 'Mila News: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: UTC
+      enrich_limit: 15
+  - key: mipi-news-web
+    name: MIPI Alliance
+    track: news
+    category: government
+    access_method: sitemap
+    endpoint_url: https://www.mipi.org/sitemap.xml
+    official_domain: mipi.org
+    operator: MIPI Alliance
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 'MIPI Alliance: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: UTC
+      enrich_limit: 15
+  - key: mit-csail-web
+    name: MIT CSAIL News
+    track: news
+    category: research_org
+    access_method: crawler
+    endpoint_url: https://www.csail.mit.edu/news
+    official_domain: mit.edu
+    operator: MIT CSAIL News
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 'MIT CSAIL News: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      mode: auto
+      timezone: UTC
+      enrich_limit: 12
+  - key: mobileye-news-web
+    name: Mobileye News
+    track: news
+    category: official_vendor
+    access_method: sitemap
+    endpoint_url: https://www.mobileye.com/sitemap.xml
+    official_domain: mobileye.com
+    operator: Mobileye News
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 'Mobileye News: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: UTC
+      enrich_limit: 15
+  - key: nfc-forum-web
+    name: NFC Forum
+    track: news
+    category: government
+    access_method: sitemap
+    endpoint_url: https://nfc-forum.org/sitemap.xml
+    official_domain: nfc-forum.org
+    operator: NFC Forum
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 'NFC Forum: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: UTC
+      enrich_limit: 15
+  - key: ntia-news-web
+    name: NTIA News
+    track: news
+    category: government
+    access_method: sitemap
+    endpoint_url: https://www.ntia.gov/sitemap.xml
+    official_domain: ntia.gov
+    operator: NTIA News
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 'NTIA News: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: UTC
+      enrich_limit: 15
+  - key: onc-healthit-web
+    name: ASTP/ONC HealthIT.gov
+    track: news
+    category: government
+    access_method: sitemap
+    endpoint_url: https://healthit.gov/blog/sitemap_index.xml
+    official_domain: healthit.gov
+    operator: ASTP/ONC HealthIT.gov
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 'ASTP/ONC HealthIT.gov: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: UTC
+      enrich_limit: 15
+  - key: qualcomm-web
+    name: Qualcomm News
+    track: news
+    category: official_vendor
+    access_method: sitemap
+    endpoint_url: https://www.qualcomm.com/sitemap.xml
+    official_domain: qualcomm.com
+    operator: Qualcomm News
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 'Qualcomm News: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: UTC
+      enrich_limit: 15
+  - key: stanford-hai-web
+    name: Stanford HAI
+    track: news
+    category: research_org
+    access_method: sitemap
+    endpoint_url: https://hai.stanford.edu/sitemap.xml
+    official_domain: stanford.edu
+    operator: Stanford HAI
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 'Stanford HAI: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: UTC
+      enrich_limit: 15
+  - key: theinformation
+    name: The Information
+    track: news
+    category: independent_media
+    access_method: feed
+    official_domain: theinformation.com
+    operator: The Information
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 'The Information: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    endpoint_url: https://www.theinformation.com/feed
+  - key: uspto-news-web
+    name: USPTO News
+    track: news
+    category: government
+    access_method: sitemap
+    endpoint_url: https://www.uspto.gov/officialgazette/og_sitemap.xml
+    official_domain: uspto.gov
+    operator: USPTO News
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 'USPTO News: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: UTC
+      enrich_limit: 15
+  - key: vector-institute-web
+    name: Vector Institute
+    track: news
+    category: research_org
+    access_method: sitemap
+    endpoint_url: https://vectorinstitute.ai/sitemap_index.xml
+    official_domain: vectorinstitute.ai
+    operator: Vector Institute
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 'Vector Institute: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: UTC
+      enrich_limit: 15
+  - key: verizon-news-web
+    name: Verizon News
+    track: news
+    category: official_vendor
+    access_method: sitemap
+    endpoint_url: https://www.verizon.com/content/support.sitemap-index.xml
+    official_domain: verizon.com
+    operator: Verizon News
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 'Verizon News: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: UTC
+      enrich_limit: 15
+  - key: wareable-web
+    name: Wareable
+    track: news
+    category: independent_media
+    access_method: crawler
+    endpoint_url: https://www.wareable.com/
+    official_domain: wareable.com
+    operator: Wareable
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 'Wareable: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      mode: auto
+      timezone: UTC
+      enrich_limit: 12
+  - key: waymo-web
+    name: Waymo Blog
+    track: news
+    category: official_vendor
+    access_method: sitemap
+    endpoint_url: https://waymo.com/sitemap.xml
+    official_domain: waymo.com
+    operator: Waymo Blog
+    region: global_en
+    language: en
+    poll_class: news
+    dx_relevance: 'Waymo Blog: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: UTC
+      enrich_limit: 15
+  - key: ctee-tech-web
+    name: 工商時報
+    track: news
+    category: independent_media
+    access_method: crawler
+    endpoint_url: https://www.ctee.com.tw/
+    official_domain: ctee.com.tw
+    operator: 工商時報
+    region: greater_china
+    language: zh-TW
+    poll_class: news
+    dx_relevance: '工商時報: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      mode: auto
+      timezone: Asia/Shanghai
+      enrich_limit: 12
+  - key: digitimes-asia
+    name: DIGITIMES Asia
+    track: news
+    category: independent_media
+    access_method: feed
+    official_domain: digitimes.com
+    operator: DIGITIMES Asia
+    region: greater_china
+    language: en
+    poll_class: news
+    dx_relevance: 'DIGITIMES Asia: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    endpoint_url: https://www.digitimes.com/rss/daily.xml
+  - key: digitimes-tw-web
+    name: DIGITIMES
+    track: news
+    category: independent_media
+    access_method: crawler
+    endpoint_url: https://www.digitimes.com.tw/
+    official_domain: digitimes.com.tw
+    operator: DIGITIMES
+    region: greater_china
+    language: zh-TW
+    poll_class: news
+    dx_relevance: 'DIGITIMES: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      mode: auto
+      timezone: Asia/Shanghai
+      enrich_limit: 12
+  - key: eprice-tw-web
+    name: ePrice
+    track: news
+    category: independent_media
+    access_method: crawler
+    endpoint_url: https://www.eprice.com.tw/
+    official_domain: eprice.com.tw
+    operator: ePrice
+    region: greater_china
+    language: zh-TW
+    poll_class: news
+    dx_relevance: 'ePrice: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      mode: auto
+      timezone: Asia/Shanghai
+      enrich_limit: 12
+  - key: itri-news-web
+    name: 工研院 ITRI
+    track: news
+    category: research_org
+    access_method: sitemap
+    endpoint_url: https://www.itri.org.tw/ITRIWWWSiteMap.xml
+    official_domain: itri.org.tw
+    operator: 工研院 ITRI
+    region: greater_china
+    language: zh-TW
+    poll_class: news
+    dx_relevance: '工研院 ITRI: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Asia/Shanghai
+      enrich_limit: 15
+  - key: moda-tw-web
+    name: 數位發展部
+    track: news
+    category: government
+    access_method: sitemap
+    endpoint_url: https://moda.gov.tw/sitemap.xml
+    official_domain: moda.gov.tw
+    operator: 數位發展部
+    region: greater_china
+    language: zh-TW
+    poll_class: news
+    dx_relevance: '數位發展部: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Asia/Shanghai
+      enrich_limit: 15
+  - key: oppo-news-web
+    name: OPPO Newsroom
+    track: news
+    category: official_vendor
+    access_method: sitemap
+    endpoint_url: https://www.oppo.com/sitemap.xml
+    official_domain: oppo.com
+    operator: OPPO Newsroom
+    region: greater_china
+    language: en
+    poll_class: news
+    dx_relevance: 'OPPO Newsroom: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Asia/Shanghai
+      enrich_limit: 15
+  - key: scmp-tech
+    name: SCMP Tech
+    track: news
+    category: independent_media
+    access_method: sitemap
+    endpoint_url: https://www.scmp.com/sitemap/archives-0.xml
+    official_domain: scmp.com
+    operator: SCMP Tech
+    region: greater_china
+    language: en
+    poll_class: news
+    dx_relevance: 'SCMP Tech: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Asia/Shanghai
+      enrich_limit: 15
+  - key: trendforce-web
+    name: TrendForce News
+    track: news
+    category: research_org
+    access_method: sitemap
+    endpoint_url: https://www.trendforce.com/sitemap.xml
+    official_domain: trendforce.com
+    operator: TrendForce News
+    region: greater_china
+    language: en
+    poll_class: news
+    dx_relevance: 'TrendForce News: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Asia/Shanghai
+      enrich_limit: 15
+  - key: zol-web
+    name: 中关村在线
+    track: news
+    category: independent_media
+    access_method: sitemap
+    endpoint_url: https://news.zol.com.cn/sitemap_news.xml
+    official_domain: zol.com.cn
+    operator: 中关村在线
+    region: greater_china
+    language: zh
+    poll_class: news
+    dx_relevance: '中关村在线: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Asia/Shanghai
+      enrich_limit: 15
+  - key: honda-news-web
+    name: Honda Global News
+    track: news
+    category: official_vendor
+    access_method: crawler
+    endpoint_url: https://global.honda/en/newsroom/
+    official_domain: global.honda
+    operator: Honda Global News
+    region: jp
+    language: en
+    poll_class: news
+    dx_relevance: 'Honda Global News: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      mode: auto
+      timezone: Asia/Tokyo
+      enrich_limit: 12
+  - key: jst-news-web
+    name: JST プレスリリース
+    track: news
+    category: research_org
+    access_method: sitemap
+    endpoint_url: https://www.jst.go.jp/news_sitemap.xml
+    official_domain: jst.go.jp
+    operator: JST プレスリリース
+    region: jp
+    language: ja
+    poll_class: news
+    dx_relevance: 'JST プレスリリース: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Asia/Tokyo
+      enrich_limit: 15
+  - key: nikkei-asia-tech
+    name: Nikkei Asia Tech
+    track: news
+    category: independent_media
+    access_method: sitemap
+    endpoint_url: https://asia.nikkei.com/sitemap_news.xml
+    official_domain: nikkei.com
+    operator: Nikkei Asia Tech
+    region: jp
+    language: en
+    poll_class: news
+    dx_relevance: 'Nikkei Asia Tech: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Asia/Tokyo
+      enrich_limit: 15
+  - key: panasonic-news-web
+    name: Panasonic Newsroom
+    track: news
+    category: official_vendor
+    access_method: crawler
+    endpoint_url: https://news.panasonic.com/global/
+    official_domain: panasonic.com
+    operator: Panasonic Newsroom
+    region: jp
+    language: en
+    poll_class: news
+    dx_relevance: 'Panasonic Newsroom: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      mode: auto
+      timezone: Asia/Tokyo
+      enrich_limit: 12
+  - key: renesas-news-web
+    name: Renesas News
+    track: news
+    category: official_vendor
+    access_method: sitemap
+    endpoint_url: https://www.renesas.com/sitemap.xml
+    official_domain: renesas.com
+    operator: Renesas News
+    region: jp
+    language: en
+    poll_class: news
+    dx_relevance: 'Renesas News: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Asia/Tokyo
+      enrich_limit: 15
+  - key: sharp-news-web
+    name: Sharp News
+    track: news
+    category: official_vendor
+    access_method: crawler
+    endpoint_url: https://global.sharp/corporate/news/
+    official_domain: global.sharp
+    operator: Sharp News
+    region: jp
+    language: en
+    poll_class: news
+    dx_relevance: 'Sharp News: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      mode: auto
+      timezone: Asia/Tokyo
+      enrich_limit: 12
+  - key: tech-plus-mynavi-web
+    name: TECH+
+    track: news
+    category: independent_media
+    access_method: sitemap
+    endpoint_url: https://news.mynavi.jp/sitemap/news.xml
+    official_domain: mynavi.jp
+    operator: TECH+
+    region: jp
+    language: ja
+    poll_class: news
+    dx_relevance: 'TECH+: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Asia/Tokyo
+      enrich_limit: 15
+  - key: toyota-newsroom-web
+    name: Toyota Global Newsroom
+    track: news
+    category: official_vendor
+    access_method: sitemap
+    endpoint_url: https://global.toyota/sitemap.xml
+    official_domain: global.toyota
+    operator: Toyota Global Newsroom
+    region: jp
+    language: en
+    poll_class: news
+    dx_relevance: 'Toyota Global Newsroom: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Asia/Tokyo
+      enrich_limit: 15
+  - key: ajunews-tech-web
+    name: 아주경제
+    track: news
+    category: independent_media
+    access_method: sitemap
+    endpoint_url: https://www.ajunews.com/sitemap.php
+    official_domain: ajunews.com
+    operator: 아주경제
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '아주경제: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Asia/Seoul
+      enrich_limit: 15
+  - key: businesspost-tech
+    name: 비즈니스포스트 테크
+    track: news
+    category: independent_media
+    access_method: feed
+    official_domain: businesspost.co.kr
+    operator: 비즈니스포스트 테크
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '비즈니스포스트 테크: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    endpoint_url: https://www.businesspost.co.kr/rss/Article.xml
+  - key: chosunbiz-it
+    name: 조선비즈 IT
+    track: news
+    category: independent_media
+    access_method: sitemap
+    endpoint_url: https://biz.chosun.com/arc/outboundfeeds/news-sitemap/?outputType=xml
+    official_domain: chosun.com
+    operator: 조선비즈 IT
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '조선비즈 IT: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Asia/Seoul
+      enrich_limit: 15
+  - key: dt-web
+    name: 디지털타임스
+    track: news
+    category: independent_media
+    access_method: sitemap
+    endpoint_url: https://www.dt.co.kr/sitemap.xml
+    official_domain: dt.co.kr
+    operator: 디지털타임스
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '디지털타임스: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Asia/Seoul
+      enrich_limit: 15
+  - key: e4ds-web
+    name: e4ds 뉴스
+    track: news
+    category: independent_media
+    access_method: sitemap
+    endpoint_url: https://www.e4ds.com/news-sitemap.xml
+    official_domain: e4ds.com
+    operator: e4ds 뉴스
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 'e4ds 뉴스: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Asia/Seoul
+      enrich_limit: 15
+  - key: edaily-it
+    name: 이데일리 IT
+    track: news
+    category: independent_media
+    access_method: sitemap
+    endpoint_url: https://www.edaily.co.kr/sitemap/latest-article.xml
+    official_domain: edaily.co.kr
+    operator: 이데일리 IT
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '이데일리 IT: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Asia/Seoul
+      enrich_limit: 15
+  - key: etnews-web
+    name: 전자신문 웹
+    track: news
+    category: independent_media
+    access_method: crawler
+    endpoint_url: https://www.etnews.com/news/section.html?id1=03
+    official_domain: etnews.com
+    operator: 전자신문 웹
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '전자신문 웹: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      mode: auto
+      timezone: Asia/Seoul
+      enrich_limit: 12
+  - key: etoday-web
+    name: 이투데이
+    track: news
+    category: independent_media
+    access_method: sitemap
+    endpoint_url: https://www.etoday.co.kr/rss/news_sitemap
+    official_domain: etoday.co.kr
+    operator: 이투데이
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '이투데이: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Asia/Seoul
+      enrich_limit: 15
+  - key: fnnews-it-web
+    name: 파이낸셜뉴스 IT
+    track: news
+    category: independent_media
+    access_method: sitemap
+    endpoint_url: https://www.fnnews.com/sitemap/news/latest.xml
+    official_domain: fnnews.com
+    operator: 파이낸셜뉴스 IT
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '파이낸셜뉴스 IT: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Asia/Seoul
+      enrich_limit: 15
+  - key: hankookilbo-it-web
+    name: 한국일보
+    track: news
+    category: independent_media
+    access_method: sitemap
+    endpoint_url: https://www.hankookilbo.com/sitemap/latest-articles
+    official_domain: hankookilbo.com
+    operator: 한국일보
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '한국일보: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Asia/Seoul
+      enrich_limit: 15
+  - key: heraldcorp-it
+    name: 헤럴드경제 IT
+    track: news
+    category: independent_media
+    access_method: feed
+    official_domain: heraldcorp.com
+    operator: 헤럴드경제 IT
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '헤럴드경제 IT: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    endpoint_url: https://biz.heraldcorp.com/rss/google/newsAll
+  - key: inews24-web
+    name: 아이뉴스24
+    track: news
+    category: independent_media
+    access_method: sitemap
+    endpoint_url: https://www.inews24.com/sitemap.xml
+    official_domain: inews24.com
+    operator: 아이뉴스24
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '아이뉴스24: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Asia/Seoul
+      enrich_limit: 15
+  - key: kist-news-web
+    name: KIST 소식
+    track: news
+    category: research_org
+    access_method: crawler
+    endpoint_url: https://www.kist.re.kr/
+    official_domain: kist.re.kr
+    operator: KIST 소식
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 'KIST 소식: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      mode: auto
+      timezone: Asia/Seoul
+      enrich_limit: 12
+  - key: lg-ai-research-web
+    name: LG AI Research
+    track: news
+    category: official_vendor
+    access_method: sitemap
+    endpoint_url: https://www.lgresearch.ai/sitemap.xml
+    official_domain: lgresearch.ai
+    operator: LG AI Research
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 'LG AI Research: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Asia/Seoul
+      enrich_limit: 15
+  - key: lg-cns-blog-web
+    name: LG CNS 블로그
+    track: news
+    category: official_vendor
+    access_method: sitemap
+    endpoint_url: https://www.lgcns.com/sitemap.xml
+    official_domain: lgcns.com
+    operator: LG CNS 블로그
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 'LG CNS 블로그: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Asia/Seoul
+      enrich_limit: 15
+  - key: lguplus-news-web
+    name: LG유플러스 뉴스룸
+    track: news
+    category: official_vendor
+    access_method: crawler
+    endpoint_url: https://news.lguplus.com/
+    official_domain: lguplus.com
+    operator: LG유플러스 뉴스룸
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 'LG유플러스 뉴스룸: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      mode: auto
+      timezone: Asia/Seoul
+      enrich_limit: 12
+  - key: mt-tech
+    name: 머니투데이 IT
+    track: news
+    category: independent_media
+    access_method: sitemap
+    endpoint_url: https://news.mt.co.kr/sitemap.xml
+    official_domain: mt.co.kr
+    operator: 머니투데이 IT
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '머니투데이 IT: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Asia/Seoul
+      enrich_limit: 15
+  - key: news1-it
+    name: 뉴스1 IT
+    track: news
+    category: independent_media
+    access_method: sitemap
+    endpoint_url: https://www.news1.kr/api/feeds/sitemap-index/
+    official_domain: news1.kr
+    operator: 뉴스1 IT
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '뉴스1 IT: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Asia/Seoul
+      enrich_limit: 15
+  - key: newsis-it
+    name: 뉴시스 IT
+    track: news
+    category: independent_media
+    access_method: sitemap
+    endpoint_url: https://www.newsis.com/newsis_news_google.xml
+    official_domain: newsis.com
+    operator: 뉴시스 IT
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '뉴시스 IT: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Asia/Seoul
+      enrich_limit: 15
+  - key: newstomato-it-web
+    name: 뉴스토마토
+    track: news
+    category: independent_media
+    access_method: crawler
+    endpoint_url: https://www.newstomato.com/
+    official_domain: newstomato.com
+    operator: 뉴스토마토
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '뉴스토마토: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      mode: auto
+      timezone: Asia/Seoul
+      enrich_limit: 12
+  - key: newswire-kr-web
+    name: 뉴스와이어 IT
+    track: news
+    category: independent_media
+    access_method: sitemap
+    endpoint_url: https://www.newswire.co.kr/sitemap/news
+    official_domain: newswire.co.kr
+    operator: 뉴스와이어 IT
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '뉴스와이어 IT: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Asia/Seoul
+      enrich_limit: 15
+  - key: nhn-cloud-meetup-web
+    name: NHN Cloud Meetup
+    track: news
+    category: official_vendor
+    access_method: sitemap
+    endpoint_url: https://meetup.nhncloud.com/sitemap.xml
+    official_domain: nhncloud.com
+    operator: NHN Cloud Meetup
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 'NHN Cloud Meetup: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Asia/Seoul
+      enrich_limit: 15
+  - key: postech-news-web
+    name: POSTECH 뉴스
+    track: news
+    category: research_org
+    access_method: crawler
+    endpoint_url: https://www.postech.ac.kr/
+    official_domain: postech.ac.kr
+    operator: POSTECH 뉴스
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 'POSTECH 뉴스: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      mode: auto
+      timezone: Asia/Seoul
+      enrich_limit: 12
+  - key: sedaily-it-web
+    name: 서울경제 IT
+    track: news
+    category: independent_media
+    access_method: sitemap
+    endpoint_url: https://www.sedaily.com/sitemap/latestnews
+    official_domain: sedaily.com
+    operator: 서울경제 IT
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '서울경제 IT: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Asia/Seoul
+      enrich_limit: 15
+  - key: sk-ax-blog-web
+    name: SK AX 인사이트
+    track: news
+    category: official_vendor
+    access_method: sitemap
+    endpoint_url: https://www.skax.co.kr/sitemap.xml
+    official_domain: skax.co.kr
+    operator: SK AX 인사이트
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: 'SK AX 인사이트: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Asia/Seoul
+      enrich_limit: 15
+  - key: thelec-web
+    name: 디일렉 웹
+    track: news
+    category: independent_media
+    access_method: feed
+    official_domain: thelec.kr
+    operator: 디일렉 웹
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '디일렉 웹: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    endpoint_url: https://cdn.thelec.kr/rss/gn_rss_allArticle.xml
+  - key: yna-it-web
+    name: 연합뉴스 IT·과학
+    track: news
+    category: independent_media
+    access_method: sitemap
+    endpoint_url: https://www.yna.co.kr/news-sitemap3.xml
+    official_domain: yna.co.kr
+    operator: 연합뉴스 IT·과학
+    region: kr
+    language: ko
+    poll_class: news
+    dx_relevance: '연합뉴스 IT·과학: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Asia/Seoul
+      enrich_limit: 15
+  - key: debian-news-web
+    name: Debian News
+    track: community
+    category: open_governance
+    access_method: crawler
+    endpoint_url: https://www.debian.org/News/
+    official_domain: debian.org
+    operator: Debian News
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Debian News: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      mode: auto
+      timezone: UTC
+      enrich_limit: 12
+      date_fallback: now
+      drop_query: false
+  - key: freebsd-news-web
+    name: FreeBSD News
+    track: community
+    category: open_governance
+    access_method: sitemap
+    endpoint_url: https://www.freebsd.org/sitemap.xml
+    official_domain: freebsd.org
+    operator: FreeBSD News
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'FreeBSD News: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: UTC
+      enrich_limit: 15
+  - key: gentoo-news-web
+    name: Gentoo News
+    track: community
+    category: open_governance
+    access_method: crawler
+    endpoint_url: https://www.gentoo.org/news/
+    official_domain: gentoo.org
+    operator: Gentoo News
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Gentoo News: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      mode: auto
+      timezone: UTC
+      enrich_limit: 12
+      date_fallback: now
+      drop_query: false
+  - key: mastodon-blog-web
+    name: Mastodon Blog
+    track: community
+    category: open_governance
+    access_method: sitemap
+    endpoint_url: https://blog.joinmastodon.org/sitemap.xml
+    official_domain: joinmastodon.org
+    operator: Mastodon Blog
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Mastodon Blog: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: UTC
+      enrich_limit: 15
+  - key: mobile-dev-memo-web
+    name: Mobile Dev Memo
+    track: community
+    category: podcast_newsletter
+    access_method: sitemap
+    endpoint_url: https://mobiledevmemo.com/sitemap_index.xml
+    official_domain: mobiledevmemo.com
+    operator: Mobile Dev Memo
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Mobile Dev Memo: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: UTC
+      enrich_limit: 15
+  - key: mozilla-hacks-web
+    name: Mozilla Hacks
+    track: community
+    category: open_governance
+    access_method: crawler
+    endpoint_url: https://hacks.mozilla.org/
+    official_domain: mozilla.org
+    operator: Mozilla Hacks
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Mozilla Hacks: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      mode: auto
+      timezone: UTC
+      enrich_limit: 12
+      date_fallback: now
+      drop_query: false
+  - key: openhab-blog-web
+    name: openHAB Blog
+    track: community
+    category: open_governance
+    access_method: crawler
+    endpoint_url: https://www.openhab.org/blog/
+    official_domain: openhab.org
+    operator: openHAB Blog
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'openHAB Blog: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      mode: auto
+      timezone: UTC
+      enrich_limit: 12
+      date_fallback: now
+      drop_query: false
+  - key: openjs-foundation-web
+    name: OpenJS Foundation
+    track: community
+    category: open_governance
+    access_method: sitemap
+    endpoint_url: https://openjsf.org/sitemap.xml
+    official_domain: openjsf.org
+    operator: OpenJS Foundation
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'OpenJS Foundation: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: UTC
+      enrich_limit: 15
+  - key: openwrt-news-web
+    name: OpenWrt Forum Announcements
+    track: community
+    category: open_governance
+    access_method: sitemap
+    endpoint_url: https://forum.openwrt.org/sitemap.xml
+    official_domain: openwrt.org
+    operator: OpenWrt Forum Announcements
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'OpenWrt Forum Announcements: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: UTC
+      enrich_limit: 15
+  - key: the-batch-web
+    name: The Batch
+    track: community
+    category: podcast_newsletter
+    access_method: sitemap
+    endpoint_url: https://www.deeplearning.ai/sitemap.xml
+    official_domain: deeplearning.ai
+    operator: The Batch
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'The Batch: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: UTC
+      enrich_limit: 15
+  - key: zigbee2mqtt-web
+    name: Zigbee2MQTT
+    track: community
+    category: open_governance
+    access_method: sitemap
+    endpoint_url: https://www.zigbee2mqtt.io/sitemap.xml
+    official_domain: zigbee2mqtt.io
+    operator: Zigbee2MQTT
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Zigbee2MQTT: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: UTC
+      enrich_limit: 15
+  - key: clien-cm-ittalk
+    name: 클리앙 IT 소식·사용기
+    track: community
+    category: dev_forum
+    access_method: crawler
+    endpoint_url: https://www.clien.net/service/board/use
+    official_domain: clien.net
+    operator: 클리앙 IT 소식·사용기
+    region: kr
+    language: ko
+    poll_class: community
+    dx_relevance: '클리앙 IT 소식·사용기: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      mode: auto
+      timezone: Asia/Seoul
+      enrich_limit: 12
+      date_fallback: now
+      drop_query: false
+  - key: clien-news
+    name: 클리앙 새로운소식
+    track: community
+    category: dev_forum
+    access_method: crawler
+    endpoint_url: https://www.clien.net/service/board/news
+    official_domain: clien.net
+    operator: 클리앙 새로운소식
+    region: kr
+    language: ko
+    poll_class: community
+    dx_relevance: '클리앙 새로운소식: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      mode: auto
+      timezone: Asia/Seoul
+      enrich_limit: 12
+      date_fallback: now
+      drop_query: false
+  - key: disquiet
+    name: 디스콰이엇
+    track: community
+    category: dev_forum
+    access_method: sitemap
+    endpoint_url: https://disquiet.io/sitemap.xml
+    official_domain: disquiet.io
+    operator: 디스콰이엇
+    region: kr
+    language: ko
+    poll_class: community
+    dx_relevance: '디스콰이엇: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Asia/Seoul
+      enrich_limit: 15
+  - key: geeknews-weekly-web
+    name: GeekNews Weekly
+    track: community
+    category: podcast_newsletter
+    access_method: sitemap
+    endpoint_url: https://news.hada.io/sitemap.xml
+    official_domain: hada.io
+    operator: GeekNews Weekly
+    region: kr
+    language: ko
+    poll_class: community
+    dx_relevance: 'GeekNews Weekly: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Asia/Seoul
+      enrich_limit: 15
+  - key: okky-news
+    name: OKKY
+    track: community
+    category: dev_forum
+    access_method: sitemap
+    endpoint_url: https://okky.kr/news-sitemap.xml
+    official_domain: okky.kr
+    operator: OKKY
+    region: kr
+    language: ko
+    poll_class: community
+    dx_relevance: 'OKKY: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Asia/Seoul
+      enrich_limit: 15
+  - key: ppomppu-it
+    name: 뽐뿌 IT
+    track: community
+    category: dev_forum
+    access_method: sitemap
+    endpoint_url: https://www.ppomppu.co.kr/sitemap.php
+    official_domain: ppomppu.co.kr
+    operator: 뽐뿌 IT
+    region: kr
+    language: ko
+    poll_class: community
+    dx_relevance: '뽐뿌 IT: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Asia/Seoul
+      enrich_limit: 15
+  - key: quasarzone-news
+    name: 퀘이사존 뉴스
+    track: community
+    category: dev_forum
+    access_method: sitemap
+    endpoint_url: https://quasarzone.com/sitemap.xml
+    official_domain: quasarzone.com
+    operator: 퀘이사존 뉴스
+    region: kr
+    language: ko
+    poll_class: community
+    dx_relevance: '퀘이사존 뉴스: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Asia/Seoul
+      enrich_limit: 15
+  - key: yozm-it-web
+    name: 요즘IT
+    track: community
+    category: podcast_newsletter
+    access_method: sitemap
+    endpoint_url: https://yozm.wishket.com/magazine/sitemap.xml
+    official_domain: wishket.com
+    operator: 요즘IT
+    region: kr
+    language: ko
+    poll_class: community
+    dx_relevance: '요즘IT: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Asia/Seoul
+      enrich_limit: 15
+  - key: epo-web
+    name: EPO News
+    track: research_ip
+    category: ip_office
+    access_method: sitemap
+    endpoint_url: https://www.epo.org/en/sitemap.xml
+    official_domain: epo.org
+    operator: EPO News
+    region: eu_other
+    language: en
+    poll_class: research
+    dx_relevance: 'EPO News: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: Europe/Berlin
+      enrich_limit: 15
+  - key: hf-papers
+    name: Hugging Face Daily Papers
+    track: research_ip
+    category: academic_paper
+    access_method: sitemap
+    endpoint_url: https://huggingface.co/sitemap.xml
+    official_domain: huggingface.co
+    operator: Hugging Face Daily Papers
+    region: global_en
+    language: en
+    poll_class: research
+    dx_relevance: 'Hugging Face Daily Papers: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: UTC
+      enrich_limit: 15
+  - key: ipwatchdog-web
+    name: IPWatchdog
+    track: research_ip
+    category: ip_office
+    access_method: sitemap
+    endpoint_url: https://ipwatchdog.com/sitemap.xml
+    official_domain: ipwatchdog.com
+    operator: IPWatchdog
+    region: global_en
+    language: en
+    poll_class: research
+    dx_relevance: 'IPWatchdog: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    storage_right: excerpt_allowed
+    config:
+      timezone: UTC
+      enrich_limit: 15

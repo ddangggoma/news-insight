@@ -18,7 +18,10 @@ class ItemCard(Base):
     """Korean card for one collected item (title, up to 3 summary lines, keywords)."""
 
     __tablename__ = "item_cards"
-    __table_args__ = (Index("ix_item_cards_generated_at", "generated_at"),)
+    __table_args__ = (
+        Index("ix_item_cards_generated_at", "generated_at"),
+        Index("ix_item_cards_keywords", "keywords", postgresql_using="gin"),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True)
     item_id: Mapped[int] = mapped_column(ForeignKey("items.id", ondelete="CASCADE"), unique=True)
@@ -32,6 +35,14 @@ class ItemCard(Base):
     attempts: Mapped[int] = mapped_column(default=0)
     error: Mapped[str | None] = mapped_column(Text)
     generated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    # classification (P4) against taxonomy_revision
+    field: Mapped[str | None] = mapped_column(String(40), index=True)
+    themes: Mapped[list[str]] = mapped_column(JSONB, default=list, server_default="[]")
+    businesses: Mapped[list[str]] = mapped_column(JSONB, default=list, server_default="[]")
+    impact: Mapped[str | None] = mapped_column(String(20))
+    scope: Mapped[str | None] = mapped_column(String(20), index=True)
+    relevance: Mapped[int | None]
+    taxonomy_revision: Mapped[str | None] = mapped_column(String(20))
 
 
 class CardRun(Base):

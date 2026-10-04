@@ -130,6 +130,10 @@ class AgyEngine:
 
     def generate(self, inputs: list[CardInput]) -> EngineOutput:
         prompt = f"{CARD_INSTRUCTIONS}\n입력:\n{_payload(inputs)}"
+        return self.ask(prompt, CARD_BATCH_SCHEMA)
+
+    def ask(self, prompt: str, schema: dict[str, Any]) -> EngineOutput:
+        """One tool-less structured call (cards, evaluation judgements)."""
         envelope = self._run(
             [
                 "-p",
@@ -139,7 +143,7 @@ class AgyEngine:
                 "--output-format",
                 "json",
                 "--json-schema",
-                json.dumps(CARD_BATCH_SCHEMA),
+                json.dumps(schema),
                 "--disable-slash-commands",
                 "--print-timeout",
                 f"{self._timeout}s",

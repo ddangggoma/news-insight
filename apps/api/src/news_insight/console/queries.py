@@ -21,6 +21,7 @@ from news_insight.console.schemas import (
     RevisionOut,
     RunOut,
     SourceDetail,
+    SourceQualityRow,
     SourceRow,
     StageCount,
     TrackCount,
@@ -37,6 +38,7 @@ from news_insight.sources.enums import (
 )
 from news_insight.sources.models import Source, SourceValidationEvent
 from news_insight.sources.portfolio import TRACK_TARGETS, region_capacity
+from news_insight.sources.quality import measure
 
 HEALTH_WINDOW = timedelta(hours=24)
 
@@ -232,6 +234,12 @@ def card_body(card: ItemCard) -> CardBody:
         engine=card.engine,
         model=card.model,
         generated_at=card.generated_at,
+        field=card.field,
+        themes=list(card.themes or []),
+        businesses=list(card.businesses or []),
+        impact=card.impact,
+        scope=card.scope,
+        relevance=card.relevance,
     )
 
 
@@ -466,3 +474,43 @@ def movers(
         MoverOut(item=row, current=mover.current, baseline=mover.baseline, delta=mover.delta)
         for row, mover in zip(rows, found, strict=True)
     ]
+
+
+def source_quality(
+    session: Session, *, now: datetime, order: str, limit: int
+) -> list["SourceQualityRow"]:
+    from news_insight.console.schemas import SourceQualityRow
+
+    qualities = measure(session, now=now)
+    sources = {
+        source.id: source
+        for source in session.scalars(select(Source).where(Source.id.in_(list(qualities))))
+    }
+    rows = [
+        SourceQualityRow(
+            key=source.key,
+            name=source.name,
+            track=source.track,
+            category=source.category,
+            region=source.region,
+            validation_stage=source.validation_stage,
+            status=source.status,
+            paused_reason=source.paused_reason,
+            items_7d=quality.items,
+            classified_7d=quality.classified,
+            relevance=quality.relevance,
+            translation=quality.translation,
+        )
+        for source_id, quality in qualities.items()
+        if (source := sources.get(source_id)) is not None
+    ]
+
+    def key(row: SourceQualityRow) -> tuple[float, int]:
+        return (row.relevance if row.relevance is not None else 2.0, -row.classified_7d)
+
+    rows.sort(key=key, reverse=order == "best")
+    if order == "best":
+        rows = [r for r in rows if r.relevance is not None] + [
+            r for r in rows if r.relevance is None
+        ]
+    return rows[:limit]

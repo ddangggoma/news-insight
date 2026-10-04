@@ -117,3 +117,65 @@ uv run --env-file ../../.env news-insight sources report                 # 단�
 | 모든 카드가 Qwen으로 만들어짐 | Antigravity 한도가 기준 아래. `/usage`가 다시 차면 자동으로 Antigravity로 돌아감 |
 | 소스가 V1에서 계속 실패 | 검증 이력의 이유 확인. robots.txt가 막으면 수동 검토(`terms_url`)로 전환하거나 제외 |
 | GitHub 소스가 모두 V1 실패 | `SOURCE_SECRET_GITHUB_TOKEN` 미설정 (2-4 참고) |
+
+## 8. RSS가 없는 사이트 수집 (Phase 3.7)
+
+대상 사이트를 먼저 정하고, 아래 순서로 수집 방법을 정합니다.
+
+1. **RSS/Atom:** 홈페이지의 `<link rel="alternate">`과 흔한 경로(`/feed`, `/rss` 등)를 찾아봅니다.
+2. **사이트맵(`access_method: sitemap`):** robots.txt의 `Sitemap:` 줄과 `/sitemap_news.xml` 같은 흔한 경로를 확인합니다. 뉴스 사이트맵은 제목·날짜가 들어 있어 가장 정확합니다.
+3. **자동 크롤러(`access_method: crawler`, `config.mode: auto`):** 목록 페이지(`endpoint_url` 또는 `config.list_url`)에서 기사 링크를 찾아 새 기사만 엽니다.
+
+| 설정 | 의미 |
+|---|---|
+| `timezone` | 시간대 표기가 없는 날짜의 기준 시간대 (한국 사이트는 `Asia/Seoul`) |
+| `enrich_limit` | 한 번 수집할 때 열어 볼 새 기사 수 (기본 15) |
+| `link_pattern` | 기사 URL 정규식 (공지·메뉴 링크가 섞이는 사이트용) |
+| `drop_query` | 링크의 쿼리스트링 제거 (정렬 파라미터가 붙는 게시판) |
+| `date_fallback: now` | 날짜 메타가 없는 게시판: 수집 시각을 날짜로 사용 |
+| `list_urls` | 목록 페이지 여러 개 (최대 3개) |
+
+- robots.txt가 막는 경로는 열지 않습니다. 목록 페이지는 V1에서, 기사 페이지는 수집 때마다 확인합니다.
+- 기사 페이지에 날짜가 없으면 기사가 아닌 것으로 보고 버립니다(카테고리·목록 페이지 걸러내기).
+- 여러 페이지에 똑같이 붙는 og:title(사이트 이름)과 제목 끝의 " | 사이트명"은 자동으로 지웁니다.
+
+## 9. 공식 API 대안 (키 등록 필요)
+
+| 서비스 | `.env` 변수 | 발급처 | 용도 |
+|---|---|---|---|
+| YouTube Data API v3 | `SOURCE_SECRET_YOUTUBE_API_KEY` | Google Cloud Console → API 및 서비스 → YouTube Data API v3 사용 설정 → 사용자 인증 정보 → API 키 | 채널 업로드 영상 (하루 무료 할당량 10,000 단위, 채널 1회 조회 = 1 단위) |
+| 네이버 검색 API | `SOURCE_SECRET_NAVER_CLIENT_ID`, `SOURCE_SECRET_NAVER_CLIENT_SECRET` | developers.naver.com → Application 등록 → 검색 API 선택 | 국내 뉴스·블로그 키워드 검색 (하루 25,000회) |
+| GitHub | `SOURCE_SECRET_GITHUB_TOKEN` | GitHub → Settings → Developer settings → Fine-grained token (공개 저장소 읽기) | 오픈소스 트렌드·릴리스·보안 권고 |
+
+키를 넣은 뒤 `docker compose up -d`를 실행합니다. 24시간 안에 자동 검증이 해당 소스들을 다시 확인해 수집을 시작합니다. 바로 시작하려면 아래 명령을 실행합니다.
+
+```bash
+cd apps/api && uv run --env-file ../../.env news-insight sources auto-validate --limit 300
+```
+
+Reddit과 네이버 뉴스 웹페이지는 robots.txt가 전체를 막고 있어 수집하지 않습니다.
+
+## 10. 관련성 검토 (랜덤 샘플링)
+
+콘솔 → 관련성 검토에서 진행합니다.
+
+1. 화면을 열면 무작위 샘플 번호(seed)로 카드 30건(20/50/100건 선택 가능)이 표시됩니다. 같은 번호는 언제 열어도 같은 표본입니다.
+2. 카드마다 **관련 / 무관 / 애매**를 누릅니다. 바로 저장되고, 메모는 입력 후 다른 곳을 누르면 저장됩니다.
+3. 아래쪽에서 트랙별·범주별 관련 비율과 무관 판정이 많은 소스를 확인합니다.
+4. **CSV 내보내기**로 모든 판정을 엑셀에서 열 수 있습니다(한글 깨짐 방지 BOM 포함).
+
+이 판정은 P4 관련성 분류기의 평가 기준(정답 데이터)으로 쓰입니다.
+
+## 11. 품질 관리 (Phase 5)
+
+- **보존 검증:** 원제의 모델명·버전(S30, H100, GPT-5, 5G 등), 두 자리 이상 수치, 백분율이 한국어 제목이나 요약에 그대로 남아야 합니다. 빠지면 그 카드는 실패로 기록되고(`preservation: lost …`), 다음 실행에서 다시 만듭니다. 3번 실패하면 원래 제목으로 표시합니다. 실패 사례는 카드 뉴스 화면 맨 아래에서 볼 수 있습니다.
+- **소스 품질 (V5·V6):** 매일 03:30 최근 7일 카드로 소스별 DX 관련 비율(`dx`·`dx_dependency` 비중)과 카드 성공률을 계산합니다.
+  - 분류된 카드가 20건 이상이고 관련 비율이 15% 미만이면 일시정지합니다. 사유가 남고, 콘솔에서 재개할 수 있습니다.
+  - V4 소스 중 관련 비율 35% 이상·카드 성공률 95% 이상은 V5를 통과하고, 관련 비율이 높은 순으로 트랙 정원(뉴스 100·커뮤니티 100·논문 35·오픈소스 25) 안에서 정식(V6, active)이 됩니다.
+  - 미리 보기:
+
+```bash
+cd apps/api && uv run --env-file ../../.env news-insight sources quality --dry-run
+```
+
+  - 콘솔 → 소스 품질에서 소스별 수치를 확인합니다.

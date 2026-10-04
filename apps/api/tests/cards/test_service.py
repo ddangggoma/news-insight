@@ -26,7 +26,7 @@ from tests.factories import build_source
 
 pytestmark = pytest.mark.db
 NOW = datetime(2026, 10, 4, 3, tzinfo=UTC)
-POLICY = CardPolicy(agy_batch=2, qwen_batch=1, time_budget_seconds=1000)
+POLICY = CardPolicy(agy_batch=2, agy_parallel=1, qwen_batch=1, time_budget_seconds=1000)
 
 
 class FakeEngine:
@@ -167,4 +167,66 @@ def test_changed_items_are_regenerated(db_session: Session) -> None:
     item.content_hash = "changed"
     db_session.flush()
 
+    assert pending_count(db_session) == 1
+
+
+def test_cards_from_an_older_taxonomy_are_regenerated(db_session: Session) -> None:
+    seed(db_session, ["a"])
+    run_cards(scope_for(db_session), agy=None, qwen=FakeEngine("qwen"), policy=POLICY)
+    card = cards(db_session)["a"]
+    assert card.taxonomy_revision is not None and pending_count(db_session) == 0
+
+    card.taxonomy_revision = "old"
+    db_session.flush()
+
+    assert pending_count(db_session) == 1
+
+
+def test_agy_lanes_run_batches_concurrently(db_session: Session) -> None:
+    import threading
+    import time as clock_time
+
+    seed(db_session, [f"t{i}" for i in range(6)])
+    active: list[int] = []
+    peak = 0
+    lock = threading.Lock()
+
+    class SlowAgy(FakeAgy):
+        def generate(self, inputs: list[CardInput]) -> EngineOutput:
+            nonlocal peak
+            with lock:
+                active.append(1)
+                peak = max(peak, len(active))
+            clock_time.sleep(0.05)
+            with lock:
+                active.pop()
+            return super().generate(inputs)
+
+    stats = run_cards(
+        scope_for(db_session),
+        agy=SlowAgy([FULL]),
+        qwen=FakeEngine("qwen"),
+        policy=CardPolicy(agy_batch=2, agy_parallel=3, time_budget_seconds=1000),
+    )
+
+    assert stats.ready == 6 and stats.batches == {"agy": 3}
+    assert peak == 3
+
+
+def test_cards_losing_identifiers_are_rejected_and_retried(db_session: Session) -> None:
+    seed(db_session, ["Galaxy S30 launch"])
+
+    class Lossy(FakeEngine):
+        def generate(self, inputs: list[CardInput]) -> EngineOutput:
+            cards = [
+                {"id": c.id, "title_ko": "갤럭시 출시", "summary_ko": [], "keywords": []}
+                for c in inputs
+            ]
+            return EngineOutput(raw={"cards": cards}, model="m")
+
+    run_cards(scope_for(db_session), agy=None, qwen=Lossy("qwen"), policy=POLICY)
+
+    card = cards(db_session)["Galaxy S30 launch"]
+    assert card.status is CardStatus.FAILED
+    assert card.error == "preservation: lost S30"
     assert pending_count(db_session) == 1

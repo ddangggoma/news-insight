@@ -28,6 +28,7 @@ class Settings(BaseSettings):
     card_agy_min_weekly: int = 10
     card_agy_min_five_hour: int = 2
     card_agy_batch: int = 100
+    card_agy_parallel: int = 3
     card_qwen_batch: int = 5
     card_timeout_seconds: int = 300
     card_time_budget_seconds: int = 540

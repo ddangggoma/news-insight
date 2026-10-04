@@ -13,7 +13,7 @@ export class ApiError extends Error {
   }
 }
 
-async function request<T>(method: "GET" | "POST", path: string, body?: unknown): Promise<T> {
+async function send(method: "GET" | "POST", path: string, body?: unknown): Promise<Response> {
   const key = process.env.CONSOLE_API_KEY;
   if (!key) throw new ApiError(503, "CONSOLE_API_KEY is not configured for the web server");
   const response = await fetch(`${BASE_URL}${path}`, {
@@ -25,10 +25,15 @@ async function request<T>(method: "GET" | "POST", path: string, body?: unknown):
   if (!response.ok) {
     throw new ApiError(response.status, (await response.text()) || response.statusText);
   }
-  return (await response.json()) as T;
+  return response;
+}
+
+async function request<T>(method: "GET" | "POST", path: string, body?: unknown): Promise<T> {
+  return (await (await send(method, path, body)).json()) as T;
 }
 
 export const api = {
   get: <T>(path: string, params?: Record<string, QueryValue>) => request<T>("GET", withQuery(path, params)),
   post: <T>(path: string, body?: unknown) => request<T>("POST", path, body),
+  text: async (path: string) => (await send("GET", path)).text(),
 };

@@ -88,11 +88,53 @@ export interface CardBody {
   engine: string | null;
   model: string | null;
   generated_at: string;
+  field?: string | null;
+  themes?: string[];
+  businesses?: string[];
+  impact?: string | null;
+  scope?: string | null;
+  relevance?: number | null;
+}
+
+export interface StoryRef {
+  id: number;
+  item_count: number;
+  source_count: number;
+  tracks: string[];
+  is_representative: boolean;
 }
 
 export interface CardView {
   item: ItemRow;
   card: CardBody;
+  story?: StoryRef | null;
+}
+
+export interface StoryMember {
+  item: ItemRow;
+  relation: "seed" | "exact" | "near" | "event";
+  similarity: number | null;
+}
+
+export interface StoryView {
+  id: number;
+  title_ko: string | null;
+  item_count: number;
+  source_count: number;
+  tracks: Track[];
+  first_seen_at: string;
+  last_seen_at: string;
+  max_relevance: number | null;
+  representative: ItemRow;
+  card: CardBody | null;
+  members: StoryMember[];
+}
+
+export interface SignalChain {
+  kind: "arxiv" | "doi" | "github";
+  value: string;
+  tracks: Track[];
+  items: ItemRow[];
 }
 
 export interface CardStats {
@@ -100,6 +142,8 @@ export interface CardStats {
   failed: number;
   pending: number;
   ready_today: number;
+  success_rate_7d?: number | null;
+  scope_7d?: Record<string, number>;
   by_engine: Record<string, number>;
   last_run: {
     started_at: string;
@@ -192,4 +236,70 @@ export interface DigestSummary {
   headline: string;
   item_count: number;
   generated_at: string;
+}
+
+export type Verdict = "relevant" | "irrelevant" | "unsure";
+
+export interface ReviewOut {
+  verdict: Verdict;
+  note: string | null;
+  reviewed_at: string;
+}
+
+export interface ReviewItem {
+  item: ItemRow;
+  card: CardBody | null;
+  review: ReviewOut | null;
+}
+
+export interface ReviewSample {
+  seed: string;
+  items: ReviewItem[];
+  reviewed: number;
+}
+
+export interface ReviewBucket {
+  key: string;
+  total: number;
+  relevant: number;
+  irrelevant: number;
+  unsure: number;
+}
+
+export interface ReviewStats {
+  classifier: {
+    tp: number;
+    fp: number;
+    fn: number;
+    tn: number;
+    precision: number | null;
+    recall: number | null;
+    accuracy: number | null;
+  };
+  overall: ReviewBucket;
+  by_track: ReviewBucket[];
+  by_category: ReviewBucket[];
+  worst_sources: ReviewBucket[];
+}
+
+export interface CardFailure {
+  item: ItemRow;
+  error: string | null;
+  attempts: number;
+  generated_at: string;
+}
+
+export interface SourceQualityRow {
+  key: string;
+  name: string;
+  track: Track;
+  category: string;
+  region: Region;
+  validation_stage: Stage;
+  status: SourceStatus;
+  paused_reason: string | null;
+  items_7d: number;
+  classified_7d: number;
+  relevance: number | null;
+  translation: number | null;
 }

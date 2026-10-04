@@ -150,6 +150,41 @@ PRESETS: dict[str, dict[str, Any]] = {
         "url_template": "https://europepmc.org/article/{source}/{id}",
         "metrics": {"citations": "citedByCount"},
     },
+    # Official keyword search APIs (developers.naver.com; X-Naver-Client-Id/Secret headers).
+    "naver_news_search": {
+        "list_path": "items",
+        "fields": {
+            "id": ["originallink", "link"],
+            "url": ["originallink", "link"],
+            "title": "title",
+            "summary": "description",
+            "published_at": "pubDate",
+        },
+    },
+    "naver_blog_search": {
+        "list_path": "items",
+        "fields": {
+            "id": "link",
+            "url": "link",
+            "title": "title",
+            "summary": "description",
+            "published_at": "postdate",
+            "author": "bloggername",
+        },
+    },
+    # YouTube Data API v3 playlistItems (channel uploads playlist UU...), X-Goog-Api-Key header.
+    "youtube_playlist": {
+        "list_path": "items",
+        "fields": {
+            "id": "snippet.resourceId.videoId",
+            "url": [],
+            "title": "snippet.title",
+            "summary": "snippet.description",
+            "published_at": "snippet.publishedAt",
+            "author": "snippet.videoOwnerChannelTitle",
+        },
+        "url_template": "https://www.youtube.com/watch?v={snippet.resourceId.videoId}",
+    },
 }
 
 

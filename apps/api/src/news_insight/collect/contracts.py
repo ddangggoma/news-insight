@@ -29,6 +29,8 @@ class CollectContext:
     last_modified: str | None = None
     last_success_at: datetime | None = None
     headers: dict[str, str] = field(default_factory=dict)
+    # stable ids already stored for this source: page collectors skip (and never re-fetch) them
+    known_ids: frozenset[str] = frozenset()
 
     @property
     def item_limit(self) -> int:
