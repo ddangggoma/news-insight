@@ -3860,6 +3860,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth:
         secret: GITHUB_TOKEN
       probe_url: https://api.github.com/rate_limit
@@ -3878,6 +3879,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth:
         secret: GITHUB_TOKEN
       probe_url: https://api.github.com/rate_limit
@@ -3896,6 +3898,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth:
         secret: GITHUB_TOKEN
       probe_url: https://api.github.com/rate_limit
@@ -3914,6 +3917,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth:
         secret: GITHUB_TOKEN
       probe_url: https://api.github.com/rate_limit
@@ -3932,6 +3936,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth:
         secret: GITHUB_TOKEN
       probe_url: https://api.github.com/rate_limit
@@ -3950,6 +3955,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth:
         secret: GITHUB_TOKEN
       probe_url: https://api.github.com/rate_limit
@@ -3968,6 +3974,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth:
         secret: GITHUB_TOKEN
       probe_url: https://api.github.com/rate_limit
@@ -3986,6 +3993,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth:
         secret: GITHUB_TOKEN
       probe_url: https://api.github.com/rate_limit
@@ -4004,6 +4012,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth:
         secret: GITHUB_TOKEN
       probe_url: https://api.github.com/rate_limit
@@ -4022,6 +4031,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth:
         secret: GITHUB_TOKEN
       probe_url: https://api.github.com/rate_limit
@@ -4040,6 +4050,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth:
         secret: GITHUB_TOKEN
       probe_url: https://api.github.com/rate_limit
@@ -4058,6 +4069,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth:
         secret: GITHUB_TOKEN
       probe_url: https://api.github.com/rate_limit
@@ -4076,6 +4088,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth:
         secret: GITHUB_TOKEN
       probe_url: https://api.github.com/rate_limit
@@ -4094,6 +4107,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth:
         secret: GITHUB_TOKEN
       probe_url: https://api.github.com/rate_limit
@@ -4112,6 +4126,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth:
         secret: GITHUB_TOKEN
       probe_url: https://api.github.com/rate_limit
@@ -4130,6 +4145,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth:
         secret: GITHUB_TOKEN
       probe_url: https://api.github.com/rate_limit
@@ -4148,6 +4164,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth:
         secret: GITHUB_TOKEN
       probe_url: https://api.github.com/rate_limit
@@ -4166,6 +4183,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth:
         secret: GITHUB_TOKEN
       probe_url: https://api.github.com/rate_limit
@@ -4184,60 +4202,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
-      auth:
-        secret: GITHUB_TOKEN
-      probe_url: https://api.github.com/rate_limit
-  - key: github-releases-llama-cpp
-    name: 'GitHub releases: ggml-org/llama.cpp'
-    track: oss
-    category: oss_release
-    access_method: github
-    endpoint_url: https://api.github.com/repos/ggml-org/llama.cpp/releases?per_page=20
-    official_domain: github.com
-    operator: GitHub, Inc.
-    region: global_en
-    language: en
-    poll_class: slow
-    dx_relevance: 온디바이스 LLM 런타임 핵심 릴리스
-    storage_right: excerpt_allowed
-    config:
-      preset: github_releases
-      auth:
-        secret: GITHUB_TOKEN
-      probe_url: https://api.github.com/rate_limit
-  - key: github-releases-ollama
-    name: 'GitHub releases: ollama/ollama'
-    track: oss
-    category: oss_release
-    access_method: github
-    endpoint_url: https://api.github.com/repos/ollama/ollama/releases?per_page=20
-    official_domain: github.com
-    operator: GitHub, Inc.
-    region: global_en
-    language: en
-    poll_class: slow
-    dx_relevance: 로컬 LLM 실행 런타임 릴리스
-    storage_right: excerpt_allowed
-    config:
-      preset: github_releases
-      auth:
-        secret: GITHUB_TOKEN
-      probe_url: https://api.github.com/rate_limit
-  - key: github-releases-home-assistant
-    name: 'GitHub releases: home-assistant/core'
-    track: oss
-    category: oss_release
-    access_method: github
-    endpoint_url: https://api.github.com/repos/home-assistant/core/releases?per_page=20
-    official_domain: github.com
-    operator: GitHub, Inc.
-    region: global_en
-    language: en
-    poll_class: slow
-    dx_relevance: 오픈소스 스마트홈 허브 릴리스
-    storage_right: excerpt_allowed
-    config:
-      preset: github_releases
+      rate_per_minute: 20
       auth:
         secret: GITHUB_TOKEN
       probe_url: https://api.github.com/rate_limit
@@ -4256,6 +4221,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_advisories
+      probe_max_age_days: 365
       auth:
         secret: GITHUB_TOKEN
       probe_url: https://api.github.com/rate_limit
@@ -4274,6 +4240,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_advisories
+      probe_max_age_days: 365
       auth:
         secret: GITHUB_TOKEN
       probe_url: https://api.github.com/rate_limit
@@ -4292,6 +4259,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_advisories
+      probe_max_age_days: 365
       auth:
         secret: GITHUB_TOKEN
       probe_url: https://api.github.com/rate_limit
@@ -14376,6 +14344,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth: &id001
         secret: GITHUB_TOKEN
       probe_url: https://api.github.com/rate_limit
@@ -14394,6 +14363,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-trend-onnxruntime-mobile
@@ -14411,6 +14381,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-trend-tflite
@@ -14428,6 +14399,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-trend-coreml
@@ -14445,6 +14417,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-trend-mediapipe
@@ -14462,6 +14435,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-trend-whispercpp
@@ -14479,6 +14453,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-trend-stable-diffusion-mobile
@@ -14496,6 +14471,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-trend-vision-transformer-edge
@@ -14513,6 +14489,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-trend-esp32
@@ -14530,6 +14507,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-trend-zephyr
@@ -14547,6 +14525,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-trend-home-assistant-integration
@@ -14564,6 +14543,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-trend-zigbee
@@ -14581,6 +14561,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-trend-thread-border-router
@@ -14598,6 +14579,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-trend-bluetooth-le
@@ -14615,6 +14597,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-trend-openxr
@@ -14632,6 +14615,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-trend-visionos
@@ -14649,6 +14633,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-trend-wear-os
@@ -14666,6 +14651,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-trend-watchos
@@ -14683,6 +14669,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-trend-jetpack-compose
@@ -14700,6 +14687,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-trend-kotlin-multiplatform
@@ -14717,6 +14705,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-trend-flutter-plugin
@@ -14734,6 +14723,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-trend-react-native
@@ -14751,6 +14741,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-trend-robot-operating-system
@@ -14768,6 +14759,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-trend-slam
@@ -14785,6 +14777,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-trend-lidar
@@ -14802,6 +14795,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-trend-autonomous-vehicle
@@ -14819,6 +14813,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-trend-battery-management
@@ -14836,6 +14831,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-trend-ev-charging
@@ -14853,6 +14849,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-trend-digital-health
@@ -14870,6 +14867,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-trend-fhir
@@ -14887,6 +14885,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-trend-openwrt
@@ -14904,6 +14903,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-trend-riscv-core
@@ -14921,6 +14921,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-trend-fpga
@@ -14938,6 +14939,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-trend-llm-agent-mobile
@@ -14955,6 +14957,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-trend-rag-local
@@ -14972,6 +14975,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-trend-vector-database-embedded
@@ -14989,6 +14993,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
+      rate_per_minute: 20
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-trend-small-language-model
@@ -15006,23 +15011,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_search
-      auth: *id001
-      probe_url: https://api.github.com/rate_limit
-  - key: github-releases-pytorch
-    name: 'GitHub releases: pytorch/pytorch'
-    track: oss
-    category: oss_release
-    access_method: github
-    endpoint_url: https://api.github.com/repos/pytorch/pytorch/releases?per_page=20
-    official_domain: github.com
-    operator: GitHub, Inc.
-    region: global_en
-    language: en
-    poll_class: slow
-    dx_relevance: pytorch/pytorch 릴리스 동향
-    storage_right: excerpt_allowed
-    config:
-      preset: github_releases
+      rate_per_minute: 20
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-releases-tensorflow
@@ -15040,57 +15029,151 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_releases
+      probe_max_age_days: 365
       auth: *id001
       probe_url: https://api.github.com/rate_limit
-  - key: github-releases-mlx
-    name: 'GitHub releases: ml-explore/mlx'
+  - key: github-releases-litert
+    name: 'GitHub releases: google-ai-edge/LiteRT'
     track: oss
     category: oss_release
     access_method: github
-    endpoint_url: https://api.github.com/repos/ml-explore/mlx/releases?per_page=20
+    endpoint_url: https://api.github.com/repos/google-ai-edge/LiteRT/releases?per_page=20
     official_domain: github.com
     operator: GitHub, Inc.
     region: global_en
     language: en
     poll_class: slow
-    dx_relevance: ml-explore/mlx 릴리스 동향
+    dx_relevance: 온디바이스 AI 런타임(LiteRT) 릴리스 — 모바일·가전 추론
     storage_right: excerpt_allowed
     config:
       preset: github_releases
+      probe_max_age_days: 365
       auth: *id001
       probe_url: https://api.github.com/rate_limit
-  - key: github-releases-onnxruntime
-    name: 'GitHub releases: microsoft/onnxruntime'
+  - key: github-releases-ai-edge-torch
+    name: 'GitHub releases: google-ai-edge/ai-edge-torch'
     track: oss
     category: oss_release
     access_method: github
-    endpoint_url: https://api.github.com/repos/microsoft/onnxruntime/releases?per_page=20
+    endpoint_url: https://api.github.com/repos/google-ai-edge/ai-edge-torch/releases?per_page=20
     official_domain: github.com
     operator: GitHub, Inc.
     region: global_en
     language: en
     poll_class: slow
-    dx_relevance: microsoft/onnxruntime 릴리스 동향
+    dx_relevance: PyTorch 모델의 온디바이스 변환 도구 릴리스
     storage_right: excerpt_allowed
     config:
       preset: github_releases
+      probe_max_age_days: 365
       auth: *id001
       probe_url: https://api.github.com/rate_limit
-  - key: github-releases-executorch
-    name: 'GitHub releases: pytorch/executorch'
+  - key: github-releases-lerobot
+    name: 'GitHub releases: huggingface/lerobot'
     track: oss
     category: oss_release
     access_method: github
-    endpoint_url: https://api.github.com/repos/pytorch/executorch/releases?per_page=20
+    endpoint_url: https://api.github.com/repos/huggingface/lerobot/releases?per_page=20
     official_domain: github.com
     operator: GitHub, Inc.
     region: global_en
     language: en
     poll_class: slow
-    dx_relevance: pytorch/executorch 릴리스 동향
+    dx_relevance: 로봇 학습·Embodied AI 오픈소스 릴리스 — 홈로봇
     storage_right: excerpt_allowed
     config:
       preset: github_releases
+      probe_max_age_days: 365
+      auth: *id001
+      probe_url: https://api.github.com/rate_limit
+  - key: github-releases-qualcomm-ai-hub-models
+    name: 'GitHub releases: qualcomm/ai-hub-models'
+    track: oss
+    category: oss_release
+    access_method: github
+    endpoint_url: https://api.github.com/repos/qualcomm/ai-hub-models/releases?per_page=20
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: 스냅드래곤 최적화 온디바이스 모델 릴리스 — 경쟁 칩 생태계
+    storage_right: excerpt_allowed
+    config:
+      preset: github_releases
+      probe_max_age_days: 365
+      auth: *id001
+      probe_url: https://api.github.com/rate_limit
+  - key: github-releases-tensorrt
+    name: 'GitHub releases: NVIDIA/TensorRT'
+    track: oss
+    category: oss_release
+    access_method: github
+    endpoint_url: https://api.github.com/repos/NVIDIA/TensorRT/releases?per_page=20
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: NVIDIA 추론 최적화 SDK 릴리스
+    storage_right: excerpt_allowed
+    config:
+      preset: github_releases
+      probe_max_age_days: 365
+      auth: *id001
+      probe_url: https://api.github.com/rate_limit
+  - key: github-releases-isaaclab
+    name: 'GitHub releases: isaac-sim/IsaacLab'
+    track: oss
+    category: oss_release
+    access_method: github
+    endpoint_url: https://api.github.com/repos/isaac-sim/IsaacLab/releases?per_page=20
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: 로봇 시뮬레이션·강화학습 프레임워크 릴리스
+    storage_right: excerpt_allowed
+    config:
+      preset: github_releases
+      probe_max_age_days: 365
+      auth: *id001
+      probe_url: https://api.github.com/rate_limit
+  - key: github-releases-mnn
+    name: 'GitHub releases: alibaba/MNN'
+    track: oss
+    category: oss_release
+    access_method: github
+    endpoint_url: https://api.github.com/repos/alibaba/MNN/releases?per_page=20
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: 경량 온디바이스 추론 엔진 릴리스(LLM 포함)
+    storage_right: excerpt_allowed
+    config:
+      preset: github_releases
+      probe_max_age_days: 365
+      auth: *id001
+      probe_url: https://api.github.com/rate_limit
+  - key: github-releases-google-adk
+    name: 'GitHub releases: google/adk-python'
+    track: oss
+    category: oss_release
+    access_method: github
+    endpoint_url: https://api.github.com/repos/google/adk-python/releases?per_page=20
+    official_domain: github.com
+    operator: GitHub, Inc.
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: Google Agent Development Kit 릴리스 — AI 에이전트
+    storage_right: excerpt_allowed
+    config:
+      preset: github_releases
+      probe_max_age_days: 365
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-releases-mediapipe
@@ -15108,227 +15191,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_releases
-      auth: *id001
-      probe_url: https://api.github.com/rate_limit
-  - key: github-releases-openvino
-    name: 'GitHub releases: openvinotoolkit/openvino'
-    track: oss
-    category: oss_release
-    access_method: github
-    endpoint_url: https://api.github.com/repos/openvinotoolkit/openvino/releases?per_page=20
-    official_domain: github.com
-    operator: GitHub, Inc.
-    region: global_en
-    language: en
-    poll_class: slow
-    dx_relevance: openvinotoolkit/openvino 릴리스 동향
-    storage_right: excerpt_allowed
-    config:
-      preset: github_releases
-      auth: *id001
-      probe_url: https://api.github.com/rate_limit
-  - key: github-releases-transformers
-    name: 'GitHub releases: huggingface/transformers'
-    track: oss
-    category: oss_release
-    access_method: github
-    endpoint_url: https://api.github.com/repos/huggingface/transformers/releases?per_page=20
-    official_domain: github.com
-    operator: GitHub, Inc.
-    region: global_en
-    language: en
-    poll_class: slow
-    dx_relevance: huggingface/transformers 릴리스 동향
-    storage_right: excerpt_allowed
-    config:
-      preset: github_releases
-      auth: *id001
-      probe_url: https://api.github.com/rate_limit
-  - key: github-releases-vllm
-    name: 'GitHub releases: vllm-project/vllm'
-    track: oss
-    category: oss_release
-    access_method: github
-    endpoint_url: https://api.github.com/repos/vllm-project/vllm/releases?per_page=20
-    official_domain: github.com
-    operator: GitHub, Inc.
-    region: global_en
-    language: en
-    poll_class: slow
-    dx_relevance: vllm-project/vllm 릴리스 동향
-    storage_right: excerpt_allowed
-    config:
-      preset: github_releases
-      auth: *id001
-      probe_url: https://api.github.com/rate_limit
-  - key: github-releases-whisper-cpp
-    name: 'GitHub releases: ggml-org/whisper.cpp'
-    track: oss
-    category: oss_release
-    access_method: github
-    endpoint_url: https://api.github.com/repos/ggml-org/whisper.cpp/releases?per_page=20
-    official_domain: github.com
-    operator: GitHub, Inc.
-    region: global_en
-    language: en
-    poll_class: slow
-    dx_relevance: ggml-org/whisper.cpp 릴리스 동향
-    storage_right: excerpt_allowed
-    config:
-      preset: github_releases
-      auth: *id001
-      probe_url: https://api.github.com/rate_limit
-  - key: github-releases-ultralytics
-    name: 'GitHub releases: ultralytics/ultralytics'
-    track: oss
-    category: oss_release
-    access_method: github
-    endpoint_url: https://api.github.com/repos/ultralytics/ultralytics/releases?per_page=20
-    official_domain: github.com
-    operator: GitHub, Inc.
-    region: global_en
-    language: en
-    poll_class: slow
-    dx_relevance: ultralytics/ultralytics 릴리스 동향
-    storage_right: excerpt_allowed
-    config:
-      preset: github_releases
-      auth: *id001
-      probe_url: https://api.github.com/rate_limit
-  - key: github-releases-connectedhomeip
-    name: 'GitHub releases: project-chip/connectedhomeip'
-    track: oss
-    category: oss_release
-    access_method: github
-    endpoint_url: https://api.github.com/repos/project-chip/connectedhomeip/releases?per_page=20
-    official_domain: github.com
-    operator: GitHub, Inc.
-    region: global_en
-    language: en
-    poll_class: slow
-    dx_relevance: project-chip/connectedhomeip 릴리스 동향
-    storage_right: excerpt_allowed
-    config:
-      preset: github_releases
-      auth: *id001
-      probe_url: https://api.github.com/rate_limit
-  - key: github-releases-zephyr
-    name: 'GitHub releases: zephyrproject-rtos/zephyr'
-    track: oss
-    category: oss_release
-    access_method: github
-    endpoint_url: https://api.github.com/repos/zephyrproject-rtos/zephyr/releases?per_page=20
-    official_domain: github.com
-    operator: GitHub, Inc.
-    region: global_en
-    language: en
-    poll_class: slow
-    dx_relevance: zephyrproject-rtos/zephyr 릴리스 동향
-    storage_right: excerpt_allowed
-    config:
-      preset: github_releases
-      auth: *id001
-      probe_url: https://api.github.com/rate_limit
-  - key: github-releases-esp-idf
-    name: 'GitHub releases: espressif/esp-idf'
-    track: oss
-    category: oss_release
-    access_method: github
-    endpoint_url: https://api.github.com/repos/espressif/esp-idf/releases?per_page=20
-    official_domain: github.com
-    operator: GitHub, Inc.
-    region: global_en
-    language: en
-    poll_class: slow
-    dx_relevance: espressif/esp-idf 릴리스 동향
-    storage_right: excerpt_allowed
-    config:
-      preset: github_releases
-      auth: *id001
-      probe_url: https://api.github.com/rate_limit
-  - key: github-releases-zigbee2mqtt
-    name: 'GitHub releases: Koenkk/zigbee2mqtt'
-    track: oss
-    category: oss_release
-    access_method: github
-    endpoint_url: https://api.github.com/repos/Koenkk/zigbee2mqtt/releases?per_page=20
-    official_domain: github.com
-    operator: GitHub, Inc.
-    region: global_en
-    language: en
-    poll_class: slow
-    dx_relevance: Koenkk/zigbee2mqtt 릴리스 동향
-    storage_right: excerpt_allowed
-    config:
-      preset: github_releases
-      auth: *id001
-      probe_url: https://api.github.com/rate_limit
-  - key: github-releases-esphome
-    name: 'GitHub releases: esphome/esphome'
-    track: oss
-    category: oss_release
-    access_method: github
-    endpoint_url: https://api.github.com/repos/esphome/esphome/releases?per_page=20
-    official_domain: github.com
-    operator: GitHub, Inc.
-    region: global_en
-    language: en
-    poll_class: slow
-    dx_relevance: esphome/esphome 릴리스 동향
-    storage_right: excerpt_allowed
-    config:
-      preset: github_releases
-      auth: *id001
-      probe_url: https://api.github.com/rate_limit
-  - key: github-releases-flutter
-    name: 'GitHub releases: flutter/flutter'
-    track: oss
-    category: oss_release
-    access_method: github
-    endpoint_url: https://api.github.com/repos/flutter/flutter/releases?per_page=20
-    official_domain: github.com
-    operator: GitHub, Inc.
-    region: global_en
-    language: en
-    poll_class: slow
-    dx_relevance: flutter/flutter 릴리스 동향
-    storage_right: excerpt_allowed
-    config:
-      preset: github_releases
-      auth: *id001
-      probe_url: https://api.github.com/rate_limit
-  - key: github-releases-react-native
-    name: 'GitHub releases: facebook/react-native'
-    track: oss
-    category: oss_release
-    access_method: github
-    endpoint_url: https://api.github.com/repos/facebook/react-native/releases?per_page=20
-    official_domain: github.com
-    operator: GitHub, Inc.
-    region: global_en
-    language: en
-    poll_class: slow
-    dx_relevance: facebook/react-native 릴리스 동향
-    storage_right: excerpt_allowed
-    config:
-      preset: github_releases
-      auth: *id001
-      probe_url: https://api.github.com/rate_limit
-  - key: github-releases-kotlin
-    name: 'GitHub releases: JetBrains/kotlin'
-    track: oss
-    category: oss_release
-    access_method: github
-    endpoint_url: https://api.github.com/repos/JetBrains/kotlin/releases?per_page=20
-    official_domain: github.com
-    operator: GitHub, Inc.
-    region: global_en
-    language: en
-    poll_class: slow
-    dx_relevance: JetBrains/kotlin 릴리스 동향
-    storage_right: excerpt_allowed
-    config:
-      preset: github_releases
+      probe_max_age_days: 365
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-releases-openwrt
@@ -15346,6 +15209,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_releases
+      probe_max_age_days: 365
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-releases-ros2
@@ -15363,6 +15227,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_releases
+      probe_max_age_days: 365
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-releases-autoware
@@ -15380,6 +15245,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_releases
+      probe_max_age_days: 365
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-releases-openpilot
@@ -15397,142 +15263,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_releases
-      auth: *id001
-      probe_url: https://api.github.com/rate_limit
-  - key: github-releases-apollo
-    name: 'GitHub releases: ApolloAuto/apollo'
-    track: oss
-    category: oss_release
-    access_method: github
-    endpoint_url: https://api.github.com/repos/ApolloAuto/apollo/releases?per_page=20
-    official_domain: github.com
-    operator: GitHub, Inc.
-    region: global_en
-    language: en
-    poll_class: slow
-    dx_relevance: ApolloAuto/apollo 릴리스 동향
-    storage_right: excerpt_allowed
-    config:
-      preset: github_releases
-      auth: *id001
-      probe_url: https://api.github.com/rate_limit
-  - key: github-releases-swift
-    name: 'GitHub releases: apple/swift'
-    track: oss
-    category: oss_release
-    access_method: github
-    endpoint_url: https://api.github.com/repos/apple/swift/releases?per_page=20
-    official_domain: github.com
-    operator: GitHub, Inc.
-    region: global_en
-    language: en
-    poll_class: slow
-    dx_relevance: apple/swift 릴리스 동향
-    storage_right: excerpt_allowed
-    config:
-      preset: github_releases
-      auth: *id001
-      probe_url: https://api.github.com/rate_limit
-  - key: github-releases-nowinandroid
-    name: 'GitHub releases: android/nowinandroid'
-    track: oss
-    category: oss_release
-    access_method: github
-    endpoint_url: https://api.github.com/repos/android/nowinandroid/releases?per_page=20
-    official_domain: github.com
-    operator: GitHub, Inc.
-    region: global_en
-    language: en
-    poll_class: slow
-    dx_relevance: android/nowinandroid 릴리스 동향
-    storage_right: excerpt_allowed
-    config:
-      preset: github_releases
-      auth: *id001
-      probe_url: https://api.github.com/rate_limit
-  - key: github-releases-godot
-    name: 'GitHub releases: godotengine/godot'
-    track: oss
-    category: oss_release
-    access_method: github
-    endpoint_url: https://api.github.com/repos/godotengine/godot/releases?per_page=20
-    official_domain: github.com
-    operator: GitHub, Inc.
-    region: global_en
-    language: en
-    poll_class: slow
-    dx_relevance: godotengine/godot 릴리스 동향
-    storage_right: excerpt_allowed
-    config:
-      preset: github_releases
-      auth: *id001
-      probe_url: https://api.github.com/rate_limit
-  - key: github-releases-llvm-project
-    name: 'GitHub releases: llvm/llvm-project'
-    track: oss
-    category: oss_release
-    access_method: github
-    endpoint_url: https://api.github.com/repos/llvm/llvm-project/releases?per_page=20
-    official_domain: github.com
-    operator: GitHub, Inc.
-    region: global_en
-    language: en
-    poll_class: slow
-    dx_relevance: llvm/llvm-project 릴리스 동향
-    storage_right: excerpt_allowed
-    config:
-      preset: github_releases
-      auth: *id001
-      probe_url: https://api.github.com/rate_limit
-  - key: github-releases-rust
-    name: 'GitHub releases: rust-lang/rust'
-    track: oss
-    category: oss_release
-    access_method: github
-    endpoint_url: https://api.github.com/repos/rust-lang/rust/releases?per_page=20
-    official_domain: github.com
-    operator: GitHub, Inc.
-    region: global_en
-    language: en
-    poll_class: slow
-    dx_relevance: rust-lang/rust 릴리스 동향
-    storage_right: excerpt_allowed
-    config:
-      preset: github_releases
-      auth: *id001
-      probe_url: https://api.github.com/rate_limit
-  - key: github-releases-go
-    name: 'GitHub releases: golang/go'
-    track: oss
-    category: oss_release
-    access_method: github
-    endpoint_url: https://api.github.com/repos/golang/go/releases?per_page=20
-    official_domain: github.com
-    operator: GitHub, Inc.
-    region: global_en
-    language: en
-    poll_class: slow
-    dx_relevance: golang/go 릴리스 동향
-    storage_right: excerpt_allowed
-    config:
-      preset: github_releases
-      auth: *id001
-      probe_url: https://api.github.com/rate_limit
-  - key: github-releases-node
-    name: 'GitHub releases: nodejs/node'
-    track: oss
-    category: oss_release
-    access_method: github
-    endpoint_url: https://api.github.com/repos/nodejs/node/releases?per_page=20
-    official_domain: github.com
-    operator: GitHub, Inc.
-    region: global_en
-    language: en
-    poll_class: slow
-    dx_relevance: nodejs/node 릴리스 동향
-    storage_right: excerpt_allowed
-    config:
-      preset: github_releases
+      probe_max_age_days: 365
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-releases-deno
@@ -15550,125 +15281,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_releases
-      auth: *id001
-      probe_url: https://api.github.com/rate_limit
-  - key: github-releases-vscode
-    name: 'GitHub releases: microsoft/vscode'
-    track: oss
-    category: oss_release
-    access_method: github
-    endpoint_url: https://api.github.com/repos/microsoft/vscode/releases?per_page=20
-    official_domain: github.com
-    operator: GitHub, Inc.
-    region: global_en
-    language: en
-    poll_class: slow
-    dx_relevance: microsoft/vscode 릴리스 동향
-    storage_right: excerpt_allowed
-    config:
-      preset: github_releases
-      auth: *id001
-      probe_url: https://api.github.com/rate_limit
-  - key: github-releases-fastchat
-    name: 'GitHub releases: lm-sys/FastChat'
-    track: oss
-    category: oss_release
-    access_method: github
-    endpoint_url: https://api.github.com/repos/lm-sys/FastChat/releases?per_page=20
-    official_domain: github.com
-    operator: GitHub, Inc.
-    region: global_en
-    language: en
-    poll_class: slow
-    dx_relevance: lm-sys/FastChat 릴리스 동향
-    storage_right: excerpt_allowed
-    config:
-      preset: github_releases
-      auth: *id001
-      probe_url: https://api.github.com/rate_limit
-  - key: github-releases-open-webui
-    name: 'GitHub releases: open-webui/open-webui'
-    track: oss
-    category: oss_release
-    access_method: github
-    endpoint_url: https://api.github.com/repos/open-webui/open-webui/releases?per_page=20
-    official_domain: github.com
-    operator: GitHub, Inc.
-    region: global_en
-    language: en
-    poll_class: slow
-    dx_relevance: open-webui/open-webui 릴리스 동향
-    storage_right: excerpt_allowed
-    config:
-      preset: github_releases
-      auth: *id001
-      probe_url: https://api.github.com/rate_limit
-  - key: github-releases-mlc-llm
-    name: 'GitHub releases: mlc-ai/mlc-llm'
-    track: oss
-    category: oss_release
-    access_method: github
-    endpoint_url: https://api.github.com/repos/mlc-ai/mlc-llm/releases?per_page=20
-    official_domain: github.com
-    operator: GitHub, Inc.
-    region: global_en
-    language: en
-    poll_class: slow
-    dx_relevance: mlc-ai/mlc-llm 릴리스 동향
-    storage_right: excerpt_allowed
-    config:
-      preset: github_releases
-      auth: *id001
-      probe_url: https://api.github.com/rate_limit
-  - key: github-releases-tensorrt-llm
-    name: 'GitHub releases: NVIDIA/TensorRT-LLM'
-    track: oss
-    category: oss_release
-    access_method: github
-    endpoint_url: https://api.github.com/repos/NVIDIA/TensorRT-LLM/releases?per_page=20
-    official_domain: github.com
-    operator: GitHub, Inc.
-    region: global_en
-    language: en
-    poll_class: slow
-    dx_relevance: NVIDIA/TensorRT-LLM 릴리스 동향
-    storage_right: excerpt_allowed
-    config:
-      preset: github_releases
-      auth: *id001
-      probe_url: https://api.github.com/rate_limit
-  - key: github-releases-gemma-cpp
-    name: 'GitHub releases: google/gemma.cpp'
-    track: oss
-    category: oss_release
-    access_method: github
-    endpoint_url: https://api.github.com/repos/google/gemma.cpp/releases?per_page=20
-    official_domain: github.com
-    operator: GitHub, Inc.
-    region: global_en
-    language: en
-    poll_class: slow
-    dx_relevance: google/gemma.cpp 릴리스 동향
-    storage_right: excerpt_allowed
-    config:
-      preset: github_releases
-      auth: *id001
-      probe_url: https://api.github.com/rate_limit
-  - key: github-releases-tvm
-    name: 'GitHub releases: apache/tvm'
-    track: oss
-    category: oss_release
-    access_method: github
-    endpoint_url: https://api.github.com/repos/apache/tvm/releases?per_page=20
-    official_domain: github.com
-    operator: GitHub, Inc.
-    region: global_en
-    language: en
-    poll_class: slow
-    dx_relevance: apache/tvm 릴리스 동향
-    storage_right: excerpt_allowed
-    config:
-      preset: github_releases
+      probe_max_age_days: 365
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-releases-tinygrad
@@ -15686,6 +15299,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_releases
+      probe_max_age_days: 365
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-advisories-go
@@ -15703,6 +15317,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_advisories
+      probe_max_age_days: 365
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-advisories-rust
@@ -15720,6 +15335,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_advisories
+      probe_max_age_days: 365
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-advisories-nuget
@@ -15737,6 +15353,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_advisories
+      probe_max_age_days: 365
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-advisories-composer
@@ -15754,6 +15371,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_advisories
+      probe_max_age_days: 365
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-advisories-rubygems
@@ -15771,6 +15389,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_advisories
+      probe_max_age_days: 365
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-advisories-swift
@@ -15788,23 +15407,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_advisories
-      auth: *id001
-      probe_url: https://api.github.com/rate_limit
-  - key: github-advisories-pub
-    name: 'GitHub advisories: pub'
-    track: oss
-    category: oss_security
-    access_method: github
-    endpoint_url: https://api.github.com/advisories?ecosystem=pub&per_page=50
-    official_domain: github.com
-    operator: GitHub, Inc.
-    region: global_en
-    language: en
-    poll_class: slow
-    dx_relevance: pub 생태계 보안 권고
-    storage_right: excerpt_allowed
-    config:
-      preset: github_advisories
+      probe_max_age_days: 365
       auth: *id001
       probe_url: https://api.github.com/rate_limit
   - key: github-advisories-erlang
@@ -15822,6 +15425,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: github_advisories
+      probe_max_age_days: 365
       auth: *id001
       probe_url: https://api.github.com/rate_limit
 

@@ -92,6 +92,13 @@ def pause_source(session: Session, source: Source, *, reason: str) -> None:
     session.flush()
 
 
+def retire_source(session: Session, source: Source, *, reason: str) -> None:
+    """Stop a source for good (it stays for provenance; seeding it again revives it)."""
+    source.status = SourceStatus.RETIRED
+    source.paused_reason = reason
+    session.flush()
+
+
 def resume_source(session: Session, source: Source) -> None:
     if source.status is not SourceStatus.PAUSED:
         raise LadderError(f"{source.key}: only paused sources can resume")

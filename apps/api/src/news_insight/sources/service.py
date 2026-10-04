@@ -121,10 +121,11 @@ def stage_counts(session: Session) -> dict[ValidationStage, int]:
 def probe_source(
     source: Source, *, fetcher: SafeFetcher, now: datetime
 ) -> list[tuple[ValidationStage, CheckResult]]:
-    """Dry-run V0-V3 without touching the ladder or the database."""
+    """Dry-run V0-V3 without touching the ladder or the database (same V1 rule as climbing)."""
+    policy = check_policy(source) if source.terms_url else check_auto_policy(source, fetcher)
     return [
         (ValidationStage.V0, check_identity(source)),
-        (ValidationStage.V1, check_policy(source)),
+        (ValidationStage.V1, policy),
         (ValidationStage.V2, check_network(source, fetcher)),
         (ValidationStage.V3, check_parser(source, fetcher, now=now)),
     ]

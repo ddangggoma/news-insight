@@ -179,3 +179,23 @@ cd apps/api && uv run --env-file ../../.env news-insight sources quality --dry-r
 ```
 
   - 콘솔 → 소스 품질에서 소스별 수치를 확인합니다.
+
+## 12. 수집처 퇴역과 키가 필요한 소스 (2026-10-04)
+
+**퇴역.** 카탈로그(`apps/api/catalog/sources.yaml`)에서 항목을 지우고 `--prune`으로 시드하면 DB에 남은 소스가 `retired`가 되어 수집이 멈춥니다(항목·이력은 보존). 같은 키를 다시 넣고 시드하면 미검증부터 다시 시작합니다.
+
+```bash
+cd apps/api && uv run --env-file ../../.env news-insight sources seed --prune
+uv run --env-file ../../.env news-insight sources retire <key> --reason "사유"   # 카탈로그와 별개로 즉시 퇴역
+```
+
+**GitHub·YouTube 키.** `.env`의 `SOURCE_SECRET_GITHUB_TOKEN`, `SOURCE_SECRET_YOUTUBE_API_KEY`를 쓰는 소스는 키가 없으면 V1에서 멈추고 24시간 뒤 자동 재시도합니다. 키를 넣은 직후에는 `docker compose up -d`로 컨테이너에 반영한 뒤 `news-insight sources validate <key>`로 바로 올릴 수 있습니다.
+
+| 프리셋 | 소스 | 비고 |
+|---|---:|---|
+| `github_search` (트렌드) | 57 | 검색 API 2차 한도(분당 30) 때문에 `rate_per_minute: 20` |
+| `github_releases` | 16 | 같은 저장소의 `releases.atom` 피드가 있으면 API 소스는 두지 않음(중복 카드 방지). 릴리스가 드물어 V3 기준 기간을 365일로(`probe_max_age_days`) |
+| `github_advisories` | 10 | 같은 이유로 365일 |
+| `youtube_playlist` | 38 | 업로드 재생목록 1회 조회 = 할당량 1 단위 |
+
+`news-insight sources probe <key>`는 이제 실제 승격과 같은 V1 규칙(약관 URL이 없으면 자동 정책)으로 판정합니다.
