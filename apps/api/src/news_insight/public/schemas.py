@@ -114,60 +114,52 @@ class RadarWindow(BaseModel):
     prev_key: str
     next_key: str
     is_current: bool
-
-
-class HotCell(BaseModel):
-    field: str
-    business: str
-    count: int
-    previous: int
+    elapsed: float | None  # share of the current window already past (None when closed)
 
 
 class RadarKpis(BaseModel):
-    total: int
-    previous_total: int
+    """Per window, oldest first. `research` = research + open source items."""
+
+    items: list[int]
+    stories: list[int]
+    sources: list[int]
+    research: list[int]
     new_stories: int
     cross_track_stories: int
-    hottest: HotCell | None
 
 
-class Cell(BaseModel):
-    field: str
-    business: str
-    count: int
-    previous: int
+class Topic(BaseModel):
+    """A field, theme or keyword: counts per window and the current window's breakdowns."""
 
-
-class FieldMomentum(BaseModel):
     key: str
+    label: str | None
+    field: str | None
     counts: list[int]
     change: float | None
+    z: float
+    state: str | None  # new · surging · rising · steady · falling
+    sources: int
+    tracks: dict[str, int]
+    previous_tracks: dict[str, int]
+    impacts: dict[str, int]
 
 
-class HypePoint(BaseModel):
-    """Chatter = news + community reports; research = papers + open source."""
-
-    key: str
-    chatter: int
-    chatter_change: float | None
-    research: int
-    research_change: float | None
-
-
-class KeywordShift(BaseModel):
-    key: str
-    label: str
-    state: str
-    counts: list[int]
+class KeywordPair(BaseModel):
+    a: str
+    b: str
+    count: int
+    lift: float
+    is_new: bool
 
 
 class Radar(BaseModel):
     window: RadarWindow
+    periods: list[str]
     kpis: RadarKpis
-    cells: list[Cell]
-    momentum: list[FieldMomentum]
-    hype: list[HypePoint]
-    keywords: list[KeywordShift]
+    fields: list[Topic]
+    themes: list[Topic]
+    keywords: list[Topic]
+    pairs: list[KeywordPair]
 
 
 class KeywordCount(BaseModel):
@@ -176,14 +168,13 @@ class KeywordCount(BaseModel):
     count: int
 
 
-class CellDetail(BaseModel):
-    field: str
-    business: str
-    count: int
-    previous: int
-    trend: list[int]
+class TopicDetail(BaseModel):
+    kind: str
+    topic: Topic
     themes: list[Count]
     keywords: list[KeywordCount]
+    businesses: list[Count]
+    regions: list[Count]
     stories: list[ReaderItem]
 
 

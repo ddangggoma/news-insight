@@ -26,7 +26,6 @@ from news_insight.public.periods import (
     rolling_window,
 )
 from news_insight.public.schemas import (
-    CellDetail,
     FeedPage,
     Insights,
     PublicDigest,
@@ -35,15 +34,16 @@ from news_insight.public.schemas import (
     TaxonomyField,
     TaxonomyNode,
     TaxonomyOut,
+    TopicDetail,
 )
 from news_insight.taxonomy.catalog import (
-    BUSINESS_KEYS,
     BUSINESSES,
     FIELD_KEYS,
     FIELDS,
     IMPACTS,
     SCOPES,
     TAXONOMY_REVISION,
+    THEME_KEYS,
     Node,
 )
 
@@ -161,20 +161,23 @@ RadarPeriod = Annotated[Window, Depends(radar_window)]
 
 @router.get("/radar")
 def get_radar(session: DB, filters: Filters, window: RadarPeriod, now: Now) -> Radar:
-    return radar_queries.radar(session, filters, window, current_key(window.kind, now))
+    return radar_queries.radar(session, filters, window, current_key(window.kind, now), now)
 
 
-@router.get("/radar/cell")
-def get_radar_cell(
-    session: DB, window: RadarPeriod, field: str, business: str, scope: str = "relevant"
-) -> CellDetail:
-    """One heatmap cell. The cell fixes field and business, so only the scope filter applies."""
-    filters = reader_filters(scope=scope)
-    if field not in FIELD_KEYS:
-        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, f"unknown field '{field}'")
-    if business != radar_queries.NO_BUSINESS and business not in BUSINESS_KEYS:
-        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, f"unknown business '{business}'")
-    return radar_queries.cell_detail(session, filters, window, field=field, business=business)
+@router.get("/radar/topic")
+def get_radar_topic(
+    session: DB,
+    filters: Filters,
+    window: RadarPeriod,
+    kind: Literal["field", "theme", "keyword"],
+    value: Annotated[str, Query(min_length=1, max_length=200)],
+) -> TopicDetail:
+    """One field, theme or keyword (normalized key) over the radar window and its filters."""
+    if kind == "field" and value not in FIELD_KEYS:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, f"unknown field '{value}'")
+    if kind == "theme" and value not in THEME_KEYS:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, f"unknown theme '{value}'")
+    return radar_queries.topic_detail(session, filters, window, kind=kind, value=value)
 
 
 def _public_digest(session: Session, digest: Digest | None) -> PublicDigest:
