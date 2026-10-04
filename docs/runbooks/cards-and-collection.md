@@ -17,7 +17,10 @@ V3 이상 소스를 주기적으로 수집(Canary) ─────────�
 신규·변경 항목 → Antigravity CLI(Gemini Flash, 100건 배치) ─ 한도 소진·오류 ─▶ 로컬 Qwen(5건 배치)
    │
    ▼
-item_cards (한국어 제목·요약 1~3문장·키워드) → 콘솔 "카드 뉴스"
+item_cards (한국어 제목·요약 1~3문장·키워드) + item_labels (분야·제품군·영향) + item_keywords (정규 키워드)
+   │
+   ▼
+콘솔 "카드 뉴스" (분야·제품군·영향 필터)
 ```
 
 ## 2. 처음 한 번 할 일
@@ -87,6 +90,38 @@ launchctl bootout gui/$(id -u)/com.newsinsight.cards
 - **실패:** 엔진 출력에서 빠진 항목은 최대 3회 다시 시도하고, 그래도 실패하면 원래 제목으로 표시합니다.
 - **안전:** 도구 권한 없이(헤드리스 모드에서 자동 거부) 빈 임시 폴더에서 실행합니다. 비밀 환경 변수는 넘기지 않고 슬래시 명령도 끕니다. 엔진에는 공개 제목·출처·발췌만 보냅니다.
 
+### 4-1. 분류(기술 분야·제품군·영향)와 키워드 정규화 (R2)
+
+- **같은 호출에서 분류:** 카드를 만드는 엔진 호출이 분야(0~3개)·제품군(0~3개)·영향(기회·위험·관찰 중 정확히 1개)도 함께 돌려줍니다. 추가 LLM 호출은 없습니다.
+- **분류 체계 원본:** `apps/api/catalog/taxonomy.yaml` 하나뿐입니다(DB에 노드 테이블을 두지 않음). 프롬프트의 키·라벨·경계 설명, 출력 JSON 스키마(enum), 콘솔 라벨·필터가 모두 이 파일에서 나옵니다.
+- **Fail-closed:** 엔진이 파일에 없는 키를 내면 버립니다. 분류가 아예 없는 카드도 유효하며, 백필 대상(`item_cards.taxonomy_rev` 비어 있음)으로 남습니다.
+- **근거 기록:** `item_labels` 행마다 분류 체계 revision, 방법(`llm`·`rule`), 엔진·모델을 남깁니다. 다시 분류하면 이전 행은 지우지 않고 `superseded_at`을 찍습니다(추가만 허용).
+- **키워드:** 카드 키워드는 NFKC·공백 정리·`#` 제거·대소문자 무시·띄어쓰기/하이픈/가운뎃점 무시로 비교해 하나의 정규 키워드(`keywords`)에 연결합니다(`item_keywords`). 영문↔한글·약어 같은 변형은 `apps/api/catalog/keyword_aliases.yaml`에 적습니다. 처음 보는 키워드는 처음 본 표기가 정규 키워드가 됩니다.
+
+**분류 체계를 바꿀 때**
+
+1. `apps/api/catalog/taxonomy.yaml`에서 노드(`key`·`label`·`description`·`examples`)나 `rules`(`max_fields`·`max_products`·`guidance`)를 고칩니다.
+   - `key`는 저장·필터·URL에 쓰이므로 이름만 바꾸는 일은 피합니다. 라벨·설명은 자유롭게 바꿔도 됩니다.
+   - 겹치는 노드는 `description`에 경계를 적습니다(예: `wearable` = 워치·밴드·링, 이어버드는 `earbuds_audio`).
+2. `revision`을 1 올립니다.
+3. 검증: `cd apps/api && uv run pytest tests/classify -q` (파일 로드·키 중복·축 누락을 검사)
+4. 배포(`docker compose up -d --build`) 후 호스트에서 백필을 돌립니다(아래). 새 revision으로 분류되지 않은 카드가 모두 대상입니다.
+   - 삭제된 키의 기존 라벨은 화면·API에 나오지 않습니다. 남아 있는 키의 라벨은 백필 전까지 그대로 보입니다.
+
+**백필 (기존 카드 소급 분류)**
+
+```bash
+cd apps/api
+uv run --env-file ../../.env news-insight cards classify                    # 현황: revision, 미분류 카드 수, 키워드 미연결 카드 수
+LM_STUDIO_URL=http://127.0.0.1:1234 uv run --env-file ../../.env news-insight cards classify --backfill --limit 2000
+uv run --env-file ../../.env news-insight cards classify --backfill --qwen-only   # Antigravity 없이
+uv run --env-file ../../.env news-insight cards classify --backfill --relink      # 별칭 사전을 고친 뒤 모든 카드 키워드 재연결
+```
+
+- (a) 키워드 연결은 LLM 없이 저장된 카드 키워드로 계산합니다. (b) 분류는 카드의 한국어 제목·요약만 엔진에 보내고, 카드 생성과 같은 Antigravity 한도 기준·Qwen 전환을 따릅니다.
+- 카드 실행과 같은 잠금 파일을 쓰므로 동시에 돌지 않습니다. 한 번에 `--budget`(기본 540초)만큼 돌고 끝나므로 남은 카드가 있으면 다시 실행합니다(출력 마지막 줄 `remaining unclassified=`).
+- 이미 현재 revision으로 분류된 카드는 건너뜁니다(여러 번 실행해도 안전). 엔진 출력에서 빠진 카드는 다음 실행에서 다시 시도합니다.
+
 ## 5. 처리량 (2026-10-04 실측)
 
 | 엔진 | 속도 | 하루 최대 |
@@ -103,6 +138,7 @@ cd apps/api
 uv run --env-file ../../.env news-insight cards status                   # 대기·완료·실패·마지막 실행
 LM_STUDIO_URL=http://127.0.0.1:1234 uv run --env-file ../../.env news-insight cards run --budget 120
 uv run --env-file ../../.env news-insight cards run --qwen-only          # Antigravity 없이 시험
+uv run --env-file ../../.env news-insight cards classify                 # 분류 revision·미분류·키워드 미연결 카드 수
 uv run --env-file ../../.env news-insight sources report                 # 단계별 소스 수
 ```
 
@@ -114,6 +150,8 @@ uv run --env-file ../../.env news-insight sources report                 # 단�
 | 증상 | 조치 |
 |---|---|
 | 카드 대기가 줄지 않음 | `ops/logs/cards.log` 확인. `agy -p /usage`로 로그인·한도 확인. LM Studio 서버 실행 여부 확인 |
+| 카드에 분야·제품군·영향이 없음 | 분류 기능 이전 카드이거나 엔진이 분류를 빠뜨림. `news-insight cards classify --backfill` 실행 |
+| `taxonomy.yaml`을 고친 뒤 카드 실행·콘솔 카드 API가 `TaxonomyError`로 실패 | 파일 검증 실패(키 중복·형식 오류·축 누락). 오류 메시지의 위치를 고치고 `uv run pytest tests/classify -q`로 확인 |
 | 모든 카드가 Qwen으로 만들어짐 | Antigravity 한도가 기준 아래. `/usage`가 다시 차면 자동으로 Antigravity로 돌아감 |
 | 소스가 V1에서 계속 실패 | 검증 이력의 이유 확인. robots.txt가 막으면 수동 검토(`terms_url`)로 전환하거나 제외 |
 | GitHub 소스가 모두 V1 실패 | `SOURCE_SECRET_GITHUB_TOKEN` 미설정 (2-4 참고) |
