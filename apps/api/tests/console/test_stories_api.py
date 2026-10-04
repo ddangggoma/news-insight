@@ -80,7 +80,7 @@ def seed(db_session: Session) -> dict[str, int]:
     ]
     ids = {}
     for key, track, url, title, keywords, scope, businesses, relevance, summary in specs:
-        source = build_source(key=key, name=key, track=track)
+        source = build_source(key=key, name=key, track=track, official_domain=f"{key}.com")
         db_session.add(source)
         db_session.flush()
         ingest_items(
