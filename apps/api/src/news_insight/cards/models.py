@@ -22,6 +22,7 @@ class ItemCard(Base):
         Index("ix_item_cards_generated_at", "generated_at"),
         Index("ix_item_cards_keywords", "keywords", postgresql_using="gin"),
         Index("ix_item_cards_themes", "themes", postgresql_using="gin"),
+        Index("ix_item_cards_technology_keys", "technology_keys", postgresql_using="gin"),
         Index(
             "ix_item_cards_title_ko_trgm",
             "title_ko",
@@ -52,6 +53,8 @@ class ItemCard(Base):
     taxonomy_revision: Mapped[str | None] = mapped_column(String(20))
     # classification-only retries against the current revision (checklist CLS-2)
     classify_attempts: Mapped[int] = mapped_column(default=0, server_default="0")
+    # canonical keyword keys (technology registry, checklist KW-1); set on every write
+    technology_keys: Mapped[list[str]] = mapped_column(JSONB, default=list, server_default="[]")
     # phrases the theme list does not cover (checklist CLS-1)
     topic_candidates: Mapped[list[str]] = mapped_column(JSONB, default=list, server_default="[]")
 

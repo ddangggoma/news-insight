@@ -14,7 +14,7 @@ from math import log1p
 from statistics import fmean, median, pstdev
 from typing import Any
 
-from sqlalchemy import ColumnElement, case, distinct, exists, func, literal, null, select, true
+from sqlalchemy import ColumnElement, case, distinct, func, literal, null, select, true
 from sqlalchemy.orm import Session
 
 from news_insight.cards.models import ItemCard
@@ -22,7 +22,7 @@ from news_insight.content.models import Item, ItemMetricSnapshot
 from news_insight.public.aggregates import KEYWORD_MIN_COUNT
 from news_insight.public.feed import feed
 from news_insight.public.filters import ReaderFilters, joined
-from news_insight.public.keywords import keyword_key_sql
+from news_insight.public.keywords import keyword_element
 from news_insight.public.periods import KST, Window, trailing_windows
 from news_insight.public.schemas import (
     Anomaly,
@@ -45,6 +45,7 @@ from news_insight.public.schemas import (
 from news_insight.sources.enums import Region, Track
 from news_insight.sources.models import Source
 from news_insight.stories.models import ItemRef, Story, StoryItem
+from news_insight.technologies.service import labels_for
 
 TREND_WINDOWS = 8
 MIN_SOURCES = 2  # new / surging needs more than one outlet
@@ -91,11 +92,13 @@ def _dimension(dimension: str) -> tuple[Any, Any, Any]:
     """(key expression, lateral join or None, display label or None) for one dimension."""
     if dimension == "field":
         return ItemCard.field, None, None
-    column = ItemCard.themes if dimension == "theme" else ItemCard.keywords
-    join = func.jsonb_array_elements_text(column).table_valued("value").lateral("element")
     if dimension == "theme":
+        join = (
+            func.jsonb_array_elements_text(ItemCard.themes).table_valued("value").lateral("element")
+        )
         return join.c.value, join, None
-    return keyword_key_sql(join.c.value), join, func.mode().within_group(join.c.value)
+    join = keyword_element("element")
+    return join.c.value, join, None  # labels are looked up once after grouping
 
 
 @dataclass
@@ -171,6 +174,9 @@ def _series(
             official=rest[at + m],
             first_seen={r: t for r, t in zip(regions, firsts, strict=True) if t is not None},
         )
+    if dimension == "keyword":
+        for key_value, label in labels_for(session, result).items():
+            result[key_value].label = label
     return result
 
 
@@ -311,8 +317,8 @@ def _keyword_items(
     session: Session, conditions: list[ColumnElement[bool]], windows: list[Window], keys: set[str]
 ) -> dict[int, tuple[int, set[str]]]:
     """item id → (window index, its keywords among `keys`)."""
-    element = func.jsonb_array_elements_text(ItemCard.keywords).table_valued("value").lateral("kw")
-    normalized = keyword_key_sql(element.c.value)
+    element = keyword_element("kw")
+    normalized = element.c.value
     rows = session.execute(
         joined(select(Item.id, _bucket(windows), normalized))
         .join(element, true())
@@ -420,8 +426,8 @@ def _first_ever(
     """First report ever for each keyword key (with the reader filters, no window)."""
     if not keys:
         return {}
-    element = func.jsonb_array_elements_text(ItemCard.keywords).table_valued("value").lateral("kw")
-    key = keyword_key_sql(element.c.value)
+    element = keyword_element("kw")
+    key = element.c.value
     rows = session.execute(
         joined(select(key, func.min(Item.first_seen_at)))
         .join(element, true())
@@ -576,8 +582,8 @@ def _spike_keywords(
     session: Session, conditions: list[ColumnElement[bool]], day: date
 ) -> list[KeywordCount]:
     """Keywords most above their average day over the previous four weeks."""
-    element = func.jsonb_array_elements_text(ItemCard.keywords).table_valued("value").lateral("kw")
-    key = keyword_key_sql(element.c.value)
+    element = keyword_element("kw")
+    key = element.c.value
     on = _kst_day(Item.first_seen_at)
     begin = datetime.combine(day - timedelta(days=ANOMALY_BASELINE), datetime.min.time(), KST)
     finish = datetime.combine(day + timedelta(days=1), datetime.min.time(), KST)
@@ -585,7 +591,6 @@ def _spike_keywords(
         joined(
             select(
                 key,
-                func.mode().within_group(element.c.value),
                 func.count(distinct(Item.id)).filter(on == day),
                 func.count(distinct(Item.id)).filter(on < day),
             )
@@ -595,12 +600,13 @@ def _spike_keywords(
         .group_by(key)
     ).tuples()
     lifted = [
-        (int(today) - int(before) / ANOMALY_BASELINE, str(k), str(label), int(today))
-        for k, label, today, before in rows
+        (int(today) - int(before) / ANOMALY_BASELINE, str(k), int(today))
+        for k, today, before in rows
         if int(today) >= KEYWORD_MIN_COUNT
     ]
     lifted.sort(key=lambda row: (-row[0], row[1]))
-    return [KeywordCount(key=k, label=label, count=count) for _, k, label, count in lifted[:3]]
+    labels = labels_for(session, [k for _, k, _ in lifted[:3]])
+    return [KeywordCount(key=k, label=labels[k], count=count) for _, k, count in lifted[:3]]
 
 
 def _field_links(
@@ -699,8 +705,7 @@ def topic_condition(kind: str, value: str) -> ColumnElement[bool]:
         return ItemCard.field == value
     if kind == "theme":
         return ItemCard.themes.contains([value])
-    element = func.jsonb_array_elements_text(ItemCard.keywords).table_valued("value").alias("k")
-    return exists(select(1).select_from(element).where(keyword_key_sql(element.c.value) == value))
+    return ItemCard.technology_keys.contains([value])
 
 
 def _counts(session: Session, conditions: list[ColumnElement[bool]], axis: str) -> list[Count]:

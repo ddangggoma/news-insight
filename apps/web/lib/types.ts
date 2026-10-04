@@ -394,3 +394,20 @@ export interface TopicCandidate {
   fields: Record<string, number>;
   examples: ItemRow[];
 }
+
+export interface TechnologyOut {
+  key: string;
+  label: string;
+  theme_key: string | null;
+  kind: "technology" | "standard" | "regulation" | "product_family";
+  status: "active" | "watch" | "ignored";
+  aliases: string[];
+  cards_30d: number;
+  edited_in_console: boolean;
+}
+
+export interface TechnologyCandidate {
+  key: string;
+  label: string;
+  count: number;
+}

@@ -43,3 +43,37 @@ export async function submitReview(itemId: number, verdict: Verdict, note: strin
   await api.post("/api/admin/reviews", { item_id: itemId, verdict, note: note || null, seed });
   revalidatePath("/console/review");
 }
+
+export interface TechnologyDraft {
+  label: string;
+  key?: string;
+  theme_key?: string | null;
+  kind?: string;
+  status?: string;
+  aliases?: string[];
+}
+
+export async function createTechnology(draft: TechnologyDraft): Promise<{ ok: boolean; error?: string }> {
+  await requireAdmin();
+  try {
+    await api.post("/api/admin/technologies", draft);
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : String(error) };
+  }
+  revalidatePath("/console/technologies");
+  return { ok: true };
+}
+
+export async function updateTechnology(
+  key: string,
+  patch: Partial<TechnologyDraft> & { add_aliases?: string[]; remove_aliases?: string[] },
+): Promise<{ ok: boolean; error?: string }> {
+  await requireAdmin();
+  try {
+    await api.patch(`/api/admin/technologies/${encodeURIComponent(key)}`, patch);
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : String(error) };
+  }
+  revalidatePath("/console/technologies");
+  return { ok: true };
+}

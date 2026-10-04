@@ -91,6 +91,10 @@ digest_app = typer.Typer(
     help="Daily digest generated with the Claude CLI (05:00 KST)", no_args_is_help=True
 )
 app.add_typer(digest_app, name="digest")
+tech_app = typer.Typer(
+    help="Technology registry (third level of the taxonomy)", no_args_is_help=True
+)
+app.add_typer(tech_app, name="technologies")
 ops_app = typer.Typer(help="Operational health checks and alerts", no_args_is_help=True)
 app.add_typer(ops_app, name="ops")
 admin_app = typer.Typer(help="Admin magic-link login", no_args_is_help=True)
@@ -702,3 +706,45 @@ def ops_check(
         typer.echo(f"[{finding.severity.value}] {finding.key}: {finding.title}")
         if finding.detail:
             typer.echo(f"    {finding.detail}")
+
+
+@tech_app.command("seed")
+def technologies_seed() -> None:
+    """Upsert catalog/technologies.yaml, then recompute card keys and labels."""
+    from news_insight.technologies.catalog import load_technologies
+    from news_insight.technologies.service import recompute_all, refresh_labels, seed_registry
+
+    with session_scope() as session:
+        result = seed_registry(session, load_technologies())
+        changed = recompute_all(session)
+        labels = refresh_labels(session, now=datetime.now(UTC))
+    typer.echo(
+        f"created={result.created} updated={result.updated} aliases_added={result.aliases_added} "
+        f"cards_rekeyed={changed} labels={labels}"
+    )
+
+
+@tech_app.command("recompute")
+def technologies_recompute() -> None:
+    """Re-derive every card's technology keys and the display labels."""
+    from news_insight.technologies.service import recompute_all, refresh_labels
+
+    with session_scope() as session:
+        changed = recompute_all(session)
+        labels = refresh_labels(session, now=datetime.now(UTC))
+    typer.echo(f"cards_rekeyed={changed} labels={labels}")
+
+
+@tech_app.command("candidates")
+def technologies_candidates(
+    days: Annotated[int, typer.Option(help="Window in days")] = 30,
+    min_count: Annotated[int, typer.Option(help="Minimum DX-relevant cards")] = 10,
+) -> None:
+    """Frequent keyword keys the registry does not know yet."""
+    from news_insight.technologies.service import candidates, labels_for
+
+    with session_scope() as session:
+        rows = candidates(session, now=datetime.now(UTC), days=days, min_count=min_count)
+        labels = labels_for(session, [key for key, _ in rows])
+    for key, count in rows:
+        typer.echo(f"{count:5d}  {labels[key]}  ({key})")

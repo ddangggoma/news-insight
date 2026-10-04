@@ -380,5 +380,9 @@ if __name__ == "__main__":
     _reset(database_url)
     engine = create_engine(database_url)
     with Session(engine) as db:
+        from news_insight.technologies.catalog import load_technologies
+        from news_insight.technologies.service import seed_registry
+
+        seed_registry(db, load_technologies())
         seed(db)
     print(f"seeded {database_url.rsplit('/', 1)[-1]}: briefings {YESTERDAY}, {TODAY}")

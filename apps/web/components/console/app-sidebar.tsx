@@ -1,6 +1,6 @@
 "use client";
 
-import { Activity, BellRing, ClipboardCheck, Lightbulb, Gauge, History, GitMerge, Layers, Inbox, LayoutDashboard, LayoutGrid, Library, Newspaper, Radar, Rss, TrendingUp } from "lucide-react";
+import { Activity, BellRing, ClipboardCheck, Cpu, Lightbulb, Gauge, History, GitMerge, Layers, Inbox, LayoutDashboard, LayoutGrid, Library, Newspaper, Radar, Rss, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -38,6 +38,7 @@ const NAV = [
     { href: "/console/trends", title: "지표 상승", icon: TrendingUp },
     { href: "/console/review", title: "관련성 검토", icon: ClipboardCheck },
     { href: "/console/topic-candidates", title: "미분류 신호", icon: Lightbulb },
+    { href: "/console/technologies", title: "기술 레지스트리", icon: Cpu },
   ] },
 ];
 
