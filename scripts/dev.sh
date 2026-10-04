@@ -38,7 +38,8 @@ PY
   echo "saved to .env (apply with: docker compose up -d caddy)"
 }
 
-digest()        { (cd "$API" && uv run --env-file "$ROOT/.env" news-insight digest run); }
+# 05:00 KST (launchd): freeze if Celery has not, shortlist, Claude digest, gates, publish
+digest()        { (cd "$API" && uv run --env-file "$ROOT/.env" news-insight daily publish); }
 # Host-side: agy is logged in here, and LM Studio is reached on localhost (not host.docker.internal).
 cards()         { (cd "$API" && LM_STUDIO_URL=http://127.0.0.1:1234 uv run --env-file "$ROOT/.env" news-insight cards run); }
 sources_seed()  { (cd "$API" && uv run --env-file "$ROOT/.env" news-insight sources seed); }

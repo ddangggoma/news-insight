@@ -271,6 +271,25 @@ CASES: list[tuple[str, dict[str, Any], tuple[str, str, str, datetime, dict[str, 
             {},
         ),
     ),
+    (
+        "huggingface_hub",
+        {
+            "id": "Qwen/Qwen3.8-27B",
+            "author": "Qwen",
+            "pipeline_tag": "text-generation",
+            "createdAt": "2026-10-01T09:00:00.000Z",
+            "likes": 900,
+            "downloads": 12000,
+            "trendingScore": 650,
+        },
+        (
+            "Qwen/Qwen3.8-27B",
+            "https://huggingface.co/Qwen/Qwen3.8-27B",
+            "Qwen/Qwen3.8-27B",
+            OCT_1_0900,
+            {"likes": 900, "downloads": 12000, "trending": 650},
+        ),
+    ),
 ]
 
 

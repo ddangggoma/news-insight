@@ -303,3 +303,36 @@ export interface SourceQualityRow {
   relevance: number | null;
   translation: number | null;
 }
+
+export interface GateOut {
+  name: string;
+  label: string;
+  value: number;
+  threshold: number;
+  passed: boolean;
+  blocking: boolean;
+}
+
+export interface BriefingOut {
+  briefing_date: string;
+  version: number;
+  status: "published" | "blocked";
+  published_at: string;
+  frozen_at: string;
+  candidates: number;
+  gates: GateOut[];
+  failing: string[];
+  sections: { track: Track; items: CardView[] }[];
+  digest: DigestOut | null;
+  is_current: boolean;
+  current_date: string | null;
+}
+
+export interface BriefingSummary {
+  briefing_date: string;
+  version: number;
+  status: "published" | "blocked";
+  shortlist: number;
+  failing: string[];
+  published_at: string;
+}

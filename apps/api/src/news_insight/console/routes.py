@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from news_insight.collect.dead_letters import DeadLetterError, dismiss, retry
 from news_insight.collect.models import DeadLetter, FetchOutcome
+from news_insight.console import briefings as briefing_queries
 from news_insight.console import cards as card_queries
 from news_insight.console import queries
 from news_insight.console import reviews as review_queries
@@ -355,3 +356,26 @@ def list_signals(
     limit: Annotated[int, Query(ge=1, le=200)] = 50,
 ) -> list[story_queries.SignalChain]:
     return story_queries.list_signals(session, days=days, now=datetime.now(UTC), limit=limit)
+
+
+@router.get("/briefings")
+def list_briefings(
+    session: DB, limit: Annotated[int, Query(ge=1, le=100)] = 30
+) -> list[briefing_queries.BriefingSummary]:
+    return briefing_queries.summaries(session, limit=limit)
+
+
+@router.get("/briefings/latest")
+def latest_briefing(session: DB) -> briefing_queries.BriefingOut:
+    briefing = briefing_queries.latest(session)
+    if briefing is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "no briefing yet")
+    return briefing_queries.briefing_out(session, briefing)
+
+
+@router.get("/briefings/{briefing_date}")
+def get_briefing(briefing_date: date, session: DB) -> briefing_queries.BriefingOut:
+    briefing = briefing_queries.for_date(session, briefing_date)
+    if briefing is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, f"no briefing for {briefing_date}")
+    return briefing_queries.briefing_out(session, briefing)

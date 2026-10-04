@@ -33,7 +33,7 @@ DEFAULT_FIELDS: dict[str, Any] = {
     "published_at": "published_at",
     "author": "author",
 }
-PLACEHOLDER = re.compile(r"\{([A-Za-z0-9_.\-]+)(\|last)?\}")
+PLACEHOLDER = re.compile(r"\{([A-Za-z0-9_.\-]+)(\|last|\|path)?\}")
 
 
 @dataclass(frozen=True)
@@ -139,8 +139,10 @@ def render_template(template: str, record: Any) -> str | None:
         if value is None:
             missing = True
             return ""
-        if match.group(2):
+        if match.group(2) == "|last":
             value = value.rstrip("/").rsplit("/", 1)[-1]
+        if match.group(2) == "|path":  # e.g. Hugging Face "owner/name" ids keep their slash
+            return quote(value, safe="@.-_~/")
         return quote(value, safe="@.-_~")
 
     rendered = PLACEHOLDER.sub(replace, template)

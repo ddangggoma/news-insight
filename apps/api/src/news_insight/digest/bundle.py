@@ -36,7 +36,12 @@ def digest_window(digest_date: date) -> tuple[datetime, datetime]:
 
 
 def build_bundle(
-    session: Session, *, start: datetime, end: datetime, per_category: int = 12
+    session: Session,
+    *,
+    start: datetime,
+    end: datetime,
+    per_category: int = 12,
+    item_ids: set[int] | None = None,
 ) -> Bundle:
     """Previous-day items, minus what P4 marked off-topic, one item per story.
 
@@ -50,7 +55,11 @@ def build_bundle(
             .outerjoin(ItemCard, ItemCard.item_id == Item.id)
             .outerjoin(StoryItem, StoryItem.item_id == Item.id)
             .outerjoin(Story, Story.id == StoryItem.story_id)
-            .where(Item.first_seen_at >= start, Item.first_seen_at < end)
+            .where(
+                Item.first_seen_at >= start,
+                Item.first_seen_at < end,
+                *([Item.id.in_(item_ids)] if item_ids is not None else []),
+            )
         ).tuples()
     )
     kept = [
