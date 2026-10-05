@@ -59,3 +59,25 @@ def test_domain_cap_limits_any_single_publisher() -> None:
     )
 
     assert sum(c.domain == "same.com" for c in picked) == 2
+
+
+def test_two_reports_of_one_story_take_one_slot() -> None:
+    from dataclasses import replace
+
+    # stories can merge after the 04:40 freeze: the shortlist goes by the story now
+    first, second, third = (
+        replace(cand(n, score=90 - n), story_id=7 if n < 3 else None) for n in (1, 2, 3)
+    )
+    picked = shortlist(
+        [first, second, third],
+        SelectionRules(
+            size=3,
+            track_min={},
+            track_gate_min={},
+            domain_cap=1.0,
+            korean_min=0,
+            official_min=0,
+            independent_min=0,
+        ),
+    )
+    assert [p.item_id for p in picked] == [1, 3]
