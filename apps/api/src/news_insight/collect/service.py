@@ -22,6 +22,7 @@ from news_insight.scheduling.policy import (
     next_interval,
     retry_delay,
 )
+from news_insight.scheduling.providers import ProviderGate, min_interval, provider_host
 from news_insight.scheduling.redis_guards import RateLimiter
 from news_insight.secrets import SecretError
 from news_insight.sources.enums import STAGE_ORDER, AccessMethod, SourceStatus, ValidationStage
@@ -90,6 +91,7 @@ def collect_source(
     limiter: RateLimiter,
     now: datetime,
     collector_factory: CollectorFactory = collector_for,
+    gate: ProviderGate | None = None,
 ) -> FetchRun:
     runtime = ensure_runtime(session, source, now)
     run = FetchRun(
@@ -107,6 +109,16 @@ def collect_source(
     if not is_collectable(source):
         return _finish(session, run, now, error_code="not_collectable")
     domain = urlsplit(source.endpoint_url).hostname or ""
+    provider = provider_host(source.endpoint_url) if gate is not None else None
+    if provider is not None and gate is not None:
+        # one budget and one back-off for every source on a shared API (OpenAlex, Crossref)
+        waiting = gate.backoff_seconds(provider)
+        if waiting:
+            runtime.next_due_at = now + timedelta(seconds=waiting)
+            return _finish(session, run, now, error_code="provider_backoff")
+        if not gate.try_acquire(provider):
+            runtime.next_due_at = now + timedelta(seconds=gate.wait_seconds(provider))
+            return _finish(session, run, now, error_code="provider_budget")
     override = source.config.get("rate_per_minute")
     if not limiter.try_acquire(domain, per_minute=int(override) if override else None):
         runtime.next_due_at = now + LOCAL_RATE_LIMIT_DELAY
@@ -127,6 +139,8 @@ def collect_source(
     try:
         result = collector_factory(source.access_method, fetcher).collect(context)
     except CollectorError as exc:
+        if provider is not None and gate is not None and exc.code == "rate_limited":
+            gate.back_off(provider, exc.retry_after or gate.wait_seconds(provider))
         return _handle_failure(session, source, runtime, run, exc, now)
 
     stats = (
@@ -147,8 +161,9 @@ def collect_source(
     idle = is_idle(
         not_modified=result.not_modified, new_items=stats.new, updated_items=stats.updated
     )
-    runtime.interval_seconds = next_interval(
-        source.poll_class, runtime.interval_seconds, idle=idle, new_items=stats.new
+    runtime.interval_seconds = max(
+        next_interval(source.poll_class, runtime.interval_seconds, idle=idle, new_items=stats.new),
+        min_interval(source.endpoint_url),  # a shared API's daily budget split over its sources
     )
     runtime.consecutive_failures = 0
     runtime.consecutive_idle = runtime.consecutive_idle + 1 if idle else 0

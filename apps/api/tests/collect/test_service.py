@@ -313,3 +313,78 @@ def test_server_requested_wait_delays_the_retry(db_session: Session, fetcher: Sa
     collect(db_session, source, StubCollector(throttled), fetcher)
 
     assert runtime_of(db_session, source).next_due_at == NOW + timedelta(seconds=10830)
+
+
+class FakeGate:
+    def __init__(self, *, backoff: int = 0, allow: bool = True) -> None:
+        self.backoff, self.allow = backoff, allow
+        self.backed_off: list[tuple[str, int]] = []
+
+    def backoff_seconds(self, host: str) -> int:
+        return self.backoff
+
+    def back_off(self, host: str, seconds: int) -> None:
+        self.backed_off.append((host, seconds))
+
+    def try_acquire(self, host: str) -> bool:
+        return self.allow
+
+    def wait_seconds(self, host: str) -> int:
+        return 960
+
+
+def collect_gated(
+    session: Session, source: Source, stub: StubCollector, fetcher: SafeFetcher, gate: FakeGate
+) -> FetchRun:
+    return collect_source(
+        session,
+        source,
+        fetcher=fetcher,
+        limiter=Budget(),
+        now=NOW,
+        collector_factory=lambda method, _fetcher: stub,
+        gate=gate,  # type: ignore[arg-type]
+    )
+
+
+OPENALEX = "https://api.openalex.org/works?search=edge%20ai"
+
+
+def test_a_provider_backing_off_skips_without_failing(
+    db_session: Session, fetcher: SafeFetcher
+) -> None:
+    source = collectable(db_session, endpoint_url=OPENALEX)
+    stub = StubCollector(ok(raw(1)))
+
+    run = collect_gated(db_session, source, stub, fetcher, FakeGate(backoff=3600))
+
+    assert run.error_code == "provider_backoff" and stub.contexts == []
+    assert runtime_of(db_session, source).next_due_at == NOW + timedelta(seconds=3600)
+    assert count(db_session, DeadLetter) == 0
+
+
+def test_a_provider_429_pauses_the_whole_provider(
+    db_session: Session, fetcher: SafeFetcher
+) -> None:
+    source = collectable(db_session, endpoint_url=OPENALEX)
+    limited = CollectorError(
+        "rate_limited", "HTTP 429", retryable=True, status_code=429, retry_after=44_947
+    )
+    gate = FakeGate()
+
+    collect_gated(db_session, source, StubCollector(limited), fetcher, gate)
+
+    assert gate.backed_off == [("api.openalex.org", 44_947)]
+
+
+def test_a_spent_provider_budget_waits_for_the_next_token(
+    db_session: Session, fetcher: SafeFetcher
+) -> None:
+    source = collectable(db_session, endpoint_url=OPENALEX)
+
+    run = collect_gated(
+        db_session, source, StubCollector(ok(raw(1))), fetcher, FakeGate(allow=False)
+    )
+
+    assert run.error_code == "provider_budget"
+    assert runtime_of(db_session, source).next_due_at == NOW + timedelta(seconds=960)

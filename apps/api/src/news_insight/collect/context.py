@@ -31,7 +31,7 @@ def collect_context(
     )
 
 
-POLITE_HOSTS = frozenset({"api.openalex.org"})
+POLITE_HOSTS = frozenset({"api.openalex.org", "api.crossref.org"})  # mailto pools
 
 
 def polite_url(url: str) -> str:

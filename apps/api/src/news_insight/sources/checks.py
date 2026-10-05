@@ -4,7 +4,7 @@ from collections.abc import Sequence
 from datetime import UTC, datetime, timedelta
 from urllib.parse import urlsplit
 
-from news_insight.collect.context import collect_context
+from news_insight.collect.context import collect_context, polite_url
 from news_insight.collect.contracts import CollectorError, RawItem
 from news_insight.collect.macros import expand_macros
 from news_insight.collect.registry import collector_for
@@ -27,7 +27,8 @@ FULLTEXT_RIGHTS = frozenset({StorageRight.FULLTEXT_TTL, StorageRight.FULLTEXT_PE
 
 
 def probe_url(source: Source) -> str:
-    return str(source.config.get("probe_url") or source.endpoint_url)
+    """The URL V2 fetches; shared APIs get the same contact address as collection."""
+    return polite_url(str(source.config.get("probe_url") or source.endpoint_url))
 
 
 def _host_matches(host: str, domain: str) -> bool:
