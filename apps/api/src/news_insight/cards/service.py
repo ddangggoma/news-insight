@@ -157,7 +157,7 @@ def store_classification(
     return False
 
 
-def card_input(item: Item, source: Source) -> CardInput:
+def card_input(item: Item, source: Source, keep: list[str] | None = None) -> CardInput:
     excerpt = item.summary or item.body
     return CardInput(
         id=item.id,
@@ -165,7 +165,31 @@ def card_input(item: Item, source: Source) -> CardInput:
         source=source.name,
         language=source.language,
         excerpt=truncate(excerpt, EXCERPT_LIMIT) if excerpt else None,
+        keep=keep or None,
     )
+
+
+LOST = "preservation: lost "
+
+
+def lost_facts(session: Session, item_ids: list[int]) -> dict[int, list[str]]:
+    """Facts the previous attempt dropped, for items being retried on the same content."""
+    if not item_ids:
+        return {}
+    rows = session.execute(
+        select(ItemCard.item_id, ItemCard.error)
+        .join(Item, Item.id == ItemCard.item_id)
+        .where(
+            ItemCard.item_id.in_(item_ids),
+            ItemCard.error.like(f"{LOST}%"),
+            ItemCard.input_hash == Item.content_hash,
+        )
+    ).tuples()
+    return {
+        item_id: [part.strip() for part in error.removeprefix(LOST).split(",") if part.strip()]
+        for item_id, error in rows
+        if error
+    }
 
 
 def store_result(
@@ -177,7 +201,10 @@ def store_result(
     model: str,
     error: str | None,
     now: datetime,
+    note: str | None = None,
 ) -> ItemCard:
+    """Store a draft (or a failure). `note` stays on a ready card: a fact the last attempt still
+    lost, kept visible to the console instead of hiding the item."""
     card = session.scalars(select(ItemCard).where(ItemCard.item_id == item.id)).one_or_none()
     if card is None:
         card = ItemCard(item_id=item.id, attempts=0, summary_ko=[], keywords=[])
@@ -194,7 +221,7 @@ def store_result(
             draft.keywords,
         )
         _apply_classification(card, draft)
-        card.attempts, card.error = 0, None
+        card.attempts, card.error = 0, note
     else:
         card.status = CardStatus.FAILED
         card.attempts = 1 if changed else card.attempts + 1
@@ -209,6 +236,7 @@ class CardRunStats:
     failed: int = 0
     classified: int = 0
     classify_failed: int = 0
+    soft: int = 0  # kept on the last attempt although a fact was lost
     batches: dict[str, int] = field(default_factory=dict)
     quota: dict[str, int | None] = field(default_factory=dict)
     notes: list[str] = field(default_factory=list)
@@ -337,10 +365,9 @@ def _plan_round(
         )
         # keep one lane for reclassification while new items also wait (Antigravity only)
         card_lanes = lanes - 1 if stale and lanes > 1 else lanes
-        inputs = [
-            card_input(item, source)
-            for item, source in pending_items(session, limit=batch * card_lanes, exclude=attempted)
-        ]
+        pending = pending_items(session, limit=batch * card_lanes, exclude=attempted)
+        keep = lost_facts(session, [item.id for item, _ in pending])
+        inputs = [card_input(item, source, keep.get(item.id)) for item, source in pending]
         jobs = [Job("card", inputs[i : i + batch]) for i in range(0, len(inputs), batch)]
         stale_inputs = [classify_input(item, card) for item, card in stale]
         if stale_inputs and not jobs:
@@ -411,8 +438,14 @@ def _store_batch(
                 continue
             draft = drafts.get(card.id)
             error = None if draft else "missing or invalid in engine output"
+            note = None
             if draft is not None and (lost := missing_facts(card, draft)):
-                draft, error = None, f"preservation: lost {', '.join(lost)}"
+                if _attempts(session, item) + 1 >= MAX_ATTEMPTS:
+                    # last try: keep the translation and note the loss rather than hide the item
+                    note = f"preservation (kept on last attempt): lost {', '.join(lost)}"
+                    stats.soft += 1
+                else:
+                    draft, error = None, f"{LOST}{', '.join(lost)}"
             store_result(
                 session,
                 item,
@@ -421,6 +454,7 @@ def _store_batch(
                 model=output.model,
                 error=error,
                 now=now,
+                note=note,
             )
             if draft:
                 stats.ready += 1
@@ -429,12 +463,21 @@ def _store_batch(
     stats.batches[engine_name] = stats.batches.get(engine_name, 0) + 1
 
 
+def _attempts(session: Session, item: Item) -> int:
+    """Failed attempts so far on the item's current content."""
+    card = session.scalars(select(ItemCard).where(ItemCard.item_id == item.id)).one_or_none()
+    if card is None or card.input_hash != item.content_hash:
+        return 0
+    return card.attempts
+
+
 def record_run(open_session: SessionScope, started_at: datetime, stats: CardRunStats) -> None:
     logging.getLogger(__name__).info(
         "card run",
         extra={
             "ready": stats.ready,
             "failed": stats.failed,
+            "soft": stats.soft,
             "batches": stats.batches,
             "quota": stats.quota,
             "notes": stats.notes[:5],

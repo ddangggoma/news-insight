@@ -359,3 +359,40 @@ def test_cards_losing_identifiers_are_rejected_and_retried(db_session: Session) 
     assert card.status is CardStatus.FAILED
     assert card.error == "preservation: lost S30"
     assert pending_count(db_session) == 1
+
+
+class LossyAgy(FakeAgy):
+    """Always drops the model number from the title, and records what it was asked to keep."""
+
+    def __init__(self) -> None:
+        super().__init__([FULL])
+        self.keeps: list[list[str] | None] = []
+
+    def generate(self, inputs: list[CardInput]) -> EngineOutput:
+        self.keeps.extend(card.keep for card in inputs)
+        cards = [
+            {"id": c.id, "title_ko": "갤럭시 출시", "summary_ko": ["요약"], "keywords": ["k"]}
+            for c in inputs
+        ]
+        return EngineOutput(raw={"cards": cards}, model="agy-model")
+
+
+def test_retries_name_the_lost_fact_and_the_last_attempt_keeps_the_card(
+    db_session: Session,
+) -> None:
+    seed(db_session, ["Galaxy S30 launch"])
+    agy = LossyAgy()
+    scope = scope_for(db_session)
+
+    for _ in range(MAX_ATTEMPTS - 1):
+        run_cards(scope, agy=agy, qwen=None, policy=POLICY)
+    failed = cards(db_session)["Galaxy S30 launch"]
+    assert failed.status == CardStatus.FAILED and failed.error == "preservation: lost S30"
+    assert agy.keeps == [None, ["S30"]]
+
+    stats = run_cards(scope, agy=agy, qwen=None, policy=POLICY)
+
+    kept = cards(db_session)["Galaxy S30 launch"]
+    assert stats.soft == 1 and kept.status == CardStatus.READY
+    assert kept.error == "preservation (kept on last attempt): lost S30"
+    assert kept.title_ko == "갤럭시 출시"

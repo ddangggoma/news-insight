@@ -82,7 +82,7 @@ class MeteredEngine(CardEngine, Protocol):
 
 
 def _payload(inputs: list[CardInput] | list[ClassifyInput]) -> str:
-    return json.dumps([card.model_dump() for card in inputs], ensure_ascii=False)
+    return json.dumps([card.model_dump(exclude_none=True) for card in inputs], ensure_ascii=False)
 
 
 class AgyEngine:
