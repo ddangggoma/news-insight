@@ -126,3 +126,14 @@ def test_revisions_link_to_the_fetch_run(db_session: Session) -> None:
 
     revision = db_session.scalars(select(ItemRevision)).one()
     assert revision.fetch_run_id == run.id
+
+
+def test_same_url_and_same_headline_under_a_new_id_is_skipped(db_session: Session) -> None:
+    source = persisted(db_session)
+    ingest(db_session, source, [raw(1)])
+    again = RawItem(stable_id="new-guid", url="https://www.example.com/1", title=raw(1).title)
+
+    stats = ingest(db_session, source, [again])
+
+    assert (stats.new, stats.duplicate_urls) == (0, 1)
+    assert db_session.scalar(select(func.count()).select_from(Item)) == 1

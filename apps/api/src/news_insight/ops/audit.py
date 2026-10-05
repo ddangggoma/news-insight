@@ -173,7 +173,7 @@ def duplicates(session: Session) -> Section:
     same_source_url = _one(
         session,
         f"""select coalesce(sum(n - 1), 0) from (select count(*) n from items i where {window}
-            group by source_id, canonical_url having count(*) > 1) d""",
+            group by source_id, canonical_url, lower(title) having count(*) > 1) d""",
     )
     same_title = _table(
         session,
@@ -205,7 +205,7 @@ def duplicates(session: Session) -> Section:
             [
                 ("기사 수", total),
                 ("같은 URL 중복 그룹 / 초과 사본", f"{url_groups} / {url_extra}"),
-                ("같은 소스·같은 URL 초과 사본", same_source_url),
+                ("같은 소스·같은 URL·같은 제목 초과 사본", same_source_url),
                 ("같은 본문 해시 초과 사본", same_hash),
                 ("같은 제목(30자 초과)인데 다른 이슈로 갈린 제목 수", unclustered),
             ],
@@ -216,9 +216,8 @@ def duplicates(session: Session) -> Section:
             Finding(
                 "high",
                 "중복",
-                f"같은 소스가 같은 URL을 다른 항목으로 {same_source_url}번 더 저장",
-                "stable_id가 URL과 다르게 바뀌는 피드(추적 파라미터, GUID 변경)로 보임. 상위: "
-                + ", ".join(f"{r[3]}" for r in same_url.rows[:5]),
+                f"같은 소스가 같은 URL·같은 제목을 다른 항목으로 {same_source_url}번 더 저장",
+                "GUID가 바뀌는 피드. 2026-10-05부터 수집 단계에서 건너뜀(이전 기록은 7일 동안 남음)",
             )
         )
     if url_extra and url_extra / total > 0.02:
@@ -266,8 +265,9 @@ def cards(session: Session) -> Section:
     pending = _one(
         session,
         """select count(*) from items i left join item_cards c on c.item_id = i.id
-           where c.id is null or c.input_hash <> i.content_hash
-              or (c.status = 'failed' and c.attempts < 3)""",
+           where (i.published_at is null or i.published_at >= i.first_seen_at - interval '30 days')
+             and (c.id is null or c.input_hash <> i.content_hash
+                  or (c.status = 'failed' and c.attempts < 3))""",
     )
     untranslated = _table(
         session,
@@ -306,7 +306,7 @@ def cards(session: Session) -> Section:
             "요약",
             ["지표", "값"],
             [
-                ("카드 대기(새 기사·변경·재시도)", pending),
+                ("카드 대기(새 기사·변경·재시도, 아카이브 제외)", pending),
                 ("외국어인데 한글 없는 제목", untranslated_total),
                 ("외국어인데 원제 그대로인 제목", same_as_title),
                 ("본문 200자 이상인데 요약이 빈 카드", lost_summary),
@@ -486,9 +486,14 @@ def database(session: Session) -> Section:
         """select round(100.0 * sum(blks_hit) / nullif(sum(blks_hit) + sum(blks_read), 0), 2)
            from pg_stat_database where datname = current_database()""",
     )
-    deadlocks = _one(
-        session, "select deadlocks from pg_stat_database where datname = current_database()"
-    )
+    deadlocks, stats_since = (
+        _rows(
+            session,
+            "select deadlocks, stats_reset from pg_stat_database where datname = current_database()",
+        )
+        or [(0, None)]
+    )[0]
+    buffers = _one(session, "show shared_buffers")
     connections = _table(
         session,
         "연결 (데이터베이스·상태별)",
@@ -523,7 +528,8 @@ def database(session: Session) -> Section:
             ["지표", "값"],
             [
                 ("버퍼 캐시 적중률 %", hit),
-                ("누적 교착(deadlock)", deadlocks),
+                (f"교착(deadlock) — {stats_since or '서버 시작'} 이후", deadlocks),
+                ("shared_buffers", buffers),
                 (
                     "pg_stat_statements",
                     "사용 중" if tracking else "없음 — 느린 쿼리 원인 추적 불가",
@@ -536,13 +542,13 @@ def database(session: Session) -> Section:
             Finding(
                 "medium",
                 "DB",
-                f"교착 상태 누적 {deadlocks}회",
+                f"교착 상태 {deadlocks}회({stats_since or '통계 초기화'} 이후)",
                 "카드 저장·이슈 묶기·병합이 같은 행을 다른 순서로 잠그는지 확인(로그의 deadlock detected).",
             )
         )
     if hit is not None and float(hit) < 95:
         section.findings.append(
-            Finding("medium", "DB", f"버퍼 캐시 적중률 {hit}%", "shared_buffers가 작음(기본 128MB)")
+            Finding("medium", "DB", f"버퍼 캐시 적중률 {hit}%", f"shared_buffers {buffers}")
         )
     if unused.rows:
         section.findings.append(

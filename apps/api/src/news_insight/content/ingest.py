@@ -108,16 +108,16 @@ def ingest_items(
             select(Item).where(Item.source_id == source.id, Item.stable_id.in_(list(prepared)))
         )
     }
-    url_owners = dict(
-        session.execute(
-            select(Item.canonical_url, Item.stable_id).where(
-                Item.source_id == source.id,
-                Item.canonical_url.in_({candidate.canonical for candidate in prepared.values()}),
-            )
+    url_owners: dict[str, str] = {}
+    owner_titles: dict[str, str] = {}
+    for url, stable_id, title in session.execute(
+        select(Item.canonical_url, Item.stable_id, Item.title).where(
+            Item.source_id == source.id,
+            Item.canonical_url.in_({candidate.canonical for candidate in prepared.values()}),
         )
-        .tuples()
-        .all()
-    )
+    ).tuples():
+        url_owners.setdefault(url, stable_id)
+        owner_titles.setdefault(url, title)
     run_id = fetch_run.id if fetch_run is not None else None
     new = updated = unchanged = duplicates = 0
     touched: dict[str, Item] = {}
@@ -125,8 +125,17 @@ def ingest_items(
         item = existing.get(candidate.stable_id)
         if item is None:
             owner = url_owners.setdefault(candidate.canonical, candidate.stable_id)
+            owner_titles.setdefault(candidate.canonical, candidate.title)
             if owner != candidate.stable_id:
                 duplicates += 1
+                # same link and same headline under a new GUID: the same report again, not a new
+                # one (2026-10-05: 355 such copies). Podcast episodes that share one link keep
+                # their own titles and are stored.
+                if (
+                    owner_titles[candidate.canonical].strip().lower()
+                    == candidate.title.strip().lower()
+                ):
+                    continue
             item = Item(
                 source_id=source.id,
                 track=source.track,

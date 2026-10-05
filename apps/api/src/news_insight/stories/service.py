@@ -110,7 +110,13 @@ def assign(
         select(StoryItem.story_id)
         .join(ItemSignature, ItemSignature.item_id == StoryItem.item_id)
         .join(Item, Item.id == StoryItem.item_id)
-        .where(ItemSignature.dedup_key == key, Item.first_seen_at >= since)
+        .where(
+            ItemSignature.dedup_key == key,
+            Item.first_seen_at >= since,
+            # within one publisher a shared link can be a series page (podcast episodes all link
+            # to the show): the same link counts only with the same headline
+            or_(Item.source_id != source.id, func.lower(Item.title) == item.title.lower()),
+        )
         .limit(1)
     ).scalar_one_or_none()
     if exact is None:

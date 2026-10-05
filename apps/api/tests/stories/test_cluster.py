@@ -257,3 +257,23 @@ def test_the_same_headline_joins_one_story_whatever_the_translation(db_session: 
     assert db_session.scalar(select(func.count()).select_from(Story)) == 1
     relations = sorted(r.value for r in db_session.scalars(select(StoryItem.relation)))
     assert relations == ["exact", "seed"]
+
+
+def test_episodes_sharing_one_link_stay_separate(db_session: Session) -> None:
+    # a podcast feed links every episode to the show page
+    rows = [
+        (f"https://www.nytimes.com/column/hard-fork#{n}", title, "", [], 50)
+        for n, title in enumerate(
+            [
+                "Can A.I. Write a Hit Song? With a music producer",
+                "Inside the Pentagon's drone budget fight",
+            ]
+        )
+    ]
+    add(db_session, "hard-fork", Track.COMMUNITY, rows)
+    db_session.execute(
+        __import__("sqlalchemy").update(Item).values(url="https://www.nytimes.com/column/hard-fork")
+    )
+    cluster(scope_for(db_session), now=NOW)
+
+    assert db_session.scalar(select(func.count()).select_from(Story)) == 2
