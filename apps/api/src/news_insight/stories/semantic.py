@@ -37,6 +37,7 @@ COSINE = 0.75
 MIN_WORDS = 4
 JUDGE_BATCH = 50
 CHUNK = 512  # rows per matrix product when scoring neighbours
+INSERT_ROWS = 256  # embeddings per INSERT (PostgreSQL allows 65,535 bind parameters)
 Embed = Callable[[list[str]], list[list[float]]]
 
 URL = re.compile(r"https?://\S+")
@@ -99,18 +100,20 @@ def embed_pending(
     )
     if not rows:
         return 0
-    vectors = embed([(title or title_ko or "")[:500] for _, title, title_ko in rows])
-    session.execute(
-        insert(ItemEmbedding)
-        .values(
-            [
-                {"item_id": item_id, "model": model, "vector": vector, "created_at": now}
-                for (item_id, _, _), vector in zip(rows, vectors, strict=True)
-            ]
+    for start in range(0, len(rows), INSERT_ROWS):
+        chunk = rows[start : start + INSERT_ROWS]
+        vectors = embed([(title or title_ko or "")[:500] for _, title, title_ko in chunk])
+        session.execute(
+            insert(ItemEmbedding)
+            .values(
+                [
+                    {"item_id": item_id, "model": model, "vector": vector, "created_at": now}
+                    for (item_id, _, _), vector in zip(chunk, vectors, strict=True)
+                ]
+            )
+            .on_conflict_do_nothing()
         )
-        .on_conflict_do_nothing()
-    )
-    session.flush()
+        session.flush()
     return len(rows)
 
 

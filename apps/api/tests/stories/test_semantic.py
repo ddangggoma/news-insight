@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from news_insight.cards.engines import EngineOutput
 from news_insight.sources.enums import Track
+from news_insight.stories import semantic
 from news_insight.stories.models import Relation, Story, StoryItem, StoryMergeCheck
 from news_insight.stories.semantic import identifiers, plausible, run, words
 from news_insight.stories.service import cluster
@@ -64,7 +65,10 @@ def fake_embed(texts: list[str]) -> list[list[float]]:
 pytestmark = pytest.mark.db
 
 
-def test_a_judged_embedding_neighbour_merges_two_stories(db_session: Session) -> None:
+def test_a_judged_embedding_neighbour_merges_two_stories(
+    db_session: Session, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(semantic, "INSERT_ROWS", 2)  # three titles, two INSERTs
     add(db_session, "verge", Track.NEWS, [("https://verge.com/lecun", LECUN_EN, "", [], 60)])
     add(db_session, "etnews", Track.NEWS, [("https://etnews.com/lecun", LECUN_KO, "", [], 80)])
     add(db_session, "zdnet", Track.NEWS, [("https://zdnet.com/oled", OTHER, "", [], 50)])

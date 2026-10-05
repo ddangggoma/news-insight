@@ -8,10 +8,21 @@ API="$ROOT/apps/api"
 WEB="$ROOT/apps/web"
 cd "$ROOT"
 
-up()            { docker compose up -d --build; }
-down()          { docker compose down; }
+# One compose project serves both worktrees, but bind mounts resolve per worktree: `compose up`
+# from the other tree recreates the running containers (2026-10-05: it killed the live database).
+owner()         { docker inspect -f '{{ index .Config.Labels "com.docker.compose.project.working_dir" }}' news-insight-postgres-1 2>/dev/null || true; }
+guard()         {
+  local o; o="$(owner)"
+  if [[ -n "$o" && "$o" != "$ROOT" && -z "${FORCE:-}" ]]; then
+    echo "refusing: the stack runs from $o; run this there (or FORCE=1 to take it over)" >&2
+    exit 1
+  fi
+}
+healthy()       { [[ "$(docker inspect -f '{{.State.Health.Status}}' "news-insight-$1-1" 2>/dev/null)" == healthy ]]; }
+up()            { guard; docker compose up -d --build; }
+down()          { guard; docker compose down; }
 logs()          { docker compose logs -f --tail=200; }
-db()            { docker compose up -d --wait postgres redis; }
+db()            { if healthy postgres && healthy redis; then return; fi; guard; docker compose up -d --wait postgres redis; }
 migrate()       { (cd "$API" && uv run alembic upgrade head); }
 api_dev()       { (cd "$API" && uv run uvicorn news_insight.main:app --reload --host 127.0.0.1 --port 8711); }
 web_dev()       { (cd "$WEB" && npm run dev); }

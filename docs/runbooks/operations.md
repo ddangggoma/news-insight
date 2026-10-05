@@ -119,3 +119,6 @@ P9 완료 기준은 7일 연속 05:00 발행 성공(또는 Fail-safe 정상 동�
   마이그레이션은 compose의 migrate 서비스가 실행합니다.
 - 개발 트리(`NEWS_INSIGHT`)에서는 어떤 브랜치를 체크아웃해도 운영 작업에 영향이 없습니다.
 - `scripts/dev.sh verify`는 더 이상 운영 DB를 마이그레이션하지 않습니다. 마이그레이션 검사는 임시 DB(`news_insight_check`)에서 합니다.
+
+- **개발 트리에서 compose를 띄우지 않습니다.** 두 트리가 같은 compose 프로젝트(`news-insight`)를 쓰지만 바인드 마운트 경로가 트리마다 달라, 다른 트리에서 `compose up`을 하면 실행 중인 컨테이너가 새로 만들어집니다. 2026-10-05 개발 트리의 `verify`(db 단계)가 운영 postgres를 다시 만들려다 Docker가 멈추지 못해 DB가 약 10분, 그 전 배포에서 약 20분 내려갔습니다. 이제 `scripts/dev.sh`의 `db`는 postgres·redis가 건강하면 건드리지 않고, `up`·`down`·`db`는 다른 트리가 띄운 스택이면 거부합니다(`FORCE=1`로만 넘김).
+- 그래도 멈추면: `docker ps -a | grep news-insight`로 이름 앞에 해시가 붙은 반쯤 만든 컨테이너를 `docker rm`, 좀비가 된 컨테이너는 `docker rm -f` 뒤 운영 트리에서 `docker compose up -d --no-deps <서비스>`. 데이터는 볼륨에 있어 안전합니다.
