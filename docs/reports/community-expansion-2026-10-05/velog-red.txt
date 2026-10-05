@@ -1,0 +1,205 @@
+FFFFFFF                                                                  [100%]
+=================================== FAILURES ===================================
+________ test_reads_public_hydration_data_without_evaluating_javascript ________
+
+    def test_reads_public_hydration_data_without_evaluating_javascript():
+>       [item] = collect([POST]).items
+                 ^^^^^^^^^^^^^^^
+
+apps/api/tests/collect/test_velog.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/api/tests/collect/test_velog.py:18: in collect
+    return CrawlerCollector(serving(page, content_type="text/html")).collect(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <news_insight.collect.crawler.CrawlerCollector object at 0x10c276de0>
+context = CollectContext(endpoint_url='https://velog.io/', config={'mode': 'velog', 'max_age_days': 30}, now=datetime.datetime(2... tzinfo=datetime.timezone.utc), etag=None, last_modified=None, last_success_at=None, headers={}, known_ids=frozenset())
+
+    def collect(self, context: CollectContext) -> CollectResult:
+        if context.config.get("mode") == "github_trending":
+            return collect_trending(self._fetcher, context)
+        if context.config.get("mode") == "auto":
+            return collect_auto(self._fetcher, context)
+        selectors: dict[str, Any] = dict(context.config.get("selectors") or {})
+        missing = [name for name in REQUIRED_SELECTORS if not selectors.get(name)]
+        if missing:
+>           raise CollectorError(
+                "config_error", f"missing selectors: {', '.join(missing)}", retryable=False
+            )
+E           news_insight.collect.contracts.CollectorError: missing selectors: item, title, link
+
+apps/api/src/news_insight/collect/crawler.py:43: CollectorError
+___________________ test_ignores_private_draft_and_old_posts ___________________
+
+    def test_ignores_private_draft_and_old_posts():
+>       assert collect([POST, {**POST, "id": "private", "is_private": True}, {**POST, "id": "draft", "is_temp": True}, {**POST, "id": "old", "released_at": "2024-01-01T00:00:00Z"}]).items[0].stable_id == "post-1"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+apps/api/tests/collect/test_velog.py:34: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/api/tests/collect/test_velog.py:18: in collect
+    return CrawlerCollector(serving(page, content_type="text/html")).collect(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <news_insight.collect.crawler.CrawlerCollector object at 0x10c277770>
+context = CollectContext(endpoint_url='https://velog.io/', config={'mode': 'velog', 'max_age_days': 30}, now=datetime.datetime(2... tzinfo=datetime.timezone.utc), etag=None, last_modified=None, last_success_at=None, headers={}, known_ids=frozenset())
+
+    def collect(self, context: CollectContext) -> CollectResult:
+        if context.config.get("mode") == "github_trending":
+            return collect_trending(self._fetcher, context)
+        if context.config.get("mode") == "auto":
+            return collect_auto(self._fetcher, context)
+        selectors: dict[str, Any] = dict(context.config.get("selectors") or {})
+        missing = [name for name in REQUIRED_SELECTORS if not selectors.get(name)]
+        if missing:
+>           raise CollectorError(
+                "config_error", f"missing selectors: {', '.join(missing)}", retryable=False
+            )
+E           news_insight.collect.contracts.CollectorError: missing selectors: item, title, link
+
+apps/api/src/news_insight/collect/crawler.py:43: CollectorError
+___ test_missing_publication_is_not_replaced_with_update_or_collection_time ____
+
+    def test_missing_publication_is_not_replaced_with_update_or_collection_time():
+>       assert collect([{**POST, "released_at": None}]).items == []
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+apps/api/tests/collect/test_velog.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/api/tests/collect/test_velog.py:18: in collect
+    return CrawlerCollector(serving(page, content_type="text/html")).collect(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <news_insight.collect.crawler.CrawlerCollector object at 0x10c2772c0>
+context = CollectContext(endpoint_url='https://velog.io/', config={'mode': 'velog', 'max_age_days': 30}, now=datetime.datetime(2... tzinfo=datetime.timezone.utc), etag=None, last_modified=None, last_success_at=None, headers={}, known_ids=frozenset())
+
+    def collect(self, context: CollectContext) -> CollectResult:
+        if context.config.get("mode") == "github_trending":
+            return collect_trending(self._fetcher, context)
+        if context.config.get("mode") == "auto":
+            return collect_auto(self._fetcher, context)
+        selectors: dict[str, Any] = dict(context.config.get("selectors") or {})
+        missing = [name for name in REQUIRED_SELECTORS if not selectors.get(name)]
+        if missing:
+>           raise CollectorError(
+                "config_error", f"missing selectors: {', '.join(missing)}", retryable=False
+            )
+E           news_insight.collect.contracts.CollectorError: missing selectors: item, title, link
+
+apps/api/src/news_insight/collect/crawler.py:43: CollectorError
+___________ test_drift_is_an_error_instead_of_successful_empty_page ____________
+
+    def test_drift_is_an_error_instead_of_successful_empty_page():
+        with pytest.raises(CollectorError, match="selector_drift"):
+>           collect(page=b'<script>self.__next_f.push([1,"malformed"])</script>')
+
+apps/api/tests/collect/test_velog.py:44: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/api/tests/collect/test_velog.py:18: in collect
+    return CrawlerCollector(serving(page, content_type="text/html")).collect(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <news_insight.collect.crawler.CrawlerCollector object at 0x10c300a70>
+context = CollectContext(endpoint_url='https://velog.io/', config={'mode': 'velog', 'max_age_days': 30}, now=datetime.datetime(2... tzinfo=datetime.timezone.utc), etag=None, last_modified=None, last_success_at=None, headers={}, known_ids=frozenset())
+
+    def collect(self, context: CollectContext) -> CollectResult:
+        if context.config.get("mode") == "github_trending":
+            return collect_trending(self._fetcher, context)
+        if context.config.get("mode") == "auto":
+            return collect_auto(self._fetcher, context)
+        selectors: dict[str, Any] = dict(context.config.get("selectors") or {})
+        missing = [name for name in REQUIRED_SELECTORS if not selectors.get(name)]
+        if missing:
+>           raise CollectorError(
+                "config_error", f"missing selectors: {', '.join(missing)}", retryable=False
+            )
+E           news_insight.collect.contracts.CollectorError: missing selectors: item, title, link
+
+apps/api/src/news_insight/collect/crawler.py:43: CollectorError
+
+During handling of the above exception, another exception occurred:
+
+    def test_drift_is_an_error_instead_of_successful_empty_page():
+>       with pytest.raises(CollectorError, match="selector_drift"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E        Regex: 'selector_drift'
+E        Input: 'missing selectors: item, title, link'
+
+apps/api/tests/collect/test_velog.py:43: AssertionError
+______________ test_repeated_hydration_records_have_one_identity _______________
+
+    def test_repeated_hydration_records_have_one_identity():
+>       assert len(collect([POST, POST]).items) == 1
+                   ^^^^^^^^^^^^^^^^^^^^^
+
+apps/api/tests/collect/test_velog.py:48: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/api/tests/collect/test_velog.py:18: in collect
+    return CrawlerCollector(serving(page, content_type="text/html")).collect(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <news_insight.collect.crawler.CrawlerCollector object at 0x10c3023f0>
+context = CollectContext(endpoint_url='https://velog.io/', config={'mode': 'velog', 'max_age_days': 30}, now=datetime.datetime(2... tzinfo=datetime.timezone.utc), etag=None, last_modified=None, last_success_at=None, headers={}, known_ids=frozenset())
+
+    def collect(self, context: CollectContext) -> CollectResult:
+        if context.config.get("mode") == "github_trending":
+            return collect_trending(self._fetcher, context)
+        if context.config.get("mode") == "auto":
+            return collect_auto(self._fetcher, context)
+        selectors: dict[str, Any] = dict(context.config.get("selectors") or {})
+        missing = [name for name in REQUIRED_SELECTORS if not selectors.get(name)]
+        if missing:
+>           raise CollectorError(
+                "config_error", f"missing selectors: {', '.join(missing)}", retryable=False
+            )
+E           news_insight.collect.contracts.CollectorError: missing selectors: item, title, link
+
+apps/api/src/news_insight/collect/crawler.py:43: CollectorError
+_________ test_conditional_response_does_not_require_a_hydration_page __________
+
+    def test_conditional_response_does_not_require_a_hydration_page():
+>       result = CrawlerCollector(serving(b'', status=304, content_type='text/html')).collect(
+            CollectContext(endpoint_url='https://velog.io/', config={'mode': 'velog'}, now=NOW, etag='old')
+        )
+
+apps/api/tests/collect/test_velog.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <news_insight.collect.crawler.CrawlerCollector object at 0x10c303650>
+context = CollectContext(endpoint_url='https://velog.io/', config={'mode': 'velog'}, now=datetime.datetime(2026, 10, 5, 0, 0, tzinfo=datetime.timezone.utc), etag='old', last_modified=None, last_success_at=None, headers={}, known_ids=frozenset())
+
+    def collect(self, context: CollectContext) -> CollectResult:
+        if context.config.get("mode") == "github_trending":
+            return collect_trending(self._fetcher, context)
+        if context.config.get("mode") == "auto":
+            return collect_auto(self._fetcher, context)
+        selectors: dict[str, Any] = dict(context.config.get("selectors") or {})
+        missing = [name for name in REQUIRED_SELECTORS if not selectors.get(name)]
+        if missing:
+>           raise CollectorError(
+                "config_error", f"missing selectors: {', '.join(missing)}", retryable=False
+            )
+E           news_insight.collect.contracts.CollectorError: missing selectors: item, title, link
+
+apps/api/src/news_insight/collect/crawler.py:43: CollectorError
+_________________ test_velog_hydration_mode_keeps_robots_gate __________________
+
+    def test_velog_hydration_mode_keeps_robots_gate() -> None:
+        source = unreviewed(access_method=AccessMethod.CRAWLER, config={"mode": "velog"})
+>       assert check_auto_policy(source, site(robots("User-agent: *\nAllow: /"))).passed
+E       AssertionError: assert False
+E        +  where False = CheckResult(passed=False, reasons=['crawler needs config.selectors or config.mode=auto'], metrics={'auto_approved': False, 'robots': 'robots.txt allows /feed.xml', 'storage_right': 'excerpt_allowed'}).passed
+E        +    where CheckResult(passed=False, reasons=['crawler needs config.selectors or config.mode=auto'], metrics={'auto_approved': False, 'robots': 'robots.txt allows /feed.xml', 'storage_right': 'excerpt_allowed'}) = check_auto_policy(<news_insight.sources.models.Source object at 0x10c1f6ea0>, <news_insight.net.safe_fetch.SafeFetcher object at 0x10c39a8d0>)
+E        +      where <news_insight.net.safe_fetch.SafeFetcher object at 0x10c39a8d0> = site(<Response [200 OK]>)
+E        +        where <Response [200 OK]> = robots('User-agent: *\nAllow: /')
+
+apps/api/tests/sources/test_auto_policy.py:143: AssertionError
+=========================== short test summary info ============================
+FAILED apps/api/tests/collect/test_velog.py::test_reads_public_hydration_data_without_evaluating_javascript
+FAILED apps/api/tests/collect/test_velog.py::test_ignores_private_draft_and_old_posts
+FAILED apps/api/tests/collect/test_velog.py::test_missing_publication_is_not_replaced_with_update_or_collection_time
+FAILED apps/api/tests/collect/test_velog.py::test_drift_is_an_error_instead_of_successful_empty_page
+FAILED apps/api/tests/collect/test_velog.py::test_repeated_hydration_records_have_one_identity
+FAILED apps/api/tests/collect/test_velog.py::test_conditional_response_does_not_require_a_hydration_page
+FAILED apps/api/tests/sources/test_auto_policy.py::test_velog_hydration_mode_keeps_robots_gate

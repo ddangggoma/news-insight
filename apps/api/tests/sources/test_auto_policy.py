@@ -136,3 +136,9 @@ def test_feeds_are_read_as_a_feed_reader_but_sitemaps_keep_robots(
 
     assert feed.passed and feed.metrics["robots"].startswith("feed reader:")
     assert not sitemap.passed
+
+
+def test_velog_hydration_mode_keeps_robots_gate() -> None:
+    source = unreviewed(access_method=AccessMethod.CRAWLER, config={"mode": "velog"})
+    assert check_auto_policy(source, site(robots("User-agent: *\nAllow: /"))).passed
+    assert not check_auto_policy(source, site(robots("User-agent: *\nDisallow: /"))).passed

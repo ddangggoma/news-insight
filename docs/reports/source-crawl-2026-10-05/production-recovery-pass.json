@@ -1,0 +1,355 @@
+[
+  {
+    "key": "research-etri",
+    "endpoint": "https://www.etri.re.kr/kor/bbs/list.etri?b_board_id=ETRI06",
+    "started_at": "2026-10-05T13:12:03.922546+00:00",
+    "checks": [],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 8,
+      "items_new": 0,
+      "items_updated": 0,
+      "items_unchanged": 8,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 282,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 13,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T13:12:04.246064+00:00"
+  },
+  {
+    "key": "research-riken",
+    "endpoint": "https://www.riken.jp/feed/press_feed/",
+    "started_at": "2026-10-05T13:12:04.246505+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "www.riken.jp"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "feed reader: robots.txt not applied to the feed (no robots.txt (404): https://www.riken.jp/robots.txt)",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/xml",
+          "bytes": 21652,
+          "redirects": 0,
+          "elapsed_ms": 52
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "entries": 50,
+          "complete": 50,
+          "recent": 27
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 50,
+      "items_new": 50,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 15,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 50,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T13:12:07.331095+00:00"
+  },
+  {
+    "key": "research-aist",
+    "endpoint": "https://www.aist.go.jp/ctl/module/mid/27/tid/75/rss.php",
+    "started_at": "2026-10-05T13:12:07.331376+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "www.aist.go.jp"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "feed reader: robots.txt not applied to the feed (robots.txt allows /ctl/module/mid/27/tid/75/rss.php)",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/rss+xml",
+          "bytes": 3516,
+          "redirects": 0,
+          "elapsed_ms": 174
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "entries": 6,
+          "complete": 6,
+          "recent": 6
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 6,
+      "items_new": 6,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 26,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 6,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T13:12:10.398574+00:00"
+  },
+  {
+    "key": "github-trending-repositories-daily",
+    "endpoint": "https://github.com/trending?since=daily",
+    "started_at": "2026-10-05T13:12:10.399145+00:00",
+    "checks": [],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 12,
+      "items_new": 0,
+      "items_updated": 0,
+      "items_unchanged": 12,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 1111,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 12,
+    "metric_snapshots": 12,
+    "finished_at": "2026-10-05T13:12:11.546886+00:00"
+  },
+  {
+    "key": "github-trending-repositories-weekly",
+    "endpoint": "https://github.com/trending?since=weekly",
+    "started_at": "2026-10-05T13:12:11.547235+00:00",
+    "checks": [],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 21,
+      "items_new": 0,
+      "items_updated": 0,
+      "items_unchanged": 21,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 1520,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 21,
+    "metric_snapshots": 21,
+    "finished_at": "2026-10-05T13:12:13.110203+00:00"
+  },
+  {
+    "key": "github-trending-repositories-monthly",
+    "endpoint": "https://github.com/trending?since=monthly",
+    "started_at": "2026-10-05T13:12:13.110607+00:00",
+    "checks": [],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 23,
+      "items_new": 0,
+      "items_updated": 0,
+      "items_unchanged": 23,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 2083,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 23,
+    "metric_snapshots": 23,
+    "finished_at": "2026-10-05T13:12:15.241024+00:00"
+  },
+  {
+    "key": "github-trending-developers-daily",
+    "endpoint": "https://github.com/trending/developers?since=daily",
+    "started_at": "2026-10-05T13:12:15.241568+00:00",
+    "checks": [],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 25,
+      "items_new": 0,
+      "items_updated": 0,
+      "items_unchanged": 25,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 1331,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 25,
+    "metric_snapshots": 25,
+    "finished_at": "2026-10-05T13:12:16.613220+00:00"
+  },
+  {
+    "key": "github-trending-developers-weekly",
+    "endpoint": "https://github.com/trending/developers?since=weekly",
+    "started_at": "2026-10-05T13:12:16.613799+00:00",
+    "checks": [],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 25,
+      "items_new": 0,
+      "items_updated": 0,
+      "items_unchanged": 25,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 816,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 25,
+    "metric_snapshots": 25,
+    "finished_at": "2026-10-05T13:12:17.470549+00:00"
+  },
+  {
+    "key": "github-trending-developers-monthly",
+    "endpoint": "https://github.com/trending/developers?since=monthly",
+    "started_at": "2026-10-05T13:12:17.471202+00:00",
+    "checks": [],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 25,
+      "items_new": 0,
+      "items_updated": 0,
+      "items_unchanged": 25,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 1309,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 25,
+    "metric_snapshots": 25,
+    "finished_at": "2026-10-05T13:12:18.968066+00:00"
+  },
+  {
+    "key": "epo-publication-server",
+    "endpoint": "https://data.epo.org/publication-server/rest/v1.2/publication-dates",
+    "started_at": "2026-10-05T13:12:18.968885+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "data.epo.org"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "not applicable: documented API",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "text/html",
+          "bytes": 221954,
+          "redirects": 0,
+          "elapsed_ms": 1519
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "items": 20,
+          "dated": 20,
+          "recent": 20
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 20,
+      "items_new": 20,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 10003,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 20,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T13:13:04.548815+00:00"
+  }
+]

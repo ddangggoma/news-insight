@@ -1,0 +1,407 @@
+version: 1
+sources:
+- key: news-etnews
+  name: 전자신문
+  country: 한국
+  fields:
+  - ai
+  - connectivity
+  - manufacturing
+  url: https://rss.etnews.com/Section901.xml
+  existing_key: etnews
+  method: feed
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 14400
+  policy_review: pending
+  storage: metadata_only
+  enabled_in_production: false
+  notes: 뉴스 편집·광고 구분; 본문 재배포 권리 미확인
+- key: news-thelec
+  name: 디일렉
+  country: 한국
+  fields:
+  - semis
+  - display_av
+  url: https://www.thelec.kr/rss/allArticle.xml
+  existing_key: thelec
+  method: feed
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 14400
+  policy_review: pending
+  storage: metadata_only
+  enabled_in_production: false
+  notes: 뉴스 편집·광고 구분; 본문 재배포 권리 미확인
+- key: news-the-register
+  name: The Register
+  country: 영국
+  fields:
+  - cloud_data
+  - security
+  url: https://www.theregister.com/headlines.atom
+  existing_key: the-register
+  method: feed
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 14400
+  policy_review: pending
+  storage: metadata_only
+  enabled_in_production: false
+  notes: 뉴스 편집·광고 구분; 본문 재배포 권리 미확인
+- key: news-itmedia-news
+  name: ITmedia NEWS
+  country: 일본
+  fields:
+  - platform_sw
+  - ai
+  url: https://rss.itmedia.co.jp/rss/2.0/news_bursts.xml
+  existing_key: itmedia-news
+  method: feed
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 14400
+  policy_review: pending
+  storage: metadata_only
+  enabled_in_production: false
+  notes: 뉴스 편집·광고 구분; 본문 재배포 권리 미확인
+- key: news-ithome-tw
+  name: iThome 台灣
+  country: 대만
+  fields:
+  - platform_sw
+  - security
+  url: https://www.ithome.com.tw/rss
+  existing_key: ithome-tw
+  method: feed
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 14400
+  policy_review: pending
+  storage: metadata_only
+  enabled_in_production: false
+  notes: 뉴스 편집·광고 구분; 본문 재배포 권리 미확인
+- key: news-ithome-cn
+  name: IT之家
+  country: 중국
+  fields:
+  - platform_sw
+  - semis
+  url: https://www.ithome.com/rss/
+  existing_key: ithome-cn
+  method: feed
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 14400
+  policy_review: pending
+  storage: metadata_only
+  enabled_in_production: false
+  notes: 뉴스 편집·광고 구분; 본문 재배포 권리 미확인
+- key: news-heise
+  name: heise online
+  country: 독일
+  fields:
+  - security
+  - platform_sw
+  url: https://www.heise.de/rss/heise-atom.xml
+  existing_key: heise
+  method: feed
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 14400
+  policy_review: pending
+  storage: metadata_only
+  enabled_in_production: false
+  notes: 뉴스 편집·광고 구분; 본문 재배포 권리 미확인
+- key: news-golem
+  name: Golem.de
+  country: 독일
+  fields:
+  - platform_sw
+  - semis
+  url: https://rss.golem.de/rss.php?feed=RSS2.0
+  existing_key: golem
+  method: feed
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 14400
+  policy_review: pending
+  storage: metadata_only
+  enabled_in_production: false
+  notes: 뉴스 편집·광고 구분; 본문 재배포 권리 미확인
+- key: news-36kr
+  name: 36氪
+  country: 중국
+  fields:
+  - ai
+  - cloud_data
+  url: https://www.36kr.com/feed
+  existing_key: 36kr
+  method: feed
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 14400
+  policy_review: pending
+  storage: metadata_only
+  enabled_in_production: false
+  notes: 뉴스 편집·광고 구분; 본문 재배포 권리 미확인
+- key: news-sifted
+  name: Sifted
+  country: 영국·유럽
+  fields:
+  - ai
+  - platform_sw
+  url: https://sifted.eu/feed
+  existing_key: sifted
+  method: feed
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 14400
+  policy_review: pending
+  storage: metadata_only
+  enabled_in_production: false
+  notes: 뉴스 편집·광고 구분; 본문 재배포 권리 미확인
+- key: news-eetimes
+  name: EE Times
+  country: 미국·국제
+  fields:
+  - semis
+  url: https://www.eetimes.com/feed/
+  existing_key: eetimes
+  method: feed
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 14400
+  policy_review: pending
+  storage: metadata_only
+  enabled_in_production: false
+  notes: 뉴스 편집·광고 구분; 본문 재배포 권리 미확인
+- key: news-hackaday
+  name: Hackaday
+  country: 미국·국제
+  fields:
+  - manufacturing
+  - robotics_mobility
+  url: https://hackaday.com/blog/feed/
+  existing_key: hackaday
+  method: feed
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 14400
+  policy_review: pending
+  storage: metadata_only
+  enabled_in_production: false
+  notes: 뉴스 편집·광고 구분; 본문 재배포 권리 미확인
+- key: news-cnx-software
+  name: CNX Software
+  country: 국제
+  fields:
+  - connectivity
+  - semis
+  url: https://www.cnx-software.com/feed/
+  existing_key: cnx-software
+  method: feed
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 14400
+  policy_review: pending
+  storage: metadata_only
+  enabled_in_production: false
+  notes: 뉴스 편집·광고 구분; 본문 재배포 권리 미확인
+- key: news-semiengineering
+  name: Semiconductor Engineering
+  country: 미국·국제
+  fields:
+  - semis
+  url: https://semiengineering.com/feed/
+  existing_key: semiengineering
+  method: feed
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 14400
+  policy_review: pending
+  storage: metadata_only
+  enabled_in_production: false
+  notes: 뉴스 편집·광고 구분; 본문 재배포 권리 미확인
+- key: news-tech-eu
+  name: Tech.eu
+  country: 유럽
+  fields:
+  - ai
+  - platform_sw
+  url: https://tech.eu/feed/
+  existing_key: tech-eu
+  method: feed
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 14400
+  policy_review: pending
+  storage: metadata_only
+  enabled_in_production: false
+  notes: 뉴스 편집·광고 구분; 본문 재배포 권리 미확인
+- key: news-eetimes-japan
+  name: EE Times Japan
+  country: 일본
+  fields:
+  - semis
+  url: https://rss.itmedia.co.jp/rss/2.0/eetimes.xml
+  existing_key: eetimes-japan
+  method: feed
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 14400
+  policy_review: pending
+  storage: metadata_only
+  enabled_in_production: false
+  notes: 뉴스 편집·광고 구분; 본문 재배포 권리 미확인
+- key: news-nikkei-xtech
+  name: 日経クロステック
+  country: 일본
+  fields:
+  - manufacturing
+  - connectivity
+  url: https://xtech.nikkei.com/rss/index.rdf
+  existing_key: nikkei-xtech
+  method: feed
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 14400
+  policy_review: pending
+  storage: metadata_only
+  enabled_in_production: false
+  notes: 뉴스 편집·광고 구분; 본문 재배포 권리 미확인
+- key: news-digitimes-asia
+  name: DIGITIMES Asia
+  country: 대만
+  fields:
+  - semis
+  url: https://www.digitimes.com/rss/daily.xml
+  existing_key: digitimes-asia
+  method: feed
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 14400
+  policy_review: pending
+  storage: metadata_only
+  enabled_in_production: false
+  notes: 뉴스 편집·광고 구분; 본문 재배포 권리 미확인
+- key: news-betakit
+  name: BetaKit
+  country: 캐나다
+  fields:
+  - platform_sw
+  - ai
+  url: https://betakit.com/feed/
+  existing_key: ''
+  method: feed
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 14400
+  policy_review: pending
+  storage: metadata_only
+  enabled_in_production: false
+  notes: 뉴스 편집·광고 구분; 본문 재배포 권리 미확인
+- key: news-itnews-au
+  name: iTnews Australia
+  country: 호주
+  fields:
+  - cloud_data
+  - security
+  url: https://www.itnews.com.au/RSS/rss.ashx
+  existing_key: ''
+  method: feed
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 14400
+  policy_review: pending
+  storage: metadata_only
+  enabled_in_production: false
+  notes: 뉴스 편집·광고 구분; 본문 재배포 권리 미확인
+- key: news-lemondeinformatique
+  name: Le Monde Informatique
+  country: 프랑스
+  fields:
+  - cloud_data
+  - security
+  url: https://www.lemondeinformatique.fr/flux-rss/thematique/toutes-les-actualites/rss.xml
+  existing_key: ''
+  method: feed
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 14400
+  policy_review: pending
+  storage: metadata_only
+  enabled_in_production: false
+  notes: 뉴스 편집·광고 구분; 본문 재배포 권리 미확인
+- key: news-yourstory
+  name: YourStory
+  country: 인도
+  fields:
+  - ai
+  - platform_sw
+  url: https://yourstory.com/feed
+  existing_key: ''
+  method: feed
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 14400
+  policy_review: pending
+  storage: metadata_only
+  enabled_in_production: false
+  notes: 뉴스 편집·광고 구분; 본문 재배포 권리 미확인
+- key: news-techcabal
+  name: TechCabal
+  country: 나이지리아·아프리카
+  fields:
+  - platform_sw
+  - cloud_data
+  url: https://techcabal.com/feed/
+  existing_key: ''
+  method: feed
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 14400
+  policy_review: pending
+  storage: metadata_only
+  enabled_in_production: false
+  notes: 뉴스 편집·광고 구분; 본문 재배포 권리 미확인
+- key: news-restofworld
+  name: Rest of World
+  country: 국제·신흥시장
+  fields:
+  - platform_sw
+  - ai
+  url: https://restofworld.org/feed/
+  existing_key: rest-of-world;bluesky-restofworld-org
+  method: feed
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 14400
+  policy_review: pending
+  storage: metadata_only
+  enabled_in_production: false
+  notes: 뉴스 편집·광고 구분; 본문 재배포 권리 미확인

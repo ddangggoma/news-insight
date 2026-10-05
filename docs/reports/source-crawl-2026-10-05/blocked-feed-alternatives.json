@@ -1,0 +1,58 @@
+[
+  {
+    "key": "healthcare-it-news",
+    "url": "https://www.healthcareitnews.com/rss.xml",
+    "http_status": 403,
+    "passed": false,
+    "reasons": [
+      "feed could not be parsed: <unknown>:2:1326: not well-formed (invalid token)"
+    ],
+    "metrics": {
+      "entries": 0,
+      "complete": 0,
+      "recent": 0
+    }
+  },
+  {
+    "key": "mobihealthnews",
+    "url": "https://www.mobihealthnews.com/rss.xml",
+    "http_status": 403,
+    "passed": false,
+    "reasons": [
+      "feed could not be parsed: <unknown>:2:1326: not well-formed (invalid token)"
+    ],
+    "metrics": {
+      "entries": 0,
+      "complete": 0,
+      "recent": 0
+    }
+  },
+  {
+    "key": "display-daily",
+    "url": "https://displaydaily.com/feed/",
+    "http_status": 403,
+    "passed": false,
+    "reasons": [
+      "feed could not be parsed: <unknown>:2:1326: not well-formed (invalid token)"
+    ],
+    "metrics": {
+      "entries": 0,
+      "complete": 0,
+      "recent": 0
+    }
+  },
+  {
+    "key": "tech-in-asia",
+    "url": "https://www.techinasia.com/feed",
+    "http_status": 403,
+    "passed": false,
+    "reasons": [
+      "feed could not be parsed: no entries"
+    ],
+    "metrics": {
+      "entries": 0,
+      "complete": 0,
+      "recent": 0
+    }
+  }
+]

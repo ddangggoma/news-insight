@@ -1,0 +1,113 @@
+[
+  {
+    "name": "Nature Electronics",
+    "status": 200,
+    "matches": [
+      {
+        "title": "Nature Electronics",
+        "issn": [
+          "2520-1131"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Nature Biomedical Engineering",
+    "status": 200,
+    "matches": [
+      {
+        "title": "Nature Biomedical Engineering",
+        "issn": [
+          "2157-846X"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Nature Machine Intelligence",
+    "status": 200,
+    "matches": [
+      {
+        "title": "Nature Machine Intelligence",
+        "issn": [
+          "2522-5839"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Communications Engineering",
+    "status": 200,
+    "matches": [
+      {
+        "title": "Communications Engineering",
+        "issn": [
+          "2731-3395"
+        ]
+      },
+      {
+        "title": "Chemical Engineering Communications",
+        "issn": [
+          "0098-6445",
+          "1563-5201"
+        ]
+      },
+      {
+        "title": "Metabolic Engineering Communications",
+        "issn": [
+          "2214-0301"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "npj Robotics",
+    "status": 200,
+    "matches": [
+      {
+        "title": "npj Robotics",
+        "issn": [
+          "2731-4278"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Microsystems & Nanoengineering",
+    "status": 200,
+    "matches": [
+      {
+        "title": "Microsystems & Nanoengineering",
+        "issn": [
+          "2055-7434"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "npj Flexible Electronics",
+    "status": 200,
+    "matches": [
+      {
+        "title": "npj Flexible Electronics",
+        "issn": [
+          "2397-4621"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Nature Photonics",
+    "status": 200,
+    "matches": [
+      {
+        "title": "Nature Photonics",
+        "issn": [
+          "1749-4885",
+          "1749-4893",
+          "9999-9999"
+        ]
+      }
+    ]
+  }
+]

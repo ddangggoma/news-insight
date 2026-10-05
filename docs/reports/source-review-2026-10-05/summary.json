@@ -1,0 +1,546 @@
+{
+  "summary": {
+    "snapshot_at": "2026-10-05T05:24:27.451373+00:00",
+    "items_total": 116773,
+    "oldest_seen": "2026-10-03T16:33:20.671273+00:00",
+    "newest_seen": "2026-10-05T05:24:13.427449+00:00"
+  },
+  "fields": [
+    {
+      "n": 4420,
+      "field": "ai"
+    },
+    {
+      "n": 4034,
+      "field": "platform_sw"
+    },
+    {
+      "n": 2639,
+      "field": "security"
+    },
+    {
+      "n": 1844,
+      "field": "semis"
+    },
+    {
+      "n": 1767,
+      "field": "robotics_mobility"
+    },
+    {
+      "n": 1627,
+      "field": "connectivity"
+    },
+    {
+      "n": 1416,
+      "field": null
+    },
+    {
+      "n": 1152,
+      "field": "cloud_data"
+    },
+    {
+      "n": 1080,
+      "field": "display_av"
+    },
+    {
+      "n": 803,
+      "field": "health_tech"
+    },
+    {
+      "n": 548,
+      "field": "manufacturing"
+    },
+    {
+      "n": 494,
+      "field": "energy"
+    },
+    {
+      "n": 419,
+      "field": "frontier"
+    }
+  ],
+  "briefings": [
+    {
+      "status": "blocked",
+      "briefing_date": "2026-10-05",
+      "shortlist_count": 60
+    },
+    {
+      "status": "blocked",
+      "briefing_date": "2026-10-05",
+      "shortlist_count": 60
+    },
+    {
+      "status": "blocked",
+      "briefing_date": "2026-10-05",
+      "shortlist_count": 60
+    },
+    {
+      "status": "blocked",
+      "briefing_date": "2026-10-04",
+      "shortlist_count": 0
+    }
+  ],
+  "oss_metrics": {
+    "metric_items": 3160,
+    "unique_urls": 2873,
+    "first_metric": "2026-10-04T02:39:25.766245+00:00",
+    "last_metric": "2026-10-05T05:14:13.189164+00:00",
+    "two_points": 1321,
+    "seven_day_spans": 0,
+    "thirty_day_spans": 0
+  },
+  "dedup": {
+    "n": 116773,
+    "unique_urls": 108905,
+    "unique_hashes": 102684
+  },
+  "source_status": {
+    "candidate": 1195,
+    "active": 46,
+    "paused": 32,
+    "retired": 36
+  },
+  "track": [
+    {
+      "key": "news",
+      "sources": 489,
+      "items7d": 60859,
+      "items24h": 37920,
+      "cards": 41113,
+      "reader_eligible": 9875,
+      "old": 24186,
+      "no_date": 109
+    },
+    {
+      "key": "community",
+      "sources": 435,
+      "items7d": 42427,
+      "items24h": 21726,
+      "cards": 23370,
+      "reader_eligible": 8518,
+      "old": 18233,
+      "no_date": 0
+    },
+    {
+      "key": "research_ip",
+      "sources": 211,
+      "items7d": 8560,
+      "items24h": 3879,
+      "cards": 3185,
+      "reader_eligible": 2312,
+      "old": 497,
+      "no_date": 0
+    },
+    {
+      "key": "oss",
+      "sources": 174,
+      "items7d": 4927,
+      "items24h": 3590,
+      "cards": 2450,
+      "reader_eligible": 1538,
+      "old": 1341,
+      "no_date": 0
+    }
+  ],
+  "access_method": [
+    {
+      "key": "sitemap",
+      "sources": 84,
+      "items7d": 62838,
+      "items24h": 47510,
+      "cards": 50680,
+      "reader_eligible": 9635,
+      "old": 34685,
+      "no_date": 0
+    },
+    {
+      "key": "feed",
+      "sources": 580,
+      "items7d": 21158,
+      "items24h": 4741,
+      "cards": 5554,
+      "reader_eligible": 2846,
+      "old": 3473,
+      "no_date": 0
+    },
+    {
+      "key": "json_api",
+      "sources": 279,
+      "items7d": 11372,
+      "items24h": 2458,
+      "cards": 3549,
+      "reader_eligible": 1911,
+      "old": 5392,
+      "no_date": 0
+    },
+    {
+      "key": "activitypub",
+      "sources": 62,
+      "items7d": 11267,
+      "items24h": 5851,
+      "cards": 5650,
+      "reader_eligible": 4403,
+      "old": 3,
+      "no_date": 0
+    },
+    {
+      "key": "research_api",
+      "sources": 130,
+      "items7d": 4325,
+      "items24h": 2492,
+      "cards": 2400,
+      "reader_eligible": 1784,
+      "old": 44,
+      "no_date": 0
+    },
+    {
+      "key": "github",
+      "sources": 119,
+      "items7d": 3509,
+      "items24h": 3509,
+      "cards": 1185,
+      "reader_eligible": 1116,
+      "old": 451,
+      "no_date": 0
+    },
+    {
+      "key": "crawler",
+      "sources": 27,
+      "items7d": 1247,
+      "items24h": 403,
+      "cards": 927,
+      "reader_eligible": 443,
+      "old": 123,
+      "no_date": 109
+    },
+    {
+      "key": "atproto",
+      "sources": 28,
+      "items7d": 1057,
+      "items24h": 151,
+      "cards": 173,
+      "reader_eligible": 105,
+      "old": 86,
+      "no_date": 0
+    }
+  ],
+  "region": [
+    {
+      "key": "global_en",
+      "sources": 891,
+      "items7d": 59849,
+      "items24h": 33150,
+      "cards": 33697,
+      "reader_eligible": 11124,
+      "old": 28105,
+      "no_date": 0
+    },
+    {
+      "key": "eu_other",
+      "sources": 192,
+      "items7d": 23916,
+      "items24h": 12827,
+      "cards": 13457,
+      "reader_eligible": 6523,
+      "old": 6281,
+      "no_date": 93
+    },
+    {
+      "key": "kr",
+      "sources": 140,
+      "items7d": 19620,
+      "items24h": 12191,
+      "cards": 14581,
+      "reader_eligible": 2165,
+      "old": 5696,
+      "no_date": 8
+    },
+    {
+      "key": "greater_china",
+      "sources": 35,
+      "items7d": 8092,
+      "items24h": 5908,
+      "cards": 5373,
+      "reader_eligible": 1927,
+      "old": 1350,
+      "no_date": 8
+    },
+    {
+      "key": "jp",
+      "sources": 51,
+      "items7d": 5296,
+      "items24h": 3039,
+      "cards": 3010,
+      "reader_eligible": 504,
+      "old": 2825,
+      "no_date": 0
+    }
+  ],
+  "official_domain": [
+    {
+      "key": "mastodon.social",
+      "sources": 59,
+      "items7d": 10695,
+      "items24h": 5547,
+      "cards": 5346,
+      "reader_eligible": 4161,
+      "old": 3,
+      "no_date": 0
+    },
+    {
+      "key": "algolia.com",
+      "sources": 98,
+      "items7d": 6396,
+      "items24h": 393,
+      "cards": 1112,
+      "reader_eligible": 252,
+      "old": 4171,
+      "no_date": 0
+    },
+    {
+      "key": "github.com",
+      "sources": 149,
+      "items7d": 3852,
+      "items24h": 3552,
+      "cards": 1457,
+      "reader_eligible": 1243,
+      "old": 603,
+      "no_date": 0
+    },
+    {
+      "key": "arxiv.org",
+      "sources": 44,
+      "items7d": 2997,
+      "items24h": 837,
+      "cards": 325,
+      "reader_eligible": 317,
+      "old": 21,
+      "no_date": 0
+    },
+    {
+      "key": "dev.to",
+      "sources": 55,
+      "items7d": 2877,
+      "items24h": 879,
+      "cards": 994,
+      "reader_eligible": 950,
+      "old": 305,
+      "no_date": 0
+    },
+    {
+      "key": "freebsd.org",
+      "sources": 1,
+      "items7d": 1935,
+      "items24h": 1635,
+      "cards": 1639,
+      "reader_eligible": 121,
+      "old": 1778,
+      "no_date": 0
+    },
+    {
+      "key": "deeplearning.ai",
+      "sources": 1,
+      "items7d": 1935,
+      "items24h": 1635,
+      "cards": 1633,
+      "reader_eligible": 36,
+      "old": 1880,
+      "no_date": 0
+    },
+    {
+      "key": "wishket.com",
+      "sources": 1,
+      "items7d": 1935,
+      "items24h": 1635,
+      "cards": 1656,
+      "reader_eligible": 38,
+      "old": 1894,
+      "no_date": 0
+    },
+    {
+      "key": "zigbee2mqtt.io",
+      "sources": 1,
+      "items7d": 1935,
+      "items24h": 1635,
+      "cards": 1642,
+      "reader_eligible": 653,
+      "old": 1203,
+      "no_date": 0
+    },
+    {
+      "key": "openwrt.org",
+      "sources": 1,
+      "items7d": 1906,
+      "items24h": 1606,
+      "cards": 1548,
+      "reader_eligible": 141,
+      "old": 1745,
+      "no_date": 0
+    },
+    {
+      "key": "openalex.org",
+      "sources": 76,
+      "items7d": 1845,
+      "items24h": 1845,
+      "cards": 1784,
+      "reader_eligible": 1432,
+      "old": 5,
+      "no_date": 0
+    },
+    {
+      "key": "mobiledevmemo.com",
+      "sources": 1,
+      "items7d": 1674,
+      "items24h": 1374,
+      "cards": 1376,
+      "reader_eligible": 641,
+      "old": 28,
+      "no_date": 0
+    },
+    {
+      "key": "ebi.ac.uk",
+      "sources": 33,
+      "items7d": 1600,
+      "items24h": 43,
+      "cards": 63,
+      "reader_eligible": 46,
+      "old": 0,
+      "no_date": 0
+    },
+    {
+      "key": "infineon.com",
+      "sources": 1,
+      "items7d": 1425,
+      "items24h": 1215,
+      "cards": 1058,
+      "reader_eligible": 1015,
+      "old": 0,
+      "no_date": 0
+    },
+    {
+      "key": "itri.org.tw",
+      "sources": 1,
+      "items7d": 1425,
+      "items24h": 1215,
+      "cards": 1157,
+      "reader_eligible": 446,
+      "old": 0,
+      "no_date": 0
+    }
+  ],
+  "items7d_concentration": {
+    "total": 116773,
+    "top1": 0.01657061135707741,
+    "top5": 0.08260471170561688,
+    "top10": 0.1494523562809896,
+    "hhi": 63.64006015095617,
+    "top": [
+      [
+        "freebsd-news-web",
+        1935
+      ],
+      [
+        "the-batch-web",
+        1935
+      ],
+      [
+        "yozm-it-web",
+        1935
+      ],
+      [
+        "zigbee2mqtt-web",
+        1935
+      ],
+      [
+        "openwrt-news-web",
+        1906
+      ],
+      [
+        "mastodon-mastodon-ai",
+        1857
+      ],
+      [
+        "mobile-dev-memo-web",
+        1674
+      ],
+      [
+        "infineon-news-web",
+        1425
+      ],
+      [
+        "itri-news-web",
+        1425
+      ],
+      [
+        "moda-tw-web",
+        1425
+      ],
+      [
+        "mila-news-web",
+        1410
+      ],
+      [
+        "uspto-news-web",
+        1389
+      ]
+    ]
+  },
+  "reader_eligible_concentration": {
+    "total": 22243,
+    "top1": 0.04563233376792699,
+    "top5": 0.1795621094276851,
+    "top10": 0.28363979679000134,
+    "hhi": 122.89952719231123,
+    "top": [
+      [
+        "infineon-news-web",
+        1015
+      ],
+      [
+        "mastodon-mastodon-ai",
+        950
+      ],
+      [
+        "waymo-web",
+        735
+      ],
+      [
+        "zigbee2mqtt-web",
+        653
+      ],
+      [
+        "mobile-dev-memo-web",
+        641
+      ],
+      [
+        "moda-tw-web",
+        625
+      ],
+      [
+        "mastodon-tag-cybersecurity",
+        471
+      ],
+      [
+        "itri-news-web",
+        446
+      ],
+      [
+        "stanford-hai-web",
+        398
+      ],
+      [
+        "mastodon-tag-technology",
+        375
+      ],
+      [
+        "nhn-cloud-meetup-web",
+        366
+      ],
+      [
+        "uspto-news-web",
+        363
+      ]
+    ]
+  }
+}

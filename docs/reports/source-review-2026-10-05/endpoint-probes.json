@@ -1,0 +1,1131 @@
+[
+  {
+    "name": "etnews",
+    "kind": "feed",
+    "url": "https://rss.etnews.com/Section901.xml",
+    "origin": "catalog",
+    "checked_at": "2026-10-05T05:25:22.529019+00:00",
+    "status": 200,
+    "final_url": "https://rss.etnews.com/Section901.xml",
+    "content_type": "text/xml",
+    "bytes": 33786,
+    "entries": 30,
+    "feed_title": "오늘의뉴스 - 이티뉴스",
+    "sample_dates": [
+      "Mon, 5 Oct 2026 14:00:00 +0900",
+      "Mon, 5 Oct 2026 14:00:00 +0900",
+      "Mon, 5 Oct 2026 14:00:00 +0900"
+    ],
+    "sample_urls": [
+      "https://www.etnews.com/20261005000033",
+      "https://www.etnews.com/20261005000012",
+      "https://www.etnews.com/20261001000448"
+    ],
+    "parse_warning": false
+  },
+  {
+    "name": "thelec",
+    "kind": "feed",
+    "url": "https://www.thelec.kr/rss/allArticle.xml",
+    "origin": "catalog",
+    "checked_at": "2026-10-05T05:25:22.529425+00:00",
+    "status": 200,
+    "final_url": "https://www.thelec.kr/rss/allArticle.xml",
+    "content_type": "application/xml",
+    "bytes": 51706,
+    "entries": 50,
+    "feed_title": "디일렉(THE ELEC) - 전체기사",
+    "sample_dates": [
+      "2026-10-05 12:26:15",
+      "2026-10-05 12:21:13",
+      "2026-10-05 08:00:00"
+    ],
+    "sample_urls": [
+      "https://www.thelec.kr/news/articleView.html?idxno=63239",
+      "https://www.thelec.kr/news/articleView.html?idxno=63232",
+      "https://www.thelec.kr/news/articleView.html?idxno=63203"
+    ],
+    "parse_warning": false
+  },
+  {
+    "name": "the-verge",
+    "kind": "feed",
+    "url": "https://www.theverge.com/rss/index.xml",
+    "origin": "catalog",
+    "checked_at": "2026-10-05T05:25:22.529538+00:00",
+    "status": 200,
+    "final_url": "https://www.theverge.com/rss/index.xml",
+    "content_type": "application/xml; charset=UTF-8",
+    "bytes": 74784,
+    "entries": 10,
+    "feed_title": "The Verge",
+    "sample_dates": [
+      "2026-10-04T17:02:09-04:00",
+      "2026-10-04T16:00:00-04:00",
+      "2026-10-04T13:18:00-04:00"
+    ],
+    "sample_urls": [
+      "https://www.theverge.com/gadgets/1004616/the-new-fitbit-edge-leaks",
+      "https://www.theverge.com/entertainment/1004595/prick-industrial-glam-punk-album-review",
+      "https://www.theverge.com/gadgets/999447/best-early-amazon-prime-day-big-deals-sale-october"
+    ],
+    "parse_warning": false
+  },
+  {
+    "name": "ars-technica",
+    "kind": "feed",
+    "url": "https://feeds.arstechnica.com/arstechnica/index",
+    "origin": "catalog",
+    "checked_at": "2026-10-05T05:25:22.529637+00:00",
+    "status": 200,
+    "final_url": "https://feeds.arstechnica.com/arstechnica/index",
+    "content_type": "text/xml; charset=utf-8",
+    "bytes": 73407,
+    "entries": 20,
+    "feed_title": "Ars Technica - All content",
+    "sample_dates": [
+      "Mon, 05 Oct 2026 04:00:52 +0000",
+      "Sun, 04 Oct 2026 15:34:14 +0000",
+      "Sun, 04 Oct 2026 11:05:53 +0000"
+    ],
+    "sample_urls": [
+      "https://arstechnica.com/science/2026/10/new-forensice-evidence-supports-egyptian-retainer-sacrifice/",
+      "https://arstechnica.com/science/2026/10/lions-and-cheetahs-and-chimps-oh-my-a-spotlight-on-africas-diverse-wildlife/",
+      "https://arstechnica.com/science/2026/10/all-hail-electrification-but-lets-talk-about-the-hard-part/"
+    ],
+    "parse_warning": false
+  },
+  {
+    "name": "techcrunch",
+    "kind": "feed",
+    "url": "https://techcrunch.com/feed/",
+    "origin": "catalog",
+    "checked_at": "2026-10-05T05:25:22.635771+00:00",
+    "status": 200,
+    "final_url": "https://techcrunch.com/feed/",
+    "content_type": "application/rss+xml; charset=UTF-8",
+    "bytes": 17358,
+    "entries": 20,
+    "feed_title": "TechCrunch",
+    "sample_dates": [
+      "Sun, 04 Oct 2026 20:31:07 +0000",
+      "Sun, 04 Oct 2026 20:08:34 +0000",
+      "Sun, 04 Oct 2026 16:05:00 +0000"
+    ],
+    "sample_urls": [
+      "https://techcrunch.com/2026/10/04/google-froze-its-open-source-bug-bounty-program-due-to-a-significant-rise-in-ai-submissions/",
+      "https://techcrunch.com/2026/10/04/can-super-intelligence-and-a-non-binding-safety-pact-solve-ais-image-problem/",
+      "https://techcrunch.com/2026/10/04/techcrunch-mobility-reining-in-robotaxis/"
+    ],
+    "parse_warning": false
+  },
+  {
+    "name": "ieee-spectrum",
+    "kind": "feed",
+    "url": "https://spectrum.ieee.org/feeds/feed.rss",
+    "origin": "catalog",
+    "checked_at": "2026-10-05T05:25:22.655666+00:00",
+    "status": 200,
+    "final_url": "https://spectrum.ieee.org/feeds/feed.rss",
+    "content_type": "application/rss+xml; charset=utf-8",
+    "bytes": 374853,
+    "entries": 30,
+    "feed_title": "IEEE Spectrum",
+    "sample_dates": [
+      "Fri, 02 Oct 2026 10:00:03 +0000",
+      "Thu, 01 Oct 2026 12:00:02 +0000",
+      "Wed, 30 Sep 2026 18:00:02 +0000"
+    ],
+    "sample_urls": [
+      "https://event.on24.com/wcc/r/5510255/64A1C3695631E727E756BFCA0490437A?utm_source=IEEE",
+      "https://spectrum.ieee.org/electricity-theft",
+      "https://spectrum.ieee.org/ieee-technical-field-awards-2027"
+    ],
+    "parse_warning": false
+  },
+  {
+    "name": "mit-technology-review",
+    "kind": "feed",
+    "url": "https://www.technologyreview.com/feed/",
+    "origin": "catalog",
+    "checked_at": "2026-10-05T05:25:22.672571+00:00",
+    "status": 200,
+    "final_url": "https://www.technologyreview.com/feed/",
+    "content_type": "application/rss+xml; charset=UTF-8",
+    "bytes": 112978,
+    "entries": 10,
+    "feed_title": "MIT Technology Review",
+    "sample_dates": [
+      "Mon, 05 Oct 2026 04:00:00 +0000",
+      "Fri, 02 Oct 2026 15:49:04 +0000",
+      "Fri, 02 Oct 2026 12:10:00 +0000"
+    ],
+    "sample_urls": [
+      "https://www.technologyreview.com/2026/10/05/1145413/emtech-future-2026-when-ai-meets-everything/",
+      "https://www.technologyreview.com/2026/10/02/1143774/redefining-enterprise-intelligence-with-autonomous-ai/",
+      "https://www.technologyreview.com/2026/10/02/1145666/the-download-biological-de-aging-ai-reasoning/"
+    ],
+    "parse_warning": false
+  },
+  {
+    "name": "google-blog",
+    "kind": "feed",
+    "url": "https://blog.google/rss/",
+    "origin": "catalog",
+    "checked_at": "2026-10-05T05:25:22.680454+00:00",
+    "status": 200,
+    "final_url": "https://blog.google/rss/",
+    "content_type": "application/xml; charset=utf-8",
+    "bytes": 28171,
+    "entries": 20,
+    "feed_title": "News from Google",
+    "sample_dates": [
+      "Fri, 02 Oct 2026 15:00:00 +0000",
+      "Thu, 01 Oct 2026 23:30:00 +0000",
+      "Thu, 01 Oct 2026 20:30:00 +0000"
+    ],
+    "sample_urls": [
+      "https://blog.google/innovation-and-ai/technology/ai/google-ai-updates-september-2026/",
+      "https://blog.google/innovation-and-ai/models-and-research/google-research/project-suncatcher-prototype/",
+      "https://blog.google/products/ads-commerce/creating-assets-youtube-ads/"
+    ],
+    "parse_warning": false
+  },
+  {
+    "name": "android-developers",
+    "kind": "feed",
+    "url": "https://android-developers.googleblog.com/feeds/posts/default",
+    "origin": "catalog",
+    "checked_at": "2026-10-05T05:25:22.807115+00:00",
+    "status": 200,
+    "final_url": "https://android-developers.googleblog.com/feeds/posts/default",
+    "content_type": "application/atom+xml; charset=UTF-8",
+    "bytes": 510731,
+    "entries": 25,
+    "feed_title": "Android Developers Blog",
+    "sample_dates": [
+      "2026-10-02T09:00:00.000-07:00",
+      "2026-09-30T12:00:00.000-07:00",
+      "2026-09-29T09:00:00.000-07:00"
+    ],
+    "sample_urls": [
+      "https://android-developers.googleblog.com/2026/10/android-cli-device-streaming-and-skills.html",
+      "https://android-developers.googleblog.com/2026/09/jetpack-compose-ai-native-ui-instagram-direct.html",
+      "https://android-developers.googleblog.com/2026/09/unlocking-Google-play-subscription-growth.html"
+    ],
+    "parse_warning": false
+  },
+  {
+    "name": "apple-newsroom",
+    "kind": "feed",
+    "url": "https://www.apple.com/newsroom/rss-feed.rss",
+    "origin": "catalog",
+    "checked_at": "2026-10-05T05:25:22.887843+00:00",
+    "status": 200,
+    "final_url": "https://www.apple.com/newsroom/rss-feed.rss",
+    "content_type": "application/rss+xml;charset=utf-8",
+    "bytes": 18779,
+    "entries": 20,
+    "feed_title": "Apple Newsroom",
+    "sample_dates": [
+      "2026-09-29T17:00:57.163Z",
+      "2026-09-29T17:00:02.643Z",
+      "2026-09-29T16:59:08.275Z"
+    ],
+    "sample_urls": [
+      "https://www.apple.com/newsroom/2026/09/final-cut-camera-now-supports-variable-aperture-on-iphone-18-pro/",
+      "https://www.apple.com/newsroom/2026/09/new-updates-coming-to-apple-creator-studio/",
+      "https://www.apple.com/newsroom/2026/09/apple-releases-new-guide-to-help-families-build-healthy-digital-habits/"
+    ],
+    "parse_warning": false
+  },
+  {
+    "name": "microsoft-blog",
+    "kind": "feed",
+    "url": "https://blogs.microsoft.com/feed/",
+    "origin": "catalog",
+    "checked_at": "2026-10-05T05:25:22.989668+00:00",
+    "status": 200,
+    "final_url": "https://blogs.microsoft.com/feed/",
+    "content_type": "application/rss+xml; charset=UTF-8",
+    "bytes": 164995,
+    "entries": 10,
+    "feed_title": "The Official Microsoft Blog",
+    "sample_dates": [
+      "Thu, 01 Oct 2026 15:03:27 +0000",
+      "Tue, 29 Sep 2026 06:30:04 +0000",
+      "Fri, 25 Sep 2026 12:03:50 +0000"
+    ],
+    "sample_urls": [
+      "https://blogs.microsoft.com/blog/2026/10/01/microsoft-365-and-linkedin-leadership-update/",
+      "https://blogs.microsoft.com/blog/2026/09/28/new-microsoft-data-innovations-unlock-what-only-your-business-knows/",
+      "https://blogs.microsoft.com/blog/2026/09/25/introducing-the-new-copilot-with-home-code-and-autopilot/"
+    ],
+    "parse_warning": false
+  },
+  {
+    "name": "nvidia-blog",
+    "kind": "feed",
+    "url": "https://blogs.nvidia.com/feed/",
+    "origin": "catalog",
+    "checked_at": "2026-10-05T05:25:22.992585+00:00",
+    "status": 200,
+    "final_url": "https://blogs.nvidia.com/feed/",
+    "content_type": "application/rss+xml; charset=UTF-8",
+    "bytes": 258157,
+    "entries": 18,
+    "feed_title": "NVIDIA Blog",
+    "sample_dates": [
+      "Fri, 02 Oct 2026 13:00:39 +0000",
+      "Thu, 01 Oct 2026 23:44:13 +0000",
+      "Thu, 01 Oct 2026 13:00:54 +0000"
+    ],
+    "sample_urls": [
+      "https://blogs.nvidia.com/blog/local-ai-dgx-spark-64gb-sync/",
+      "https://blogs.nvidia.com/blog/gpus-openai-gpt-6-astra-ultrafast/",
+      "https://blogs.nvidia.com/blog/geforce-now-thursday-october-2026-games-list/"
+    ],
+    "parse_warning": false
+  },
+  {
+    "name": "meta-engineering",
+    "kind": "feed",
+    "url": "https://engineering.fb.com/feed/",
+    "origin": "catalog",
+    "checked_at": "2026-10-05T05:25:23.124076+00:00",
+    "status": 200,
+    "final_url": "https://engineering.fb.com/feed/",
+    "content_type": "application/rss+xml; charset=UTF-8",
+    "bytes": 227368,
+    "entries": 9,
+    "feed_title": "Engineering at Meta",
+    "sample_dates": [
+      "Thu, 24 Sep 2026 00:00:00 +0000",
+      "Mon, 21 Sep 2026 16:00:37 +0000",
+      "Mon, 21 Sep 2026 12:00:00 +0000"
+    ],
+    "sample_urls": [
+      "https://engineering.fb.com/2026/09/23/security/private-processing-meta-ai-glasses/",
+      "https://engineering.fb.com/2026/09/21/open-source/rebalancer-generic-high-performance-library-assignment-problems/",
+      "https://engineering.fb.com/2026/09/21/connectivity/petal-petabit-transoceanic-subsea-cable/"
+    ],
+    "parse_warning": false
+  },
+  {
+    "name": "aws-news",
+    "kind": "feed",
+    "url": "https://aws.amazon.com/blogs/aws/feed/",
+    "origin": "catalog",
+    "checked_at": "2026-10-05T05:25:23.131103+00:00",
+    "status": 200,
+    "final_url": "https://aws.amazon.com/blogs/aws/feed/",
+    "content_type": "application/rss+xml;charset=UTF-8",
+    "bytes": 276700,
+    "entries": 20,
+    "feed_title": "AWS News Blog",
+    "sample_dates": [
+      "Thu, 01 Oct 2026 20:04:04 +0000",
+      "Wed, 30 Sep 2026 22:10:00 +0000",
+      "Wed, 30 Sep 2026 20:03:34 +0000"
+    ],
+    "sample_urls": [
+      "https://aws.amazon.com/blogs/aws/announcing-aws-well-architected-agent-an-ai-powered-intelligence-to-optimize-your-cloud-environment-preview/",
+      "https://aws.amazon.com/blogs/aws/amazon-s3-tables-now-support-all-apache-iceberg-v3-data-types/",
+      "https://aws.amazon.com/blogs/aws/amazon-s3-vectors-now-supports-metadata-pre-filtering-for-higher-recall-on-filtered-searches/"
+    ],
+    "parse_warning": false
+  },
+  {
+    "name": "openai-news",
+    "kind": "feed",
+    "url": "https://openai.com/news/rss.xml",
+    "origin": "catalog",
+    "checked_at": "2026-10-05T05:25:23.237365+00:00",
+    "status": 200,
+    "final_url": "https://openai.com/news/rss.xml",
+    "content_type": "text/xml; charset=utf-8",
+    "bytes": 759641,
+    "entries": 1245,
+    "feed_title": "OpenAI News",
+    "sample_dates": [
+      "Fri, 02 Oct 2026 16:15:00 GMT",
+      "Fri, 02 Oct 2026 00:00:00 GMT",
+      "Thu, 01 Oct 2026 17:00:00 GMT"
+    ],
+    "sample_urls": [
+      "https://openai.com/index/practical-guide-building-gpt-6",
+      "https://openai.com/index/chatham-financial",
+      "https://openai.com/index/the-eternal-complement"
+    ],
+    "parse_warning": false
+  },
+  {
+    "name": "samsung-newsroom-global",
+    "kind": "feed",
+    "url": "https://news.samsung.com/global/feed",
+    "origin": "catalog",
+    "checked_at": "2026-10-05T05:25:23.423149+00:00",
+    "status": 200,
+    "final_url": "https://news.samsung.com/global/feed",
+    "content_type": "text/xml; charset=UTF-8",
+    "bytes": 535510,
+    "entries": 50,
+    "feed_title": "Samsung Global Newsroom",
+    "sample_dates": [
+      "Thu, 01 Oct 2026 10:00:00 +0000",
+      "Wed, 30 Sep 2026 21:00:00 +0000",
+      "Wed, 30 Sep 2026 21:00:00 +0000"
+    ],
+    "sample_urls": [
+      "https://news.samsung.com/global/lee-kun-hee-collection-expands-to-europe-with-opening-of-korea-exhibition-at-the-british-museum",
+      "https://news.samsung.com/global/samsung-galaxy-smarttag3-makes-it-easier-to-keep-track-of-what-matters",
+      "https://news.samsung.com/global/samsung-introduces-galaxy-tab-s12-series-the-ultimate-productivity-powerhouse-built-for-growth"
+    ],
+    "parse_warning": false
+  },
+  {
+    "name": "samsung-newsroom-kr",
+    "kind": "feed",
+    "url": "https://news.samsung.com/kr/feed",
+    "origin": "catalog",
+    "checked_at": "2026-10-05T05:25:23.573424+00:00",
+    "status": 200,
+    "final_url": "https://news.samsung.com/kr/feed",
+    "content_type": "text/xml; charset=UTF-8",
+    "bytes": 214344,
+    "entries": 20,
+    "feed_title": "Samsung Newsroom Korea",
+    "sample_dates": [
+      "Thu, 01 Oct 2026 10:00:00 +0000",
+      "Thu, 01 Oct 2026 08:00:00 +0000",
+      "Thu, 01 Oct 2026 08:00:00 +0000"
+    ],
+    "sample_urls": [
+      "https://news.samsung.com/kr/%ec%82%bc%ec%84%b1-%ec%98%81%ea%b5%ad%eb%b0%95%eb%ac%bc%ea%b4%80%ec%84%9c-kh-%ec%bb%ac%eb%a0%89%ec%85%98-%ec%88%9c%ed%9a%8c%ec%a0%84-%ea%b0%9c%eb%a7%89-%ea%b8%b0%eb%85%90-%ea%b0%88%eb%9d%bc-%eb%94%94",
+      "https://news.samsung.com/kr/%ec%82%bc%ec%84%b1%ec%a0%84%ec%9e%90-jbl-80%ec%a3%bc%eb%85%84-%ea%b8%b0%eb%85%90-%ed%8a%b9%eb%b3%84-%ea%b8%b0%ed%9a%8d%ec%a0%84-%ec%a7%84%ed%96%89",
+      "https://news.samsung.com/kr/%ec%82%bc%ec%84%b1%ec%a0%84%ec%9e%90-%ea%b0%a4%eb%9f%ad%ec%8b%9c-%ec%b5%9c%ec%b4%88-%ed%81%b4%eb%a6%bd%ed%98%95-%eb%ac%b4%ec%84%a0-%ec%9d%b4%ec%96%b4%ed%8f%b0-%ea%b0%a4%eb%9f%ad%ec%8b%9c-%eb%b2%84"
+    ],
+    "parse_warning": false
+  },
+  {
+    "name": "arm-newsroom",
+    "kind": "feed",
+    "url": "https://newsroom.arm.com/feed",
+    "origin": "catalog",
+    "checked_at": "2026-10-05T05:25:23.624729+00:00",
+    "status": 200,
+    "final_url": "https://newsroom.arm.com/feed",
+    "content_type": "application/rss+xml; charset=UTF-8",
+    "bytes": 93858,
+    "entries": 6,
+    "feed_title": "Arm Newsroom",
+    "sample_dates": [
+      "Tue, 29 Sep 2026 15:00:00 +0000",
+      "Mon, 28 Sep 2026 09:00:00 +0000",
+      "Mon, 21 Sep 2026 12:00:09 +0000"
+    ],
+    "sample_urls": [
+      "https://newsroom.arm.com/blog/how-arms-people-brought-the-companys-next-chapter-to-life",
+      "https://newsroom.arm.com/blog/trusted-compute-foundation-agentic-ai",
+      "https://newsroom.arm.com/blog/arm-joins-eurocdp-europe-chip-innovation"
+    ],
+    "parse_warning": false
+  },
+  {
+    "name": "hacker-news",
+    "kind": "feed",
+    "url": "https://news.ycombinator.com/rss",
+    "origin": "catalog",
+    "checked_at": "2026-10-05T05:25:23.732434+00:00",
+    "status": 200,
+    "final_url": "https://news.ycombinator.com/rss",
+    "content_type": "application/rss+xml; charset=utf-8",
+    "bytes": 11424,
+    "entries": 30,
+    "feed_title": "Hacker News",
+    "sample_dates": [
+      "Sun, 04 Oct 2026 12:51:53 +0000",
+      "Sun, 04 Oct 2026 21:01:28 +0000",
+      "Mon, 05 Oct 2026 01:11:56 +0000"
+    ],
+    "sample_urls": [
+      "https://github.com/Niko1221/Strata",
+      "https://filmstories.co.uk/news/tippett-studios-in-the-wake-of-its-closure-a-digital-archive-of-animated-materials-appears-online/",
+      "https://frn.sh/go-gc/"
+    ],
+    "parse_warning": false
+  },
+  {
+    "name": "bluesky-simonwillison-net",
+    "kind": "atproto",
+    "url": "https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=simonwillison.net&limit=30",
+    "origin": "catalog",
+    "checked_at": "2026-10-05T05:25:23.764813+00:00",
+    "status": 200,
+    "final_url": "https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=simonwillison.net&limit=30",
+    "content_type": "application/json; charset=utf-8",
+    "bytes": 222164,
+    "shape": [
+      "feed",
+      "cursor"
+    ],
+    "entries": 30
+  },
+  {
+    "name": "mastodon-mastodon-ai",
+    "kind": "activitypub",
+    "url": "https://mastodon.social/api/v1/timelines/tag/ai?limit=40",
+    "origin": "catalog",
+    "checked_at": "2026-10-05T05:25:24.002822+00:00",
+    "status": 200,
+    "final_url": "https://mastodon.social/api/v1/timelines/tag/ai?limit=40",
+    "content_type": "application/json; charset=utf-8",
+    "bytes": 209382,
+    "shape": "list",
+    "entries": 40
+  },
+  {
+    "name": "nvidia-developer-blog",
+    "kind": "feed",
+    "url": "https://developer.nvidia.com/blog/feed/",
+    "origin": "catalog",
+    "checked_at": "2026-10-05T05:25:24.054783+00:00",
+    "status": 200,
+    "final_url": "https://developer.nvidia.com/blog/feed/",
+    "content_type": "application/atom+xml; charset=UTF-8",
+    "bytes": 757816,
+    "entries": 100,
+    "feed_title": "NVIDIA Technical Blog",
+    "sample_dates": [
+      "2026-10-01T18:13:29Z",
+      "2026-10-01T17:59:27Z",
+      "2026-10-01T05:00:00Z"
+    ],
+    "sample_urls": [
+      "https://developer.nvidia.com/blog/build-applications-on-nvidia-bluefield-faster-with-nvidia-doca-agent-skills/",
+      "https://developer.nvidia.com/blog/build-local-ai-apps-with-c-and-nvidia-tensorrt-rtx-samples/",
+      "https://developer.nvidia.com/blog/fine-tuning-nvidia-nemotron-for-saudi-arabic-dialects-with-a-path-to-other-languages/"
+    ],
+    "parse_warning": false
+  },
+  {
+    "name": "infineon-news-web",
+    "kind": "sitemap",
+    "url": "https://www.infineon.com/sitemap-index.xml",
+    "origin": "catalog",
+    "checked_at": "2026-10-05T05:25:24.311144+00:00",
+    "status": 200,
+    "final_url": "https://www.infineon.com/sitemap-index.xml",
+    "content_type": "application/xml;charset=utf-8",
+    "bytes": 1707,
+    "xml_root_or_html": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><sitemapindex xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\"><sitemap><loc>https://www.infineon.c"
+  },
+  {
+    "name": "anthropic-web",
+    "kind": "sitemap",
+    "url": "https://www.anthropic.com/sitemap.xml",
+    "origin": "catalog",
+    "checked_at": "2026-10-05T05:25:24.315888+00:00",
+    "status": 200,
+    "final_url": "https://www.anthropic.com/sitemap.xml",
+    "content_type": "application/xml",
+    "bytes": 69893,
+    "xml_root_or_html": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n<url>\n<loc>https://www.anthropic.com/</l"
+  },
+  {
+    "name": "waymo-web",
+    "kind": "sitemap",
+    "url": "https://waymo.com/sitemap.xml",
+    "origin": "catalog",
+    "checked_at": "2026-10-05T05:25:24.318475+00:00",
+    "status": 200,
+    "final_url": "https://waymo.com/sitemap.xml",
+    "content_type": "application/xml",
+    "bytes": 1424678,
+    "xml_root_or_html": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<?xml-stylesheet type=\"text/xsl\" href=\"/sitemap.xsl\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas"
+  },
+  {
+    "name": "freebsd-news-web",
+    "kind": "sitemap",
+    "url": "https://www.freebsd.org/sitemap.xml",
+    "origin": "catalog",
+    "checked_at": "2026-10-05T05:25:24.435447+00:00",
+    "status": 200,
+    "final_url": "https://www.freebsd.org/sitemap.xml",
+    "content_type": "text/xml",
+    "bytes": 574,
+    "xml_root_or_html": "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>\n<sitemapindex xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n  \n  <sitemap>\n  "
+  },
+  {
+    "name": "openwrt-news-web",
+    "kind": "sitemap",
+    "url": "https://forum.openwrt.org/sitemap.xml",
+    "origin": "catalog",
+    "checked_at": "2026-10-05T05:25:24.445140+00:00",
+    "status": 200,
+    "final_url": "https://forum.openwrt.org/sitemap.xml",
+    "content_type": "application/xml; charset=utf-8",
+    "bytes": 1405,
+    "xml_root_or_html": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<sitemapindex xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n      <sitemap>\n         <loc>http"
+  },
+  {
+    "name": "the-batch-web",
+    "kind": "sitemap",
+    "url": "https://www.deeplearning.ai/sitemap.xml",
+    "origin": "catalog",
+    "checked_at": "2026-10-05T05:25:24.581041+00:00",
+    "status": 200,
+    "final_url": "https://www.deeplearning.ai/sitemap.xml",
+    "content_type": "application/xml",
+    "bytes": 486599,
+    "xml_root_or_html": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n<url>\n<loc>https://www.deeplearning.ai/<"
+  },
+  {
+    "name": "zigbee2mqtt-web",
+    "kind": "sitemap",
+    "url": "https://www.zigbee2mqtt.io/sitemap.xml",
+    "origin": "catalog",
+    "checked_at": "2026-10-05T05:25:24.678264+00:00",
+    "status": 200,
+    "final_url": "https://www.zigbee2mqtt.io/sitemap.xml",
+    "content_type": "application/xml",
+    "bytes": 791340,
+    "xml_root_or_html": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<?xml-stylesheet type=\"text/xsl\" href=\"/sitemap.xsl\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas"
+  },
+  {
+    "name": "yozm-it-web",
+    "kind": "sitemap",
+    "url": "https://yozm.wishket.com/magazine/sitemap.xml",
+    "origin": "catalog",
+    "checked_at": "2026-10-05T05:25:24.821671+00:00",
+    "status": 200,
+    "final_url": "https://yozm.wishket.com/magazine/sitemap.xml",
+    "content_type": "application/xml",
+    "bytes": 867,
+    "xml_root_or_html": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<sitemapindex xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n<sitemap><loc>https://yozm.wishket"
+  },
+  {
+    "name": "Simon Willison blog",
+    "kind": "feed",
+    "url": "https://simonwillison.net/atom/everything/",
+    "origin": "alternative",
+    "checked_at": "2026-10-05T05:25:24.882341+00:00",
+    "status": 200,
+    "final_url": "https://simonwillison.net/atom/everything/",
+    "content_type": "application/xml; charset=utf-8",
+    "bytes": 159738,
+    "entries": 30,
+    "feed_title": "Simon Willison's Weblog",
+    "sample_dates": [
+      "2026-10-03T23:34:02+00:00",
+      "2026-10-03T22:00:31+00:00",
+      "2026-10-02T22:57:38+00:00"
+    ],
+    "sample_urls": [
+      "https://simonwillison.net/2026/Oct/3/default-hard-budget-caps/",
+      "https://simonwillison.net/2026/Oct/3/newsletter/",
+      "https://simonwillison.net/2026/Oct/2/rex-s-dino-store/"
+    ],
+    "parse_warning": false
+  },
+  {
+    "name": "Martin Fowler",
+    "kind": "feed",
+    "url": "https://martinfowler.com/feed.atom",
+    "origin": "alternative",
+    "checked_at": "2026-10-05T05:25:24.963910+00:00",
+    "status": 200,
+    "final_url": "https://martinfowler.com/feed.atom",
+    "content_type": "application/atom+xml",
+    "bytes": 169116,
+    "entries": 30,
+    "feed_title": "Martin Fowler",
+    "sample_dates": [
+      "2026-10-04T23:28:00-05:00",
+      "2026-09-30T10:14:00-04:00",
+      "2026-09-29T09:43:00-04:00"
+    ],
+    "sample_urls": [
+      "https://martinfowler.com/fragments/2026-10-04.html",
+      "https://martinfowler.com/articles/never-send-slides/slide-principles.html",
+      "https://martinfowler.com/bliki/SensibleDefault.html"
+    ],
+    "parse_warning": false
+  },
+  {
+    "name": "Julia Evans",
+    "kind": "feed",
+    "url": "https://jvns.ca/atom.xml",
+    "origin": "alternative",
+    "checked_at": "2026-10-05T05:25:25.211154+00:00",
+    "status": 200,
+    "final_url": "https://jvns.ca/atom.xml",
+    "content_type": "application/xml",
+    "bytes": 244420,
+    "entries": 20,
+    "feed_title": "Julia Evans",
+    "sample_dates": [
+      "2026-09-27T00:00:00+00:00",
+      "2026-07-21T00:00:00+00:00",
+      "2026-07-17T00:00:00+00:00"
+    ],
+    "sample_urls": [
+      "https://jvns.ca/blog/2026/09/27/replacing-the-old-battery-on-rechargeable-bike-lights/",
+      "https://jvns.ca/blog/2026/07/21/more-nice-django-things/",
+      "https://jvns.ca/blog/2026/07/17/learning-about-running-sqlite/"
+    ],
+    "parse_warning": false
+  },
+  {
+    "name": "Chip Huyen",
+    "kind": "feed",
+    "url": "https://huyenchip.com/feed.xml",
+    "origin": "alternative",
+    "checked_at": "2026-10-05T05:25:25.279825+00:00",
+    "status": 200,
+    "final_url": "https://huyenchip.com/feed.xml",
+    "content_type": "application/xml",
+    "bytes": 340690,
+    "entries": 10,
+    "feed_title": "Chip Huyen",
+    "sample_dates": [
+      "Thu, 16 Jan 2025 00:00:00 +0000",
+      "Tue, 07 Jan 2025 00:00:00 +0000",
+      "Thu, 25 Jul 2024 00:00:00 +0000"
+    ],
+    "sample_urls": [
+      "https://huyenchip.com//2025/01/16/ai-engineering-pitfalls.html",
+      "https://huyenchip.com//2025/01/07/agents.html",
+      "https://huyenchip.com//2024/07/25/genai-platform.html"
+    ],
+    "parse_warning": false
+  },
+  {
+    "name": "Andrej Karpathy blog",
+    "kind": "feed",
+    "url": "https://karpathy.github.io/feed.xml",
+    "origin": "alternative",
+    "checked_at": "2026-10-05T05:25:25.421356+00:00",
+    "status": 200,
+    "final_url": "https://karpathy.github.io/feed.xml",
+    "content_type": "application/xml",
+    "bytes": 892764,
+    "entries": 10,
+    "feed_title": "Andrej Karpathy blog",
+    "sample_dates": [
+      "Thu, 12 Feb 2026 07:00:00 +0000",
+      "Mon, 14 Mar 2022 07:00:00 +0000",
+      "Mon, 21 Jun 2021 10:00:00 +0000"
+    ],
+    "sample_urls": [
+      "http://karpathy.github.io/2026/02/12/microgpt/",
+      "http://karpathy.github.io/2022/03/14/lecun1989/",
+      "http://karpathy.github.io/2021/06/21/blockchain/"
+    ],
+    "parse_warning": false
+  },
+  {
+    "name": "Hugging Face blog",
+    "kind": "feed",
+    "url": "https://huggingface.co/blog/feed.xml",
+    "origin": "alternative",
+    "checked_at": "2026-10-05T05:25:25.699557+00:00",
+    "status": 200,
+    "final_url": "https://huggingface.co/blog/feed.xml",
+    "content_type": "application/rss+xml; charset=utf-8",
+    "bytes": 257771,
+    "entries": 873,
+    "feed_title": "Hugging Face - Blog",
+    "sample_dates": [
+      "Sat, 03 Oct 2026 22:56:48 GMT",
+      "Fri, 02 Oct 2026 15:19:50 GMT",
+      "Fri, 02 Oct 2026 04:01:31 GMT"
+    ],
+    "sample_urls": [
+      "https://huggingface.co/blog/microsoft/thinkingbox",
+      "https://huggingface.co/blog/allenai/astabrief",
+      "https://huggingface.co/blog/ServiceNow-AI/autosynthdata"
+    ],
+    "parse_warning": false
+  },
+  {
+    "name": "Google Research",
+    "kind": "feed",
+    "url": "https://research.google/blog/rss/",
+    "origin": "alternative",
+    "checked_at": "2026-10-05T05:25:25.975327+00:00",
+    "status": 200,
+    "final_url": "https://research.google/blog/rss/",
+    "content_type": "application/rss+xml; charset=utf-8",
+    "bytes": 78568,
+    "entries": 100,
+    "feed_title": "The latest research from Google",
+    "sample_dates": [
+      "Fri, 02 Oct 2026 14:57:41 +0000",
+      "Tue, 29 Sep 2026 18:38:27 +0000",
+      "Thu, 24 Sep 2026 19:40:00 +0000"
+    ],
+    "sample_urls": [
+      "https://research.google/blog/toward-provably-private-learning-from-federated-data/",
+      "https://research.google/blog/how-diffusion-controller-unifies-and-simplifies-ai-image-generation/",
+      "https://research.google/blog/coherent-long-form-video-generation/"
+    ],
+    "parse_warning": false
+  },
+  {
+    "name": "FreeBSD news RSS",
+    "kind": "feed",
+    "url": "https://www.freebsd.org/news/feed.xml",
+    "origin": "alternative",
+    "checked_at": "2026-10-05T05:25:26.063035+00:00",
+    "status": 200,
+    "final_url": "https://www.freebsd.org/news/feed.xml",
+    "content_type": "text/xml",
+    "bytes": 21991,
+    "entries": 10,
+    "feed_title": "FreeBSD News Flash",
+    "sample_dates": [
+      "08 Sep 26 00:00 UTC",
+      "29 Aug 26 00:00 UTC",
+      "22 Aug 26 00:00 UTC"
+    ],
+    "sample_urls": [
+      "https://www.freebsd.org/news/newsflash/#2026-09-08:1",
+      "https://www.freebsd.org/news/newsflash/#2026-08-29:1",
+      "https://www.freebsd.org/news/newsflash/#2026-08-22:1"
+    ],
+    "parse_warning": false
+  },
+  {
+    "name": "Zigbee2MQTT releases",
+    "kind": "json",
+    "url": "https://api.github.com/repos/Koenkk/zigbee2mqtt/releases?per_page=3",
+    "origin": "alternative",
+    "checked_at": "2026-10-05T05:25:26.160623+00:00",
+    "status": 200,
+    "final_url": "https://api.github.com/repos/Koenkk/zigbee2mqtt/releases?per_page=3",
+    "content_type": "application/json; charset=utf-8",
+    "bytes": 81359,
+    "shape": "list",
+    "entries": 3
+  },
+  {
+    "name": "llama.cpp repository",
+    "kind": "json",
+    "url": "https://api.github.com/repos/ggml-org/llama.cpp",
+    "origin": "alternative",
+    "checked_at": "2026-10-05T05:25:26.210045+00:00",
+    "status": 200,
+    "final_url": "https://api.github.com/repos/ggml-org/llama.cpp",
+    "content_type": "application/json; charset=utf-8",
+    "bytes": 6187,
+    "shape": [
+      "id",
+      "node_id",
+      "name",
+      "full_name",
+      "private",
+      "owner",
+      "html_url",
+      "description",
+      "fork",
+      "url",
+      "forks_url",
+      "keys_url"
+    ],
+    "entries": 0,
+    "repo": "ggml-org/llama.cpp",
+    "stars": 130325,
+    "archived": false,
+    "license": "MIT",
+    "pushed_at": "2026-10-05T05:24:09Z"
+  },
+  {
+    "name": "vLLM repository",
+    "kind": "json",
+    "url": "https://api.github.com/repos/vllm-project/vllm",
+    "origin": "alternative",
+    "checked_at": "2026-10-05T05:25:26.329009+00:00",
+    "status": 200,
+    "final_url": "https://api.github.com/repos/vllm-project/vllm",
+    "content_type": "application/json; charset=utf-8",
+    "bytes": 6495,
+    "shape": [
+      "id",
+      "node_id",
+      "name",
+      "full_name",
+      "private",
+      "owner",
+      "html_url",
+      "description",
+      "fork",
+      "url",
+      "forks_url",
+      "keys_url"
+    ],
+    "entries": 0,
+    "repo": "vllm-project/vllm",
+    "stars": 93191,
+    "archived": false,
+    "license": "Apache-2.0",
+    "pushed_at": "2026-10-05T04:52:39Z"
+  },
+  {
+    "name": "Home Assistant repository",
+    "kind": "json",
+    "url": "https://api.github.com/repos/home-assistant/core",
+    "origin": "alternative",
+    "checked_at": "2026-10-05T05:25:26.486776+00:00",
+    "status": 200,
+    "final_url": "https://api.github.com/repos/home-assistant/core",
+    "content_type": "application/json; charset=utf-8",
+    "bytes": 6627,
+    "shape": [
+      "id",
+      "node_id",
+      "name",
+      "full_name",
+      "private",
+      "owner",
+      "html_url",
+      "description",
+      "fork",
+      "url",
+      "forks_url",
+      "keys_url"
+    ],
+    "entries": 0,
+    "repo": "home-assistant/core",
+    "stars": 91261,
+    "archived": false,
+    "license": "Apache-2.0",
+    "pushed_at": "2026-10-05T05:18:18Z"
+  },
+  {
+    "name": "Zephyr repository",
+    "kind": "json",
+    "url": "https://api.github.com/repos/zephyrproject-rtos/zephyr",
+    "origin": "alternative",
+    "checked_at": "2026-10-05T05:25:26.495102+00:00",
+    "status": 200,
+    "final_url": "https://api.github.com/repos/zephyrproject-rtos/zephyr",
+    "content_type": "application/json; charset=utf-8",
+    "bytes": 7063,
+    "shape": [
+      "id",
+      "node_id",
+      "name",
+      "full_name",
+      "private",
+      "owner",
+      "html_url",
+      "description",
+      "fork",
+      "url",
+      "forks_url",
+      "keys_url"
+    ],
+    "entries": 0,
+    "repo": "zephyrproject-rtos/zephyr",
+    "stars": 16689,
+    "archived": false,
+    "license": "Apache-2.0",
+    "pushed_at": "2026-10-04T13:48:57Z"
+  },
+  {
+    "name": "OpenTelemetry repository",
+    "kind": "json",
+    "url": "https://api.github.com/repos/open-telemetry/opentelemetry-collector",
+    "origin": "alternative",
+    "checked_at": "2026-10-05T05:25:26.543046+00:00",
+    "status": 200,
+    "final_url": "https://api.github.com/repos/open-telemetry/opentelemetry-collector",
+    "content_type": "application/json; charset=utf-8",
+    "bytes": 7357,
+    "shape": [
+      "id",
+      "node_id",
+      "name",
+      "full_name",
+      "private",
+      "owner",
+      "html_url",
+      "description",
+      "fork",
+      "url",
+      "forks_url",
+      "keys_url"
+    ],
+    "entries": 0,
+    "repo": "open-telemetry/opentelemetry-collector",
+    "stars": 7637,
+    "archived": false,
+    "license": "Apache-2.0",
+    "pushed_at": "2026-10-02T19:31:16Z"
+  },
+  {
+    "name": "HN official top stories",
+    "kind": "json",
+    "url": "https://hacker-news.firebaseio.com/v0/topstories.json",
+    "origin": "alternative",
+    "checked_at": "2026-10-05T05:25:26.595733+00:00",
+    "status": 200,
+    "final_url": "https://hacker-news.firebaseio.com/v0/topstories.json",
+    "content_type": "application/json; charset=utf-8",
+    "bytes": 4501,
+    "shape": "list",
+    "entries": 500
+  },
+  {
+    "name": "HF models",
+    "kind": "json",
+    "url": "https://huggingface.co/api/models?sort=trendingScore&limit=3",
+    "origin": "alternative",
+    "checked_at": "2026-10-05T05:25:26.759663+00:00",
+    "status": 200,
+    "final_url": "https://huggingface.co/api/models?sort=trendingScore&limit=3",
+    "content_type": "application/json; charset=utf-8",
+    "bytes": 1645,
+    "shape": "list",
+    "entries": 3
+  },
+  {
+    "name": "SEC NVIDIA submissions",
+    "kind": "json",
+    "url": "https://data.sec.gov/submissions/CIK0001045810.json",
+    "origin": "alternative",
+    "checked_at": "2026-10-05T05:25:26.773894+00:00",
+    "status": 200,
+    "final_url": "https://data.sec.gov/submissions/CIK0001045810.json",
+    "content_type": "application/json",
+    "bytes": 159785,
+    "shape": [
+      "cik",
+      "entityType",
+      "sic",
+      "sicDescription",
+      "ownerOrg",
+      "insiderTransactionForOwnerExists",
+      "insiderTransactionForIssuerExists",
+      "name",
+      "tickers",
+      "exchanges",
+      "ein",
+      "lei"
+    ],
+    "entries": 0
+  },
+  {
+    "name": "Crossref recent works",
+    "kind": "json",
+    "url": "https://api.crossref.org/works?filter=from-pub-date:2026-10-01&rows=3",
+    "origin": "alternative",
+    "checked_at": "2026-10-05T05:25:26.818777+00:00",
+    "status": 200,
+    "final_url": "https://api.crossref.org/works?filter=from-pub-date:2026-10-01&rows=3",
+    "content_type": "application/json",
+    "bytes": 5112,
+    "shape": [
+      "status",
+      "message-type",
+      "message-version",
+      "message"
+    ],
+    "entries": 0
+  },
+  {
+    "name": "arXiv AI RSS",
+    "kind": "feed",
+    "url": "https://rss.arxiv.org/rss/cs.AI",
+    "origin": "alternative",
+    "checked_at": "2026-10-05T05:25:26.882764+00:00",
+    "status": 200,
+    "final_url": "https://rss.arxiv.org/rss/cs.AI",
+    "content_type": "application/rss+xml",
+    "bytes": 878093,
+    "entries": 402,
+    "feed_title": "cs.AI updates on arXiv.org",
+    "sample_dates": [
+      "Mon, 05 Oct 2026 00:00:00 -0400",
+      "Mon, 05 Oct 2026 00:00:00 -0400",
+      "Mon, 05 Oct 2026 00:00:00 -0400"
+    ],
+    "sample_urls": [
+      "https://arxiv.org/abs/2610.02260",
+      "https://arxiv.org/abs/2610.02267",
+      "https://arxiv.org/abs/2610.02281"
+    ],
+    "parse_warning": false
+  },
+  {
+    "name": "Nature news",
+    "kind": "feed",
+    "url": "https://www.nature.com/nature.rss",
+    "origin": "alternative",
+    "checked_at": "2026-10-05T05:25:26.987540+00:00",
+    "status": 200,
+    "final_url": "https://www.nature.com/nature.rss",
+    "content_type": "application/rss+xml; charset=utf-8",
+    "bytes": 138650,
+    "entries": 75,
+    "feed_title": "Nature",
+    "sample_dates": [
+      "2026-10-02",
+      "2026-10-02",
+      "2026-10-02"
+    ],
+    "sample_urls": [
+      "https://www.nature.com/articles/d41586-026-03037-8",
+      "https://www.nature.com/articles/d41586-026-03057-4",
+      "https://www.nature.com/articles/d41586-026-03058-3"
+    ],
+    "parse_warning": false
+  },
+  {
+    "name": "LG newsroom",
+    "kind": "feed",
+    "url": "https://www.lgnewsroom.com/feed/",
+    "origin": "alternative",
+    "checked_at": "2026-10-05T05:25:27.019430+00:00",
+    "status": 200,
+    "final_url": "https://lgnewsroom.com/feed/",
+    "content_type": "application/rss+xml; charset=UTF-8",
+    "bytes": 976,
+    "entries": 0,
+    "feed_title": "lgnewsroom.com",
+    "sample_dates": [],
+    "sample_urls": [],
+    "parse_warning": false
+  },
+  {
+    "name": "Sony press RSS",
+    "kind": "feed",
+    "url": "https://www.sony.com/en/SonyInfo/News/Press/rss.xml",
+    "origin": "alternative",
+    "checked_at": "2026-10-05T05:25:27.121734+00:00",
+    "status": 403,
+    "final_url": "https://www.sony.com/en/SonyInfo/News/Press/rss.xml",
+    "content_type": "text/html",
+    "bytes": 184
+  },
+  {
+    "name": "CISA known exploited",
+    "kind": "json",
+    "url": "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json",
+    "origin": "alternative",
+    "checked_at": "2026-10-05T05:25:27.192257+00:00",
+    "status": 200,
+    "final_url": "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json",
+    "content_type": "application/json",
+    "bytes": 1767828,
+    "shape": [
+      "title",
+      "catalogVersion",
+      "dateReleased",
+      "count",
+      "vulnerabilities"
+    ],
+    "entries": 0
+  }
+]

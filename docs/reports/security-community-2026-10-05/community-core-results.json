@@ -1,0 +1,114 @@
+[
+  {
+    "key": "hacker-news",
+    "endpoint": "https://news.ycombinator.com/rss",
+    "started_at": "2026-10-05T14:02:43.839960+00:00",
+    "checks": [
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "feed reader: robots.txt not applied to the feed (robots.txt disallows /rss for DailyITIntelligenceBot)",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/rss+xml",
+          "bytes": 11700,
+          "redirects": 0,
+          "elapsed_ms": 190
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "entries": 30,
+          "complete": 30,
+          "recent": 30
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 30,
+      "items_new": 30,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 185,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 30,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T14:02:47.084002+00:00"
+  },
+  {
+    "key": "lobsters",
+    "endpoint": "https://lobste.rs/rss",
+    "started_at": "2026-10-05T14:02:47.084257+00:00",
+    "checks": [
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "feed reader: robots.txt not applied to the feed (robots.txt disallows /rss for DailyITIntelligenceBot)",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/rss+xml",
+          "bytes": 15379,
+          "redirects": 0,
+          "elapsed_ms": 215
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "entries": 25,
+          "complete": 25,
+          "recent": 25
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 25,
+      "items_new": 25,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 226,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 25,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T14:02:50.368198+00:00"
+  }
+]

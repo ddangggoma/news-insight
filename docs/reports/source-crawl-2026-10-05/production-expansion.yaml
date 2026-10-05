@@ -1,0 +1,1150 @@
+version: 1
+sources:
+- key: research-etri
+  name: ETRI
+  track: research_ip
+  category: research_institute
+  access_method: crawler
+  endpoint_url: https://www.etri.re.kr/kor/bbs/list.etri?b_board_id=ETRI06
+  official_domain: etri.re.kr
+  operator: ETRI
+  region: kr
+  language: ko
+  poll_class: slow
+  dx_relevance: 'ETRI: 기관 자체 성과 홍보; 논문/외부 보도 교차확인; 분야 ai, connectivity, display_av,
+    robotics_mobility'
+  storage_right: excerpt_allowed
+  config:
+    country: 한국
+    themes:
+    - ai
+    - connectivity
+    - display_av
+    - robotics_mobility
+    publisher_group: ETRI
+    timezone: Asia/Seoul
+    max_age_days: 30
+    selectors:
+      item: tr:has(td.date_rwd)
+      title: td.subject_rwd a
+      link: td.subject_rwd a
+      date: td.date_rwd
+    date_format: '%Y.%m.%d'
+    normalize_query:
+    - b_board_id
+    - b_idx
+    strip_session: true
+- key: research-kisti
+  name: KISTI
+  track: research_ip
+  category: research_institute
+  access_method: crawler
+  endpoint_url: https://www.kisti.re.kr/promote/post/news
+  official_domain: kisti.re.kr
+  operator: KISTI
+  region: kr
+  language: ko
+  poll_class: slow
+  dx_relevance: 'KISTI: 기관 자체 성과 홍보; 논문/외부 보도 교차확인; 분야 cloud_data, ai'
+  storage_right: excerpt_allowed
+  config:
+    country: 한국
+    themes:
+    - cloud_data
+    - ai
+    publisher_group: KISTI
+    timezone: Asia/Seoul
+    max_age_days: 30
+    mode: auto
+    enrich_limit: 10
+    link_pattern: /promote/post/
+    link_selector: a[href]
+- key: research-riken
+  name: RIKEN
+  track: research_ip
+  category: research_institute
+  access_method: feed
+  endpoint_url: https://www.riken.jp/feed/press_feed/
+  official_domain: riken.jp
+  operator: RIKEN
+  region: jp
+  language: ja
+  poll_class: slow
+  dx_relevance: 'RIKEN: 기관 자체 성과 홍보; 논문/외부 보도 교차확인; 분야 ai, frontier, health_tech'
+  storage_right: excerpt_allowed
+  config:
+    country: 일본
+    themes:
+    - ai
+    - frontier
+    - health_tech
+    publisher_group: RIKEN
+    timezone: Asia/Tokyo
+    max_age_days: 30
+- key: research-aist
+  name: AIST
+  track: research_ip
+  category: research_institute
+  access_method: feed
+  endpoint_url: https://www.aist.go.jp/ctl/module/mid/27/tid/75/rss.php
+  official_domain: aist.go.jp
+  operator: AIST
+  region: jp
+  language: ja
+  poll_class: slow
+  dx_relevance: 'AIST: 기관 자체 성과 홍보; 논문/외부 보도 교차확인; 분야 semis, manufacturing, energy'
+  storage_right: excerpt_allowed
+  config:
+    country: 일본
+    themes:
+    - semis
+    - manufacturing
+    - energy
+    publisher_group: AIST
+    timezone: Asia/Tokyo
+    max_age_days: 30
+- key: research-nict
+  name: NICT
+  track: research_ip
+  category: research_institute
+  access_method: crawler
+  endpoint_url: https://www.nict.go.jp/en/press/index.html
+  official_domain: nict.go.jp
+  operator: NICT
+  region: jp
+  language: en
+  poll_class: slow
+  dx_relevance: 'NICT: 기관 자체 성과 홍보; 논문/외부 보도 교차확인; 분야 connectivity, security, frontier'
+  storage_right: excerpt_allowed
+  config:
+    country: 일본
+    themes:
+    - connectivity
+    - security
+    - frontier
+    publisher_group: NICT
+    timezone: Asia/Tokyo
+    max_age_days: 30
+    mode: auto
+    enrich_limit: 10
+    link_pattern: /en/press/\d{4}/\d{2}/\d{2}-\d+\.html
+    link_selector: a[href]
+    article_date_selector: .date, .info_author p
+    article_date_format: '%B %d, %Y'
+    article_date_regex: '[A-Za-z]+ \d{1,2}, \d{4}'
+- key: research-cas
+  name: CAS
+  track: research_ip
+  category: research_institute
+  access_method: crawler
+  endpoint_url: https://english.cas.cn/newsroom/research-news/
+  official_domain: english.cas.cn
+  operator: CAS
+  region: greater_china
+  language: en
+  poll_class: slow
+  dx_relevance: 'CAS: 기관 자체 성과 홍보; 논문/외부 보도 교차확인; 분야 semis, frontier, ai'
+  storage_right: excerpt_allowed
+  config:
+    country: 중국
+    themes:
+    - semis
+    - frontier
+    - ai
+    publisher_group: CAS
+    timezone: UTC
+    max_age_days: 30
+    selectors:
+      item: li:has(.up-times)
+      title: h4
+      link: a[href]
+      date: .up-times
+    date_format: '%b %d, %Y'
+- key: research-iii
+  name: III
+  track: research_ip
+  category: research_institute
+  access_method: crawler
+  endpoint_url: https://www.iii.org.tw/en/news/newsroom
+  official_domain: iii.org.tw
+  operator: III
+  region: greater_china
+  language: en
+  poll_class: slow
+  dx_relevance: 'III: 기관 자체 성과 홍보; 논문/외부 보도 교차확인; 분야 platform_sw, security, manufacturing'
+  storage_right: excerpt_allowed
+  config:
+    country: 대만
+    themes:
+    - platform_sw
+    - security
+    - manufacturing
+    publisher_group: III
+    timezone: UTC
+    max_age_days: 30
+    mode: auto
+    enrich_limit: 10
+    link_pattern: /en/news/
+    link_selector: a[href]
+- key: research-a-star-research
+  name: A*STAR Research
+  track: research_ip
+  category: research_institute
+  access_method: feed
+  endpoint_url: https://research.a-star.edu.sg/feed/
+  official_domain: research.a-star.edu.sg
+  operator: A*STAR Research
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: 'A*STAR Research: 기관 자체 성과 홍보; 논문/외부 보도 교차확인; 분야 semis, health_tech,
+    manufacturing'
+  storage_right: excerpt_allowed
+  config:
+    country: 싱가포르
+    themes:
+    - semis
+    - health_tech
+    - manufacturing
+    publisher_group: A*STAR Research
+    timezone: UTC
+    max_age_days: 30
+    rate_per_minute: 1
+- key: tech-in-asia
+  name: Tech in Asia
+  track: news
+  category: independent_media
+  access_method: crawler
+  endpoint_url: https://www.techinasia.com/
+  official_domain: techinasia.com
+  operator: Tech in Asia
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: 'Tech in Asia: 기사·의견·광고·보도자료 구분; 원문 재배포 권리 미확인; 분야 platform_sw, cloud_data,
+    ai'
+  storage_right: excerpt_allowed
+  config:
+    country: 싱가포르·동남아
+    themes:
+    - platform_sw
+    - cloud_data
+    - ai
+    publisher_group: Tech in Asia
+    timezone: UTC
+    max_age_days: 30
+    mode: auto
+    enrich_limit: 10
+    link_pattern: /20\d{2}/
+    link_selector: a[href]
+    manual_review: true
+    hold_reason: 직접 접근 403; 공식 피드/제휴 조건 확인 필요
+- key: research-dfki
+  name: DFKI
+  track: research_ip
+  category: research_institute
+  access_method: crawler
+  endpoint_url: https://www.dfki.de/en/web/news-media/press/press-releases
+  official_domain: dfki.de
+  operator: DFKI
+  region: eu_other
+  language: en
+  poll_class: slow
+  dx_relevance: 'DFKI: 기관 자체 성과 홍보; 논문/외부 보도 교차확인; 분야 ai, robotics_mobility, manufacturing'
+  storage_right: excerpt_allowed
+  config:
+    country: 독일
+    themes:
+    - ai
+    - robotics_mobility
+    - manufacturing
+    publisher_group: DFKI
+    timezone: UTC
+    max_age_days: 30
+    mode: auto
+    enrich_limit: 10
+    link_pattern: /web/news-media/press/press-releases/
+    link_selector: a[href]
+- key: pv-magazine
+  name: pv magazine
+  track: news
+  category: independent_media
+  access_method: feed
+  endpoint_url: https://www.pv-magazine.com/feed/
+  official_domain: pv-magazine.com
+  operator: pv magazine
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: 'pv magazine: 기사·의견·광고·보도자료 구분; 원문 재배포 권리 미확인; 분야 energy'
+  storage_right: excerpt_allowed
+  config:
+    country: 독일·국제판
+    themes:
+    - energy
+    publisher_group: pv magazine
+    timezone: UTC
+    max_age_days: 30
+- key: electrive
+  name: electrive
+  track: news
+  category: independent_media
+  access_method: feed
+  endpoint_url: https://www.electrive.com/feed/
+  official_domain: electrive.com
+  operator: electrive
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: 'electrive: 기사·의견·광고·보도자료 구분; 원문 재배포 권리 미확인; 분야 energy, robotics_mobility'
+  storage_right: excerpt_allowed
+  config:
+    country: 독일·국제판
+    themes:
+    - energy
+    - robotics_mobility
+    publisher_group: electrive
+    timezone: UTC
+    max_age_days: 30
+- key: research-inria
+  name: Inria
+  track: research_ip
+  category: research_institute
+  access_method: crawler
+  endpoint_url: https://www.inria.fr/en/actualites_evenements
+  official_domain: inria.fr
+  operator: Inria
+  region: eu_other
+  language: en
+  poll_class: slow
+  dx_relevance: 'Inria: 기관 자체 성과 홍보; 논문/외부 보도 교차확인; 분야 ai, platform_sw, security'
+  storage_right: excerpt_allowed
+  config:
+    country: 프랑스
+    themes:
+    - ai
+    - platform_sw
+    - security
+    publisher_group: Inria
+    timezone: UTC
+    max_age_days: 30
+    mode: auto
+    enrich_limit: 10
+    link_pattern: /en/[^/?]+$
+    link_selector: article.news a[rel="bookmark"]
+- key: research-cea
+  name: CEA
+  track: research_ip
+  category: research_institute
+  access_method: crawler
+  endpoint_url: https://www.cea.fr/english/Pages/news-list.aspx
+  official_domain: cea.fr
+  operator: CEA
+  region: eu_other
+  language: en
+  poll_class: slow
+  dx_relevance: 'CEA: 기관 자체 성과 홍보; 논문/외부 보도 교차확인; 분야 semis, energy, frontier'
+  storage_right: excerpt_allowed
+  config:
+    country: 프랑스
+    themes:
+    - semis
+    - energy
+    - frontier
+    publisher_group: CEA
+    timezone: UTC
+    max_age_days: 30
+    mode: auto
+    enrich_limit: 10
+    link_pattern: ^(?!.*(?:press-contacts)).*(?:/english/Pages/News/[^/]+\.aspx)
+    link_selector: a[href]
+    article_date_selector: meta[name="DC.date"]
+    article_date_format: '%Y-%m-%d'
+    article_date_attribute: content
+- key: research-cnrs
+  name: CNRS
+  track: research_ip
+  category: research_institute
+  access_method: crawler
+  endpoint_url: https://www.cnrs.fr/en/newsroom
+  official_domain: cnrs.fr
+  operator: CNRS
+  region: eu_other
+  language: en
+  poll_class: slow
+  dx_relevance: 'CNRS: 기관 자체 성과 홍보; 논문/외부 보도 교차확인; 분야 frontier, ai, health_tech'
+  storage_right: excerpt_allowed
+  config:
+    country: 프랑스
+    themes:
+    - frontier
+    - ai
+    - health_tech
+    publisher_group: CNRS
+    timezone: UTC
+    max_age_days: 30
+    mode: auto
+    enrich_limit: 10
+    link_pattern: /en/press/[^/?]+
+    link_selector: a[href]
+- key: research-tno
+  name: TNO
+  track: research_ip
+  category: research_institute
+  access_method: crawler
+  endpoint_url: https://www.tno.nl/en/newsroom/news/
+  official_domain: tno.nl
+  operator: TNO
+  region: eu_other
+  language: en
+  poll_class: slow
+  dx_relevance: 'TNO: 기관 자체 성과 홍보; 논문/외부 보도 교차확인; 분야 connectivity, energy, manufacturing'
+  storage_right: excerpt_allowed
+  config:
+    country: 네덜란드
+    themes:
+    - connectivity
+    - energy
+    - manufacturing
+    publisher_group: TNO
+    timezone: UTC
+    max_age_days: 30
+    mode: auto
+    enrich_limit: 10
+    link_pattern: /en/newsroom/\d{4}/\d{2}/[^/]+/?$
+    link_selector: a[href]
+- key: research-vtt
+  name: VTT
+  track: research_ip
+  category: research_institute
+  access_method: crawler
+  endpoint_url: https://www.vttresearch.com/en/news-and-stories
+  official_domain: vttresearch.com
+  operator: VTT
+  region: eu_other
+  language: en
+  poll_class: slow
+  dx_relevance: 'VTT: 기관 자체 성과 홍보; 논문/외부 보도 교차확인; 분야 semis, energy, manufacturing'
+  storage_right: excerpt_allowed
+  config:
+    country: 핀란드
+    themes:
+    - semis
+    - energy
+    - manufacturing
+    publisher_group: VTT
+    timezone: UTC
+    max_age_days: 30
+    mode: auto
+    enrich_limit: 10
+    link_pattern: /en/news-and-ideas/[^/?]+
+    link_selector: .view--news-and-ideas--latest-with-pager-and-load-more-button-block
+      a.card__url[href]
+- key: research-csem
+  name: CSEM
+  track: research_ip
+  category: research_institute
+  access_method: crawler
+  endpoint_url: https://www.csem.ch/en/news/
+  official_domain: csem.ch
+  operator: CSEM
+  region: eu_other
+  language: en
+  poll_class: slow
+  dx_relevance: 'CSEM: 기관 자체 성과 홍보; 논문/외부 보도 교차확인; 빈 앵커 텍스트 대신 기사 메타데이터 사용; 분야 semis,
+    health_tech, display_av, frontier'
+  storage_right: excerpt_allowed
+  config:
+    country: 스위스
+    themes:
+    - semis
+    - health_tech
+    - display_av
+    - frontier
+    publisher_group: CSEM
+    timezone: UTC
+    max_age_days: 30
+    mode: auto
+    enrich_limit: 10
+    link_pattern: /en/news/[^/?]+/?$
+    link_selector: a[href]
+- key: research-csiro
+  name: CSIRO
+  track: research_ip
+  category: research_institute
+  access_method: crawler
+  endpoint_url: https://www.csiro.au/en/News
+  official_domain: csiro.au
+  operator: CSIRO
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: 'CSIRO: 기관 자체 성과 홍보; 논문/외부 보도 교차확인; 분야 ai, energy, manufacturing'
+  storage_right: excerpt_allowed
+  config:
+    country: 호주
+    themes:
+    - ai
+    - energy
+    - manufacturing
+    publisher_group: CSIRO
+    timezone: UTC
+    max_age_days: 30
+    mode: auto
+    enrich_limit: 10
+    link_pattern: /en/news/All/(Articles|News)/\d{4}/[^/]+/[^/?]+
+    link_selector: a[href]
+    article_date_selector: p.teaser__info span.teaser__dot
+    article_date_format: '%d %B %Y'
+- key: research-nrc-canada
+  name: NRC Canada
+  track: research_ip
+  category: research_institute
+  access_method: crawler
+  endpoint_url: https://nrc.canada.ca/en/stories
+  official_domain: nrc.canada.ca
+  operator: NRC Canada
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: 'NRC Canada: 기관 자체 성과 홍보; 논문/외부 보도 교차확인; 분야 semis, frontier, manufacturing'
+  storage_right: excerpt_allowed
+  config:
+    country: 캐나다
+    themes:
+    - semis
+    - frontier
+    - manufacturing
+    publisher_group: NRC Canada
+    timezone: UTC
+    max_age_days: 30
+    mode: auto
+    enrich_limit: 10
+    link_pattern: /en/stories/[^/?]+
+    link_selector: a[href]
+- key: iet-e-t
+  name: IET E&T
+  track: news
+  category: independent_media
+  access_method: crawler
+  endpoint_url: https://eandt.theiet.org/news
+  official_domain: eandt.theiet.org
+  operator: IET E&T
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: 'IET E&T: 기사·의견·광고·보도자료 구분; 원문 재배포 권리 미확인; 분야 connectivity, energy,
+    manufacturing'
+  storage_right: excerpt_allowed
+  config:
+    country: 영국
+    themes:
+    - connectivity
+    - energy
+    - manufacturing
+    publisher_group: IET E&T
+    timezone: UTC
+    max_age_days: 30
+    mode: auto
+    enrich_limit: 10
+    link_pattern: /20\d{2}/\d{2}/\d{2}/[^/?]+
+    link_selector: a[href]
+- key: optics-org
+  name: optics.org
+  track: news
+  category: independent_media
+  access_method: crawler
+  endpoint_url: https://optics.org/news
+  official_domain: optics.org
+  operator: optics.org
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: 'optics.org: 기사·의견·광고·보도자료 구분; 원문 재배포 권리 미확인; 분야 display_av, frontier,
+    semis'
+  storage_right: excerpt_allowed
+  config:
+    country: 국제·국가확인보류
+    themes:
+    - display_av
+    - frontier
+    - semis
+    publisher_group: optics.org
+    timezone: UTC
+    max_age_days: 30
+    mode: auto
+    enrich_limit: 10
+    link_pattern: ^(?!.*(?:/news/(business-news|applications|research-and-development|photonics-world)$)).*(?:/news/[^/?]+)
+    link_selector: a[href]
+    article_date_selector: p.flex.flex-wrap span
+    article_date_format: '%d %B %Y'
+- key: display-daily
+  name: Display Daily
+  track: news
+  category: independent_media
+  access_method: crawler
+  endpoint_url: https://displaydaily.com/
+  official_domain: displaydaily.com
+  operator: Display Daily
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: 'Display Daily: 기사·의견·광고·보도자료 구분; 원문 재배포 권리 미확인; 분야 display_av'
+  storage_right: excerpt_allowed
+  config:
+    country: 국제·국가확인보류
+    themes:
+    - display_av
+    publisher_group: Display Daily
+    timezone: UTC
+    max_age_days: 30
+    mode: auto
+    enrich_limit: 10
+    link_pattern: /20\d{2}/
+    link_selector: a[href]
+    manual_review: true
+    hold_reason: 직접 접근 403; 공식 피드/제휴 조건 확인 필요
+- key: healthcare-it-news
+  name: Healthcare IT News
+  track: news
+  category: independent_media
+  access_method: crawler
+  endpoint_url: https://www.healthcareitnews.com/
+  official_domain: healthcareitnews.com
+  operator: Healthcare IT News
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: 'Healthcare IT News: 기사·의견·광고·보도자료 구분; 원문 재배포 권리 미확인; 분야 health_tech,
+    security'
+  storage_right: excerpt_allowed
+  config:
+    country: 미국·국제판
+    themes:
+    - health_tech
+    - security
+    publisher_group: Healthcare IT News
+    timezone: UTC
+    max_age_days: 30
+    mode: auto
+    enrich_limit: 10
+    link_pattern: /20\d{2}/
+    link_selector: a[href]
+    manual_review: true
+    hold_reason: 직접 접근 403; 공식 피드/제휴 조건 확인 필요
+- key: mobihealthnews
+  name: MobiHealthNews
+  track: news
+  category: independent_media
+  access_method: crawler
+  endpoint_url: https://www.mobihealthnews.com/
+  official_domain: mobihealthnews.com
+  operator: MobiHealthNews
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: 'MobiHealthNews: 기사·의견·광고·보도자료 구분; 원문 재배포 권리 미확인; 분야 health_tech'
+  storage_right: excerpt_allowed
+  config:
+    country: 미국·국제판
+    themes:
+    - health_tech
+    publisher_group: MobiHealthNews
+    timezone: UTC
+    max_age_days: 30
+    mode: auto
+    enrich_limit: 10
+    link_pattern: /20\d{2}/
+    link_selector: a[href]
+    manual_review: true
+    hold_reason: 직접 접근 403; 공식 피드/제휴 조건 확인 필요
+- key: infoq
+  name: InfoQ
+  track: news
+  category: independent_media
+  access_method: feed
+  endpoint_url: https://feed.infoq.com/
+  official_domain: feed.infoq.com
+  operator: InfoQ
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: 'InfoQ: 기사·의견·광고·보도자료 구분; 원문 재배포 권리 미확인; robots 406이면 중단, 공식 조건 확인
+    필요; 분야 platform_sw, cloud_data, ai'
+  storage_right: excerpt_allowed
+  config:
+    country: 국제·국가확인보류
+    themes:
+    - platform_sw
+    - cloud_data
+    - ai
+    publisher_group: InfoQ
+    timezone: UTC
+    max_age_days: 30
+- key: pv-magazine-india
+  name: pv magazine India
+  track: news
+  category: independent_media
+  access_method: feed
+  endpoint_url: https://www.pv-magazine-india.com/feed/
+  official_domain: pv-magazine-india.com
+  operator: pv magazine India
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: 'pv magazine India: 기사·의견·광고·보도자료 구분; 원문 재배포 권리 미확인; 분야 energy'
+  storage_right: excerpt_allowed
+  config:
+    country: 인도 시장·독일 발행그룹
+    themes:
+    - energy
+    publisher_group: pv magazine
+    timezone: UTC
+    max_age_days: 30
+- key: betakit
+  name: BetaKit
+  track: news
+  category: independent_media
+  access_method: feed
+  endpoint_url: https://betakit.com/feed/
+  official_domain: betakit.com
+  operator: BetaKit
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: 'BetaKit: 뉴스 편집·광고 구분; 본문 재배포 권리 미확인; 분야 platform_sw, ai'
+  storage_right: excerpt_allowed
+  config:
+    country: 캐나다
+    themes:
+    - platform_sw
+    - ai
+    publisher_group: BetaKit
+    timezone: UTC
+    max_age_days: 30
+- key: itnews-au
+  name: iTnews Australia
+  track: news
+  category: independent_media
+  access_method: feed
+  endpoint_url: https://www.itnews.com.au/RSS/rss.ashx
+  official_domain: itnews.com.au
+  operator: iTnews Australia
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: 'iTnews Australia: 뉴스 편집·광고 구분; 본문 재배포 권리 미확인; 분야 cloud_data, security'
+  storage_right: excerpt_allowed
+  config:
+    country: 호주
+    themes:
+    - cloud_data
+    - security
+    publisher_group: iTnews Australia
+    timezone: UTC
+    max_age_days: 30
+- key: lemondeinformatique
+  name: Le Monde Informatique
+  track: news
+  category: independent_media
+  access_method: feed
+  endpoint_url: https://www.lemondeinformatique.fr/flux-rss/thematique/toutes-les-actualites/rss.xml
+  official_domain: lemondeinformatique.fr
+  operator: Le Monde Informatique
+  region: eu_other
+  language: en
+  poll_class: slow
+  dx_relevance: 'Le Monde Informatique: 뉴스 편집·광고 구분; 본문 재배포 권리 미확인; 분야 cloud_data,
+    security'
+  storage_right: excerpt_allowed
+  config:
+    country: 프랑스
+    themes:
+    - cloud_data
+    - security
+    publisher_group: Le Monde Informatique
+    timezone: UTC
+    max_age_days: 30
+- key: yourstory
+  name: YourStory
+  track: news
+  category: independent_media
+  access_method: feed
+  endpoint_url: https://yourstory.com/feed
+  official_domain: yourstory.com
+  operator: YourStory
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: 'YourStory: 뉴스 편집·광고 구분; 본문 재배포 권리 미확인; 분야 ai, platform_sw'
+  storage_right: excerpt_allowed
+  config:
+    country: 인도
+    themes:
+    - ai
+    - platform_sw
+    publisher_group: YourStory
+    timezone: UTC
+    max_age_days: 30
+- key: techcabal
+  name: TechCabal
+  track: news
+  category: independent_media
+  access_method: feed
+  endpoint_url: https://techcabal.com/feed/
+  official_domain: techcabal.com
+  operator: TechCabal
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: 'TechCabal: 뉴스 편집·광고 구분; 본문 재배포 권리 미확인; 분야 platform_sw, cloud_data'
+  storage_right: excerpt_allowed
+  config:
+    country: 나이지리아·아프리카
+    themes:
+    - platform_sw
+    - cloud_data
+    publisher_group: TechCabal
+    timezone: UTC
+    max_age_days: 30
+- key: github-trending-repositories-daily
+  name: GitHub Trending repositories daily
+  track: oss
+  category: github_trending
+  access_method: crawler
+  endpoint_url: https://github.com/trending?since=daily
+  official_domain: github.com
+  operator: GitHub
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: 언어와 테마 필터 없는 전체 공개 Trending 순위 관측; 표시된 모든 항목 수집
+  storage_right: excerpt_allowed
+  config:
+    mode: github_trending
+    trending_kind: repositories
+    trending_period: daily
+    selectors:
+      item: article.Box-row
+      title: h2 a
+      link: h2 a
+    country: global
+    publisher_group: GitHub
+    date_semantics: observation
+    rate_per_minute: 6
+- key: github-trending-repositories-weekly
+  name: GitHub Trending repositories weekly
+  track: oss
+  category: github_trending
+  access_method: crawler
+  endpoint_url: https://github.com/trending?since=weekly
+  official_domain: github.com
+  operator: GitHub
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: 언어와 테마 필터 없는 전체 공개 Trending 순위 관측; 표시된 모든 항목 수집
+  storage_right: excerpt_allowed
+  config:
+    mode: github_trending
+    trending_kind: repositories
+    trending_period: weekly
+    selectors:
+      item: article.Box-row
+      title: h2 a
+      link: h2 a
+    country: global
+    publisher_group: GitHub
+    date_semantics: observation
+    rate_per_minute: 6
+- key: github-trending-repositories-monthly
+  name: GitHub Trending repositories monthly
+  track: oss
+  category: github_trending
+  access_method: crawler
+  endpoint_url: https://github.com/trending?since=monthly
+  official_domain: github.com
+  operator: GitHub
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: 언어와 테마 필터 없는 전체 공개 Trending 순위 관측; 표시된 모든 항목 수집
+  storage_right: excerpt_allowed
+  config:
+    mode: github_trending
+    trending_kind: repositories
+    trending_period: monthly
+    selectors:
+      item: article.Box-row
+      title: h2 a
+      link: h2 a
+    country: global
+    publisher_group: GitHub
+    date_semantics: observation
+    rate_per_minute: 6
+- key: github-trending-developers-daily
+  name: GitHub Trending developers daily
+  track: oss
+  category: github_trending
+  access_method: crawler
+  endpoint_url: https://github.com/trending/developers?since=daily
+  official_domain: github.com
+  operator: GitHub
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: 언어와 테마 필터 없는 전체 공개 Trending 순위 관측; 표시된 모든 항목 수집
+  storage_right: excerpt_allowed
+  config:
+    mode: github_trending
+    trending_kind: developers
+    trending_period: daily
+    selectors:
+      item: article.Box-row
+      title: h1 a
+      link: h1 a
+    country: global
+    publisher_group: GitHub
+    date_semantics: observation
+    rate_per_minute: 6
+- key: github-trending-developers-weekly
+  name: GitHub Trending developers weekly
+  track: oss
+  category: github_trending
+  access_method: crawler
+  endpoint_url: https://github.com/trending/developers?since=weekly
+  official_domain: github.com
+  operator: GitHub
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: 언어와 테마 필터 없는 전체 공개 Trending 순위 관측; 표시된 모든 항목 수집
+  storage_right: excerpt_allowed
+  config:
+    mode: github_trending
+    trending_kind: developers
+    trending_period: weekly
+    selectors:
+      item: article.Box-row
+      title: h1 a
+      link: h1 a
+    country: global
+    publisher_group: GitHub
+    date_semantics: observation
+    rate_per_minute: 6
+- key: github-trending-developers-monthly
+  name: GitHub Trending developers monthly
+  track: oss
+  category: github_trending
+  access_method: crawler
+  endpoint_url: https://github.com/trending/developers?since=monthly
+  official_domain: github.com
+  operator: GitHub
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: 언어와 테마 필터 없는 전체 공개 Trending 순위 관측; 표시된 모든 항목 수집
+  storage_right: excerpt_allowed
+  config:
+    mode: github_trending
+    trending_kind: developers
+    trending_period: monthly
+    selectors:
+      item: article.Box-row
+      title: h1 a
+      link: h1 a
+    country: global
+    publisher_group: GitHub
+    date_semantics: observation
+    rate_per_minute: 6
+- key: epo-publication-server
+  name: EPO European Publication Server
+  track: research_ip
+  category: patent_office
+  access_method: research_api
+  endpoint_url: https://data.epo.org/publication-server/rest/v1.2/publication-dates
+  official_domain: epo.org
+  operator: European Patent Office
+  region: eu_other
+  language: en
+  poll_class: slow
+  dx_relevance: 유럽 특허청 공식 주간 공개문헌 API; 발명명·공개일·IPC 분류 서지 시험 수집
+  storage_right: excerpt_allowed
+  config:
+    mode: epo_publications
+    max_documents: 10
+    country: EP
+    publisher_group: European Patent Office
+    content_kind: patent_bibliography
+    coverage: latest publication week, first 10 documents; not worldwide/full week
+- key: crossref-journal-nature-electronics
+  name: Nature Electronics (Crossref)
+  track: research_ip
+  category: journal_metadata
+  access_method: research_api
+  endpoint_url: https://api.crossref.org/works?filter=issn:2520-1131,from-pub-date:{today-30d},until-pub-date:{today}&sort=published&order=desc&rows=20
+  official_domain: crossref.org
+  operator: Crossref
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: Nature Electronics 논문의 DOI·발행일·제목 공식 등록 서지정보; RSS 장애의 대체 경로
+  storage_right: metadata_only
+  config:
+    preset: crossref_works
+    fields:
+      published_at: published.date-parts.0
+    publisher_group: Springer Nature
+    journal_issn: 2520-1131
+    country: international
+    content_kind: paper_bibliography
+- key: crossref-journal-nature-biomedical-engineering
+  name: Nature Biomedical Engineering (Crossref)
+  track: research_ip
+  category: journal_metadata
+  access_method: research_api
+  endpoint_url: https://api.crossref.org/works?filter=issn:2157-846X,from-pub-date:{today-30d},until-pub-date:{today}&sort=published&order=desc&rows=20
+  official_domain: crossref.org
+  operator: Crossref
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: Nature Biomedical Engineering 논문의 DOI·발행일·제목 공식 등록 서지정보; RSS 장애의 대체
+    경로
+  storage_right: metadata_only
+  config:
+    preset: crossref_works
+    fields:
+      published_at: published.date-parts.0
+    publisher_group: Springer Nature
+    journal_issn: 2157-846X
+    country: international
+    content_kind: paper_bibliography
+- key: crossref-journal-nature-machine-intelligence
+  name: Nature Machine Intelligence (Crossref)
+  track: research_ip
+  category: journal_metadata
+  access_method: research_api
+  endpoint_url: https://api.crossref.org/works?filter=issn:2522-5839,from-pub-date:{today-30d},until-pub-date:{today}&sort=published&order=desc&rows=20
+  official_domain: crossref.org
+  operator: Crossref
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: Nature Machine Intelligence 논문의 DOI·발행일·제목 공식 등록 서지정보; RSS 장애의 대체
+    경로
+  storage_right: metadata_only
+  config:
+    preset: crossref_works
+    fields:
+      published_at: published.date-parts.0
+    publisher_group: Springer Nature
+    journal_issn: 2522-5839
+    country: international
+    content_kind: paper_bibliography
+- key: crossref-journal-communications-engineering
+  name: Communications Engineering (Crossref)
+  track: research_ip
+  category: journal_metadata
+  access_method: research_api
+  endpoint_url: https://api.crossref.org/works?filter=issn:2731-3395,from-pub-date:{today-30d},until-pub-date:{today}&sort=published&order=desc&rows=20
+  official_domain: crossref.org
+  operator: Crossref
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: Communications Engineering 논문의 DOI·발행일·제목 공식 등록 서지정보; RSS 장애의 대체 경로
+  storage_right: metadata_only
+  config:
+    preset: crossref_works
+    fields:
+      published_at: published.date-parts.0
+    publisher_group: Springer Nature
+    journal_issn: 2731-3395
+    country: international
+    content_kind: paper_bibliography
+- key: crossref-journal-npj-robotics
+  name: npj Robotics (Crossref)
+  track: research_ip
+  category: journal_metadata
+  access_method: research_api
+  endpoint_url: https://api.crossref.org/works?filter=issn:2731-4278,from-pub-date:{today-30d},until-pub-date:{today}&sort=published&order=desc&rows=20
+  official_domain: crossref.org
+  operator: Crossref
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: npj Robotics 논문의 DOI·발행일·제목 공식 등록 서지정보; RSS 장애의 대체 경로
+  storage_right: metadata_only
+  config:
+    preset: crossref_works
+    fields:
+      published_at: published.date-parts.0
+    publisher_group: Springer Nature
+    journal_issn: 2731-4278
+    country: international
+    content_kind: paper_bibliography
+- key: crossref-journal-microsystems-nanoengineering
+  name: Microsystems & Nanoengineering (Crossref)
+  track: research_ip
+  category: journal_metadata
+  access_method: research_api
+  endpoint_url: https://api.crossref.org/works?filter=issn:2055-7434,from-pub-date:{today-30d},until-pub-date:{today}&sort=published&order=desc&rows=20
+  official_domain: crossref.org
+  operator: Crossref
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: Microsystems & Nanoengineering 논문의 DOI·발행일·제목 공식 등록 서지정보; RSS 장애의
+    대체 경로
+  storage_right: metadata_only
+  config:
+    preset: crossref_works
+    fields:
+      published_at: published.date-parts.0
+    publisher_group: Springer Nature
+    journal_issn: 2055-7434
+    country: international
+    content_kind: paper_bibliography
+- key: crossref-journal-npj-flexible-electronics
+  name: npj Flexible Electronics (Crossref)
+  track: research_ip
+  category: journal_metadata
+  access_method: research_api
+  endpoint_url: https://api.crossref.org/works?filter=issn:2397-4621,from-pub-date:{today-30d},until-pub-date:{today}&sort=published&order=desc&rows=20
+  official_domain: crossref.org
+  operator: Crossref
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: npj Flexible Electronics 논문의 DOI·발행일·제목 공식 등록 서지정보; RSS 장애의 대체 경로
+  storage_right: metadata_only
+  config:
+    preset: crossref_works
+    fields:
+      published_at: published.date-parts.0
+    publisher_group: Springer Nature
+    journal_issn: 2397-4621
+    country: international
+    content_kind: paper_bibliography
+- key: crossref-journal-nature-photonics
+  name: Nature Photonics (Crossref)
+  track: research_ip
+  category: journal_metadata
+  access_method: research_api
+  endpoint_url: https://api.crossref.org/works?filter=issn:1749-4885,from-pub-date:{today-30d},until-pub-date:{today}&sort=published&order=desc&rows=20
+  official_domain: crossref.org
+  operator: Crossref
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: Nature Photonics 논문의 DOI·발행일·제목 공식 등록 서지정보; RSS 장애의 대체 경로
+  storage_right: metadata_only
+  config:
+    preset: crossref_works
+    fields:
+      published_at: published.date-parts.0
+    publisher_group: Springer Nature
+    journal_issn: 1749-4885
+    country: international
+    content_kind: paper_bibliography

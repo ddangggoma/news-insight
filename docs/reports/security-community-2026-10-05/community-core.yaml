@@ -1,0 +1,32 @@
+version: 1
+sources:
+- key: hacker-news
+  name: Hacker News Front Page
+  track: community
+  category: dev_forum
+  access_method: feed
+  endpoint_url: https://news.ycombinator.com/rss
+  official_domain: ycombinator.com
+  operator: Y Combinator
+  region: global_en
+  language: en
+  poll_class: community
+  dx_relevance: 개발자 커뮤니티의 기술 화제와 오픈소스 반응 신호
+  terms_url: null
+  storage_right: excerpt_allowed
+  config: {}
+- key: lobsters
+  name: Lobsters
+  track: community
+  category: dev_forum
+  access_method: feed
+  endpoint_url: https://lobste.rs/rss
+  official_domain: lobste.rs
+  operator: Lobsters
+  region: global_en
+  language: en
+  poll_class: community
+  dx_relevance: 엔지니어 중심 기술 토론 신호
+  terms_url: null
+  storage_right: excerpt_allowed
+  config: {}

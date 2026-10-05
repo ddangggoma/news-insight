@@ -1,0 +1,322 @@
+[
+  {
+    "key": "nict",
+    "name": "NICT",
+    "checked_at": "2026-10-05T12:33:51.162129+00:00",
+    "method": "html",
+    "endpoint": "https://www.nict.go.jp/en/press/index.html",
+    "samples": [
+      {
+        "url": "https://www.nict.go.jp/en/press/2026/09/24-1.html",
+        "title": "Molecular Mechanism of Short-Term Synaptic Plasticity Was Discovered | 2026 | NICT - National Institute of Information and Communications Technology",
+        "published_at": "2026-09-23 15:00:00+00:00",
+        "http_status": 200,
+        "description_chars": 1031,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "recent"
+      },
+      {
+        "url": "https://www.nict.go.jp/en/press/2026/09/09-1.html",
+        "title": "A Multiplexed Quantum Photonic Interface for Neutral-Atom Quantum Computers | 2026 | NICT - National Institute of Information and Communications Technology",
+        "published_at": "2026-08-31 15:00:00+00:00",
+        "http_status": 200,
+        "description_chars": 547,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "old"
+      },
+      {
+        "url": "https://www.nict.go.jp/en/press/2026/07/31-1.html",
+        "title": "National Institute of Information and Communications Technology Launches Its 6th Mid- to Long-Term Plan | 2026 | NICT - National Institute of Information and Communications Technology",
+        "published_at": "2026-07-30 15:00:00+00:00",
+        "http_status": 200,
+        "description_chars": 219,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "old"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 10,
+    "recent_complete": 1,
+    "status": "partial",
+    "robots": [
+      {
+        "url": "https://www.nict.go.jp/robots.txt",
+        "status": 404
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://www.nict.go.jp/en/press/index.html",
+        "final_url": "https://www.nict.go.jp/en/press/index.html",
+        "status": 200,
+        "bytes": 32268,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.nict.go.jp/en/press/2026/09/24-1.html",
+        "final_url": "https://www.nict.go.jp/en/press/2026/09/24-1.html",
+        "status": 200,
+        "bytes": 39566,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.nict.go.jp/en/press/2026/09/09-1.html",
+        "final_url": "https://www.nict.go.jp/en/press/2026/09/09-1.html",
+        "status": 200,
+        "bytes": 40050,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.nict.go.jp/en/press/2026/07/31-1.html",
+        "final_url": "https://www.nict.go.jp/en/press/2026/07/31-1.html",
+        "status": 200,
+        "bytes": 40747,
+        "mime": "text/html"
+      }
+    ]
+  },
+  {
+    "key": "vtt",
+    "name": "VTT",
+    "checked_at": "2026-10-05T12:33:51.162310+00:00",
+    "method": "html",
+    "endpoint": "https://www.vttresearch.com/en/news-and-stories",
+    "samples": [
+      {
+        "url": "https://www.vttresearch.com/en/news-and-ideas/jani-kivioja-appointed-lead-vtts-quantum-technologies-research-area-accelerate",
+        "title": "Jani Kivioja appointed to lead VTT’s Quantum Technologies research area to accelerate the commercialisation of research | VTT",
+        "published_at": "2026-10-05 00:00:00+00:00",
+        "http_status": 200,
+        "description_chars": 406,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "recent"
+      },
+      {
+        "url": "https://www.vttresearch.com/en/news-and-ideas/case-posiva-engineering-worlds-first-final-disposal-facility-spent-nuclear-fuel",
+        "title": "Case: Posiva – Engineering the world's first final disposal facility for spent nuclear fuel | VTT",
+        "published_at": "2026-09-30 00:00:00+00:00",
+        "http_status": 200,
+        "description_chars": 331,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "recent"
+      },
+      {
+        "url": "https://www.vttresearch.com/en/news-and-ideas/digitalisation-rewriting-rules-calibration-more-accurate-sensors-cut-costs-save",
+        "title": "Digitalisation is rewriting the rules of calibration: more accurate sensors cut costs, save energy and keep products safe | VTT",
+        "published_at": "2026-09-24 00:00:00+00:00",
+        "http_status": 200,
+        "description_chars": 166,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "recent"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 12,
+    "recent_complete": 3,
+    "status": "sample_pass",
+    "robots": [
+      {
+        "url": "https://www.vttresearch.com/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://www.vttresearch.com/en/news-and-stories",
+        "final_url": "https://www.vttresearch.com/en/news-stories/news-and-stories",
+        "status": 200,
+        "bytes": 251808,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.vttresearch.com/en/news-and-ideas/jani-kivioja-appointed-lead-vtts-quantum-technologies-research-area-accelerate",
+        "final_url": "https://www.vttresearch.com/en/news-and-ideas/jani-kivioja-appointed-lead-vtts-quantum-technologies-research-area-accelerate",
+        "status": 200,
+        "bytes": 191042,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.vttresearch.com/en/news-and-ideas/case-posiva-engineering-worlds-first-final-disposal-facility-spent-nuclear-fuel",
+        "final_url": "https://www.vttresearch.com/en/news-and-ideas/case-posiva-engineering-worlds-first-final-disposal-facility-spent-nuclear-fuel",
+        "status": 200,
+        "bytes": 237187,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.vttresearch.com/en/news-and-ideas/digitalisation-rewriting-rules-calibration-more-accurate-sensors-cut-costs-save",
+        "final_url": "https://www.vttresearch.com/en/news-and-ideas/digitalisation-rewriting-rules-calibration-more-accurate-sensors-cut-costs-save",
+        "status": 200,
+        "bytes": 195315,
+        "mime": "text/html"
+      }
+    ]
+  },
+  {
+    "key": "csiro",
+    "name": "CSIRO",
+    "checked_at": "2026-10-05T12:33:51.162419+00:00",
+    "method": "html",
+    "endpoint": "https://www.csiro.au/en/News",
+    "samples": [
+      {
+        "url": "https://www.csiro.au/en/news/All/Articles/2026/September/Wildflowers-and-telescopes",
+        "title": "World-leading radio telescopes give space for stunning wildflowers",
+        "published_at": "2026-09-16 00:00:00+00:00",
+        "http_status": 200,
+        "description_chars": 211,
+        "body_candidate_chars": 4789,
+        "body_selector": "article",
+        "status": "recent"
+      },
+      {
+        "url": "https://www.csiro.au/en/news/All/Articles/2026/September/History-of-computing",
+        "title": "Building Australia’s first computer",
+        "published_at": "2026-09-16 00:00:00+00:00",
+        "http_status": 200,
+        "description_chars": 236,
+        "body_candidate_chars": 22417,
+        "body_selector": "article",
+        "status": "recent"
+      },
+      {
+        "url": "https://www.csiro.au/en/news/All/Articles/2026/September/How-drones-are-being-put-to-work-in-environmental-research",
+        "title": "Eyes in the sky: how drones are being put to work for science and sustainability",
+        "published_at": "2026-09-16 00:00:00+00:00",
+        "http_status": 200,
+        "description_chars": 184,
+        "body_candidate_chars": 12146,
+        "body_selector": "article",
+        "status": "recent"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 6,
+    "recent_complete": 3,
+    "status": "sample_pass",
+    "robots": [
+      {
+        "url": "https://www.csiro.au/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://www.csiro.au/en/News",
+        "final_url": "https://www.csiro.au/en/News",
+        "status": 200,
+        "bytes": 130330,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.csiro.au/en/news/All/Articles/2026/September/Wildflowers-and-telescopes",
+        "final_url": "https://www.csiro.au/en/news/All/Articles/2026/September/Wildflowers-and-telescopes",
+        "status": 200,
+        "bytes": 130775,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.csiro.au/en/news/All/Articles/2026/September/History-of-computing",
+        "final_url": "https://www.csiro.au/en/news/All/Articles/2026/September/History-of-computing",
+        "status": 200,
+        "bytes": 141076,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.csiro.au/en/news/All/Articles/2026/September/How-drones-are-being-put-to-work-in-environmental-research",
+        "final_url": "https://www.csiro.au/en/news/All/Articles/2026/September/How-drones-are-being-put-to-work-in-environmental-research",
+        "status": 200,
+        "bytes": 138022,
+        "mime": "text/html"
+      }
+    ]
+  },
+  {
+    "key": "optics-org",
+    "name": "optics.org",
+    "checked_at": "2026-10-05T12:33:55.543164+00:00",
+    "method": "html",
+    "endpoint": "https://optics.org/news",
+    "samples": [
+      {
+        "url": "https://optics.org/news/expanding-microelectronics-uk-show-reflects-sector-optimism…",
+        "title": "Expanding Microelectronics UK show reflects sector optimism… | optics.org",
+        "published_at": "2026-10-01 00:00:00+00:00",
+        "http_status": 200,
+        "description_chars": 81,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "recent"
+      },
+      {
+        "url": "https://optics.org/news/lzh-and-thies-clima-develop-lidar-system-for-wind-measurement",
+        "title": "LZH and Thies Clima develop lidar system for wind measurement | optics.org",
+        "published_at": "2026-10-01 00:00:00+00:00",
+        "http_status": 200,
+        "description_chars": 76,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "recent"
+      },
+      {
+        "url": "https://optics.org/news/predictive-anatomical-guidance-system-helps-novices-acquire-ultrasound-images",
+        "title": "Predictive anatomical guidance system helps novices acquire ultrasound images | optics.org",
+        "published_at": "2026-10-01 00:00:00+00:00",
+        "http_status": 200,
+        "description_chars": 83,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "recent"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 20,
+    "recent_complete": 3,
+    "status": "sample_pass",
+    "robots": [
+      {
+        "url": "https://optics.org/robots.txt",
+        "status": 404
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://optics.org/news",
+        "final_url": "https://optics.org/news",
+        "status": 200,
+        "bytes": 72344,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://optics.org/news/expanding-microelectronics-uk-show-reflects-sector-optimism…",
+        "final_url": "https://optics.org/news/expanding-microelectronics-uk-show-reflects-sector-optimism…",
+        "status": 200,
+        "bytes": 68226,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://optics.org/news/lzh-and-thies-clima-develop-lidar-system-for-wind-measurement",
+        "final_url": "https://optics.org/news/lzh-and-thies-clima-develop-lidar-system-for-wind-measurement",
+        "status": 200,
+        "bytes": 61042,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://optics.org/news/predictive-anatomical-guidance-system-helps-novices-acquire-ultrasound-images",
+        "final_url": "https://optics.org/news/predictive-anatomical-guidance-system-helps-novices-acquire-ultrasound-images",
+        "status": 200,
+        "bytes": 61574,
+        "mime": "text/html"
+      }
+    ]
+  }
+]

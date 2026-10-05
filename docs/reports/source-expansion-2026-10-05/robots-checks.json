@@ -1,0 +1,61 @@
+[
+  {
+    "name": "RIKEN",
+    "url": "https://www.riken.jp/robots.txt",
+    "status": 404
+  },
+  {
+    "name": "AIST",
+    "url": "https://www.aist.go.jp/robots.txt",
+    "status": 200,
+    "review_agent_allowed": true,
+    "wildcard_allowed": true
+  },
+  {
+    "name": "A*STAR Research",
+    "url": "https://research.a-star.edu.sg/robots.txt",
+    "status": 200,
+    "review_agent_allowed": true,
+    "wildcard_allowed": true
+  },
+  {
+    "name": "pv magazine",
+    "url": "https://www.pv-magazine.com/robots.txt",
+    "status": 200,
+    "review_agent_allowed": true,
+    "wildcard_allowed": true
+  },
+  {
+    "name": "electrive EN",
+    "url": "https://www.electrive.com/robots.txt",
+    "status": 200,
+    "review_agent_allowed": true,
+    "wildcard_allowed": true
+  },
+  {
+    "name": "electrive DE",
+    "url": "https://www.electrive.net/robots.txt",
+    "status": 200,
+    "review_agent_allowed": true,
+    "wildcard_allowed": true
+  },
+  {
+    "name": "Inria",
+    "url": "https://www.inria.fr/robots.txt",
+    "status": 200,
+    "review_agent_allowed": true,
+    "wildcard_allowed": true
+  },
+  {
+    "name": "InfoQ",
+    "url": "https://feed.infoq.com/robots.txt",
+    "status": 406
+  },
+  {
+    "name": "pv magazine India",
+    "url": "https://www.pv-magazine-india.com/robots.txt",
+    "status": 200,
+    "review_agent_allowed": true,
+    "wildcard_allowed": true
+  }
+]

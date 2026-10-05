@@ -1,0 +1,8 @@
+﻿coverage,source,method,official_docs,requirements,verified_status,priority
+한국,KIPRIS Plus,Open API / Bulk,https://plus.kipris.or.kr/portal/main.do,서비스 상품 선택·이용신청·인증키; 요금/권한 상품별 확인,키 미사용·실제 특허 응답 미검증,1
+세계·EP 중심,EPO OPS,REST XML / OAuth,https://www.epo.org/en/searching-for-patents/data/web-services/ops,"등록·앱·OAuth; 주 4GB 이하 무료 구간, fair-use 제한 별도",공식 규격 확인·인증 응답 미검증,1
+미국,USPTO ODP,공식 API / Bulk,https://data.uspto.gov/apis,USPTO 계정·API 키; 현재 계정 접근 요건 확인,키 미사용·실제 응답 미검증,1
+일본,JPO Patent Information APIs,공식 API,https://ip-data.jpo.go.jp/pages/top_e.html,사용 등록·제공 대상/시험 제공 조건·API별 한도 확인,사양 탐색 단계·전체 특허 검색을 보장하지 않음,2
+국제/PCT,WIPO PATENTSCOPE,공식 검색·데이터 제공 경로 검토,https://www.wipo.int/en/web/patentscope/,대량 자동 수집 경로·이용조건 확인 필요,수집 API 확보 전 HTML 대량 크롤링 보류,2
+세계,Lens Patent API,POST https://api.lens.org/patent/search,https://docs.api.lens.org/getting-started.html,API 이용 신청·Bearer token·이용계획/표시 조건,토큰 미사용·응답 미검증,2
+세계,Google Patents Public Datasets,BigQuery,https://github.com/google/patents-public-data/blob/master/README.md,GCP 프로젝트·쿼리 비용 상한·테이블별 최신성/이용조건 확인,쿼리 미실행; 웹 검색화면 크롤링과 구분,2

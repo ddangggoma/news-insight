@@ -1,0 +1,14 @@
+{
+  "news-insight-worker-1": {
+    "levels": {
+      "info": 1357
+    },
+    "errors": {}
+  },
+  "news-insight-scheduler-1": {
+    "levels": {
+      "info": 32
+    },
+    "errors": {}
+  }
+}

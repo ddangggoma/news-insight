@@ -1,0 +1,526 @@
+version: 1
+purpose: review-only; not a production source catalog
+sources:
+- key: etri
+  name: ETRI
+  country: 한국
+  fields:
+  - ai
+  - connectivity
+  - display_av
+  - robotics_mobility
+  url: https://www.etri.re.kr/kor/bbs/list.etri?b_board_id=ETRI06
+  method: html
+  enabled_in_production: false
+  timezone: Asia/Seoul
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 21600
+  policy_review: pending
+  storage: metadata_only
+  notes: 기관 자체 성과 홍보; 논문/외부 보도 교차확인
+  link_pattern: /kor/bbs/view\.etri
+  link_selector: td.subject_rwd a
+  row_selector: tr:has(td.date_rwd)
+  title_selector: td.subject_rwd a
+  date_selector: td.date_rwd
+  date_format: '%Y.%m.%d'
+  normalize_query:
+  - b_board_id
+  - b_idx
+  strip_session: true
+- key: kisti
+  name: KISTI
+  country: 한국
+  fields:
+  - cloud_data
+  - ai
+  url: https://www.kisti.re.kr/promote/post/news
+  method: html
+  enabled_in_production: false
+  timezone: Asia/Seoul
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 21600
+  policy_review: pending
+  storage: metadata_only
+  notes: 기관 자체 성과 홍보; 논문/외부 보도 교차확인
+  link_pattern: /promote/post/
+  link_selector: a[href]
+- key: riken
+  name: RIKEN
+  country: 일본
+  fields:
+  - ai
+  - frontier
+  - health_tech
+  url: https://www.riken.jp/en/feed/press_feed/
+  method: feed
+  enabled_in_production: false
+  timezone: Asia/Tokyo
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 21600
+  policy_review: pending
+  storage: metadata_only
+  notes: 기관 자체 성과 홍보; 논문/외부 보도 교차확인
+- key: aist
+  name: AIST
+  country: 일본
+  fields:
+  - semis
+  - manufacturing
+  - energy
+  url: https://www.aist.go.jp/index_en.html
+  method: html
+  enabled_in_production: false
+  timezone: Asia/Tokyo
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 21600
+  policy_review: pending
+  storage: metadata_only
+  notes: 기관 자체 성과 홍보; 논문/외부 보도 교차확인
+  link_pattern: /aist_e/list/latest_research/\d{4}/\d{8}/
+  link_selector: a[href]
+- key: nict
+  name: NICT
+  country: 일본
+  fields:
+  - connectivity
+  - security
+  - frontier
+  url: https://www.nict.go.jp/en/press/index.html
+  method: html
+  enabled_in_production: false
+  timezone: Asia/Tokyo
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 21600
+  policy_review: pending
+  storage: metadata_only
+  notes: 기관 자체 성과 홍보; 논문/외부 보도 교차확인
+  link_pattern: /en/press/\d{4}/\d{2}/\d{2}-\d+\.html
+  link_selector: a[href]
+  article_date_selector: .date, .info_author p
+  article_date_format: '%B %d, %Y'
+  article_date_regex: '[A-Za-z]+ \d{1,2}, \d{4}'
+- key: cas
+  name: CAS
+  country: 중국
+  fields:
+  - semis
+  - frontier
+  - ai
+  url: https://english.cas.cn/newsroom/research-news/
+  method: html
+  enabled_in_production: false
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 21600
+  policy_review: pending
+  storage: metadata_only
+  notes: 기관 자체 성과 홍보; 논문/외부 보도 교차확인
+  link_pattern: /t\d{8}_\d+\.shtml
+  link_selector: a[href]
+  row_selector: li:has(.up-times)
+  title_selector: h4
+  date_selector: .up-times
+  date_format: '%b %d, %Y'
+- key: iii
+  name: III
+  country: 대만
+  fields:
+  - platform_sw
+  - security
+  - manufacturing
+  url: https://www.iii.org.tw/en/news/newsroom
+  method: html
+  enabled_in_production: false
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 21600
+  policy_review: pending
+  storage: metadata_only
+  notes: 기관 자체 성과 홍보; 논문/외부 보도 교차확인
+  link_pattern: /en/news/
+  link_selector: a[href]
+- key: a-star-research
+  name: A*STAR Research
+  country: 싱가포르
+  fields:
+  - semis
+  - health_tech
+  - manufacturing
+  url: https://research.a-star.edu.sg/feed/
+  method: feed
+  enabled_in_production: false
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 21600
+  policy_review: pending
+  storage: metadata_only
+  notes: 기관 자체 성과 홍보; 논문/외부 보도 교차확인
+  minimum_request_interval_seconds: 60
+  fetch_article_pages: false
+- key: tech-in-asia
+  name: Tech in Asia
+  country: 싱가포르·동남아
+  fields:
+  - platform_sw
+  - cloud_data
+  - ai
+  url: https://www.techinasia.com/
+  method: blocked
+  enabled_in_production: false
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 14400
+  policy_review: pending
+  storage: metadata_only
+  notes: 기사·의견·광고·보도자료 구분; 원문 재배포 권리 미확인
+  link_pattern: /20\d{2}/
+  link_selector: a[href]
+  block_reason: 직접 접근 403; 공식 피드/제휴 조건 확인 필요
+- key: dfki
+  name: DFKI
+  country: 독일
+  fields:
+  - ai
+  - robotics_mobility
+  - manufacturing
+  url: https://www.dfki.de/en/web/news-media/press/press-releases
+  method: html
+  enabled_in_production: false
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 21600
+  policy_review: pending
+  storage: metadata_only
+  notes: 기관 자체 성과 홍보; 논문/외부 보도 교차확인
+  link_pattern: /web/news-media/press/press-releases/
+  link_selector: a[href]
+- key: pv-magazine
+  name: pv magazine
+  country: 독일·국제판
+  fields:
+  - energy
+  url: https://www.pv-magazine.com/feed/
+  method: feed
+  enabled_in_production: false
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 14400
+  policy_review: pending
+  storage: metadata_only
+  notes: 기사·의견·광고·보도자료 구분; 원문 재배포 권리 미확인
+- key: electrive
+  name: electrive
+  country: 독일·국제판
+  fields:
+  - energy
+  - robotics_mobility
+  url: https://www.electrive.com/feed/
+  method: feed
+  enabled_in_production: false
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 14400
+  policy_review: pending
+  storage: metadata_only
+  notes: 기사·의견·광고·보도자료 구분; 원문 재배포 권리 미확인
+- key: inria
+  name: Inria
+  country: 프랑스
+  fields:
+  - ai
+  - platform_sw
+  - security
+  url: https://www.inria.fr/en/actualites_evenements
+  method: html
+  enabled_in_production: false
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 21600
+  policy_review: pending
+  storage: metadata_only
+  notes: 기관 자체 성과 홍보; 논문/외부 보도 교차확인
+  link_pattern: /en/[^/?]+$
+  link_selector: article.news a[rel="bookmark"]
+- key: cea
+  name: CEA
+  country: 프랑스
+  fields:
+  - semis
+  - energy
+  - frontier
+  url: https://www.cea.fr/english/Pages/news-list.aspx
+  method: html
+  enabled_in_production: false
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 21600
+  policy_review: pending
+  storage: metadata_only
+  notes: 기관 자체 성과 홍보; 논문/외부 보도 교차확인
+  link_pattern: /english/Pages/News/[^/]+\.aspx
+  link_selector: a[href]
+  article_date_selector: meta[name="DC.date"]
+  article_date_attribute: content
+  article_date_format: '%Y-%m-%d'
+  exclude_pattern: press-contacts
+- key: cnrs
+  name: CNRS
+  country: 프랑스
+  fields:
+  - frontier
+  - ai
+  - health_tech
+  url: https://www.cnrs.fr/en/newsroom
+  method: html
+  enabled_in_production: false
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 21600
+  policy_review: pending
+  storage: metadata_only
+  notes: 기관 자체 성과 홍보; 논문/외부 보도 교차확인
+  link_pattern: /en/press/[^/?]+
+  link_selector: a[href]
+- key: tno
+  name: TNO
+  country: 네덜란드
+  fields:
+  - connectivity
+  - energy
+  - manufacturing
+  url: https://www.tno.nl/en/newsroom/news/
+  method: html
+  enabled_in_production: false
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 21600
+  policy_review: pending
+  storage: metadata_only
+  notes: 기관 자체 성과 홍보; 논문/외부 보도 교차확인
+  link_pattern: /en/newsroom/\d{4}/\d{2}/[^/]+/?$
+  link_selector: a[href]
+- key: vtt
+  name: VTT
+  country: 핀란드
+  fields:
+  - semis
+  - energy
+  - manufacturing
+  url: https://www.vttresearch.com/en/news-and-stories
+  method: html
+  enabled_in_production: false
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 21600
+  policy_review: pending
+  storage: metadata_only
+  notes: 기관 자체 성과 홍보; 논문/외부 보도 교차확인
+  link_pattern: /en/news-and-ideas/[^/?]+
+  link_selector: .view--news-and-ideas--latest-with-pager-and-load-more-button-block
+    a.card__url[href]
+- key: csem
+  name: CSEM
+  country: 스위스
+  fields:
+  - semis
+  - health_tech
+  - display_av
+  - frontier
+  url: https://www.csem.ch/en/news/
+  method: html
+  enabled_in_production: false
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 21600
+  policy_review: pending
+  storage: metadata_only
+  notes: 기관 자체 성과 홍보; 논문/외부 보도 교차확인; 빈 앵커 텍스트 대신 기사 메타데이터 사용
+  link_pattern: /en/news/[^/?]+/?$
+  link_selector: a[href]
+- key: csiro
+  name: CSIRO
+  country: 호주
+  fields:
+  - ai
+  - energy
+  - manufacturing
+  url: https://www.csiro.au/en/News
+  method: html
+  enabled_in_production: false
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 21600
+  policy_review: pending
+  storage: metadata_only
+  notes: 기관 자체 성과 홍보; 논문/외부 보도 교차확인
+  link_pattern: /en/news/All/(Articles|News)/\d{4}/[^/]+/[^/?]+
+  link_selector: a[href]
+  article_date_selector: p.teaser__info span.teaser__dot
+  article_date_format: '%d %B %Y'
+- key: nrc-canada
+  name: NRC Canada
+  country: 캐나다
+  fields:
+  - semis
+  - frontier
+  - manufacturing
+  url: https://nrc.canada.ca/en/stories
+  method: html
+  enabled_in_production: false
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 21600
+  policy_review: pending
+  storage: metadata_only
+  notes: 기관 자체 성과 홍보; 논문/외부 보도 교차확인
+  link_pattern: /en/stories/[^/?]+
+  link_selector: a[href]
+- key: iet-e-t
+  name: IET E&T
+  country: 영국
+  fields:
+  - connectivity
+  - energy
+  - manufacturing
+  url: https://eandt.theiet.org/news
+  method: html
+  enabled_in_production: false
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 14400
+  policy_review: pending
+  storage: metadata_only
+  notes: 기사·의견·광고·보도자료 구분; 원문 재배포 권리 미확인
+  link_pattern: /20\d{2}/\d{2}/\d{2}/[^/?]+
+  link_selector: a[href]
+- key: optics-org
+  name: optics.org
+  country: 국제·국가확인보류
+  fields:
+  - display_av
+  - frontier
+  - semis
+  url: https://optics.org/news
+  method: html
+  enabled_in_production: false
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 14400
+  policy_review: pending
+  storage: metadata_only
+  notes: 기사·의견·광고·보도자료 구분; 원문 재배포 권리 미확인
+  link_pattern: /news/[^/?]+
+  link_selector: a[href]
+  exclude_pattern: /news/(business-news|applications|research-and-development|photonics-world)$
+  article_date_selector: p.flex.flex-wrap span
+  article_date_format: '%d %B %Y'
+- key: display-daily
+  name: Display Daily
+  country: 국제·국가확인보류
+  fields:
+  - display_av
+  url: https://displaydaily.com/
+  method: blocked
+  enabled_in_production: false
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 14400
+  policy_review: pending
+  storage: metadata_only
+  notes: 기사·의견·광고·보도자료 구분; 원문 재배포 권리 미확인
+  link_pattern: /20\d{2}/
+  link_selector: a[href]
+  block_reason: 직접 접근 403; 공식 피드/제휴 조건 확인 필요
+- key: healthcare-it-news
+  name: Healthcare IT News
+  country: 미국·국제판
+  fields:
+  - health_tech
+  - security
+  url: https://www.healthcareitnews.com/
+  method: blocked
+  enabled_in_production: false
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 14400
+  policy_review: pending
+  storage: metadata_only
+  notes: 기사·의견·광고·보도자료 구분; 원문 재배포 권리 미확인
+  link_pattern: /20\d{2}/
+  link_selector: a[href]
+  block_reason: 직접 접근 403; 공식 피드/제휴 조건 확인 필요
+- key: mobihealthnews
+  name: MobiHealthNews
+  country: 미국·국제판
+  fields:
+  - health_tech
+  url: https://www.mobihealthnews.com/
+  method: blocked
+  enabled_in_production: false
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 14400
+  policy_review: pending
+  storage: metadata_only
+  notes: 기사·의견·광고·보도자료 구분; 원문 재배포 권리 미확인
+  link_pattern: /20\d{2}/
+  link_selector: a[href]
+  block_reason: 직접 접근 403; 공식 피드/제휴 조건 확인 필요
+- key: infoq
+  name: InfoQ
+  country: 국제·국가확인보류
+  fields:
+  - platform_sw
+  - cloud_data
+  - ai
+  url: https://feed.infoq.com/
+  method: feed
+  enabled_in_production: false
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 14400
+  policy_review: pending
+  storage: metadata_only
+  notes: 기사·의견·광고·보도자료 구분; 원문 재배포 권리 미확인; robots 406이면 중단, 공식 조건 확인 필요
+- key: pv-magazine-india
+  name: pv magazine India
+  country: 인도 시장·독일 발행그룹
+  fields:
+  - energy
+  url: https://www.pv-magazine-india.com/feed/
+  method: feed
+  enabled_in_production: false
+  timezone: UTC
+  max_age_days: 30
+  sample_limit: 3
+  poll_interval_seconds: 14400
+  policy_review: pending
+  storage: metadata_only
+  notes: 기사·의견·광고·보도자료 구분; 원문 재배포 권리 미확인

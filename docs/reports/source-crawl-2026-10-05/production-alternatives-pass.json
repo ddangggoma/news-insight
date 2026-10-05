@@ -1,0 +1,527 @@
+[
+  {
+    "key": "epo-publication-server",
+    "endpoint": "https://data.epo.org/publication-server/rest/v1.2/publication-dates",
+    "started_at": "2026-10-05T13:17:38.371461+00:00",
+    "checks": [],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 10,
+      "items_new": 0,
+      "items_updated": 0,
+      "items_unchanged": 10,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 6262,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 20,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T13:17:50.064616+00:00"
+  },
+  {
+    "key": "crossref-journal-nature-electronics",
+    "endpoint": "https://api.crossref.org/works?filter=issn:2520-1131,from-pub-date:{today-30d},until-pub-date:{today}&sort=published&order=desc&rows=20",
+    "started_at": "2026-10-05T13:17:50.065143+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "api.crossref.org"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "not applicable: documented API",
+          "storage_right": "metadata_only"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/json",
+          "bytes": 235580,
+          "redirects": 0,
+          "elapsed_ms": 1527
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "items": 20,
+          "dated": 20,
+          "recent": 20
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 20,
+      "items_new": 20,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 508,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 20,
+    "metric_snapshots": 20,
+    "finished_at": "2026-10-05T13:17:53.146259+00:00"
+  },
+  {
+    "key": "crossref-journal-nature-biomedical-engineering",
+    "endpoint": "https://api.crossref.org/works?filter=issn:2157-846X,from-pub-date:{today-30d},until-pub-date:{today}&sort=published&order=desc&rows=20",
+    "started_at": "2026-10-05T13:17:53.146534+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "api.crossref.org"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "not applicable: documented API",
+          "storage_right": "metadata_only"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/json",
+          "bytes": 450816,
+          "redirects": 0,
+          "elapsed_ms": 860
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "items": 18,
+          "dated": 18,
+          "recent": 18
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 18,
+      "items_new": 18,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 621,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 18,
+    "metric_snapshots": 18,
+    "finished_at": "2026-10-05T13:17:56.271517+00:00"
+  },
+  {
+    "key": "crossref-journal-nature-machine-intelligence",
+    "endpoint": "https://api.crossref.org/works?filter=issn:2522-5839,from-pub-date:{today-30d},until-pub-date:{today}&sort=published&order=desc&rows=20",
+    "started_at": "2026-10-05T13:17:56.271881+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "api.crossref.org"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "not applicable: documented API",
+          "storage_right": "metadata_only"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/json",
+          "bytes": 193095,
+          "redirects": 0,
+          "elapsed_ms": 326
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "items": 11,
+          "dated": 11,
+          "recent": 11
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 11,
+      "items_new": 11,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 312,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 11,
+    "metric_snapshots": 11,
+    "finished_at": "2026-10-05T13:17:58.982525+00:00"
+  },
+  {
+    "key": "crossref-journal-communications-engineering",
+    "endpoint": "https://api.crossref.org/works?filter=issn:2731-3395,from-pub-date:{today-30d},until-pub-date:{today}&sort=published&order=desc&rows=20",
+    "started_at": "2026-10-05T13:17:58.983167+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "api.crossref.org"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "not applicable: documented API",
+          "storage_right": "metadata_only"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/json",
+          "bytes": 326108,
+          "redirects": 0,
+          "elapsed_ms": 424
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "items": 20,
+          "dated": 20,
+          "recent": 20
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 20,
+      "items_new": 20,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 695,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 20,
+    "metric_snapshots": 20,
+    "finished_at": "2026-10-05T13:18:02.423684+00:00"
+  },
+  {
+    "key": "crossref-journal-npj-robotics",
+    "endpoint": "https://api.crossref.org/works?filter=issn:2731-4278,from-pub-date:{today-30d},until-pub-date:{today}&sort=published&order=desc&rows=20",
+    "started_at": "2026-10-05T13:18:02.424041+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "api.crossref.org"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "not applicable: documented API",
+          "storage_right": "metadata_only"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/json",
+          "bytes": 41456,
+          "redirects": 0,
+          "elapsed_ms": 727
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "failed",
+        "reasons": [
+          "only 2 recent complete items (need 3)"
+        ],
+        "metrics": {
+          "items": 2,
+          "dated": 2,
+          "recent": 2
+        }
+      }
+    ],
+    "stage": "V2",
+    "status": "candidate",
+    "stored_items": 0,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T13:18:04.511766+00:00"
+  },
+  {
+    "key": "crossref-journal-microsystems-nanoengineering",
+    "endpoint": "https://api.crossref.org/works?filter=issn:2055-7434,from-pub-date:{today-30d},until-pub-date:{today}&sort=published&order=desc&rows=20",
+    "started_at": "2026-10-05T13:18:04.512700+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "api.crossref.org"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "not applicable: documented API",
+          "storage_right": "metadata_only"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/json",
+          "bytes": 426259,
+          "redirects": 0,
+          "elapsed_ms": 417
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "items": 20,
+          "dated": 20,
+          "recent": 20
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 20,
+      "items_new": 20,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 372,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 20,
+    "metric_snapshots": 20,
+    "finished_at": "2026-10-05T13:18:07.073140+00:00"
+  },
+  {
+    "key": "crossref-journal-npj-flexible-electronics",
+    "endpoint": "https://api.crossref.org/works?filter=issn:2397-4621,from-pub-date:{today-30d},until-pub-date:{today}&sort=published&order=desc&rows=20",
+    "started_at": "2026-10-05T13:18:07.073539+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "api.crossref.org"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "not applicable: documented API",
+          "storage_right": "metadata_only"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/json",
+          "bytes": 31671,
+          "redirects": 0,
+          "elapsed_ms": 259
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "items": 6,
+          "dated": 6,
+          "recent": 6
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 6,
+      "items_new": 6,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 377,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 6,
+    "metric_snapshots": 6,
+    "finished_at": "2026-10-05T13:18:10.103716+00:00"
+  },
+  {
+    "key": "crossref-journal-nature-photonics",
+    "endpoint": "https://api.crossref.org/works?filter=issn:1749-4885,from-pub-date:{today-30d},until-pub-date:{today}&sort=published&order=desc&rows=20",
+    "started_at": "2026-10-05T13:18:10.104642+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "api.crossref.org"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "not applicable: documented API",
+          "storage_right": "metadata_only"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/json",
+          "bytes": 313995,
+          "redirects": 0,
+          "elapsed_ms": 427
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "items": 20,
+          "dated": 20,
+          "recent": 20
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 20,
+      "items_new": 20,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 344,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 20,
+    "metric_snapshots": 20,
+    "finished_at": "2026-10-05T13:18:13.093659+00:00"
+  }
+]

@@ -1,0 +1,560 @@
+[
+  {
+    "key": "nict",
+    "name": "NICT",
+    "checked_at": "2026-10-05T12:28:17.420489+00:00",
+    "method": "html",
+    "endpoint": "https://www.nict.go.jp/en/press/index.html",
+    "samples": [
+      {
+        "url": "https://www.nict.go.jp/en/press/2026/09/24-1.html",
+        "title": "Molecular Mechanism of Short-Term Synaptic Plasticity Was Discovered | 2026 | NICT - National Institute of Information and Communications Technology",
+        "published_at": "2026-09-23 15:00:00+00:00",
+        "http_status": 200,
+        "description_chars": 1031,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "recent"
+      },
+      {
+        "url": "https://www.nict.go.jp/en/press/2026/09/09-1.html",
+        "title": "A Multiplexed Quantum Photonic Interface for Neutral-Atom Quantum Computers | 2026 | NICT - National Institute of Information and Communications Technology",
+        "published_at": null,
+        "http_status": 200,
+        "description_chars": 547,
+        "error": "time data 'The University of OsakaJapan Science and Technology Agency (JST)National Institute of Information and Communications Technology' does not match format '%B %d, %Y'",
+        "status": "fetch_failed"
+      },
+      {
+        "url": "https://www.nict.go.jp/en/press/2026/07/31-1.html",
+        "title": "National Institute of Information and Communications Technology Launches Its 6th Mid- to Long-Term Plan | 2026 | NICT - National Institute of Information and Communications Technology",
+        "published_at": null,
+        "http_status": 200,
+        "description_chars": 219,
+        "error": "unconverted data remains: (Japanese version released on April 20, 2026)National Institute of Information and Communications Technology",
+        "status": "fetch_failed"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 10,
+    "recent_complete": 1,
+    "status": "partial",
+    "robots": [
+      {
+        "url": "https://www.nict.go.jp/robots.txt",
+        "status": 404
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://www.nict.go.jp/en/press/index.html",
+        "final_url": "https://www.nict.go.jp/en/press/index.html",
+        "status": 200,
+        "bytes": 32268,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.nict.go.jp/en/press/2026/09/24-1.html",
+        "final_url": "https://www.nict.go.jp/en/press/2026/09/24-1.html",
+        "status": 200,
+        "bytes": 39566,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.nict.go.jp/en/press/2026/09/09-1.html",
+        "final_url": "https://www.nict.go.jp/en/press/2026/09/09-1.html",
+        "status": 200,
+        "bytes": 40050,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.nict.go.jp/en/press/2026/07/31-1.html",
+        "final_url": "https://www.nict.go.jp/en/press/2026/07/31-1.html",
+        "status": 200,
+        "bytes": 40747,
+        "mime": "text/html"
+      }
+    ]
+  },
+  {
+    "key": "cea",
+    "name": "CEA",
+    "checked_at": "2026-10-05T12:28:17.420706+00:00",
+    "method": "html",
+    "endpoint": "https://www.cea.fr/english/Pages/news-list.aspx",
+    "samples": [
+      {
+        "url": "https://www.cea.fr/english/Pages/News/partnership-international-dune-experiment.aspx",
+        "title": "Franco American Cooperation: CEA and the U.S. Department of Energy (DOE) Strengthen Partnership on the International DUNE Experiment",
+        "published_at": "2026-09-29 00:00:00+00:00",
+        "http_status": 200,
+        "description_chars": 442,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "recent"
+      },
+      {
+        "url": "https://www.cea.fr/english/Pages/News/VivaTech-2026-CEA-Showcases-Its-Innovations-and-Start-ups-aiming-towards-technological-Sovereignty.aspx",
+        "title": "VivaTech 2026 : CEA Showcases Its Innovations and Start-ups aiming towards technological Sovereignty",
+        "published_at": "2026-06-04 00:00:00+00:00",
+        "http_status": 200,
+        "description_chars": 356,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "old"
+      },
+      {
+        "url": "https://www.cea.fr/english/Pages/News/cea-tgcc-at-heart-of-european-challenges-computing-quantum-technology-and-semiconductors.aspx",
+        "title": "The CEA's TGCC at the heart of European challenges in computing, quantum technology, and semiconductors",
+        "published_at": "2026-06-01 00:00:00+00:00",
+        "http_status": 200,
+        "description_chars": 299,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "old"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 10,
+    "recent_complete": 1,
+    "status": "partial",
+    "robots": [
+      {
+        "url": "https://www.cea.fr/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://www.cea.fr/english/Pages/news-list.aspx",
+        "final_url": "https://www.cea.fr/english/Pages/news-list.aspx",
+        "status": 200,
+        "bytes": 95393,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.cea.fr/english/Pages/News/partnership-international-dune-experiment.aspx",
+        "final_url": "https://www.cea.fr/english/Pages/News/partnership-international-dune-experiment.aspx",
+        "status": 200,
+        "bytes": 84404,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.cea.fr/english/Pages/News/VivaTech-2026-CEA-Showcases-Its-Innovations-and-Start-ups-aiming-towards-technological-Sovereignty.aspx",
+        "final_url": "https://www.cea.fr/english/Pages/News/VivaTech-2026-CEA-Showcases-Its-Innovations-and-Start-ups-aiming-towards-technological-Sovereignty.aspx",
+        "status": 200,
+        "bytes": 83916,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.cea.fr/english/Pages/News/cea-tgcc-at-heart-of-european-challenges-computing-quantum-technology-and-semiconductors.aspx",
+        "final_url": "https://www.cea.fr/english/Pages/News/cea-tgcc-at-heart-of-european-challenges-computing-quantum-technology-and-semiconductors.aspx",
+        "status": 200,
+        "bytes": 87369,
+        "mime": "text/html"
+      }
+    ]
+  },
+  {
+    "key": "cnrs",
+    "name": "CNRS",
+    "checked_at": "2026-10-05T12:28:17.420832+00:00",
+    "method": "html",
+    "endpoint": "https://www.cnrs.fr/en/newsroom",
+    "samples": [
+      {
+        "url": "https://www.cnrs.fr/en/press/new-species-mosasaur-identified-provence-southeastern-france",
+        "title": "A new species of Mosasaur identified in Provence, southeastern France | CNRS",
+        "published_at": "2026-09-28 08:00:00+00:00",
+        "http_status": 200,
+        "description_chars": 1758,
+        "body_candidate_chars": 158,
+        "body_selector": "article",
+        "status": "recent"
+      },
+      {
+        "url": "https://www.cnrs.fr/en/press/how-does-partially-molten-layer-form-above-marss-core",
+        "title": "How does the partially molten layer form above Mars’s core? | CNRS",
+        "published_at": "2026-09-18 09:00:00+00:00",
+        "http_status": 200,
+        "description_chars": 1176,
+        "body_candidate_chars": 184,
+        "body_selector": "article",
+        "status": "recent"
+      },
+      {
+        "url": "https://www.cnrs.fr/en/press/cnrs-has-awarded-its-2026-gold-medal-physicist-jacqueline-bloch",
+        "title": "The CNRS has awarded its 2026 Gold Medal to the physicist Jacqueline Bloch | CNRS",
+        "published_at": "2026-09-17 09:00:00+00:00",
+        "http_status": 200,
+        "description_chars": 733,
+        "body_candidate_chars": 184,
+        "body_selector": "article",
+        "status": "recent"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 3,
+    "recent_complete": 3,
+    "status": "sample_pass",
+    "robots": [
+      {
+        "url": "https://www.cnrs.fr/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://www.cnrs.fr/en/newsroom",
+        "final_url": "https://www.cnrs.fr/en/newsroom",
+        "status": 200,
+        "bytes": 75145,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.cnrs.fr/en/press/new-species-mosasaur-identified-provence-southeastern-france",
+        "final_url": "https://www.cnrs.fr/en/press/new-species-mosasaur-identified-provence-southeastern-france",
+        "status": 200,
+        "bytes": 58359,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.cnrs.fr/en/press/how-does-partially-molten-layer-form-above-marss-core",
+        "final_url": "https://www.cnrs.fr/en/press/how-does-partially-molten-layer-form-above-marss-core",
+        "status": 200,
+        "bytes": 51033,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.cnrs.fr/en/press/cnrs-has-awarded-its-2026-gold-medal-physicist-jacqueline-bloch",
+        "final_url": "https://www.cnrs.fr/en/press/cnrs-has-awarded-its-2026-gold-medal-physicist-jacqueline-bloch",
+        "status": 200,
+        "bytes": 60180,
+        "mime": "text/html"
+      }
+    ]
+  },
+  {
+    "key": "tno",
+    "name": "TNO",
+    "checked_at": "2026-10-05T12:28:21.983555+00:00",
+    "method": "html",
+    "endpoint": "https://www.tno.nl/en/newsroom/news/",
+    "samples": [
+      {
+        "url": "https://www.tno.nl/en/newsroom/2026/10/better-decisions-digital-twinning",
+        "title": "Better decisions through digital twinning | TNO",
+        "published_at": "2026-09-30 22:00:00+00:00",
+        "http_status": 200,
+        "description_chars": 130,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "recent"
+      },
+      {
+        "url": "https://www.tno.nl/en/newsroom/2026/09/bottlenecks-growth-tech-start-ups",
+        "title": "Multiple bottlenecks are slowing the growth of Dutch tech start-ups",
+        "published_at": "2026-09-27 22:00:00+00:00",
+        "http_status": 200,
+        "description_chars": 126,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "recent"
+      },
+      {
+        "url": "https://www.tno.nl/en/newsroom/2026/09/first-projects-launched-flie-test",
+        "title": "FLIE accelerates industrial electrification with its first projects",
+        "published_at": "2026-09-23 22:00:00+00:00",
+        "http_status": 200,
+        "description_chars": 129,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "recent"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 5,
+    "recent_complete": 3,
+    "status": "sample_pass",
+    "robots": [
+      {
+        "url": "https://www.tno.nl/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://www.tno.nl/en/newsroom/news/",
+        "final_url": "https://www.tno.nl/en/newsroom/news/",
+        "status": 200,
+        "bytes": 143411,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.tno.nl/en/newsroom/2026/10/better-decisions-digital-twinning",
+        "final_url": "https://www.tno.nl/en/newsroom/2026/10/better-decisions-digital-twinning",
+        "status": 200,
+        "bytes": 135549,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.tno.nl/en/newsroom/2026/09/bottlenecks-growth-tech-start-ups",
+        "final_url": "https://www.tno.nl/en/newsroom/2026/09/bottlenecks-growth-tech-start-ups",
+        "status": 200,
+        "bytes": 155272,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.tno.nl/en/newsroom/2026/09/first-projects-launched-flie-test",
+        "final_url": "https://www.tno.nl/en/newsroom/2026/09/first-projects-launched-flie-test",
+        "status": 200,
+        "bytes": 143970,
+        "mime": "text/html"
+      }
+    ]
+  },
+  {
+    "key": "vtt",
+    "name": "VTT",
+    "checked_at": "2026-10-05T12:28:22.999658+00:00",
+    "method": "html",
+    "endpoint": "https://www.vttresearch.com/en/news-and-stories",
+    "samples": [
+      {
+        "url": "https://www.vttresearch.com/en/news-and-ideas/chain-reaction-growth-begins-vtt-launches-its-new-strategy",
+        "title": "A chain reaction for growth begins – VTT launches its new strategy | VTT",
+        "published_at": "2026-06-03 00:00:00+00:00",
+        "http_status": 200,
+        "description_chars": 424,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "old"
+      },
+      {
+        "url": "https://www.vttresearch.com/en/news-and-ideas/vtt-spinouts-increase-rd-investment-and-employ-growing-number-researchers",
+        "title": "VTT spinouts increase R&D investment and employ a growing number of researchers | VTT",
+        "published_at": "2026-06-09 00:00:00+00:00",
+        "http_status": 200,
+        "description_chars": 492,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "old"
+      },
+      {
+        "url": "https://www.vttresearch.com/en/news-and-ideas/jani-kivioja-appointed-lead-vtts-quantum-technologies-research-area-accelerate",
+        "title": "Jani Kivioja appointed to lead VTT’s Quantum Technologies research area to accelerate the commercialisation of research | VTT",
+        "published_at": "2026-10-05 00:00:00+00:00",
+        "http_status": 200,
+        "description_chars": 406,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "recent"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 14,
+    "recent_complete": 1,
+    "status": "partial",
+    "robots": [
+      {
+        "url": "https://www.vttresearch.com/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://www.vttresearch.com/en/news-and-stories",
+        "final_url": "https://www.vttresearch.com/en/news-stories/news-and-stories",
+        "status": 200,
+        "bytes": 251808,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.vttresearch.com/en/news-and-ideas/chain-reaction-growth-begins-vtt-launches-its-new-strategy",
+        "final_url": "https://www.vttresearch.com/en/news-and-ideas/chain-reaction-growth-begins-vtt-launches-its-new-strategy",
+        "status": 200,
+        "bytes": 181145,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.vttresearch.com/en/news-and-ideas/vtt-spinouts-increase-rd-investment-and-employ-growing-number-researchers",
+        "final_url": "https://www.vttresearch.com/en/news-and-ideas/vtt-spinouts-increase-rd-investment-and-employ-growing-number-researchers",
+        "status": 200,
+        "bytes": 193195,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.vttresearch.com/en/news-and-ideas/jani-kivioja-appointed-lead-vtts-quantum-technologies-research-area-accelerate",
+        "final_url": "https://www.vttresearch.com/en/news-and-ideas/jani-kivioja-appointed-lead-vtts-quantum-technologies-research-area-accelerate",
+        "status": 200,
+        "bytes": 191042,
+        "mime": "text/html"
+      }
+    ]
+  },
+  {
+    "key": "csem",
+    "name": "CSEM",
+    "checked_at": "2026-10-05T12:28:23.870167+00:00",
+    "method": "html",
+    "endpoint": "https://www.csem.ch/en/news/",
+    "samples": [
+      {
+        "url": "https://www.csem.ch/en/news/from-stars-to-atoms-atomic-clocks-neuchatel",
+        "title": "From stars to atoms: CSEM and atomic clocks in Neuchâtel",
+        "published_at": "2026-09-16 00:00:00+00:00",
+        "http_status": 200,
+        "description_chars": 147,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "recent"
+      },
+      {
+        "url": "https://www.csem.ch/en/news/batmam-smart-battery-pack",
+        "title": "Smart Battery Packs | CSEM × Almatech Design for Additive Manufacturing",
+        "published_at": "2026-07-03 00:00:00+00:00",
+        "http_status": 200,
+        "description_chars": 183,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "old"
+      },
+      {
+        "url": "https://www.csem.ch/en/news/hamiltons-glucosense-real-time-glucose-monitoring",
+        "title": "Real-Time Bioreactor Glucose Monitoring with Hamilton GlucoSense",
+        "published_at": "2026-06-03 00:00:00+00:00",
+        "http_status": 200,
+        "description_chars": 166,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "old"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 9,
+    "recent_complete": 1,
+    "status": "partial",
+    "robots": [
+      {
+        "url": "https://www.csem.ch/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://www.csem.ch/en/news/",
+        "final_url": "https://www.csem.ch/en/news/",
+        "status": 200,
+        "bytes": 219476,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.csem.ch/en/news/from-stars-to-atoms-atomic-clocks-neuchatel",
+        "final_url": "https://www.csem.ch/en/news/from-stars-to-atoms-atomic-clocks-neuchatel/",
+        "status": 200,
+        "bytes": 112862,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.csem.ch/en/news/batmam-smart-battery-pack",
+        "final_url": "https://www.csem.ch/en/news/batmam-smart-battery-pack/",
+        "status": 200,
+        "bytes": 135970,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.csem.ch/en/news/hamiltons-glucosense-real-time-glucose-monitoring",
+        "final_url": "https://www.csem.ch/en/news/hamiltons-glucosense-real-time-glucose-monitoring/",
+        "status": 200,
+        "bytes": 144062,
+        "mime": "text/html"
+      }
+    ]
+  },
+  {
+    "key": "optics-org",
+    "name": "optics.org",
+    "checked_at": "2026-10-05T12:28:28.778579+00:00",
+    "method": "html",
+    "endpoint": "https://optics.org/news",
+    "samples": [
+      {
+        "url": "https://optics.org/news/expanding-microelectronics-uk-show-reflects-sector-optimism…",
+        "title": "Expanding Microelectronics UK show reflects sector optimism… | optics.org",
+        "published_at": null,
+        "http_status": 200,
+        "description_chars": 81,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "missing_date"
+      },
+      {
+        "url": "https://optics.org/news/lzh-and-thies-clima-develop-lidar-system-for-wind-measurement",
+        "title": "LZH and Thies Clima develop lidar system for wind measurement | optics.org",
+        "published_at": null,
+        "http_status": 200,
+        "description_chars": 76,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "missing_date"
+      },
+      {
+        "url": "https://optics.org/news/predictive-anatomical-guidance-system-helps-novices-acquire-ultrasound-images",
+        "title": "Predictive anatomical guidance system helps novices acquire ultrasound images | optics.org",
+        "published_at": null,
+        "http_status": 200,
+        "description_chars": 83,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "missing_date"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 20,
+    "recent_complete": 0,
+    "status": "needs_work",
+    "robots": [
+      {
+        "url": "https://optics.org/robots.txt",
+        "status": 404
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://optics.org/news",
+        "final_url": "https://optics.org/news",
+        "status": 200,
+        "bytes": 72344,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://optics.org/news/expanding-microelectronics-uk-show-reflects-sector-optimism…",
+        "final_url": "https://optics.org/news/expanding-microelectronics-uk-show-reflects-sector-optimism…",
+        "status": 200,
+        "bytes": 68226,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://optics.org/news/lzh-and-thies-clima-develop-lidar-system-for-wind-measurement",
+        "final_url": "https://optics.org/news/lzh-and-thies-clima-develop-lidar-system-for-wind-measurement",
+        "status": 200,
+        "bytes": 61042,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://optics.org/news/predictive-anatomical-guidance-system-helps-novices-acquire-ultrasound-images",
+        "final_url": "https://optics.org/news/predictive-anatomical-guidance-system-helps-novices-acquire-ultrasound-images",
+        "status": 200,
+        "bytes": 61575,
+        "mime": "text/html"
+      }
+    ]
+  }
+]

@@ -1,0 +1,58 @@
+[
+  {
+    "key": "the-register",
+    "stage": "V3",
+    "status": "candidate",
+    "checks": [
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": []
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": []
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": []
+      }
+    ],
+    "collection": {
+      "outcome": "success",
+      "items_new": 50,
+      "items_seen": 50,
+      "error_code": null
+    }
+  },
+  {
+    "key": "tech-eu",
+    "stage": "V3",
+    "status": "candidate",
+    "checks": [
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": []
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": []
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": []
+      }
+    ],
+    "collection": {
+      "outcome": "success",
+      "items_new": 20,
+      "items_seen": 20,
+      "error_code": null
+    }
+  }
+]

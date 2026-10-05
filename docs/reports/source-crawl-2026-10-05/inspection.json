@@ -1,0 +1,3434 @@
+[
+  {
+    "name": "ETRI",
+    "url": "https://www.etri.re.kr/kor/bbs/list.etri?b_board_id=ETRI06",
+    "status": 200,
+    "mime": "text/html",
+    "final_url": "https://www.etri.re.kr/kor/bbs/list.etri?b_board_id=ETRI06",
+    "cache": "/tmp/news-insight-source-crawl-2026-10-05/c3b3fd9a550e3f92172672f643ca1c5ba2585f74a9c743f95e1ad63f278ac81f.html",
+    "links": [
+      {
+        "text": "ETRI Technology Report",
+        "href": "/korcon/sub3/sub3_0405.etri"
+      },
+      {
+        "text": "[2025-101호] ETRI, 국방 5G 플랫폼 전국 확장 기반 마련",
+        "href": "/kor/bbs/view.etri;jsessionid=137021FD24827DA991107C33CBA68EEF?keyField=&keyWord=&nowPage=1&b_board_id=ETRI06&year_gubun=&b_idx=19667"
+      },
+      {
+        "text": "[2026-3호] ETRI, 초대형 AI 학습의 ‘메모리 장벽’ 허문다",
+        "href": "/kor/bbs/view.etri;jsessionid=137021FD24827DA991107C33CBA68EEF?keyField=&keyWord=&nowPage=1&b_board_id=ETRI06&year_gubun=&b_idx=19672"
+      },
+      {
+        "text": "[2025-100호] ETRI, 7년 연속 『국가연구개발 우수성과』 최다 선정",
+        "href": "/kor/bbs/view.etri;jsessionid=137021FD24827DA991107C33CBA68EEF?keyField=&keyWord=&nowPage=1&b_board_id=ETRI06&year_gubun=&b_idx=19666"
+      },
+      {
+        "text": "[2026-66호] ﻿ETRI, 의료 휴머노이드 인터페이스로 'IDEA 디자인상' 수상",
+        "href": "/kor/bbs/view.etri;jsessionid=137021FD24827DA991107C33CBA68EEF?keyField=&keyWord=&nowPage=1&b_board_id=ETRI06&year_gubun=&b_idx=19824"
+      },
+      {
+        "text": "[2026-65호] ETRI, AI 교통영상 분석 국제대회 2개 부문 1·2위 쾌거",
+        "href": "/kor/bbs/view.etri;jsessionid=137021FD24827DA991107C33CBA68EEF?keyField=&keyWord=&nowPage=1&b_board_id=ETRI06&year_gubun=&b_idx=19822"
+      },
+      {
+        "text": "[2026-64호] ETRI, 피지컬 AI 국제표준화 주도한다",
+        "href": "/kor/bbs/view.etri;jsessionid=137021FD24827DA991107C33CBA68EEF?keyField=&keyWord=&nowPage=1&b_board_id=ETRI06&year_gubun=&b_idx=19809"
+      },
+      {
+        "text": "[2026-63호] ETRI, 대한민국 AI 글라스 생태계 구축 나섰다",
+        "href": "/kor/bbs/view.etri;jsessionid=137021FD24827DA991107C33CBA68EEF?keyField=&keyWord=&nowPage=1&b_board_id=ETRI06&year_gubun=&b_idx=19808"
+      },
+      {
+        "text": "[2026-62호] ETRI-KAIST, ‘로봇 길 찾기 AI 챌린지’ 세계 1위",
+        "href": "/kor/bbs/view.etri;jsessionid=137021FD24827DA991107C33CBA68EEF?keyField=&keyWord=&nowPage=1&b_board_id=ETRI06&year_gubun=&b_idx=19806"
+      },
+      {
+        "text": "[2026-61호] ETRI, 『지식재산 경영 우수기관』3회 연속 선정",
+        "href": "/kor/bbs/view.etri;jsessionid=137021FD24827DA991107C33CBA68EEF?keyField=&keyWord=&nowPage=1&b_board_id=ETRI06&year_gubun=&b_idx=19807"
+      },
+      {
+        "text": "[2026-60호] ETRI, AI로 게임 만들고 품질·재미까지 검증한다",
+        "href": "/kor/bbs/view.etri;jsessionid=137021FD24827DA991107C33CBA68EEF?keyField=&keyWord=&nowPage=1&b_board_id=ETRI06&year_gubun=&b_idx=19803"
+      },
+      {
+        "text": "[2026-59호] ETRI-육군사관학교, AI 기반 미래 국방기술 개발한다",
+        "href": "/kor/bbs/view.etri;jsessionid=137021FD24827DA991107C33CBA68EEF?keyField=&keyWord=&nowPage=1&b_board_id=ETRI06&year_gubun=&b_idx=19802"
+      },
+      {
+        "text": "[2026-58호] ﻿ETRI, ‘월급 속 작은 나눔’28년간 청소년 꿈 키웠다",
+        "href": "/kor/bbs/view.etri;jsessionid=137021FD24827DA991107C33CBA68EEF?keyField=&keyWord=&nowPage=1&b_board_id=ETRI06&year_gubun=&b_idx=19801"
+      },
+      {
+        "text": "[2026-57호] ETRI, AI·DX 중심 국가임무 R&D 이끈다",
+        "href": "/kor/bbs/view.etri;jsessionid=137021FD24827DA991107C33CBA68EEF?keyField=&keyWord=&nowPage=1&b_board_id=ETRI06&year_gubun=&b_idx=19797"
+      }
+    ],
+    "robots": [
+      {
+        "url": "https://www.etri.re.kr/robots.txt",
+        "status": 200
+      }
+    ]
+  },
+  {
+    "name": "KISTI",
+    "url": "https://www.kisti.re.kr/promote/post/news",
+    "error": "robots blocked/unknown (timed out fetching https://www.kisti.re.kr/robots.txt): https://www.kisti.re.kr/promote/post/news",
+    "robots": [
+      {
+        "url": "https://www.kisti.re.kr/robots.txt",
+        "error": "timed out fetching https://www.kisti.re.kr/robots.txt"
+      }
+    ]
+  },
+  {
+    "name": "RIKEN",
+    "url": "https://www.riken.jp/en/feed/press_feed/",
+    "status": 200,
+    "mime": "application/xml",
+    "final_url": "https://www.riken.jp/en/feed/press_feed/",
+    "cache": "/tmp/news-insight-source-crawl-2026-10-05/835a51053ecb4918e4b70f29445bc4f575dcee20aa985b47d0f31a41b643527d.html",
+    "links": [],
+    "robots": [
+      {
+        "url": "https://www.riken.jp/robots.txt",
+        "status": 404
+      }
+    ]
+  },
+  {
+    "name": "AIST",
+    "url": "https://www.aist.go.jp/index_en.html",
+    "status": 200,
+    "mime": "text/html",
+    "final_url": "https://www.aist.go.jp/index_en.html",
+    "cache": "/tmp/news-insight-source-crawl-2026-10-05/566aceb567ee06d81febb64b53a4aaf4e5d001612760dfdbb7107d1b485fd2f4.html",
+    "links": [
+      {
+        "text": "カスタマーハラスメントに対する基本方針",
+        "href": "/aist_j/information/customer-harassment/index.html"
+      },
+      {
+        "text": "委託事業報告書（医療機器等開発ガイドライン策定事業）",
+        "href": "/aist_j/information/report/entrust/index.html"
+      },
+      {
+        "text": "附帯決議等をふまえた総務省通知に基づく情報公開",
+        "href": "/aist_j/information/comp-info/idpo/futai.html"
+      },
+      {
+        "text": "ライフ・テクノロジー・スタジオ - 臨海副都心 -",
+        "href": "http://www.aist.go.jp/waterfront/ja/exhibition/"
+      },
+      {
+        "text": "新しい財務会計システム（サプライヤポータルサイト）に関する各種ご案内について",
+        "href": "/aist_j/procure/supplier.html"
+      },
+      {
+        "text": "サプライヤポータルサイト　ユーザ登録案内ページ",
+        "href": "/aist_j/procure/supplier/user.html"
+      },
+      {
+        "text": "特定業務任期付職員（健康管理関連業務）",
+        "href": "/aist_j/humanres/03jimu/tokutei09.html"
+      },
+      {
+        "text": "特定業務任期付職員（診療所薬局運営業務）",
+        "href": "/aist_j/humanres/03jimu/tokutei10.html"
+      },
+      {
+        "text": "SCR（スーパークリーンルーム）半導体プロセス開発業務",
+        "href": "/aist_j/humanres/05gijyutu/scr.html"
+      },
+      {
+        "text": "グループ会社採用情報（株式会社AIST Solutions）",
+        "href": "/aist_j/humanres/group.html"
+      },
+      {
+        "text": "障がいを理由とする差別の解消に関する相談窓口",
+        "href": "/aist_j/inquiry/shougai/index.html"
+      },
+      {
+        "text": "コンプライアンスに関する相談・通報窓口",
+        "href": "/aist_j/inquiry/comp-tsuho.html"
+      },
+      {
+        "text": "コンプライアンスに関する監事への通報窓口",
+        "href": "/aist_j/inquiry/comp-tsuho-kanji.html"
+      },
+      {
+        "text": "連携制度・共同研究に関するご相談フォーム",
+        "href": "/aist_j/researcher/inquiry/alignment.html"
+      },
+      {
+        "text": "産業技術総合研究所 X（旧Twitter）公式アカウント（@AIST_JP）ポリシー",
+        "href": "/aist_j/public/aist_sns/twitter_aist_jp_policy.html"
+      },
+      {
+        "text": "産業技術総合研究所ウェブアクセシビリティ方針",
+        "href": "/aist_j/progressive/accessibility.html"
+      },
+      {
+        "text": "独立行政法人等非識別加工情報の提案募集",
+        "href": "/aist_j/comp-info/pip/hishikibetsu_boshu.html"
+      },
+      {
+        "text": "福島再生可能エネルギー研究所（FREA）",
+        "href": "/fukushima/index.html"
+      },
+      {
+        "text": "Fukushima Renewable Energy Institute, AIST (FREA)",
+        "href": "/fukushima/en/index.html"
+      },
+      {
+        "text": "立命館・産総研ライフセントリックデザインBIL",
+        "href": "/kansai/ja/rits_bil/index.html"
+      },
+      {
+        "text": "関西バイオ医療研究会 第27回講演会 申込フォーム",
+        "href": "/kansai/ja/event/ef20260612.html"
+      },
+      {
+        "text": "第１回硫黄系電池事業創出研究会申込フォーム",
+        "href": "/kansai/ja/event/ef20260605.html"
+      },
+      {
+        "text": "AIST関西懇話会2026年度 総会・第１回講演会 申し込みフォーム",
+        "href": "/kansai/ja/event/ef20260805.html"
+      },
+      {
+        "text": "AIST関西懇話会2026年度見学会申込フォーム",
+        "href": "/kansai/ja/event/ef20261113.html"
+      },
+      {
+        "text": "第２回 ダイヤモンドウェハ及び関連技術セミナー 申込フォーム",
+        "href": "/kansai/ja/event/ef20261009.html"
+      },
+      {
+        "text": "関西バイオ医療研究会 第28回講演会 申込フォーム",
+        "href": "/kansai/ja/event/ef20261030.html"
+      },
+      {
+        "text": "北陸デジタルものづくりセンターダミーホーム",
+        "href": "/hokuriku/index.html"
+      },
+      {
+        "text": "AIST International Affairs Office Inquiry Form",
+        "href": "/aist_e/form/col_inquiry_form.html"
+      },
+      {
+        "text": "Greetings from the President",
+        "href": "/aist_e/about_aist/president/index.html"
+      },
+      {
+        "text": "Charter and Policies",
+        "href": "/aist_e/about_aist/charter/charter.html"
+      },
+      {
+        "text": "Previous research highlights",
+        "href": "/aist_e/list/previous_research_highlights/past/index.html"
+      },
+      {
+        "text": "Research Results Archive",
+        "href": "/aist_e/list/archive.html"
+      },
+      {
+        "text": "Password Issue and Delivery System",
+        "href": "/aist_e/contact/tools/passward/index.html"
+      },
+      {
+        "text": "General Inquiry Form",
+        "href": "/aist_e/inquiry_e/form/inquiry_form.html"
+      },
+      {
+        "text": "Tokyo Headquarters Map",
+        "href": "/aist_e/guidemap/tokyo/tokyo.html"
+      },
+      {
+        "text": "Fukushima Renewable Energy Institute, AIST Map",
+        "href": "/aist_e/guidemap/frea/index.html"
+      },
+      {
+        "text": "AIST Tokyo Waterfront Map",
+        "href": "/aist_e/guidemap/waterfront/watefront_map.html"
+      },
+      {
+        "text": "Hokuriku Digital Manufacturing Center, AIST Map",
+        "href": "/aist_e/guidemap/hokuriku/hokuriku_map.html"
+      },
+      {
+        "text": "AIST Research Assistant (RA)",
+        "href": "/aist_e/collab/ra/index.html"
+      },
+      {
+        "text": "Application Procedure",
+        "href": "/aist_e/humanres/application_procedure.html"
+      },
+      {
+        "text": "Support for International Visitors",
+        "href": "/aist_e/humanres/hosting/index.html"
+      },
+      {
+        "text": "Type B - Tenured Position",
+        "href": "/aist_e/humanres/type_b.html"
+      },
+      {
+        "text": "Type C - Specially Appointed Position",
+        "href": "/aist_e/humanres/type_c.html"
+      },
+      {
+        "text": "Type D - Fixed Term Position",
+        "href": "/aist_e/humanres/type_d.html"
+      },
+      {
+        "text": "Outstanding Research Scientist",
+        "href": "/aist_e/humanres/ifp_e.html"
+      },
+      {
+        "text": "RSS Feeds on the AIST Website",
+        "href": "/aist_e/terms_of_use/rss/index.html"
+      },
+      {
+        "text": "AIST Web Accessibility Policy",
+        "href": "/aist_e/terms_of_use/webaccessibility_policy/index.html"
+      },
+      {
+        "text": "Achieving the World's Highest Output in a Solid Oxide Fuel Cell (SOFC) Single Cell",
+        "href": "/aist_e/list/highlights/2023/vol1/"
+      },
+      {
+        "text": "First Proof of the Relationship Between the Three-Dimensional Structure of DNA and Liquid-Liquid Phase Separation",
+        "href": "/aist_e/list/highlights/2023/vol2/"
+      },
+      {
+        "text": "Solving a Long-Standing Unsolved Problem:The World's First Cryptographic Theory",
+        "href": "/aist_e/list/highlights/2023/vol3/"
+      },
+      {
+        "text": "The World's First Surface Measurement Program from Japan",
+        "href": "/aist_e/list/highlights/2023/vol4/"
+      },
+      {
+        "text": "Changing the world with breakthroughs in coating technology",
+        "href": "/aist_e/list/highlights/2023/vol5/"
+      },
+      {
+        "text": "Geology Illuminates Sustainable Futures",
+        "href": "/aist_e/list/highlights/2023/vol6/"
+      },
+      {
+        "text": "An Optical Lattice Clock That may Rewrite the definition of Next Second",
+        "href": "/aist_e/list/highlights/2023/vol7/"
+      },
+      {
+        "text": "Next-Generation Cancer Immunotherapy Using Quantum Computing Selected for NEDO Demonstration Program－A Joint R&D Project by NEC, Taiho Pharmaceutical,",
+        "href": "/aist_e/news/en20261002.thml"
+      },
+      {
+        "text": "Device Developed to Measure the Surface Profile of Curved Mirrors with the World's Highest Accuracy—Non-contact measurement of the shapes of optical e",
+        "href": "/aist_e/list/latest_research/2026/20260929/en20260929.html"
+      },
+      {
+        "text": "Simplifying the Calibration of Current Measurement Instruments with Diamond Quantum Sensing Technology—Development of a compact current comparator cap",
+        "href": "/aist_e/list/latest_research/2026/20260928/en20260928.html"
+      },
+      {
+        "text": "Announcement of the 8th RD20 Conference",
+        "href": "/aist_e/news/au20260918_2_en.html"
+      },
+      {
+        "text": "Notice of Facility Operations When the Typhoon Approaches",
+        "href": "/aist_e/news/au20260918_en.html"
+      },
+      {
+        "text": "Co-digestion of Waste and Wastewater from Biomanufacturing for Energy Recovery—New Reactor Developed to Efficiently Enable Solid Organic Waste Solubil",
+        "href": "/aist_e/list/latest_research/2026/20260910/en20260910.html"
+      }
+    ],
+    "robots": [
+      {
+        "url": "https://www.aist.go.jp/robots.txt",
+        "status": 200
+      }
+    ]
+  },
+  {
+    "name": "NICT",
+    "url": "https://www.nict.go.jp/en/press/index.html",
+    "status": 200,
+    "mime": "text/html",
+    "final_url": "https://www.nict.go.jp/en/press/index.html",
+    "cache": "/tmp/news-insight-source-crawl-2026-10-05/da398acfeeb459d455a4d13812c8e9cffa6b708e04ea66a7edf3db5ac10554f2.html",
+    "links": [
+      {
+        "text": "Radio Research Institute",
+        "href": "https://rri.nict.go.jp/en/"
+      },
+      {
+        "text": "Radio Propagation Research Center",
+        "href": null
+      },
+      {
+        "text": "Electromagnetic Standards Research Center",
+        "href": null
+      },
+      {
+        "text": "Applied Electromagnetic Research Center",
+        "href": null
+      },
+      {
+        "text": "Network Research Institute",
+        "href": "https://www.nict.go.jp//en/network/index.html"
+      },
+      {
+        "text": "Photonic ICT Research Center",
+        "href": "https://www.nict.go.jp/en/photonic-ict/index.html"
+      },
+      {
+        "text": "Wireless Networks Research Center",
+        "href": "https://www2.nict.go.jp/wireless/en/"
+      },
+      {
+        "text": "Resilient ICT Research Center",
+        "href": "https://www.nict.go.jp/en/resil/"
+      },
+      {
+        "text": "Cybersecurity Research Institute",
+        "href": "https://csri.nict.go.jp/en/index.html"
+      },
+      {
+        "text": "Cybersecurity Nexus",
+        "href": "https://cynex.nict.go.jp/en/index.html"
+      },
+      {
+        "text": "National Cyber Training Center",
+        "href": null
+      },
+      {
+        "text": "National Cyber Observation Center",
+        "href": "https://nco.nict.go.jp/en/index.html"
+      },
+      {
+        "text": "Universal Communication Research Institute",
+        "href": "https://ucri.nict.go.jp/en/"
+      },
+      {
+        "text": "Advanced Speech Translation Research and Development Promotion Center",
+        "href": "https://astrec.nict.go.jp/en/"
+      },
+      {
+        "text": "Data-driven Intelligent System Research Center",
+        "href": "https://direct.nict.go.jp/en/"
+      },
+      {
+        "text": "Big Data Integration Research Center",
+        "href": "https://bdirc.nict.go.jp/en/"
+      },
+      {
+        "text": "Advanced ICT Research Institute",
+        "href": "https://www2.nict.go.jp/advanced_ict/en/"
+      },
+      {
+        "text": "Kobe Frontier Research Center",
+        "href": null
+      },
+      {
+        "text": "Koganei Frontier Research Center",
+        "href": null
+      },
+      {
+        "text": "Center for Information and Neural Networks",
+        "href": "https://cinet.jp/english/"
+      },
+      {
+        "text": "Cross-field R&D and other business",
+        "href": null
+      },
+      {
+        "text": "Beyond Connectivity Research and Development Promotion Unit",
+        "href": null
+      },
+      {
+        "text": "Terahertz Technology Research Center",
+        "href": "https://www2.nict.go.jp/ttrc/english/"
+      },
+      {
+        "text": "Quantum ICT Collaboration Center",
+        "href": "https://www2.nict.go.jp/qictcc/en/"
+      },
+      {
+        "text": "Open Innovation Promotion Headquarters",
+        "href": "https://www2.nict.go.jp/oihq/en/"
+      },
+      {
+        "text": "Resilient ICT Research Center",
+        "href": null
+      },
+      {
+        "text": "Testbed Research and Development Promotion Center",
+        "href": "https://www.nict.go.jp/en/testbed/index.html"
+      },
+      {
+        "text": "Advanced ICT Device R&D Promotion Center",
+        "href": null
+      },
+      {
+        "text": "Open Innovation/IDI",
+        "href": "https://www2.nict.go.jp/oihq/en/"
+      },
+      {
+        "text": "International Cooperation",
+        "href": "https://www.nict.go.jp/en/global/index.html"
+      },
+      {
+        "text": "Employment Information",
+        "href": "https://www.nict.go.jp/en/employment/staff-e.html"
+      },
+      {
+        "text": "Molecular Mechanism of Short-Term Synaptic Plasticity Was Discovered",
+        "href": "/en/press/2026/09/24-1.html"
+      },
+      {
+        "text": "A Multiplexed Quantum Photonic Interface for Neutral-Atom Quantum Computers",
+        "href": "/en/press/2026/09/09-1.html"
+      },
+      {
+        "text": "National Institute of Information and Communications Technology Launches Its 6th Mid- to Long-Term Plan",
+        "href": "/en/press/2026/07/31-1.html"
+      },
+      {
+        "text": "New Heat Dissipation Device Design Achieves a 47% Weight Reduction in an NTN Planar Antenna",
+        "href": "/en/press/2026/06/17-1.html"
+      },
+      {
+        "text": "World Record: 450 Tb/s Transmission Over a Metropolitan Link Using Legacy Optical Fiber",
+        "href": "/en/press/2026/06/01-1.html"
+      },
+      {
+        "text": "TOPPAN Holdings, NICT, and ISARA Establish Proof of Concept for Technology Enabling Seamless Migration to Post-Quantum Cryptography for Certificate Au",
+        "href": "/en/press/2026/04/09-1.html"
+      },
+      {
+        "text": "SB Intuitions and NICT Launch Joint Research on Safety Technology for High-Performance LLMs",
+        "href": "/en/press/2026/02/26-1.html"
+      },
+      {
+        "text": "Demonstration of Massive Connectivity for the 6G Era",
+        "href": "/en/press/2026/02/17-1.html"
+      },
+      {
+        "text": "World's First Successful 2 Tbit/s Free-Space Optical Communication Using Small Optical Terminals Mountable on Satellites and HAPS",
+        "href": "/en/press/2025/12/16-1.html"
+      },
+      {
+        "text": "Novel Transmission Technique Enables World Record 430 Tb/s in a Commercially Available, International-Standard-Compliant Optical Fiber",
+        "href": "/en/press/2025/11/11-1.html"
+      },
+      {
+        "text": "Introduction of NICT Board Members",
+        "href": "https://www.nict.go.jp/en/about/boardmember.html"
+      },
+      {
+        "text": "Location of NICT Facilities",
+        "href": "https://www.nict.go.jp/en/about/location.html"
+      },
+      {
+        "text": "NICT Brand Statement",
+        "href": "https://www.nict.go.jp/en/about/nict-brand-statement.html"
+      },
+      {
+        "text": "Introduction of NICT (NICT Video)",
+        "href": "https://youtu.be/kBPko4a1qpI"
+      },
+      {
+        "text": "List of published papers",
+        "href": "https://oca-pub.nict.go.jp/"
+      },
+      {
+        "text": "Promotion of Standardization Activity",
+        "href": "https://www.nict.go.jp/en/std/index.html"
+      },
+      {
+        "text": "Services and Applications available",
+        "href": "/en/pickup/index.html"
+      },
+      {
+        "text": "Radio Research Institute",
+        "href": "https://rri.nict.go.jp/en/"
+      },
+      {
+        "text": "Network Research Institute",
+        "href": "https://www.nict.go.jp//en/network/index.html"
+      },
+      {
+        "text": "Cybersecurity Research Institute",
+        "href": "https://csri.nict.go.jp/en/index.html"
+      },
+      {
+        "text": "Universal Communication Research Institute",
+        "href": "https://ucri.nict.go.jp/en/"
+      },
+      {
+        "text": "Advanced ICT Research Institute",
+        "href": "https://www2.nict.go.jp/advanced_ict/en/"
+      },
+      {
+        "text": "Quantum ICT Collaboration Center",
+        "href": "https://www2.nict.go.jp/qictcc/en/"
+      },
+      {
+        "text": "Testbed Research and Development Promotion Center",
+        "href": "https://www.nict.go.jp/en/testbed/index.html"
+      },
+      {
+        "text": "Innovation Design Initiative (IDI)",
+        "href": "https://www2.nict.go.jp/idi/en/"
+      },
+      {
+        "text": "Employment Information",
+        "href": "https://www.nict.go.jp/en/employment/staff-e.html"
+      },
+      {
+        "text": "Researcher and Research Engineer",
+        "href": "https://www2.nict.go.jp/employment/researcher/en/index.html"
+      },
+      {
+        "text": "Fixed Term Administrative Specialist",
+        "href": "https://www.nict.go.jp/en/employment/index-e-top.koubo.html"
+      },
+      {
+        "text": "Youtube NICT channel",
+        "href": "https://www.youtube.com/user/NICTchannel/playlists?view=50&sort=dd&shelf_id=9"
+      }
+    ],
+    "robots": [
+      {
+        "url": "https://www.nict.go.jp/robots.txt",
+        "status": 404
+      }
+    ]
+  },
+  {
+    "name": "CAS",
+    "url": "https://english.cas.cn/newsroom/research-news/",
+    "status": 200,
+    "mime": "text/html",
+    "final_url": "https://english.cas.cn/newsroom/research-news/",
+    "cache": "/tmp/news-insight-source-crawl-2026-10-05/1ef95e1bfc54ec6543667020815159c9a193b19bfd26393648f74760645b15fd.html",
+    "links": [
+      {
+        "text": "Overseas Institutions",
+        "href": "//english.cas.cn/../../international/#overseasinstitutions"
+      },
+      {
+        "text": "Belt and Road Initiative",
+        "href": "//english.cas.cn/../../international/#pifi"
+      },
+      {
+        "text": "Sep 30, 2026Bacterial Fermentation Turn Sweet Potato Vines into a Feed ResourceResearchers from the Institute of Subtropical Agriculture and the Insti",
+        "href": "./202610/t20261001_1201656.shtml"
+      },
+      {
+        "text": "Sep 30, 2026Researchers Uncover a Mechanism Affecting Tungsten Transport in Tokamak PlasmasResearchers at the Hefei Institutes of Physical Science of ",
+        "href": "./202609/t20260930_1201624.shtml"
+      },
+      {
+        "text": "Sep 30, 2026Researchers Improve Satellite-Based Cloud Property Retrieval with Polarimetric ObservationsA research team led by Prof. CHEN Cheng from th",
+        "href": "./202609/t20260930_1201622.shtml"
+      },
+      {
+        "text": "Sep 30, 2026Mass-Loss Rate Rises Sharply Before Rare Type Ia Supernova Explosion: StudyResearchers from the Yunnan Observatories reconstructed the pre",
+        "href": "./202609/t20260930_1201607.shtml"
+      },
+      {
+        "text": "Sep 30, 2026Leaves and Roots of the Same Tree Follow Distinct Defensive Strategies Across ElevationsResearchers from the Xishuangbanna Tropical Botani",
+        "href": "./202609/t20260930_1201598.shtml"
+      },
+      {
+        "text": "Sep 30, 2026Two-Mode Raman-Activated Cell Sorting Enables Downstream Analysis of Functional MicrobesResearchers from the Qingdao Institute of Bioenerg",
+        "href": "./202609/t20260930_1201619.shtml"
+      },
+      {
+        "text": "Sep 30, 2026Researchers Report Organic Metal Chalcogenide Film with Giant BirefringenceA research team led by Prof. XU Gang from Fujian Institute of R",
+        "href": "./202609/t20260930_1201593.shtml"
+      },
+      {
+        "text": "Sep 30, 2026New Platform Enables Same-Section Spatial Transcriptomics and MALDI-MSI IntegrationProf. DUAN Lihui at the Institute of Genetics and Devel",
+        "href": "./202609/t20260925_1201512.shtml"
+      },
+      {
+        "text": "Sep 29, 2026FlowRACS-Based Method Speeds Discovery of Low-Abundance Marine Carbon-Fixing BacteriaResearchers from the Qingdao Institute of Bioenergy a",
+        "href": "./202609/t20260929_1201569.shtml"
+      },
+      {
+        "text": "Sep 29, 2026Mycorrhizal Composition and Species Dominance Affect Forest Plant Diversity Across Northeastern ChinaResearchers from the Institute of App",
+        "href": "./202609/t20260929_1201565.shtml"
+      },
+      {
+        "text": "Sep 28, 2026Study Reveals Nano-Void Evolution and Helium Removal Strategy in Fusion MaterialsA research team led by Associate Prof. LI Xiangyan from t",
+        "href": "./202609/t20260930_1201604.shtml"
+      },
+      {
+        "text": "Sep 28, 2026Researchers Develop AI Model for Drug-Target Affinity PredictionA research team led by Prof. ZHANG Fan and Prof. GU Hongcang from the Hefe",
+        "href": "./202609/t20260930_1201613.shtml"
+      },
+      {
+        "text": "Sep 28, 2026Radiation Defects Create Local \"Core-Shell\" Structures in Silicon CarbideA research team from the Hefei Institutes of Physical Science of ",
+        "href": "./202609/t20260928_1201539.shtml"
+      },
+      {
+        "text": "Sep 28, 2026Cage-Confined Atomic Displacement Enhances Antiferroelectric Breakdown ResistanceResearchers from Fujian Institute of Research on the Stru",
+        "href": "./202609/t20260928_1201532.shtml"
+      },
+      {
+        "text": "Sep 24, 2026Lactate Links Metabolic State to Necroptosis Through RIPK3 LactylationResearchers at the Center for Excellence in Molecular Cell Science f",
+        "href": "./202609/t20260930_1201608.shtml"
+      },
+      {
+        "text": "Sep 24, 2026Researchers Propose New Method for Quantum Precision MeasurementResearchers at the National Time Service Center, in collaboration with the",
+        "href": "./202609/t20260926_1201517.shtml"
+      },
+      {
+        "text": "Sep 24, 2026Researchers Discover Dual Polarization Behavior in a Two-Dimensional Ferroelectric MaterialResearchers from the Institute of Solid State P",
+        "href": "./202609/t20260925_1201514.shtml"
+      },
+      {
+        "text": "Sep 24, 2026Researchers Develop Novel Polyploid Breeding Method for KelpResearchers at the Institute of Oceanology of the Chinese Academy of Sciences ",
+        "href": "./202609/t20260924_1201493.shtml"
+      },
+      {
+        "text": "Overseas Institutions",
+        "href": "//english.cas.cn/../../international/#overseasinstitutions"
+      }
+    ],
+    "robots": [
+      {
+        "url": "https://english.cas.cn/robots.txt",
+        "status": 404
+      }
+    ]
+  },
+  {
+    "name": "III",
+    "url": "https://www.iii.org.tw/en/news/newsroom",
+    "status": 200,
+    "mime": "text/html",
+    "final_url": "https://www.iii.org.tw/en/news/newsroom/iii-news",
+    "cache": "/tmp/news-insight-source-crawl-2026-10-05/2fd1a8457d3ef10734d32dce8c92982ef7d2511f33a9a831de56ae29fec2fe6a.html",
+    "links": [
+      {
+        "text": "Technology Transfer",
+        "href": "/en/service/technology-transfer"
+      },
+      {
+        "text": "Personal Data Consent Form",
+        "href": "/en/personal-data-consent-form"
+      }
+    ],
+    "robots": [
+      {
+        "url": "https://www.iii.org.tw/robots.txt",
+        "status": 200
+      }
+    ]
+  },
+  {
+    "name": "A*STAR Research",
+    "url": "https://research.a-star.edu.sg/feed/",
+    "error": "crawl delay exceeds audit limit",
+    "robots": [
+      {
+        "url": "https://research.a-star.edu.sg/robots.txt",
+        "status": 200
+      }
+    ]
+  },
+  {
+    "name": "Tech in Asia",
+    "url": "https://www.techinasia.com/",
+    "error": "robots blocked/unknown (403): https://www.techinasia.com/",
+    "robots": [
+      {
+        "url": "https://www.techinasia.com/robots.txt",
+        "status": 403
+      }
+    ]
+  },
+  {
+    "name": "DFKI",
+    "url": "https://www.dfki.de/en/web/news-media/press/press-releases",
+    "error": "robots blocked/unknown (403): https://www.dfki.de/en/web/news-media/press/press-releases",
+    "robots": [
+      {
+        "url": "https://www.dfki.de/robots.txt",
+        "status": 403
+      }
+    ]
+  },
+  {
+    "name": "pv magazine",
+    "url": "https://www.pv-magazine.com/feed/",
+    "status": 200,
+    "mime": "application/rss+xml",
+    "final_url": "https://www.pv-magazine.com/feed/",
+    "cache": "/tmp/news-insight-source-crawl-2026-10-05/d01fcec0006483ef488eaed7ca4886102c18eef11b6fe0676bc7ba290046c47f.html",
+    "links": [
+      {
+        "text": "Perovskite may leak less lead than lead-solder silicon, say scientists",
+        "href": "https://www.pv-magazine.com/2026/10/05/perovskite-may-leak-less-lead-than-lead-solder-silicon-say-scientists/"
+      },
+      {
+        "text": "perovskite-silicon tandem modules",
+        "href": "https://pv-magazine-usa.com/2024/09/05/oxford-pv-starts-commercial-distribution-of-perovskite-solar-modules/"
+      },
+      {
+        "text": "Overstated Lifecycle Lead Risks of Perovskite Solar Cells and the Hidden Transboundary Displacement",
+        "href": "https://pubs.acs.org/doi/10.1021/acs.est.6c10721"
+      },
+      {
+        "text": "Perovskite may leak less lead than lead-solder silicon, say scientists",
+        "href": "https://www.pv-magazine.com/2026/10/05/perovskite-may-leak-less-lead-than-lead-solder-silicon-say-scientists/"
+      },
+      {
+        "text": "Digital twin tech offers ‘anti-involution’ strategies for China’s PV industry",
+        "href": "https://www.pv-magazine.com/2026/10/05/digital-twin-tech-offers-anti-involution-strategies-for-chinas-pv-industry/"
+      },
+      {
+        "text": "plant monitoring, fault detection, predictive maintenance, and quality assurance",
+        "href": "https://www.pv-magazine.com/2024/12/06/solargain-digital-twin-integrates-condition-monitoring-quality-assurance/"
+      },
+      {
+        "text": "drone-based inspections",
+        "href": "https://www.pv-magazine.com/2026/07/10/multi-drone-platform-for-autonomous-solar-inspections-digital-twin-creation/"
+      },
+      {
+        "text": "energy-yield analysis",
+        "href": "https://www.pv-magazine.com/2023/11/10/researchers-shed-light-on-mysterious-higher-energy-yields-in-vertical-pv-systems/"
+      },
+      {
+        "text": "accelerate materials discovery",
+        "href": "https://www.pv-magazine.com/2024/01/22/digital-twin-for-pv-materials-may-speed-up-commercialization-of-next-generation-panels/"
+      },
+      {
+        "text": "optimize organic solar cell production",
+        "href": "https://www.pv-magazine.com/2024/07/08/using-digital-twin-roll-to-roll-platform-to-design-high-performance-organic-pv-devices/"
+      },
+      {
+        "text": "Evolution path of anti-involution in photovoltaic enterprises driven by digital twin technology",
+        "href": "https://doi.org/10.1016/j.jclepro.2026.149129"
+      },
+      {
+        "text": "Decoding solar supply chains",
+        "href": "https://www.netzeromilan.com/conference/netzero-verticals-2026/Agenda/evento.mid-3&eid-47.html"
+      },
+      {
+        "text": "Digital twin tech offers ‘anti-involution’ strategies for China’s PV industry",
+        "href": "https://www.pv-magazine.com/2026/10/05/digital-twin-tech-offers-anti-involution-strategies-for-chinas-pv-industry/"
+      },
+      {
+        "text": "EU grants cross-border solar, wind project priority status",
+        "href": "https://www.pv-magazine.com/2026/10/05/eu-grants-cross-border-solar-wind-project-priority-status/"
+      },
+      {
+        "text": "EU grants cross-border solar, wind project priority status",
+        "href": "https://www.pv-magazine.com/2026/10/05/eu-grants-cross-border-solar-wind-project-priority-status/"
+      },
+      {
+        "text": "Silver-nickel contacts cut TOPCon rear metallization costs by 11%",
+        "href": "https://www.pv-magazine.com/2026/10/05/silver-nickel-contacts-cut-topcon-rear-metallization-costs-by-11/"
+      },
+      {
+        "text": "Screen-Printed Silver-Nickel Hybrid Contacts for SiOx/n+-Poly-Si Layers in TOPCon Solar Cells",
+        "href": "https://onlinelibrary.wiley.com/doi/10.1002/pip.70146"
+      },
+      {
+        "text": "Yangzhou University",
+        "href": "https://www.pv-magazine.com/2026/06/12/longi-unveils-27-27-efficient-heterojunction-back-contact-solar-cell-built-with-improved-laser-processing/"
+      },
+      {
+        "text": "Changzhou University",
+        "href": "https://www.pv-magazine.com/2026/05/08/new-research-uncovers-interface-level-physical-mechanisms-driving-ultraviolet-degradation-in-topcon-solar-cells/"
+      },
+      {
+        "text": "Silver-nickel contacts cut TOPCon rear metallization costs by 11%",
+        "href": "https://www.pv-magazine.com/2026/10/05/silver-nickel-contacts-cut-topcon-rear-metallization-costs-by-11/"
+      },
+      {
+        "text": "Perovskite solar cell based on Prussian blue achieves 26.9% efficiency",
+        "href": "https://www.pv-magazine.com/2026/10/05/perovskite-solar-cell-based-on-prussian-blue-achieves-26-9-efficiency/"
+      },
+      {
+        "text": "Chinese Academy of Sciences",
+        "href": "https://www.pv-magazine.com/2026/02/27/chinese-academy-of-sciences-achieves-world-record-efficiency-of-15-45-for-kesterite-solar-cell/"
+      },
+      {
+        "text": "formamidinium lead iodide",
+        "href": "https://www.pv-magazine.com/2026/06/02/stabilizing-perovskite-solar-cells-with-chlorine/"
+      },
+      {
+        "text": "Prussian blue regulates ion dynamics in perovskite solar cells",
+        "href": "https://www.science.org/doi/10.1126/science.aef5487"
+      },
+      {
+        "text": "Perovskite solar cell based on Prussian blue achieves 26.9% efficiency",
+        "href": "https://www.pv-magazine.com/2026/10/05/perovskite-solar-cell-based-on-prussian-blue-achieves-26-9-efficiency/"
+      },
+      {
+        "text": "Enerparc attracts more than 100 potential investors as insolvency sale moves forward",
+        "href": "https://www.pv-magazine.com/2026/10/05/enerparc-attracts-more-than-100-potential-investors-as-insolvency-sale-moves-forward/"
+      },
+      {
+        "text": "following its insolvency filing in early September",
+        "href": "https://www.pv-magazine.com/2026/09/08/enerparc-files-for-insolvency/"
+      },
+      {
+        "text": "Enerparc attracts more than 100 potential investors as insolvency sale moves forward",
+        "href": "https://www.pv-magazine.com/2026/10/05/enerparc-attracts-more-than-100-potential-investors-as-insolvency-sale-moves-forward/"
+      },
+      {
+        "text": "Waaree Power ramps up string inverter manufacturing capacity to 4.15 GW",
+        "href": "https://www.pv-magazine.com/2026/10/05/waaree-power-ramps-up-string-inverter-manufacturing-capacity-to-4-15-gw/"
+      },
+      {
+        "text": "Waaree Power ramps up string inverter manufacturing capacity to 4.15 GW",
+        "href": "https://www.pv-magazine.com/2026/10/05/waaree-power-ramps-up-string-inverter-manufacturing-capacity-to-4-15-gw/"
+      },
+      {
+        "text": "Wärtsilä and RCT Solutions launch storage integrator Valo",
+        "href": "https://www.pv-magazine.com/2026/10/05/wartsila-and-rct-solutions-launch-storage-integrator-valo/"
+      },
+      {
+        "text": "2026 loss expectation",
+        "href": "https://www.wartsila.com/media/news/01-10-2026-wartsila-closes-the-transaction-of-the-joint-venture-for-its-global-energy-storage-business-with-rct-solutions-gmbh-3796168"
+      },
+      {
+        "text": "Wärtsilä and RCT Solutions launch storage integrator Valo",
+        "href": "https://www.pv-magazine.com/2026/10/05/wartsila-and-rct-solutions-launch-storage-integrator-valo/"
+      },
+      {
+        "text": "Securing power, controlling costs: How onsite solar and storage shield commercial users from grid volatility",
+        "href": "https://www.pv-magazine.com/2026/10/05/securing-power-controlling-costs-how-onsite-solar-and-storage-shield-commercial-users-from-grid-volatility/"
+      },
+      {
+        "text": "S&P Global projects that by 2030",
+        "href": "https://www.spglobal.com/energy/en/news-research/latest-news/natural-gas/052726-pipeline-operators-strike-deals-as-data-centers-turn-to-colocated-generation?utm_source=chatgpt.com"
+      },
+      {
+        "text": "Edison Electric Institute",
+        "href": "https://www.electricperspectives.com/capital-expenditures-grid-investment/"
+      },
+      {
+        "text": "Securing power, controlling costs: How onsite solar and storage shield commercial users from grid volatility",
+        "href": "https://www.pv-magazine.com/2026/10/05/securing-power-controlling-costs-how-onsite-solar-and-storage-shield-commercial-users-from-grid-volatility/"
+      }
+    ],
+    "robots": [
+      {
+        "url": "https://www.pv-magazine.com/robots.txt",
+        "status": 200
+      }
+    ]
+  },
+  {
+    "name": "electrive",
+    "url": "https://www.electrive.com/feed/",
+    "status": 200,
+    "mime": "application/rss+xml",
+    "final_url": "https://www.electrive.com/feed/",
+    "cache": "/tmp/news-insight-source-crawl-2026-10-05/272a6774293218a7868b662c84b4be1059014a17d65be2a25ea10021fe03f2ab.html",
+    "links": [],
+    "robots": [
+      {
+        "url": "https://www.electrive.com/robots.txt",
+        "status": 200
+      }
+    ]
+  },
+  {
+    "name": "Inria",
+    "url": "https://www.inria.fr/en/actualites_evenements",
+    "status": 200,
+    "mime": "text/html",
+    "final_url": "https://www.inria.fr/en/actualites_evenements",
+    "cache": "/tmp/news-insight-source-crawl-2026-10-05/80f8c662253245bb9e05e2cb3c985483613f555a9d93ec84e68b5b287aa301c2.html",
+    "links": [
+      {
+        "text": "Skip to main content",
+        "href": "#main-content"
+      },
+      {
+        "text": "© FreepikClimateAMOC: Towards More Reliable Climate Projections Through Statistics",
+        "href": "/en/amoc-projections-climatiques-statistiques"
+      },
+      {
+        "text": "ERC GrantsMichael Arbel: An ERC Grant for more reliable AI models",
+        "href": "/en/michael-arbel-une-bourse-erc-pour-des-modeles-ia-plus-fiables"
+      },
+      {
+        "text": "Artificial intelligenceFrance 2030 | Launch of the AI Evaluation Program: a scientific roadmap for the evaluation and safety of artificial intelligenc",
+        "href": "/en/france-2030-launch-ai-evaluation-program"
+      },
+      {
+        "text": "Subscribe to My search",
+        "href": "https://www.inria.fr/en/rss/recherche/actualites"
+      },
+      {
+        "text": "© Inria - Potioc / Photo M. MagninEducation and digitalWhen Research Becomes a Tool for Learning Quantum Physics01/10/2026",
+        "href": "/en/research-tool-learning-quantum-physics"
+      },
+      {
+        "text": "© Centre Inria de l'université de BordeauxHealth / Personalised medicineFrom Mathematics to the Heart: Lisl Weynans’ Journey29/09/2026",
+        "href": "/en/mathematiques-coeur-lisl-weynans"
+      },
+      {
+        "text": "ERC GrantsMichael Arbel: An ERC Grant for more reliable AI models24/09/2026",
+        "href": "/en/michael-arbel-une-bourse-erc-pour-des-modeles-ia-plus-fiables"
+      },
+      {
+        "text": "Human-Computer InteractionsLoop: when computers become partners21/09/2026",
+        "href": "/en/loop-computers-become-partners-hmi"
+      },
+      {
+        "text": "© FreepikClimateAMOC: Towards More Reliable Climate Projections Through Statistics23/09/2026",
+        "href": "/en/amoc-projections-climatiques-statistiques"
+      },
+      {
+        "text": "@ Inria / Benoit FourrierArtificial intelligenceFrance 2030 | Launch of the AI Evaluation Program: a scientific roadmap for the evaluation and safety ",
+        "href": "/en/france-2030-launch-ai-evaluation-program"
+      },
+      {
+        "text": "©Inria - Sophie PellatStartup Studioi-PhD 2026 Competition: four projects supported by Inria Startup Studio recognized18/09/2026",
+        "href": "/en/i-phd-2026-competition-four-projects-supported-inria-startup-studio-recognized"
+      },
+      {
+        "text": "Scientific mediationScience and Society Dialogue: Inria’s DiFuSE Project Selected by the European Commission15/09/2026",
+        "href": "/en/science-and-society-dialogue-inrias-difuse-project-selected-european-commission"
+      },
+      {
+        "text": "© Le Républicain Lorrain / Emile KEMMELDigital and environmentGreenfield IT: building more sustainable data centres11/09/2026",
+        "href": "/en/greenfield-it-sustainable-data-centres"
+      },
+      {
+        "text": "On September 25th, Inria opens the doors to \"Digital World(s)\" for European Researchers' Night.10/09/2026",
+        "href": "/en/september-25th-inria-opens-doors-digital-worlds-european-researchers-night"
+      },
+      {
+        "text": "Data SciencesViolaine Courrier: research, yes, but applied research07/09/2026",
+        "href": "/en/violaine-courrier-applied-research"
+      },
+      {
+        "text": "Industrial partnershipsThe CNRS and Inria have launched the MAESTRO Robotics Consortium: a research-industry alliance for intelligent and autonomous r",
+        "href": "/en/lancement-consortium-maestro-robotics"
+      },
+      {
+        "text": "Chiche“1 scientist, 1 class: Chiche! ” expands its network with the arrival of INRAE01/09/2026",
+        "href": "/en/1-scientist-1-primary-school-expands-network-with-INRAE"
+      },
+      {
+        "text": "© Suzane Fleury / InriaData visualizationBetween teaching and research: the experience of Eugénie Brasier28/08/2026",
+        "href": "/en/teaching-research-eugenie-brasier"
+      },
+      {
+        "text": "© Inria / Photo B. FourrierHealth / Personalised medicineEbola: multidisciplinary expertise mobilized to address new outbreaks31/08/2026",
+        "href": "/en/ebola-multidisciplinary-expertise-new-outbreaks"
+      },
+      {
+        "text": "Inria centre at Université de Lorraine(139)",
+        "href": "/en/actualites_evenements?f%5B0%5D=centres_inria_news%3AInria%20centre%20at%20Universit%C3%A9%20de%20Lorraine"
+      },
+      {
+        "text": "Inria Centre at the University of Bordeaux(129)",
+        "href": "/en/actualites_evenements?f%5B0%5D=centres_inria_news%3AInria%20Centre%20at%20the%20University%20of%20Bordeaux"
+      },
+      {
+        "text": "Inria Paris Centre(108)",
+        "href": "/en/actualites_evenements?f%5B0%5D=centres_inria_news%3AInria%20Paris%20Centre"
+      },
+      {
+        "text": "Inria Centre at Rennes University(100)",
+        "href": "/en/actualites_evenements?f%5B0%5D=centres_inria_news%3AInria%20Centre%20at%20Rennes%20University"
+      },
+      {
+        "text": "Inria Saclay Centre(87)",
+        "href": "/en/actualites_evenements?f%5B0%5D=centres_inria_news%3AInria%20Saclay%20Centre"
+      },
+      {
+        "text": "Inria Centre at the University of Lille(85)",
+        "href": "/en/actualites_evenements?f%5B0%5D=centres_inria_news%3AInria%20Centre%20at%20the%20University%20of%20Lille"
+      },
+      {
+        "text": "Inria Centre at Université Côte d'Azur(83)",
+        "href": "/en/actualites_evenements?f%5B0%5D=centres_inria_news%3AInria%20Centre%20at%20Universit%C3%A9%20C%C3%B4te%20d%27Azur"
+      },
+      {
+        "text": "Inria Centre at Université Grenoble Alpes(34)",
+        "href": "/en/actualites_evenements?f%5B0%5D=centres_inria_news%3AInria%20Centre%20at%20Universit%C3%A9%20Grenoble%20Alpes"
+      },
+      {
+        "text": "Inria Lyon Centre(26)",
+        "href": "/en/actualites_evenements?f%5B0%5D=centres_inria_news%3AInria%20Lyon%20Centre"
+      },
+      {
+        "text": "Subscribe to Ma recherche",
+        "href": "https://www.inria.fr/en/rss/recherche/evenements"
+      },
+      {
+        "text": "16 November 2026Communication / Event“Digital Transformation of Public Health” Conference: 15 Years of Collaboration Between Inria and Bordeaux Popula",
+        "href": "/en/digital-transformation-public-health-conference-15-years-collaboration-between-inria-and-bordeaux"
+      },
+      {
+        "text": "2–6 November 2026Health - Personalised HealthcareMath Bio Santé daysLocation :Cité scientifique, CERLA",
+        "href": "/en/math-bio-sante-days"
+      },
+      {
+        "text": "19–23 October 2026Human-Computer InteractionIHM '26: 37th international francophone conference on human-machine interactionLocation :LILLIAD learning ",
+        "href": "/en/ihm-26-37th-international-francophone-conference-human-machine-interaction"
+      },
+      {
+        "text": "5–7 October 2026EWRL 2026: 19th European Workshop on Reinforcement LearningLocation :LILLIAD learning center",
+        "href": "/en/ewrl-2026-19th-european-workshop-reinforcement-learning"
+      },
+      {
+        "text": "26 August – 2 September 2026RoboticsIn Brussels, Inria puts European robotics & AI into action with the euROBIN project!",
+        "href": "/en/brussels-inria-puts-european-robotics-ai-action-eurobin-project"
+      },
+      {
+        "text": "© Inria / Photo B. Fourrier19 June 2026Communication - EventScientific symposium in honour of Gilles DowekLocation :Amphithéâtre Alain Aspect, ENS Par",
+        "href": "/en/scientific-symposium-gilles-dowek"
+      },
+      {
+        "text": "19–21 May 2026SoftwareThe French Network for Reproducible Research Conference in Bordeaux from 19 to 21 May 2026Location :Campus Victoire",
+        "href": "/en/french-network-reproducible-research-conference-bordeaux-19-21-may-2026"
+      },
+      {
+        "text": "8–10 October 2025NetworksNetMob 2025 in Paris: understanding society through mobility dataLocation :Conservatoire National des Arts et Métiers (CNAM)",
+        "href": "/en/netmob-2025-paris-understanding-society-mobility-data"
+      },
+      {
+        "text": "5 May – 3 September 2025OpensourceRegister for the MOOC “Reproducible Research II”!",
+        "href": "/en/mooc-reproducible-research"
+      },
+      {
+        "text": "© Guillaume Périgois on Unsplash12 May 2025EuropeEurope Month: find out about European funding for researchLocation :Centre Inria de l'université de B",
+        "href": "/en/event-bordeaux-europe-funding-research"
+      },
+      {
+        "text": "17–18 March 2025Communication / EventIABM 2025 - French Conference on Artificial Intelligence in Biomedical ImagingLocation :Palais de la Méditerranée",
+        "href": "/en/iabm-2025-french-conference-artificial-intelligence-biomedical-imaging"
+      },
+      {
+        "text": "3–6 February 2025Communication - Event1rst Learning week at Inria, Sophia Antipolis, for the TENORS projectLocation :Centre Inria d'Université Côte d'",
+        "href": "/en/1rst-learning-week-inria-sophia-antipolis-tenors-project"
+      },
+      {
+        "text": "4–8 November 2024Communication - EventMake sure you’re at the Inria Paris centre from 4 to 8 November 2024 for a special week on all things quantum!Lo",
+        "href": "/en/make-sure-youre-inria-paris-centre-4-8-november-2024-special-week-all-things-quantum"
+      },
+      {
+        "text": "29 July – 2 August 2024Communication - EventEURASIP - IEEE SPS Summer School on Remote Sensing and Microscopy Image ProcessingLocation :Université de ",
+        "href": "/en/summer-school-remote-sensing-microscopy-image"
+      },
+      {
+        "text": "25 June 2024Communication / EventInterface - Visit the Inria demonstrator space in Lille on June 25, 2024Location :Inria - bâtiment Place - EuraTechno",
+        "href": "/en/interface-lille-digital-sciences-technologies-20242506"
+      },
+      {
+        "text": "Inria Centre at the University of Lille(16)",
+        "href": "/en/actualites_evenements?f%5B0%5D=centres_inria_event%3AInria%20Centre%20at%20the%20University%20of%20Lille"
+      },
+      {
+        "text": "Inria Centre at the University of Bordeaux(12)",
+        "href": "/en/actualites_evenements?f%5B0%5D=centres_inria_event%3AInria%20Centre%20at%20the%20University%20of%20Bordeaux"
+      },
+      {
+        "text": "Inria Saclay Centre(7)",
+        "href": "/en/actualites_evenements?f%5B0%5D=centres_inria_event%3AInria%20Saclay%20Centre"
+      },
+      {
+        "text": "Inria Centre at Université Côte d'Azur(6)",
+        "href": "/en/actualites_evenements?f%5B0%5D=centres_inria_event%3AInria%20Centre%20at%20Universit%C3%A9%20C%C3%B4te%20d%27Azur"
+      },
+      {
+        "text": "Inria Paris Centre(6)",
+        "href": "/en/actualites_evenements?f%5B0%5D=centres_inria_event%3AInria%20Paris%20Centre"
+      },
+      {
+        "text": "Inria centre at Université de Lorraine(5)",
+        "href": "/en/actualites_evenements?f%5B0%5D=centres_inria_event%3AInria%20centre%20at%20Universit%C3%A9%20de%20Lorraine"
+      },
+      {
+        "text": "Inria Centre at Rennes University(4)",
+        "href": "/en/actualites_evenements?f%5B0%5D=centres_inria_event%3AInria%20Centre%20at%20Rennes%20University"
+      },
+      {
+        "text": "Inria Centre at Université Grenoble Alpes(2)",
+        "href": "/en/actualites_evenements?f%5B0%5D=centres_inria_event%3AInria%20Centre%20at%20Universit%C3%A9%20Grenoble%20Alpes"
+      },
+      {
+        "text": "Inria Lyon Centre(1)",
+        "href": "/en/actualites_evenements?f%5B0%5D=centres_inria_event%3AInria%20Lyon%20Centre"
+      },
+      {
+        "text": "Simulation de l'accessibilité numérique",
+        "href": "https://simulation-accessibilite.inria.fr/"
+      },
+      {
+        "text": "Inria AlumniThe Inria Alumni network",
+        "href": "https://www.inria-alumni.fr/"
+      },
+      {
+        "text": "La Fondation InriaSupport the development of the digital sciences in our society",
+        "href": "https://www.fondation-inria.fr/taxe-dapprentissage-financez-une-boursiere-techpourtoutes"
+      },
+      {
+        "text": "HAL-InriaScientific publications",
+        "href": "https://inria.hal.science/"
+      },
+      {
+        "text": "RadarThe Inria's Research Teams Activity Report",
+        "href": "https://radar.inria.fr/"
+      },
+      {
+        "text": "IntersticesExplore digital sciences (in French)",
+        "href": "https://interstices.info/"
+      },
+      {
+        "text": "Inria Learning LabMOOCs in computer science and pedagogical resources",
+        "href": "https://learninglab.inria.fr/"
+      },
+      {
+        "text": "Personal data protection (GDPR)",
+        "href": "/en/personal-data-protection-gdpr"
+      },
+      {
+        "text": "Administrative documents",
+        "href": "/en/access-administrative-documents"
+      },
+      {
+        "text": "Accessibility: non-compliant",
+        "href": "/en/accessibility-statement"
+      },
+      {
+        "text": "Inria, an ecosystem",
+        "href": "/en/inria-ecosystem"
+      },
+      {
+        "text": "Research & innovation",
+        "href": "/en/research-and-innovation"
+      },
+      {
+        "text": "The Inria FoundationSupport the Foundation to make sense of of the digital world",
+        "href": "/en/la-fondation-inria"
+      },
+      {
+        "text": "#menu-content-37:hover {\n                color: #099CFF;\n            }Quantum Algorithms and Computing",
+        "href": "/en/quantum-algorithms-and-computing"
+      },
+      {
+        "text": "#menu-content-38:hover {\n                color: #FFDB2F;\n            }High Performance Computing",
+        "href": "/en/high-performance-computing"
+      },
+      {
+        "text": "#menu-content-47:hover {\n                color: #FF9111;\n            }Digital education",
+        "href": "/en/digital-education"
+      },
+      {
+        "text": "#menu-content-30:hover {\n                color: #C00036;\n            }Artificial Intelligence",
+        "href": "/en/artificial-intelligence"
+      },
+      {
+        "text": "#menu-content-49:hover {\n                color: #78FFFA;\n            }Internet of Things",
+        "href": "/en/internet-of-things"
+      },
+      {
+        "text": "#menu-content-44:hover {\n                color: #78FFFA;\n            }Software",
+        "href": "/en/software"
+      },
+      {
+        "text": "#menu-content-51:hover {\n                color: #73E100;\n            }Modeling and simulation",
+        "href": "/en/modeling-and-simulation"
+      },
+      {
+        "text": "#menu-content-29:hover {\n                color: #C6FF01;\n            }Digital and Environment",
+        "href": "/en/digital-and-environment"
+      },
+      {
+        "text": "#menu-content-50:hover {\n                color: #C00036;\n            }Robotics",
+        "href": "/en/robotics"
+      },
+      {
+        "text": "#menu-content-43:hover {\n                color: #C00036;\n            }Digital health",
+        "href": "/en/digital-health"
+      },
+      {
+        "text": "#menu-content-31:hover {\n                color: #099CFF;\n            }Data Sciences",
+        "href": "/en/data-sciences"
+      },
+      {
+        "text": "#menu-content-28:hover {\n                color: #FF9111;\n            }Digital Security",
+        "href": "/en/digital-security"
+      }
+    ],
+    "robots": [
+      {
+        "url": "https://www.inria.fr/robots.txt",
+        "status": 200
+      }
+    ]
+  },
+  {
+    "name": "CEA",
+    "url": "https://www.cea.fr/english/Pages/news-list.aspx",
+    "status": 200,
+    "mime": "text/html",
+    "final_url": "https://www.cea.fr/english/Pages/news-list.aspx",
+    "cache": "/tmp/news-insight-source-crawl-2026-10-05/ff273d152117a80ffe3f02bcd783d1a45b95949147d06f2b46c2e544cb616dd5.html",
+    "links": [
+      {
+        "text": "Cartographie du CEA",
+        "href": "/lists/staticFiles/cea360/cea360/index_CEA360.html"
+      },
+      {
+        "text": "Relations internationales",
+        "href": "https://www.cea.fr/Pages/politique-internationale-au-cea.aspx"
+      },
+      {
+        "text": "Recrutement ＆ formation",
+        "href": "/recrutement"
+      },
+      {
+        "text": "Les directions opérationnelles",
+        "href": null
+      },
+      {
+        "text": "Applications militaires",
+        "href": "http://www-dam.cea.fr/"
+      },
+      {
+        "text": "Recherche fondamentale",
+        "href": "https://www.cea.fr/drf"
+      },
+      {
+        "text": "Les domaines de recherche",
+        "href": null
+      },
+      {
+        "text": "Energies renouvelables",
+        "href": "https://www.cea.fr/Pages/domaines-recherche/energies-renouvelables.aspx"
+      },
+      {
+        "text": "Technologies pour l'industrie",
+        "href": "https://www.cea.fr/Pages/domaines-recherche/recherche-technologique-pour-industrie.aspx"
+      },
+      {
+        "text": "Santé ＆ sciences du vivant",
+        "href": "https://www.cea.fr/Pages/domaines-recherche/sante-sciences-du-vivant.aspx"
+      },
+      {
+        "text": "Climat ＆ environnement",
+        "href": "https://www.cea.fr/Pages/domaines-recherche/climat-environnement.aspx"
+      },
+      {
+        "text": "Santé/environnement",
+        "href": null
+      },
+      {
+        "text": "Recherche fondamentale",
+        "href": null
+      },
+      {
+        "text": "Contacts ＆ plans d'accès",
+        "href": "https://www.cea.fr/Pages/le-cea/les-centres-cea.aspx"
+      },
+      {
+        "text": "Culture scientifique",
+        "href": "https://www.cea.fr/comprendre/Pages/accueil/culture-scientifique.aspx"
+      },
+      {
+        "text": "Fundamental Research Division",
+        "href": "https://www.cea.fr/drf/english/"
+      },
+      {
+        "text": "instructions for enabling Javascript in your web browser",
+        "href": "http://www.enable-javascript.com/fr/"
+      },
+      {
+        "text": "The CEA – a key player in scientific and technological research",
+        "href": "/english/Pages/cea/the-cea-a-key-player-in-technological-research.aspx"
+      },
+      {
+        "text": "The French Alternative Energies and Atomic Energy Commission (CEA) is a key player in research, development and innovation.",
+        "href": "/english/Pages/cea/the-cea-a-key-player-in-technological-research.aspx"
+      },
+      {
+        "text": "International cooperation",
+        "href": "/english/Pages/cea/international-policy.aspx"
+      },
+      {
+        "text": "Scientific and technical cooperation",
+        "href": "/english/Pages/cea/international-policy/scientific-and-technical-cooperation.aspx"
+      },
+      {
+        "text": "Consult the section « About CEA »",
+        "href": "/english/Pages/cea/the-cea-a-key-player-in-technological-research.aspx"
+      },
+      {
+        "text": "Discover the main research areas on which the CEA works.​",
+        "href": "/english/Pages/research-areas.aspx"
+      },
+      {
+        "text": "Defence and security",
+        "href": "/english/Pages/research-areas/defence-and-security.aspx"
+      },
+      {
+        "text": "Technological research for industry",
+        "href": "/english/Pages/research-areas/technological-research-for-industry.aspx"
+      },
+      {
+        "text": "Matter and universe",
+        "href": "/english/Pages/research-areas/matter-and-universe.aspx"
+      },
+      {
+        "text": "Health and life sciences",
+        "href": "/english/Pages/research-areas/health-and-life-sciences.aspx"
+      },
+      {
+        "text": "Climate and environment",
+        "href": "/english/Pages/research-areas/climate-and-environment.aspx"
+      },
+      {
+        "text": "Consult the section « Research areas »",
+        "href": "/english/Pages/research-areas.aspx"
+      },
+      {
+        "text": "Find the latest scientific and institutional news of the CEA.",
+        "href": "/english/Pages/news-list.aspx"
+      },
+      {
+        "text": "Consult the section « News »",
+        "href": "/english/Pages/news-list.aspx"
+      },
+      {
+        "text": "partners / suppliers",
+        "href": "/english/companies"
+      },
+      {
+        "text": "Franco American Cooperation: CEA and the U.S. Department of Energy (DOE) Strengthen Partnership on the International DUNE Experiment",
+        "href": "/english/Pages/News/partnership-international-dune-experiment.aspx"
+      },
+      {
+        "text": "​On the sidelines of the IAEA General Conference, U.S. Secretary of Energy Chris Wright and CEA Administrator General Anne Isabelle Etienvre signed a ",
+        "href": "/english/Pages/News/partnership-international-dune-experiment.aspx"
+      },
+      {
+        "text": "VivaTech 2026 : CEA Showcases Its Innovations and Start-ups aiming towards technological Sovereignty",
+        "href": "/english/Pages/News/VivaTech-2026-CEA-Showcases-Its-Innovations-and-Start-ups-aiming-towards-technological-Sovereignty.aspx"
+      },
+      {
+        "text": "For the 10th edition of VivaTech, the CEA reaffirms its ambition to make technological innovation a strategic goal for industrial, scientific, and dig",
+        "href": "/english/Pages/News/VivaTech-2026-CEA-Showcases-Its-Innovations-and-Start-ups-aiming-towards-technological-Sovereignty.aspx"
+      },
+      {
+        "text": "The CEA's TGCC at the heart of European challenges in computing, quantum technology, and semiconductors",
+        "href": "/english/Pages/News/cea-tgcc-at-heart-of-european-challenges-computing-quantum-technology-and-semiconductors.aspx"
+      },
+      {
+        "text": "​On May 22, the CEA’s TGCC hosted the European Forum on Computing, Quantum, and Semiconductor Technologies, attended by the President of the Republic.",
+        "href": "/english/Pages/News/cea-tgcc-at-heart-of-european-challenges-computing-quantum-technology-and-semiconductors.aspx"
+      },
+      {
+        "text": "France - Finland: The CEA and VTT strengthen their cooperation in strategic technologies",
+        "href": "/english/Pages/News/france-finland-cea-vtt-strengthen-cooperation-strategic-technologies.aspx"
+      },
+      {
+        "text": "​​On May 12 and 13, the CEA welcomed a delegation from VTT, the Finnish Technical Research Centre, at its Saclay site for a high-level meeting between",
+        "href": "/english/Pages/News/france-finland-cea-vtt-strengthen-cooperation-strategic-technologies.aspx"
+      },
+      {
+        "text": "French and German partners strengthen cooperation on quantum technologies",
+        "href": "/english/Pages/News/French-German-partners-cooperation-quantum-technologies.aspx"
+      },
+      {
+        "text": "Over a hundred high-level representatives from French and German industry, policy, start-up and investment sectors will gather for a reception hosted ",
+        "href": "/english/Pages/News/French-German-partners-cooperation-quantum-technologies.aspx"
+      },
+      {
+        "text": "French nuclear industry stakeholders welcome the outcomes of the fifth Nuclear Policy Council (CPN)",
+        "href": "/english/Pages/News/french-nuclear-industry-stakeholders-outcomes--welcome-nuclear-policy-council.aspx"
+      },
+      {
+        "text": "EDF, Framatome (an EDF subsidiary), the CEA and Orano welcome the outcomes of the Nuclear Policy Council (CPN), which met today Thursday, March 12, 20",
+        "href": "/english/Pages/News/french-nuclear-industry-stakeholders-outcomes--welcome-nuclear-policy-council.aspx"
+      },
+      {
+        "text": "FAMES pilot line inauguration",
+        "href": "/english/Pages/News/FAMES-pilot-line-Europe.aspx"
+      },
+      {
+        "text": "Today, the CEA inaugurates FAMES in Grenoble, a European pilot line designed to accelerate innovation in microelectronics and foster the emergence of ",
+        "href": "/english/Pages/News/FAMES-pilot-line-Europe.aspx"
+      },
+      {
+        "text": "Laurence Petit joins the European Innovation Council",
+        "href": "/english/Pages/News/Laurence-Petit-joins--European-Innovation-Council.aspx"
+      },
+      {
+        "text": "Two French nationals have been appointed to the Board of the European Innovation Council (EIC) out of 951 applications: Laurence Petit, Deputy Directo",
+        "href": "/english/Pages/News/Laurence-Petit-joins--European-Innovation-Council.aspx"
+      },
+      {
+        "text": "The CEA, the world's most innovative research organization",
+        "href": "/english/Pages/News/CEA-world-most-innovative-research-organization-clarivate-2025.aspx"
+      },
+      {
+        "text": "The CEA remains the world's most innovative public research organization, according to the Top 100 Global Innovators published by Clarivate this Wedne",
+        "href": "/english/Pages/News/CEA-world-most-innovative-research-organization-clarivate-2025.aspx"
+      },
+      {
+        "text": "ERC Consolidator 2025: Dalimil Mazac awarded for his research efforts in quantum field theory",
+        "href": "/english/Pages/News/ERC-Consolidator-Dalimil-Mazac-quantum-field-theory.aspx"
+      },
+      {
+        "text": "The European Research Council (ERC) has announced the recipients of the 2025 Consolidator Grants. Supporting the best exploratory research across all ",
+        "href": "/english/Pages/News/ERC-Consolidator-Dalimil-Mazac-quantum-field-theory.aspx"
+      },
+      {
+        "text": "Personal data protection (GDPR)",
+        "href": "/english/Pages/personal-data-protection.aspx"
+      },
+      {
+        "text": "The CEA: a key player in technological research",
+        "href": "/english/Pages/cea/the-cea-a-key-player-in-technological-research.aspx"
+      },
+      {
+        "text": "International cooperation",
+        "href": "/english/Pages/cea/international-policy.aspx"
+      },
+      {
+        "text": "Defence and security",
+        "href": "/english/Pages/research-areas/defence-and-security.aspx"
+      },
+      {
+        "text": "Technological research for industry",
+        "href": "/english/Pages/research-areas/technological-research-for-industry.aspx"
+      },
+      {
+        "text": "Matter and Universe",
+        "href": "/english/Pages/research-areas/matter-and-universe.aspx"
+      },
+      {
+        "text": "Health and life sciences",
+        "href": "/english/Pages/research-areas/health-and-life-sciences.aspx"
+      },
+      {
+        "text": "Climate and environment",
+        "href": "/english/Pages/research-areas/climate-and-environment.aspx"
+      },
+      {
+        "text": "Site institutionnel",
+        "href": "https://www.cea.fr/"
+      },
+      {
+        "text": "Espace emploi et formation",
+        "href": "/recrutement/Pages/Accueil.aspx"
+      },
+      {
+        "text": "Les sites thématiques",
+        "href": null
+      },
+      {
+        "text": "Le site institutionnel du CEA",
+        "href": "https://www.cea.fr/"
+      },
+      {
+        "text": "Direction des applications militaires",
+        "href": "http://www-dam.cea.fr/"
+      },
+      {
+        "text": "Direction de l'énergie nucléaire",
+        "href": "/Pages/le-cea/direction-des-energies.aspx"
+      },
+      {
+        "text": "Direction de la recherche technologique, CEA Tech",
+        "href": "http://www.cea-tech.fr/cea-tech/"
+      },
+      {
+        "text": "Direction de la recherche fondamentale",
+        "href": "http://ceasciences.fr/index.php"
+      },
+      {
+        "text": "Les sites web des centres CEA",
+        "href": null
+      },
+      {
+        "text": "Culture scientifique",
+        "href": null
+      },
+      {
+        "text": "Découvrir ＆ comprendre, l'espace de culture scientifique du CEA",
+        "href": "https://www.cea.fr/comprendre/Pages/accueil/culture-scientifique.aspx"
+      },
+      {
+        "text": "Jeu vidéo Prisonnier quantique",
+        "href": "https://prisonnier-quantique.fr/index.html"
+      },
+      {
+        "text": "Les instituts du CEA",
+        "href": null
+      },
+      {
+        "text": "Santé / Environnement",
+        "href": null
+      },
+      {
+        "text": "Recherche fondamentale",
+        "href": null
+      }
+    ],
+    "robots": [
+      {
+        "url": "https://www.cea.fr/robots.txt",
+        "status": 200
+      }
+    ]
+  },
+  {
+    "name": "CNRS",
+    "url": "https://www.cnrs.fr/en/press",
+    "status": 200,
+    "mime": "text/html",
+    "final_url": "https://www.cnrs.fr/en/press",
+    "cache": "/tmp/news-insight-source-crawl-2026-10-05/17ddc7323ee1b31564a2e499ca8c5bc51c5dbe30476d8137ca7e13a714b3c096.html",
+    "links": [
+      {
+        "text": "Skip to main content",
+        "href": "#main-content"
+      },
+      {
+        "text": "Collective scientific expertise",
+        "href": "/en/our-research/collective-scientific-expertise"
+      },
+      {
+        "text": "The societal impact of research",
+        "href": "/en/our-challenges/societal-impact-research"
+      },
+      {
+        "text": "Transversal challenges",
+        "href": "/en/our-challenges/transversal-challenges"
+      },
+      {
+        "text": "Environmental transition",
+        "href": "/en/our-challenges/sustainable-development"
+      },
+      {
+        "text": "Europe and International",
+        "href": "/en/the-cnrs/europe-and-international"
+      },
+      {
+        "text": "https://www.cnrs.fr/en/press",
+        "href": "https://www.cnrs.fr/en/press"
+      },
+      {
+        "text": "https://www.cnrs.fr/en/press",
+        "href": "https://www.cnrs.fr/en/press"
+      },
+      {
+        "text": "Scientific research in images",
+        "href": "https://images.cnrs.fr/en"
+      },
+      {
+        "text": "https://images.cnrs.fr/en",
+        "href": "https://images.cnrs.fr/en"
+      },
+      {
+        "text": "All our publications (institutional brochures)",
+        "href": "https://www.cnrs.fr/en/ressources"
+      },
+      {
+        "text": "this monthly newsletter",
+        "href": "https://www.cnrs.fr/fr/lettre-innovation"
+      },
+      {
+        "text": "View issues or subscribe to the newsletter",
+        "href": "https://lejournal.cnrs.fr/newsletters"
+      },
+      {
+        "text": "The CNRS overseas: scientific research with and for overseas territories",
+        "href": "/en/cnrs-overseas-scientific-research-and-overseas-territories"
+      },
+      {
+        "text": "The CNRS overseas: scientific research with and for overseas territories",
+        "href": "/en/cnrs-overseas-scientific-research-and-overseas-territories"
+      },
+      {
+        "text": "The societal impact of research",
+        "href": "/en/our-challenges/societal-impact-research"
+      },
+      {
+        "text": "The societal impact of research",
+        "href": "/en/our-challenges/societal-impact-research"
+      },
+      {
+        "text": "All our social networks",
+        "href": "/en/all-our-social-networks"
+      }
+    ],
+    "robots": [
+      {
+        "url": "https://www.cnrs.fr/robots.txt",
+        "status": 200
+      }
+    ]
+  },
+  {
+    "name": "TNO",
+    "url": "https://www.tno.nl/en/newsroom/news/",
+    "status": 200,
+    "mime": "text/html",
+    "final_url": "https://www.tno.nl/en/newsroom/news/",
+    "cache": "/tmp/news-insight-source-crawl-2026-10-05/6f2e17afefd5f0fa14f24045ddaaa45c4fa10b703e6797e0d29816cfdd85f5d1.html",
+    "links": [
+      {
+        "text": "Skip to the content",
+        "href": "#content-start"
+      },
+      {
+        "text": "Circular and industrial construction",
+        "href": "https://www.tno.nl/en/sustainable/circular-industrial-construction/"
+      },
+      {
+        "text": "Biobased building materials",
+        "href": "https://www.tno.nl/en/sustainable/circular-industrial-construction/bio-based-building-materials/"
+      },
+      {
+        "text": "Industrial and conceptual construction",
+        "href": "https://www.tno.nl/en/sustainable/circular-industrial-construction/industrial-construction/"
+      },
+      {
+        "text": "Safety of buildings",
+        "href": "https://www.tno.nl/en/sustainable/circular-industrial-construction/foundation-problems/"
+      },
+      {
+        "text": "Safe efficient care building",
+        "href": "https://www.tno.nl/en/sustainable/circular-industrial-construction/building-safe-efficient-care-building/"
+      },
+      {
+        "text": "Go to Circular and industrial construction",
+        "href": "https://www.tno.nl/en/sustainable/circular-industrial-construction/"
+      },
+      {
+        "text": "Energy in the built environment",
+        "href": "https://www.tno.nl/en/sustainable/energy-built-environment/"
+      },
+      {
+        "text": "Accelerating towards a climate-neutral built environment",
+        "href": "https://www.tno.nl/en/sustainable/energy-built-environment/accelerating-towards-climate-neutral/"
+      },
+      {
+        "text": "Heating and cooling systems",
+        "href": "https://www.tno.nl/en/sustainable/energy-built-environment/heating-cooling-systems/"
+      },
+      {
+        "text": "Monitoring installations, components, and energy",
+        "href": "https://www.tno.nl/en/sustainable/energy-built-environment/monitoring-energy-performance/"
+      },
+      {
+        "text": "Go to Energy in the built environment",
+        "href": "https://www.tno.nl/en/sustainable/energy-built-environment/"
+      },
+      {
+        "text": "Sustainable solar panels",
+        "href": "https://www.tno.nl/en/sustainable/energy-supply/sustainable-solar-panels/"
+      },
+      {
+        "text": "Solar device technology",
+        "href": "https://www.tno.nl/en/sustainable/energy-supply/solar-device-technology/"
+      },
+      {
+        "text": "Accelerating offshore wind farms",
+        "href": "https://www.tno.nl/en/sustainable/energy-supply/accelerating-offshore-wind-farms/"
+      },
+      {
+        "text": "Energy systems transition",
+        "href": "https://www.tno.nl/en/sustainable/energy-supply/energy-systems-transition/"
+      },
+      {
+        "text": "Go to Energy supply",
+        "href": "https://www.tno.nl/en/sustainable/energy-supply/"
+      },
+      {
+        "text": "Circular feedstock processes",
+        "href": "https://www.tno.nl/en/sustainable/industry/circular-feedstock-processes/"
+      },
+      {
+        "text": "Carbon neutral industry",
+        "href": "https://www.tno.nl/en/sustainable/industry/carbon-neutral-industry/"
+      },
+      {
+        "text": "Sustainable materials",
+        "href": "https://www.tno.nl/en/sustainable/industry/sustainable-materials/"
+      },
+      {
+        "text": "Energy infrastructure",
+        "href": "https://www.tno.nl/en/sustainable/industry/energy-infrastructure/"
+      },
+      {
+        "text": "Concrete structures",
+        "href": "https://www.tno.nl/en/sustainable/infrastructure/prolonging-service-life-concrete/"
+      },
+      {
+        "text": "Go to Infrastructure",
+        "href": "https://www.tno.nl/en/sustainable/infrastructure/"
+      },
+      {
+        "text": "Liveable cities and regions",
+        "href": "https://www.tno.nl/en/sustainable/liveable-cities-regions/"
+      },
+      {
+        "text": "Climate-adaptive cities and transport",
+        "href": "https://www.tno.nl/en/sustainable/liveable-cities-regions/climate-adaptive-transport/"
+      },
+      {
+        "text": "Zero emission urban mobility",
+        "href": "https://www.tno.nl/en/sustainable/liveable-cities-regions/zero-emission-urban-mobility/"
+      },
+      {
+        "text": "Mobility transition",
+        "href": "https://www.tno.nl/en/sustainable/liveable-cities-regions/mobility-transition/"
+      },
+      {
+        "text": "Go to Liveable cities and regions",
+        "href": "https://www.tno.nl/en/sustainable/liveable-cities-regions/"
+      },
+      {
+        "text": "Maritime and offshore",
+        "href": "https://www.tno.nl/en/sustainable/maritime-offshore/"
+      },
+      {
+        "text": "Transition to sustainable shipping",
+        "href": "https://www.tno.nl/en/sustainable/maritime-offshore/transition-sustainable-shipping/"
+      },
+      {
+        "text": "Offshore renewable energy production",
+        "href": "https://www.tno.nl/en/sustainable/maritime-offshore/renewable-energy-production/"
+      },
+      {
+        "text": "Ship materials and structures",
+        "href": "https://www.tno.nl/en/sustainable/maritime-offshore/ship-safety-structures/"
+      },
+      {
+        "text": "Go to Maritime and offshore",
+        "href": "https://www.tno.nl/en/sustainable/maritime-offshore/"
+      },
+      {
+        "text": "Mobility and logistics",
+        "href": "https://www.tno.nl/en/sustainable/mobility-logistics/"
+      },
+      {
+        "text": "Practical emission measurements",
+        "href": "https://www.tno.nl/en/sustainable/mobility-logistics/monitoring-actual-emissions/"
+      },
+      {
+        "text": "Sustainable logistics",
+        "href": "https://www.tno.nl/en/sustainable/mobility-logistics/zero-emission/"
+      },
+      {
+        "text": "Transition co2 neutral mobility 2050",
+        "href": "https://www.tno.nl/en/sustainable/mobility-logistics/transition-co2-neutral-mobility-2050/"
+      },
+      {
+        "text": "Go to Mobility and logistics",
+        "href": "https://www.tno.nl/en/sustainable/mobility-logistics/"
+      },
+      {
+        "text": "Groundwater stewardship",
+        "href": "https://www.tno.nl/en/sustainable/subsurface/groundwater-stewardship/"
+      },
+      {
+        "text": "Future-proof land use",
+        "href": "https://www.tno.nl/en/sustainable/subsurface/future-proof-land-use/"
+      },
+      {
+        "text": "System solutions and environment",
+        "href": "https://www.tno.nl/en/sustainable/system-solutions-environment/"
+      },
+      {
+        "text": "Climate and air quality",
+        "href": "https://www.tno.nl/en/sustainable/system-solutions-environment/climate-air-quality/"
+      },
+      {
+        "text": "Net zero energy solutions",
+        "href": "https://www.tno.nl/en/sustainable/system-solutions-environment/net-zero-energy-solutions/"
+      },
+      {
+        "text": "Transition pathways",
+        "href": "https://www.tno.nl/en/sustainable/system-solutions-environment/transition-pathways/"
+      },
+      {
+        "text": "Go to System solutions and environment",
+        "href": "https://www.tno.nl/en/sustainable/system-solutions-environment/"
+      },
+      {
+        "text": "Health data management and modelling",
+        "href": "https://www.tno.nl/en/healthy/digital-health/health-data-management-modelling/"
+      },
+      {
+        "text": "Health applications",
+        "href": "https://www.tno.nl/en/healthy/digital-health/health-applications/"
+      },
+      {
+        "text": "Health and Work AI Lab",
+        "href": "https://www.tno.nl/en/healthy/digital-health/health-work-ai-lab/"
+      },
+      {
+        "text": "Health Innovation Venue for Enterprises",
+        "href": "https://www.tno.nl/en/healthy/digital-health/health-innovation-venue-enterprises/"
+      },
+      {
+        "text": "Go to Digital health",
+        "href": "https://www.tno.nl/en/healthy/digital-health/"
+      },
+      {
+        "text": "Efficient drug development",
+        "href": "https://www.tno.nl/en/healthy/efficient-drug-development/"
+      },
+      {
+        "text": "Data driven drug discovery",
+        "href": "https://www.tno.nl/en/healthy/efficient-drug-development/data-driven-drug-discovery/"
+      },
+      {
+        "text": "Advanced microtracer studies",
+        "href": "https://www.tno.nl/en/healthy/efficient-drug-development/advanced-microtracer-studies/"
+      },
+      {
+        "text": "Translational preclinical efficacy models",
+        "href": "https://www.tno.nl/en/healthy/efficient-drug-development/translational-preclinical-efficacy/"
+      },
+      {
+        "text": "Functional biomarkers",
+        "href": "https://www.tno.nl/en/healthy/efficient-drug-development/functional-biomarkers/"
+      },
+      {
+        "text": "Go to Efficient drug development",
+        "href": "https://www.tno.nl/en/healthy/efficient-drug-development/"
+      },
+      {
+        "text": "Flexible and free-form products",
+        "href": "https://www.tno.nl/en/healthy/flexibele-en-vrije-vorm-producten/"
+      },
+      {
+        "text": "Our expertise in flexible and free-form products",
+        "href": "https://www.tno.nl/en/healthy/flexibele-en-vrije-vorm-producten/flexible-free-form-products/"
+      },
+      {
+        "text": "3D printing for flexible production of personalised medicine",
+        "href": "https://www.tno.nl/en/healthy/flexibele-en-vrije-vorm-producten/3d-printing-flexible-production/"
+      },
+      {
+        "text": "The future of 3D-printed food made possible",
+        "href": "https://www.tno.nl/en/healthy/flexibele-en-vrije-vorm-producten/future-3d-printed-food/"
+      },
+      {
+        "text": "Go to Flexible and free-form products",
+        "href": "https://www.tno.nl/en/healthy/flexibele-en-vrije-vorm-producten/"
+      },
+      {
+        "text": "Health and lifestyle",
+        "href": "https://www.tno.nl/en/healthy/health-lifestyle/"
+      },
+      {
+        "text": "Consumer health and personal care",
+        "href": "https://www.tno.nl/en/healthy/health-lifestyle/consumer-health-personal-care/"
+      },
+      {
+        "text": "Digital Biomarker Lab",
+        "href": "https://www.tno.nl/en/healthy/health-lifestyle/digital-biomarker-lab/"
+      },
+      {
+        "text": "Food allergy risk assessment",
+        "href": "https://www.tno.nl/en/healthy/health-lifestyle/food-compounds-health-promotion/"
+      },
+      {
+        "text": "Healthy living environment",
+        "href": "https://www.tno.nl/en/healthy/health-lifestyle/healthy-living-environment/"
+      },
+      {
+        "text": "Microbial safety and hygiene",
+        "href": "https://www.tno.nl/en/healthy/health-lifestyle/microbial-safety-hygiene/"
+      },
+      {
+        "text": "Personalised lifestyle and resilience",
+        "href": "https://www.tno.nl/en/healthy/health-lifestyle/personalised-lifestyle-resilience/"
+      },
+      {
+        "text": "Go to Health and lifestyle",
+        "href": "https://www.tno.nl/en/healthy/health-lifestyle/"
+      },
+      {
+        "text": "TOMCA: tissue-optical analysis of wearable medical sensors",
+        "href": "https://www.tno.nl/en/healthy/medical-devices/tomca-tissue-optical-analysis-wearable/"
+      },
+      {
+        "text": "IPUT® The Integrated Photonic Ultrasound Transducer",
+        "href": "https://www.tno.nl/en/healthy/medical-devices/iput-integrated-photonic-ultrasound/"
+      },
+      {
+        "text": "Go to Medical devices",
+        "href": "https://www.tno.nl/en/healthy/medical-devices/"
+      },
+      {
+        "text": "Labour market innovation",
+        "href": "https://www.tno.nl/en/healthy/work-health/labour-market-innovation/"
+      },
+      {
+        "text": "Work changes and wellbeing",
+        "href": "https://www.tno.nl/en/healthy/work-health/work-changes-wellbeing/"
+      },
+      {
+        "text": "Occupational exposome",
+        "href": "https://www.tno.nl/en/healthy/work-health/occupational-exposome/"
+      },
+      {
+        "text": "Occupational safety innovation",
+        "href": "https://www.tno.nl/en/healthy/work-health/occupational-safety-innovation/"
+      },
+      {
+        "text": "Safe chemical innovation",
+        "href": "https://www.tno.nl/en/healthy/work-health/safe-chemical-innovation/"
+      },
+      {
+        "text": "Monitor and foresight",
+        "href": "https://www.tno.nl/en/healthy/work-health/monitor-foresight/"
+      },
+      {
+        "text": "Healthy, safe and productive working",
+        "href": "https://www.tno.nl/en/healthy/work-health/healthy-safe-productive-working/"
+      },
+      {
+        "text": "Resilient youth and parents",
+        "href": "https://www.tno.nl/en/healthy/youth-health/resilient-youth-parents/"
+      },
+      {
+        "text": "Transformation, professionalisation and implementation",
+        "href": "https://www.tno.nl/en/healthy/youth-health/transformation-professionalisation/"
+      },
+      {
+        "text": "Personalised prevention and health",
+        "href": "https://www.tno.nl/en/healthy/youth-health/personalised-prevention-care/"
+      },
+      {
+        "text": "Youth: growing up healthy, safe, and with ample opportunities",
+        "href": "https://www.tno.nl/en/healthy/youth-health/youth-growing-up-healthy-safe-ample/"
+      },
+      {
+        "text": "Early metabolic health",
+        "href": "https://www.tno.nl/en/healthy/youth-health/early-metabolic-health/"
+      },
+      {
+        "text": "Autonomous abilities",
+        "href": "https://www.tno.nl/en/safe/autonomous-abilities/"
+      },
+      {
+        "text": "Go to Autonomous abilities",
+        "href": "https://www.tno.nl/en/safe/autonomous-abilities/"
+      },
+      {
+        "text": "Decisive decision making",
+        "href": "https://www.tno.nl/en/safe/decisive-decision-making/"
+      },
+      {
+        "text": "Adaptive learning architectures",
+        "href": "https://www.tno.nl/en/safe/decisive-decision-making/adaptive-learning-architectures/"
+      },
+      {
+        "text": "Desdemona: The ultimate motion simulator",
+        "href": "https://www.tno.nl/en/safe/decisive-decision-making/desdemona-ultimate-motion-simulator/"
+      },
+      {
+        "text": "Effective, efficient and flexible armed forces",
+        "href": "https://www.tno.nl/en/safe/decisive-decision-making/effective-efficient-flexible-armed/"
+      },
+      {
+        "text": "CARPET: computer-aided radar performance evaluation tool",
+        "href": "https://www.tno.nl/en/safe/decisive-decision-making/carpet-computer-aided-radar-performance/"
+      },
+      {
+        "text": "Go to Decisive decision making",
+        "href": "https://www.tno.nl/en/safe/decisive-decision-making/"
+      },
+      {
+        "text": "Integrated air and missile defence",
+        "href": "https://www.tno.nl/en/safe/integrated-air-missile-defence/"
+      },
+      {
+        "text": "Accurate geo-location with nanosatellites",
+        "href": "https://www.tno.nl/en/safe/integrated-air-missile-defence/accurate-geo-location-nanosatellites/"
+      },
+      {
+        "text": "PERSEUS wind turbine radar interference assessment tool",
+        "href": "https://www.tno.nl/en/safe/integrated-air-missile-defence/perseus-wind-turbine-radar-interference/"
+      },
+      {
+        "text": "Military use of space",
+        "href": "https://www.tno.nl/en/safe/integrated-air-missile-defence/military-use-space/"
+      },
+      {
+        "text": "Go to Integrated air and missile defence",
+        "href": "https://www.tno.nl/en/safe/integrated-air-missile-defence/"
+      },
+      {
+        "text": "Integrated combat capabilities",
+        "href": "https://www.tno.nl/en/safe/integrated-combat-capabilities/"
+      },
+      {
+        "text": "Process safety and dangerous goods",
+        "href": "https://www.tno.nl/en/safe/integrated-combat-capabilities/process-safety-dangerous-goods/"
+      },
+      {
+        "text": "Go to Integrated combat capabilities",
+        "href": "https://www.tno.nl/en/safe/integrated-combat-capabilities/"
+      },
+      {
+        "text": "Maritime defence and security",
+        "href": "https://www.tno.nl/en/safe/maritime-defence-security/"
+      },
+      {
+        "text": "Environmental effects of sonar",
+        "href": "https://www.tno.nl/en/safe/maritime-defence-security/environmental-effects-sonar/"
+      },
+      {
+        "text": "Low frequency active sonar",
+        "href": "https://www.tno.nl/en/safe/maritime-defence-security/low-frequency-active-sonar/"
+      },
+      {
+        "text": "Ocean resilience and transparency",
+        "href": "https://www.tno.nl/en/safe/maritime-defence-security/ocean-resilience-transparency/"
+      },
+      {
+        "text": "Signature management",
+        "href": "https://www.tno.nl/en/safe/maritime-defence-security/signature-management/"
+      },
+      {
+        "text": "Go to Maritime defence and security",
+        "href": "https://www.tno.nl/en/safe/maritime-defence-security/"
+      },
+      {
+        "text": "ACROSS: Can adaptive camouflage help make soldiers invisible to enemy detection?",
+        "href": "https://www.tno.nl/en/safe/social-resilience/across-can-adaptive-camouflage-invisible/"
+      },
+      {
+        "text": "Cyber and electronic warfare",
+        "href": "https://www.tno.nl/en/safe/social-resilience/cyber-electronic-warfare/"
+      },
+      {
+        "text": "Cyber risks and chain effects",
+        "href": "https://www.tno.nl/en/safe/social-resilience/cyber-risks-chain-effects/"
+      },
+      {
+        "text": "Infrastructure protection and survivability",
+        "href": "https://www.tno.nl/en/safe/social-resilience/infrastructure-protection-survivability/"
+      },
+      {
+        "text": "Law and investigation",
+        "href": "https://www.tno.nl/en/safe/social-resilience/law-investigation/"
+      },
+      {
+        "text": "National cyber resilience",
+        "href": "https://www.tno.nl/en/safe/social-resilience/national-cyber-resilience/"
+      },
+      {
+        "text": "Smart security and surveillance",
+        "href": "https://www.tno.nl/en/safe/social-resilience/smart-security-surveillance/"
+      },
+      {
+        "text": "Go to Social resilience",
+        "href": "https://www.tno.nl/en/safe/social-resilience/"
+      },
+      {
+        "text": "Surviving on the battlefield of the future",
+        "href": "https://www.tno.nl/en/safe/surviving-battlefield-future/"
+      },
+      {
+        "text": "Countering explosive threats",
+        "href": "https://www.tno.nl/en/safe/surviving-battlefield-future/countering-explosive-threats/"
+      },
+      {
+        "text": "Naval ship vulnerability and protection",
+        "href": "https://www.tno.nl/en/safe/surviving-battlefield-future/naval-ship-vulnerability-protection/"
+      },
+      {
+        "text": "Personal protection",
+        "href": "https://www.tno.nl/en/safe/surviving-battlefield-future/personal-protection/"
+      },
+      {
+        "text": "Processing of propellants, explosives and pyrotechnics",
+        "href": "https://www.tno.nl/en/safe/surviving-battlefield-future/processing-propellants-explosives/"
+      },
+      {
+        "text": "Protection materials",
+        "href": "https://www.tno.nl/en/safe/surviving-battlefield-future/protection-materials/"
+      },
+      {
+        "text": "Vehicle vulnerability and protection",
+        "href": "https://www.tno.nl/en/safe/surviving-battlefield-future/vehicle-vulnerability-protection/"
+      },
+      {
+        "text": "Go to Surviving on the battlefield of the future",
+        "href": "https://www.tno.nl/en/safe/surviving-battlefield-future/"
+      },
+      {
+        "text": "Artificial intelligence",
+        "href": "https://www.tno.nl/en/digital/artificial-intelligence/"
+      },
+      {
+        "text": "Artificial intelligence: from research to application",
+        "href": "https://www.tno.nl/en/digital/artificial-intelligence/ai-research/"
+      },
+      {
+        "text": "Responsible human machine interaction",
+        "href": "https://www.tno.nl/en/digital/artificial-intelligence/responsible-human-machine-interaction/"
+      },
+      {
+        "text": "Safe autonomous systems in an open world",
+        "href": "https://www.tno.nl/en/digital/artificial-intelligence/safe-autonomous-systems/"
+      },
+      {
+        "text": "Future-proof AI systems",
+        "href": "https://www.tno.nl/en/digital/artificial-intelligence/future-proof-ai-systems/"
+      },
+      {
+        "text": "Go to Artificial intelligence",
+        "href": "https://www.tno.nl/en/digital/artificial-intelligence/"
+      },
+      {
+        "text": "Autonomous Cyber Resilience",
+        "href": "https://www.tno.nl/en/digital/cybersecurity/autonomous-cyber-resilience/"
+      },
+      {
+        "text": "Cryptography and Post Quantum Security",
+        "href": "https://www.tno.nl/en/digital/cybersecurity/cyber-security-post-quantum-crypto/"
+      },
+      {
+        "text": "Cybersecure Energy Systems",
+        "href": "https://www.tno.nl/en/digital/cybersecurity/cybersecure-energy-systems/"
+      },
+      {
+        "text": "Detection and Threat Management for IT and OT",
+        "href": "https://www.tno.nl/en/digital/cybersecurity/advanced-detection-threat-management/"
+      },
+      {
+        "text": "Industrial Product Security",
+        "href": "https://www.tno.nl/en/digital/cybersecurity/industrial-product-security/"
+      },
+      {
+        "text": "Secure Public Sector IT Systems",
+        "href": "https://www.tno.nl/en/digital/cybersecurity/secure-public-sector-it-systems/"
+      },
+      {
+        "text": "Software & System Security",
+        "href": "https://www.tno.nl/en/digital/cybersecurity/software-system-security/"
+      },
+      {
+        "text": "Go to Cybersecurity",
+        "href": "https://www.tno.nl/en/digital/cybersecurity/"
+      },
+      {
+        "text": "Assuring Digital Identity",
+        "href": "https://www.tno.nl/en/digital/data-sharing/assuring-digital-identity/"
+      },
+      {
+        "text": "Data spaces in healthcare",
+        "href": "https://www.tno.nl/en/digital/data-sharing/data-spaces-healthcare-sector/"
+      },
+      {
+        "text": "Digital Product Passport",
+        "href": "https://www.tno.nl/en/digital/data-sharing/digital-product-passport/"
+      },
+      {
+        "text": "Digital twin systems",
+        "href": "https://www.tno.nl/en/digital/data-sharing/reliable-real-time-digital-twin-systems/"
+      },
+      {
+        "text": "International data spaces",
+        "href": "https://www.tno.nl/en/digital/data-sharing/international-data-spaces/"
+      },
+      {
+        "text": "Privacy enhancing technologies",
+        "href": "https://www.tno.nl/en/digital/data-sharing/privacy-enhancing-technologies/"
+      },
+      {
+        "text": "Sustainable agriculture",
+        "href": "https://www.tno.nl/en/digital/data-sharing/sustainable-agriculture-digitalisation/"
+      },
+      {
+        "text": "Digital infrastructures",
+        "href": "https://www.tno.nl/en/digital/digital-infrastructures/"
+      },
+      {
+        "text": "Social XR (eXtended reality)",
+        "href": "https://www.tno.nl/en/digital/digital-infrastructures/how-social-xr-extended-reality-reduces/"
+      },
+      {
+        "text": "Go to Digital infrastructures",
+        "href": "https://www.tno.nl/en/digital/digital-infrastructures/"
+      },
+      {
+        "text": "Systems Engineering (ESI)",
+        "href": "https://www.tno.nl/en/digital/digital-systems/systems-engineering-esi/"
+      },
+      {
+        "text": "Digital Energy Systems",
+        "href": "https://www.tno.nl/en/digital/digital-systems/digital-energy-systems/"
+      },
+      {
+        "text": "Go to Digital systems",
+        "href": "https://www.tno.nl/en/digital/digital-systems/"
+      },
+      {
+        "text": "Hybrid printed electronics",
+        "href": "https://www.tno.nl/en/digital/future-electronics/hybrid-printed-electronics/"
+      },
+      {
+        "text": "Thin-film electronics",
+        "href": "https://www.tno.nl/en/digital/future-electronics/thin-film-electronics/"
+      },
+      {
+        "text": "Go to Future electronics",
+        "href": "https://www.tno.nl/en/digital/future-electronics/"
+      },
+      {
+        "text": "Safe and efficient mobility",
+        "href": "https://www.tno.nl/en/digital/smart-traffic-transport/"
+      },
+      {
+        "text": "Self-organising logistics",
+        "href": "https://www.tno.nl/en/digital/smart-traffic-transport/self-organising-logistics/"
+      },
+      {
+        "text": "Automated vehicle technology for public roads",
+        "href": "https://www.tno.nl/en/digital/smart-traffic-transport/automated-vehicle-technology-public/"
+      },
+      {
+        "text": "Automated logistics",
+        "href": "https://www.tno.nl/en/digital/smart-traffic-transport/automated-logistics/"
+      },
+      {
+        "text": "Automated vehicle technology for yards",
+        "href": "https://www.tno.nl/en/digital/smart-traffic-transport/automated-vehicle-technology-yards/"
+      },
+      {
+        "text": "Safety assessment of automated driving",
+        "href": "https://www.tno.nl/en/digital/smart-traffic-transport/safety-assessment-automated-driving/"
+      },
+      {
+        "text": "Safe AV-human interaction",
+        "href": "https://www.tno.nl/en/digital/smart-traffic-transport/safe-av-human-interaction/"
+      },
+      {
+        "text": "Go to Safe and efficient mobility",
+        "href": "https://www.tno.nl/en/digital/smart-traffic-transport/"
+      }
+    ],
+    "robots": [
+      {
+        "url": "https://www.tno.nl/robots.txt",
+        "status": 200
+      }
+    ]
+  },
+  {
+    "name": "VTT",
+    "url": "https://www.vttresearch.com/en/news-and-stories",
+    "status": 200,
+    "mime": "text/html",
+    "final_url": "https://www.vttresearch.com/en/news-stories/news-and-stories",
+    "cache": "/tmp/news-insight-source-crawl-2026-10-05/12278cbcf75ba9fc2db4bf4db1cf160841e60036a76658c201a7a38f9d42f22b.html",
+    "links": [
+      {
+        "text": "Skip to main content",
+        "href": "#main-content"
+      },
+      {
+        "text": "Bio-based chemicals",
+        "href": "/en/ourservices/sustainable-chemicals"
+      },
+      {
+        "text": "Bio-based materials",
+        "href": "/en/ourservices/sustainable-bio-based-materials"
+      },
+      {
+        "text": "Foam forming platform",
+        "href": "/en/ourservices/foam-forming-platform"
+      },
+      {
+        "text": "Pilot plant and process scale-up",
+        "href": "/en/ourservices/pilot-plant-and-process-scale"
+      },
+      {
+        "text": "Plant biotechnology",
+        "href": "/en/ourservices/plant-biotechnology"
+      },
+      {
+        "text": "Sustainable packaging",
+        "href": "/en/ourservices/sustainable-and-smart-packaging-solutions"
+      },
+      {
+        "text": "Sustainable textiles",
+        "href": "/en/ourservices/sustainable-textiles"
+      },
+      {
+        "text": "More services for this industry",
+        "href": "/en/ourservices?industry=Bioindustry"
+      },
+      {
+        "text": "Arctic marine technology",
+        "href": "/en/ourservices/arctic-marine-technology-and-wind-power"
+      },
+      {
+        "text": "Circularity for built environment",
+        "href": "/en/ourservices/circularity-built-environment"
+      },
+      {
+        "text": "Clean air and decontamination solutions",
+        "href": "/en/ourservices/clean-air-and-decontamination"
+      },
+      {
+        "text": "Nature-based solutions for cities",
+        "href": "/en/ourservices/nature-based-solutions-climate-resilient-cities"
+      },
+      {
+        "text": "Resource-sufficient water management",
+        "href": "/en/ourservices/resource-sufficient-water-management"
+      },
+      {
+        "text": "Spatial computing and XR",
+        "href": "/en/ourservices/spatial-computing-and-extended-reality"
+      },
+      {
+        "text": "Structural materials",
+        "href": "/en/ourservices/sustainable-structural-materials"
+      },
+      {
+        "text": "More services for this industry",
+        "href": "/en/ourservices?industry=Building%20and%20infrastructure%20industry"
+      },
+      {
+        "text": "Innovations and business ecosystems",
+        "href": "/en/ourservices/innovations-and-business-ecosystems"
+      },
+      {
+        "text": "Licensing patents, trade secrets and software",
+        "href": "/en/ourservices/patent-licensing"
+      },
+      {
+        "text": "Life cycle assessment",
+        "href": "/en/ourservices/sustainability-and-life-cycle-assessment"
+      },
+      {
+        "text": "Risk and resilience management",
+        "href": "/en/ourservices/risk-and-resilience-management"
+      },
+      {
+        "text": "Safety culture assessment",
+        "href": "/en/ourservices/safety-culture-assessment"
+      },
+      {
+        "text": "Situational awareness",
+        "href": "/en/ourservices/situational-awareness"
+      },
+      {
+        "text": "Strategic foresight",
+        "href": "/en/ourservices/strategic-foresight"
+      },
+      {
+        "text": "Strategic sustainability",
+        "href": "/en/ourservices/strategic-sustainability"
+      },
+      {
+        "text": "More services for this industry",
+        "href": "/en/ourservices?industry=Business%20development%20and%20foresight"
+      },
+      {
+        "text": "Bio-based chemicals",
+        "href": "/en/ourservices/sustainable-chemicals"
+      },
+      {
+        "text": "Chemical and bioprocess development",
+        "href": "/en/ourservices/chemical-and-bioprocess-development"
+      },
+      {
+        "text": "Industrial circular economy",
+        "href": "/en/ourservices/industrial-circular-economy-and-ecodesign"
+      },
+      {
+        "text": "Metals and materials recovery",
+        "href": "/en/ourservices/metals-and-materials-recovery"
+      },
+      {
+        "text": "Pilot plant and process scale-up",
+        "href": "/en/ourservices/pilot-plant-and-process-scale"
+      },
+      {
+        "text": "Plastic circular economy",
+        "href": "/en/ourservices/mechanical-plastic-recycling"
+      },
+      {
+        "text": "Thermochemical conversion",
+        "href": "/en/ourservices/thermochemical-conversion-and-pyrolysis-waste"
+      },
+      {
+        "text": "Thermoplastic composites",
+        "href": "/en/ourservices/thermoplastic-composites"
+      },
+      {
+        "text": "VTT PlasticsCompass",
+        "href": "/en/ourservices/vtt-plasticscompass"
+      },
+      {
+        "text": "More services for this industry",
+        "href": "/en/ourservices?industry=Chemical%20industry"
+      },
+      {
+        "text": "6G hardware technologies",
+        "href": "/en/ourservices/6g-hardware-technologies"
+      },
+      {
+        "text": "Innovative air mobility",
+        "href": "/en/ourservices/air-mobility-and-drone-systems"
+      },
+      {
+        "text": "Risk and resilience management",
+        "href": "/en/ourservices/risk-and-resilience-management"
+      },
+      {
+        "text": "Situational awareness",
+        "href": "/en/ourservices/situational-awareness"
+      },
+      {
+        "text": "Spatial computing and XR",
+        "href": "/en/ourservices/spatial-computing-and-extended-reality"
+      },
+      {
+        "text": "More services for this industry",
+        "href": "/en/ourservices?industry=Defence%20and%20security%20industry"
+      },
+      {
+        "text": "2D materials and graphene",
+        "href": "/en/ourservices/2d-materials-and-graphene"
+      },
+      {
+        "text": "Human sensing solutions",
+        "href": "/en/ourservices/human-sensing-solutions"
+      },
+      {
+        "text": "Industrial sensing solutions",
+        "href": "/en/ourservices/industrial-sensing-solutions"
+      },
+      {
+        "text": "Integrated photonics",
+        "href": "/en/ourservices/integrated-photonics"
+      },
+      {
+        "text": "Medical microelectronics",
+        "href": "/en/ourservices/medical-microelectronics"
+      },
+      {
+        "text": "Microelectronics beyond mainstream CMOS",
+        "href": "/en/ourservices/microelectronics-solutions-beyond-mainstream-cmos"
+      },
+      {
+        "text": "Microfabrication and piloting",
+        "href": "/en/ourservices/microfabrication-and-piloting"
+      },
+      {
+        "text": "Packaging solutions RF and photonics",
+        "href": "/en/ourservices/packaging-solutions-photonics-rf-and-microelectronics"
+      },
+      {
+        "text": "Printed electronics",
+        "href": "/en/ourservices/printed-electronics"
+      },
+      {
+        "text": "Wearable electronics",
+        "href": "/en/ourservices/wearable-electronics-solutions"
+      },
+      {
+        "text": "More services for this industry",
+        "href": "/en/ourservices?industry=Electronics%20industry"
+      },
+      {
+        "text": "Arctic marine technology and wind power",
+        "href": "/en/ourservices/arctic-marine-technology-and-wind-power"
+      },
+      {
+        "text": "Carbon capture and storage or utilization",
+        "href": "/en/ourservices/carbon-capture-and-storage-or-utilization-ccs-ccu"
+      },
+      {
+        "text": "Electric rotary kiln",
+        "href": "/en/ourservices/electric-rotary-kiln"
+      },
+      {
+        "text": "Fusion energy research",
+        "href": "/en/ourservices/fusion-energy-research-and-services"
+      },
+      {
+        "text": "Hydrogen technologies and fuel cells",
+        "href": "/en/ourservices/hydrogen-technologies"
+      },
+      {
+        "text": "Industrial electrification",
+        "href": "/en/knowledge-base/accelerating-industrial-electrification"
+      },
+      {
+        "text": "Modelling services for energy industry",
+        "href": "/en/ourservices/technology-assessment-and-process-modelling"
+      },
+      {
+        "text": "Smart grids and energy systems",
+        "href": "/en/ourservices/smart-grids-and-energy-systems"
+      },
+      {
+        "text": "More services for this industry",
+        "href": "/en/ourservices?industry=Energy%20industry"
+      },
+      {
+        "text": "Bioanalytical services",
+        "href": "/en/ourservices/bioanalytical-services"
+      },
+      {
+        "text": "Chemical & bioprocess development",
+        "href": "/en/ourservices/chemical-and-bioprocess-development"
+      },
+      {
+        "text": "Food and beverage solutions",
+        "href": "/en/ourservices/food-and-beverage-solutions"
+      },
+      {
+        "text": "Plant biotechnology",
+        "href": "/en/ourservices/plant-biotechnology"
+      },
+      {
+        "text": "More services for this industry",
+        "href": "/en/ourservices?industry=Food%20industry"
+      },
+      {
+        "text": "Bio-based materials",
+        "href": "/en/ourservices/sustainable-bio-based-materials"
+      },
+      {
+        "text": "Foam forming platform",
+        "href": "/en/ourservices/foam-forming-platform"
+      },
+      {
+        "text": "Industrial circular economy",
+        "href": "/en/ourservices/industrial-circular-economy-and-ecodesign"
+      },
+      {
+        "text": "Pilot plant and process scale-up",
+        "href": "/en/ourservices/pilot-plant-and-process-scale"
+      },
+      {
+        "text": "Sustainable packaging",
+        "href": "/en/ourservices/sustainable-and-smart-packaging-solutions"
+      },
+      {
+        "text": "More services for this industry",
+        "href": "/en/ourservices?industry=Forest%2C%20wood%20and%20paper%20industry"
+      },
+      {
+        "text": "Cognitive state estimation",
+        "href": "/en/ourservices/cognitive-state-estimation"
+      },
+      {
+        "text": "Diagnostic technologies",
+        "href": "/en/ourservices/diagnostic-technologies"
+      },
+      {
+        "text": "Health AI solutions",
+        "href": "/en/ourservices/health-ai"
+      },
+      {
+        "text": "Human sensing solutions",
+        "href": "/en/ourservices/human-sensing-solutions"
+      },
+      {
+        "text": "Medical microelectronics",
+        "href": "/en/ourservices/medical-microelectronics"
+      },
+      {
+        "text": "Printed electronics",
+        "href": "/en/ourservices/printed-electronics"
+      },
+      {
+        "text": "Wearable electronics",
+        "href": "/en/ourservices/wearable-electronics-solutions"
+      },
+      {
+        "text": "More services for this industry",
+        "href": "/en/ourservices?industry=Healthcare%20industry"
+      },
+      {
+        "text": "6G hardware technologies",
+        "href": "/en/ourservices/6g-hardware-technologies"
+      },
+      {
+        "text": "Beyond 5G and 6G networks",
+        "href": "/en/ourservices/beyond-5g-and-6g-networks"
+      },
+      {
+        "text": "Smart grids & energy systems",
+        "href": "/en/ourservices/smart-grids-and-energy-systems"
+      },
+      {
+        "text": "More services for this industry",
+        "href": "/en/ourservices?industry=ICT%20%26%20networks%20industry"
+      },
+      {
+        "text": "Autonomous industry solutions",
+        "href": "/en/ourservices/autonomous-industry-solutions"
+      },
+      {
+        "text": "Computational material design, VTT ProperTune®",
+        "href": "/en/ourservices/computational-material-design-vtt-propertune"
+      },
+      {
+        "text": "Intelligent robotics",
+        "href": "/en/ourservices/intelligent-robotics"
+      },
+      {
+        "text": "Human-driven industrial metaverse",
+        "href": "/en/ourservices/human-driven-industrial-metaverse"
+      },
+      {
+        "text": "Industrial 3D printing",
+        "href": "/en/ourservices/industrial-3d-printing"
+      },
+      {
+        "text": "Lifetime analysis of components",
+        "href": "/en/ourservices/lifetime-analysis-systems-and-components"
+      },
+      {
+        "text": "Modelling for energy industry",
+        "href": "/en/ourservices/technology-assessment-and-process-modelling"
+      },
+      {
+        "text": "Power-to-X and electrification of industries",
+        "href": "/en/ourservices/power-to-x"
+      },
+      {
+        "text": "Predictive maintenance",
+        "href": "/en/ourservices/smart-predictive-maintenance"
+      },
+      {
+        "text": "Sustainable manufacturing",
+        "href": "/en/ourservices/autonomous-industry-solutions"
+      },
+      {
+        "text": "More services for this industry",
+        "href": "/en/ourservices?industry=Manufacturing%20industry"
+      },
+      {
+        "text": "Arctic marine and wind power",
+        "href": "/en/ourservices/arctic-marine-technology-and-wind-power"
+      },
+      {
+        "text": "Engine and vehicle emissions",
+        "href": "/en/ourservices/engine-and-vehicle-emissions"
+      },
+      {
+        "text": "More services for this industry",
+        "href": "/en/ourservices?industry=Maritime%20industry"
+      },
+      {
+        "text": "Calibrations and metrology expert services",
+        "href": "/en/ourservices/calibrations-and-metrology-expert-services"
+      },
+      {
+        "text": "High-accuracy measurements",
+        "href": "/en/ourservices/high-accuracy-measurement-services"
+      },
+      {
+        "text": "Optical spectroscopy",
+        "href": "/en/ourservices/optical-spectroscopy"
+      },
+      {
+        "text": "Time of Finland: ​NTP - network time service",
+        "href": "/en/ourservices/time-finland-ntp-network-time-service"
+      },
+      {
+        "text": "More services for this industry",
+        "href": "/en/ourservices?industry=Metrology%20%28VTT%20MIKES%29"
+      },
+      {
+        "text": "Battery technologies",
+        "href": "/en/ourservices/battery-technologies"
+      },
+      {
+        "text": "Computational material design",
+        "href": "/en/ourservices/computational-material-design-vtt-propertune"
+      },
+      {
+        "text": "Industrial 3D printing",
+        "href": "/en/ourservices/industrial-3d-printing"
+      },
+      {
+        "text": "Industrial circular economy",
+        "href": "/en/ourservices/industrial-circular-economy-and-ecodesign"
+      },
+      {
+        "text": "Metals and materials recovery",
+        "href": "/en/ourservices/metals-and-materials-recovery"
+      },
+      {
+        "text": "More services for this industry",
+        "href": "/en/ourservices?industry=Mining%2C%20minerals%20and%20metals%20industry"
+      },
+      {
+        "text": "Integrated photonics",
+        "href": "/en/ourservices/integrated-photonics"
+      },
+      {
+        "text": "Quantum computer scale up",
+        "href": "/en/ourservices/quantum-computer-technology"
+      },
+      {
+        "text": "More services for this industry",
+        "href": "/en/ourservices?industry=Quantum%20development"
+      },
+      {
+        "text": "6G hardware technologies",
+        "href": "/en/ourservices/6g-hardware-technologies"
+      },
+      {
+        "text": "Hyperspectral imaging",
+        "href": "/en/ourservices/hyperspectral-imaging"
+      },
+      {
+        "text": "More services for this industry",
+        "href": "/en/ourservices?industry=Space%20industry"
+      },
+      {
+        "text": "Engine & vehicle emissions",
+        "href": "/en/ourservices/engine-and-vehicle-emissions"
+      },
+      {
+        "text": "Innovative air mobility",
+        "href": "/en/ourservices/air-mobility-and-drone-systems"
+      },
+      {
+        "text": "More services for this industry",
+        "href": "/en/ourservices?industry=Transportation%20industry"
+      },
+      {
+        "text": "ServiceCatalytic upgrading and testing",
+        "href": "/en/ourservices/catalytic-upgrading-and-testing"
+      },
+      {
+        "text": "News, Press releaseSUSTAINET-innovate develops AI and cyber resilience for critical services",
+        "href": "/en/news-and-ideas/sustainet-innovate-develops-ai-and-cyber-resilience-critical-services"
+      },
+      {
+        "text": "International talent",
+        "href": "/en/careers/research-jobs-in-finland"
+      },
+      {
+        "text": "Postdoctoral Programme",
+        "href": "/en/careers/vtts-postdoctoral-programme-unique-opportunity-postdoc-applied-research"
+      },
+      {
+        "text": "PageCome and build the future at VTT!",
+        "href": "/en/careers/come-and-build-future-vtt"
+      },
+      {
+        "text": "How to partner with us",
+        "href": "/en/about-us/how-partner-us"
+      },
+      {
+        "text": "PageOur strategy: Chain reaction for growth",
+        "href": "/en/about-us/our-strategy-chain-reaction-growth"
+      },
+      {
+        "text": "Tell us more about your needs",
+        "href": "/en#self-profiling"
+      },
+      {
+        "text": "News, Press releaseA chain reaction for growth begins – VTT launches its new strategy",
+        "href": "/en/news-and-ideas/chain-reaction-growth-begins-vtt-launches-its-new-strategy"
+      },
+      {
+        "text": "White paperThrough the Valley of Death  – How can Finland grow?",
+        "href": "/en/knowledge-base/through-valley-death-how-can-finland-grow"
+      },
+      {
+        "text": "NewsVTT spinouts increase R&D investment and employ a growing number of researchers",
+        "href": "/en/news-and-ideas/vtt-spinouts-increase-rd-investment-and-employ-growing-number-researchers"
+      },
+      {
+        "text": "Filter older news by year in News library",
+        "href": "/en/library"
+      },
+      {
+        "text": "News5 October 2026Jani Kivioja appointed to lead VTT’s Quantum Technologies research area to accelerate the commercialisation of research",
+        "href": "/en/news-and-ideas/jani-kivioja-appointed-lead-vtts-quantum-technologies-research-area-accelerate"
+      },
+      {
+        "text": "Case5 October 2026Case: Posiva – Engineering the world's first final disposal facility for spent nuclear fuel",
+        "href": "/en/news-and-ideas/case-posiva-engineering-worlds-first-final-disposal-facility-spent-nuclear-fuel"
+      },
+      {
+        "text": "Article30 September 2026Digitalisation is rewriting the rules of calibration: more accurate sensors cut costs, save energy and keep products safe",
+        "href": "/en/news-and-ideas/digitalisation-rewriting-rules-calibration-more-accurate-sensors-cut-costs-save"
+      },
+      {
+        "text": "Blog post29 September 2026Metrology is the hidden enabler of faster defense innovation",
+        "href": "/en/news-and-ideas/metrology-hidden-enabler-faster-defense-innovation"
+      },
+      {
+        "text": "News, Press release29 September 2026SUSTAINET-innovate develops AI and cyber resilience for critical services",
+        "href": "/en/news-and-ideas/sustainet-innovate-develops-ai-and-cyber-resilience-critical-services"
+      },
+      {
+        "text": "Article25 September 2026Robust fatigue design by combining metrology and simulation",
+        "href": "/en/news-and-ideas/robust-fatigue-design-combining-metrology-and-simulation"
+      },
+      {
+        "text": "Event16 November 2026Join the chain reaction for growth with VTT at Slush!",
+        "href": "/en/news-and-ideas/join-chain-reaction-growth-vtt-slush"
+      },
+      {
+        "text": "Event28 September 2026VTT LaunchPad goes to Nordic Innovation Fair 2026!",
+        "href": "/en/news-and-ideas/vtt-launchpad-goes-nordic-innovation-fair-2026"
+      },
+      {
+        "text": "News, Press release15 September 2026New solutions and innovations from VTT and Finnish food companies pave the way for profitable plant-based ingredie",
+        "href": "/en/news-and-ideas/new-solutions-and-innovations-vtt-and-finnish-food-companies-pave-way-profitable"
+      },
+      {
+        "text": "Blog post14 September 2026Towards Quantum Industry: VTT’s Role in Quantum Enabling Technologies",
+        "href": "/en/news-and-ideas/towards-quantum-industry-vtts-role-quantum-enabling-technologies"
+      },
+      {
+        "text": "Blog post11 September 2026Industrial electrification is reshaping the future of heavy industry",
+        "href": "/en/news-and-ideas/industrial-electrification-reshaping-future-heavy-industry"
+      },
+      {
+        "text": "Article9 September 2026Artificial skin with coffee to improve wearables for different skin tones",
+        "href": "/en/news-and-ideas/artificial-skin-coffee-improve-wearables-different-skin-tones"
+      },
+      {
+        "text": "Load more news and stories",
+        "href": "?page=1&next=1"
+      },
+      {
+        "text": "Contact our media team",
+        "href": "/en/news-stories/media"
+      },
+      {
+        "text": "VTT brand and image bank",
+        "href": "/en/news-stories/media#image-bank"
+      },
+      {
+        "text": "News, Press releaseAn alternative for leather and synthetic leather: VTT succeeded in demonstrating continuous production of mycelium leather",
+        "href": "/en/news-and-ideas/alternative-leather-and-synthetic-leather-vtt-succeeded-demonstrating-continuous"
+      },
+      {
+        "text": "News, Press releaseScientists in Finland release the recipe for lab-grown coffee to accelerate the creation of a new coffee ecosystem",
+        "href": "/en/news-and-ideas/scientists-finland-release-recipe-lab-grown-coffee-accelerate-creation-new-coffee"
+      },
+      {
+        "text": "News, Press releaseVTT Develops Sustainable, Biodegradable ECG Patch",
+        "href": "/en/news-and-ideas/vtt-develops-sustainable-biodegradable-ecg-patch"
+      },
+      {
+        "text": "ArticleHow about a hyperspectral camera in your phone? Hyperspectral imaging lets research loose – out onto the seas and even into space",
+        "href": "/en/news-and-ideas/how-about-hyperspectral-camera-your-phone-hyperspectral-imaging-lets-research-loose"
+      },
+      {
+        "text": "ArticleFrom waste to fuels with hybrid technology",
+        "href": "/en/news-and-ideas/waste-fuels-hybrid-technology"
+      },
+      {
+        "text": "VTT Marketing Data Protection Policy",
+        "href": "/node/3259"
+      }
+    ],
+    "robots": [
+      {
+        "url": "https://www.vttresearch.com/robots.txt",
+        "status": 200
+      }
+    ]
+  },
+  {
+    "name": "CSEM",
+    "url": "https://www.csem.ch/en/news/",
+    "status": 200,
+    "mime": "text/html",
+    "final_url": "https://www.csem.ch/en/news/",
+    "cache": "/tmp/news-insight-source-crawl-2026-10-05/ef1167828304350d558fd9ca6367f1b19cf8f54e5a5a2ff221cbcb5d08eb1060.html",
+    "links": [
+      {
+        "text": "Awards and certifications",
+        "href": "/en/awards/"
+      },
+      {
+        "text": "History and start-ups",
+        "href": "/en/history-spin-offs/"
+      },
+      {
+        "text": "Back2Business program",
+        "href": "/en/back2business-program/"
+      },
+      {
+        "text": "How to collaborate with us",
+        "href": "/en/how-to-collaborate-with-us/"
+      },
+      {
+        "text": "IP policy and confidentiality",
+        "href": "/en/ip-policy/"
+      },
+      {
+        "text": "Press and Publications",
+        "href": "/en/press-and-publications/"
+      },
+      {
+        "text": "YODA Open access platform",
+        "href": "https://yoda.csem.ch/communities/19f1c228-4d98-4e6f-a4de-31fd67789bf4"
+      },
+      {
+        "text": "Awards and certifications",
+        "href": "/en/awards/"
+      },
+      {
+        "text": "History and start-ups",
+        "href": "/en/history-spin-offs/"
+      },
+      {
+        "text": "Back2Business program",
+        "href": "/en/back2business-program/"
+      },
+      {
+        "text": "Additive manufacturing",
+        "href": "/en/technical-focus/additive-manufacturing/"
+      },
+      {
+        "text": "Functional surfaces",
+        "href": "/en/technical-focus/functional-surfaces/"
+      },
+      {
+        "text": "Integrated and lightweight photovoltaics",
+        "href": "/en/technical-focus/integrated-lightweight-photovoltaics/"
+      },
+      {
+        "text": "Quantum technologies",
+        "href": "/en/technical-focus/quantum-technologies/"
+      },
+      {
+        "text": "Scientific instruments",
+        "href": "/en/technical-focus/scientific-instruments/"
+      },
+      {
+        "text": "Solar cells and modules",
+        "href": "/en/technical-focus/solar-cells-and-modules/"
+      },
+      {
+        "text": "Tools for life sciences",
+        "href": "/en/technical-focus/tools-for-life-sciences/"
+      },
+      {
+        "text": "Automotive and transportation",
+        "href": "/en/industry/automotive-and-transportation/"
+      },
+      {
+        "text": "Consumer electronics",
+        "href": "/en/industry/consumer-electronics/"
+      },
+      {
+        "text": "Food and agriculture",
+        "href": "/en/industry/food-and-agriculture/"
+      },
+      {
+        "text": "Healthcare, wellness and sport",
+        "href": "/en/industry/healthcare-wellness-and-sport/"
+      },
+      {
+        "text": "Industrial automation",
+        "href": "/en/industry/industrial-automation/"
+      },
+      {
+        "text": "Information and Communication Technologies",
+        "href": "/en/industry/information-and-communication-technologies-ict/"
+      },
+      {
+        "text": "Security and safety",
+        "href": "/en/industry/security-and-safety/"
+      },
+      {
+        "text": "Smart home and building",
+        "href": "/en/industry/smart-homes-and-buildings/"
+      },
+      {
+        "text": "Space and aeronautics",
+        "href": "/en/industry/space-and-aeronautics/"
+      },
+      {
+        "text": "How to collaborate with us",
+        "href": "/en/how-to-collaborate-with-us/"
+      },
+      {
+        "text": "IP policy and confidentiality",
+        "href": "/en/ip-policy/"
+      },
+      {
+        "text": "Press and Publications",
+        "href": "/en/press-and-publications/"
+      },
+      {
+        "text": "YODA Open access platform",
+        "href": "https://yoda.csem.ch/communities/19f1c228-4d98-4e6f-a4de-31fd67789bf4"
+      }
+    ],
+    "robots": [
+      {
+        "url": "https://www.csem.ch/robots.txt",
+        "status": 200
+      }
+    ]
+  },
+  {
+    "name": "CSIRO",
+    "url": "https://www.csiro.au/en/News",
+    "status": 200,
+    "mime": "text/html",
+    "final_url": "https://www.csiro.au/en/News",
+    "cache": "/tmp/news-insight-source-crawl-2026-10-05/f23780e9cb619475317262d87929faec55831cb87f4ac753d08f774d5e7cab0f.html",
+    "links": [
+      {
+        "text": "World-leading radio telescopes give space for stunning wildflowers",
+        "href": "/en/news/All/Articles/2026/September/Wildflowers-and-telescopes"
+      },
+      {
+        "text": "Murchison Radio-astronomy Observatory",
+        "href": "/en/news/All?articletags={1EF817F3-A3C1-435F-8748-0AE4A185D461}|Murchison Radio-astronomy Observatory"
+      },
+      {
+        "text": "natural environment",
+        "href": "/en/news/All?articletags={B7B06C58-4014-4B59-BBE0-107B527C3FAA}|natural environment"
+      },
+      {
+        "text": "Building Australia’s first computer",
+        "href": "/en/news/All/Articles/2026/September/History-of-computing"
+      },
+      {
+        "text": "Eyes in the sky: how drones are being put to work for science and sustainability",
+        "href": "/en/news/All/Articles/2026/September/How-drones-are-being-put-to-work-in-environmental-research"
+      },
+      {
+        "text": "The decades‑old ‘AI alignment problem’ has finally become a reality. Solving it won’t be easy",
+        "href": "/en/news/All/Articles/2026/August/how-to-address-AI-alignment"
+      },
+      {
+        "text": "Honeybee silk could power smarter wound dressings",
+        "href": "/en/news/All/News/2026/September/Honeybee-silk-could-power-smarter-wound-dressings"
+      },
+      {
+        "text": "Ocean drones set to brave the Southern Ocean for science",
+        "href": "/en/news/All/News/2026/September/Ocean-drones-set-to-brave-the-Southern-Ocean-for-science"
+      },
+      {
+        "text": "Media releasesOfficial announcements highlighting recent stories and newsworthy information.",
+        "href": "/en/news/All?type={49F817AF-74EB-43C4-A51B-CE2B14F46215}"
+      },
+      {
+        "text": "Expert commentaryExplanation, interpretations, and opinions from CSIRO experts.",
+        "href": "/en/news/All?type={6B6F9B5C-3CB2-42DD-A714-2A012B3720FD}"
+      },
+      {
+        "text": "SpeechesKey speeches, thought leadership and presentations from leaders of CSIRO.",
+        "href": "/en/news/All?type={01DD0A16-96BC-4001-ACA4-F82DBB83B26C}"
+      },
+      {
+        "text": "StatementsMore information on our stand and position on specific topics.",
+        "href": "/en/news/All?type={9E28CCA8-AAC8-475C-AEB3-7BDE93F6155E}"
+      },
+      {
+        "text": "Partner releasesHear about research collaborations from our partners.",
+        "href": "/en/news/All?type={8F372CC6-2765-4078-A862-B06F2EC44EAD}"
+      },
+      {
+        "text": "Visit the Media Centre",
+        "href": "/en/news/Media-Centre"
+      },
+      {
+        "text": "Find the right media contact",
+        "href": "/en/news/Media-contacts"
+      },
+      {
+        "text": "Access to information",
+        "href": "/en/about/Corporate-governance/Access-to-information"
+      },
+      {
+        "text": "Legal notice and disclaimer",
+        "href": "/en/about/Policies/Legal/Legal-notice"
+      },
+      {
+        "text": "Policy & Guidelines",
+        "href": "/en/about/Policies"
+      },
+      {
+        "text": "Child Safe principles and procedures",
+        "href": "/en/about/Policies/Child-Safe-Policy"
+      },
+      {
+        "text": "vision towards reconciliation",
+        "href": "/en/research/indigenous-science/Reconciliation-Action-Plan"
+      }
+    ],
+    "robots": [
+      {
+        "url": "https://www.csiro.au/robots.txt",
+        "status": 200
+      }
+    ]
+  },
+  {
+    "name": "NRC Canada",
+    "url": "https://nrc.canada.ca/en/stories",
+    "error": "robots blocked/unknown (timed out fetching https://nrc.canada.ca/robots.txt): https://nrc.canada.ca/en/stories",
+    "robots": [
+      {
+        "url": "https://nrc.canada.ca/robots.txt",
+        "error": "timed out fetching https://nrc.canada.ca/robots.txt"
+      }
+    ]
+  },
+  {
+    "name": "IET E&T",
+    "url": "https://eandt.theiet.org/news",
+    "status": 200,
+    "mime": "text/html",
+    "final_url": "https://eandt.theiet.org/news",
+    "cache": "/tmp/news-insight-source-crawl-2026-10-05/083687865a149ab90cb058b48e52589033412ecc25fabf6960704cea163606e4.html",
+    "links": [
+      {
+        "text": "Skip to main content",
+        "href": "#main-content"
+      },
+      {
+        "text": "Europe and Canada plot subsea cable amid new alliance talks",
+        "href": "/2026/10/02/subsea-digital-link-between-europe-and-canada-cards"
+      },
+      {
+        "text": "Add to or remove from My Favourites",
+        "href": "/login?destination=%2Fnoindex%2Fmy-favourites%2Fnojs%2Ftoggle-favourite-status%2F35420%3Fdestination%3D%252Fnews%2523my-favourites--add-remove-toggle-link--node-35420"
+      },
+      {
+        "text": "Hinkley Point B decommissioning enters new phase as dismantling begins",
+        "href": "/2026/10/02/hinkley-point-b-decommissioning-enters-new-phase-dismantling-begins"
+      },
+      {
+        "text": "Add to or remove from My Favourites",
+        "href": "/login?destination=%2Fnoindex%2Fmy-favourites%2Fnojs%2Ftoggle-favourite-status%2F35419%3Fdestination%3D%252Fnews%2523my-favourites--add-remove-toggle-link--node-35419"
+      },
+      {
+        "text": "Airbus A350F cargo plane takes flight with promise of 40% fuel savings",
+        "href": "/2026/10/02/airbus-a350f-cargo-plane-takes-flight-promise-40-fuel-savings"
+      },
+      {
+        "text": "Add to or remove from My Favourites",
+        "href": "/login?destination=%2Fnoindex%2Fmy-favourites%2Fnojs%2Ftoggle-favourite-status%2F35418%3Fdestination%3D%252Fnews%2523my-favourites--add-remove-toggle-link--node-35418"
+      },
+      {
+        "text": "Satellite checks should be mandatory for AI data centre planning, researchers say",
+        "href": "/2026/10/02/proposed-ai-data-centres-should-provide-satellite-evidence-approval-study-urges"
+      },
+      {
+        "text": "Add to or remove from My Favourites",
+        "href": "/login?destination=%2Fnoindex%2Fmy-favourites%2Fnojs%2Ftoggle-favourite-status%2F35417%3Fdestination%3D%252Fnews%2523my-favourites--add-remove-toggle-link--node-35417"
+      },
+      {
+        "text": "BT launches 24/7 ‘AI receptionist’ tool to prevent missed calls",
+        "href": "/2026/10/01/bt-launches-24-7-ai-receptionist-tool-prevent-missed-calls"
+      },
+      {
+        "text": "Add to or remove from My Favourites",
+        "href": "/login?destination=%2Fnoindex%2Fmy-favourites%2Fnojs%2Ftoggle-favourite-status%2F35416%3Fdestination%3D%252Fnews%2523my-favourites--add-remove-toggle-link--node-35416"
+      },
+      {
+        "text": "UK too keen on binning old electronics with ‘years of useful life’ left",
+        "href": "/2026/10/01/uk-too-ready-bin-old-electronics-years-useful-life-left"
+      },
+      {
+        "text": "Add to or remove from My Favourites",
+        "href": "/login?destination=%2Fnoindex%2Fmy-favourites%2Fnojs%2Ftoggle-favourite-status%2F35415%3Fdestination%3D%252Fnews%2523my-favourites--add-remove-toggle-link--node-35415"
+      },
+      {
+        "text": "Evri unveils 4ft wheels-on-legs delivery robot in Barnsley",
+        "href": "/2026/09/30/evri-unveils-two-legged-delivery-robot-barnsley"
+      },
+      {
+        "text": "UK launches publicly owned Great British Grid to speed up connections",
+        "href": "/2026/09/30/uk-launches-publicly-owned-great-british-grid-speed-connections"
+      },
+      {
+        "text": "AC and DC ratios measured using a single device – new study",
+        "href": "/2026/09/29/ac-and-dc-current-ratios-measured-using-one-device-new-study"
+      },
+      {
+        "text": "SpaceX’s huge Starship deploys satellites in orbit before explosive splashdown",
+        "href": "/2026/09/29/spacex-s-huge-starship-deploys-satellites-orbit-explosive-splashdown"
+      },
+      {
+        "text": "For more information, please follow this link.",
+        "href": "https://www.theiet.org/campaigns/join-us-today/?utm_source=e+t&utm_medium=website_referral&utm_campaign=achieve_great_things"
+      },
+      {
+        "text": "For more information, please follow this link.",
+        "href": "/newsletter"
+      },
+      {
+        "text": "Accessibility policy",
+        "href": "https://www.theiet.org/help/accessibility"
+      },
+      {
+        "text": "Anti-slavery policy",
+        "href": "https://www.theiet.org/help/anti-slavery-statement"
+      },
+      {
+        "text": "The Institution of Engineering and Technology",
+        "href": "https://www.theiet.org/"
+      },
+      {
+        "text": "Computing & Comms Technology",
+        "href": "/categories/topics/computing-communications"
+      },
+      {
+        "text": "Design & Manufacturing",
+        "href": "/categories/topics/design-and-manufacturing"
+      },
+      {
+        "text": "Electrical Engineering & Electronics",
+        "href": "/categories/topics/electronics"
+      },
+      {
+        "text": "Government & Politics",
+        "href": "/categories/topics/government-and-politics"
+      },
+      {
+        "text": "Healthcare Technologies",
+        "href": "/categories/topics/healthcare-technologies"
+      },
+      {
+        "text": "Leadership & Management",
+        "href": "/categories/topics/leadership-management"
+      },
+      {
+        "text": "More about this sponsor",
+        "href": "https://www.wago.com/gb/?utm_source=E%26T&utm_medium=Banner&utm_campaign=E%26T_sponsorship&utm_id=E%26T_Magazine/"
+      },
+      {
+        "text": "More about this sponsor",
+        "href": "https://www.wago.com/gb/?utm_source=E%26T&utm_medium=Banner&utm_campaign=E%26T_sponsorship&utm_id=E%26T_Magazine/"
+      }
+    ],
+    "robots": [
+      {
+        "url": "https://eandt.theiet.org/robots.txt",
+        "status": 200
+      }
+    ]
+  },
+  {
+    "name": "optics.org",
+    "url": "https://optics.org/news",
+    "error": "timed out fetching https://optics.org/news",
+    "robots": [
+      {
+        "url": "https://optics.org/robots.txt",
+        "status": 404
+      }
+    ]
+  },
+  {
+    "name": "Display Daily",
+    "url": "https://displaydaily.com/",
+    "error": "robots blocked/unknown (403): https://displaydaily.com/",
+    "robots": [
+      {
+        "url": "https://displaydaily.com/robots.txt",
+        "status": 403
+      }
+    ]
+  },
+  {
+    "name": "Healthcare IT News",
+    "url": "https://www.healthcareitnews.com/",
+    "status": 403,
+    "mime": "text/html",
+    "final_url": "https://www.healthcareitnews.com/",
+    "robots": [
+      {
+        "url": "https://www.healthcareitnews.com/robots.txt",
+        "status": 200
+      }
+    ]
+  },
+  {
+    "name": "MobiHealthNews",
+    "url": "https://www.mobihealthnews.com/",
+    "status": 403,
+    "mime": "text/html",
+    "final_url": "https://www.mobihealthnews.com/",
+    "robots": [
+      {
+        "url": "https://www.mobihealthnews.com/robots.txt",
+        "status": 200
+      }
+    ]
+  },
+  {
+    "name": "InfoQ",
+    "url": "https://feed.infoq.com/",
+    "error": "robots blocked/unknown (406): https://feed.infoq.com/",
+    "robots": [
+      {
+        "url": "https://feed.infoq.com/robots.txt",
+        "status": 406
+      }
+    ]
+  },
+  {
+    "name": "pv magazine India",
+    "url": "https://www.pv-magazine-india.com/feed/",
+    "status": 200,
+    "mime": "application/rss+xml",
+    "final_url": "https://www.pv-magazine-india.com/feed/",
+    "cache": "/tmp/news-insight-source-crawl-2026-10-05/1da1017c585ad339d466a574a8b4cec5c0e6d323a281424501819d8a03648fde.html",
+    "links": [
+      {
+        "text": "high-voltage sodium-ion home battery",
+        "href": "https://www.pv-magazine.com/2026/07/24/german-startup-launches-high-voltage-sodium-ion-battery-for-residential-applications/"
+      },
+      {
+        "text": "grid regulator adopted rules that let storage systems draw power from the grid and feed it back later",
+        "href": "https://www.ess-news.com/2026/10/02/germany-approves-rules-for-storage-bidirectional-charging/"
+      },
+      {
+        "text": "€22.17 million in public funding",
+        "href": "https://www.pv-magazine.com/?p=66399"
+      },
+      {
+        "text": "OPIS APAC Solar Weekly Report",
+        "href": "https://www.opisnet.com/product/pricing/spot/apac-solar-weekly-report-pv-magazine/"
+      }
+    ],
+    "robots": [
+      {
+        "url": "https://www.pv-magazine-india.com/robots.txt",
+        "status": 200
+      }
+    ]
+  }
+]

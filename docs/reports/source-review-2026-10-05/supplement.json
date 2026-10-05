@@ -1,0 +1,719 @@
+{
+  "validation": [
+    {
+      "key": "samsung-newsroom-global",
+      "stage": "V1",
+      "outcome": "failed",
+      "reasons": [
+        "robots.txt unavailable (timeout): https://news.samsung.com/robots.txt"
+      ]
+    },
+    {
+      "key": "samsung-newsroom-kr",
+      "stage": "V1",
+      "outcome": "failed",
+      "reasons": [
+        "robots.txt unavailable (timeout): https://news.samsung.com/robots.txt"
+      ]
+    },
+    {
+      "key": "ieee-spectrum",
+      "stage": "V4",
+      "outcome": "passed",
+      "reasons": []
+    },
+    {
+      "key": "nvidia-blog",
+      "stage": "V4",
+      "outcome": "passed",
+      "reasons": []
+    },
+    {
+      "key": "openai-news",
+      "stage": "V4",
+      "outcome": "passed",
+      "reasons": []
+    }
+  ],
+  "card_gaps": [
+    {
+      "n": 20,
+      "key": "apple-newsroom",
+      "scope": null,
+      "status": null,
+      "taxonomy_revision": null
+    },
+    {
+      "n": 30,
+      "key": "ieee-spectrum",
+      "scope": null,
+      "status": null,
+      "taxonomy_revision": null
+    },
+    {
+      "n": 18,
+      "key": "nvidia-blog",
+      "scope": null,
+      "status": null,
+      "taxonomy_revision": null
+    },
+    {
+      "n": 50,
+      "key": "nvidia-developer-blog",
+      "scope": null,
+      "status": null,
+      "taxonomy_revision": null
+    },
+    {
+      "n": 50,
+      "key": "openai-news",
+      "scope": null,
+      "status": null,
+      "taxonomy_revision": null
+    }
+  ],
+  "themes": [
+    {
+      "n": 2224,
+      "theme": "ai__foundation_models",
+      "channels": 284,
+      "top_channel": "mastodon-mastodon-ai",
+      "top_channel_n": 218,
+      "catalog_domains": 133
+    },
+    {
+      "n": 2218,
+      "theme": "platform_sw__developer_tools",
+      "channels": 252,
+      "top_channel": "nhn-cloud-meetup-web",
+      "top_channel_n": 187,
+      "catalog_domains": 101
+    },
+    {
+      "n": 1701,
+      "theme": "security__app_cloud_security",
+      "channels": 177,
+      "top_channel": "moda-tw-web",
+      "top_channel_n": 381,
+      "catalog_domains": 102
+    },
+    {
+      "n": 1587,
+      "theme": "ai__ai_agents",
+      "channels": 232,
+      "top_channel": "mastodon-mastodon-ai",
+      "top_channel_n": 144,
+      "catalog_domains": 119
+    },
+    {
+      "n": 1351,
+      "theme": "platform_sw__app_ecosystem",
+      "channels": 187,
+      "top_channel": "mobile-dev-memo-web",
+      "top_channel_n": 506,
+      "catalog_domains": 112
+    },
+    {
+      "n": 1127,
+      "theme": "platform_sw__device_os",
+      "channels": 191,
+      "top_channel": "mastodon-tag-linux",
+      "top_channel_n": 96,
+      "catalog_domains": 100
+    },
+    {
+      "n": 1119,
+      "theme": "robotics_mobility__autonomous_driving",
+      "channels": 133,
+      "top_channel": "waymo-web",
+      "top_channel_n": 735,
+      "catalog_domains": 88
+    },
+    {
+      "n": 1048,
+      "theme": "connectivity__short_range_wireless",
+      "channels": 100,
+      "top_channel": "zigbee2mqtt-web",
+      "top_channel_n": 498,
+      "catalog_domains": 49
+    },
+    {
+      "n": 991,
+      "theme": "semis__ap_soc_npu",
+      "channels": 181,
+      "top_channel": "infineon-news-web",
+      "top_channel_n": 349,
+      "catalog_domains": 109
+    },
+    {
+      "n": 909,
+      "theme": "ai__ai_safety_eval",
+      "channels": 173,
+      "top_channel": "mastodon-mastodon-ai",
+      "top_channel_n": 172,
+      "catalog_domains": 99
+    },
+    {
+      "n": 854,
+      "theme": "ai__multimodal_perception",
+      "channels": 177,
+      "top_channel": "mastodon-mastodon-ai",
+      "top_channel_n": 38,
+      "catalog_domains": 77
+    },
+    {
+      "n": 841,
+      "theme": "ai__on_device_ai",
+      "channels": 190,
+      "top_channel": "github-trend-mlx",
+      "top_channel_n": 38,
+      "catalog_domains": 77
+    },
+    {
+      "n": 649,
+      "theme": "security__privacy_crypto",
+      "channels": 148,
+      "top_channel": "ico-news-web",
+      "top_channel_n": 67,
+      "catalog_domains": 78
+    },
+    {
+      "n": 598,
+      "theme": "cloud_data__data_ml_platform",
+      "channels": 139,
+      "top_channel": "stanford-hai-web",
+      "top_channel_n": 42,
+      "catalog_domains": 77
+    },
+    {
+      "n": 555,
+      "theme": "platform_sw__web_cross_platform",
+      "channels": 115,
+      "top_channel": "nhn-cloud-meetup-web",
+      "top_channel_n": 73,
+      "catalog_domains": 51
+    },
+    {
+      "n": 537,
+      "theme": "platform_sw__ux_accessibility",
+      "channels": 140,
+      "top_channel": "waymo-web",
+      "top_channel_n": 129,
+      "catalog_domains": 80
+    },
+    {
+      "n": 492,
+      "theme": "energy__power_efficiency",
+      "channels": 102,
+      "top_channel": "infineon-news-web",
+      "top_channel_n": 229,
+      "catalog_domains": 61
+    },
+    {
+      "n": 490,
+      "theme": "manufacturing__smart_factory",
+      "channels": 100,
+      "top_channel": "itri-news-web",
+      "top_channel_n": 204,
+      "catalog_domains": 64
+    },
+    {
+      "n": 487,
+      "theme": "health_tech__biosensing",
+      "channels": 163,
+      "top_channel": "github-wearable-health",
+      "top_channel_n": 30,
+      "catalog_domains": 80
+    },
+    {
+      "n": 474,
+      "theme": "connectivity__smart_home_iot",
+      "channels": 104,
+      "top_channel": "zigbee2mqtt-web",
+      "top_channel_n": 196,
+      "catalog_domains": 50
+    },
+    {
+      "n": 461,
+      "theme": "semis__sensor_chips",
+      "channels": 60,
+      "top_channel": "infineon-news-web",
+      "top_channel_n": 342,
+      "catalog_domains": 25
+    },
+    {
+      "n": 424,
+      "theme": "frontier__advanced_materials",
+      "channels": 87,
+      "top_channel": "itri-news-web",
+      "top_channel_n": 109,
+      "catalog_domains": 50
+    },
+    {
+      "n": 416,
+      "theme": "semis__power_rf_semis",
+      "channels": 49,
+      "top_channel": "infineon-news-web",
+      "top_channel_n": 340,
+      "catalog_domains": 19
+    },
+    {
+      "n": 413,
+      "theme": "cloud_data__infra_ops",
+      "channels": 121,
+      "top_channel": "nhn-cloud-meetup-web",
+      "top_channel_n": 44,
+      "catalog_domains": 70
+    },
+    {
+      "n": 404,
+      "theme": "robotics_mobility__sensing_digital_twin",
+      "channels": 115,
+      "top_channel": "github-trend-slam",
+      "top_channel_n": 46,
+      "catalog_domains": 65
+    },
+    {
+      "n": 393,
+      "theme": "security__device_security",
+      "channels": 136,
+      "top_channel": "moda-tw-web",
+      "top_channel_n": 50,
+      "catalog_domains": 78
+    },
+    {
+      "n": 380,
+      "theme": "security__identity_auth",
+      "channels": 107,
+      "top_channel": "moda-tw-web",
+      "top_channel_n": 74,
+      "catalog_domains": 69
+    },
+    {
+      "n": 362,
+      "theme": "energy__battery_charging",
+      "channels": 122,
+      "top_channel": "openalex-solid-state-battery",
+      "top_channel_n": 33,
+      "catalog_domains": 85
+    },
+    {
+      "n": 359,
+      "theme": "robotics_mobility__humanoid_embodied",
+      "channels": 117,
+      "top_channel": "github-vision-language-action",
+      "top_channel_n": 41,
+      "catalog_domains": 80
+    },
+    {
+      "n": 337,
+      "theme": "display_av__codec_streaming",
+      "channels": 115,
+      "top_channel": "mobile-dev-memo-web",
+      "top_channel_n": 41,
+      "catalog_domains": 71
+    },
+    {
+      "n": 330,
+      "theme": "robotics_mobility__sdv_cockpit",
+      "channels": 87,
+      "top_channel": "infineon-news-web",
+      "top_channel_n": 118,
+      "catalog_domains": 63
+    },
+    {
+      "n": 310,
+      "theme": "health_tech__medical_ai_samd",
+      "channels": 75,
+      "top_channel": "massdevice-web",
+      "top_channel_n": 46,
+      "catalog_domains": 33
+    },
+    {
+      "n": 284,
+      "theme": "ai__ai_coding",
+      "channels": 78,
+      "top_channel": "mastodon-mastodon-ai",
+      "top_channel_n": 36,
+      "catalog_domains": 46
+    },
+    {
+      "n": 276,
+      "theme": "display_av__display_panel",
+      "channels": 91,
+      "top_channel": "openalex-oled",
+      "top_channel_n": 23,
+      "catalog_domains": 60
+    },
+    {
+      "n": 276,
+      "theme": "display_av__xr_spatial",
+      "channels": 85,
+      "top_channel": "github-trend-openxr",
+      "top_channel_n": 24,
+      "catalog_domains": 41
+    },
+    {
+      "n": 276,
+      "theme": "cloud_data__cloud_platforms",
+      "channels": 93,
+      "top_channel": "nhn-cloud-meetup-web",
+      "top_channel_n": 41,
+      "catalog_domains": 58
+    },
+    {
+      "n": 249,
+      "theme": "connectivity__cellular_5g_6g",
+      "channels": 72,
+      "top_channel": "openalex-reconfigurable-intelligent-surface",
+      "top_channel_n": 34,
+      "catalog_domains": 51
+    },
+    {
+      "n": 232,
+      "theme": "connectivity__ran_core",
+      "channels": 63,
+      "top_channel": "openalex-6g",
+      "top_channel_n": 25,
+      "catalog_domains": 42
+    },
+    {
+      "n": 231,
+      "theme": "security__software_supply_chain",
+      "channels": 59,
+      "top_channel": "mastodon-tag-cybersecurity",
+      "top_channel_n": 53,
+      "catalog_domains": 37
+    },
+    {
+      "n": 229,
+      "theme": "semis__packaging_chiplet",
+      "channels": 42,
+      "top_channel": "itri-news-web",
+      "top_channel_n": 68,
+      "catalog_domains": 36
+    },
+    {
+      "n": 221,
+      "theme": "cloud_data__edge_cloud",
+      "channels": 74,
+      "top_channel": "zigbee2mqtt-web",
+      "top_channel_n": 90,
+      "catalog_domains": 34
+    },
+    {
+      "n": 221,
+      "theme": "display_av__audio_acoustics",
+      "channels": 84,
+      "top_channel": "openalex-hearing-aid",
+      "top_channel_n": 19,
+      "catalog_domains": 52
+    },
+    {
+      "n": 214,
+      "theme": "security__ai_security_provenance",
+      "channels": 81,
+      "top_channel": "devto-security",
+      "top_channel_n": 14,
+      "catalog_domains": 54
+    },
+    {
+      "n": 209,
+      "theme": "cloud_data__ai_datacenter",
+      "channels": 73,
+      "top_channel": "datacenterknowledge",
+      "top_channel_n": 24,
+      "catalog_domains": 59
+    },
+    {
+      "n": 203,
+      "theme": "display_av__picture_processing",
+      "channels": 89,
+      "top_channel": "zol-web",
+      "top_channel_n": 14,
+      "catalog_domains": 50
+    },
+    {
+      "n": 201,
+      "theme": "ai__model_efficiency",
+      "channels": 70,
+      "top_channel": "mastodon-mastodon-ai",
+      "top_channel_n": 18,
+      "catalog_domains": 26
+    },
+    {
+      "n": 196,
+      "theme": "connectivity__network_ops",
+      "channels": 71,
+      "top_channel": "openwrt-news-web",
+      "top_channel_n": 45,
+      "catalog_domains": 43
+    },
+    {
+      "n": 180,
+      "theme": "display_av__camera_imaging",
+      "channels": 90,
+      "top_channel": "mastodon-tag-apple",
+      "top_channel_n": 9,
+      "catalog_domains": 46
+    },
+    {
+      "n": 123,
+      "theme": "health_tech__remote_care",
+      "channels": 40,
+      "top_channel": "openalex-remote-patient-monitoring",
+      "top_channel_n": 28,
+      "catalog_domains": 15
+    },
+    {
+      "n": 122,
+      "theme": "semis__memory_storage",
+      "channels": 74,
+      "top_channel": "trendforce-web",
+      "top_channel_n": 8,
+      "catalog_domains": 53
+    },
+    {
+      "n": 116,
+      "theme": "energy__circular_materials",
+      "channels": 62,
+      "top_channel": "a-star-news-web",
+      "top_channel_n": 10,
+      "catalog_domains": 44
+    },
+    {
+      "n": 111,
+      "theme": "robotics_mobility__home_service_robot",
+      "channels": 45,
+      "top_channel": "crossref-robot-vacuum",
+      "top_channel_n": 21,
+      "catalog_domains": 34
+    },
+    {
+      "n": 96,
+      "theme": "frontier__quantum",
+      "channels": 49,
+      "top_channel": "openalex-matter-protocol",
+      "top_channel_n": 11,
+      "catalog_domains": 24
+    },
+    {
+      "n": 94,
+      "theme": "manufacturing__quality_inspection",
+      "channels": 31,
+      "top_channel": "a-star-news-web",
+      "top_channel_n": 16,
+      "catalog_domains": 15
+    },
+    {
+      "n": 90,
+      "theme": "energy__home_energy",
+      "channels": 48,
+      "top_channel": "mastodon-tag-solar",
+      "top_channel_n": 7,
+      "catalog_domains": 28
+    },
+    {
+      "n": 77,
+      "theme": "manufacturing__logistics_automation",
+      "channels": 47,
+      "top_channel": "lg-cns-blog-web",
+      "top_channel_n": 9,
+      "catalog_domains": 40
+    },
+    {
+      "n": 75,
+      "theme": "connectivity__satellite_ntn",
+      "channels": 46,
+      "top_channel": "computerweekly-web",
+      "top_channel_n": 6,
+      "catalog_domains": 37
+    },
+    {
+      "n": 62,
+      "theme": "frontier__neuromorphic_photonic",
+      "channels": 35,
+      "top_channel": "openalex-chiplet",
+      "top_channel_n": 6,
+      "catalog_domains": 19
+    },
+    {
+      "n": 58,
+      "theme": "health_tech__aging_care",
+      "channels": 35,
+      "top_channel": "waymo-web",
+      "top_channel_n": 6,
+      "catalog_domains": 21
+    },
+    {
+      "n": 51,
+      "theme": "health_tech__health_data_interop",
+      "channels": 25,
+      "top_channel": "mila-news-web",
+      "top_channel_n": 6,
+      "catalog_domains": 15
+    },
+    {
+      "n": 40,
+      "theme": "manufacturing__factory_robotics",
+      "channels": 25,
+      "top_channel": "crossref-robot-vacuum",
+      "top_channel_n": 4,
+      "catalog_domains": 16
+    },
+    {
+      "n": 31,
+      "theme": "frontier__neurotech_bci",
+      "channels": 12,
+      "top_channel": "mila-news-web",
+      "top_channel_n": 8,
+      "catalog_domains": 9
+    }
+  ],
+  "reader_status": [
+    {
+      "n": 1641,
+      "status": "active"
+    },
+    {
+      "n": 20124,
+      "status": "candidate"
+    },
+    {
+      "n": 478,
+      "status": "paused"
+    }
+  ],
+  "content_samples": [
+    {
+      "key": "waymo-web",
+      "url": "https://waymo.com/intl/jp/community/articles/malcolm-gladwell-takes-a-ride-in-the-coolest-car-ever-made/",
+      "title": "Malcolm Gladwell takes a ride in 'the coolest car ever made'",
+      "published_at": "2026-10-04T00:00:00+00:00"
+    },
+    {
+      "key": "zigbee2mqtt-web",
+      "url": "https://www.zigbee2mqtt.io/devices/929003103601.html",
+      "title": "Philips 929003103601",
+      "published_at": "2026-08-30T18:20:20+00:00"
+    },
+    {
+      "key": "waymo-web",
+      "url": "https://waymo.com/blog/2024/09/safety-data-hub/",
+      "title": "New Data Hub Shows How Waymo Improves Road Safety",
+      "published_at": "2024-09-05T00:00:00+00:00"
+    },
+    {
+      "key": "infineon-news-web",
+      "url": "https://www.infineon.com/part/IRHLNS87Y50SCS",
+      "title": "IRHLNS87Y50SCS - N-channel rad hard power MOSFETs",
+      "published_at": "2026-10-03T12:19:40+00:00"
+    },
+    {
+      "key": "infineon-news-web",
+      "url": "https://www.infineon.com/part/IRFR5505",
+      "title": "IRFR5505 - P-channel MOSFETs",
+      "published_at": "2026-10-02T19:07:28+00:00"
+    },
+    {
+      "key": "zigbee2mqtt-web",
+      "url": "https://www.zigbee2mqtt.io/devices/MODKAM_Flower.html",
+      "title": "EFEKTA MODKAM_Flower",
+      "published_at": "2026-09-29T18:53:18+00:00"
+    },
+    {
+      "key": "infineon-news-web",
+      "url": "https://www.infineon.com/part/2N6794",
+      "title": "2N6794 - Single high-reliability power MOSFETs",
+      "published_at": "2026-10-03T12:18:28+00:00"
+    },
+    {
+      "key": "infineon-news-web",
+      "url": "https://www.infineon.com/part/IRFM360B",
+      "title": "IRFM360B - Single high-reliability power MOSFETs",
+      "published_at": "2026-10-03T12:17:58+00:00"
+    },
+    {
+      "key": "waymo-web",
+      "url": "https://waymo.com/intl/es/community/articles/a-woman-and-her-wife-dream-of-better-mobility-for-people-who-are-blind/",
+      "title": "A Woman And Her Wife Dream of Better Mobility For People Who Are Blind",
+      "published_at": "2026-10-04T00:00:00+00:00"
+    },
+    {
+      "key": "waymo-web",
+      "url": "https://waymo.com/intl/fil/community/articles/blinded-veterans-associations-bow-wow-lounge/",
+      "title": "Guide Dogs Get R&R at Blinded Veterans Association’s Bow Wow Lounge",
+      "published_at": "2026-10-04T00:00:00+00:00"
+    },
+    {
+      "key": "zigbee2mqtt-web",
+      "url": "https://www.zigbee2mqtt.io/devices/1746630P7.html",
+      "title": "Philips 1746630P7",
+      "published_at": "2026-08-30T18:20:20+00:00"
+    },
+    {
+      "key": "infineon-news-web",
+      "url": "https://www.infineon.com/part/RDHA710SE10A2SP",
+      "title": "RDHA710SE10A2SP - Rad hard solid-state relays",
+      "published_at": "2026-10-03T12:17:27+00:00"
+    },
+    {
+      "key": "zigbee2mqtt-web",
+      "url": "https://www.zigbee2mqtt.io/devices/A4Z.html",
+      "title": "Nous A4Z",
+      "published_at": "2026-08-30T18:20:20+00:00"
+    },
+    {
+      "key": "infineon-news-web",
+      "url": "https://www.infineon.com/part/S25FL127SABNFB701",
+      "title": "S25FL127SABNFB701 - Quad SPI flash",
+      "published_at": "2026-10-02T18:32:53+00:00"
+    },
+    {
+      "key": "zigbee2mqtt-web",
+      "url": "https://www.zigbee2mqtt.io/devices/929003479901.html",
+      "title": "Philips 929003479901",
+      "published_at": "2026-08-30T18:20:20+00:00"
+    },
+    {
+      "key": "waymo-web",
+      "url": "https://waymo.com/intl/fil/community/articles/mission-driven-kids-team-up-with-waymo-to-expand-access-to-books-in-phoenix/",
+      "title": "Mission-Driven: Kids Team up With Waymo to Expand Access to Books in Phoenix",
+      "published_at": "2026-10-04T00:00:00+00:00"
+    },
+    {
+      "key": "waymo-web",
+      "url": "https://waymo.com/community/articles/phoenix-babes-who-walk/",
+      "title": "Phoenix Babes Who Walk and Waymo Pair Up for a Safer, Inclusive Community",
+      "published_at": "2026-10-04T00:00:00+00:00"
+    },
+    {
+      "key": "waymo-web",
+      "url": "https://waymo.com/blog/2016/12/scenes-from-street_31/",
+      "title": "Scenes from the street, June 2015",
+      "published_at": "2016-12-13T00:00:00+00:00"
+    }
+  ],
+  "social_duplicate": [
+    {
+      "n": 3,
+      "key": "mastodon-mastodon-ai",
+      "canonical_url": "https://www.npr.org/2026/10/04/nx-s1-5990781/jay-clayton-ai-czar-trump"
+    },
+    {
+      "n": 3,
+      "key": "mastodon-tag-electricvehicles",
+      "canonical_url": "https://www.nytimes.com/2026/10/04/world/europe/russia-ukraine-war-ev-sales.html"
+    },
+    {
+      "n": 2,
+      "key": "mastodon-tag-electricvehicles",
+      "canonical_url": "https://www.npr.org/2026/09/30/nx-s1-5979915/ev-hybrid-sales-2026-federal-tax-credit"
+    },
+    {
+      "n": 2,
+      "key": "mastodon-mastodon-ai",
+      "canonical_url": "https://www.nytimes.com/2026/10/04/us/manslaughter-conviction-overturned-ai-video-statement.html"
+    }
+  ]
+}

@@ -94,3 +94,25 @@ def test_probe_reports_missing_credentials(monkeypatch: pytest.MonkeyPatch) -> N
     result = check_parser(source, json_fetcher(), now=NOW)
 
     assert "credential SOURCE_SECRET_GITHUB_TOKEN is not configured" in result.reasons
+
+
+def test_github_observations_validate_rank_without_fake_publication_dates() -> None:
+    source = build_source(
+        access_method=AccessMethod.CRAWLER,
+        config={"mode": "github_trending", "trending_period": "daily"},
+    )
+    page = b"".join(
+        f'<article class="Box-row"><h2><a href="https://github.com/o/r{n}">repo</a></h2></article>'.encode()
+        for n in range(3)
+    )
+    result = check_parser(source, serving(page, content_type="text/html"), now=NOW)
+    assert result.passed, result.reasons
+    assert result.metrics["date_semantics"] == "observation"
+
+
+def test_github_observations_still_require_three_unique_identities() -> None:
+    source = build_source(access_method=AccessMethod.CRAWLER, config={"mode": "github_trending"})
+    page = (
+        b'<article class="Box-row"><h2><a href="https://github.com/o/r">repo</a></h2></article>' * 3
+    )
+    assert not check_parser(source, serving(page, content_type="text/html"), now=NOW).passed

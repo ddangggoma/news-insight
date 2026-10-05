@@ -75,7 +75,7 @@ def check_auto_policy(source: Source, fetcher: SafeFetcher) -> CheckResult:
         return CheckResult.from_reasons(reasons, metrics)
     if (
         source.access_method is AccessMethod.CRAWLER
-        and source.config.get("mode") != "auto"
+        and source.config.get("mode") not in {"auto", "velog"}
         and not source.config.get("selectors")
     ):
         reasons.append("crawler needs config.selectors or config.mode=auto")

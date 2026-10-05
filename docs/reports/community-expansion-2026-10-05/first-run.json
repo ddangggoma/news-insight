@@ -1,0 +1,1206 @@
+[
+  {
+    "key": "martin-fowler",
+    "endpoint": "https://martinfowler.com/feed.atom",
+    "started_at": "2026-10-05T14:18:14.273731+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "martinfowler.com"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "feed reader: robots.txt not applied to the feed (robots.txt allows /feed.atom)",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/atom+xml",
+          "bytes": 169116,
+          "redirects": 0,
+          "elapsed_ms": 770
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "entries": 30,
+          "complete": 30,
+          "recent": 12
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 30,
+      "items_new": 30,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 576,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 30,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T14:18:17.966199+00:00"
+  },
+  {
+    "key": "troy-hunt",
+    "endpoint": "https://www.troyhunt.com/rss/",
+    "started_at": "2026-10-05T14:18:17.966496+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "www.troyhunt.com"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "feed reader: robots.txt not applied to the feed (robots.txt allows /rss/)",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/rss+xml",
+          "bytes": 86181,
+          "redirects": 0,
+          "elapsed_ms": 73
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "entries": 15,
+          "complete": 15,
+          "recent": 5
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 15,
+      "items_new": 15,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 367,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 15,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T14:18:21.397287+00:00"
+  },
+  {
+    "key": "bruce-schneier",
+    "endpoint": "https://www.schneier.com/feed/atom/",
+    "started_at": "2026-10-05T14:18:21.397607+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "www.schneier.com"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "feed reader: robots.txt not applied to the feed (robots.txt allows /feed/atom/)",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/atom+xml",
+          "bytes": 48791,
+          "redirects": 0,
+          "elapsed_ms": 60
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "entries": 10,
+          "complete": 10,
+          "recent": 10
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 10,
+      "items_new": 10,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 60,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 10,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T14:18:24.526992+00:00"
+  },
+  {
+    "key": "andrej-karpathy",
+    "endpoint": "https://karpathy.bearblog.dev/feed/",
+    "started_at": "2026-10-05T14:18:24.527455+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "karpathy.bearblog.dev"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "feed reader: robots.txt not applied to the feed (robots.txt allows /feed/)",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/atom+xml",
+          "bytes": 143341,
+          "redirects": 0,
+          "elapsed_ms": 180
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "failed",
+        "reasons": [
+          "only 0 recent complete items (need 3)"
+        ],
+        "metrics": {
+          "entries": 10,
+          "complete": 10,
+          "recent": 0
+        }
+      }
+    ],
+    "stage": "V2",
+    "status": "candidate",
+    "stored_items": 0,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T14:18:26.785169+00:00"
+  },
+  {
+    "key": "chip-huyen",
+    "endpoint": "https://huyenchip.com/feed.xml",
+    "started_at": "2026-10-05T14:18:26.785515+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "huyenchip.com"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "feed reader: robots.txt not applied to the feed (robots.txt allows /feed.xml)",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/xml",
+          "bytes": 340690,
+          "redirects": 0,
+          "elapsed_ms": 556
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "failed",
+        "reasons": [
+          "only 0 recent complete items (need 3)"
+        ],
+        "metrics": {
+          "entries": 10,
+          "complete": 10,
+          "recent": 0
+        }
+      }
+    ],
+    "stage": "V2",
+    "status": "candidate",
+    "stored_items": 0,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T14:18:29.262935+00:00"
+  },
+  {
+    "key": "sam-altman",
+    "endpoint": "https://blog.samaltman.com/posts.atom",
+    "started_at": "2026-10-05T14:18:29.263312+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "blog.samaltman.com"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "feed reader: robots.txt not applied to the feed (robots.txt allows /posts.atom)",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "failed",
+        "reasons": [
+          "unexpected content type 'text/html'"
+        ],
+        "metrics": {
+          "error": "mime"
+        }
+      }
+    ],
+    "stage": "V1",
+    "status": "candidate",
+    "stored_items": 0,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T14:18:30.580521+00:00"
+  },
+  {
+    "key": "lilian-weng",
+    "endpoint": "https://lilianweng.github.io/index.xml",
+    "started_at": "2026-10-05T14:18:30.581546+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "lilianweng.github.io"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "feed reader: robots.txt not applied to the feed (robots.txt allows /index.xml)",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/xml",
+          "bytes": 79640,
+          "redirects": 0,
+          "elapsed_ms": 17
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "failed",
+        "reasons": [
+          "only 0 recent complete items (need 3)"
+        ],
+        "metrics": {
+          "entries": 53,
+          "complete": 53,
+          "recent": 0
+        }
+      }
+    ],
+    "stage": "V2",
+    "status": "candidate",
+    "stored_items": 0,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T14:18:32.669763+00:00"
+  },
+  {
+    "key": "brendan-gregg",
+    "endpoint": "https://www.brendangregg.com/blog/rss.xml",
+    "started_at": "2026-10-05T14:18:32.670190+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "www.brendangregg.com"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "feed reader: robots.txt not applied to the feed (robots.txt allows /blog/rss.xml)",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/xml",
+          "bytes": 144541,
+          "redirects": 0,
+          "elapsed_ms": 475
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "failed",
+        "reasons": [
+          "only 0 recent complete items (need 3)"
+        ],
+        "metrics": {
+          "entries": 10,
+          "complete": 10,
+          "recent": 0
+        }
+      }
+    ],
+    "stage": "V2",
+    "status": "candidate",
+    "stored_items": 0,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T14:18:35.093370+00:00"
+  },
+  {
+    "key": "dan-luu",
+    "endpoint": "https://danluu.com/atom.xml",
+    "started_at": "2026-10-05T14:18:35.093793+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "danluu.com"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "feed reader: robots.txt not applied to the feed (robots.txt allows /atom.xml)",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "failed",
+        "reasons": [
+          "response exceeds 5242880 bytes"
+        ],
+        "metrics": {
+          "error": "too_large"
+        }
+      }
+    ],
+    "stage": "V1",
+    "status": "candidate",
+    "stored_items": 0,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T14:18:55.407191+00:00"
+  },
+  {
+    "key": "eli-bendersky",
+    "endpoint": "https://eli.thegreenplace.net/feeds/all.atom.xml",
+    "started_at": "2026-10-05T14:18:55.408295+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "eli.thegreenplace.net"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "feed reader: robots.txt not applied to the feed (no robots.txt (404): https://eli.thegreenplace.net/robots.txt)",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/xml",
+          "bytes": 222886,
+          "redirects": 0,
+          "elapsed_ms": 435
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "entries": 5,
+          "complete": 5,
+          "recent": 3
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 5,
+      "items_new": 5,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 429,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 5,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T14:18:58.972730+00:00"
+  },
+  {
+    "key": "dave-cheney",
+    "endpoint": "https://dave.cheney.net/feed",
+    "started_at": "2026-10-05T14:18:58.973228+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "dave.cheney.net"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "feed reader: robots.txt not applied to the feed (robots.txt allows /feed)",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/rss+xml",
+          "bytes": 156016,
+          "redirects": 0,
+          "elapsed_ms": 427
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "failed",
+        "reasons": [
+          "only 0 recent complete items (need 3)"
+        ],
+        "metrics": {
+          "entries": 20,
+          "complete": 20,
+          "recent": 0
+        }
+      }
+    ],
+    "stage": "V2",
+    "status": "candidate",
+    "stored_items": 0,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T14:19:01.494711+00:00"
+  },
+  {
+    "key": "huggingface-forum",
+    "endpoint": "https://discuss.huggingface.co/latest.rss",
+    "started_at": "2026-10-05T14:19:01.495238+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "discuss.huggingface.co"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "feed reader: robots.txt not applied to the feed (robots.txt allows /latest.rss)",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/rss+xml",
+          "bytes": 110114,
+          "redirects": 0,
+          "elapsed_ms": 581
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "entries": 30,
+          "complete": 30,
+          "recent": 30
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 30,
+      "items_new": 30,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 274,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 30,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T14:19:04.852120+00:00"
+  },
+  {
+    "key": "python-discuss",
+    "endpoint": "https://discuss.python.org/latest.rss",
+    "started_at": "2026-10-05T14:19:04.852700+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "discuss.python.org"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "feed reader: robots.txt not applied to the feed (robots.txt allows /latest.rss)",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/rss+xml",
+          "bytes": 140239,
+          "redirects": 0,
+          "elapsed_ms": 867
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "entries": 30,
+          "complete": 30,
+          "recent": 30
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 30,
+      "items_new": 30,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 269,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 30,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T14:19:08.195108+00:00"
+  },
+  {
+    "key": "rust-users-forum",
+    "endpoint": "https://users.rust-lang.org/latest.rss",
+    "started_at": "2026-10-05T14:19:08.195679+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "users.rust-lang.org"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "feed reader: robots.txt not applied to the feed (robots.txt allows /latest.rss)",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/rss+xml",
+          "bytes": 96176,
+          "redirects": 0,
+          "elapsed_ms": 734
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "entries": 30,
+          "complete": 30,
+          "recent": 30
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 30,
+      "items_new": 30,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 269,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 30,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T14:19:11.540078+00:00"
+  },
+  {
+    "key": "kubernetes-discuss",
+    "endpoint": "https://discuss.kubernetes.io/latest.rss",
+    "started_at": "2026-10-05T14:19:11.540677+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "discuss.kubernetes.io"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "feed reader: robots.txt not applied to the feed (robots.txt allows /latest.rss)",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/rss+xml",
+          "bytes": 101817,
+          "redirects": 0,
+          "elapsed_ms": 769
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "entries": 30,
+          "complete": 30,
+          "recent": 12
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 30,
+      "items_new": 30,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 261,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 30,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T14:19:14.880657+00:00"
+  },
+  {
+    "key": "arduino-forum",
+    "endpoint": "https://forum.arduino.cc/latest.rss",
+    "started_at": "2026-10-05T14:19:14.881285+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "forum.arduino.cc"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "feed reader: robots.txt not applied to the feed (robots.txt allows /latest.rss)",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/rss+xml",
+          "bytes": 89003,
+          "redirects": 0,
+          "elapsed_ms": 1580
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "entries": 30,
+          "complete": 30,
+          "recent": 30
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 30,
+      "items_new": 30,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 409,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 30,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T14:19:19.169778+00:00"
+  },
+  {
+    "key": "home-assistant-forum",
+    "endpoint": "https://community.home-assistant.io/latest.rss",
+    "started_at": "2026-10-05T14:19:19.170540+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "community.home-assistant.io"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "feed reader: robots.txt not applied to the feed (robots.txt allows /latest.rss)",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/rss+xml",
+          "bytes": 132601,
+          "redirects": 0,
+          "elapsed_ms": 467
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "entries": 30,
+          "complete": 30,
+          "recent": 30
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 30,
+      "items_new": 30,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 352,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 30,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T14:19:22.686309+00:00"
+  },
+  {
+    "key": "tabnews",
+    "endpoint": "https://www.tabnews.com.br/recentes/rss",
+    "started_at": "2026-10-05T14:19:22.686979+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "www.tabnews.com.br"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "feed reader: robots.txt not applied to the feed (robots.txt allows /recentes/rss)",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "text/xml",
+          "bytes": 311341,
+          "redirects": 0,
+          "elapsed_ms": 420
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "entries": 30,
+          "complete": 30,
+          "recent": 30
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 30,
+      "items_new": 30,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 258,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 30,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T14:19:26.097399+00:00"
+  },
+  {
+    "key": "mastodon-martin-fowler",
+    "endpoint": "https://toot.thoughtworks.com/@mfowler.rss",
+    "started_at": "2026-10-05T14:19:26.098147+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "toot.thoughtworks.com"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "feed reader: robots.txt not applied to the feed (robots.txt allows /@mfowler.rss)",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/rss+xml",
+          "bytes": 18359,
+          "redirects": 0,
+          "elapsed_ms": 339
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "failed",
+        "reasons": [
+          "only 0 recent complete items (need 3)"
+        ],
+        "metrics": {
+          "entries": 20,
+          "complete": 0,
+          "recent": 0
+        }
+      }
+    ],
+    "stage": "V2",
+    "status": "candidate",
+    "stored_items": 0,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T14:19:28.596127+00:00"
+  },
+  {
+    "key": "hashnode-engineering",
+    "endpoint": "https://engineering.hashnode.com/rss.xml",
+    "started_at": "2026-10-05T14:19:28.597472+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "engineering.hashnode.com"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "feed reader: robots.txt not applied to the feed (no robots.txt (429): https://engineering.hashnode.com/robots.txt)",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "failed",
+        "reasons": [
+          "unexpected HTTP status 429"
+        ],
+        "metrics": {
+          "status": 429,
+          "content_type": "text/html",
+          "bytes": 33938,
+          "redirects": 0,
+          "elapsed_ms": 33
+        }
+      }
+    ],
+    "stage": "V1",
+    "status": "candidate",
+    "stored_items": 0,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T14:19:29.644329+00:00"
+  },
+  {
+    "key": "velog-trending",
+    "endpoint": "https://velog.io/",
+    "started_at": "2026-10-05T14:19:29.646221+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "velog.io"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "robots.txt allows /",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "text/html",
+          "bytes": 65395,
+          "redirects": 0,
+          "elapsed_ms": 24
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "failed",
+        "reasons": [
+          "selector_drift: no article links found on the list page(s)"
+        ],
+        "metrics": {
+          "error": "selector_drift"
+        }
+      }
+    ],
+    "stage": "V2",
+    "status": "candidate",
+    "stored_items": 0,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T14:19:31.701903+00:00"
+  }
+]

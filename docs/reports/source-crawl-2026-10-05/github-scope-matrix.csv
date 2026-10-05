@@ -1,0 +1,7 @@
+kind,language,spoken_language,window,url,tested
+repositories,any,any,daily,https://github.com/trending?since=daily,False
+repositories,any,any,weekly,https://github.com/trending?since=weekly,False
+repositories,any,any,monthly,https://github.com/trending?since=monthly,False
+developers,any,any,daily,https://github.com/trending/developers?since=daily,False
+developers,any,any,weekly,https://github.com/trending/developers?since=weekly,False
+developers,any,any,monthly,https://github.com/trending/developers?since=monthly,False

@@ -6,13 +6,16 @@ at most `enrich_limit` per run and only where robots.txt allows the path.
 
 import re
 from dataclasses import dataclass, replace
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from typing import Any
 from urllib.parse import urlsplit
 from urllib.robotparser import RobotFileParser
 from zoneinfo import ZoneInfo
 
+from selectolax.parser import HTMLParser
+
 from news_insight.collect.contracts import CollectContext, RawItem
+from news_insight.collect.fields import parse_datetime
 from news_insight.collect.page_meta import extract_meta
 from news_insight.content.normalize import canonical_url, stable_key
 from news_insight.net.mime import HTML_MIME
@@ -135,11 +138,39 @@ def complete(
                 response = None
             if response is not None and response.status_code == 200:
                 fetched = True
-                meta = extract_meta(decode(response), assume_tz=tz)
+                html = decode(response)
+                meta = extract_meta(html, assume_tz=tz)
                 page_title = meta.title
                 if page_title:
                     page_titles[page_title] = page_titles.get(page_title, 0) + 1
                 published = published or meta.published_at
+                if published is None and context.config.get("article_date_selector"):
+                    for node in HTMLParser(html).css(str(context.config["article_date_selector"])):
+                        attribute = context.config.get("article_date_attribute")
+                        value = (
+                            (node.attributes.get(str(attribute)) or "")
+                            if attribute
+                            else node.text()
+                        )
+                        pattern = context.config.get("article_date_regex")
+                        if pattern:
+                            match = re.search(str(pattern), value)
+                            if not match:
+                                continue
+                            value = match[0]
+                        try:
+                            fmt = context.config.get("article_date_format")
+                            published = (
+                                datetime.strptime(value.strip(), str(fmt))
+                                .replace(tzinfo=tz)
+                                .astimezone(UTC)
+                                if fmt
+                                else parse_datetime(value, assume_tz=tz)
+                            )
+                        except ValueError:
+                            continue
+                        if published:
+                            break
                 summary = summary or meta.description
         if published is None:
             if now_fallback:

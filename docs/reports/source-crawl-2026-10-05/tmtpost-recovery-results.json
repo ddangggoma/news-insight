@@ -1,0 +1,14 @@
+[
+  {
+    "key": "tmtpost",
+    "stage": "V3",
+    "status": "candidate",
+    "checks": [],
+    "collection": {
+      "outcome": "success",
+      "items_new": 19,
+      "items_seen": 19,
+      "error_code": null
+    }
+  }
+]

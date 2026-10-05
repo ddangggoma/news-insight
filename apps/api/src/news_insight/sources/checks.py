@@ -8,7 +8,7 @@ from news_insight.collect.context import collect_context, polite_url
 from news_insight.collect.contracts import CollectorError, RawItem
 from news_insight.collect.macros import expand_macros
 from news_insight.collect.registry import collector_for
-from news_insight.net.mime import EXPECTED_MIME, FEED_MIME
+from news_insight.net.mime import EXPECTED_MIME, FEED_MIME, HTML_MIME
 from news_insight.net.safe_fetch import FetchError, SafeFetcher
 from news_insight.parsers.feed_probe import MIN_PROBE_ITEMS, probe_feed
 from news_insight.secrets import SecretError, resolve_auth_headers
@@ -112,7 +112,12 @@ def check_network(source: Source, fetcher: SafeFetcher) -> CheckResult:
     try:
         response = fetcher.fetch(
             expand_macros(probe_url(source), now=datetime.now(UTC)),
-            allowed_mime=EXPECTED_MIME[source.access_method],
+            allowed_mime=(
+                HTML_MIME
+                if source.access_method is AccessMethod.RESEARCH_API
+                and source.config.get("mode") == "epo_publications"
+                else EXPECTED_MIME[source.access_method]
+            ),
             headers=headers,
         )
     except FetchError as exc:
@@ -173,4 +178,27 @@ def check_parser(source: Source, fetcher: SafeFetcher, *, now: datetime) -> Chec
         result = collector_for(source.access_method, fetcher).collect(context)
     except CollectorError as exc:
         return CheckResult.from_reasons([f"{exc.code}: {exc}"], {"error": exc.code})
+    if (
+        source.access_method is AccessMethod.CRAWLER
+        and source.config.get("mode") == "github_trending"
+    ):
+        identities = {
+            item.stable_id
+            for item in result.items
+            if item.title and item.url and item.metrics.get("rank", 0) > 0
+        }
+        reasons = (
+            []
+            if len(identities) >= min_items
+            else [f"only {len(identities)} unique Trending observations (need {min_items})"]
+        )
+        return CheckResult.from_reasons(
+            reasons,
+            {
+                "items": len(result.items),
+                "unique": len(identities),
+                "date_semantics": "observation",
+                "observed_at": now.isoformat(),
+            },
+        )
     return probe_items(result.items, now=now, min_items=min_items, max_age_days=max_age_days)

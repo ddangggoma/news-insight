@@ -1,0 +1,17 @@
+[
+  {
+    "url": "https://github.com/trending/python?since=daily",
+    "status": 200,
+    "rows": 13
+  },
+  {
+    "url": "https://github.com/trending/rust?since=weekly",
+    "status": 200,
+    "rows": 17
+  },
+  {
+    "url": "https://github.com/trending?since=monthly&spoken_language_code=ko",
+    "status": 200,
+    "rows": 0
+  }
+]

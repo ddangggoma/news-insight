@@ -1,0 +1,23 @@
+﻿key,name,url,category,stage,stored_items,collection,failure,country,fields
+martin-fowler,Martin Fowler,https://martinfowler.com/feed.atom,expert_blog,V3,30,not_modified,,국제,cloud_data;platform_sw
+troy-hunt,Troy Hunt,https://www.troyhunt.com/rss/,expert_blog,V3,15,not_modified,,국제,security
+bruce-schneier,Bruce Schneier,https://www.schneier.com/feed/atom/,expert_blog,V3,10,not_modified,,국제,security
+andrej-karpathy,Andrej Karpathy Bear Blog,https://karpathy.bearblog.dev/feed/,expert_blog,V2,0,,only 0 recent complete items (need 3),국제,ai
+chip-huyen,Chip Huyen,https://huyenchip.com/feed.xml,expert_blog,V2,0,,only 0 recent complete items (need 3),국제,ai
+sam-altman,Sam Altman Blog,https://blog.samaltman.com/posts.atom,expert_blog,V1,0,,unexpected content type 'text/html',국제,ai
+lilian-weng,Lilian Weng,https://lilianweng.github.io/index.xml,expert_blog,V2,0,,only 0 recent complete items (need 3),국제,ai
+brendan-gregg,Brendan Gregg,https://www.brendangregg.com/blog/rss.xml,expert_blog,V2,0,,only 0 recent complete items (need 3),국제,cloud_data
+dan-luu,Dan Luu,https://danluu.com/atom.xml,expert_blog,V1,0,,response exceeds 5242880 bytes,국제,cloud_data;platform_sw
+eli-bendersky,Eli Bendersky,https://eli.thegreenplace.net/feeds/all.atom.xml,expert_blog,V3,5,success,,국제,platform_sw
+dave-cheney,Dave Cheney,https://dave.cheney.net/feed,expert_blog,V2,0,,only 0 recent complete items (need 3),국제,platform_sw
+huggingface-forum,Hugging Face Forums,https://discuss.huggingface.co/latest.rss,dev_forum,V3,30,success,,국제,ai
+python-discuss,Python Discussions,https://discuss.python.org/latest.rss,dev_forum,V3,30,success,,국제,platform_sw
+rust-users-forum,Rust Users Forum,https://users.rust-lang.org/latest.rss,dev_forum,V3,30,success,,국제,platform_sw
+kubernetes-discuss,Kubernetes Discussions,https://discuss.kubernetes.io/latest.rss,dev_forum,V3,30,success,,국제,cloud_data
+arduino-forum,Arduino Forum,https://forum.arduino.cc/latest.rss,dev_forum,V3,30,success,,이탈리아 / 국제,manufacturing;connectivity
+home-assistant-forum,Home Assistant Community,https://community.home-assistant.io/latest.rss,dev_forum,V3,30,success,,국제,connectivity;energy
+tabnews,TabNews,https://www.tabnews.com.br/recentes/rss,dev_forum,V3,30,not_modified,,브라질,platform_sw
+mastodon-martin-fowler,Martin Fowler Mastodon RSS,https://toot.thoughtworks.com/@mfowler.rss,open_social,V2,0,,only 0 recent complete items (need 3),국제,platform_sw;cloud_data
+hashnode-engineering,Hashnode Engineering,https://engineering.hashnode.com/rss.xml,expert_blog,V1,0,,unexpected HTTP status 429,국제,platform_sw;cloud_data
+velog-trending,Velog Trending,https://velog.io/,dev_forum,V3,20,success,,한국,platform_sw
+bluesky-martinfowler-com,Bluesky Martin Fowler,https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=martinfowler.com&limit=30,open_social,V3,30,success,,국제,platform_sw;cloud_data

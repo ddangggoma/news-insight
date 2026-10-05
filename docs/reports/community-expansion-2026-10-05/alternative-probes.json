@@ -1,0 +1,118 @@
+[
+  {
+    "url": "https://blog.samaltman.com/",
+    "status": 200,
+    "mime": "text/html; charset=utf-8",
+    "entries": 0,
+    "latest": [],
+    "feeds": [
+      "<link rel=\"alternate\" type=\"application/atom+xml\" href=\"https://blog.samaltman.com/posts.atom\">"
+    ],
+    "article_links": [],
+    "robots": null
+  },
+  {
+    "url": "https://blog.samaltman.com/posts.atom",
+    "status": 200,
+    "mime": "text/html; charset=utf-8",
+    "entries": 30,
+    "latest": [
+      {
+        "title": "-",
+        "date": "2026-04-10T22:55:13Z"
+      },
+      {
+        "title": "Sora update #1",
+        "date": "2025-10-04T00:37:50Z"
+      },
+      {
+        "title": "Sora 2",
+        "date": "2025-09-30T17:13:47Z"
+      }
+    ],
+    "feeds": [
+      "<link rel=\"self\" type=\"application/atom+xml\" href=\"https://blog.samaltman.com/posts.atom?1791205199005\">"
+    ],
+    "article_links": [],
+    "robots": null
+  },
+  {
+    "url": "https://engineering.hashnode.com/rss.xml",
+    "status": 429,
+    "mime": "text/html; charset=utf-8",
+    "entries": 0,
+    "latest": [],
+    "feeds": [],
+    "article_links": [],
+    "robots": null
+  },
+  {
+    "url": "https://engineering.hashnode.com/",
+    "status": 429,
+    "mime": "text/html; charset=utf-8",
+    "entries": 0,
+    "latest": [],
+    "feeds": [],
+    "article_links": [],
+    "robots": null
+  },
+  {
+    "url": "https://velog.io/",
+    "status": 200,
+    "mime": "text/html; charset=utf-8",
+    "entries": 0,
+    "latest": [],
+    "feeds": [],
+    "article_links": [],
+    "robots": null
+  },
+  {
+    "url": "https://velog.io/robots.txt",
+    "status": 200,
+    "mime": "text/plain; charset=utf-8",
+    "entries": 0,
+    "latest": [],
+    "feeds": [],
+    "article_links": [],
+    "robots": "# https://www.robotstxt.org/robotstxt.html\nUser-agent: *\n"
+  },
+  {
+    "url": "https://www.tabnews.com.br/",
+    "status": 200,
+    "mime": "text/html; charset=utf-8",
+    "entries": 0,
+    "latest": [],
+    "feeds": [
+      "<link rel=\"alternate\" type=\"application/rss+xml\" title=\"TabNews: Recentes\" href=\"/recentes/rss\" data-next-head=\"\">"
+    ],
+    "article_links": [],
+    "robots": null
+  },
+  {
+    "url": "https://martinfowler.com/aboutMe.html",
+    "status": 200,
+    "mime": "text/html",
+    "entries": 0,
+    "latest": [],
+    "feeds": [],
+    "article_links": [
+      {
+        "href": "https://toot.thoughtworks.com/@mfowler",
+        "text": ""
+      },
+      {
+        "href": "https://toot.thoughtworks.com/@mfowler",
+        "text": "Mastodon"
+      },
+      {
+        "href": "https://toot.thoughtworks.com/@mfowler",
+        "text": "Fediverse (Mastodon)"
+      },
+      {
+        "href": "https://toot.thoughtworks.com/@mfowler",
+        "text": "Mastodon"
+      }
+    ],
+    "robots": null
+  }
+]
