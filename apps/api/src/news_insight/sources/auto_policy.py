@@ -1,8 +1,13 @@
 """V1 auto-approval (roadmap D17, extended by D20 for personal use).
 
 A source without a reviewed `terms_url` passes V1 automatically when:
-- publisher pages (feed, sitemap, crawler) are allowed by the host's robots.txt for our
-  user agent (missing robots.txt allows; an unreachable or failing one does not);
+- publisher pages (sitemap, crawler) are allowed by the host's robots.txt for our user agent
+  (missing robots.txt allows; an unreachable or failing one does not);
+- RSS/Atom feeds are fetched as a feed reader: a published feed is meant for automated readers
+  and feed readers (Google Feedfetcher among them) do not apply robots.txt to the feed URL
+  (2026-10-05, user decision: 18 feeds were refused by rules written for crawlers). The
+  robots verdict is still recorded as evidence, and article pages behind the feed keep the
+  robots gate (`collect/pages.RobotsGate`). Bot walls and 403s are never worked around;
   documented APIs (JSON/research APIs, GitHub, ATproto, ActivityPub) are governed by
   their API terms instead of robots.txt,
 - a crawler declares selectors or `mode: auto`,
@@ -21,7 +26,8 @@ from news_insight.sources.enums import AccessMethod, StorageRight
 from news_insight.sources.ladder import CheckResult
 from news_insight.sources.models import Source
 
-ROBOTS_METHODS = frozenset({AccessMethod.FEED, AccessMethod.SITEMAP, AccessMethod.CRAWLER})
+ROBOTS_METHODS = frozenset({AccessMethod.SITEMAP, AccessMethod.CRAWLER})
+FEED_READER = frozenset({AccessMethod.FEED})
 API_METHODS = frozenset(
     {
         AccessMethod.JSON_API,
@@ -31,7 +37,7 @@ API_METHODS = frozenset(
         AccessMethod.ACTIVITYPUB,
     }
 )
-AUTO_APPROVABLE = ROBOTS_METHODS | API_METHODS
+AUTO_APPROVABLE = ROBOTS_METHODS | FEED_READER | API_METHODS
 AUTO_STORAGE_RIGHT = StorageRight.EXCERPT_ALLOWED
 ROBOTS_MIME = frozenset({"text/plain", "text/html", "application/octet-stream", ""})
 ROBOTS_AGENT = DEFAULT_USER_AGENT.split("/", 1)[0]
@@ -79,6 +85,10 @@ def check_auto_policy(source: Source, fetcher: SafeFetcher) -> CheckResult:
         metrics["robots"] = evidence
         if not allowed:
             reasons.append(evidence)
+    elif source.access_method in FEED_READER:
+        target = expand_macros(source.endpoint_url, now=datetime.now(UTC))
+        _, evidence = robots_verdict(fetcher, target)
+        metrics["robots"] = f"feed reader: robots.txt not applied to the feed ({evidence})"
     else:
         metrics["robots"] = "not applicable: documented API"
     try:

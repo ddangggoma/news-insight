@@ -49,7 +49,8 @@ def test_probe_catalog_reports_ready_sources(tmp_path: Path) -> None:
 
 
 def test_probe_reports_a_registered_source(db_session: Session) -> None:
-    db_session.add(build_source(terms_url=None))
+    # V1 fails on the terms review; feeds no longer fail on robots.txt (feed reader, 2026-10-05)
+    db_session.add(build_source(terms_url=None, config={"manual_review": True}))
     db_session.flush()
 
     result = runner.invoke(cli.app, ["sources", "probe", "example-news"])
