@@ -82,7 +82,8 @@ class SourceLock:
         self._release = client.register_script(_RELEASE_IF_OWNER)
 
     @contextmanager
-    def hold(self, source_id: int) -> Iterator[bool]:
+    def hold(self, source_id: int | str) -> Iterator[bool]:
+        """Yields whether the lock was taken; a name works as well as a source id."""
         key = f"{self._prefix}{source_id}"
         token = uuid.uuid4().hex
         acquired = bool(self._client.set(key, token, nx=True, ex=self._ttl))

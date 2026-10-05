@@ -200,3 +200,37 @@ def test_query_sources_of_one_site_count_as_one_publisher(db_session: Session) -
 
     story = db_session.scalars(select(Story)).one()
     assert (story.item_count, story.source_count) == (2, 1)
+
+
+def test_one_publisher_alone_cannot_grow_a_story_past_the_cap(
+    db_session: Session, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from news_insight.stories import service
+
+    monkeypatch.setattr(service, "SINGLE_SOURCE_MAX", 3)
+    rows = [
+        (
+            f"https://freebsd.org/notes/{n}",
+            f"FreeBSD project news and release notes update {n}",
+            "",
+            ["FreeBSD"],
+            50,
+        )
+        for n in range(5)
+    ]
+    add(db_session, "freebsd-news", Track.COMMUNITY, rows)
+    cluster(scope_for(db_session), now=NOW)
+
+    sizes = sorted(db_session.scalars(select(Story.item_count)), reverse=True)
+    assert sizes[0] == 3  # the fourth look-alike page starts its own story
+    assert sum(sizes) == 5
+
+
+def test_only_one_story_writer_at_a_time() -> None:
+    from news_insight.stories.lock import story_writer
+
+    name = "test-stories"  # never the live lock: tests may share the Redis server
+    with story_writer(name) as first, story_writer(name) as second:
+        assert first and not second
+    with story_writer(name) as again:
+        assert again

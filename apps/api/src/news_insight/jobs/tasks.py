@@ -70,7 +70,12 @@ def auto_validate_task() -> dict[str, Any]:
 
 @celery_app.task(name="stories.cluster")
 def cluster_stories_task() -> dict[str, Any]:
-    return asdict(cluster(session_scope, now=datetime.now(UTC)))
+    from news_insight.stories.lock import story_writer
+
+    with story_writer() as acquired:
+        if not acquired:
+            return {"skipped": "another story writer is running"}
+        return asdict(cluster(session_scope, now=datetime.now(UTC)))
 
 
 @celery_app.task(name="sources.quality")

@@ -666,17 +666,23 @@ def stories_semantic(
         embedded += done
         if done == 0:
             break
-    with session_scope() as session:
-        stats = run(
-            session,
-            embed=embed,
-            ask=agy.ask,
-            model=model,
-            now=now,
-            since=now - timedelta(minutes=since_minutes) if since_minutes else None,
-            max_judged=max_judged,
-            embed_limit=0,
-        )
+    from news_insight.stories.lock import story_writer
+
+    with story_writer() as acquired:
+        if not acquired:
+            typer.echo(f"embedded={embedded} merge skipped: another story writer is running")
+            return
+        with session_scope() as session:
+            stats = run(
+                session,
+                embed=embed,
+                ask=agy.ask,
+                model=model,
+                now=now,
+                since=now - timedelta(minutes=since_minutes) if since_minutes else None,
+                max_judged=max_judged,
+                embed_limit=0,
+            )
     stats.embedded = embedded
     typer.echo(
         f"embedded={stats.embedded} candidates={stats.candidates} judged={stats.judged} "
