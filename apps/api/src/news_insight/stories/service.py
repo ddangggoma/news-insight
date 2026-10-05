@@ -120,6 +120,19 @@ def assign(
             .where(Item.content_hash == item.content_hash, Item.first_seen_at >= since)
             .limit(1)
         ).scalar_one_or_none()
+    if exact is None and len(item.title.strip()) >= SAME_TITLE_MIN:
+        # the same original headline elsewhere: MinHash compares Korean card titles, and two
+        # translations of one headline can differ enough to split it (2026-10-05: 500 titles)
+        exact = session.execute(
+            select(StoryItem.story_id)
+            .join(Item, Item.id == StoryItem.item_id)
+            .where(
+                func.lower(Item.title) == item.title.lower(),
+                Item.first_seen_at >= since,
+                Item.id != item.id,
+            )
+            .limit(1)
+        ).scalar_one_or_none()
 
     relation, story_id, best = Relation.SEED, None, None
     if exact is not None:
@@ -214,6 +227,9 @@ def assign(
 
 
 SINGLE_SOURCE_MAX = 20  # reports one publisher alone may add to a story by similarity
+SAME_TITLE_MIN = (
+    30  # characters: shorter headlines ("Weekly update") repeat without being one event
+)
 
 
 def _one_source_full(session: Session, story_id: int, source: Source) -> bool:

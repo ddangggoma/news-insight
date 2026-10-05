@@ -45,6 +45,9 @@ class Candidate:
     region: str
     domain: str
     score: float
+    # the story now, not at the 04:40 freeze: stories merged after it (multilingual merge, same
+    # headline) would otherwise put two reports of one event in the shortlist (2026-10-05)
+    story_id: int | None = None
 
     @property
     def official(self) -> bool:
@@ -104,6 +107,7 @@ def load_candidates(session: Session, item_ids: list[int], *, now: datetime) -> 
                 region=source.region.value,
                 domain=source.official_domain,
                 score=relevance + 12 * math.log2(1 + coverage) + primary,
+                story_id=story.id if story is not None else None,
             )
         )
     candidates.sort(key=lambda c: (c.score, -c.item_id), reverse=True)
@@ -116,6 +120,7 @@ def shortlist(candidates: list[Candidate], rules: SelectionRules) -> list[Candid
     cap = max(1, math.floor(rules.domain_cap * rules.size))
     chosen: list[Candidate] = []
     taken: set[int] = set()
+    stories: set[int] = set()
     per_domain: dict[str, int] = {}
 
     def take(pool: list[Candidate], need: int) -> None:
@@ -124,8 +129,12 @@ def shortlist(candidates: list[Candidate], rules: SelectionRules) -> list[Candid
                 return
             if candidate.item_id in taken or per_domain.get(candidate.domain, 0) >= cap:
                 continue
+            if candidate.story_id is not None and candidate.story_id in stories:
+                continue  # one report per event
             chosen.append(candidate)
             taken.add(candidate.item_id)
+            if candidate.story_id is not None:
+                stories.add(candidate.story_id)
             per_domain[candidate.domain] = per_domain.get(candidate.domain, 0) + 1
             need -= 1
 
