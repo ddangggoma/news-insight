@@ -104,16 +104,22 @@ def assign(
     sig = signature(shingles(card.title_ko or item.title))
     bands = band_hashes(sig)
 
+    # two indexed lookups: one OR across two tables made every item scan item_signatures
+    # (2026-10-05: 675 million rows read)
     exact = session.execute(
         select(StoryItem.story_id)
+        .join(ItemSignature, ItemSignature.item_id == StoryItem.item_id)
         .join(Item, Item.id == StoryItem.item_id)
-        .join(ItemSignature, ItemSignature.item_id == Item.id)
-        .where(
-            Item.first_seen_at >= since,
-            or_(ItemSignature.dedup_key == key, Item.content_hash == item.content_hash),
-        )
+        .where(ItemSignature.dedup_key == key, Item.first_seen_at >= since)
         .limit(1)
     ).scalar_one_or_none()
+    if exact is None:
+        exact = session.execute(
+            select(StoryItem.story_id)
+            .join(Item, Item.id == StoryItem.item_id)
+            .where(Item.content_hash == item.content_hash, Item.first_seen_at >= since)
+            .limit(1)
+        ).scalar_one_or_none()
 
     relation, story_id, best = Relation.SEED, None, None
     if exact is not None:
@@ -165,6 +171,12 @@ def assign(
             ):
                 relation, story_id, best = Relation.EVENT, other_story, score
 
+    if (
+        story_id is not None
+        and relation is not Relation.EXACT
+        and _one_source_full(session, story_id, source)
+    ):
+        relation, story_id, best = Relation.SEED, None, None
     session.add(ItemSignature(item_id=item.id, dedup_key=key, signature=sig, created_at=now))
     session.add_all(ItemLsh(item_id=item.id, band=b, hash=h) for b, h in enumerate(bands))
     if story_id is None:
@@ -199,6 +211,24 @@ def assign(
             .on_conflict_do_nothing()
         )
     return relation, len(refs)
+
+
+SINGLE_SOURCE_MAX = 20  # reports one publisher alone may add to a story by similarity
+
+
+def _one_source_full(session: Session, story_id: int, source: Source) -> bool:
+    """A story that already holds SINGLE_SOURCE_MAX reports, all from this publisher: a site's
+    look-alike pages (release notes, notices, device pages), not one event (2026-10-05: one
+    "ITRI 기술 혁신 브리프" story held 1,156 pages)."""
+    story = session.get(Story, story_id)
+    if story is None or story.source_count > 1 or story.item_count < SINGLE_SOURCE_MAX:
+        return False
+    domain = session.scalar(
+        select(Source.official_domain)
+        .join(Item, Item.source_id == Source.id)
+        .where(Item.id == story.representative_item_id)
+    )
+    return domain == source.official_domain
 
 
 def cluster(

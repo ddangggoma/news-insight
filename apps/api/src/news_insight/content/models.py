@@ -43,7 +43,7 @@ class Item(Base):
     body_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     author: Mapped[str | None] = mapped_column(String(300))
     published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), index=True)
-    content_hash: Mapped[str] = mapped_column(String(64))
+    content_hash: Mapped[str] = mapped_column(String(64), index=True)
     revision: Mapped[int] = mapped_column(default=1, server_default="1")
     canary: Mapped[bool] = mapped_column(default=False, server_default=false())
     first_seen_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
