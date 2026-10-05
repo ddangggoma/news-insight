@@ -5,7 +5,12 @@ import pytest
 from sqlalchemy.orm import Session
 
 from news_insight.net.safe_fetch import SafeFetcher
-from news_insight.sources.enums import SourceStatus, ValidationOutcome, ValidationStage
+from news_insight.sources.enums import (
+    AccessMethod,
+    SourceStatus,
+    ValidationOutcome,
+    ValidationStage,
+)
 from news_insight.sources.ladder import LadderError
 from news_insight.sources.service import (
     SourceNotFound,
@@ -58,7 +63,8 @@ def test_climb_runs_v0_to_v3_for_healthy_feed(
 
 
 def test_climb_stops_at_first_failure(db_session: Session, feed_fetcher: SafeFetcher) -> None:
-    source = build_source(terms_url=None)
+    # a sitemap still needs robots.txt (feeds are read as a feed reader since 2026-10-05)
+    source = build_source(terms_url=None, access_method=AccessMethod.SITEMAP)
     db_session.add(source)
     db_session.flush()
 

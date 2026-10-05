@@ -118,3 +118,21 @@ def test_documented_apis_skip_robots_and_auto_crawlers_respect_it() -> None:
     assert api.passed and api.metrics["robots"].startswith("not applicable")
     assert not crawler.passed and "disallows" in crawler.reasons[0]
     assert allowed_crawler.passed
+
+
+@pytest.mark.parametrize(
+    "rules",
+    [
+        robots("User-agent: *\nDisallow: /"),
+        robots("User-agent: DailyITIntelligenceBot\nDisallow: /feed"),
+        None,  # robots.txt unreachable (Samsung newsroom timeouts, 2026-10-05)
+    ],
+)
+def test_feeds_are_read_as_a_feed_reader_but_sitemaps_keep_robots(
+    rules: httpx.Response | None,
+) -> None:
+    feed = check_auto_policy(unreviewed(), site(rules))
+    sitemap = check_auto_policy(unreviewed(access_method=AccessMethod.SITEMAP), site(rules))
+
+    assert feed.passed and feed.metrics["robots"].startswith("feed reader:")
+    assert not sitemap.passed
