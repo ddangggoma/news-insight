@@ -40,6 +40,7 @@ class Settings(BaseSettings):
     card_agy_batch: int = 100
     card_agy_parallel: int = 3
     card_qwen_batch: int = 5
+    card_qwen_fallback: bool = False  # cards and reclassification on Antigravity only (2026-10-05)
     card_timeout_seconds: int = 300
     card_time_budget_seconds: int = 540
 

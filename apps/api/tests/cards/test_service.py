@@ -159,6 +159,51 @@ def test_agy_failure_falls_back_to_qwen(db_session: Session, failure: Exception)
     assert stats.ready == 1 and stats.batches == {"qwen": 1}
 
 
+def test_without_qwen_a_spent_quota_waits_for_the_next_run(db_session: Session) -> None:
+    seed(db_session, ["a", "b", "c"])
+    agy = FakeAgy([FULL, SPENT])
+
+    stats = run_cards(scope_for(db_session), agy=agy, qwen=None, policy=POLICY)
+
+    assert stats.batches == {"agy": 1} and pending_count(db_session) == 1
+    assert any("waiting for the next run" in note for note in stats.notes)
+    assert not any("qwen" in note for note in stats.notes)
+
+
+class FlakyAgy(FakeAgy):
+    """Fails the first `failures` calls, then works."""
+
+    def __init__(self, failures: int) -> None:
+        super().__init__([FULL])
+        self.failures = failures
+
+    def generate(self, inputs: list[CardInput]) -> EngineOutput:
+        if self.failures:
+            self.failures -= 1
+            self.batches.append([card.id for card in inputs])
+            raise EngineError("agy returned no structured output")
+        return super().generate(inputs)
+
+
+def test_without_qwen_a_failed_batch_is_retried_on_agy(db_session: Session) -> None:
+    seed(db_session, ["a", "b"])
+    agy = FlakyAgy(failures=1)
+
+    stats = run_cards(scope_for(db_session), agy=agy, qwen=None, policy=POLICY)
+
+    assert stats.ready == 2 and len(agy.batches) == 2
+    assert {card.engine for card in cards(db_session).values()} == {"agy"}
+
+
+def test_without_qwen_repeated_failures_end_the_run(db_session: Session) -> None:
+    seed(db_session, ["a"])
+    agy = FlakyAgy(failures=10)
+
+    stats = run_cards(scope_for(db_session), agy=agy, qwen=None, policy=POLICY)
+
+    assert stats.ready == 0 and len(agy.batches) == 2 and pending_count(db_session) == 1
+
+
 def test_qwen_outage_leaves_items_pending(db_session: Session) -> None:
     seed(db_session, ["a"])
 

@@ -234,6 +234,9 @@ class Job:
     inputs: list[CardInput] | list[ClassifyInput]
 
 
+FAILED_ROUNDS = 2  # Antigravity rounds in a row where every call failed before giving up
+
+
 def run_cards(
     open_session: SessionScope,
     *,
@@ -245,14 +248,18 @@ def run_cards(
 ) -> CardRunStats:
     """Generate cards and reclassify stale ones until nothing is pending or time runs out.
 
-    Antigravity is used while its quota allows (D18); when it is spent, unavailable or
-    failing, the run continues on local Qwen (user request, 2026-10-04). While cards wait
-    for a newer taxonomy, one Antigravity lane per round reclassifies them so new items
-    are never starved (checklist CLS-2). On Qwen, reclassification waits for new items.
+    Antigravity is used while its quota allows (D18). Without a Qwen engine (the default since
+    2026-10-05, user request) a spent quota ends the run until the next one, and a failed batch
+    is retried later while the run goes on, stopping after FAILED_ROUNDS rounds that all fail.
+    With Qwen passed in (`card_qwen_fallback` or `--qwen-only`) the run continues there.
+    While cards wait for a newer taxonomy, one Antigravity lane per round reclassifies them
+    so new items are never starved (checklist CLS-2). On Qwen, reclassification waits for new items.
     """
     stats = CardRunStats()
     deadline = monotonic() + policy.time_budget_seconds
     use_agy = agy is not None
+    fallback = "switching to qwen" if qwen is not None else "waiting for the next run"
+    failed_rounds = 0
     attempted: set[int] = set()
     classify_attempted: set[int] = set()
     quota = Quota(weekly=None, five_hour=None)
@@ -269,7 +276,7 @@ def run_cards(
             return
         stats.quota = quota.as_dict()
         if not quota.usable(min_weekly=policy.min_weekly, min_five_hour=policy.min_five_hour):
-            stats.notes.append(f"agy quota reserved ({quota.as_dict()}): switching to qwen")
+            stats.notes.append(f"agy quota reserved ({quota.as_dict()}): {fallback}")
             use_agy = False
 
     refresh_quota()
@@ -288,9 +295,9 @@ def run_cards(
             if isinstance(result, EngineError):
                 (attempted if job.kind == "card" else classify_attempted).difference_update(ids)
             if isinstance(result, QuotaExhausted) or (
-                isinstance(result, EngineError) and engine is agy
+                isinstance(result, EngineError) and engine is agy and qwen is not None
             ):
-                stats.notes.append(f"{result}: switching to qwen")
+                stats.notes.append(f"{result}: {fallback}")
                 switch = True
                 continue
             if isinstance(result, EngineError):
@@ -303,8 +310,12 @@ def run_cards(
         if switch:
             use_agy = False
             continue
-        if engine is not agy and all(isinstance(r, EngineError) for r in results):
-            break  # local model down: leave items pending for the next run
+        if all(isinstance(r, EngineError) for r in results):
+            failed_rounds += 1
+            if engine is not agy or failed_rounds >= FAILED_ROUNDS:
+                break  # engine down: leave items pending for the next run
+        else:
+            failed_rounds = 0
         if engine is agy:
             refresh_quota()
     return stats

@@ -14,7 +14,8 @@ V0 정체성 → V1 자동 승인(robots.txt·자격 증명) → V2 네트워크
 V3 이상 소스를 주기적으로 수집(Canary) ─────────▶ 24시간 관찰 후 V4 판정
    │
    ▼  호스트 launchd (10분마다) scripts/dev.sh cards
-신규·변경 항목 → Antigravity CLI(Gemini Flash, 100건 배치) ─ 한도 소진·오류 ─▶ 로컬 Qwen(5건 배치)
+신규·변경 항목 → Antigravity CLI(Gemini Flash, 100건 배치) ─ 한도 소진 ─▶ 다음 실행까지 대기
+(2026-10-05부터 Antigravity만 사용. 로컬 Qwen은 `CARD_QWEN_FALLBACK=true` 또는 `--qwen-only`일 때만)
    │
    ▼
 item_cards (한국어 제목·요약 1~3문장·키워드) → 콘솔 "카드 뉴스"
@@ -81,9 +82,9 @@ launchctl bootout gui/$(id -u)/com.newsinsight.cards
   - 발췌가 없는 항목에 엔진이 요약을 써 오면 버립니다(지어낸 내용 방지).
 - **엔진 선택:**
   1. Antigravity CLI(`gemini-3.8-flash-low`)로 100건씩 처리합니다.
-  2. 배치마다 `agy /usage`로 Gemini 한도를 확인합니다. 주간 남은 한도가 10% 이하이거나 5시간 남은 한도가 2% 이하이면 로컬 Qwen으로 바꿉니다. 주간 한도의 90%까지만 카드에 쓰는 셈입니다.
-  3. Antigravity가 한도 초과·오류를 내면 그 실행의 남은 시간은 Qwen으로 처리합니다.
-  4. Qwen(LM Studio)이 꺼져 있으면 항목을 대기 상태로 두고, 다음 실행에서 다시 시도합니다.
+  2. 배치마다 `agy /usage`로 Gemini 한도를 확인합니다. 주간 남은 한도가 10% 이하이거나 5시간 남은 한도가 2% 이하이면 그 실행을 끝내고 다음 실행(10분 뒤)에 다시 확인합니다. 주간 한도의 90%까지만 카드에 쓰는 셈입니다.
+  3. Antigravity가 한도 초과를 내면 실행을 끝냅니다. 일시 오류(구조화 출력 없음 등)는 그 배치만 실패로 두고 같은 실행에서 다시 시도하며, 모든 호출이 실패한 라운드가 두 번 이어지면 실행을 끝냅니다.
+  4. (Qwen 대체를 켠 경우) Qwen(LM Studio)이 꺼져 있으면 항목을 대기 상태로 두고, 다음 실행에서 다시 시도합니다.
 - **실패:** 엔진 출력에서 빠진 항목은 최대 3회 다시 시도하고, 그래도 실패하면 원래 제목으로 표시합니다.
 - **안전:** 도구 권한 없이(헤드리스 모드에서 자동 거부) 빈 임시 폴더에서 실행합니다. 비밀 환경 변수는 넘기지 않고 슬래시 명령도 끕니다. 엔진에는 공개 제목·출처·발췌만 보냅니다.
 
@@ -114,7 +115,7 @@ uv run --env-file ../../.env news-insight sources report                 # 단�
 | 증상 | 조치 |
 |---|---|
 | 카드 대기가 줄지 않음 | `ops/logs/cards.log` 확인. `agy -p /usage`로 로그인·한도 확인. LM Studio 서버 실행 여부 확인 |
-| 모든 카드가 Qwen으로 만들어짐 | Antigravity 한도가 기준 아래. `/usage`가 다시 차면 자동으로 Antigravity로 돌아감 |
+| 카드·재분류가 멈춤("agy quota reserved … waiting for the next run") | Antigravity 한도가 기준 아래. 5시간 한도는 몇 시간 안에, 주간 한도는 주간 재설정 때 다시 참. Qwen을 쓰려면 `.env`에 `CARD_QWEN_FALLBACK=true` |
 | 소스가 V1에서 계속 실패 | 검증 이력의 이유 확인. robots.txt가 막으면 수동 검토(`terms_url`)로 전환하거나 제외 |
 | GitHub 소스가 모두 V1 실패 | `SOURCE_SECRET_GITHUB_TOKEN` 미설정 (2-4 참고) |
 
