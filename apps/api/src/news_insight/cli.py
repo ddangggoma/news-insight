@@ -11,7 +11,13 @@ from zoneinfo import ZoneInfo
 import typer
 from sqlalchemy import func, select
 
-from news_insight.cards.engines import AgyEngine, QwenEngine
+from news_insight.cards.engines import (
+    AgyEngine,
+    CodexEngine,
+    EngineError,
+    MeteredEngine,
+    QwenEngine,
+)
 from news_insight.cards.models import CardRun, CardStatus, ItemCard
 from news_insight.cards.service import CardPolicy, pending_count, record_run, run_cards
 from news_insight.collect.dead_letters import DeadLetterError, dismiss, list_open, retry
@@ -130,23 +136,50 @@ def _claude() -> ClaudeClient:
     )
 
 
-def _card_engines(qwen_only: bool) -> tuple[AgyEngine | None, QwenEngine]:
+def _card_engines(qwen_only: bool) -> tuple[list[MeteredEngine], QwenEngine]:
+    """Metered engines in order of use (Codex, Antigravity) and the local Qwen fallback."""
     settings = get_settings()
-    agy = (
-        None
-        if qwen_only
-        else AgyEngine(
-            executable=settings.agy_cli,
-            model=settings.card_agy_model,
-            timeout_seconds=settings.card_timeout_seconds,
+    metered: list[MeteredEngine] = []
+    if not qwen_only and settings.card_codex_enabled:
+        home = Path(settings.codex_home or Path.home() / ".codex").expanduser()
+        metered.append(
+            CodexEngine(
+                executable=settings.codex_cli,
+                model=settings.card_codex_model or None,
+                timeout_seconds=settings.card_timeout_seconds,
+                sessions_dir=home / "sessions",
+            )
         )
-    )
+    if not qwen_only:
+        metered.append(
+            AgyEngine(
+                executable=settings.agy_cli,
+                model=settings.card_agy_model,
+                timeout_seconds=settings.card_timeout_seconds,
+            )
+        )
     qwen = QwenEngine(
         base_url=settings.lm_studio_url,
         model=settings.lm_studio_model,
         timeout_seconds=settings.card_timeout_seconds * 2,
     )
-    return agy, qwen
+    return metered, qwen
+
+
+def _judge_engine() -> MeteredEngine | None:
+    """First metered engine above its reserve (story-merge judge, evaluations)."""
+    settings = get_settings()
+    metered, _ = _card_engines(False)
+    for engine in metered:
+        try:
+            quota = engine.usage()
+        except EngineError:
+            continue
+        if quota.usable(
+            min_weekly=settings.card_agy_min_weekly, min_five_hour=settings.card_agy_min_five_hour
+        ):
+            return engine
+    return None
 
 
 def _kst(moment: datetime | None) -> str:
@@ -530,7 +563,7 @@ CARDS_LOCK = Path(tempfile.gettempdir()) / "news-insight-cards.lock"
 @cards_app.command("run")
 def cards_run(
     budget: Annotated[int | None, typer.Option(help="Time budget in seconds")] = None,
-    qwen_only: Annotated[bool, typer.Option(help="Skip Antigravity and use local Qwen")] = False,
+    qwen_only: Annotated[bool, typer.Option(help="Skip Codex and Antigravity; local Qwen")] = False,
 ) -> None:
     """Generate Korean cards for pending items (host-side; launchd runs it every 10 minutes)."""
     settings = get_settings()
@@ -540,12 +573,14 @@ def cards_run(
         except BlockingIOError:
             typer.echo("another card run is active; skipping")
             return
-        agy, local = _card_engines(qwen_only)
-        # Antigravity only unless asked: a spent quota waits for the next run
+        metered, local = _card_engines(qwen_only)
+        # Qwen only after every metered engine is down to its reserve (card_qwen_fallback)
         qwen = local if qwen_only or settings.card_qwen_fallback else None
         policy = CardPolicy(
             agy_batch=settings.card_agy_batch,
             agy_parallel=settings.card_agy_parallel,
+            codex_batch=settings.card_codex_batch,
+            codex_parallel=settings.card_codex_parallel,
             qwen_batch=settings.card_qwen_batch,
             min_weekly=settings.card_agy_min_weekly,
             min_five_hour=settings.card_agy_min_five_hour,
@@ -553,7 +588,7 @@ def cards_run(
             unvalidated_daily_cap=settings.card_unvalidated_daily_cap or None,
         )
         started = datetime.now(UTC)
-        stats = run_cards(session_scope, agy=agy, qwen=qwen, policy=policy)
+        stats = run_cards(session_scope, metered=metered, qwen=qwen, policy=policy)
         record_run(session_scope, started, stats)
     batches = " ".join(f"{name}={count}" for name, count in sorted(stats.batches.items()))
     typer.echo(
@@ -649,12 +684,11 @@ def stories_semantic(
 ) -> None:
     """Merge stories that report one event in other words or languages (bge-m3 + LLM judge, CLU-1).
 
-    Host-side: needs LM Studio (embeddings) and Antigravity (judge); runs after `cards run`."""
+    Host-side: needs LM Studio (embeddings) and Codex or Antigravity (judge); after `cards run`."""
     from news_insight.stories.semantic import embed_pending, lm_studio_embed, run
 
     settings = get_settings()
-    agy, _ = _card_engines(False)
-    assert agy is not None
+    judge_engine = _judge_engine()
     model = settings.lm_studio_embedding_model
     embed = lm_studio_embed(settings.lm_studio_url, model)
     now = datetime.now(UTC)
@@ -670,6 +704,9 @@ def stories_semantic(
             break
     from news_insight.stories.lock import story_writer
 
+    if judge_engine is None:
+        typer.echo(f"embedded={embedded} merge skipped: every judge engine is at its reserve")
+        return
     with story_writer() as acquired:
         if not acquired:
             typer.echo(f"embedded={embedded} merge skipped: another story writer is running")
@@ -678,7 +715,7 @@ def stories_semantic(
             stats = run(
                 session,
                 embed=embed,
-                ask=agy.ask,
+                ask=judge_engine.ask,
                 model=model,
                 now=now,
                 since=now - timedelta(minutes=since_minutes) if since_minutes else None,
@@ -699,11 +736,12 @@ def stories_eval(
     """Judge real candidate pairs with Antigravity and report P/R/F1 per MinHash threshold."""
     from news_insight.stories.evaluate import judge, sample_pairs, score
 
-    agy, _ = _card_engines(False)
-    assert agy is not None
+    engine = _judge_engine()
+    if engine is None:
+        raise _fail("every judge engine is at its reserve")
     with session_scope() as session:
         pairs = sample_pairs(session, now=datetime.now(UTC), size=size)
-    labels = judge(agy.ask, pairs)
+    labels = judge(engine.ask, pairs)
     same = sum(labels.values())
     typer.echo(f"pairs={len(pairs)} judged={len(labels)} same_event={same}")
     typer.echo("threshold  precision  recall  f1")

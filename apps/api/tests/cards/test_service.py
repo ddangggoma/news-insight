@@ -454,3 +454,37 @@ def test_same_url_or_same_content_reuses_the_card(db_session: Session) -> None:
     assert stats.reused == 1 and len(agy.batches) == 1  # no second engine call
     assert copy.status == CardStatus.READY and copy.engine == REUSED
     assert copy.title_ko == "[agy] original"
+
+
+class FakeCodex(FakeAgy):
+    def __init__(self, quotas: list[Quota], **kwargs: Any) -> None:
+        super().__init__(quotas, **kwargs)
+        self.name = "codex"
+
+
+def test_codex_first_then_agy_when_codex_reaches_its_reserve(db_session: Session) -> None:
+    seed(db_session, ["a", "b", "c", "d"])
+    codex = FakeCodex([FULL, SPENT])
+    agy = FakeAgy([FULL])
+    policy = CardPolicy(
+        agy_batch=2, agy_parallel=1, codex_batch=2, codex_parallel=1, time_budget_seconds=1000
+    )
+
+    stats = run_cards(scope_for(db_session), metered=[codex, agy], qwen=None, policy=policy)
+
+    assert stats.batches == {"codex": 1, "agy": 1} and stats.ready == 4
+    assert any(
+        "codex quota reserved" in note and "switching to agy" in note for note in stats.notes
+    )
+
+
+def test_codex_quota_error_moves_on_and_qwen_comes_last(db_session: Session) -> None:
+    seed(db_session, ["a", "b"])
+    codex = FakeCodex([FULL], fail=QuotaExhausted("usage limit"))
+    agy = FakeAgy([SPENT])
+    qwen = FakeEngine("qwen")
+
+    stats = run_cards(scope_for(db_session), metered=[codex, agy], qwen=qwen, policy=POLICY)
+
+    assert stats.batches == {"qwen": 2} and stats.ready == 2
+    assert {card.engine for card in cards(db_session).values()} == {"qwen"}
