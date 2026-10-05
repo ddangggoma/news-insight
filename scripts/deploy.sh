@@ -20,9 +20,13 @@ APP=(migrate api worker scheduler web)
 log() { printf '%s deploy: %s\n' "$(date +%H:%M:%S)" "$*"; }
 healthy() { [[ "$(docker inspect -f '{{.State.Health.Status}}' "news-insight-$1-1" 2>/dev/null)" == healthy ]]; }
 
-PREVIOUS="$(git rev-parse --short=12 HEAD)"
-git fetch -q origin
-git checkout -q --detach origin/main
+PREVIOUS="${DEPLOY_PREVIOUS:-$(git rev-parse --short=12 HEAD)}"
+if [[ -z "${DEPLOY_PREVIOUS:-}" ]]; then
+  git fetch -q origin
+  git checkout -q --detach origin/main
+  # bash reads a script as it runs: start again so this deploy uses the script it just checked out
+  DEPLOY_PREVIOUS="$PREVIOUS" exec "$ROOT/scripts/deploy.sh" "$@"
+fi
 TAG="$(git rev-parse --short=12 HEAD)"
 log "$PREVIOUS -> $TAG"
 
