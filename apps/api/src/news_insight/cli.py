@@ -549,12 +549,41 @@ def cards_run(
         record_run(session_scope, started, stats)
     batches = " ".join(f"{name}={count}" for name, count in sorted(stats.batches.items()))
     typer.echo(
-        f"ready={stats.ready} failed={stats.failed} classified={stats.classified} "
+        f"ready={stats.ready} failed={stats.failed} kept_with_loss={stats.soft} "
+        f"classified={stats.classified} "
         f"batches: {batches or '-'} "
         f"quota={stats.quota or '-'}"
     )
     for note in stats.notes:
         typer.echo(f"  note: {note}")
+
+
+@cards_app.command("retry-failed")
+def cards_retry_failed(
+    days: Annotated[int, typer.Option(help="Items first seen in the last N days")] = 7,
+) -> None:
+    """Give cards that failed the preservation check one more attempt (with the lost facts named).
+
+    That attempt is the last: if a fact is still missing the card is kept with a note."""
+    from sqlalchemy import update
+
+    from news_insight.cards.service import LOST, MAX_ATTEMPTS
+    from news_insight.content.models import Item
+
+    since = datetime.now(UTC) - timedelta(days=days)
+    with session_scope() as session:
+        ids = select(Item.id).where(Item.first_seen_at >= since)
+        result = session.execute(
+            update(ItemCard)
+            .where(
+                ItemCard.status == CardStatus.FAILED,
+                ItemCard.error.like(f"{LOST}%"),
+                ItemCard.item_id.in_(ids),
+            )
+            .values(attempts=MAX_ATTEMPTS - 1)
+            .execution_options(synchronize_session=False)
+        )
+    typer.echo(f"requeued={getattr(result, 'rowcount', 0)}")
 
 
 @cards_app.command("status")
