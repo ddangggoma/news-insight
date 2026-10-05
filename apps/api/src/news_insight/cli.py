@@ -102,6 +102,8 @@ tech_app = typer.Typer(
     help="Technology registry (third level of the taxonomy)", no_args_is_help=True
 )
 app.add_typer(tech_app, name="technologies")
+companies_app = typer.Typer(help="Company registry and card company tags", no_args_is_help=True)
+app.add_typer(companies_app, name="companies")
 ops_app = typer.Typer(help="Operational health checks and alerts", no_args_is_help=True)
 app.add_typer(ops_app, name="ops")
 admin_app = typer.Typer(help="Admin magic-link login", no_args_is_help=True)
@@ -890,6 +892,46 @@ def technologies_candidates(
         labels = labels_for(session, [key for key, _ in rows])
     for key, count in rows:
         typer.echo(f"{count:5d}  {labels[key]}  ({key})")
+
+
+@companies_app.command("seed")
+def companies_seed() -> None:
+    """Upsert catalog/companies.yaml, then recompute card company keys."""
+    from news_insight.companies.catalog import load_companies
+    from news_insight.companies.service import recompute_all, seed_registry
+
+    with session_scope() as session:
+        result = seed_registry(session, load_companies())
+        changed = recompute_all(session)
+    typer.echo(
+        f"created={result.created} updated={result.updated} aliases_added={result.aliases_added} "
+        f"cards_rekeyed={changed}"
+    )
+
+
+@companies_app.command("recompute")
+def companies_recompute() -> None:
+    """Re-derive every card's company keys after registry edits."""
+    from news_insight.companies.service import recompute_all
+
+    with session_scope() as session:
+        changed = recompute_all(session)
+    typer.echo(f"cards_rekeyed={changed}")
+
+
+@companies_app.command("candidates")
+def companies_candidates(
+    days: Annotated[int, typer.Option(help="Window in days")] = 30,
+    min_count: Annotated[int, typer.Option(help="Minimum DX-relevant cards")] = 3,
+) -> None:
+    """Company names on recent cards that the registry does not know (new = no earlier report)."""
+    from news_insight.companies.service import candidates
+
+    with session_scope() as session:
+        rows = candidates(session, now=datetime.now(UTC), days=days, min_count=min_count)
+    for row in rows:
+        new = "new" if row.earlier == 0 else f"earlier={row.earlier}"
+        typer.echo(f"{row.cards:5d}  sources={row.sources:3d}  {new:12s} {row.name}  ({row.key})")
 
 
 @taxonomy_app.command("provisional")

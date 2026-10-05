@@ -159,6 +159,7 @@ def _apply_classification(card: ItemCard, draft: Classification) -> None:
     card.businesses = []  # taxonomy v2 has no business axis (column dropped after reclassification)
     card.impact, card.scope, card.relevance = draft.impact, draft.scope, draft.relevance
     card.topic_candidates = draft.topic_candidates
+    card.companies = draft.companies
     card.taxonomy_revision = TAXONOMY_REVISION
     card.classify_attempts = 0
 
@@ -209,6 +210,7 @@ _REUSED_FIELDS = (
     "scope",
     "relevance",
     "topic_candidates",
+    "companies",
     "taxonomy_revision",
 )
 

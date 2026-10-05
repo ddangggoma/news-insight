@@ -35,12 +35,15 @@ def db_engine() -> Iterator[Engine]:
     config = Config(str(API_ROOT / "alembic.ini"))
     config.attributes["database_url"] = TEST_DATABASE_URL
     command.upgrade(config, "head")
-    # the technology registry is reference data: seed it once, like production
+    # the technology and company registries are reference data: seed them once, like production
+    from news_insight.companies.catalog import load_companies
+    from news_insight.companies.service import seed_registry as seed_companies
     from news_insight.technologies.catalog import load_technologies
     from news_insight.technologies.service import seed_registry
 
     with Session(engine) as session:
         seed_registry(session, load_technologies())
+        seed_companies(session, load_companies())
         session.commit()
     yield engine
     engine.dispose()
