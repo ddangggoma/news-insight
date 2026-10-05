@@ -172,3 +172,21 @@ def test_item_detail_hides_cards_that_are_not_published(
         response = public_client.get(f"/api/public/items/{ids[title]}", headers=public_headers)
         assert response.status_code == 404
     assert public_client.get("/api/public/items/999999", headers=public_headers).status_code == 404
+
+
+def test_archive_pages_stay_out_of_the_reader(
+    public_client: TestClient,
+    public_headers: dict[str, str],
+    ids: dict[str, int],
+    db_session: Session,
+) -> None:
+    from datetime import timedelta
+
+    from news_insight.content.models import Item
+
+    item = db_session.get(Item, ids["Galaxy agent OS"])
+    assert item is not None
+    item.published_at = item.first_seen_at - timedelta(days=400)  # found today, written last year
+    db_session.flush()
+
+    assert "Galaxy agent OS" not in titles(feed(public_client, public_headers))

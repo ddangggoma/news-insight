@@ -6,7 +6,7 @@ from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import AbstractContextManager
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from sqlalchemy import and_, func, or_, select
@@ -30,8 +30,10 @@ from news_insight.cards.schemas import (
     parse_classifications,
     parse_drafts,
 )
+from news_insight.content.freshness import fresh_condition
 from news_insight.content.models import Item
 from news_insight.content.normalize import truncate
+from news_insight.sources.enums import SourceStatus
 from news_insight.sources.models import Source
 from news_insight.taxonomy.catalog import TAXONOMY_REVISION
 
@@ -49,10 +51,13 @@ def _now() -> datetime:
 def pending_condition() -> Any:
     """Card text is needed: no card yet, the item changed since its card, or a failed card
     with retries left. A taxonomy revision alone does not regenerate text (checklist CLS-2)."""
-    return or_(
-        ItemCard.id.is_(None),
-        ItemCard.input_hash != Item.content_hash,
-        and_(ItemCard.status == CardStatus.FAILED, ItemCard.attempts < MAX_ATTEMPTS),
+    return and_(
+        fresh_condition(),  # archive pages get no card (2026-10-05 audit)
+        or_(
+            ItemCard.id.is_(None),
+            ItemCard.input_hash != Item.content_hash,
+            and_(ItemCard.status == CardStatus.FAILED, ItemCard.attempts < MAX_ATTEMPTS),
+        ),
     )
 
 
@@ -62,15 +67,36 @@ def classify_pending_condition() -> Any:
         ItemCard.status == CardStatus.READY,
         ItemCard.input_hash == Item.content_hash,
         func.coalesce(ItemCard.taxonomy_revision, "") != TAXONOMY_REVISION,
+        fresh_condition(),
     )
 
 
 def pending_items(
-    session: Session, *, limit: int, exclude: set[int] | None = None
+    session: Session,
+    *,
+    limit: int,
+    exclude: set[int] | None = None,
+    unvalidated_daily_cap: int | None = None,
 ) -> list[tuple[Item, Source]]:
+    """Items needing card text, newest first. With `unvalidated_daily_cap`, a source that is not
+    yet active waits once it had that many cards in the last 24 hours, so one unvalidated feed
+    cannot spend the day's Antigravity quota (2026-10-05: sitemaps took 83 % of all cards)."""
     conditions = [pending_condition()]
     if exclude:
         conditions.append(Item.id.not_in(exclude))
+    if unvalidated_daily_cap is not None:
+        busy = (
+            select(Item.source_id)
+            .join(ItemCard, ItemCard.item_id == Item.id)
+            .join(Source, Source.id == Item.source_id)
+            .where(
+                Source.status != SourceStatus.ACTIVE,
+                ItemCard.generated_at >= func.now() - timedelta(hours=24),
+            )
+            .group_by(Item.source_id)
+            .having(func.count() >= unvalidated_daily_cap)
+        )
+        conditions.append(Item.source_id.not_in(busy))
     statement = (
         select(Item, Source)
         .join(Source, Source.id == Item.source_id)
@@ -170,6 +196,66 @@ def card_input(item: Item, source: Source, keep: list[str] | None = None) -> Car
 
 
 LOST = "preservation: lost "
+REUSED = "reuse"
+# copied from the donor card: text and classification
+_REUSED_FIELDS = (
+    "title_ko",
+    "summary_ko",
+    "keywords",
+    "field",
+    "themes",
+    "signal_type",
+    "impact",
+    "scope",
+    "relevance",
+    "topic_candidates",
+    "taxonomy_revision",
+)
+
+
+def reuse_cards(session: Session, items: list[Item], *, now: datetime) -> set[int]:
+    """Copy the ready card of an item with the same URL or the same content (2026-10-05: 7,465
+    URL copies across HN and Europe PMC query sources, 13,192 same-content pages): no engine
+    call. Returns the ids that got a card."""
+    if not items:
+        return set()
+    ids = [item.id for item in items]
+    rows = session.execute(
+        select(Item.canonical_url, Item.content_hash, ItemCard)
+        .join(ItemCard, ItemCard.item_id == Item.id)
+        .where(
+            ItemCard.status == CardStatus.READY,
+            Item.id.not_in(ids),
+            or_(
+                Item.canonical_url.in_({item.canonical_url for item in items}),
+                Item.content_hash.in_({item.content_hash for item in items}),
+            ),
+        )
+    ).tuples()
+    by_url: dict[str, ItemCard] = {}
+    by_hash: dict[str, ItemCard] = {}
+    for url, content_hash, row in rows:
+        by_url.setdefault(url, row)
+        by_hash.setdefault(content_hash, row)
+    done: set[int] = set()
+    for item in items:
+        match = by_url.get(item.canonical_url) or by_hash.get(item.content_hash)
+        if match is None:
+            continue
+        donor = match
+        card = session.scalars(select(ItemCard).where(ItemCard.item_id == item.id)).one_or_none()
+        if card is None:
+            card = ItemCard(item_id=item.id, attempts=0, summary_ko=[], keywords=[])
+            session.add(card)
+        for name in _REUSED_FIELDS:
+            setattr(card, name, getattr(donor, name))
+        card.status = CardStatus.READY
+        card.engine, card.model = REUSED, f"item:{donor.item_id}"
+        card.input_hash, card.generated_at = item.content_hash, now
+        card.attempts, card.error, card.classify_attempts = 0, None, 0
+        done.add(item.id)
+    session.flush()
+    return done
 
 
 def lost_facts(session: Session, item_ids: list[int]) -> dict[int, list[str]]:
@@ -237,6 +323,7 @@ class CardRunStats:
     classified: int = 0
     classify_failed: int = 0
     soft: int = 0  # kept on the last attempt although a fact was lost
+    reused: int = 0  # copied from a card of the same URL or content
     batches: dict[str, int] = field(default_factory=dict)
     quota: dict[str, int | None] = field(default_factory=dict)
     notes: list[str] = field(default_factory=list)
@@ -252,6 +339,7 @@ class CardPolicy:
     min_weekly: int = 10  # D18: cards may use 90 % of the weekly Antigravity limit
     min_five_hour: int = 2
     time_budget_seconds: float = 540.0
+    unvalidated_daily_cap: int | None = 40  # cards per non-active source per 24 hours
 
 
 @dataclass(frozen=True)
@@ -313,7 +401,7 @@ def run_cards(
         if engine is None:
             stats.notes.append("no engine available")
             break
-        jobs = _plan_round(open_session, policy, use_agy, attempted, classify_attempted)
+        jobs = _plan_round(open_session, policy, use_agy, attempted, classify_attempted, stats)
         if not jobs:
             break
         results = _run_jobs(engine, jobs)
@@ -355,6 +443,7 @@ def _plan_round(
     use_agy: bool,
     attempted: set[int],
     classify_attempted: set[int],
+    stats: "CardRunStats | None" = None,
 ) -> list[Job]:
     lanes = max(1, policy.agy_parallel) if use_agy else 1
     batch = policy.agy_batch if use_agy else policy.qwen_batch
@@ -365,7 +454,17 @@ def _plan_round(
         )
         # keep one lane for reclassification while new items also wait (Antigravity only)
         card_lanes = lanes - 1 if stale and lanes > 1 else lanes
-        pending = pending_items(session, limit=batch * card_lanes, exclude=attempted)
+        pending = pending_items(
+            session,
+            limit=batch * card_lanes,
+            exclude=attempted,
+            unvalidated_daily_cap=policy.unvalidated_daily_cap,
+        )
+        reused = reuse_cards(session, [item for item, _ in pending], now=_now())
+        if stats is not None:
+            stats.reused += len(reused)
+        attempted.update(reused)
+        pending = [(item, source) for item, source in pending if item.id not in reused]
         keep = lost_facts(session, [item.id for item, _ in pending])
         inputs = [card_input(item, source, keep.get(item.id)) for item, source in pending]
         jobs = [Job("card", inputs[i : i + batch]) for i in range(0, len(inputs), batch)]
@@ -478,6 +577,7 @@ def record_run(open_session: SessionScope, started_at: datetime, stats: CardRunS
             "ready": stats.ready,
             "failed": stats.failed,
             "soft": stats.soft,
+            "reused": stats.reused,
             "batches": stats.batches,
             "quota": stats.quota,
             "notes": stats.notes[:5],

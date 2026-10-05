@@ -8,6 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from news_insight.cards.models import CardStatus, ItemCard
+from news_insight.content.freshness import fresh_condition
 from news_insight.content.models import Item
 from news_insight.digest.bundle import digest_window
 from news_insight.sources.enums import STAGE_ORDER, Region, SourceStatus, Track, ValidationStage
@@ -71,6 +72,7 @@ def eligible_items(session: Session, *, briefing_date: date) -> list[int]:
             ItemCard.scope.in_(RELEVANT_SCOPES),
             Source.status != SourceStatus.PAUSED,
             Source.validation_stage.in_(stages),
+            fresh_condition(),  # archive pages are not yesterday's news
             (StoryItem.item_id.is_(None)) | (Story.representative_item_id == Item.id),
         )
         .order_by(Item.id)

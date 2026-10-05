@@ -548,6 +548,7 @@ def cards_run(
             min_weekly=settings.card_agy_min_weekly,
             min_five_hour=settings.card_agy_min_five_hour,
             time_budget_seconds=float(budget or settings.card_time_budget_seconds),
+            unvalidated_daily_cap=settings.card_unvalidated_daily_cap or None,
         )
         started = datetime.now(UTC)
         stats = run_cards(session_scope, agy=agy, qwen=qwen, policy=policy)
@@ -555,6 +556,7 @@ def cards_run(
     batches = " ".join(f"{name}={count}" for name, count in sorted(stats.batches.items()))
     typer.echo(
         f"ready={stats.ready} failed={stats.failed} kept_with_loss={stats.soft} "
+        f"reused={stats.reused} "
         f"classified={stats.classified} "
         f"batches: {batches or '-'} "
         f"quota={stats.quota or '-'}"
