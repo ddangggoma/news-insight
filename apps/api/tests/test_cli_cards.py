@@ -57,6 +57,6 @@ def test_cards_run_and_status() -> None:
 
     assert "pending=1 reclassify=0 ready=0" in before.output
     assert run.exit_code == 0, run.output
-    assert "ready=1 failed=0 kept_with_loss=0 classified=0 batches: qwen=1" in run.output
+    assert "ready=1 failed=0 kept_with_loss=0 reused=0 classified=0 batches: qwen=1" in run.output
     assert "pending=0 reclassify=0 ready=1" in after.output
     assert "last run" in after.output

@@ -194,3 +194,34 @@ def test_shared_site_suffix_is_stripped() -> None:
         "신한은행 개인정보 유출",
         "Pixel 11 review - hands on",
     ]
+
+
+def test_sitemap_skips_archive_pages_by_listing_date_and_by_page_date() -> None:
+    # 2026-10-05: sitemaps walked back through whole sites, 15 old pages a run
+    sitemap = b"""<?xml version="1.0"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<url><loc>https://www.example.co.kr/new</loc><lastmod>2026-10-03</lastmod></url>
+<url><loc>https://www.example.co.kr/old-listed</loc><lastmod>2013-05-01</lastmod></url>
+<url><loc>https://www.example.co.kr/old-undated</loc></url>
+</urlset>"""
+    old_page = ARTICLE.replace("2026-10-04T09:30:00+09:00", "2014-01-01T09:00:00+09:00")
+    fetched: list[str] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        url = str(request.url)
+        fetched.append(url)
+        if url.endswith("robots.txt"):
+            return httpx.Response(404)
+        if url.endswith("sitemap.xml"):
+            return httpx.Response(200, content=sitemap, headers={"content-type": "application/xml"})
+        body = old_page if "old-undated" in url else ARTICLE
+        return httpx.Response(200, text=body, headers={"content-type": "text/html"})
+
+    collector = SitemapCollector(mock_fetcher(handler))
+    result = collector.collect(context("https://www.example.co.kr/sitemap.xml"))
+
+    assert [item.url for item in result.items] == ["https://www.example.co.kr/new"]
+    assert not any("old-listed" in url for url in fetched)  # skipped before any fetch
+    # a source can ask for a longer window
+    longer = collector.collect(context("https://www.example.co.kr/sitemap.xml", max_age_days=10000))
+    assert len(longer.items) == 3

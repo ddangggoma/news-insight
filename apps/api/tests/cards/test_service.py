@@ -396,3 +396,61 @@ def test_retries_name_the_lost_fact_and_the_last_attempt_keeps_the_card(
     assert stats.soft == 1 and kept.status == CardStatus.READY
     assert kept.error == "preservation (kept on last attempt): lost S30"
     assert kept.title_ko == "갤럭시 출시"
+
+
+def test_archive_pages_get_no_card(db_session: Session) -> None:
+    from datetime import timedelta
+
+    seed(db_session, ["fresh", "archive"])
+    archive = db_session.scalars(select(Item).where(Item.title == "archive")).one()
+    archive.published_at = archive.first_seen_at - timedelta(days=400)  # a 2025 page found today
+    db_session.flush()
+
+    assert [item.title for item, _ in pending_items(db_session, limit=10)] == ["fresh"]
+
+
+def test_an_unvalidated_source_waits_after_its_daily_cap(db_session: Session) -> None:
+    from news_insight.sources.enums import SourceStatus
+
+    seed(db_session, ["a", "b", "c"])
+    source = db_session.scalars(select(Source).where(Source.key == "example-news")).one()
+    source.status = SourceStatus.CANDIDATE
+    db_session.flush()
+    run_cards(
+        scope_for(db_session),
+        agy=FakeAgy([FULL]),
+        qwen=None,
+        policy=CardPolicy(agy_batch=2, agy_parallel=1, unvalidated_daily_cap=2),
+    )
+    assert pending_count(db_session) == 1  # one item left for tomorrow
+    assert pending_items(db_session, limit=10, unvalidated_daily_cap=2) == []
+    source.status = SourceStatus.ACTIVE
+    db_session.flush()
+    assert len(pending_items(db_session, limit=10, unvalidated_daily_cap=2)) == 1
+
+
+def test_same_url_or_same_content_reuses_the_card(db_session: Session) -> None:
+    from news_insight.cards.service import REUSED
+
+    seed(db_session, ["original"])
+    agy = FakeAgy([FULL])
+    run_cards(scope_for(db_session), agy=agy, qwen=None, policy=POLICY)
+    original = db_session.scalars(select(Item).where(Item.title == "original")).one()
+    other = build_source(key="other-news", storage_right=StorageRight.EXCERPT_ALLOWED)
+    db_session.add(other)
+    db_session.flush()
+    ingest_items(
+        db_session,
+        other,
+        [RawItem(stable_id="copy", url=original.url, title="original (reposted)", summary="x")],
+        fetch_run=None,
+        now=NOW,
+        canary=True,
+    )
+
+    stats = run_cards(scope_for(db_session), agy=agy, qwen=None, policy=POLICY)
+
+    copy = cards(db_session)["original (reposted)"]
+    assert stats.reused == 1 and len(agy.batches) == 1  # no second engine call
+    assert copy.status == CardStatus.READY and copy.engine == REUSED
+    assert copy.title_ko == "[agy] original"

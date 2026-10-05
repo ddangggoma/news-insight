@@ -10,6 +10,7 @@ from typing import Any
 from sqlalchemy import ColumnElement, Select, Text, cast, or_
 
 from news_insight.cards.models import CardStatus, ItemCard
+from news_insight.content.freshness import fresh_condition
 from news_insight.content.models import Item
 from news_insight.public.periods import Window
 from news_insight.sources.enums import Region, Track
@@ -75,6 +76,7 @@ class ReaderFilters:
         conditions: list[ColumnElement[bool]] = [
             ItemCard.status == CardStatus.READY,
             in_current_tree(),
+            fresh_condition(),  # archive pages a sitemap found are not today's news
         ]
         scopes = SCOPES[self.scope]
         if scopes is not None:

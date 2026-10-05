@@ -6,7 +6,7 @@ at most `enrich_limit` per run and only where robots.txt allows the path.
 
 import re
 from dataclasses import dataclass, replace
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any
 from urllib.parse import urlsplit
 from urllib.robotparser import RobotFileParser
@@ -19,6 +19,10 @@ from news_insight.net.mime import HTML_MIME
 from news_insight.net.safe_fetch import DEFAULT_USER_AGENT, FetchError, FetchResponse, SafeFetcher
 
 DEFAULT_ENRICH_LIMIT = 15
+# pages older than this are archive, not news: without it a sitemap walks back through the whole
+# site 15 pages a run (2026-10-05: 71 sitemap sources added 44,601 old pages in a day)
+DEFAULT_MAX_AGE_DAYS = 14
+FETCH_BUDGET = 2  # page fetches per run, as a multiple of enrich_limit
 ROBOTS_MIME = frozenset({"text/plain", "text/html", "application/octet-stream", ""})
 ROBOTS_AGENT = DEFAULT_USER_AGENT.split("/", 1)[0]
 
@@ -101,6 +105,9 @@ def complete(
     - an og:title shared by several pages is the site name, so the anchor text wins.
     """
     limit = int(context.config.get("enrich_limit", DEFAULT_ENRICH_LIMIT))
+    max_age = float(context.config.get("max_age_days", DEFAULT_MAX_AGE_DAYS))
+    cutoff = context.now - timedelta(days=max_age) if max_age > 0 else None
+    fetches = 0
     now_fallback = context.config.get("date_fallback") == "now"
     tz = timezone_of(context.config)
     robots = robots or RobotsGate(fetcher)
@@ -112,13 +119,16 @@ def complete(
         key = stable_key(canonical)
         if key in context.known_ids or key in seen:
             continue
-        if len(kept) >= limit:
+        if len(kept) >= limit or fetches >= limit * FETCH_BUDGET:
             break
+        if cutoff is not None and candidate.published_at and candidate.published_at < cutoff:
+            continue  # dated in the listing as archive: not even fetched
         seen.add(key)
         title, published, summary = candidate.title, candidate.published_at, candidate.summary
         page_title: str | None = None
         fetched = False
         if not (title and published and summary) and robots.allows(candidate.url):
+            fetches += 1
             try:
                 response = fetcher.fetch(candidate.url, allowed_mime=HTML_MIME)
             except FetchError:
@@ -136,6 +146,8 @@ def complete(
                 published = context.now
             elif fetched:
                 continue
+        if cutoff is not None and published is not None and published < cutoff:
+            continue  # the page's own date says archive
         best = title if candidate.trusted_title and title else (page_title or title)
         if best:
             item = RawItem(
