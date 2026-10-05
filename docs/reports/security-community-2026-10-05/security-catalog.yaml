@@ -1,0 +1,124 @@
+version: 1
+sources:
+- key: the-hacker-news
+  name: The Hacker News
+  track: news
+  category: independent_media
+  access_method: feed
+  endpoint_url: https://feeds.feedburner.com/TheHackersNews
+  official_domain: thehackernews.com
+  operator: THN Media Private Limited
+  region: global_en
+  language: en
+  poll_class: news
+  dx_relevance: 'The Hacker News: 위협·취약점·사고; 보안 기술 뉴스와 기업·정책 변화 추적'
+  storage_right: excerpt_allowed
+  config:
+    country: 인도 / 국제
+    themes:
+    - security
+    publisher_group: THN Media Private Limited
+    probe_max_age_days: 30
+    max_age_days: 30
+    allowed_hosts:
+    - feeds.feedburner.com
+- key: bleepingcomputer
+  name: BleepingComputer
+  track: news
+  category: independent_media
+  access_method: feed
+  endpoint_url: https://www.bleepingcomputer.com/feed/
+  official_domain: bleepingcomputer.com
+  operator: Bleeping Computer LLC
+  region: global_en
+  language: en
+  poll_class: news
+  dx_relevance: 'BleepingComputer: 랜섬웨어·보안 사고; 보안 기술 뉴스와 기업·정책 변화 추적'
+  storage_right: excerpt_allowed
+  config:
+    country: 미국 / 국제
+    themes:
+    - security
+    publisher_group: Bleeping Computer LLC
+    probe_max_age_days: 30
+    max_age_days: 30
+- key: securityweek
+  name: SecurityWeek
+  track: news
+  category: independent_media
+  access_method: feed
+  endpoint_url: https://www.securityweek.com/feed/
+  official_domain: securityweek.com
+  operator: SecurityWeek
+  region: global_en
+  language: en
+  poll_class: news
+  dx_relevance: 'SecurityWeek: 기업 보안·취약점; 보안 기술 뉴스와 기업·정책 변화 추적'
+  storage_right: excerpt_allowed
+  config:
+    country: 미국 / 국제
+    themes:
+    - security
+    publisher_group: SecurityWeek
+    probe_max_age_days: 30
+    max_age_days: 30
+- key: dark-reading
+  name: Dark Reading
+  track: news
+  category: independent_media
+  access_method: feed
+  endpoint_url: https://www.darkreading.com/rss.xml
+  official_domain: darkreading.com
+  operator: Informa TechTarget
+  region: global_en
+  language: en
+  poll_class: news
+  dx_relevance: 'Dark Reading: 기업 보안·위협 분석; 보안 기술 뉴스와 기업·정책 변화 추적'
+  storage_right: excerpt_allowed
+  config:
+    country: 미국 / 국제
+    themes:
+    - security
+    publisher_group: Informa TechTarget
+    probe_max_age_days: 30
+    max_age_days: 30
+- key: krebs-on-security
+  name: KrebsOnSecurity
+  track: news
+  category: independent_media
+  access_method: feed
+  endpoint_url: https://krebsonsecurity.com/feed/atom/
+  official_domain: krebsonsecurity.com
+  operator: Brian Krebs
+  region: global_en
+  language: en
+  poll_class: news
+  dx_relevance: 'KrebsOnSecurity: 보안 탐사·전문 기자; 보안 기술 뉴스와 기업·정책 변화 추적'
+  storage_right: excerpt_allowed
+  config:
+    country: 미국 / 국제
+    themes:
+    - security
+    publisher_group: Brian Krebs
+    probe_max_age_days: 30
+    max_age_days: 30
+- key: boannews
+  name: 보안뉴스
+  track: news
+  category: independent_media
+  access_method: feed
+  endpoint_url: https://cdn.boannews.com/rss/gn_rss_allArticle.xml
+  official_domain: boannews.com
+  operator: 보안뉴스
+  region: kr
+  language: ko
+  poll_class: news
+  dx_relevance: '보안뉴스: 국내 보안 사건·정책·산업; 보안 기술 뉴스와 기업·정책 변화 추적'
+  storage_right: excerpt_allowed
+  config:
+    country: 한국
+    themes:
+    - security
+    publisher_group: 보안뉴스
+    probe_max_age_days: 30
+    max_age_days: 30

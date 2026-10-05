@@ -1,0 +1,48 @@
+﻿key,name,track,country,themes,method,endpoint,stage,status,collection_outcome,stored_items,metric_snapshots,reasons
+research-etri,ETRI,research_ip,한국,ai;connectivity;display_av;robotics_mobility,crawler,https://www.etri.re.kr/kor/bbs/list.etri?b_board_id=ETRI06,V3,candidate,success,13,0,
+research-kisti,KISTI,research_ip,한국,cloud_data;ai,crawler,https://www.kisti.re.kr/promote/post/news,V0,candidate,hold,0,0,robots.txt unavailable (timeout): https://www.kisti.re.kr/robots.txt
+research-riken,RIKEN,research_ip,일본,ai;frontier;health_tech,feed,https://www.riken.jp/feed/press_feed/,V3,candidate,success,50,0,
+research-aist,AIST,research_ip,일본,semis;manufacturing;energy,feed,https://www.aist.go.jp/ctl/module/mid/27/tid/75/rss.php,V3,candidate,success,6,0,
+research-nict,NICT,research_ip,일본,connectivity;security;frontier,crawler,https://www.nict.go.jp/en/press/index.html,V2,candidate,hold,0,0,only 1 recent complete items (need 3)
+research-cas,CAS,research_ip,중국,semis;frontier;ai,crawler,https://english.cas.cn/newsroom/research-news/,V3,candidate,success,18,0,
+research-iii,III,research_ip,대만,platform_sw;security;manufacturing,crawler,https://www.iii.org.tw/en/news/newsroom,V2,candidate,hold,0,0,only 0 recent complete items (need 3)
+tech-in-asia,Tech in Asia,news,싱가포르·동남아,platform_sw;cloud_data;ai,crawler,https://www.techinasia.com/,V0,candidate,hold,0,0,config.manual_review=true: terms_url review required
+research-dfki,DFKI,research_ip,독일,ai;robotics_mobility;manufacturing,crawler,https://www.dfki.de/en/web/news-media/press/press-releases,V1,candidate,hold,0,0,unexpected HTTP status 403
+pv-magazine,pv magazine,news,독일·국제판,energy,feed,https://www.pv-magazine.com/feed/,V3,candidate,success,10,0,
+electrive,electrive,news,독일·국제판,energy;robotics_mobility,feed,https://www.electrive.com/feed/,V3,candidate,success,30,0,
+research-inria,Inria,research_ip,프랑스,ai;platform_sw;security,crawler,https://www.inria.fr/en/actualites_evenements,V3,candidate,success,10,0,
+research-cea,CEA,research_ip,프랑스,semis;energy;frontier,crawler,https://www.cea.fr/english/Pages/news-list.aspx,V2,candidate,hold,0,0,only 1 recent complete items (need 3)
+research-cnrs,CNRS,research_ip,프랑스,frontier;ai;health_tech,crawler,https://www.cnrs.fr/en/newsroom,V3,candidate,success,3,0,
+research-tno,TNO,research_ip,네덜란드,connectivity;energy;manufacturing,crawler,https://www.tno.nl/en/newsroom/news/,V3,candidate,success,4,0,
+research-vtt,VTT,research_ip,핀란드,semis;energy;manufacturing,crawler,https://www.vttresearch.com/en/news-and-stories,V3,candidate,success,10,0,
+research-csem,CSEM,research_ip,스위스,semis;health_tech;display_av;frontier,crawler,https://www.csem.ch/en/news/,V2,candidate,hold,0,0,only 1 recent complete items (need 3)
+research-csiro,CSIRO,research_ip,호주,ai;energy;manufacturing,crawler,https://www.csiro.au/en/News,V3,candidate,success,5,0,
+research-nrc-canada,NRC Canada,research_ip,캐나다,semis;frontier;manufacturing,crawler,https://nrc.canada.ca/en/stories,V0,candidate,hold,0,0,robots.txt unavailable (timeout): https://nrc.canada.ca/robots.txt
+iet-e-t,IET E&T,news,영국,connectivity;energy;manufacturing,crawler,https://eandt.theiet.org/news,V2,candidate,hold,0,0,only 0 recent complete items (need 3)
+optics-org,optics.org,news,국제·국가확인보류,display_av;frontier;semis,crawler,https://optics.org/news,V3,candidate,success,10,0,
+display-daily,Display Daily,news,국제·국가확인보류,display_av,crawler,https://displaydaily.com/,V0,candidate,hold,0,0,config.manual_review=true: terms_url review required
+healthcare-it-news,Healthcare IT News,news,미국·국제판,health_tech;security,crawler,https://www.healthcareitnews.com/,V0,candidate,hold,0,0,config.manual_review=true: terms_url review required
+mobihealthnews,MobiHealthNews,news,미국·국제판,health_tech,crawler,https://www.mobihealthnews.com/,V0,candidate,hold,0,0,config.manual_review=true: terms_url review required
+infoq,InfoQ,news,국제·국가확인보류,platform_sw;cloud_data;ai,feed,https://feed.infoq.com/,V3,candidate,success,15,0,
+pv-magazine-india,pv magazine India,news,인도 시장·독일 발행그룹,energy,feed,https://www.pv-magazine-india.com/feed/,V3,candidate,success,10,0,
+betakit,BetaKit,news,캐나다,platform_sw;ai,feed,https://betakit.com/feed/,V3,candidate,success,50,0,
+itnews-au,iTnews Australia,news,호주,cloud_data;security,feed,https://www.itnews.com.au/RSS/rss.ashx,V3,candidate,success,20,0,
+lemondeinformatique,Le Monde Informatique,news,프랑스,cloud_data;security,feed,https://www.lemondeinformatique.fr/flux-rss/thematique/toutes-les-actualites/rss.xml,V3,candidate,success,20,0,
+yourstory,YourStory,news,인도,ai;platform_sw,feed,https://yourstory.com/feed,V3,candidate,success,20,0,
+techcabal,TechCabal,news,나이지리아·아프리카,platform_sw;cloud_data,feed,https://techcabal.com/feed/,V3,candidate,success,10,0,
+github-trending-repositories-daily,GitHub Trending repositories daily,oss,global,,crawler,https://github.com/trending?since=daily,V3,candidate,success,12,12,
+github-trending-repositories-weekly,GitHub Trending repositories weekly,oss,global,,crawler,https://github.com/trending?since=weekly,V3,candidate,success,21,21,
+github-trending-repositories-monthly,GitHub Trending repositories monthly,oss,global,,crawler,https://github.com/trending?since=monthly,V3,candidate,success,23,23,
+github-trending-developers-daily,GitHub Trending developers daily,oss,global,,crawler,https://github.com/trending/developers?since=daily,V3,candidate,success,25,25,
+github-trending-developers-weekly,GitHub Trending developers weekly,oss,global,,crawler,https://github.com/trending/developers?since=weekly,V3,candidate,success,25,25,
+github-trending-developers-monthly,GitHub Trending developers monthly,oss,global,,crawler,https://github.com/trending/developers?since=monthly,V3,candidate,success,25,25,
+research-a-star-research,A*STAR Research,research_ip,싱가포르,semis;health_tech;manufacturing,feed,https://research.a-star.edu.sg/feed/,V3,candidate,success,12,0,
+epo-publication-server,EPO European Publication Server,research_ip,EP,,research_api,https://data.epo.org/publication-server/rest/v1.2/publication-dates,V3,candidate,success,20,0,
+crossref-journal-nature-electronics,Nature Electronics (Crossref),research_ip,international,,research_api,"https://api.crossref.org/works?filter=issn:2520-1131,from-pub-date:{today-30d},until-pub-date:{today}&sort=published&order=desc&rows=20",V3,candidate,success,20,20,
+crossref-journal-nature-biomedical-engineering,Nature Biomedical Engineering (Crossref),research_ip,international,,research_api,"https://api.crossref.org/works?filter=issn:2157-846X,from-pub-date:{today-30d},until-pub-date:{today}&sort=published&order=desc&rows=20",V3,candidate,success,18,18,
+crossref-journal-nature-machine-intelligence,Nature Machine Intelligence (Crossref),research_ip,international,,research_api,"https://api.crossref.org/works?filter=issn:2522-5839,from-pub-date:{today-30d},until-pub-date:{today}&sort=published&order=desc&rows=20",V3,candidate,success,11,11,
+crossref-journal-communications-engineering,Communications Engineering (Crossref),research_ip,international,,research_api,"https://api.crossref.org/works?filter=issn:2731-3395,from-pub-date:{today-30d},until-pub-date:{today}&sort=published&order=desc&rows=20",V3,candidate,success,20,20,
+crossref-journal-npj-robotics,npj Robotics (Crossref),research_ip,international,,research_api,"https://api.crossref.org/works?filter=issn:2731-4278,from-pub-date:{today-30d},until-pub-date:{today}&sort=published&order=desc&rows=20",V2,candidate,hold,0,0,only 2 recent complete items (need 3)
+crossref-journal-microsystems-nanoengineering,Microsystems & Nanoengineering (Crossref),research_ip,international,,research_api,"https://api.crossref.org/works?filter=issn:2055-7434,from-pub-date:{today-30d},until-pub-date:{today}&sort=published&order=desc&rows=20",V3,candidate,success,20,20,
+crossref-journal-npj-flexible-electronics,npj Flexible Electronics (Crossref),research_ip,international,,research_api,"https://api.crossref.org/works?filter=issn:2397-4621,from-pub-date:{today-30d},until-pub-date:{today}&sort=published&order=desc&rows=20",V3,candidate,success,6,6,
+crossref-journal-nature-photonics,Nature Photonics (Crossref),research_ip,international,,research_api,"https://api.crossref.org/works?filter=issn:1749-4885,from-pub-date:{today-30d},until-pub-date:{today}&sort=published&order=desc&rows=20",V3,candidate,success,20,20,

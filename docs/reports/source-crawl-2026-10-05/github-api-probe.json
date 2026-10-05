@@ -1,0 +1,55 @@
+{
+  "url": "https://api.github.com/search/repositories?q=stars%3A%3E100&sort=updated&order=desc&per_page=3",
+  "status": 200,
+  "total_count": 478544,
+  "incomplete_results": false,
+  "items": [
+    {
+      "id": 1196798377,
+      "full_name": "lzwei196/KISS-Knowledge-Infrastructure-for-Scientific-Simulation",
+      "html_url": "https://github.com/lzwei196/KISS-Knowledge-Infrastructure-for-Scientific-Simulation",
+      "language": "Python",
+      "stargazers_count": 200,
+      "forks_count": 6,
+      "open_issues_count": 0,
+      "pushed_at": "2026-10-05T12:32:16Z",
+      "archived": false,
+      "topics": []
+    },
+    {
+      "id": 746699042,
+      "full_name": "calimero-network/core",
+      "html_url": "https://github.com/calimero-network/core",
+      "language": "Rust",
+      "stargazers_count": 171,
+      "forks_count": 35,
+      "open_issues_count": 177,
+      "pushed_at": "2026-10-05T12:32:15Z",
+      "archived": false,
+      "topics": []
+    },
+    {
+      "id": 1158548143,
+      "full_name": "xorbitsai/xagent",
+      "html_url": "https://github.com/xorbitsai/xagent",
+      "language": "Python",
+      "stargazers_count": 303,
+      "forks_count": 69,
+      "open_issues_count": 917,
+      "pushed_at": "2026-10-05T12:32:15Z",
+      "archived": false,
+      "topics": [
+        "agent",
+        "agentic-ai",
+        "claude",
+        "gemini",
+        "llm",
+        "no-code",
+        "openai",
+        "orchestration",
+        "xinference"
+      ]
+    }
+  ],
+  "rate_limit_remaining": "9"
+}

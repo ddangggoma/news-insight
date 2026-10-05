@@ -32,6 +32,13 @@ def dotted_get(value: Any, path: str) -> Any:
 def parse_datetime(value: Any, *, assume_tz: tzinfo = UTC) -> datetime | None:
     if value is None or isinstance(value, bool):
         return None
+    if isinstance(value, list | tuple):
+        if len(value) != 3 or any(type(part) is not int for part in value):
+            return None  # partial dates are unknown; never invent a day or month
+        try:
+            return datetime(value[0], value[1], value[2], tzinfo=assume_tz).astimezone(UTC)
+        except ValueError:
+            return None
     if isinstance(value, int | float):
         seconds = value / 1000 if value > EPOCH_MS_THRESHOLD else value
         return datetime.fromtimestamp(seconds, tz=UTC)

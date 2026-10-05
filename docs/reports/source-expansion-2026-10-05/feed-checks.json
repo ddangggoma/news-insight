@@ -1,0 +1,175 @@
+[
+  {
+    "name": "RIKEN",
+    "url": "https://www.riken.jp/en/feed/press_feed/",
+    "checked_at": "2026-10-05T12:17:07.643603+00:00",
+    "status": 200,
+    "content_type": "application/xml;charset=UTF-8",
+    "final_url": "https://www.riken.jp/en/feed/press_feed/",
+    "entries": 50,
+    "title": "press news",
+    "dates": [
+      "Thu, 3 Sep 2026 00:00:00 +0900",
+      "Fri, 28 Aug 2026 00:00:00 +0900",
+      "Wed, 12 Aug 2026 00:00:00 +0900"
+    ],
+    "sample_links": [
+      "https://www.riken.jp/en/news_pubs/research_news/closeup/2026/20260904_1/index.html",
+      "https://www.riken.jp/en/news_pubs/research_news/closeup/2026/20260828_1/index.html",
+      "https://www.riken.jp/en/news_pubs/research_news/pr/2026/20260807_2/index.html"
+    ],
+    "parse_warning": false
+  },
+  {
+    "name": "AIST",
+    "url": "https://www.aist.go.jp/ctl/module/mid/185/tid/5789/rss.php",
+    "checked_at": "2026-10-05T12:17:07.644096+00:00",
+    "status": 200,
+    "content_type": "application/rss+xml; charset=utf-8",
+    "final_url": "https://www.aist.go.jp/ctl/module/mid/185/tid/5789/rss.php",
+    "entries": 0,
+    "title": "AIST： 産業技術総合研究所",
+    "dates": [],
+    "sample_links": [],
+    "parse_warning": false
+  },
+  {
+    "name": "A*STAR Research",
+    "url": "https://research.a-star.edu.sg/feed/",
+    "checked_at": "2026-10-05T12:17:07.644230+00:00",
+    "status": 200,
+    "content_type": "application/rss+xml; charset=UTF-8",
+    "final_url": "https://research.a-star.edu.sg/feed/",
+    "entries": 12,
+    "title": "A*STAR Research",
+    "dates": [
+      "Tue, 29 Sep 2026 00:02:11 +0000",
+      "Fri, 25 Sep 2026 00:00:12 +0000",
+      "Wed, 23 Sep 2026 00:00:17 +0000"
+    ],
+    "sample_links": [
+      "https://research.a-star.edu.sg/articles/highlights/a-second-job-in-antifungal-defence/",
+      "https://research.a-star.edu.sg/articles/highlights/motion-matters-of-the-heart/",
+      "https://research.a-star.edu.sg/articles/highlights/mapping-cancers-metabolic-landscape/"
+    ],
+    "parse_warning": false
+  },
+  {
+    "name": "pv magazine",
+    "url": "https://www.pv-magazine.com/feed/",
+    "checked_at": "2026-10-05T12:17:07.783938+00:00",
+    "status": 200,
+    "content_type": "application/rss+xml; charset=UTF-8",
+    "final_url": "https://www.pv-magazine.com/feed/",
+    "entries": 10,
+    "title": "pv magazine Global",
+    "dates": [
+      "Mon, 05 Oct 2026 12:15:00 +0000",
+      "Mon, 05 Oct 2026 11:13:01 +0000",
+      "Mon, 05 Oct 2026 09:49:55 +0000"
+    ],
+    "sample_links": [
+      "https://www.pv-magazine.com/2026/10/05/perovskite-may-leak-less-lead-than-lead-solder-silicon-say-scientists/",
+      "https://www.pv-magazine.com/2026/10/05/digital-twin-tech-offers-anti-involution-strategies-for-chinas-pv-industry/",
+      "https://www.pv-magazine.com/2026/10/05/eu-grants-cross-border-solar-wind-project-priority-status/"
+    ],
+    "parse_warning": false
+  },
+  {
+    "name": "electrive EN",
+    "url": "https://www.electrive.com/feed/",
+    "checked_at": "2026-10-05T12:17:07.957186+00:00",
+    "status": 200,
+    "content_type": "application/rss+xml; charset=UTF-8",
+    "final_url": "https://www.electrive.com/feed/",
+    "entries": 30,
+    "title": "electrive.com",
+    "dates": [
+      "Mon, 05 Oct 2026 12:00:00 +0000",
+      "Mon, 05 Oct 2026 11:38:00 +0000",
+      "Mon, 05 Oct 2026 11:08:00 +0000"
+    ],
+    "sample_links": [
+      "https://www.electrive.com/2026/10/05/lg-energy-solution-signs-mou-with-us-startup-indigotech/",
+      "https://www.electrive.com/2026/10/05/catl-opens-largest-ning-service-centre-outside-asia-in-oslo/",
+      "https://www.electrive.com/2026/10/05/bmw-ix5-ix3-40-xdrive-order-start-and-os-x-update/"
+    ],
+    "parse_warning": false
+  },
+  {
+    "name": "electrive DE",
+    "url": "https://www.electrive.net/feed/",
+    "checked_at": "2026-10-05T12:17:08.088722+00:00",
+    "status": 200,
+    "content_type": "application/rss+xml; charset=UTF-8",
+    "final_url": "https://www.electrive.net/feed/",
+    "entries": 30,
+    "title": "electrive.net",
+    "dates": [
+      "Mon, 05 Oct 2026 12:00:00 +0000",
+      "Mon, 05 Oct 2026 11:30:00 +0000",
+      "Mon, 05 Oct 2026 11:00:00 +0000"
+    ],
+    "sample_links": [
+      "https://www.electrive.net/2026/10/05/denza-z9s-neue-elektro-limousine/",
+      "https://www.electrive.net/2026/10/05/qwello-uebernimmt-mehrheit-an-groen-eco-in-den-niederlanden/",
+      "https://www.electrive.net/2026/10/05/catl-ning-service-zentrum-in-oslo/"
+    ],
+    "parse_warning": false
+  },
+  {
+    "name": "Inria",
+    "url": "https://www.inria.fr/en/news_events/rss.xml",
+    "checked_at": "2026-10-05T12:17:08.581541+00:00",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "final_url": "https://www.inria.fr/en/actualites_evenements",
+    "entries": 0,
+    "title": null,
+    "dates": [],
+    "sample_links": [],
+    "parse_warning": true
+  },
+  {
+    "name": "InfoQ",
+    "url": "https://feed.infoq.com/",
+    "checked_at": "2026-10-05T12:17:08.898141+00:00",
+    "status": 200,
+    "content_type": "application/xml;charset=utf-8",
+    "final_url": "https://feed.infoq.com/",
+    "entries": 15,
+    "title": "InfoQ",
+    "dates": [
+      "Mon, 05 Oct 2026 11:19:00 GMT",
+      "Mon, 05 Oct 2026 11:00:00 GMT",
+      "Mon, 05 Oct 2026 11:00:00 GMT"
+    ],
+    "sample_links": [
+      "https://www.infoq.com/presentations/elastic-ai-agent-evaluations/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=global",
+      "https://www.infoq.com/articles/platform-engineering-playbook-production-llms/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=global",
+      "https://www.infoq.com/podcasts/future-cybersecurity-hardware-memory-safety/?utm_campaign=infoq_content&utm_source=infoq&utm_medium=feed&utm_term=global"
+    ],
+    "parse_warning": false
+  },
+  {
+    "name": "pv magazine India",
+    "url": "https://www.pv-magazine-india.com/feed/",
+    "checked_at": "2026-10-05T12:17:09.034763+00:00",
+    "status": 200,
+    "content_type": "application/rss+xml; charset=UTF-8",
+    "final_url": "https://www.pv-magazine-india.com/feed/",
+    "entries": 10,
+    "title": "pv magazine India",
+    "dates": [
+      "Mon, 05 Oct 2026 10:47:00 +0000",
+      "Mon, 05 Oct 2026 08:47:18 +0000",
+      "Mon, 05 Oct 2026 07:46:03 +0000"
+    ],
+    "sample_links": [
+      "https://www.pv-magazine-india.com/2026/10/05/ultratech-cement-surpasses-2-gw-of-green-energy-capacity-for-captive-use/",
+      "https://www.pv-magazine-india.com/2026/10/05/solex-energy-secures-inr-75-96-crore-order-for-n-type-topcon-solar-modules/",
+      "https://www.pv-magazine-india.com/2026/10/05/german-startup-wins-grant-for-grid-charging-sodium-ion-home-battery/"
+    ],
+    "parse_warning": false
+  }
+]

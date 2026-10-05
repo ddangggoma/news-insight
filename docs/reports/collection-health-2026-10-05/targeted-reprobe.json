@@ -1,0 +1,72 @@
+[
+  {
+    "key": "ericsson-blog",
+    "url": "https://www.ericsson.com/en/blog/feed?disableLocationDetect=true",
+    "kind": "feed",
+    "status": 403,
+    "mime": "text/html",
+    "bytes": 5603,
+    "elapsed_ms": 43
+  },
+  {
+    "key": "nature-electronics",
+    "url": "https://www.nature.com/natelectron.rss",
+    "kind": "feed",
+    "error_code": "mime",
+    "error": "unexpected content type 'text/html'"
+  },
+  {
+    "key": "phonearena",
+    "url": "https://www.phonearena.com/feed",
+    "kind": "feed",
+    "status": 403,
+    "mime": "text/html",
+    "bytes": 5506,
+    "elapsed_ms": 33
+  },
+  {
+    "key": "samsung-newsroom-kr",
+    "url": "https://news.samsung.com/kr/feed",
+    "kind": "feed",
+    "status": 200,
+    "mime": "text/xml",
+    "bytes": 214344,
+    "elapsed_ms": 53,
+    "entries": 20,
+    "parse_warning": false
+  },
+  {
+    "key": "stackexchange-electronics",
+    "url": "https://api.stackexchange.com/2.3/questions?site=electronics&sort=creation&order=desc&pagesize=30",
+    "kind": "json_api",
+    "status": 200,
+    "mime": "application/json",
+    "bytes": 22059,
+    "elapsed_ms": 305
+  },
+  {
+    "key": "tmtpost",
+    "url": "https://www.tmtpost.com/feed",
+    "kind": "feed",
+    "status": 200,
+    "mime": "text/xml",
+    "bytes": 262430,
+    "elapsed_ms": 1124,
+    "entries": 16,
+    "parse_warning": false
+  },
+  {
+    "key": "tomsguide",
+    "url": "https://www.tomsguide.com/feeds.xml",
+    "kind": "feed",
+    "error_code": "too_large",
+    "error": "response exceeds 5242880 bytes"
+  },
+  {
+    "key": "samsung-robots",
+    "url": "https://news.samsung.com/robots.txt",
+    "kind": "robots",
+    "error_code": "timeout",
+    "error": "timed out fetching https://news.samsung.com/robots.txt"
+  }
+]

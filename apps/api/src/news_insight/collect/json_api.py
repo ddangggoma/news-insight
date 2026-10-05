@@ -18,6 +18,7 @@ from news_insight.collect.contracts import (
     RawItem,
     majority_incomplete,
 )
+from news_insight.collect.epo_publications import collect_publications
 from news_insight.collect.fields import dotted_get, parse_datetime, text_or_none
 from news_insight.collect.http import fetch_checked, request_headers
 from news_insight.collect.macros import expand_macros
@@ -49,6 +50,8 @@ class JsonApiCollector:
         self._fetcher = fetcher
 
     def collect(self, context: CollectContext) -> CollectResult:
+        if context.config.get("mode") == "epo_publications":
+            return collect_publications(self._fetcher, context)
         url = expand_macros(str(context.config.get("url") or context.endpoint_url), now=context.now)
         response = fetch_checked(
             self._fetcher, url, allowed_mime=JSON_MIME, headers=request_headers(context)

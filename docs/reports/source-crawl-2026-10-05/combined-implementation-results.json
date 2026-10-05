@@ -1,0 +1,2402 @@
+[
+  {
+    "key": "research-etri",
+    "endpoint": "https://www.etri.re.kr/kor/bbs/list.etri?b_board_id=ETRI06",
+    "started_at": "2026-10-05T13:12:03.922546+00:00",
+    "checks": [],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 8,
+      "items_new": 0,
+      "items_updated": 0,
+      "items_unchanged": 8,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 282,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 13,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T13:12:04.246064+00:00"
+  },
+  {
+    "key": "research-kisti",
+    "endpoint": "https://www.kisti.re.kr/promote/post/news",
+    "started_at": "2026-10-05T13:00:49.865799+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "www.kisti.re.kr"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "failed",
+        "reasons": [
+          "robots.txt unavailable (timeout): https://www.kisti.re.kr/robots.txt"
+        ],
+        "metrics": {
+          "auto_approved": false,
+          "robots": "robots.txt unavailable (timeout): https://www.kisti.re.kr/robots.txt",
+          "storage_right": "excerpt_allowed"
+        }
+      }
+    ],
+    "stage": "V0",
+    "status": "candidate",
+    "stored_items": 0,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T13:01:04.933659+00:00"
+  },
+  {
+    "key": "research-riken",
+    "endpoint": "https://www.riken.jp/feed/press_feed/",
+    "started_at": "2026-10-05T13:12:04.246505+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "www.riken.jp"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "feed reader: robots.txt not applied to the feed (no robots.txt (404): https://www.riken.jp/robots.txt)",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/xml",
+          "bytes": 21652,
+          "redirects": 0,
+          "elapsed_ms": 52
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "entries": 50,
+          "complete": 50,
+          "recent": 27
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 50,
+      "items_new": 50,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 15,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 50,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T13:12:07.331095+00:00"
+  },
+  {
+    "key": "research-aist",
+    "endpoint": "https://www.aist.go.jp/ctl/module/mid/27/tid/75/rss.php",
+    "started_at": "2026-10-05T13:12:07.331376+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "www.aist.go.jp"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "feed reader: robots.txt not applied to the feed (robots.txt allows /ctl/module/mid/27/tid/75/rss.php)",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/rss+xml",
+          "bytes": 3516,
+          "redirects": 0,
+          "elapsed_ms": 174
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "entries": 6,
+          "complete": 6,
+          "recent": 6
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 6,
+      "items_new": 6,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 26,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 6,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T13:12:10.398574+00:00"
+  },
+  {
+    "key": "research-nict",
+    "endpoint": "https://www.nict.go.jp/en/press/index.html",
+    "started_at": "2026-10-05T13:01:13.258053+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "www.nict.go.jp"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "no robots.txt (404): https://www.nict.go.jp/robots.txt",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "text/html",
+          "bytes": 32268,
+          "redirects": 0,
+          "elapsed_ms": 97
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "failed",
+        "reasons": [
+          "only 1 recent complete items (need 3)"
+        ],
+        "metrics": {
+          "items": 1,
+          "dated": 1,
+          "recent": 1
+        }
+      }
+    ],
+    "stage": "V2",
+    "status": "candidate",
+    "stored_items": 0,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T13:01:26.390549+00:00"
+  },
+  {
+    "key": "research-cas",
+    "endpoint": "https://english.cas.cn/newsroom/research-news/",
+    "started_at": "2026-10-05T13:01:26.390888+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "english.cas.cn"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "no robots.txt (404): https://english.cas.cn/robots.txt",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "text/html",
+          "bytes": 77767,
+          "redirects": 0,
+          "elapsed_ms": 251
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "items": 18,
+          "dated": 18,
+          "recent": 18
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 18,
+      "items_new": 18,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 254,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 18,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T13:01:29.691987+00:00"
+  },
+  {
+    "key": "research-iii",
+    "endpoint": "https://www.iii.org.tw/en/news/newsroom",
+    "started_at": "2026-10-05T13:01:29.692734+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "www.iii.org.tw"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "robots.txt allows /en/news/newsroom",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "text/html",
+          "bytes": 85937,
+          "redirects": 1,
+          "elapsed_ms": 1140
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "failed",
+        "reasons": [
+          "only 0 recent complete items (need 3)"
+        ],
+        "metrics": {
+          "items": 0,
+          "dated": 0,
+          "recent": 0
+        }
+      }
+    ],
+    "stage": "V2",
+    "status": "candidate",
+    "stored_items": 0,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T13:01:35.293198+00:00"
+  },
+  {
+    "key": "tech-in-asia",
+    "endpoint": "https://www.techinasia.com/",
+    "started_at": "2026-10-05T13:01:35.294212+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "www.techinasia.com"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "failed",
+        "reasons": [
+          "config.manual_review=true: terms_url review required"
+        ],
+        "metrics": {
+          "auto_approved": false
+        }
+      }
+    ],
+    "stage": "V0",
+    "status": "candidate",
+    "stored_items": 0,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T13:01:35.303590+00:00"
+  },
+  {
+    "key": "research-dfki",
+    "endpoint": "https://www.dfki.de/en/web/news-media/press/press-releases",
+    "started_at": "2026-10-05T13:01:35.304253+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "www.dfki.de"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "no robots.txt (403): https://www.dfki.de/robots.txt",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "failed",
+        "reasons": [
+          "unexpected HTTP status 403"
+        ],
+        "metrics": {
+          "status": 403,
+          "content_type": "text/html",
+          "bytes": 5601,
+          "redirects": 0,
+          "elapsed_ms": 52
+        }
+      }
+    ],
+    "stage": "V1",
+    "status": "candidate",
+    "stored_items": 0,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T13:01:36.368404+00:00"
+  },
+  {
+    "key": "pv-magazine",
+    "endpoint": "https://www.pv-magazine.com/feed/",
+    "started_at": "2026-10-05T13:01:36.369040+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "www.pv-magazine.com"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "feed reader: robots.txt not applied to the feed (robots.txt allows /feed/)",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/rss+xml",
+          "bytes": 72569,
+          "redirects": 0,
+          "elapsed_ms": 1655
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "entries": 10,
+          "complete": 10,
+          "recent": 10
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 10,
+      "items_new": 10,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 847,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 10,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T13:01:40.939265+00:00"
+  },
+  {
+    "key": "electrive",
+    "endpoint": "https://www.electrive.com/feed/",
+    "started_at": "2026-10-05T13:01:40.939858+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "www.electrive.com"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "feed reader: robots.txt not applied to the feed (robots.txt allows /feed/)",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/rss+xml",
+          "bytes": 52037,
+          "redirects": 0,
+          "elapsed_ms": 613
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "entries": 30,
+          "complete": 30,
+          "recent": 30
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 30,
+      "items_new": 30,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 299,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 30,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T13:01:44.302715+00:00"
+  },
+  {
+    "key": "research-inria",
+    "endpoint": "https://www.inria.fr/en/actualites_evenements",
+    "started_at": "2026-10-05T13:01:44.303305+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "www.inria.fr"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "robots.txt allows /en/actualites_evenements",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "text/html",
+          "bytes": 377606,
+          "redirects": 0,
+          "elapsed_ms": 2292
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "items": 10,
+          "dated": 10,
+          "recent": 10
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 10,
+      "items_new": 10,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 667,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 10,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T13:02:15.798378+00:00"
+  },
+  {
+    "key": "research-cea",
+    "endpoint": "https://www.cea.fr/english/Pages/news-list.aspx",
+    "started_at": "2026-10-05T13:02:15.799009+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "www.cea.fr"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "robots.txt allows /english/Pages/news-list.aspx",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "text/html",
+          "bytes": 95393,
+          "redirects": 0,
+          "elapsed_ms": 1135
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "failed",
+        "reasons": [
+          "only 1 recent complete items (need 3)"
+        ],
+        "metrics": {
+          "items": 1,
+          "dated": 1,
+          "recent": 1
+        }
+      }
+    ],
+    "stage": "V2",
+    "status": "candidate",
+    "stored_items": 0,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T13:02:30.191822+00:00"
+  },
+  {
+    "key": "research-cnrs",
+    "endpoint": "https://www.cnrs.fr/en/newsroom",
+    "started_at": "2026-10-05T13:02:30.193912+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "www.cnrs.fr"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "robots.txt allows /en/newsroom",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "text/html",
+          "bytes": 75145,
+          "redirects": 0,
+          "elapsed_ms": 1684
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "items": 3,
+          "dated": 3,
+          "recent": 3
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 3,
+      "items_new": 3,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 279,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 3,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T13:02:42.243874+00:00"
+  },
+  {
+    "key": "research-tno",
+    "endpoint": "https://www.tno.nl/en/newsroom/news/",
+    "started_at": "2026-10-05T13:02:42.245236+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "www.tno.nl"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "robots.txt allows /en/newsroom/news/",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "text/html",
+          "bytes": 143411,
+          "redirects": 0,
+          "elapsed_ms": 864
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "items": 4,
+          "dated": 4,
+          "recent": 4
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 4,
+      "items_new": 4,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 69,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 4,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T13:02:59.668765+00:00"
+  },
+  {
+    "key": "research-vtt",
+    "endpoint": "https://www.vttresearch.com/en/news-and-stories",
+    "started_at": "2026-10-05T13:02:59.670100+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "www.vttresearch.com"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "robots.txt allows /en/news-and-stories",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "text/html",
+          "bytes": 251808,
+          "redirects": 1,
+          "elapsed_ms": 1398
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "items": 10,
+          "dated": 10,
+          "recent": 10
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 10,
+      "items_new": 10,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 651,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 10,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T13:03:26.104515+00:00"
+  },
+  {
+    "key": "research-csem",
+    "endpoint": "https://www.csem.ch/en/news/",
+    "started_at": "2026-10-05T13:03:26.105489+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "www.csem.ch"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "robots.txt allows /en/news/",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "text/html",
+          "bytes": 219476,
+          "redirects": 0,
+          "elapsed_ms": 1350
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "failed",
+        "reasons": [
+          "only 1 recent complete items (need 3)"
+        ],
+        "metrics": {
+          "items": 1,
+          "dated": 1,
+          "recent": 1
+        }
+      }
+    ],
+    "stage": "V2",
+    "status": "candidate",
+    "stored_items": 0,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T13:03:39.261363+00:00"
+  },
+  {
+    "key": "research-csiro",
+    "endpoint": "https://www.csiro.au/en/News",
+    "started_at": "2026-10-05T13:03:39.262772+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "www.csiro.au"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "robots.txt allows /en/News",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "text/html",
+          "bytes": 130300,
+          "redirects": 0,
+          "elapsed_ms": 1214
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "items": 5,
+          "dated": 5,
+          "recent": 5
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 5,
+      "items_new": 5,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 1199,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 5,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T13:04:02.176009+00:00"
+  },
+  {
+    "key": "research-nrc-canada",
+    "endpoint": "https://nrc.canada.ca/en/stories",
+    "started_at": "2026-10-05T13:04:02.176781+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "nrc.canada.ca"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "failed",
+        "reasons": [
+          "robots.txt unavailable (timeout): https://nrc.canada.ca/robots.txt"
+        ],
+        "metrics": {
+          "auto_approved": false,
+          "robots": "robots.txt unavailable (timeout): https://nrc.canada.ca/robots.txt",
+          "storage_right": "excerpt_allowed"
+        }
+      }
+    ],
+    "stage": "V0",
+    "status": "candidate",
+    "stored_items": 0,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T13:04:17.439514+00:00"
+  },
+  {
+    "key": "iet-e-t",
+    "endpoint": "https://eandt.theiet.org/news",
+    "started_at": "2026-10-05T13:04:17.440310+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "eandt.theiet.org"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "robots.txt allows /news",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "text/html",
+          "bytes": 195096,
+          "redirects": 0,
+          "elapsed_ms": 1075
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "failed",
+        "reasons": [
+          "only 0 recent complete items (need 3)"
+        ],
+        "metrics": {
+          "items": 10,
+          "dated": 0,
+          "recent": 0
+        }
+      }
+    ],
+    "stage": "V2",
+    "status": "candidate",
+    "stored_items": 0,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T13:04:34.224944+00:00"
+  },
+  {
+    "key": "optics-org",
+    "endpoint": "https://optics.org/news",
+    "started_at": "2026-10-05T13:04:34.226577+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "optics.org"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "no robots.txt (404): https://optics.org/robots.txt",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "text/html",
+          "bytes": 72345,
+          "redirects": 0,
+          "elapsed_ms": 270
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "items": 10,
+          "dated": 10,
+          "recent": 10
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 10,
+      "items_new": 10,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 167,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 10,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T13:05:00.104710+00:00"
+  },
+  {
+    "key": "display-daily",
+    "endpoint": "https://displaydaily.com/",
+    "started_at": "2026-10-05T13:05:00.106196+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "displaydaily.com"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "failed",
+        "reasons": [
+          "config.manual_review=true: terms_url review required"
+        ],
+        "metrics": {
+          "auto_approved": false
+        }
+      }
+    ],
+    "stage": "V0",
+    "status": "candidate",
+    "stored_items": 0,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T13:05:00.113497+00:00"
+  },
+  {
+    "key": "healthcare-it-news",
+    "endpoint": "https://www.healthcareitnews.com/",
+    "started_at": "2026-10-05T13:05:00.114850+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "www.healthcareitnews.com"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "failed",
+        "reasons": [
+          "config.manual_review=true: terms_url review required"
+        ],
+        "metrics": {
+          "auto_approved": false
+        }
+      }
+    ],
+    "stage": "V0",
+    "status": "candidate",
+    "stored_items": 0,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T13:05:00.122153+00:00"
+  },
+  {
+    "key": "mobihealthnews",
+    "endpoint": "https://www.mobihealthnews.com/",
+    "started_at": "2026-10-05T13:05:00.123200+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "www.mobihealthnews.com"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "failed",
+        "reasons": [
+          "config.manual_review=true: terms_url review required"
+        ],
+        "metrics": {
+          "auto_approved": false
+        }
+      }
+    ],
+    "stage": "V0",
+    "status": "candidate",
+    "stored_items": 0,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T13:05:00.130504+00:00"
+  },
+  {
+    "key": "infoq",
+    "endpoint": "https://feed.infoq.com/",
+    "started_at": "2026-10-05T13:05:00.131466+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "feed.infoq.com"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "feed reader: robots.txt not applied to the feed (no robots.txt (406): https://feed.infoq.com/robots.txt)",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/xml",
+          "bytes": 24669,
+          "redirects": 0,
+          "elapsed_ms": 192
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "entries": 15,
+          "complete": 15,
+          "recent": 15
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 15,
+      "items_new": 15,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 164,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 15,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T13:05:03.364578+00:00"
+  },
+  {
+    "key": "pv-magazine-india",
+    "endpoint": "https://www.pv-magazine-india.com/feed/",
+    "started_at": "2026-10-05T13:05:03.366075+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "www.pv-magazine-india.com"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "feed reader: robots.txt not applied to the feed (robots.txt allows /feed/)",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/rss+xml",
+          "bytes": 44297,
+          "redirects": 0,
+          "elapsed_ms": 785
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "entries": 10,
+          "complete": 10,
+          "recent": 10
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 10,
+      "items_new": 10,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 361,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 10,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T13:05:06.755920+00:00"
+  },
+  {
+    "key": "betakit",
+    "endpoint": "https://betakit.com/feed/",
+    "started_at": "2026-10-05T13:05:06.756848+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "betakit.com"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "feed reader: robots.txt not applied to the feed (robots.txt allows /feed/)",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/rss+xml",
+          "bytes": 1415535,
+          "redirects": 0,
+          "elapsed_ms": 55
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "entries": 150,
+          "complete": 150,
+          "recent": 134
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 50,
+      "items_new": 50,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 53,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 50,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T13:05:10.193908+00:00"
+  },
+  {
+    "key": "itnews-au",
+    "endpoint": "https://www.itnews.com.au/RSS/rss.ashx",
+    "started_at": "2026-10-05T13:05:10.194875+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "www.itnews.com.au"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "feed reader: robots.txt not applied to the feed (robots.txt allows /RSS/rss.ashx)",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/xml",
+          "bytes": 10524,
+          "redirects": 0,
+          "elapsed_ms": 181
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "entries": 20,
+          "complete": 20,
+          "recent": 20
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 20,
+      "items_new": 20,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 182,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 20,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T13:05:13.593350+00:00"
+  },
+  {
+    "key": "lemondeinformatique",
+    "endpoint": "https://www.lemondeinformatique.fr/flux-rss/thematique/toutes-les-actualites/rss.xml",
+    "started_at": "2026-10-05T13:05:13.595048+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "www.lemondeinformatique.fr"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "feed reader: robots.txt not applied to the feed (robots.txt allows /flux-rss/thematique/toutes-les-actualites/rss.xml)",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/rss+xml",
+          "bytes": 17633,
+          "redirects": 0,
+          "elapsed_ms": 308
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "entries": 20,
+          "complete": 20,
+          "recent": 20
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 20,
+      "items_new": 20,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 308,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 20,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T13:05:17.161282+00:00"
+  },
+  {
+    "key": "yourstory",
+    "endpoint": "https://yourstory.com/feed",
+    "started_at": "2026-10-05T13:05:17.162671+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "yourstory.com"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "feed reader: robots.txt not applied to the feed (robots.txt allows /feed)",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/rss+xml",
+          "bytes": 242450,
+          "redirects": 0,
+          "elapsed_ms": 190
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "entries": 20,
+          "complete": 20,
+          "recent": 20
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 20,
+      "items_new": 20,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 190,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 20,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T13:05:20.453205+00:00"
+  },
+  {
+    "key": "techcabal",
+    "endpoint": "https://techcabal.com/feed/",
+    "started_at": "2026-10-05T13:05:20.454233+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "techcabal.com"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "feed reader: robots.txt not applied to the feed (no robots.txt (404): https://techcabal.com/robots.txt)",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/rss+xml",
+          "bytes": 433158,
+          "redirects": 0,
+          "elapsed_ms": 1927
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "entries": 10,
+          "complete": 10,
+          "recent": 10
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 10,
+      "items_new": 10,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 835,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 10,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T13:05:25.457089+00:00"
+  },
+  {
+    "key": "github-trending-repositories-daily",
+    "endpoint": "https://github.com/trending?since=daily",
+    "started_at": "2026-10-05T13:12:10.399145+00:00",
+    "checks": [],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 12,
+      "items_new": 0,
+      "items_updated": 0,
+      "items_unchanged": 12,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 1111,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 12,
+    "metric_snapshots": 12,
+    "finished_at": "2026-10-05T13:12:11.546886+00:00"
+  },
+  {
+    "key": "github-trending-repositories-weekly",
+    "endpoint": "https://github.com/trending?since=weekly",
+    "started_at": "2026-10-05T13:12:11.547235+00:00",
+    "checks": [],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 21,
+      "items_new": 0,
+      "items_updated": 0,
+      "items_unchanged": 21,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 1520,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 21,
+    "metric_snapshots": 21,
+    "finished_at": "2026-10-05T13:12:13.110203+00:00"
+  },
+  {
+    "key": "github-trending-repositories-monthly",
+    "endpoint": "https://github.com/trending?since=monthly",
+    "started_at": "2026-10-05T13:12:13.110607+00:00",
+    "checks": [],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 23,
+      "items_new": 0,
+      "items_updated": 0,
+      "items_unchanged": 23,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 2083,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 23,
+    "metric_snapshots": 23,
+    "finished_at": "2026-10-05T13:12:15.241024+00:00"
+  },
+  {
+    "key": "github-trending-developers-daily",
+    "endpoint": "https://github.com/trending/developers?since=daily",
+    "started_at": "2026-10-05T13:12:15.241568+00:00",
+    "checks": [],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 25,
+      "items_new": 0,
+      "items_updated": 0,
+      "items_unchanged": 25,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 1331,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 25,
+    "metric_snapshots": 25,
+    "finished_at": "2026-10-05T13:12:16.613220+00:00"
+  },
+  {
+    "key": "github-trending-developers-weekly",
+    "endpoint": "https://github.com/trending/developers?since=weekly",
+    "started_at": "2026-10-05T13:12:16.613799+00:00",
+    "checks": [],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 25,
+      "items_new": 0,
+      "items_updated": 0,
+      "items_unchanged": 25,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 816,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 25,
+    "metric_snapshots": 25,
+    "finished_at": "2026-10-05T13:12:17.470549+00:00"
+  },
+  {
+    "key": "github-trending-developers-monthly",
+    "endpoint": "https://github.com/trending/developers?since=monthly",
+    "started_at": "2026-10-05T13:12:17.471202+00:00",
+    "checks": [],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 25,
+      "items_new": 0,
+      "items_updated": 0,
+      "items_unchanged": 25,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 1309,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 25,
+    "metric_snapshots": 25,
+    "finished_at": "2026-10-05T13:12:18.968066+00:00"
+  },
+  {
+    "key": "research-a-star-research",
+    "endpoint": "https://research.a-star.edu.sg/feed/",
+    "started_at": "2026-10-05T13:05:49.725218+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "research.a-star.edu.sg"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "feed reader: robots.txt not applied to the feed (robots.txt allows /feed/)",
+          "storage_right": "excerpt_allowed"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/rss+xml",
+          "bytes": 15550,
+          "redirects": 0,
+          "elapsed_ms": 281
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "entries": 12,
+          "complete": 12,
+          "recent": 8
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 12,
+      "items_new": 12,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 284,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 12,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T13:08:50.076202+00:00"
+  },
+  {
+    "key": "epo-publication-server",
+    "endpoint": "https://data.epo.org/publication-server/rest/v1.2/publication-dates",
+    "started_at": "2026-10-05T13:17:38.371461+00:00",
+    "checks": [],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 10,
+      "items_new": 0,
+      "items_updated": 0,
+      "items_unchanged": 10,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 6262,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 20,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T13:17:50.064616+00:00"
+  },
+  {
+    "key": "crossref-journal-nature-electronics",
+    "endpoint": "https://api.crossref.org/works?filter=issn:2520-1131,from-pub-date:{today-30d},until-pub-date:{today}&sort=published&order=desc&rows=20",
+    "started_at": "2026-10-05T13:17:50.065143+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "api.crossref.org"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "not applicable: documented API",
+          "storage_right": "metadata_only"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/json",
+          "bytes": 235580,
+          "redirects": 0,
+          "elapsed_ms": 1527
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "items": 20,
+          "dated": 20,
+          "recent": 20
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 20,
+      "items_new": 20,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 508,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 20,
+    "metric_snapshots": 20,
+    "finished_at": "2026-10-05T13:17:53.146259+00:00"
+  },
+  {
+    "key": "crossref-journal-nature-biomedical-engineering",
+    "endpoint": "https://api.crossref.org/works?filter=issn:2157-846X,from-pub-date:{today-30d},until-pub-date:{today}&sort=published&order=desc&rows=20",
+    "started_at": "2026-10-05T13:17:53.146534+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "api.crossref.org"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "not applicable: documented API",
+          "storage_right": "metadata_only"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/json",
+          "bytes": 450816,
+          "redirects": 0,
+          "elapsed_ms": 860
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "items": 18,
+          "dated": 18,
+          "recent": 18
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 18,
+      "items_new": 18,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 621,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 18,
+    "metric_snapshots": 18,
+    "finished_at": "2026-10-05T13:17:56.271517+00:00"
+  },
+  {
+    "key": "crossref-journal-nature-machine-intelligence",
+    "endpoint": "https://api.crossref.org/works?filter=issn:2522-5839,from-pub-date:{today-30d},until-pub-date:{today}&sort=published&order=desc&rows=20",
+    "started_at": "2026-10-05T13:17:56.271881+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "api.crossref.org"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "not applicable: documented API",
+          "storage_right": "metadata_only"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/json",
+          "bytes": 193095,
+          "redirects": 0,
+          "elapsed_ms": 326
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "items": 11,
+          "dated": 11,
+          "recent": 11
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 11,
+      "items_new": 11,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 312,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 11,
+    "metric_snapshots": 11,
+    "finished_at": "2026-10-05T13:17:58.982525+00:00"
+  },
+  {
+    "key": "crossref-journal-communications-engineering",
+    "endpoint": "https://api.crossref.org/works?filter=issn:2731-3395,from-pub-date:{today-30d},until-pub-date:{today}&sort=published&order=desc&rows=20",
+    "started_at": "2026-10-05T13:17:58.983167+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "api.crossref.org"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "not applicable: documented API",
+          "storage_right": "metadata_only"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/json",
+          "bytes": 326108,
+          "redirects": 0,
+          "elapsed_ms": 424
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "items": 20,
+          "dated": 20,
+          "recent": 20
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 20,
+      "items_new": 20,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 695,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 20,
+    "metric_snapshots": 20,
+    "finished_at": "2026-10-05T13:18:02.423684+00:00"
+  },
+  {
+    "key": "crossref-journal-npj-robotics",
+    "endpoint": "https://api.crossref.org/works?filter=issn:2731-4278,from-pub-date:{today-30d},until-pub-date:{today}&sort=published&order=desc&rows=20",
+    "started_at": "2026-10-05T13:18:02.424041+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "api.crossref.org"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "not applicable: documented API",
+          "storage_right": "metadata_only"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/json",
+          "bytes": 41456,
+          "redirects": 0,
+          "elapsed_ms": 727
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "failed",
+        "reasons": [
+          "only 2 recent complete items (need 3)"
+        ],
+        "metrics": {
+          "items": 2,
+          "dated": 2,
+          "recent": 2
+        }
+      }
+    ],
+    "stage": "V2",
+    "status": "candidate",
+    "stored_items": 0,
+    "metric_snapshots": 0,
+    "finished_at": "2026-10-05T13:18:04.511766+00:00"
+  },
+  {
+    "key": "crossref-journal-microsystems-nanoengineering",
+    "endpoint": "https://api.crossref.org/works?filter=issn:2055-7434,from-pub-date:{today-30d},until-pub-date:{today}&sort=published&order=desc&rows=20",
+    "started_at": "2026-10-05T13:18:04.512700+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "api.crossref.org"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "not applicable: documented API",
+          "storage_right": "metadata_only"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/json",
+          "bytes": 426259,
+          "redirects": 0,
+          "elapsed_ms": 417
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "items": 20,
+          "dated": 20,
+          "recent": 20
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 20,
+      "items_new": 20,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 372,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 20,
+    "metric_snapshots": 20,
+    "finished_at": "2026-10-05T13:18:07.073140+00:00"
+  },
+  {
+    "key": "crossref-journal-npj-flexible-electronics",
+    "endpoint": "https://api.crossref.org/works?filter=issn:2397-4621,from-pub-date:{today-30d},until-pub-date:{today}&sort=published&order=desc&rows=20",
+    "started_at": "2026-10-05T13:18:07.073539+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "api.crossref.org"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "not applicable: documented API",
+          "storage_right": "metadata_only"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/json",
+          "bytes": 31671,
+          "redirects": 0,
+          "elapsed_ms": 259
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "items": 6,
+          "dated": 6,
+          "recent": 6
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 6,
+      "items_new": 6,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 377,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 6,
+    "metric_snapshots": 6,
+    "finished_at": "2026-10-05T13:18:10.103716+00:00"
+  },
+  {
+    "key": "crossref-journal-nature-photonics",
+    "endpoint": "https://api.crossref.org/works?filter=issn:1749-4885,from-pub-date:{today-30d},until-pub-date:{today}&sort=published&order=desc&rows=20",
+    "started_at": "2026-10-05T13:18:10.104642+00:00",
+    "checks": [
+      {
+        "stage": "V0",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "endpoint_host": "api.crossref.org"
+        }
+      },
+      {
+        "stage": "V1",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "auto_approved": true,
+          "robots": "not applicable: documented API",
+          "storage_right": "metadata_only"
+        }
+      },
+      {
+        "stage": "V2",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "status": 200,
+          "content_type": "application/json",
+          "bytes": 313995,
+          "redirects": 0,
+          "elapsed_ms": 427
+        }
+      },
+      {
+        "stage": "V3",
+        "outcome": "passed",
+        "reasons": [],
+        "metrics": {
+          "items": 20,
+          "dated": 20,
+          "recent": 20
+        }
+      }
+    ],
+    "stage": "V3",
+    "status": "candidate",
+    "collection": {
+      "http_status": 200,
+      "items_seen": 20,
+      "items_new": 20,
+      "items_updated": 0,
+      "items_unchanged": 0,
+      "error_code": null,
+      "error_message": null,
+      "elapsed_ms": 344,
+      "outcome": "success",
+      "canary": true
+    },
+    "stored_items": 20,
+    "metric_snapshots": 20,
+    "finished_at": "2026-10-05T13:18:13.093659+00:00"
+  }
+]

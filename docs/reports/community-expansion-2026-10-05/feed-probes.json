@@ -1,0 +1,538 @@
+[
+  {
+    "url": "https://martinfowler.com/feed.atom",
+    "final_url": "https://martinfowler.com/feed.atom",
+    "status": 200,
+    "mime": "application/atom+xml",
+    "entries": 30,
+    "latest": [
+      {
+        "title": "Fragments: October  4",
+        "url": "https://martinfowler.com/fragments/2026-10-04.html",
+        "date": "2026-10-04T23:28:00-05:00"
+      },
+      {
+        "title": "Principles for effective slides",
+        "url": "https://martinfowler.com/articles/never-send-slides/slide-principles.html",
+        "date": "2026-09-30T10:14:00-04:00"
+      },
+      {
+        "title": "Bliki: Sensible Default",
+        "url": "https://martinfowler.com/bliki/SensibleDefault.html",
+        "date": "2026-09-29T09:43:00-04:00"
+      }
+    ],
+    "feeds": []
+  },
+  {
+    "url": "https://www.troyhunt.com/rss/",
+    "final_url": "https://www.troyhunt.com/rss/",
+    "status": 200,
+    "mime": "application/rss+xml; charset=utf-8",
+    "entries": 15,
+    "latest": [
+      {
+        "title": "Weekly Update 524: Live From Copenhagen",
+        "url": "https://www.troyhunt.com/weekly-update-524/",
+        "date": "Sun, 04 Oct 2026 11:52:23 GMT"
+      },
+      {
+        "title": "Weekly Update 523: Live From a Norwegian Fjord",
+        "url": "https://www.troyhunt.com/weekly-update-523/",
+        "date": "Mon, 28 Sep 2026 07:24:49 GMT"
+      },
+      {
+        "title": "Weekly Update 522: Live From Oslo with Scott Helme",
+        "url": "https://www.troyhunt.com/weekly-update-522/",
+        "date": "Wed, 23 Sep 2026 05:18:34 GMT"
+      }
+    ],
+    "feeds": [
+      "<a href=\"https://omny.fm/shows/troy-hunt-weekly-update/playlists/podcast.rss?ref=troy-hunt\"><img src=\"https://storage.ghost.io/c/fb/33/fb3391dc-723d-4e74-b95a-d641b5feb38e/content/images/2018/07/Download-via-RSS.svg\" alt=\"Weekly Update 524: Live From Copenhagen\"></a>",
+      "<a href=\"https://omny.fm/shows/troy-hunt-weekly-update/playlists/podcast.rss?ref=troy-hunt\"><img src=\"https://storage.ghost.io/c/fb/33/fb3391dc-723d-4e74-b95a-d641b5feb38e/content/images/2018/07/Download-via-RSS.svg\" alt=\"Weekly Update 523: Live From a Norwegian Fjord\"></a>",
+      "<a href=\"https://omny.fm/shows/troy-hunt-weekly-update/playlists/podcast.rss?ref=troy-hunt\"><img src=\"https://storage.ghost.io/c/fb/33/fb3391dc-723d-4e74-b95a-d641b5feb38e/content/images/2018/07/Download-via-RSS.svg\" alt=\"Weekly Update 522: Live From Oslo with Scott Helme\"></a>",
+      "<a href=\"https://omny.fm/shows/troy-hunt-weekly-update/playlists/podcast.rss?ref=troy-hunt\"><img src=\"https://storage.ghost.io/c/fb/33/fb3391dc-723d-4e74-b95a-d641b5feb38e/content/images/2018/07/Download-via-RSS.svg\" alt=\"Weekly Update 521: Breach Perception v. Reality\"></a>",
+      "<a href=\"https://omny.fm/shows/troy-hunt-weekly-update/playlists/podcast.rss?ref=troy-hunt\"><img src=\"https://storage.ghost.io/c/fb/33/fb3391dc-723d-4e74-b95a-d641b5feb38e/content/images/2018/07/Download-via-RSS.svg\" alt=\"Weekly Update 520: The Unscripted Edition\"></a>",
+      "<a href=\"https://omny.fm/shows/troy-hunt-weekly-update/playlists/podcast.rss?ref=troy-hunt\"><img src=\"https://storage.ghost.io/c/fb/33/fb3391dc-723d-4e74-b95a-d641b5feb38e/content/images/2018/07/Download-via-RSS.svg\" alt=\"Weekly Update 519: Breaches &amp; Data Integrity\"></a>",
+      "<a href=\"https://omny.fm/shows/troy-hunt-weekly-update/playlists/podcast.rss?ref=troy-hunt\"><img src=\"https://storage.ghost.io/c/fb/33/fb3391dc-723d-4e74-b95a-d641b5feb38e/content/images/2018/07/Download-via-RSS.svg\" alt=\"Weekly Update 518: IoT Doorlock Nirvana with UniFi\"></a>",
+      "<a href=\"https://omny.fm/shows/troy-hunt-weekly-update/playlists/podcast.rss?ref=troy-hunt\"><img src=\"https://storage.ghost.io/c/fb/33/fb3391dc-723d-4e74-b95a-d641b5feb38e/content/images/2018/07/Download-via-RSS.svg\" alt=\"Weekly Update 517: Cyber Ransoms\"></a>"
+    ]
+  },
+  {
+    "url": "https://www.schneier.com/feed/atom/",
+    "final_url": "https://www.schneier.com/feed/atom/",
+    "status": 200,
+    "mime": "application/atom+xml; charset=UTF-8",
+    "entries": 10,
+    "latest": [
+      {
+        "title": "Another Historic Cipher Falls to AI",
+        "url": "https://www.schneier.com/blog/archives/2026/10/another-historic-cipher-falls-to-ai.html",
+        "date": "2026-10-05T11:04:47Z"
+      },
+      {
+        "title": "Friday Squid Blogging: EU is Trying to Fight Unregulated Squid Fishing",
+        "url": "https://www.schneier.com/blog/archives/2026/10/friday-squid-blogging-eu-is-trying-to-fight-unregulated-squid-fishing.html",
+        "date": "2026-10-02T21:02:18Z"
+      },
+      {
+        "title": "Unidentified Flock Cameras in Florida",
+        "url": "https://www.schneier.com/blog/archives/2026/10/unidentified-flock-cameras-in-florida.html",
+        "date": "2026-10-02T14:52:46Z"
+      }
+    ],
+    "feeds": [
+      "<link rel=\"self\" type=\"application/atom+xml\" href=\"https://www.schneier.com/feed/atom/\">",
+      "<link rel=\"replies\" type=\"application/atom+xml\" href=\"https://www.schneier.com/blog/archives/2026/10/another-historic-cipher-falls-to-ai.html/feed/atom/\" thr:count=\"2\">",
+      "<link rel=\"replies\" type=\"application/atom+xml\" href=\"https://www.schneier.com/blog/archives/2026/10/friday-squid-blogging-eu-is-trying-to-fight-unregulated-squid-fishing.html/feed/atom/\" thr:count=\"20\">",
+      "<link rel=\"replies\" type=\"application/atom+xml\" href=\"https://www.schneier.com/blog/archives/2026/10/unidentified-flock-cameras-in-florida.html/feed/atom/\" thr:count=\"11\">",
+      "<link rel=\"replies\" type=\"application/atom+xml\" href=\"https://www.schneier.com/blog/archives/2026/10/how-american-political-campaigns-are-using-ai-and-what-theyre-spending-on-the-tools.html/feed/atom/\" thr:count=\"4\">",
+      "<link rel=\"replies\" type=\"application/atom+xml\" href=\"https://www.schneier.com/blog/archives/2026/10/connected-cars-are-a-surveillance-platform.html/feed/atom/\" thr:count=\"21\">",
+      "<link rel=\"replies\" type=\"application/atom+xml\" href=\"https://www.schneier.com/blog/archives/2026/09/i-want-better-reporting-on-ai-genie-behavior.html/feed/atom/\" thr:count=\"23\">",
+      "<link rel=\"replies\" type=\"application/atom+xml\" href=\"https://www.schneier.com/blog/archives/2026/09/using-device-linking-to-eavesdrop-on-whatsapp-and-signal.html/feed/atom/\" thr:count=\"26\">"
+    ]
+  },
+  {
+    "url": "https://karpathy.bearblog.dev/feed/",
+    "final_url": "https://karpathy.bearblog.dev/feed/",
+    "status": 200,
+    "mime": "application/atom+xml; charset=utf-8",
+    "entries": 10,
+    "latest": [
+      {
+        "title": "Sequoia Ascent 2026 summary",
+        "url": "https://karpathy.bearblog.dev/sequoia-ascent-2026/",
+        "date": "2026-04-30T16:00:00+00:00"
+      },
+      {
+        "title": "2025 LLM Year in Review",
+        "url": "https://karpathy.bearblog.dev/year-in-review-2025/",
+        "date": "2025-12-19T18:00:00+00:00"
+      },
+      {
+        "title": "Chemical hygiene",
+        "url": "https://karpathy.bearblog.dev/chemical-hygiene/",
+        "date": "2025-12-18T18:00:00+00:00"
+      }
+    ],
+    "feeds": []
+  },
+  {
+    "url": "https://huyenchip.com/feed.xml",
+    "final_url": "https://huyenchip.com/feed.xml",
+    "status": 200,
+    "mime": "application/xml",
+    "entries": 10,
+    "latest": [
+      {
+        "title": "Common pitfalls when building generative AI applications",
+        "url": "https://huyenchip.com//2025/01/16/ai-engineering-pitfalls.html",
+        "date": "Thu, 16 Jan 2025 00:00:00 +0000"
+      },
+      {
+        "title": "Agents",
+        "url": "https://huyenchip.com//2025/01/07/agents.html",
+        "date": "Tue, 07 Jan 2025 00:00:00 +0000"
+      },
+      {
+        "title": "Building A Generative AI Platform",
+        "url": "https://huyenchip.com//2024/07/25/genai-platform.html",
+        "date": "Thu, 25 Jul 2024 00:00:00 +0000"
+      }
+    ],
+    "feeds": []
+  },
+  {
+    "url": "https://blog.samaltman.com/feed",
+    "final_url": "https://blog.samaltman.com/feed",
+    "status": 404,
+    "mime": "text/html; charset=utf-8",
+    "entries": 0,
+    "latest": [],
+    "feeds": [
+      "<link rel=\"alternate\" type=\"application/atom+xml\" href=\"https://blog.samaltman.com/posts.atom\">"
+    ]
+  },
+  {
+    "url": "https://lilianweng.github.io/index.xml",
+    "final_url": "https://lilianweng.github.io/index.xml",
+    "status": 200,
+    "mime": "application/xml",
+    "entries": 53,
+    "latest": [
+      {
+        "title": "Harness Engineering for Self-Improvement",
+        "url": "https://lilianweng.github.io/posts/2026-07-04-harness/",
+        "date": "Sat, 04 Jul 2026 00:00:00 +0000"
+      },
+      {
+        "title": "Scaling Laws, Carefully",
+        "url": "https://lilianweng.github.io/posts/2026-06-24-scaling-laws/",
+        "date": "Wed, 24 Jun 2026 00:00:00 +0000"
+      },
+      {
+        "title": "Why We Think",
+        "url": "https://lilianweng.github.io/posts/2025-05-01-thinking/",
+        "date": "Thu, 01 May 2025 00:00:00 +0000"
+      }
+    ],
+    "feeds": []
+  },
+  {
+    "url": "https://www.brendangregg.com/blog/rss.xml",
+    "final_url": "https://www.brendangregg.com/blog/rss.xml",
+    "status": 200,
+    "mime": "application/xml",
+    "entries": 10,
+    "latest": [
+      {
+        "title": "Why I joined OpenAI",
+        "url": "http://www.brendangregg.com/blog//2026-02-07/why-i-joined-openai.html",
+        "date": "Sat, 07 Feb 2026 00:00:00 +1100"
+      },
+      {
+        "title": "Leaving Intel",
+        "url": "http://www.brendangregg.com/blog//2025-12-05/leaving-intel.html",
+        "date": "Fri, 05 Dec 2025 00:00:00 +1100"
+      },
+      {
+        "title": "On \"AI Brendans\" or \"Virtual Brendans\"",
+        "url": "http://www.brendangregg.com/blog//2025-11-28/ai-virtual-brendans.html",
+        "date": "Fri, 28 Nov 2025 00:00:00 +1100"
+      }
+    ],
+    "feeds": []
+  },
+  {
+    "url": "https://danluu.com/atom.xml",
+    "final_url": "https://danluu.com/atom.xml",
+    "status": 200,
+    "mime": "application/xml",
+    "entries": 128,
+    "latest": [
+      {
+        "title": "There's no point at which turning your brain off will work",
+        "url": "https://danluu.com/brain-off/",
+        "date": "Fri, 18 Sep 2026 00:00:00 +0000"
+      },
+      {
+        "title": "How well do agents use test and verification techniques?",
+        "url": "https://danluu.com/agentic-testing/",
+        "date": "Mon, 07 Sep 2026 00:00:00 +0000"
+      },
+      {
+        "title": "Ed Zitron's AI prediction track record",
+        "url": "https://danluu.com/zitron/",
+        "date": "Tue, 01 Sep 2026 00:00:00 +0000"
+      }
+    ],
+    "feeds": []
+  },
+  {
+    "url": "https://eli.thegreenplace.net/feeds/all.atom.xml",
+    "final_url": "https://eli.thegreenplace.net/feeds/all.atom.xml",
+    "status": 200,
+    "mime": "application/xml",
+    "entries": 5,
+    "latest": [
+      {
+        "title": "Summary of reading: July - September 2026",
+        "url": "https://eli.thegreenplace.net/2026/summary-of-reading-july-september-2026/",
+        "date": "2026-09-30T17:05:00-07:00"
+      },
+      {
+        "title": "Rusty thoughts on \"Parse, don't validate\"",
+        "url": "https://eli.thegreenplace.net/2026/rusty-thoughts-on-parse-dont-validate/",
+        "date": "2026-09-26T08:25:00-07:00"
+      },
+      {
+        "title": "Notes on discrete-time Fourier series and transform",
+        "url": "https://eli.thegreenplace.net/2026/notes-on-discrete-time-fourier-series-and-transform/",
+        "date": "2026-09-19T09:39:00-07:00"
+      }
+    ],
+    "feeds": []
+  },
+  {
+    "url": "https://dave.cheney.net/feed",
+    "final_url": "https://dave.cheney.net/feed",
+    "status": 200,
+    "mime": "application/rss+xml; charset=UTF-8",
+    "entries": 20,
+    "latest": [
+      {
+        "title": "Pop quiz: what time was it?",
+        "url": "https://dave.cheney.net/2025/12/18/pop-quiz-what-time-was-it",
+        "date": "Thu, 18 Dec 2025 00:38:52 +0000"
+      },
+      {
+        "title": "Pointer pop quiz",
+        "url": "https://dave.cheney.net/2025/11/27/pointer-pop-quiz",
+        "date": "Thu, 27 Nov 2025 11:18:55 +0000"
+      },
+      {
+        "title": "Microblog: TestMain can cause one to question reality",
+        "url": "https://dave.cheney.net/2024/02/22/microblog-testmain-can-cause-one-to-question-reality",
+        "date": "Wed, 21 Feb 2024 21:04:26 +0000"
+      }
+    ],
+    "feeds": []
+  },
+  {
+    "url": "https://discuss.huggingface.co/latest.rss",
+    "final_url": "https://discuss.huggingface.co/latest.rss",
+    "status": 200,
+    "mime": "application/rss+xml; charset=utf-8",
+    "entries": 30,
+    "latest": [
+      {
+        "title": "What Makes a Project Tool Truly Agent-Native?",
+        "url": "https://discuss.huggingface.co/t/what-makes-a-project-tool-truly-agent-native/182920",
+        "date": "Mon, 05 Oct 2026 14:01:04 +0000"
+      },
+      {
+        "title": "“Has anyone used armodafinil for daytime sleepiness or shift work?”",
+        "url": "https://discuss.huggingface.co/t/has-anyone-used-armodafinil-for-daytime-sleepiness-or-shift-work/182909",
+        "date": "Mon, 05 Oct 2026 06:44:11 +0000"
+      },
+      {
+        "title": "OncoLLM: adapting MedGemma 4B and 27B to oncology tasks with Unsloth",
+        "url": "https://discuss.huggingface.co/t/oncollm-adapting-medgemma-4b-and-27b-to-oncology-tasks-with-unsloth/182908",
+        "date": "Mon, 05 Oct 2026 06:40:42 +0000"
+      }
+    ],
+    "feeds": [
+      "<a href=\"https://discuss.huggingface.co/t/looking-for-feedback-on-my-latest-paper/182856\">Read full topic</a>"
+    ]
+  },
+  {
+    "url": "https://discuss.python.org/latest.rss",
+    "final_url": "https://discuss.python.org/latest.rss",
+    "status": 200,
+    "mime": "application/rss+xml; charset=utf-8",
+    "entries": 30,
+    "latest": [
+      {
+        "title": "Request for CPython 3.14.7 Windows AMD64 Build Provenance and Frozen Bootstrap Correspondence",
+        "url": "https://discuss.python.org/t/request-for-cpython-3-14-7-windows-amd64-build-provenance-and-frozen-bootstrap-correspondence/109349",
+        "date": "Mon, 05 Oct 2026 10:20:24 +0000"
+      },
+      {
+        "title": "Optimization for insertdict()",
+        "url": "https://discuss.python.org/t/optimization-for-insertdict/109348",
+        "date": "Mon, 05 Oct 2026 04:32:01 +0000"
+      },
+      {
+        "title": "CPython tried a register VM in 2012, here's what happened when I tried again",
+        "url": "https://discuss.python.org/t/cpython-tried-a-register-vm-in-2012-heres-what-happened-when-i-tried-again/109347",
+        "date": "Mon, 05 Oct 2026 01:06:12 +0000"
+      }
+    ],
+    "feeds": []
+  },
+  {
+    "url": "https://users.rust-lang.org/latest.rss",
+    "final_url": "https://users.rust-lang.org/latest.rss",
+    "status": 200,
+    "mime": "application/rss+xml; charset=utf-8",
+    "entries": 30,
+    "latest": [
+      {
+        "title": "About Bevy textbook",
+        "url": "https://users.rust-lang.org/t/about-bevy-textbook/142842",
+        "date": "Mon, 05 Oct 2026 13:53:34 +0000"
+      },
+      {
+        "title": "Thisversion: Keep schema history out of your application model",
+        "url": "https://users.rust-lang.org/t/thisversion-keep-schema-history-out-of-your-application-model/142840",
+        "date": "Mon, 05 Oct 2026 12:39:46 +0000"
+      },
+      {
+        "title": "Googlebook is out, how soon do we expect rustc on it?",
+        "url": "https://users.rust-lang.org/t/googlebook-is-out-how-soon-do-we-expect-rustc-on-it/142832",
+        "date": "Mon, 05 Oct 2026 00:53:09 +0000"
+      }
+    ],
+    "feeds": [
+      "<a name=\"p-580273-feedback-welcome-6\" class=\"anchor\" href=\"https://users.rust-lang.org#p-580273-feedback-welcome-6\" aria-label=\"Heading link\"></a>",
+      "<a href=\"https://users.rust-lang.org/t/feedback-on-carpathia/142793\">Read full topic</a>",
+      "<a name=\"p-580054-community-and-feedback-5\" class=\"anchor\" href=\"https://users.rust-lang.org#p-580054-community-and-feedback-5\" aria-label=\"Heading link\"></a>"
+    ]
+  },
+  {
+    "url": "https://discuss.kubernetes.io/latest.rss",
+    "final_url": "https://discuss.kubernetes.io/latest.rss",
+    "status": 200,
+    "mime": "application/rss+xml; charset=utf-8",
+    "entries": 30,
+    "latest": [
+      {
+        "title": "[Security Advisory] CVE-2026-19444: kubectl cp path traversal on Windows allows arbitrary file writes",
+        "url": "https://discuss.kubernetes.io/t/security-advisory-cve-2026-19444-kubectl-cp-path-traversal-on-windows-allows-arbitrary-file-writes/35301",
+        "date": "Mon, 28 Sep 2026 11:34:07 +0000"
+      },
+      {
+        "title": "Large file sbecome very slow when served from a pod",
+        "url": "https://discuss.kubernetes.io/t/large-file-sbecome-very-slow-when-served-from-a-pod/35285",
+        "date": "Fri, 25 Sep 2026 13:19:51 +0000"
+      },
+      {
+        "title": "[Security Advisory] CVE-2026-76654: Subpath symlinking on Windows nodes permits NTLM coercion",
+        "url": "https://discuss.kubernetes.io/t/security-advisory-cve-2026-76654-subpath-symlinking-on-windows-nodes-permits-ntlm-coercion/35277",
+        "date": "Wed, 23 Sep 2026 23:13:53 +0000"
+      }
+    ],
+    "feeds": []
+  },
+  {
+    "url": "https://forum.arduino.cc/latest.rss",
+    "final_url": "https://forum.arduino.cc/latest.rss",
+    "status": 200,
+    "mime": "application/rss+xml; charset=utf-8",
+    "entries": 30,
+    "latest": [
+      {
+        "title": "Previously working ESP32s suddenly became unknown USB devices",
+        "url": "https://forum.arduino.cc/t/previously-working-esp32s-suddenly-became-unknown-usb-devices/1462271",
+        "date": "Mon, 05 Oct 2026 12:49:09 +0000"
+      },
+      {
+        "title": "Agent Mode for Arduino UNO Q 2GB and 4GB ... with internal error?",
+        "url": "https://forum.arduino.cc/t/agent-mode-for-arduino-uno-q-2gb-and-4gb-with-internal-error/1462259",
+        "date": "Mon, 05 Oct 2026 11:00:12 +0000"
+      },
+      {
+        "title": "VENTUNO Q – Very happy with it as a Linux computer",
+        "url": "https://forum.arduino.cc/t/ventuno-q-very-happy-with-it-as-a-linux-computer/1462235",
+        "date": "Mon, 05 Oct 2026 09:18:19 +0000"
+      }
+    ],
+    "feeds": []
+  },
+  {
+    "url": "https://community.home-assistant.io/latest.rss",
+    "final_url": "https://community.home-assistant.io/latest.rss",
+    "status": 200,
+    "mime": "application/rss+xml; charset=utf-8",
+    "entries": 30,
+    "latest": [
+      {
+        "title": "Stumped: Connection refused on port 8123 across multiple Home Assistant Green units",
+        "url": "https://community.home-assistant.io/t/stumped-connection-refused-on-port-8123-across-multiple-home-assistant-green-units/1027487",
+        "date": "Mon, 05 Oct 2026 14:13:30 +0000"
+      },
+      {
+        "title": "HA-Phone: a SIP PBX add-on with an Android app (door cam before you answer, Tailscale built in)",
+        "url": "https://community.home-assistant.io/t/ha-phone-a-sip-pbx-add-on-with-an-android-app-door-cam-before-you-answer-tailscale-built-in/1027486",
+        "date": "Mon, 05 Oct 2026 14:02:10 +0000"
+      },
+      {
+        "title": "Making Amazon Blink smarter in Home Assistant: AI person detection, mailbox deliveries and faster events",
+        "url": "https://community.home-assistant.io/t/making-amazon-blink-smarter-in-home-assistant-ai-person-detection-mailbox-deliveries-and-faster-events/1027485",
+        "date": "Mon, 05 Oct 2026 13:53:44 +0000"
+      }
+    ],
+    "feeds": []
+  },
+  {
+    "url": "https://hashnode.com/",
+    "final_url": "https://hashnode.com/",
+    "status": 200,
+    "mime": "text/html; charset=utf-8",
+    "entries": 0,
+    "latest": [],
+    "feeds": [
+      "<a target=\"_blank\" rel=\"noopener\" class=\"truncate text-sm text-muted-foreground transition hover:text-foreground\" href=\"https://kdy1.dev/2026-10-5-jsonllm-experiment?utm_source=hashnode&amp;utm_medium=feed\">kdy1.dev</a>",
+      "<a rel=\"noopener\" target=\"_blank\" class=\"min-w-0 transition-colors duration-200 hover:no-underline\" href=\"https://kdy1.dev/2026-10-5-jsonllm-experiment?utm_source=hashnode&amp;utm_medium=feed\"><h3 id=\"_R_4hcqluatb_\" class=\"text-lg font-bold text-foreground line-clamp-2 transition-colors duration-200 hover:text-primary sm:text-xl\">JSONLLM: Vibed AI Model for JSON</h3><p class=\"mt-2 text-sm text-muted-foreground line-clamp-2\">I want a fast, capable API for generating JSON. When I build AI-powered apps, I constantly need to generate typed data. And I keep running into the same problems: the output does not quite match the f</p></a>",
+      "<a target=\"_blank\" rel=\"noopener\" class=\"truncate text-sm text-muted-foreground transition hover:text-foreground\" href=\"https://blog.nandan.dev/what-i-built-in-the-last-year-a-list-of-failures?utm_source=hashnode&amp;utm_medium=feed\">blog.nandan.dev</a>",
+      "<a rel=\"noopener\" target=\"_blank\" class=\"min-w-0 transition-colors duration-200 hover:no-underline\" href=\"https://blog.nandan.dev/what-i-built-in-the-last-year-a-list-of-failures?utm_source=hashnode&amp;utm_medium=feed\"><h3 id=\"_R_4icqluatb_\" class=\"text-lg font-bold text-foreground line-clamp-2 transition-colors duration-200 hover:text-primary sm:text-xl\">What I Built in the Last Year: A List of Failures</h3><p class=\"mt-2 text-sm text-muted-foreground line-clamp-2\">A list of failures.\nThat's the most accurate title I could come up with. Here's the summary:\nIn the last year or so, I have built 4 web apps, 3 open-source tools, wrote one book, onboarded 250+ users </p></a>",
+      "<a rel=\"noopener\" target=\"_blank\" class=\"shrink-0\" aria-label=\"What I Built in the Last Year: A List of Failures\" href=\"https://blog.nandan.dev/what-i-built-in-the-last-year-a-list-of-failures?utm_source=hashnode&amp;utm_medium=feed\"><div class=\"group/cover relative aspect-[800/420] w-28 overflow-hidden rounded-xl bg-muted sm:w-36 md:w-44\"><img alt=\"\" decoding=\"async\" data-nimg=\"fill\" class=\"object-cover transition-transform duration-300 group-hover/cover:scale-105 motion-reduce:transform-none\" style=\"position:absolute;height:100%;width:100%;left:0;top:0;right:0;bottom:0;color:transparent\" src=\"https://cdn.hashnode.com/uploads/covers/628769bf89168247f55ee8b0/5656449c-e499-4e17-9674-dfe635acc07f.png?w=800&amp;h=420&amp;auto=compress,format&amp;format=webp\"><div class=\"pointer-events-none absolute inset-0 rounded-xl ring-1 ring-inset ring-black/10 dark:ring-white/10\"></div></div></a>",
+      "<a target=\"_blank\" rel=\"noopener\" class=\"truncate text-sm text-muted-foreground transition hover:text-foreground\" href=\"https://kbentis.cloud/how-much-of-your-intune-tenant-is-deploying-to-nobody?utm_source=hashnode&amp;utm_medium=feed\">kbentis.cloud</a>",
+      "<a rel=\"noopener\" target=\"_blank\" class=\"min-w-0 transition-colors duration-200 hover:no-underline\" href=\"https://kbentis.cloud/how-much-of-your-intune-tenant-is-deploying-to-nobody?utm_source=hashnode&amp;utm_medium=feed\"><h3 id=\"_R_4jcqluatb_\" class=\"text-lg font-bold text-foreground line-clamp-2 transition-colors duration-200 hover:text-primary sm:text-xl\">How much of your Intune tenant is deploying to nobody?</h3><p class=\"mt-2 text-sm text-muted-foreground line-clamp-2\">Intune can tell you whether an app or a policy is assigned. That part's easy.\nWhat it won't tell you is whether the assignment makes any sense. A compliance policy whose only assignment is an exclusio</p></a>",
+      "<a rel=\"noopener\" target=\"_blank\" class=\"shrink-0\" aria-label=\"How much of your Intune tenant is deploying to nobody?\" href=\"https://kbentis.cloud/how-much-of-your-intune-tenant-is-deploying-to-nobody?utm_source=hashnode&amp;utm_medium=feed\"><div class=\"group/cover relative aspect-[800/420] w-28 overflow-hidden rounded-xl bg-muted sm:w-36 md:w-44\"><img alt=\"\" loading=\"lazy\" decoding=\"async\" data-nimg=\"fill\" class=\"object-cover transition-transform duration-300 group-hover/cover:scale-105 motion-reduce:transform-none\" style=\"position:absolute;height:100%;width:100%;left:0;top:0;right:0;bottom:0;color:transparent\" src=\"https://cdn.hashnode.com/uploads/covers/69be9d6f4a1e513e41f371ba/759f46a3-49f4-4180-88da-503f8b0461f4.png?w=800&amp;h=420&amp;auto=compress,format&amp;format=webp\"><div class=\"pointer-events-none absolute inset-0 rounded-xl ring-1 ring-inset ring-black/10 dark:ring-white/10\"></div></div></a>"
+    ]
+  },
+  {
+    "url": "https://hashnode.com/rss",
+    "final_url": "https://hashnode.com/rss",
+    "status": 200,
+    "mime": "text/html; charset=utf-8",
+    "entries": 0,
+    "latest": [],
+    "feeds": []
+  },
+  {
+    "url": "https://engineering.hashnode.com/rss.xml",
+    "final_url": "https://engineering.hashnode.com/rss.xml",
+    "status": 429,
+    "mime": "text/html; charset=utf-8",
+    "entries": 0,
+    "latest": [],
+    "feeds": []
+  },
+  {
+    "url": "https://v2.velog.io/rss/velopert",
+    "final_url": "https://v2.velog.io/rss/velopert",
+    "status": 200,
+    "mime": "text/xml; charset=UTF-8",
+    "entries": 20,
+    "latest": [
+      {
+        "title": "2022.log",
+        "url": "https://velog.io/@velopert/2022.log",
+        "date": "Sat, 31 Dec 2022 18:32:39 GMT"
+      },
+      {
+        "title": "veltrends 개발 후기",
+        "url": "https://velog.io/@velopert/veltrends-dev-review",
+        "date": "Sun, 23 Oct 2022 14:40:32 GMT"
+      },
+      {
+        "title": "다른 사람들이 안 알려주는 리액트에서 Context API 잘 쓰는 방법",
+        "url": "https://velog.io/@velopert/react-context-tutorial",
+        "date": "Sun, 12 Jun 2022 08:28:48 GMT"
+      }
+    ],
+    "feeds": []
+  },
+  {
+    "url": "https://velog.io/",
+    "final_url": "https://velog.io/",
+    "status": 200,
+    "mime": "text/html; charset=utf-8",
+    "entries": 0,
+    "latest": [],
+    "feeds": [
+      "<a class=\"\" href=\"/feed\"><svg stroke=\"currentColor\" fill=\"currentColor\" stroke-width=\"0\" viewBox=\"0 0 24 24\" height=\"1em\" width=\"1em\" xmlns=\"http://www.w3.org/2000/svg\"><path fill=\"none\" d=\"M0 0h24v24H0z\"></path><circle cx=\"6.18\" cy=\"17.82\" r=\"2.18\"></circle><path d=\"M4 4.44v2.83c7.03 0 12.73 5.7 12.73 12.73h2.83c0-8.59-6.97-15.56-15.56-15.56zm0 5.66v2.83c3.9 0 7.07 3.17 7.07 7.07h2.83c0-5.47-4.43-9.9-9.9-9.9z\"></path></svg><span>피드</span></a>",
+      "<a class=\"\" href=\"/feed\"><svg stroke=\"currentColor\" fill=\"currentColor\" stroke-width=\"0\" viewBox=\"0 0 24 24\" height=\"1em\" width=\"1em\" xmlns=\"http://www.w3.org/2000/svg\"><path fill=\"none\" d=\"M0 0h24v24H0z\"></path><circle cx=\"6.18\" cy=\"17.82\" r=\"2.18\"></circle><path d=\"M4 4.44v2.83c7.03 0 12.73 5.7 12.73 12.73h2.83c0-8.59-6.97-15.56-15.56-15.56zm0 5.66v2.83c3.9 0 7.07 3.17 7.07 7.07h2.83c0-5.47-4.43-9.9-9.9-9.9z\"></path></svg><span>피드</span></a>"
+    ]
+  },
+  {
+    "url": "https://www.tabnews.com.br/rss",
+    "final_url": "https://www.tabnews.com.br/recentes/rss",
+    "status": 200,
+    "mime": "text/xml; charset=utf-8",
+    "entries": 30,
+    "latest": [
+      {
+        "title": "Como calcular o IRRF 2026 com a redução da Lei 15.270 (e um JSON aberto com as tabelas CLT)",
+        "url": "https://www.tabnews.com.br/rubin/como-calcular-o-irrf-2026-com-a-reducao-da-lei-15-270-e-um-json-aberto-com-as-tabelas-clt",
+        "date": "Mon, 05 Oct 2026 13:26:38 GMT"
+      },
+      {
+        "title": "Vibe Coding: você sente +20%, mede -19%",
+        "url": "https://www.tabnews.com.br/kenimo49/vibe-coding-voce-sente-20-por-cento-mede-19-por-cento",
+        "date": "Mon, 05 Oct 2026 12:00:03 GMT"
+      },
+      {
+        "title": "🗳️ Como funciona a urna eletrônica brasileira - O que acontece quando você aperta Confirma na urna - 30 anos de urna eletrônica: o que mudou de 1996 até agora - A urna não transmite nada. Então como o TSE soma os votos?",
+        "url": "https://www.tabnews.com.br/MrJ/como-funciona-a-urna-eletronica-brasileira-o-que-acontece-quando-voce-aperta-confirma-na-urna-30-anos-de-urna-eletronica-o-que-mudou-de-1996-ate-agora",
+        "date": "Mon, 05 Oct 2026 04:43:41 GMT"
+      }
+    ],
+    "feeds": [
+      "<a href=\"https://www.tabnews.com.br/rafael/tabnews-postmortem-xss-no-feed-rss-e-csrf-na-api\">[TabNews – Postmortem] XSS no feed RSS e CSRF na API</a>",
+      "<a href=\"https://www.tabnews.com.br/rafael/tabnews-postmortem-xss-no-feed-rss-e-csrf-na-api\">[TabNews – Postmortem] XSS no feed RSS e CSRF na API</a>"
+    ]
+  }
+]

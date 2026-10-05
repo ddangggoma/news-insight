@@ -1,0 +1,1988 @@
+[
+  {
+    "name": "ETRI",
+    "country": "한국",
+    "type": "연구기관",
+    "fields": "ai;connectivity;display_av;robotics_mobility",
+    "url": "https://www.etri.re.kr/kor/main/main.etri",
+    "checked_at": "2026-10-05T12:16:13.790005+00:00",
+    "existing_keys": [],
+    "status": 200,
+    "final_url": "https://www.etri.re.kr/kor/main/main.etri",
+    "title": "한국전자통신연구원에 오신것을 환영합니다.",
+    "feeds": [],
+    "relevant_links": [
+      {
+        "text": "보도자료",
+        "url": "https://www.etri.re.kr/kor/bbs/list.etri?b_board_id=ETRI06"
+      },
+      {
+        "text": "감사부 소개",
+        "url": "https://www.etri.re.kr/kor/sub6/sub6_0101.etri?departCode=168"
+      },
+      {
+        "text": "부서소개",
+        "url": "https://www.etri.re.kr/kor/sub6/sub6_01020101.etri?departCode=168"
+      },
+      {
+        "text": "연구소소개",
+        "url": "https://www.etri.re.kr/kor/sub6/sub6_0101.etri?departCode=10"
+      },
+      {
+        "text": "부서소개",
+        "url": "https://www.etri.re.kr/kor/sub6/sub6_01020101.etri?departCode=10"
+      },
+      {
+        "text": "연구소소개",
+        "url": "https://www.etri.re.kr/kor/sub6/sub6_0101.etri?departCode=5"
+      },
+      {
+        "text": "부서소개",
+        "url": "https://www.etri.re.kr/kor/sub6/sub6_01020101.etri?departCode=5"
+      },
+      {
+        "text": "연구소소개",
+        "url": "https://www.etri.re.kr/kor/sub6/sub6_0101.etri?departCode=7"
+      },
+      {
+        "text": "부서부소개",
+        "url": "https://www.etri.re.kr/kor/sub6/sub6_01020101.etri?departCode=7"
+      },
+      {
+        "text": "연구소소개",
+        "url": "https://www.etri.re.kr/kor/sub6/sub6_0101.etri?departCode=170"
+      },
+      {
+        "text": "부서소개",
+        "url": "https://www.etri.re.kr/kor/sub6/sub6_01020101.etri?departCode=170"
+      },
+      {
+        "text": "연구소소개",
+        "url": "https://www.etri.re.kr/kor/sub6/sub6_0101.etri?departCode=9"
+      },
+      {
+        "text": "부서소개",
+        "url": "https://www.etri.re.kr/kor/sub6/sub6_01020101.etri?departCode=9"
+      },
+      {
+        "text": "연구소소개",
+        "url": "https://www.etri.re.kr/kor/sub6/sub6_0101.etri?departCode=8"
+      },
+      {
+        "text": "부서소개",
+        "url": "https://www.etri.re.kr/kor/sub6/sub6_01020101.etri?departCode=8"
+      },
+      {
+        "text": "연구소소개",
+        "url": "https://www.etri.re.kr/kor/sub6/sub6_0101.etri?departCode=187"
+      },
+      {
+        "text": "부서소개",
+        "url": "https://www.etri.re.kr/kor/sub6/sub6_01020101.etri?departCode=187"
+      },
+      {
+        "text": "연구소소개",
+        "url": "https://www.etri.re.kr/kor/sub6/sub6_0101.etri?departCode=197"
+      },
+      {
+        "text": "연구소소개",
+        "url": "https://www.etri.re.kr/kor/sub6/sub6_0101.etri?departCode=69"
+      },
+      {
+        "text": "연구실소개",
+        "url": "https://www.etri.re.kr/kor/sub6/sub6_01020101.etri?departCode=69"
+      },
+      {
+        "text": "연구소소개",
+        "url": "https://www.etri.re.kr/kor/sub6/sub6_0101.etri?departCode=70"
+      },
+      {
+        "text": "연구실소개",
+        "url": "https://www.etri.re.kr/kor/sub6/sub6_01020101.etri?departCode=70"
+      },
+      {
+        "text": "연구소소개",
+        "url": "https://www.etri.re.kr/kor/sub6/sub6_0101.etri?departCode=71"
+      },
+      {
+        "text": "부서소개",
+        "url": "https://www.etri.re.kr/kor/sub6/sub6_01020101.etri?departCode=71"
+      },
+      {
+        "text": "본부소개",
+        "url": "https://www.etri.re.kr/kor/sub6/sub6_0101.etri?departCode=128"
+      },
+      {
+        "text": "부서소개",
+        "url": "https://www.etri.re.kr/kor/sub6/sub6_01020101.etri?departCode=128"
+      },
+      {
+        "text": "부문소개",
+        "url": "https://www.etri.re.kr/kor/sub6/sub6_0101.etri?departCode=3"
+      },
+      {
+        "text": "부서소개",
+        "url": "https://www.etri.re.kr/kor/sub6/sub6_01020101.etri?departCode=3"
+      },
+      {
+        "text": "본부소개",
+        "url": "https://www.etri.re.kr/kor/sub6/sub6_0101.etri?departCode=2"
+      },
+      {
+        "text": "부서소개",
+        "url": "https://www.etri.re.kr/kor/sub6/sub6_01020101.etri?departCode=2"
+      },
+      {
+        "text": "본부소개",
+        "url": "https://www.etri.re.kr/kor/sub6/sub6_0101.etri?departCode=1"
+      },
+      {
+        "text": "부서소개",
+        "url": "https://www.etri.re.kr/kor/sub6/sub6_01020101.etri?departCode=1"
+      },
+      {
+        "text": "ETRI 소개",
+        "url": "https://www.etri.re.kr/korcon/sub7/sub7_0101.etri"
+      },
+      {
+        "text": "연구원소개",
+        "url": "https://www.etri.re.kr/korcon/sub7/sub7_02.etri"
+      },
+      {
+        "text": "페이스북",
+        "url": "https://www.facebook.com/EtriNewsmaker/"
+      }
+    ]
+  },
+  {
+    "name": "KISTI",
+    "country": "한국",
+    "type": "연구기관",
+    "fields": "cloud_data;ai",
+    "url": "https://www.kisti.re.kr/",
+    "checked_at": "2026-10-05T12:16:13.790836+00:00",
+    "existing_keys": [],
+    "status": 200,
+    "final_url": "https://www.kisti.re.kr/",
+    "title": "한국과학기술정보연구원",
+    "feeds": [],
+    "relevant_links": [
+      {
+        "text": "보도자료",
+        "url": "https://www.kisti.re.kr/promote/post/news?t=1638863209511"
+      }
+    ]
+  },
+  {
+    "name": "RIKEN",
+    "country": "일본",
+    "type": "연구기관",
+    "fields": "ai;frontier;health_tech",
+    "url": "https://www.riken.jp/en/",
+    "checked_at": "2026-10-05T12:16:13.791242+00:00",
+    "existing_keys": [],
+    "status": 200,
+    "final_url": "https://www.riken.jp/en/",
+    "title": "RIKEN",
+    "feeds": [],
+    "relevant_links": [
+      {
+        "text": "",
+        "url": "https://krs1.riken.jp/m/newsletter"
+      },
+      {
+        "text": "About RIKEN",
+        "url": "https://www.riken.jp/en/about/"
+      },
+      {
+        "text": "News & Publications",
+        "url": "https://www.riken.jp/en/news_pubs/"
+      },
+      {
+        "text": "A giant bleb for cell-kind: artificial cells reveal how living cells take shape",
+        "url": "https://www.riken.jp/en/news_pubs/research_news/pr/2026/20260730_1/index.html"
+      },
+      {
+        "text": "Liquid biopsy that can distinguish between similar enzymes",
+        "url": "https://www.riken.jp/en/news_pubs/research_news/rr/20260318_2/"
+      },
+      {
+        "text": "Smart yarn that tracks muscle activity in the body",
+        "url": "https://www.riken.jp/en/news_pubs/research_news/rr/20260326_1/"
+      },
+      {
+        "text": "Sculpting complex, 3D nanostructures with a focused ion beam",
+        "url": "https://www.riken.jp/en/news_pubs/research_news/pr/2026/20260121_3/index.html"
+      },
+      {
+        "text": "Messages from the President",
+        "url": "https://www.riken.jp/en/about/president/"
+      },
+      {
+        "text": "President's activities (June 9, 2026)",
+        "url": "https://www.riken.jp/en/about/president/report2026/"
+      },
+      {
+        "text": "Sep. 3, 2026Research HighlightShedding light on “microbial dark matter”",
+        "url": "https://www.riken.jp/en/news_pubs/research_news/closeup/2026/20260904_1/index.html"
+      },
+      {
+        "text": "Aug. 28, 2026Research HighlightThe wisdom of the egg cell",
+        "url": "https://www.riken.jp/en/news_pubs/research_news/closeup/2026/20260828_1/index.html"
+      },
+      {
+        "text": "Aug. 12, 2026Press ReleaseNew biomedical tech: self-healing hydrogel with electr",
+        "url": "https://www.riken.jp/en/news_pubs/research_news/pr/2026/20260807_2/index.html"
+      },
+      {
+        "text": "Aug. 7, 2026Press ReleaseSatiety games: it’s nutrient quantity, not quality for ",
+        "url": "https://www.riken.jp/en/news_pubs/research_news/pr/2026/20260804_2/index.html"
+      },
+      {
+        "text": "Aug. 7, 2026Press ReleaseA giant bleb for cell-kind: artificial cells reveal how",
+        "url": "https://www.riken.jp/en/news_pubs/research_news/pr/2026/20260730_1/index.html"
+      },
+      {
+        "text": "Jul. 24, 2026Press ReleaseUniversal patterns govern global fertility decline",
+        "url": "https://www.riken.jp/en/news_pubs/research_news/pr/2026/20260717_1/index.html"
+      },
+      {
+        "text": "Jul. 22, 2026PerspectivesAI for Science: Breaking the boundaries of what science",
+        "url": "https://www.riken.jp/en/news_pubs/research_news/closeup/2026/20260722_1/index.html"
+      },
+      {
+        "text": "More\n\t\t\t\tResearch News",
+        "url": "https://www.riken.jp/en/news_pubs/research_news/index.html"
+      },
+      {
+        "text": "RSS",
+        "url": "https://www.riken.jp/en/feed/press_feed/"
+      },
+      {
+        "text": "Sep. 7, 2026ECL Unit Leader Leo Speidel elected a 2026 AYS Fellow in Life Scienc",
+        "url": "https://www.riken.jp/en/news_pubs/news/2026/20260907_1/index.html"
+      },
+      {
+        "text": "Sep. 4, 2026RIKEN Mathematics & AI Symposium 2026",
+        "url": "https://www.riken.jp/en/news_pubs/news/2026/20260904_5/index.html"
+      },
+      {
+        "text": "Sep. 3, 2026R-CCS adopts quantum software development kit from QunaSys",
+        "url": "https://www.riken.jp/en/news_pubs/news/2026/20260903_1/index.html"
+      },
+      {
+        "text": "Aug. 24, 2026Sustainability for the Future 2050: RIKEN’s action plan to create a",
+        "url": "https://www.riken.jp/en/news_pubs/news/2026/20260602_2/index.html"
+      },
+      {
+        "text": "Aug. 20, 2026Meet RIKEN's new laboratory heads (August 2026)",
+        "url": "https://www.riken.jp/en/news_pubs/news/2026/20260820_1/index.html"
+      },
+      {
+        "text": "More News",
+        "url": "https://www.riken.jp/en/news_pubs/news/"
+      },
+      {
+        "text": "RSS",
+        "url": "https://www.riken.jp/feed/topics_feed/"
+      },
+      {
+        "text": "Oct. 27\n-\n29, 2026JAPAN SCIENTIST AI JAM SESSION 2026",
+        "url": "https://www.riken.jp/en/news_pubs/events/lectures/20261027_1/index.html"
+      },
+      {
+        "text": "More Events",
+        "url": "https://www.riken.jp/en/news_pubs/events/"
+      },
+      {
+        "text": "Overview",
+        "url": "https://www.riken.jp/en/about/overview/"
+      },
+      {
+        "text": "Messages from the President",
+        "url": "https://www.riken.jp/en/about/president/"
+      },
+      {
+        "text": "Management and Governance",
+        "url": "https://www.riken.jp/en/about/management/"
+      },
+      {
+        "text": "History",
+        "url": "https://www.riken.jp/en/about/history/"
+      },
+      {
+        "text": "Map",
+        "url": "https://www.riken.jp/en/about/map/"
+      },
+      {
+        "text": "Facts & Figures",
+        "url": "https://www.riken.jp/en/about/data/"
+      },
+      {
+        "text": "RIKEN People",
+        "url": "https://www.riken.jp/en/about/people/"
+      },
+      {
+        "text": "Support RIKEN",
+        "url": "https://www.riken.jp/en/about/support/"
+      }
+    ]
+  },
+  {
+    "name": "AIST",
+    "country": "일본",
+    "type": "연구기관",
+    "fields": "semis;manufacturing;energy",
+    "url": "https://www.aist.go.jp/index_en.html",
+    "checked_at": "2026-10-05T12:16:13.791632+00:00",
+    "existing_keys": [],
+    "status": 200,
+    "final_url": "https://www.aist.go.jp/index_en.html",
+    "title": "National Institute of Advanced Industrial Science and Technology (AIST)",
+    "feeds": [
+      "https://www.aist.go.jp/aist_j/progressive/aist_rss.html",
+      "https://www.aist.go.jp/aist_e/terms_of_use/rss/index.html",
+      "https://www.aist.go.jp/ctl/module/mid/185/tid/5789/rss.php"
+    ],
+    "relevant_links": [
+      {
+        "text": "About AIST",
+        "url": "https://www.aist.go.jp/aist_e/about_aist/index.html"
+      },
+      {
+        "text": "About AIST",
+        "url": "https://www.aist.go.jp/aist_e/about_aist/"
+      },
+      {
+        "text": "About AIST",
+        "url": "https://www.aist.go.jp/aist_e/about_aist/"
+      },
+      {
+        "text": "産総研を知る10のキーワード",
+        "url": "https://www.aist.go.jp/aist_j/information/about_aist.html"
+      },
+      {
+        "text": "ニュース",
+        "url": "https://www.aist.go.jp/aist_j/news/index.html"
+      },
+      {
+        "text": "お知らせ",
+        "url": "https://www.aist.go.jp/aist_j/news/announce/l_news_announce.html"
+      },
+      {
+        "text": "研究成果",
+        "url": "https://www.aist.go.jp/aist_j/news/research/l_news_research.html"
+      },
+      {
+        "text": "イベント",
+        "url": "https://www.aist.go.jp/aist_j/news/event/l_news_event.html"
+      },
+      {
+        "text": "受賞",
+        "url": "https://www.aist.go.jp/aist_j/news/prize/l_news_prize.html"
+      },
+      {
+        "text": "報道・マスコミの方へ",
+        "url": "https://www.aist.go.jp/aist_j/press/index.html"
+      },
+      {
+        "text": "はじめての方へ",
+        "url": "https://www.aist.go.jp/aist_j/researcher/aboutus/index.html"
+      },
+      {
+        "text": "産総研との連携メニューを知りたい",
+        "url": "https://www.aist.go.jp/aist_j/researcher/aboutus/howto01.html"
+      },
+      {
+        "text": "産総研の施設・装置を利用したい",
+        "url": "https://www.aist.go.jp/aist_j/researcher/aboutus/howto02.html"
+      },
+      {
+        "text": "研究成果を知りたい",
+        "url": "https://www.aist.go.jp/aist_j/researcher/aboutus/howto04.html"
+      },
+      {
+        "text": "研究領域：エネルギー・環境",
+        "url": "https://www.aist.go.jp/aist_j/researcher/aboutus/dep_denvene.html"
+      },
+      {
+        "text": "研究領域：生命工学",
+        "url": "https://www.aist.go.jp/aist_j/researcher/aboutus/dep_dlsbt.html"
+      },
+      {
+        "text": "研究領域：情報・人間工学",
+        "url": "https://www.aist.go.jp/aist_j/researcher/aboutus/dep_dithf.html"
+      },
+      {
+        "text": "研究領域：材料・化学",
+        "url": "https://www.aist.go.jp/aist_j/researcher/aboutus/dep_dmc.html"
+      },
+      {
+        "text": "研究領域：エレクトロニクス・製造",
+        "url": "https://www.aist.go.jp/aist_j/researcher/aboutus/dep_delma.html"
+      },
+      {
+        "text": "地質調査総合センター",
+        "url": "https://www.aist.go.jp/aist_j/researcher/aboutus/dep_gsj.html"
+      },
+      {
+        "text": "計量標準総合センター",
+        "url": "https://www.aist.go.jp/aist_j/researcher/aboutus/dep_nmij.html"
+      },
+      {
+        "text": "実装研究センター",
+        "url": "https://www.aist.go.jp/aist_j/researcher/aboutus/irc.html"
+      },
+      {
+        "text": "はじめての方へ",
+        "url": "https://www.aist.go.jp/aist_j/business/aboutus/index.html"
+      },
+      {
+        "text": "研究領域：エネルギー・環境",
+        "url": "https://www.aist.go.jp/aist_j/business/aboutus/dep_denvene.html"
+      },
+      {
+        "text": "研究領域：生命工学",
+        "url": "https://www.aist.go.jp/aist_j/business/aboutus/dep_dlsbt.html"
+      },
+      {
+        "text": "研究領域：情報・人間工学",
+        "url": "https://www.aist.go.jp/aist_j/business/aboutus/dep_dithf.html"
+      },
+      {
+        "text": "研究領域：材料・化学",
+        "url": "https://www.aist.go.jp/aist_j/business/aboutus/dep_dmc.html"
+      },
+      {
+        "text": "研究領域：エレクトロニクス・製造",
+        "url": "https://www.aist.go.jp/aist_j/business/aboutus/dep_delma.html"
+      },
+      {
+        "text": "地質調査総合センター",
+        "url": "https://www.aist.go.jp/aist_j/business/aboutus/dep_gsj.html"
+      },
+      {
+        "text": "計量標準総合センター",
+        "url": "https://www.aist.go.jp/aist_j/business/aboutus/dep_nmij.html"
+      },
+      {
+        "text": "実装研究センター",
+        "url": "https://www.aist.go.jp/aist_j/business/aboutus/irc.html"
+      },
+      {
+        "text": "はじめての方へ",
+        "url": "https://www.aist.go.jp/aist_j/public/aboutus/index.html"
+      },
+      {
+        "text": "産総研マガジンとは",
+        "url": "https://www.aist.go.jp/aist_j/magazine/about.html"
+      },
+      {
+        "text": "産総研RSS配信について",
+        "url": "https://www.aist.go.jp/aist_j/progressive/aist_rss.html"
+      },
+      {
+        "text": "About FREA",
+        "url": "https://www.aist.go.jp/fukushima/en/outline/index.html"
+      }
+    ]
+  },
+  {
+    "name": "NICT",
+    "country": "일본",
+    "type": "연구기관",
+    "fields": "connectivity;security;frontier",
+    "url": "https://www.nict.go.jp/en/",
+    "checked_at": "2026-10-05T12:16:13.912919+00:00",
+    "existing_keys": [],
+    "status": 200,
+    "final_url": "https://www.nict.go.jp/en/",
+    "title": "NICT - National Institute of Information and Communications Technology",
+    "error": "AttributeError"
+  },
+  {
+    "name": "CAS",
+    "country": "중국",
+    "type": "연구기관",
+    "fields": "semis;frontier;ai",
+    "url": "https://english.cas.cn/",
+    "checked_at": "2026-10-05T12:16:14.134440+00:00",
+    "existing_keys": [],
+    "status": 200,
+    "final_url": "https://english.cas.cn/",
+    "title": "Chinese Academy of Sciences",
+    "feeds": [
+      "https://english.cas.cn/research/platforms/large-research-infrastructures/earth-ystem-and-nvironment/carss/"
+    ],
+    "relevant_links": [
+      {
+        "text": "About CAS",
+        "url": "https://english.cas.cn/../../about-cas/"
+      },
+      {
+        "text": "Profile",
+        "url": "https://english.cas.cn/../../about-cas/profile/"
+      },
+      {
+        "text": "History",
+        "url": "https://english.cas.cn/../../about-cas/history/"
+      },
+      {
+        "text": "Leadership",
+        "url": "https://english.cas.cn/../../about-cas/leadership/"
+      },
+      {
+        "text": "CAS in Figures",
+        "url": "https://english.cas.cn/../../about-cas/#casinfigures"
+      },
+      {
+        "text": "Affiliations",
+        "url": "https://english.cas.cn/../../about-cas/affiliations/"
+      },
+      {
+        "text": "Contact",
+        "url": "https://english.cas.cn/../../about-cas/contact/"
+      },
+      {
+        "text": "Newsroom",
+        "url": "https://english.cas.cn/../../newsroom/"
+      },
+      {
+        "text": "Headlines",
+        "url": "https://english.cas.cn/../../newsroom/headlines/"
+      },
+      {
+        "text": "Research News",
+        "url": "https://english.cas.cn/../../newsroom/research-news/"
+      },
+      {
+        "text": "News Updates",
+        "url": "https://english.cas.cn/../../newsroom/news-updates/"
+      },
+      {
+        "text": "Scientists @CAS",
+        "url": "https://english.cas.cn/../../newsroom/scientists-cas/"
+      },
+      {
+        "text": "CAS in Media",
+        "url": "https://english.cas.cn/../../newsroom/cas-in-media/"
+      },
+      {
+        "text": "Upcoming Events",
+        "url": "https://english.cas.cn/../../newsroom/upcoming-events/"
+      },
+      {
+        "text": "In Focus",
+        "url": "https://english.cas.cn/../../newsroom/in-focus/"
+      },
+      {
+        "text": "Newsletter",
+        "url": "https://english.cas.cn/../../newsroom/newsletter/"
+      },
+      {
+        "text": "News Archives",
+        "url": "https://english.cas.cn/../../newsroom/#News Archives"
+      },
+      {
+        "text": "About CAS",
+        "url": "https://english.cas.cn/../../about-cas/"
+      },
+      {
+        "text": "Newsroom",
+        "url": "https://english.cas.cn/../../newsroom/"
+      },
+      {
+        "text": "Amphibious Stem-Insect Reveals Early History of Insect TerrestrializationResearc",
+        "url": "https://english.cas.cn/newsroom/headlines/202608/t20260826_1188824.shtml"
+      },
+      {
+        "text": "Siberia's Growing Methane Threat Could Offset 20% of Global Methane Reduction Ta",
+        "url": "https://english.cas.cn/newsroom/headlines/202608/t20260803_1186827.shtml"
+      },
+      {
+        "text": "Chinese Academy of Sciences Honors New Foreign Members, Reinforces Global Scienc",
+        "url": "https://english.cas.cn/newsroom/headlines/202607/t20260708_1176780.shtml"
+      },
+      {
+        "text": "Second Quarter 2026: Editors' News ChoiceScientists from the Chinese Academy of ",
+        "url": "https://english.cas.cn/special-reports/2026q2/index.shtml"
+      },
+      {
+        "text": "First Physics Result of Jiangmen Underground Neutrino Observatory Published inNa",
+        "url": "https://english.cas.cn/newsroom/headlines/202606/t20260611_1161560.shtml"
+      },
+      {
+        "text": "Research News",
+        "url": "https://english.cas.cn/newsroom/research-news/"
+      },
+      {
+        "text": "View more",
+        "url": "https://english.cas.cn/newsroom/research-news/"
+      },
+      {
+        "text": "AstronomySep 30, 2026Mass-Loss Rate Rises Sharply Before Rare Type Ia Supernova ",
+        "url": "https://english.cas.cn/newsroom/research-news/202609/t20260930_1201607.shtml"
+      },
+      {
+        "text": "BiodiversitySep 30, 2026Leaves and Roots of the Same Tree Follow Distinct Defens",
+        "url": "https://english.cas.cn/newsroom/research-news/202609/t20260930_1201598.shtml"
+      },
+      {
+        "text": "BioengineeringSep 30, 2026Two-Mode Raman-Activated Cell Sorting Enables Downstre",
+        "url": "https://english.cas.cn/newsroom/research-news/202609/t20260930_1201619.shtml"
+      },
+      {
+        "text": "BioengineeringSep 29, 2026FlowRACS-Based Method Speeds Discovery of Low-Abundanc",
+        "url": "https://english.cas.cn/newsroom/research-news/202609/t20260929_1201569.shtml"
+      },
+      {
+        "text": "Chemical Engineering;BioengineeringBacterial Fermentation Turn Sweet Potato Vine",
+        "url": "https://english.cas.cn/newsroom/research-news/202610/t20261001_1201656.shtml"
+      },
+      {
+        "text": "Researchers Uncover a Mechanism Affecting Tungsten Transport in Tokamak PlasmasS",
+        "url": "https://english.cas.cn/newsroom/research-news/202609/t20260930_1201624.shtml"
+      },
+      {
+        "text": "Remote Sensing;SatellitesResearchers Improve Satellite-Based Cloud Property Retr",
+        "url": "https://english.cas.cn/newsroom/research-news/202609/t20260930_1201622.shtml"
+      },
+      {
+        "text": "Researchers Report Organic Metal Chalcogenide Film with Giant BirefringenceSep 3",
+        "url": "https://english.cas.cn/newsroom/research-news/202609/t20260930_1201593.shtml"
+      },
+      {
+        "text": "Scientists @CAS",
+        "url": "https://english.cas.cn/newsroom/scientists-cas/"
+      }
+    ]
+  },
+  {
+    "name": "III",
+    "country": "대만",
+    "type": "연구기관",
+    "fields": "platform_sw;security;manufacturing",
+    "url": "https://www.iii.org.tw/en/",
+    "checked_at": "2026-10-05T12:16:14.340701+00:00",
+    "existing_keys": [],
+    "status": 200,
+    "final_url": "https://www.iii.org.tw/en",
+    "title": "Institute for Information Industry(III)",
+    "feeds": [],
+    "relevant_links": [
+      {
+        "text": "About III",
+        "url": "https://www.iii.org.tw/en/about/iii"
+      },
+      {
+        "text": "Organization",
+        "url": "https://www.iii.org.tw/en/about/organization"
+      },
+      {
+        "text": "Newsroom",
+        "url": "https://www.iii.org.tw/en/news/newsroom"
+      },
+      {
+        "text": "Read More",
+        "url": "https://www.iii.org.tw/en/about/iii/overview"
+      },
+      {
+        "text": "Read More",
+        "url": "https://www.iii.org.tw/en/about/iii/honors"
+      },
+      {
+        "text": "Read More",
+        "url": "https://www.iii.org.tw/en/news/newsroom/iii-news"
+      }
+    ]
+  },
+  {
+    "name": "A*STAR Research",
+    "country": "싱가포르",
+    "type": "연구기관",
+    "fields": "semis;health_tech;manufacturing",
+    "url": "https://research.a-star.edu.sg/",
+    "checked_at": "2026-10-05T12:16:14.780984+00:00",
+    "existing_keys": [
+      "a-star-news-web"
+    ],
+    "status": 200,
+    "final_url": "https://research.a-star.edu.sg/",
+    "title": "Home - A*STAR Research",
+    "feeds": [
+      "https://research.a-star.edu.sg/feed/",
+      "https://research.a-star.edu.sg/comments/feed/",
+      "https://research.a-star.edu.sg/rss"
+    ],
+    "relevant_links": [
+      {
+        "text": "About",
+        "url": "https://research.a-star.edu.sg/about/"
+      },
+      {
+        "text": "About",
+        "url": "https://research.a-star.edu.sg/about/"
+      },
+      {
+        "text": "About A*STAR Research",
+        "url": "https://research.a-star.edu.sg/about/"
+      },
+      {
+        "text": "",
+        "url": "https://research.a-star.edu.sg/rss"
+      }
+    ]
+  },
+  {
+    "name": "Tech in Asia",
+    "country": "싱가포르·동남아",
+    "type": "전문매체",
+    "fields": "platform_sw;cloud_data;ai",
+    "url": "https://www.techinasia.com/",
+    "checked_at": "2026-10-05T12:16:15.027367+00:00",
+    "existing_keys": [],
+    "status": 403,
+    "final_url": "https://www.techinasia.com/",
+    "title": "403 Forbidden",
+    "feeds": [],
+    "relevant_links": []
+  },
+  {
+    "name": "DFKI",
+    "country": "독일",
+    "type": "연구기관",
+    "fields": "ai;robotics_mobility;manufacturing",
+    "url": "https://www.dfki.de/en/web/",
+    "checked_at": "2026-10-05T12:16:15.129735+00:00",
+    "existing_keys": [],
+    "status": 200,
+    "final_url": "https://www.dfki.de/en/web/",
+    "title": " German Research Center for Artificial Intelligence (DFKI)",
+    "feeds": [],
+    "relevant_links": [
+      {
+        "text": "Press",
+        "url": "https://www.dfki.de/en/web/news-media/press"
+      },
+      {
+        "text": "Contact",
+        "url": "https://www.dfki.de/en/web/about-us/locations-contact"
+      },
+      {
+        "text": "Project News",
+        "url": "https://www.dfki.de/en/web/research/projects-and-publications/project-news"
+      },
+      {
+        "text": "News & Media",
+        "url": "https://www.dfki.de/en/web/news-media"
+      },
+      {
+        "text": "News",
+        "url": "https://www.dfki.de/en/web/news-media/news"
+      },
+      {
+        "text": "News Overview",
+        "url": "https://www.dfki.de/en/web/news-media/news-events/news-overview"
+      },
+      {
+        "text": "Project News",
+        "url": "https://www.dfki.de/en/web/research/projects-and-publications/project-news"
+      },
+      {
+        "text": "dfki ai next",
+        "url": "https://www.dfki.de/en/web/news-media/news/dfki-ai-next"
+      },
+      {
+        "text": "DFKI4Space",
+        "url": "https://www.dfki.de/en/web/news-media/news/dfki4space"
+      },
+      {
+        "text": "Events",
+        "url": "https://www.dfki.de/en/web/news-media/events"
+      },
+      {
+        "text": "DFKI at IJCAI-ECAI 2026",
+        "url": "https://www.dfki.de/en/web/news-media/events/dfki-at-ijcai-ecai-2026"
+      },
+      {
+        "text": "Hannover Messe 2026",
+        "url": "https://www.dfki.de/en/web/news-media/events/hannover-messe-2026"
+      },
+      {
+        "text": "All Events",
+        "url": "https://www.dfki.de/en/web/news-media/news-events/events"
+      },
+      {
+        "text": "Media",
+        "url": "https://www.dfki.de/en/web/news-media/media"
+      },
+      {
+        "text": "DFKI in the Media",
+        "url": "https://www.dfki.de/en/web/news-media/press/dfki-in-the-media"
+      },
+      {
+        "text": "Podcast - KI und jetzt?",
+        "url": "https://www.dfki.de/en/web/news-media/media/podcast-ki-und-jetzt-staffel-3"
+      },
+      {
+        "text": "Videos",
+        "url": "https://www.dfki.de/en/web/news-media/media/videos"
+      },
+      {
+        "text": "Press",
+        "url": "https://www.dfki.de/en/web/news-media/press"
+      },
+      {
+        "text": "Press Releases",
+        "url": "https://www.dfki.de/en/web/news-media/press/press-releases"
+      },
+      {
+        "text": "Press Material",
+        "url": "https://www.dfki.de/en/web/news-media/press/press-material"
+      },
+      {
+        "text": "Press Contact",
+        "url": "https://www.dfki.de/en/web/news-media/press/press-contact"
+      },
+      {
+        "text": "About DFKI",
+        "url": "https://www.dfki.de/en/web/about-us"
+      },
+      {
+        "text": "DFKI at a Glance",
+        "url": "https://www.dfki.de/en/web/about-us/dfki-at-a-glance"
+      },
+      {
+        "text": "Company Profile",
+        "url": "https://www.dfki.de/en/web/about-us/dfki-at-a-glance/company-profile"
+      },
+      {
+        "text": "Managing Director & Management Board",
+        "url": "https://www.dfki.de/en/web/about-us/dfki-at-a-glance/managing-director-management-board"
+      },
+      {
+        "text": "Shareholders",
+        "url": "https://www.dfki.de/en/web/about-us/dfki-at-a-glance/shareholders"
+      },
+      {
+        "text": "Supervisory Board",
+        "url": "https://www.dfki.de/en/web/about-us/dfki-at-a-glance/supervisory-board"
+      },
+      {
+        "text": "Scientific Advisory Board",
+        "url": "https://www.dfki.de/en/web/about-us/dfki-at-a-glance/scientific-advisory-board"
+      },
+      {
+        "text": "Governance",
+        "url": "https://www.dfki.de/en/web/about-us/governance"
+      },
+      {
+        "text": "Mission Statement",
+        "url": "https://www.dfki.de/en/web/about-us/governance/mission-statement"
+      },
+      {
+        "text": "Diversity and Gender Equality",
+        "url": "https://www.dfki.de/en/web/about-us/governance/diversity-and-gender-equality"
+      },
+      {
+        "text": "Ethics Team",
+        "url": "https://www.dfki.de/en/web/about-us/governance/ethics-team"
+      },
+      {
+        "text": "Compliance",
+        "url": "https://www.dfki.de/en/web/about-us/governance/compliance"
+      },
+      {
+        "text": "Good scientific practice",
+        "url": "https://www.dfki.de/en/web/about-us/governance/good-scientific-practice"
+      },
+      {
+        "text": "Working at DFKI",
+        "url": "https://www.dfki.de/en/web/about-us/working-at-dfki"
+      }
+    ]
+  },
+  {
+    "name": "pv magazine",
+    "country": "독일·국제판",
+    "type": "전문매체",
+    "fields": "energy",
+    "url": "https://www.pv-magazine.com/",
+    "checked_at": "2026-10-05T12:16:15.237867+00:00",
+    "existing_keys": [],
+    "status": 200,
+    "final_url": "https://www.pv-magazine.com/",
+    "title": "Latest PV News, Insights & Industry Trends | pv magazine Global",
+    "feeds": [
+      "https://www.pv-magazine.com/feed/",
+      "https://www.pv-magazine.com/comments/feed/"
+    ],
+    "relevant_links": [
+      {
+        "text": "News & Analysis",
+        "url": "https://www.pv-magazine.com/latest-news/"
+      },
+      {
+        "text": "Press Releases",
+        "url": "https://www.pv-magazine.com/press-releases/"
+      },
+      {
+        "text": "About Us",
+        "url": "https://www.pv-magazine.com/info/about-us/"
+      },
+      {
+        "text": "ESS News",
+        "url": "https://www.ess-news.com"
+      },
+      {
+        "text": "Newsletter",
+        "url": "https://www.pv-magazine.com/#newsletter"
+      },
+      {
+        "text": "News & Analysis",
+        "url": "https://www.pv-magazine.com/latest-news/"
+      },
+      {
+        "text": "Press Releases",
+        "url": "https://www.pv-magazine.com/press-releases/"
+      },
+      {
+        "text": "About Us",
+        "url": "https://www.pv-magazine.com/info/about-us/"
+      },
+      {
+        "text": "ESS News",
+        "url": "https://www.ess-news.com"
+      },
+      {
+        "text": "See all articles",
+        "url": "https://www.pv-magazine.com/all-news/"
+      },
+      {
+        "text": "Ten states in the United States have passed laws permitting plug-in solar, with ",
+        "url": "https://www.pv-magazine.com/2026/10/05/socket-to-the-sun-2/"
+      },
+      {
+        "text": "In other news, Oregon State University researchers demonstrated photocatalytic h",
+        "url": "https://www.pv-magazine.com/2026/10/02/the-hydrogen-stream-pv-driven-h2-plant-commissioned-in-southern-italy/"
+      },
+      {
+        "text": "See all",
+        "url": "https://www.pv-magazine.com/press-releases"
+      },
+      {
+        "text": "GameChange Energy completes commissioning of its Genius Tracker for the landmark",
+        "url": "https://www.pv-magazine.com/press-releases/gamechange-energy-completes-commissioning-of-its-genius-tracker-for-the-landmark-mooi-plaats-solar-pv-project/"
+      },
+      {
+        "text": "Orkestra Energy and SunWiz Launch C&I Solar Industry Census in Europe",
+        "url": "https://www.pv-magazine.com/press-releases/orkestra-energy-and-sunwiz-launch-ci-solar-industry-census-in-europe-2/"
+      },
+      {
+        "text": "EP Cube Brings AI-Powered Energy Management and Light C&I Solutions to Solar & S",
+        "url": "https://www.pv-magazine.com/press-releases/ep-cube-brings-ai-powered-energy-management-and-light-ci-solutions-to-solar-storage-live-uk-2026/"
+      },
+      {
+        "text": "From Grid To Home: Bringing 12 Years of UK Grid Experience into Home Energy",
+        "url": "https://www.pv-magazine.com/press-releases/from-grid-to-home-bringing-12-years-of-uk-grid-experience-into-home-energy/"
+      },
+      {
+        "text": "Ten states in the United States have passed laws permitting plug-in solar, with ",
+        "url": "https://www.pv-magazine.com/2026/10/05/socket-to-the-sun-2/"
+      },
+      {
+        "text": "More than 100 potential investors have expressed interest in insolvent German so",
+        "url": "https://www.pv-magazine.com/2026/10/05/enerparc-attracts-more-than-100-potential-investors-as-insolvency-sale-moves-forward/"
+      },
+      {
+        "text": "See all",
+        "url": "https://www.pv-magazine.com/press-releases/"
+      },
+      {
+        "text": "GameChange Energy completes commissioning of its Genius Tracker for the landmark",
+        "url": "https://www.pv-magazine.com/press-releases/gamechange-energy-completes-commissioning-of-its-genius-tracker-for-the-landmark-mooi-plaats-solar-pv-project/"
+      },
+      {
+        "text": "Orkestra Energy and SunWiz Launch C&I Solar Industry Census in Europe",
+        "url": "https://www.pv-magazine.com/press-releases/orkestra-energy-and-sunwiz-launch-ci-solar-industry-census-in-europe-2/"
+      },
+      {
+        "text": "EP Cube Brings AI-Powered Energy Management and Light C&I Solutions to Solar & S",
+        "url": "https://www.pv-magazine.com/press-releases/ep-cube-brings-ai-powered-energy-management-and-light-ci-solutions-to-solar-storage-live-uk-2026/"
+      },
+      {
+        "text": "From Grid To Home: Bringing 12 Years of UK Grid Experience into Home Energy",
+        "url": "https://www.pv-magazine.com/press-releases/from-grid-to-home-bringing-12-years-of-uk-grid-experience-into-home-energy/"
+      },
+      {
+        "text": "News & Analysis",
+        "url": "https://www.pv-magazine.com/latest-news/"
+      },
+      {
+        "text": "About Us",
+        "url": "https://www.pv-magazine.com/info/about-us/"
+      }
+    ]
+  },
+  {
+    "name": "electrive",
+    "country": "독일·국제판",
+    "type": "전문매체",
+    "fields": "energy;robotics_mobility",
+    "url": "https://www.electrive.com/",
+    "checked_at": "2026-10-05T12:16:15.263293+00:00",
+    "existing_keys": [],
+    "status": 200,
+    "final_url": "https://www.electrive.com/",
+    "title": "electrive – the industry's leading emobility media",
+    "feeds": [
+      "https://www.electrive.net/feed/"
+    ],
+    "relevant_links": [
+      {
+        "text": "Newsletter",
+        "url": "https://www.electrive.com/newsletter/"
+      },
+      {
+        "text": "Newsletter",
+        "url": "https://www.electrive.com/newsletter/"
+      },
+      {
+        "text": "Learn more",
+        "url": "https://www.electrive.com/newsletter-today/"
+      },
+      {
+        "text": "Learn more",
+        "url": "https://www.electrive.com/newsletter-commercial/"
+      },
+      {
+        "text": "Newsletter",
+        "url": "https://www.electrive.com/newsletter/"
+      },
+      {
+        "text": "Imprint",
+        "url": "https://www.electrive.com/imprint/"
+      },
+      {
+        "text": "RSS",
+        "url": "https://www.electrive.net/feed/"
+      },
+      {
+        "text": "Imprint",
+        "url": "https://www.electrive.com/imprint/"
+      }
+    ]
+  },
+  {
+    "name": "Inria",
+    "country": "프랑스",
+    "type": "연구기관",
+    "fields": "ai;platform_sw;security",
+    "url": "https://www.inria.fr/en",
+    "checked_at": "2026-10-05T12:16:15.300615+00:00",
+    "existing_keys": [],
+    "status": 200,
+    "final_url": "https://www.inria.fr/en",
+    "title": "Accueil | Inria",
+    "feeds": [
+      "https://www.inria.fr/en/news_events/rss.xml"
+    ],
+    "relevant_links": [
+      {
+        "text": "All news & all events",
+        "url": "https://www.inria.fr/en/actualites_evenements"
+      },
+      {
+        "text": "RSS feed",
+        "url": "https://www.inria.fr/en/news_events/rss.xml"
+      },
+      {
+        "text": "News & events",
+        "url": "https://www.inria.fr/en/actualites_evenements"
+      },
+      {
+        "text": "Press area",
+        "url": "https://www.inria.fr/en/press-area"
+      },
+      {
+        "text": "RSS feed",
+        "url": "https://www.inria.fr/en/news_events/rss.xml"
+      }
+    ]
+  },
+  {
+    "name": "CEA",
+    "country": "프랑스",
+    "type": "연구기관",
+    "fields": "semis;energy;frontier",
+    "url": "https://www.cea.fr/english",
+    "checked_at": "2026-10-05T12:16:15.600700+00:00",
+    "existing_keys": [],
+    "status": 200,
+    "final_url": "https://www.cea.fr/english",
+    "title": "English Portal - Welcome",
+    "error": "AttributeError"
+  },
+  {
+    "name": "CNRS",
+    "country": "프랑스",
+    "type": "연구기관",
+    "fields": "frontier;ai;health_tech",
+    "url": "https://www.cnrs.fr/en",
+    "checked_at": "2026-10-05T12:16:16.051375+00:00",
+    "existing_keys": [],
+    "status": 200,
+    "final_url": "https://www.cnrs.fr/en",
+    "title": "Centre national de la recherche scientifique (CNRS)",
+    "feeds": [
+      "https://www.cnrs.fr/sites/default/files/css/css_nBzVnDNd5GSWNJQKwMlY6zrPlKZDo7D2T8AGYF9JBFc.css?delta=0&language=en&theme=cnrs&include=eJxFT-0OgyAMfCEjj2SqnMpWKGlh6p5-bM74p7mv5toRpUAH7FkMfpgDN2puQYISdxOT2eFGMlw4wowW2MWT-OaltnSmvshWUvhuEhYdZXceM1UuTVA4rzUT9_Sg_RSSaCQOb3TYC4f0vCJ_2mVSWpTyapdzK31NuY4cbG2FeZUitoUMd8OeZWqv2GEF8TzyFbCZ-80-iq-MD0i7Zyo",
+      "https://www.cnrs.fr/sites/default/files/css/css_u3VDoV_uVhMAQUb9XTxoJcqGe_Sjz9Xecw3RMiKeK3I.css?delta=1&language=en&theme=cnrs&include=eJxFT-0OgyAMfCEjj2SqnMpWKGlh6p5-bM74p7mv5toRpUAH7FkMfpgDN2puQYISdxOT2eFGMlw4wowW2MWT-OaltnSmvshWUvhuEhYdZXceM1UuTVA4rzUT9_Sg_RSSaCQOb3TYC4f0vCJ_2mVSWpTyapdzK31NuY4cbG2FeZUitoUMd8OeZWqv2GEF8TzyFbCZ-80-iq-MD0i7Zyo",
+      "https://www.cnrs.fr/sites/default/files/css/css_jC3nFhDSkZJZs4paYVm19ko40YuQ1TTeerKFeiVDhik.css?delta=2&language=en&theme=cnrs&include=eJxFT-0OgyAMfCEjj2SqnMpWKGlh6p5-bM74p7mv5toRpUAH7FkMfpgDN2puQYISdxOT2eFGMlw4wowW2MWT-OaltnSmvshWUvhuEhYdZXceM1UuTVA4rzUT9_Sg_RSSaCQOb3TYC4f0vCJ_2mVSWpTyapdzK31NuY4cbG2FeZUitoUMd8OeZWqv2GEF8TzyFbCZ-80-iq-MD0i7Zyo",
+      "https://www.cnrs.fr/sites/default/files/css/css_mU_XuIifFMoebEPNFSKoROP8DpzpCm1OC6IxsFamWNI.css?delta=3&language=en&theme=cnrs&include=eJxFT-0OgyAMfCEjj2SqnMpWKGlh6p5-bM74p7mv5toRpUAH7FkMfpgDN2puQYISdxOT2eFGMlw4wowW2MWT-OaltnSmvshWUvhuEhYdZXceM1UuTVA4rzUT9_Sg_RSSaCQOb3TYC4f0vCJ_2mVSWpTyapdzK31NuY4cbG2FeZUitoUMd8OeZWqv2GEF8TzyFbCZ-80-iq-MD0i7Zyo",
+      "https://www.cnrs.fr/sites/default/files/css/css_2XRx9pAGGbq8FoPVk16_3F7baUPeyCpsQ6fR_fRs0wg.css?delta=4&language=en&theme=cnrs&include=eJxFT-0OgyAMfCEjj2SqnMpWKGlh6p5-bM74p7mv5toRpUAH7FkMfpgDN2puQYISdxOT2eFGMlw4wowW2MWT-OaltnSmvshWUvhuEhYdZXceM1UuTVA4rzUT9_Sg_RSSaCQOb3TYC4f0vCJ_2mVSWpTyapdzK31NuY4cbG2FeZUitoUMd8OeZWqv2GEF8TzyFbCZ-80-iq-MD0i7Zyo"
+    ],
+    "relevant_links": [
+      {
+        "text": "Press",
+        "url": "https://www.cnrs.fr/en/press"
+      },
+      {
+        "text": "Corporate",
+        "url": "https://www.cnrs.fr/en/newsroom?field_theme_target_id%5B346%5D=346"
+      },
+      {
+        "text": "Jacqueline Bloch, CNRS Gold Medal",
+        "url": "https://news.cnrs.fr/articles/jacqueline-bloch-magician-of-light"
+      },
+      {
+        "text": "Corporate",
+        "url": "https://www.cnrs.fr/en/newsroom?field_theme_target_id%5B346%5D=346"
+      },
+      {
+        "text": "Corporate",
+        "url": "https://www.cnrs.fr/en/newsroom?field_theme_target_id%5B346%5D=346"
+      },
+      {
+        "text": "",
+        "url": "https://news.cnrs.fr/articles/jewish-presence-predates-islam-in-arabia"
+      },
+      {
+        "text": "Society",
+        "url": "https://www.cnrs.fr/en/newsroom?field_theme_target_id%5B349%5D=349"
+      },
+      {
+        "text": "Read the article",
+        "url": "https://news.cnrs.fr/articles/jewish-presence-predates-islam-in-arabia"
+      },
+      {
+        "text": "Corporate",
+        "url": "https://www.cnrs.fr/en/newsroom?field_theme_target_id%5B346%5D=346"
+      },
+      {
+        "text": "©Thierry TORTOSA",
+        "url": "https://www.cnrs.fr/en/press/new-species-mosasaur-identified-provence-southeastern-france"
+      },
+      {
+        "text": "Environment",
+        "url": "https://www.cnrs.fr/en/newsroom?field_theme_target_id%5B352%5D=352"
+      },
+      {
+        "text": "A new species of Mosasaur identified in Provence, southeastern France",
+        "url": "https://www.cnrs.fr/en/press/new-species-mosasaur-identified-provence-southeastern-france"
+      },
+      {
+        "text": "Discover",
+        "url": "https://www.cnrs.fr/en/press/new-species-mosasaur-identified-provence-southeastern-france"
+      },
+      {
+        "text": "Matter",
+        "url": "https://www.cnrs.fr/en/newsroom?field_theme_target_id%5B348%5D=348"
+      },
+      {
+        "text": "All articles on this topic",
+        "url": "https://www.cnrs.fr/en/newsroom"
+      },
+      {
+        "text": "Green alert !Discover two new videos exploring environmental topics and a select",
+        "url": "https://images.cnrs.fr/en/scientific-news/green-alert"
+      },
+      {
+        "text": "It’s getting hot!Temperatures measured on land and in the seas are breaking reco",
+        "url": "https://images.cnrs.fr/en/scientific-news/its-getting-hot"
+      },
+      {
+        "text": "Frozen archives in the heart of AntarcticaThe Ice Memory Foundation opens the fi",
+        "url": "https://images.cnrs.fr/en/scientific-news/frozen-archives-heart-antarctica"
+      },
+      {
+        "text": "Press",
+        "url": "https://www.cnrs.fr/en/press"
+      }
+    ]
+  },
+  {
+    "name": "TNO",
+    "country": "네덜란드",
+    "type": "연구기관",
+    "fields": "connectivity;energy;manufacturing",
+    "url": "https://www.tno.nl/en/",
+    "checked_at": "2026-10-05T12:16:17.041989+00:00",
+    "existing_keys": [],
+    "status": 200,
+    "final_url": "https://www.tno.nl/en/",
+    "title": "Innovation for life | TNO",
+    "feeds": [],
+    "relevant_links": [
+      {
+        "text": "6G",
+        "url": "https://www.tno.nl/en/digital/digital-infrastructures/10-things-you-need-know-about-6g/"
+      },
+      {
+        "text": "Newsroom",
+        "url": "https://www.tno.nl/en/newsroom/"
+      },
+      {
+        "text": "News",
+        "url": "https://www.tno.nl/en/newsroom/news/"
+      },
+      {
+        "text": "Events",
+        "url": "https://www.tno.nl/en/newsroom/events/"
+      },
+      {
+        "text": "Webinars",
+        "url": "https://www.tno.nl/en/newsroom/webinars/"
+      },
+      {
+        "text": "Insights",
+        "url": "https://www.tno.nl/en/newsroom/insights/"
+      },
+      {
+        "text": "Podcasts",
+        "url": "https://www.tno.nl/en/newsroom/podcasts/"
+      },
+      {
+        "text": "Papers",
+        "url": "https://www.tno.nl/en/newsroom/papers/"
+      },
+      {
+        "text": "Trending",
+        "url": "https://www.tno.nl/en/newsroom/trending/"
+      },
+      {
+        "text": "TNO News",
+        "url": "https://www.tno.nl/en/newsroom/tno-news/"
+      },
+      {
+        "text": "About TNO",
+        "url": "https://www.tno.nl/en/about-tno/"
+      },
+      {
+        "text": "Organisation",
+        "url": "https://www.tno.nl/en/about-tno/organisation/"
+      },
+      {
+        "text": "Mission and vision",
+        "url": "https://www.tno.nl/en/about-tno/mission-vision/"
+      },
+      {
+        "text": "Strategy",
+        "url": "https://www.tno.nl/en/about-tno/strategy/"
+      },
+      {
+        "text": "Our people",
+        "url": "https://www.tno.nl/en/about-tno/our-people/"
+      },
+      {
+        "text": "TNO and society",
+        "url": "https://www.tno.nl/en/about-tno/tno-society/"
+      },
+      {
+        "text": "Frequently asked questions",
+        "url": "https://www.tno.nl/en/about-tno/contact/"
+      },
+      {
+        "text": "Read moreover Product group analysis",
+        "url": "https://www.tno.nl/en/newsroom/insights/2026/10/product-group-analysis/"
+      },
+      {
+        "text": "Read moreover Korea-Netherlands joint conference on smart mobility for future tr",
+        "url": "https://www.tno.nl/en/newsroom/events/2026/korea-netherlands-joint-conference-smart/"
+      },
+      {
+        "text": "Read moreover Energy sharing",
+        "url": "https://www.tno.nl/en/newsroom/insights/2026/10/energy-sharing/"
+      },
+      {
+        "text": "Read moreover Better decisions for housing, mobility and climate through digital",
+        "url": "https://www.tno.nl/en/newsroom/2026/10/better-decisions-digital-twinning/"
+      },
+      {
+        "text": "Read moreover AI is learning to hack. Now what?",
+        "url": "https://www.tno.nl/en/newsroom/insights/2026/09/ai-learning-hack/"
+      },
+      {
+        "text": "Find your expert",
+        "url": "https://www.tno.nl/en/about-tno/our-people/"
+      },
+      {
+        "text": "Newsroom",
+        "url": "https://www.tno.nl/en/newsroom/"
+      },
+      {
+        "text": "News",
+        "url": "https://www.tno.nl/en/newsroom/news/"
+      },
+      {
+        "text": "Events",
+        "url": "https://www.tno.nl/en/newsroom/events/"
+      },
+      {
+        "text": "Webinars",
+        "url": "https://www.tno.nl/en/newsroom/webinars/"
+      },
+      {
+        "text": "Insights",
+        "url": "https://www.tno.nl/en/newsroom/insights/"
+      },
+      {
+        "text": "Podcasts",
+        "url": "https://www.tno.nl/en/newsroom/podcasts/"
+      },
+      {
+        "text": "Papers",
+        "url": "https://www.tno.nl/en/newsroom/papers/"
+      },
+      {
+        "text": "Trending",
+        "url": "https://www.tno.nl/en/newsroom/trending/"
+      },
+      {
+        "text": "TNO News",
+        "url": "https://www.tno.nl/en/newsroom/tno-news/"
+      },
+      {
+        "text": "About TNO",
+        "url": "https://www.tno.nl/en/about-tno/"
+      },
+      {
+        "text": "Organisation",
+        "url": "https://www.tno.nl/en/about-tno/organisation/"
+      },
+      {
+        "text": "Mission and vision",
+        "url": "https://www.tno.nl/en/about-tno/mission-vision/"
+      }
+    ]
+  },
+  {
+    "name": "VTT",
+    "country": "핀란드",
+    "type": "연구기관",
+    "fields": "semis;energy;manufacturing",
+    "url": "https://www.vttresearch.com/en",
+    "checked_at": "2026-10-05T12:16:17.866487+00:00",
+    "existing_keys": [],
+    "status": 200,
+    "final_url": "https://www.vttresearch.com/en",
+    "title": "Your R&D partner in sustainable growth | VTT",
+    "feeds": [],
+    "relevant_links": [
+      {
+        "text": "News main",
+        "url": "https://www.vttresearch.com/en/news-stories/news-and-stories"
+      },
+      {
+        "text": "News main",
+        "url": "https://www.vttresearch.com/en/news-stories/news-and-stories"
+      },
+      {
+        "text": "For media",
+        "url": "https://www.vttresearch.com/en/news-stories/media"
+      },
+      {
+        "text": "Customer stories",
+        "url": "https://www.vttresearch.com/en/news-stories/customer-stories"
+      },
+      {
+        "text": "Knowledge Base",
+        "url": "https://www.vttresearch.com/en/news-stories/knowledge-base"
+      },
+      {
+        "text": "News, Press releaseSUSTAINET-innovate develops AI and cyber resilience for criti",
+        "url": "https://www.vttresearch.com/en/news-and-ideas/sustainet-innovate-develops-ai-and-cyber-resilience-critical-services"
+      },
+      {
+        "text": "What is VTT",
+        "url": "https://www.vttresearch.com/en/about-us/what-vtt"
+      },
+      {
+        "text": "VTT's governance",
+        "url": "https://www.vttresearch.com/en/about-us/vtts-governance"
+      },
+      {
+        "text": "Strategy",
+        "url": "https://www.vttresearch.com/en/about-us/our-strategy-chain-reaction-growth"
+      },
+      {
+        "text": "Sustainability",
+        "url": "https://www.vttresearch.com/en/about-us/sustainability-core-all-vtt-operations"
+      },
+      {
+        "text": "VTT's impact",
+        "url": "https://www.vttresearch.com/en/about-us/vtts-impact-technology-and-innovation-creating-sustainable-growth"
+      },
+      {
+        "text": "How to partner with us",
+        "url": "https://www.vttresearch.com/en/about-us/how-partner-us"
+      },
+      {
+        "text": "For investors",
+        "url": "https://www.vttresearch.com/en/about-us/investors"
+      },
+      {
+        "text": "PageOur strategy: Chain reaction for growth",
+        "url": "https://www.vttresearch.com/en/about-us/our-strategy-chain-reaction-growth"
+      },
+      {
+        "text": "Tell us more about your needs",
+        "url": "https://www.vttresearch.com/en#self-profiling"
+      },
+      {
+        "text": "CaseCase: Metsä Group – Advancing circular bioeconomy through the valorisation o",
+        "url": "https://www.vttresearch.com/en/news-and-ideas/case-metsa-group-advancing-circular-bioeconomy-through-valorisation-industrial-side"
+      },
+      {
+        "text": "CaseCase: Alpek Polyester – Advancing recyclable packaging with high-performing ",
+        "url": "https://www.vttresearch.com/en/news-and-ideas/case-alpek-polyester-advancing-recyclable-packaging-high-performing-pga-plastics"
+      },
+      {
+        "text": "CaseCase: Sharp – Developing an open SDR platform for Beyond 5G IoT communicatio",
+        "url": "https://www.vttresearch.com/en/news-and-ideas/case-sharp-developing-open-sdr-platform-beyond-5g-iot-communications"
+      },
+      {
+        "text": "Customised partnerships",
+        "url": "https://www.vttresearch.com/en/about-us/why-partner-us#partnership-models"
+      },
+      {
+        "text": "Co-financed research projects and innovation ecosystems",
+        "url": "https://www.vttresearch.com/en/about-us/why-partner-us#partnership-models"
+      },
+      {
+        "text": "Startup and scale-up collaboration",
+        "url": "https://www.vttresearch.com/en/about-us/why-partner-us/startup-collaboration-vtt"
+      },
+      {
+        "text": "Our aim is always commercial viability, and we know we can trust VTT to help us ",
+        "url": "https://www.vttresearch.com/en/news-and-ideas/circa-valmet-renewable-chemical-production-piloting"
+      },
+      {
+        "text": "SUSTAINET-innovate develops AI and cyber resilience for critical services",
+        "url": "https://www.vttresearch.com/en/news-and-ideas/sustainet-innovate-develops-ai-and-cyber-resilience-critical-services"
+      },
+      {
+        "text": "New solutions and innovations from VTT and Finnish food companies pave the way f",
+        "url": "https://www.vttresearch.com/en/news-and-ideas/new-solutions-and-innovations-vtt-and-finnish-food-companies-pave-way-profitable"
+      },
+      {
+        "text": "Towards Quantum Industry: VTT’s Role in Quantum Enabling Technologies",
+        "url": "https://www.vttresearch.com/en/news-and-ideas/towards-quantum-industry-vtts-role-quantum-enabling-technologies"
+      },
+      {
+        "text": "Artificial skin with coffee to improve wearables for different skin tones",
+        "url": "https://www.vttresearch.com/en/news-and-ideas/artificial-skin-coffee-improve-wearables-different-skin-tones"
+      },
+      {
+        "text": "Case: Metsä Group – Advancing circular bioeconomy through the valorisation of in",
+        "url": "https://www.vttresearch.com/en/news-and-ideas/case-metsa-group-advancing-circular-bioeconomy-through-valorisation-industrial-side"
+      },
+      {
+        "text": "VTT’s unique forest industry piloting environment attracts dozens of companies f",
+        "url": "https://www.vttresearch.com/en/news-and-ideas/vtts-unique-forest-industry-piloting-environment-attracts-dozens-companies-around"
+      },
+      {
+        "text": "See all news",
+        "url": "https://www.vttresearch.com/en/news-and-stories"
+      },
+      {
+        "text": "Career storyAt VTT, you can contribute to groundbreaking technologies of the fut",
+        "url": "https://www.vttresearch.com/en/news-and-ideas/vtt-you-can-contribute-groundbreaking-technologies"
+      },
+      {
+        "text": "People newsVTT ranked the 6th as the most attractive workplace for engineering p",
+        "url": "https://www.vttresearch.com/en/news-and-ideas/universum-vtt-ranked-6th-most-attractive-workplace"
+      },
+      {
+        "text": "About VTT",
+        "url": "https://www.vttresearch.com/en/about-us/what-vtt"
+      },
+      {
+        "text": "News and ideas",
+        "url": "https://www.vttresearch.com/en/news-stories/news-and-stories"
+      },
+      {
+        "text": "Partner with VTT",
+        "url": "https://www.vttresearch.com/en/about-us/how-partner-us"
+      },
+      {
+        "text": "For media",
+        "url": "https://www.vttresearch.com/en/news-stories/media"
+      }
+    ]
+  },
+  {
+    "name": "CSEM",
+    "country": "스위스",
+    "type": "연구기관",
+    "fields": "semis;health_tech;display_av;frontier",
+    "url": "https://www.csem.ch/en/",
+    "checked_at": "2026-10-05T12:16:17.929431+00:00",
+    "existing_keys": [],
+    "status": 200,
+    "final_url": "https://www.csem.ch/en/",
+    "title": "Industrial Research and Development | Technological Innovation",
+    "feeds": [],
+    "relevant_links": [
+      {
+        "text": "About us",
+        "url": "https://www.csem.ch/en/about-us/"
+      },
+      {
+        "text": "News & more",
+        "url": "https://www.csem.ch/en/news-and-events/"
+      },
+      {
+        "text": "News",
+        "url": "https://www.csem.ch/en/news/"
+      },
+      {
+        "text": "Press and Publications",
+        "url": "https://www.csem.ch/en/press-and-publications/"
+      },
+      {
+        "text": "Press room",
+        "url": "https://www.csem.ch/en/press/"
+      },
+      {
+        "text": "News & more",
+        "url": "https://www.csem.ch/en/news-and-events/"
+      },
+      {
+        "text": "News",
+        "url": "https://www.csem.ch/en/news/"
+      },
+      {
+        "text": "Press and Publications",
+        "url": "https://www.csem.ch/en/press-and-publications/"
+      },
+      {
+        "text": "Press room",
+        "url": "https://www.csem.ch/en/press/"
+      },
+      {
+        "text": "Learn more",
+        "url": "https://www.csem.ch/en/news-and-events/"
+      },
+      {
+        "text": "NewsFrom stars to atoms: CSEM and Neuchâtel’s continuing quest for precise timeF",
+        "url": "https://www.csem.ch/en/news/from-stars-to-atoms-atomic-clocks-neuchatel/"
+      },
+      {
+        "text": "NewsSmart battery pack for space and more - CSEM × ALMATECHDiscover how CSEM and",
+        "url": "https://www.csem.ch/en/news/batmam-smart-battery-pack/"
+      }
+    ]
+  },
+  {
+    "name": "CSIRO",
+    "country": "호주",
+    "type": "연구기관",
+    "fields": "ai;energy;manufacturing",
+    "url": "https://www.csiro.au/en/News",
+    "checked_at": "2026-10-05T12:16:18.329285+00:00",
+    "existing_keys": [],
+    "status": 200,
+    "final_url": "https://www.csiro.au/en/News",
+    "title": "CSIRO Stories - CSIRO",
+    "feeds": [],
+    "relevant_links": [
+      {
+        "text": "About",
+        "url": "https://www.csiro.au/en/about"
+      },
+      {
+        "text": "News",
+        "url": "https://www.csiro.au/en/news"
+      },
+      {
+        "text": "",
+        "url": "https://www.facebook.com/sharer.php?u=https://www.csiro.au/en/news&t=CSIRO Stories"
+      },
+      {
+        "text": "",
+        "url": "https://twitter.com/intent/tweet?text=Currently Reading CSIRO Stories: (https://www.csiro.au/en/news)"
+      },
+      {
+        "text": "",
+        "url": "https://www.linkedin.com/shareArticle?mini=true&url=https://www.csiro.au/en/news&title=CSIRO Stories&summary=Explore the science behind the headlines with our leading experts."
+      },
+      {
+        "text": "",
+        "url": "mailto:?subject=Check out: CSIRO Stories&body=Explore the science behind the headlines with our leading experts.  -  https://www.csiro.au/en/news"
+      },
+      {
+        "text": "World-leading radio telescopes give space for stunning wildflowers",
+        "url": "https://www.csiro.au/en/news/All/Articles/2026/September/Wildflowers-and-telescopes"
+      },
+      {
+        "text": "Nature",
+        "url": "https://www.csiro.au/en/news/All?articletags={07A74F5C-D7D8-4F7F-A869-7FF17AAFA290}|Nature"
+      },
+      {
+        "text": "Plants",
+        "url": "https://www.csiro.au/en/news/All?articletags={BA857959-CD52-4723-8E09-96A423DCEAD6}|Plants"
+      },
+      {
+        "text": "Radio astronomy",
+        "url": "https://www.csiro.au/en/news/All?articletags={82197EBA-FC46-4B1F-AC77-55D6944BCE8D}|Radio astronomy"
+      },
+      {
+        "text": "Murchison Radio-astronomy Observatory",
+        "url": "https://www.csiro.au/en/news/All?articletags={1EF817F3-A3C1-435F-8748-0AE4A185D461}|Murchison Radio-astronomy Observatory"
+      },
+      {
+        "text": "ASKAP",
+        "url": "https://www.csiro.au/en/news/All?articletags={8BD7C557-89DD-4934-B705-ADF241E629C0}|ASKAP"
+      },
+      {
+        "text": "SKA",
+        "url": "https://www.csiro.au/en/news/All?articletags={5859EDB0-FB4D-4C97-AEC4-5AE33B6387A8}|SKA"
+      },
+      {
+        "text": "Astronomy",
+        "url": "https://www.csiro.au/en/news/All?articletags={6EA5E0BD-B2FE-4176-901F-B2711CAF7B4C}|Astronomy"
+      },
+      {
+        "text": "natural environment",
+        "url": "https://www.csiro.au/en/news/All?articletags={B7B06C58-4014-4B59-BBE0-107B527C3FAA}|natural environment"
+      },
+      {
+        "text": "Building Australia’s first computer",
+        "url": "https://www.csiro.au/en/news/All/Articles/2026/September/History-of-computing"
+      },
+      {
+        "text": "Eyes in the sky: how drones are being put to work for science and sustainability",
+        "url": "https://www.csiro.au/en/news/All/Articles/2026/September/How-drones-are-being-put-to-work-in-environmental-research"
+      },
+      {
+        "text": "The decades‑old ‘AI alignment problem’ has finally become a reality. Solving it ",
+        "url": "https://www.csiro.au/en/news/All/Articles/2026/August/how-to-address-AI-alignment"
+      },
+      {
+        "text": "AI",
+        "url": "https://www.csiro.au/en/news/All?articletags={3561EDFE-C4FF-46C3-88B3-EA5663D710E8}|AI"
+      },
+      {
+        "text": "Honeybee silk could power smarter wound dressings",
+        "url": "https://www.csiro.au/en/news/All/News/2026/September/Honeybee-silk-could-power-smarter-wound-dressings"
+      },
+      {
+        "text": "Health",
+        "url": "https://www.csiro.au/en/news/All?articletags={F98BDF28-BA5F-4F16-86E8-3F54E70A1A88}|Health"
+      },
+      {
+        "text": "Ocean drones set to brave the Southern Ocean for science",
+        "url": "https://www.csiro.au/en/news/All/News/2026/September/Ocean-drones-set-to-brave-the-Southern-Ocean-for-science"
+      },
+      {
+        "text": "View more news",
+        "url": "https://www.csiro.au/en/news/All?type={60727734-1BF6-4FD4-88DA-028304CF3D74}|{01DD0A16-96BC-4001-ACA4-F82DBB83B26C}|{6B6F9B5C-3CB2-42DD-A714-2A012B3720FD}|{9E28CCA8-AAC8-475C-AEB3-7BDE93F6155E}|{49F817AF-74EB-43C4-A51B-CE2B14F46215}"
+      },
+      {
+        "text": "Media releasesOfficial announcements highlighting recent stories and newsworthy ",
+        "url": "https://www.csiro.au/en/news/All?type={49F817AF-74EB-43C4-A51B-CE2B14F46215}"
+      },
+      {
+        "text": "Expert commentaryExplanation, interpretations, and opinions from CSIRO experts.",
+        "url": "https://www.csiro.au/en/news/All?type={6B6F9B5C-3CB2-42DD-A714-2A012B3720FD}"
+      },
+      {
+        "text": "SpeechesKey speeches, thought leadership and presentations from leaders of CSIRO",
+        "url": "https://www.csiro.au/en/news/All?type={01DD0A16-96BC-4001-ACA4-F82DBB83B26C}"
+      },
+      {
+        "text": "StatementsMore information on our stand and position on specific topics.",
+        "url": "https://www.csiro.au/en/news/All?type={9E28CCA8-AAC8-475C-AEB3-7BDE93F6155E}"
+      },
+      {
+        "text": "Partner releasesHear about research collaborations from our partners.",
+        "url": "https://www.csiro.au/en/news/All?type={8F372CC6-2765-4078-A862-B06F2EC44EAD}"
+      },
+      {
+        "text": "Visit the Media Centre",
+        "url": "https://www.csiro.au/en/news/Media-Centre"
+      },
+      {
+        "text": "Find the right media contact",
+        "url": "https://www.csiro.au/en/news/Media-contacts"
+      },
+      {
+        "text": "",
+        "url": "https://www.facebook.com/CSIROnews/"
+      },
+      {
+        "text": "Access to information",
+        "url": "https://www.csiro.au/en/about/Corporate-governance/Access-to-information"
+      },
+      {
+        "text": "Accessibility",
+        "url": "https://www.csiro.au/en/about/Policies/Legal/Accessibility"
+      },
+      {
+        "text": "Copyright",
+        "url": "https://www.csiro.au/en/about/Policies/Legal/Copyright"
+      },
+      {
+        "text": "Legal notice and disclaimer",
+        "url": "https://www.csiro.au/en/about/Policies/Legal/Legal-notice"
+      }
+    ]
+  },
+  {
+    "name": "NRC Canada",
+    "country": "캐나다",
+    "type": "연구기관",
+    "fields": "semis;frontier;manufacturing",
+    "url": "https://nrc.canada.ca/en/stories",
+    "checked_at": "2026-10-05T12:16:19.324011+00:00",
+    "existing_keys": [],
+    "status": 403,
+    "final_url": "https://nrc.canada.ca/en/stories",
+    "title": "403 Forbidden",
+    "feeds": [],
+    "relevant_links": []
+  },
+  {
+    "name": "IET E&T",
+    "country": "영국",
+    "type": "학회매체",
+    "fields": "connectivity;energy;manufacturing",
+    "url": "https://eandt.theiet.org/",
+    "checked_at": "2026-10-05T12:16:19.442598+00:00",
+    "existing_keys": [],
+    "status": 200,
+    "final_url": "https://eandt.theiet.org/",
+    "title": "E+T Magazine | Engineering and Technology Magazine",
+    "error": "AttributeError"
+  },
+  {
+    "name": "optics.org",
+    "country": "영국·국제판",
+    "type": "전문매체",
+    "fields": "display_av;frontier;semis",
+    "url": "https://optics.org/",
+    "checked_at": "2026-10-05T12:16:19.574881+00:00",
+    "existing_keys": [],
+    "status": 200,
+    "final_url": "https://optics.org/",
+    "title": "Optics.org - The Business of Photonics: Latest news, analysis, and in-depth reporting | optics.org",
+    "error": "AttributeError"
+  },
+  {
+    "name": "Display Daily",
+    "country": "국제·국가확인보류",
+    "type": "전문매체",
+    "fields": "display_av",
+    "url": "https://displaydaily.com/",
+    "checked_at": "2026-10-05T12:16:20.276099+00:00",
+    "existing_keys": [],
+    "status": 403,
+    "final_url": "https://displaydaily.com/",
+    "title": "Just a moment...",
+    "feeds": [],
+    "relevant_links": []
+  },
+  {
+    "name": "Healthcare IT News",
+    "country": "미국·국제판",
+    "type": "전문매체",
+    "fields": "health_tech;security",
+    "url": "https://www.healthcareitnews.com/",
+    "checked_at": "2026-10-05T12:16:20.714916+00:00",
+    "existing_keys": [],
+    "status": 403,
+    "final_url": "https://www.healthcareitnews.com/",
+    "title": "Just a moment...",
+    "feeds": [],
+    "relevant_links": []
+  },
+  {
+    "name": "MobiHealthNews",
+    "country": "미국·국제판",
+    "type": "전문매체",
+    "fields": "health_tech",
+    "url": "https://www.mobihealthnews.com/",
+    "checked_at": "2026-10-05T12:16:20.761533+00:00",
+    "existing_keys": [],
+    "status": 403,
+    "final_url": "https://www.mobihealthnews.com/",
+    "title": "Just a moment...",
+    "feeds": [],
+    "relevant_links": []
+  },
+  {
+    "name": "InfoQ",
+    "country": "국제·국가확인보류",
+    "type": "전문매체",
+    "fields": "platform_sw;cloud_data;ai",
+    "url": "https://www.infoq.com/",
+    "checked_at": "2026-10-05T12:16:20.802814+00:00",
+    "existing_keys": [],
+    "status": 200,
+    "final_url": "https://www.infoq.com/",
+    "title": "\n\t\t\tInfoQ: Software Development News, Trends & Best Practices\n\t\t - InfoQ",
+    "feeds": [],
+    "relevant_links": [
+      {
+        "text": "View an example",
+        "url": "https://www.infoq.com/software-architects-newsletter#placeholderPastIssues"
+      },
+      {
+        "text": "News",
+        "url": "https://www.infoq.com/news/"
+      },
+      {
+        "text": "About InfoQ",
+        "url": "https://www.infoq.com/about-infoq"
+      },
+      {
+        "text": "About C4Media",
+        "url": "https://c4media.com/"
+      },
+      {
+        "text": "News",
+        "url": "https://www.infoq.com/news/"
+      },
+      {
+        "text": "Aspire 13.6 Adds Persistent Dashboard Telemetry and First-Party Java and Rust Ho",
+        "url": "https://www.infoq.com/news/2026/10/dotnet-aspire-13-6-release/"
+      },
+      {
+        "text": "Cloudflare Fixes Cross-Tenant Data Exposure in Containers",
+        "url": "https://www.infoq.com/news/2026/10/cloudflare-cross-tenant-exposure/"
+      },
+      {
+        "text": "Cloudflare Plans Public Certificate Authority to Issue Quantum-Safe TLS Certific",
+        "url": "https://www.infoq.com/news/2026/10/postquatam-certificates/"
+      },
+      {
+        "text": "Google's Android Security State Libraries Enable Component-Level Security Verifi",
+        "url": "https://www.infoq.com/news/2026/10/android-security-state-libs/"
+      },
+      {
+        "text": "Pizza Bot: Open-Source Inbox for Background AI Agents",
+        "url": "https://www.infoq.com/news/2026/10/pizza-bot-ai-agents/"
+      },
+      {
+        "text": "New Archestra's OpenAPPA Saturates Two Major Security Benchmarks with a 0% Attac",
+        "url": "https://www.infoq.com/news/2026/10/open-APPA-zero-security-breach/"
+      },
+      {
+        "text": "GitLab Vulnerability under Active Exploitation Enables Unauthenticated Data Exfi",
+        "url": "https://www.infoq.com/news/2026/10/gitlab-critical-vulnerabilities/"
+      },
+      {
+        "text": "Istio 1.31 Adds Agentgateway Waypoints and Moves Release Artifacts off Google Cl",
+        "url": "https://www.infoq.com/news/2026/10/istio-1-31-agentgateway/"
+      },
+      {
+        "text": "MORE NEWS",
+        "url": "https://www.infoq.com/news/"
+      },
+      {
+        "text": "Uber Eats Rebuilds Search Pipeline to Cut End-to-End Latency by 50%",
+        "url": "https://www.infoq.com/news/2026/10/uber-eats-search-latency/"
+      },
+      {
+        "text": "Atlassian Rebuilds Metrics Pipeline Around OpenTelemetry at Massive Scale",
+        "url": "https://www.infoq.com/news/2026/09/atlassian-opentelemetry/"
+      },
+      {
+        "text": "How to Develop Software Engineering Skills in the Age of AI",
+        "url": "https://www.infoq.com/news/2026/10/software-engineering-skills/"
+      },
+      {
+        "text": "Spring News Roundup: Second Milestone Releases of Boot, Framework, Data, Securit",
+        "url": "https://www.infoq.com/news/2026/09/spring-news-roundup-sep21-2026/"
+      },
+      {
+        "text": "Cursor Uses S3 WAL to Scale Git Storage to More than 300 Pushes per Second",
+        "url": "https://www.infoq.com/news/2026/09/cursor-continuity-git-storage/"
+      },
+      {
+        "text": "Qualcomm Unveils Linux Preview on Snapdragon X2 to Accelerate Upstream ARM Lapto",
+        "url": "https://www.infoq.com/news/2026/10/snapdragon-x2-linux/"
+      },
+      {
+        "text": "Agents Refactor 300K Lines in Three Weeks, and Practitioners Ask What it Proves",
+        "url": "https://www.infoq.com/news/2026/09/agentic-refactoring-case-study/"
+      },
+      {
+        "text": "TypeSafe AI Releases Jev: a Decision-Only Model That Returns Typed Probabilities",
+        "url": "https://www.infoq.com/news/2026/10/typesafe-ai-jev-released/"
+      },
+      {
+        "text": "Kubernetes Teams Get a Safer Way to See Their Own GPU Metrics",
+        "url": "https://www.infoq.com/news/2026/09/kubernetes-gpu-metrics/"
+      },
+      {
+        "text": "Artifactory Vulnerabilities under Active Exploitation Enable Authentication Bypa",
+        "url": "https://www.infoq.com/news/2026/09/artifactory-vulnerabilities/"
+      },
+      {
+        "text": "Cloudflare Details its Migration  to \"WordPress Successor\" EmDash",
+        "url": "https://www.infoq.com/news/2026/09/cloudflare-emdash-migration/"
+      },
+      {
+        "text": "Cloudflare Introduces the Agent Development Lifecycle Stack to Replace Tradition",
+        "url": "https://www.infoq.com/news/2026/09/cloudflare-adlc-agents/"
+      },
+      {
+        "text": "AWS Cannot Restore Data Held Only in Damaged Middle East Availability Zones",
+        "url": "https://www.infoq.com/news/2026/09/aws-middle-east-data-loss/"
+      },
+      {
+        "text": "DoorDash Uses Multi Agent LLMs to Clean up 60,000 Feature Flags",
+        "url": "https://www.infoq.com/news/2026/09/doordash-feature-flag-cleanup/"
+      },
+      {
+        "text": "Cloudflare Cuts 100 TB of Memory from 1.1.1.1 DNS Cache",
+        "url": "https://www.infoq.com/news/2026/09/cloudflare-dns-cache/"
+      },
+      {
+        "text": "Vercel Labs Ships scriptc, a TypeScript-to-Native Compiler That Leaves the JavaS",
+        "url": "https://www.infoq.com/news/2026/09/vercel-scriptc-node/"
+      },
+      {
+        "text": "Meta Open-Sources Astryx, its Agent-Ready React Design System",
+        "url": "https://www.infoq.com/news/2026/09/meta-astryx-design-system/"
+      },
+      {
+        "text": "Netflix Moves toward Open Source Flink Autoscaler for 30,000+ Streaming Jobs",
+        "url": "https://www.infoq.com/news/2026/09/netflix-flink-autoscaler/"
+      },
+      {
+        "text": "Google Open-Sources AX a Kubernetes Style Orchestrator for Autonomous AI Agents",
+        "url": "https://www.infoq.com/news/2026/09/google-ax-orchestrator/"
+      },
+      {
+        "text": "ESP32 Bit Pirate: Bridging Modern Microcontrollers and Browser-Based Hardware De",
+        "url": "https://www.infoq.com/news/2026/09/esp32-bitpirate-web/"
+      },
+      {
+        "text": "Kubernetes Multi-Cluster Project Karmada Reaches CNCF Graduation",
+        "url": "https://www.infoq.com/news/2026/09/karmada-kubernetes-cncf/"
+      }
+    ]
+  }
+]

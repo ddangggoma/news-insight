@@ -1,0 +1,67 @@
+ Image news-insight-api:local Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 994B done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from Dockerfile
+#2 transferring dockerfile: 677B done
+#2 DONE 0.0s
+
+#3 [internal] load metadata for ghcr.io/astral-sh/uv:0.11
+#3 DONE 0.8s
+
+#4 [internal] load metadata for docker.io/library/python:3.12-slim
+#4 DONE 1.4s
+
+#5 [internal] load .dockerignore
+#5 transferring context: 105B done
+#5 DONE 0.0s
+
+#6 FROM ghcr.io/astral-sh/uv:0.11@sha256:77280f2f771df71f90786c314fe1bbc1e023feac652969bbf139c280babf2eb7
+#6 DONE 0.0s
+
+#7 [stage-0 1/8] FROM docker.io/library/python:3.12-slim@sha256:02108f5d322dd89f1c9e552442c25acb0543dfdbc455693a5599624f20d9155d
+#7 resolve docker.io/library/python:3.12-slim@sha256:02108f5d322dd89f1c9e552442c25acb0543dfdbc455693a5599624f20d9155d done
+#7 DONE 0.0s
+
+#8 [internal] load build context
+#8 transferring context: 739.48kB 0.0s done
+#8 DONE 0.0s
+
+#9 [stage-0 3/8] WORKDIR /app
+#9 CACHED
+
+#10 [stage-0 4/8] COPY pyproject.toml uv.lock ./
+#10 CACHED
+
+#11 [stage-0 2/8] COPY --from=ghcr.io/astral-sh/uv:0.11 /uv /uvx /bin/
+#11 CACHED
+
+#12 [stage-0 5/8] RUN --mount=type=cache,target=/root/.cache/uv uv sync --locked --no-dev --no-install-project
+#12 CACHED
+
+#13 [stage-0 6/8] COPY . .
+#13 DONE 0.0s
+
+#14 [stage-0 7/8] RUN --mount=type=cache,target=/root/.cache/uv uv sync --locked --no-dev
+#14 0.113 Resolved 72 packages in 1ms
+#14 0.117    Building news-insight-api @ file:///app
+#14 0.869       Built news-insight-api @ file:///app
+#14 0.873 Prepared 1 package in 755ms
+#14 0.874 Installed 1 package in 1ms
+#14 1.159 Bytecode compiled 2652 files in 285ms
+#14 1.159  + news-insight-api==0.1.0 (from file:///app)
+#14 DONE 1.2s
+
+#15 [stage-0 8/8] RUN addgroup --system app && adduser --system --ingroup app app
+#15 DONE 0.2s
+
+#16 exporting to image
+#16 exporting layers 0.0s done
+#16 writing image sha256:025b0300f80cc5814851dc95c7a838358d84e18437e18a84f37ce7eda77f8a87 done
+#16 naming to docker.io/library/news-insight-api:local done
+#16 DONE 0.0s
+
+#17 resolving provenance for metadata file
+#17 DONE 0.0s
+ Image news-insight-api:local Built 

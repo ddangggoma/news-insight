@@ -1,0 +1,54 @@
+name,origin,kind,url,status,entries,checked_at,final_url
+etnews,catalog,feed,https://rss.etnews.com/Section901.xml,200,30,2026-10-05T05:25:22.529019+00:00,https://rss.etnews.com/Section901.xml
+thelec,catalog,feed,https://www.thelec.kr/rss/allArticle.xml,200,50,2026-10-05T05:25:22.529425+00:00,https://www.thelec.kr/rss/allArticle.xml
+the-verge,catalog,feed,https://www.theverge.com/rss/index.xml,200,10,2026-10-05T05:25:22.529538+00:00,https://www.theverge.com/rss/index.xml
+ars-technica,catalog,feed,https://feeds.arstechnica.com/arstechnica/index,200,20,2026-10-05T05:25:22.529637+00:00,https://feeds.arstechnica.com/arstechnica/index
+techcrunch,catalog,feed,https://techcrunch.com/feed/,200,20,2026-10-05T05:25:22.635771+00:00,https://techcrunch.com/feed/
+ieee-spectrum,catalog,feed,https://spectrum.ieee.org/feeds/feed.rss,200,30,2026-10-05T05:25:22.655666+00:00,https://spectrum.ieee.org/feeds/feed.rss
+mit-technology-review,catalog,feed,https://www.technologyreview.com/feed/,200,10,2026-10-05T05:25:22.672571+00:00,https://www.technologyreview.com/feed/
+google-blog,catalog,feed,https://blog.google/rss/,200,20,2026-10-05T05:25:22.680454+00:00,https://blog.google/rss/
+android-developers,catalog,feed,https://android-developers.googleblog.com/feeds/posts/default,200,25,2026-10-05T05:25:22.807115+00:00,https://android-developers.googleblog.com/feeds/posts/default
+apple-newsroom,catalog,feed,https://www.apple.com/newsroom/rss-feed.rss,200,20,2026-10-05T05:25:22.887843+00:00,https://www.apple.com/newsroom/rss-feed.rss
+microsoft-blog,catalog,feed,https://blogs.microsoft.com/feed/,200,10,2026-10-05T05:25:22.989668+00:00,https://blogs.microsoft.com/feed/
+nvidia-blog,catalog,feed,https://blogs.nvidia.com/feed/,200,18,2026-10-05T05:25:22.992585+00:00,https://blogs.nvidia.com/feed/
+meta-engineering,catalog,feed,https://engineering.fb.com/feed/,200,9,2026-10-05T05:25:23.124076+00:00,https://engineering.fb.com/feed/
+aws-news,catalog,feed,https://aws.amazon.com/blogs/aws/feed/,200,20,2026-10-05T05:25:23.131103+00:00,https://aws.amazon.com/blogs/aws/feed/
+openai-news,catalog,feed,https://openai.com/news/rss.xml,200,1245,2026-10-05T05:25:23.237365+00:00,https://openai.com/news/rss.xml
+samsung-newsroom-global,catalog,feed,https://news.samsung.com/global/feed,200,50,2026-10-05T05:25:23.423149+00:00,https://news.samsung.com/global/feed
+samsung-newsroom-kr,catalog,feed,https://news.samsung.com/kr/feed,200,20,2026-10-05T05:25:23.573424+00:00,https://news.samsung.com/kr/feed
+arm-newsroom,catalog,feed,https://newsroom.arm.com/feed,200,6,2026-10-05T05:25:23.624729+00:00,https://newsroom.arm.com/feed
+hacker-news,catalog,feed,https://news.ycombinator.com/rss,200,30,2026-10-05T05:25:23.732434+00:00,https://news.ycombinator.com/rss
+bluesky-simonwillison-net,catalog,atproto,https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=simonwillison.net&limit=30,200,30,2026-10-05T05:25:23.764813+00:00,https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=simonwillison.net&limit=30
+mastodon-mastodon-ai,catalog,activitypub,https://mastodon.social/api/v1/timelines/tag/ai?limit=40,200,40,2026-10-05T05:25:24.002822+00:00,https://mastodon.social/api/v1/timelines/tag/ai?limit=40
+nvidia-developer-blog,catalog,feed,https://developer.nvidia.com/blog/feed/,200,100,2026-10-05T05:25:24.054783+00:00,https://developer.nvidia.com/blog/feed/
+infineon-news-web,catalog,sitemap,https://www.infineon.com/sitemap-index.xml,200,,2026-10-05T05:25:24.311144+00:00,https://www.infineon.com/sitemap-index.xml
+anthropic-web,catalog,sitemap,https://www.anthropic.com/sitemap.xml,200,,2026-10-05T05:25:24.315888+00:00,https://www.anthropic.com/sitemap.xml
+waymo-web,catalog,sitemap,https://waymo.com/sitemap.xml,200,,2026-10-05T05:25:24.318475+00:00,https://waymo.com/sitemap.xml
+freebsd-news-web,catalog,sitemap,https://www.freebsd.org/sitemap.xml,200,,2026-10-05T05:25:24.435447+00:00,https://www.freebsd.org/sitemap.xml
+openwrt-news-web,catalog,sitemap,https://forum.openwrt.org/sitemap.xml,200,,2026-10-05T05:25:24.445140+00:00,https://forum.openwrt.org/sitemap.xml
+the-batch-web,catalog,sitemap,https://www.deeplearning.ai/sitemap.xml,200,,2026-10-05T05:25:24.581041+00:00,https://www.deeplearning.ai/sitemap.xml
+zigbee2mqtt-web,catalog,sitemap,https://www.zigbee2mqtt.io/sitemap.xml,200,,2026-10-05T05:25:24.678264+00:00,https://www.zigbee2mqtt.io/sitemap.xml
+yozm-it-web,catalog,sitemap,https://yozm.wishket.com/magazine/sitemap.xml,200,,2026-10-05T05:25:24.821671+00:00,https://yozm.wishket.com/magazine/sitemap.xml
+Simon Willison blog,alternative,feed,https://simonwillison.net/atom/everything/,200,30,2026-10-05T05:25:24.882341+00:00,https://simonwillison.net/atom/everything/
+Martin Fowler,alternative,feed,https://martinfowler.com/feed.atom,200,30,2026-10-05T05:25:24.963910+00:00,https://martinfowler.com/feed.atom
+Julia Evans,alternative,feed,https://jvns.ca/atom.xml,200,20,2026-10-05T05:25:25.211154+00:00,https://jvns.ca/atom.xml
+Chip Huyen,alternative,feed,https://huyenchip.com/feed.xml,200,10,2026-10-05T05:25:25.279825+00:00,https://huyenchip.com/feed.xml
+Andrej Karpathy blog,alternative,feed,https://karpathy.github.io/feed.xml,200,10,2026-10-05T05:25:25.421356+00:00,https://karpathy.github.io/feed.xml
+Hugging Face blog,alternative,feed,https://huggingface.co/blog/feed.xml,200,873,2026-10-05T05:25:25.699557+00:00,https://huggingface.co/blog/feed.xml
+Google Research,alternative,feed,https://research.google/blog/rss/,200,100,2026-10-05T05:25:25.975327+00:00,https://research.google/blog/rss/
+FreeBSD news RSS,alternative,feed,https://www.freebsd.org/news/feed.xml,200,10,2026-10-05T05:25:26.063035+00:00,https://www.freebsd.org/news/feed.xml
+Zigbee2MQTT releases,alternative,json,https://api.github.com/repos/Koenkk/zigbee2mqtt/releases?per_page=3,200,3,2026-10-05T05:25:26.160623+00:00,https://api.github.com/repos/Koenkk/zigbee2mqtt/releases?per_page=3
+llama.cpp repository,alternative,json,https://api.github.com/repos/ggml-org/llama.cpp,200,0,2026-10-05T05:25:26.210045+00:00,https://api.github.com/repos/ggml-org/llama.cpp
+vLLM repository,alternative,json,https://api.github.com/repos/vllm-project/vllm,200,0,2026-10-05T05:25:26.329009+00:00,https://api.github.com/repos/vllm-project/vllm
+Home Assistant repository,alternative,json,https://api.github.com/repos/home-assistant/core,200,0,2026-10-05T05:25:26.486776+00:00,https://api.github.com/repos/home-assistant/core
+Zephyr repository,alternative,json,https://api.github.com/repos/zephyrproject-rtos/zephyr,200,0,2026-10-05T05:25:26.495102+00:00,https://api.github.com/repos/zephyrproject-rtos/zephyr
+OpenTelemetry repository,alternative,json,https://api.github.com/repos/open-telemetry/opentelemetry-collector,200,0,2026-10-05T05:25:26.543046+00:00,https://api.github.com/repos/open-telemetry/opentelemetry-collector
+HN official top stories,alternative,json,https://hacker-news.firebaseio.com/v0/topstories.json,200,500,2026-10-05T05:25:26.595733+00:00,https://hacker-news.firebaseio.com/v0/topstories.json
+HF models,alternative,json,https://huggingface.co/api/models?sort=trendingScore&limit=3,200,3,2026-10-05T05:25:26.759663+00:00,https://huggingface.co/api/models?sort=trendingScore&limit=3
+SEC NVIDIA submissions,alternative,json,https://data.sec.gov/submissions/CIK0001045810.json,200,0,2026-10-05T05:25:26.773894+00:00,https://data.sec.gov/submissions/CIK0001045810.json
+Crossref recent works,alternative,json,https://api.crossref.org/works?filter=from-pub-date:2026-10-01&rows=3,200,0,2026-10-05T05:25:26.818777+00:00,https://api.crossref.org/works?filter=from-pub-date:2026-10-01&rows=3
+arXiv AI RSS,alternative,feed,https://rss.arxiv.org/rss/cs.AI,200,402,2026-10-05T05:25:26.882764+00:00,https://rss.arxiv.org/rss/cs.AI
+Nature news,alternative,feed,https://www.nature.com/nature.rss,200,75,2026-10-05T05:25:26.987540+00:00,https://www.nature.com/nature.rss
+LG newsroom,alternative,feed,https://www.lgnewsroom.com/feed/,200,0,2026-10-05T05:25:27.019430+00:00,https://lgnewsroom.com/feed/
+Sony press RSS,alternative,feed,https://www.sony.com/en/SonyInfo/News/Press/rss.xml,403,,2026-10-05T05:25:27.121734+00:00,https://www.sony.com/en/SonyInfo/News/Press/rss.xml
+CISA known exploited,alternative,json,https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json,200,0,2026-10-05T05:25:27.192257+00:00,https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json

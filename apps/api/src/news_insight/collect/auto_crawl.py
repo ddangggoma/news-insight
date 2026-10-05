@@ -41,12 +41,18 @@ def _headline(text: str) -> bool:
 
 
 def article_links(
-    html: str, *, base_url: str, domain: str, pattern: str | None, drop_query: bool = False
+    html: str,
+    *,
+    base_url: str,
+    domain: str,
+    pattern: str | None,
+    drop_query: bool = False,
+    selector: str = "a[href]",
 ) -> list[Candidate]:
     regex = re.compile(pattern) if pattern else None
     best: dict[str, str] = {}
     order: list[str] = []
-    for anchor in HTMLParser(html).css("a[href]"):
+    for anchor in HTMLParser(html).css(selector):
         href = (anchor.attributes.get("href") or "").strip()
         if not href or href.startswith(("javascript:", "mailto:", "#")):
             continue
@@ -95,6 +101,7 @@ def collect_auto(fetcher: SafeFetcher, context: CollectContext) -> CollectResult
                 domain=domain,
                 pattern=str(pattern) if pattern else None,
                 drop_query=bool(context.config.get("drop_query")),
+                selector=str(context.config.get("link_selector") or "a[href]"),
             )
         )
     if not candidates:

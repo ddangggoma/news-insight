@@ -1,7 +1,10 @@
 """HTML list crawler: declarative selectors, or `config.mode: auto` link discovery."""
 
+import re
+from contextlib import suppress
+from datetime import datetime, timedelta
 from typing import Any
-from urllib.parse import urljoin
+from urllib.parse import parse_qsl, urlencode, urljoin, urlsplit, urlunsplit
 from zoneinfo import ZoneInfo
 
 from selectolax.parser import HTMLParser, Node
@@ -15,8 +18,10 @@ from news_insight.collect.contracts import (
     majority_incomplete,
 )
 from news_insight.collect.fields import parse_datetime
+from news_insight.collect.github_trending import collect_trending
 from news_insight.collect.http import fetch_checked, request_headers
 from news_insight.collect.macros import expand_macros
+from news_insight.collect.velog import collect_velog
 from news_insight.content.normalize import canonical_url, clean_text
 from news_insight.net.mime import HTML_MIME
 from news_insight.net.safe_fetch import FetchResponse, SafeFetcher
@@ -29,6 +34,10 @@ class CrawlerCollector:
         self._fetcher = fetcher
 
     def collect(self, context: CollectContext) -> CollectResult:
+        if context.config.get("mode") == "velog":
+            return collect_velog(self._fetcher, context)
+        if context.config.get("mode") == "github_trending":
+            return collect_trending(self._fetcher, context)
         if context.config.get("mode") == "auto":
             return collect_auto(self._fetcher, context)
         selectors: dict[str, Any] = dict(context.config.get("selectors") or {})
@@ -63,7 +72,12 @@ class CrawlerCollector:
         items = [
             raw
             for node in nodes
-            if (raw := _to_item(node, selectors, base_url=response.url, tz=tz)) is not None
+            if (
+                raw := _to_item(
+                    node, selectors, base_url=response.url, tz=tz, config=context.config
+                )
+            )
+            is not None
         ]
         incomplete = len(nodes) - len(items)
         if majority_incomplete(incomplete, len(nodes)):
@@ -72,6 +86,13 @@ class CrawlerCollector:
                 f"{incomplete}/{len(nodes)} rows lack a title or link",
                 retryable=False,
             )
+        if context.config.get("max_age_days"):
+            cutoff = context.now - timedelta(days=float(context.config["max_age_days"]))
+            items = [
+                item
+                for item in items
+                if item.published_at is not None and cutoff <= item.published_at <= context.now
+            ]
         return CollectResult(
             items=items,
             status_code=200,
@@ -101,7 +122,12 @@ def _text(node: Node | None) -> str | None:
 
 
 def _to_item(
-    node: Node, selectors: dict[str, Any], *, base_url: str, tz: ZoneInfo
+    node: Node,
+    selectors: dict[str, Any],
+    *,
+    base_url: str,
+    tz: ZoneInfo,
+    config: dict[str, Any] | None = None,
 ) -> RawItem | None:
     title = _text(node.css_first(str(selectors["title"])))
     link_node = node.css_first(str(selectors["link"]))
@@ -109,12 +135,31 @@ def _to_item(
     if not (title and href):
         return None
     url = urljoin(base_url, href)
+    config = config or {}
+    parts = urlsplit(url)
+    path = (
+        re.sub(r";jsessionid=[^/;]*", "", parts.path, flags=re.IGNORECASE)
+        if config.get("strip_session")
+        else parts.path
+    )
+    query = parts.query
+    if "normalize_query" in config:
+        allowed = set(config["normalize_query"])
+        query = urlencode([(key, value) for key, value in parse_qsl(query) if key in allowed])
+    url = urlunsplit((parts.scheme, parts.netloc, path, query, ""))
     published = None
     if selectors.get("date"):
         date_node = node.css_first(str(selectors["date"]))
         if date_node is not None:
             raw_date = date_node.attributes.get("datetime") or date_node.text()
-            published = parse_datetime(raw_date, assume_tz=tz)
+            if config.get("date_format"):
+                with suppress(ValueError):
+                    published = parse_datetime(
+                        datetime.strptime(raw_date.strip(), str(config["date_format"])).isoformat(),
+                        assume_tz=tz,
+                    )
+            else:
+                published = parse_datetime(raw_date, assume_tz=tz)
     summary = _text(node.css_first(str(selectors["summary"]))) if selectors.get("summary") else None
     return RawItem(
         stable_id=canonical_url(url), url=url, title=title, published_at=published, summary=summary

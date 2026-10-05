@@ -1,0 +1,94 @@
+﻿group,name,url,theme,registration,key,catalog_keys,track,runtime_status,stage,health,last_outcome,last_success_at,last_error,endpoint,access_method
+글로벌 종합 IT,The Verge,https://www.theverge.com/,기술·제품·플랫폼,뉴스 등록,the-verge,the-verge;theverge-ai;theverge-tech,news,candidate,V4,최근 요청 정상,success,2026-10-05T13:02:05.750544+00:00,,https://www.theverge.com/rss/index.xml,feed
+글로벌 종합 IT,Ars Technica,https://arstechnica.com/,기술 분석·과학·정책,뉴스 등록,ars-technica,ars-technica;ars-gadgets;ars-cars,news,candidate,V4,최근 요청 정상,success,2026-10-05T13:32:18.134867+00:00,,https://feeds.arstechnica.com/arstechnica/index,feed
+글로벌 종합 IT,TechCrunch,https://techcrunch.com/,스타트업·투자·AI,뉴스 등록,techcrunch,techcrunch;techcrunch-ai;techcrunch-hardware;techcrunch-robotics;techcrunch-transportation,news,candidate,V4,최근 요청 정상,success,2026-10-05T13:14:33.803425+00:00,,https://techcrunch.com/feed/,feed
+글로벌 종합 IT,WIRED,https://www.wired.com/,기술·사회·보안,뉴스 등록,wired,wired;wired-gear;wired-ai,news,active,V6,최근 요청 정상,success,2026-10-05T13:15:34.340814+00:00,,https://www.wired.com/feed/rss,feed
+글로벌 종합 IT,Engadget,https://www.engadget.com/,기기·소비자 기술,뉴스 등록,engadget,engadget,news,active,V6,최근 요청 정상,success,2026-10-05T13:25:22.025533+00:00,,https://www.engadget.com/rss.xml,feed
+글로벌 종합 IT,CNET,https://www.cnet.com/,제품·소비자 기술,뉴스 등록,cnet,cnet,news,candidate,V4,최근 요청 정상,success,2026-10-05T13:29:20.236879+00:00,,https://www.cnet.com/rss/news/,feed
+글로벌 종합 IT,ZDNET,https://www.zdnet.com/,기업 IT·AI,뉴스 등록,zdnet,zdnet,news,candidate,V4,최근 요청 정상,success,2026-10-05T13:14:32.861926+00:00,,https://www.zdnet.com/news/rss.xml,feed
+글로벌 종합 IT,VentureBeat,https://venturebeat.com/,기업 AI·기술 사업,뉴스 등록,venturebeat,venturebeat,news,candidate,V1,최근 실행 기록 없음,,,,https://venturebeat.com/feed/,feed
+글로벌 종합 IT,The Register,https://www.theregister.com/,기업 IT·클라우드·인프라,뉴스 등록,the-register,the-register;register-personal-tech;register-security,news,candidate,V3,최근 요청 정상,success,2026-10-05T13:29:18.194876+00:00,,https://www.theregister.com/headlines.atom,feed
+글로벌 종합 IT,MIT Technology Review,https://www.technologyreview.com/,신흥 기술·기술 영향,뉴스 등록,mit-technology-review,mit-technology-review;mittr-ai,news,candidate,V4,최근 요청 정상,success,2026-10-05T13:12:39.274466+00:00,,https://www.technologyreview.com/feed/,feed
+글로벌 종합 IT,IEEE Spectrum,https://spectrum.ieee.org/,공학·반도체·로봇,뉴스 등록,ieee-spectrum,ieee-spectrum;ieee-spectrum-robotics;ieee-spectrum-telecom;ieee-spectrum-biomedical;ieee-spectrum-transport;ieee-spectrum-ai;ieee-spectrum-semis,news,candidate,V4,최근 요청 정상,success,2026-10-05T13:32:18.830190+00:00,,https://spectrum.ieee.org/feeds/feed.rss,feed
+글로벌 종합 IT,The Information,https://www.theinformation.com/,기술 기업·심층 취재,뉴스 등록,theinformation,theinformation,news,candidate,V4,최근 요청 정상,not_modified,2026-10-05T12:48:34.399638+00:00,,https://www.theinformation.com/feed,feed
+글로벌 종합 IT,404 Media,https://www.404media.co/,기술·사회·탐사,뉴스 등록,404media,404media,news,candidate,V4,최근 요청 정상,not_modified,2026-10-05T13:34:20.641498+00:00,,https://www.404media.co/rss/,feed
+글로벌 종합 IT,Rest of World,https://restofworld.org/,비서구권 기술 현장,뉴스 등록,rest-of-world,rest-of-world,news,candidate,V4,최근 요청 정상,success,2026-10-05T13:15:33.574739+00:00,,https://restofworld.org/feed/latest/,feed
+개발·기업 IT,InfoQ,https://www.infoq.com/,개발·아키텍처,뉴스 등록,infoq,infoq,news,candidate,V3,최근 요청 정상,success,2026-10-05T13:05:02.350721+00:00,,https://feed.infoq.com/,feed
+개발·기업 IT,The New Stack,https://thenewstack.io/,클라우드·오픈소스·개발,미등록,,,,,,해당 없음,,,,,
+개발·기업 IT,Computerworld,https://www.computerworld.com/,기업 IT·업무 기술,미등록,,,,,,해당 없음,,,,,
+개발·기업 IT,InfoWorld,https://www.infoworld.com/,개발·클라우드·데이터,미등록,,,,,,해당 없음,,,,,
+개발·기업 IT,CIO 국제판,https://www.cio.com/,IT 경영·기업 전략,미등록,,,,,,해당 없음,,,,,
+개발·기업 IT,Network World,https://www.networkworld.com/,네트워크·인프라,미등록,,,,,,해당 없음,,,,,
+개발·기업 IT,Computer Weekly,https://www.computerweekly.com/,기업 IT·정책,뉴스 등록,computerweekly-web,computerweekly-web,news,candidate,V4,최근 요청 정상,success,2026-10-05T13:31:25.525971+00:00,,https://www.computerweekly.com/googleNews.xml,sitemap
+개발·기업 IT,ITPro,https://www.itpro.com/,기업 IT·보안,뉴스 등록,itpro,itpro,news,candidate,V4,최근 요청 정상,success,2026-10-05T12:50:29.380364+00:00,,https://www.itpro.com/feeds.xml,feed
+개발·기업 IT,SiliconANGLE,https://siliconangle.com/,클라우드·AI·기업,뉴스 등록,siliconangle,siliconangle,news,candidate,V4,최근 요청 정상,not_modified,2026-10-05T13:28:19.401330+00:00,,https://siliconangle.com/feed/,feed
+개발·기업 IT,The Next Platform,https://www.nextplatform.com/,HPC·데이터센터,뉴스 등록,nextplatform,nextplatform,news,candidate,V0,최근 실행 기록 없음,,,,https://www.nextplatform.com/feed/,feed
+제품·하드웨어,PCMag,https://www.pcmag.com/,제품 테스트·리뷰,미등록,,,,,,해당 없음,,,,,
+제품·하드웨어,PCWorld,https://www.pcworld.com/,PC·컴퓨팅,뉴스 등록,pcworld,pcworld,news,candidate,V4,최근 요청 정상,success,2026-10-05T13:11:05.773851+00:00,,https://www.pcworld.com/feed,feed
+제품·하드웨어,Tom’s Hardware,https://www.tomshardware.com/,PC 부품·반도체,뉴스 등록,tomshardware,tomshardware,news,candidate,V4,최근 요청 정상,success,2026-10-05T13:25:22.094330+00:00,,https://www.tomshardware.com/feeds.xml,feed
+제품·하드웨어,Tom’s Guide,https://www.tomsguide.com/,소비자 제품,뉴스 등록,tomsguide,tomsguide,news,paused,V3,중지/퇴역,dead_lettered,2026-10-04T11:58:41.190521+00:00,blocked_too_large,https://www.tomsguide.com/feeds.xml,feed
+제품·하드웨어,TechRadar,https://www.techradar.com/,제품·컴퓨팅,뉴스 등록,techradar,techradar,news,active,V6,최근 요청 정상,success,2026-10-05T13:35:18.943580+00:00,,https://www.techradar.com/feeds.xml,feed
+제품·하드웨어,Digital Trends,https://www.digitaltrends.com/,소비자 기술,뉴스 등록,digitaltrends-web,digitaltrends-web,news,candidate,V4,최근 요청 정상,success,2026-10-05T13:29:22.009985+00:00,,https://www.digitaltrends.com/sitemap-google-news-sitemap_1.xml,sitemap
+제품·하드웨어,Android Authority,https://www.androidauthority.com/,Android·모바일,뉴스 등록,android-authority,android-authority,news,candidate,V4,최근 요청 정상,not_modified,2026-10-05T13:14:41.237968+00:00,,https://www.androidauthority.com/feed/,feed
+제품·하드웨어,MacRumors,https://www.macrumors.com/,Apple 생태계,뉴스 등록,macrumors,macrumors,news,candidate,V4,최근 요청 정상,success,2026-10-05T13:34:18.829679+00:00,,https://feeds.macrumors.com/MacRumors-All,feed
+제품·하드웨어,GSMArena,https://www.gsmarena.com/,스마트폰·모바일,뉴스 등록,gsmarena,gsmarena;gsmarena-news-web,news,candidate,V4,최근 요청 정상,success,2026-10-05T13:14:37.432084+00:00,,https://www.gsmarena.com/rss-news-reviews.php3,feed
+제품·하드웨어,Notebookcheck,https://www.notebookcheck.net/,노트북·모바일,뉴스 등록,notebookcheck,notebookcheck,news,candidate,V4,최근 요청 정상,success,2026-10-05T13:07:07.280177+00:00,,https://www.notebookcheck.com/RSS-Feed-Notebook-Testberichte.8155.0.html,feed
+보안,BleepingComputer,https://www.bleepingcomputer.com/,취약점·랜섬웨어,미등록,,,,,,해당 없음,,,,,
+보안,The Hacker News,https://thehackernews.com/,사이버 보안,미등록,,,,,,해당 없음,,,,,
+보안,SecurityWeek,https://www.securityweek.com/,기업 보안,미등록,,,,,,해당 없음,,,,,
+보안,Dark Reading,https://www.darkreading.com/,기업 보안·위협 분석,미등록,,,,,,해당 없음,,,,,
+보안,KrebsOnSecurity,https://krebsonsecurity.com/,보안 탐사·전문 기자,미등록,,,,,,해당 없음,,,,,
+보안,보안뉴스,https://www.boannews.com/,한국 보안 산업·사건,미등록,,,,,,해당 없음,,,,,
+보안,데일리시큐,https://www.dailysecu.com/,한국 보안·IT,뉴스 등록,dailysecu,dailysecu,news,candidate,V4,최근 요청 정상,success,2026-10-05T13:15:34.095796+00:00,,https://cdn.dailysecu.com/rss/gn_rss_allArticle.xml,feed
+한국,전자신문,https://www.etnews.com/,전자·통신·산업,뉴스 등록,etnews,etnews;etnews-web,news,candidate,V4,최근 요청 정상,success,2026-10-05T12:37:32.233745+00:00,,https://rss.etnews.com/Section901.xml,feed
+한국,지디넷코리아,https://zdnet.co.kr/,종합 IT·기업,뉴스 등록,zdnet-korea,zdnet-korea,news,active,V6,최근 요청 정상,success,2026-10-05T12:48:35.992642+00:00,,https://zdnet.co.kr/feed,feed
+한국,디지털데일리,https://www.ddaily.co.kr/,기업 IT·통신,뉴스 등록,ddaily,ddaily,news,active,V6,최근 요청 정상,success,2026-10-05T13:23:17.994301+00:00,,https://www.ddaily.co.kr/rss.xml,feed
+한국,IT조선,https://it.chosun.com/,IT·제품·산업,뉴스 등록,it-chosun,it-chosun,news,active,V6,최근 요청 정상,not_modified,2026-10-05T12:38:39.735955+00:00,,https://cdn.it.chosun.com/rss/gns_allArticle.xml,feed
+한국,아이뉴스24,https://www.inews24.com/,IT·통신·경제,뉴스 등록,inews24-web,inews24-web,news,candidate,V4,최근 요청 정상,success,2026-10-05T13:30:19.409274+00:00,,https://www.inews24.com/sitemap.xml,sitemap
+한국,디지털타임스,https://www.dt.co.kr/,IT·산업·경제,뉴스 등록,dt-web,dt-web,news,paused,V3,중지/퇴역,success,2026-10-04T18:26:33.786299+00:00,,https://www.dt.co.kr/sitemap.xml,sitemap
+한국,블로터,https://www.bloter.net/,기술 기업·디지털 산업,뉴스 등록,bloter,bloter,news,candidate,V4,최근 요청 정상,success,2026-10-05T13:33:23.480803+00:00,,https://www.bloter.net/rss/allArticle.xml,feed
+한국,바이라인네트워크,https://byline.network/,기업 IT·플랫폼,뉴스 등록,byline,byline,news,candidate,V4,최근 요청 정상,not_modified,2026-10-05T13:28:18.692148+00:00,,https://www.byline.network/feed,feed
+한국,디일렉,https://www.thelec.kr/,반도체·디스플레이,뉴스 등록,thelec,thelec;thelec-web,news,candidate,V4,최근 요청 정상,success,2026-10-05T13:05:06.197398+00:00,,https://www.thelec.kr/rss/allArticle.xml,feed
+한국,테크M,https://www.techm.kr/,플랫폼·게임·IT,뉴스 등록,techm,techm,news,candidate,V4,최근 요청 정상,success,2026-10-05T13:03:06.522850+00:00,,https://www.techm.kr/rss/allArticle.xml,feed
+한국,ITWorld Korea,https://www.itworld.co.kr/,기업 IT·개발,뉴스 등록,itworld-korea,itworld-korea,news,candidate,V0,최근 실행 기록 없음,,,,https://www.itworld.co.kr/feed/,feed
+한국,CIO Korea,https://www.ciokorea.com/,IT 경영,뉴스 등록,ciokorea,ciokorea,news,candidate,V4,최근 요청 정상,not_modified,2026-10-05T13:31:18.614254+00:00,,https://www.ciokorea.com/feed,feed
+한국,AI타임스,https://www.aitimes.com/,AI 산업,뉴스 등록,aitimes,aitimes,news,candidate,V4,최근 요청 정상,not_modified,2026-10-05T13:09:05.761190+00:00,,https://www.aitimes.com/rss/allArticle.xml,feed
+한국,플래텀,https://platum.kr/,스타트업,뉴스 등록,platum,platum,news,candidate,V4,최근 요청 정상,not_modified,2026-10-05T12:51:30.070742+00:00,,https://platum.kr/feed,feed
+일본,ITmedia NEWS,https://www.itmedia.co.jp/news/,종합 IT,뉴스 등록,itmedia-news,itmedia-news;itmedia-mobile;itmedia-pcuser;itmedia-aiplus;itmedia-enterprise;monoist;eetimes-japan;smartjapan,news,candidate,V4,최근 요청 정상,success,2026-10-05T12:43:37.360697+00:00,,https://rss.itmedia.co.jp/rss/2.0/news_bursts.xml,feed
+일본,Impress PC Watch,https://pc.watch.impress.co.jp/,PC·반도체,뉴스 등록,pc-watch,pc-watch,news,candidate,V4,최근 요청 정상,success,2026-10-05T13:29:22.178745+00:00,,https://pc.watch.impress.co.jp/data/rss/1.0/pcw/feed.rdf,feed
+일본,Impress Internet Watch,https://internet.watch.impress.co.jp/,인터넷·서비스,뉴스 등록,internet-watch,internet-watch,news,candidate,V4,최근 요청 정상,success,2026-10-05T13:02:08.006200+00:00,,https://internet.watch.impress.co.jp/data/rss/1.0/iw/feed.rdf,feed
+일본,日経クロステック,https://xtech.nikkei.com/,기업 기술·산업,뉴스 등록,nikkei-xtech,nikkei-xtech,news,candidate,V4,최근 요청 정상,success,2026-10-05T12:52:30.473556+00:00,,https://xtech.nikkei.com/rss/index.rdf,feed
+일본,ASCII.jp,https://ascii.jp/,IT·제품,뉴스 등록,ascii-jp,ascii-jp,news,candidate,V4,최근 요청 정상,success,2026-10-05T13:33:23.298389+00:00,,https://ascii.jp/rss.xml,feed
+일본,Publickey,https://www.publickey1.jp/,클라우드·개발,뉴스 등록,publickey,publickey,news,candidate,V4,최근 요청 정상,not_modified,2026-10-05T12:48:31.673173+00:00,,https://www.publickey1.jp/atom.xml,feed
+일본,EE Times Japan,https://eetimes.itmedia.co.jp/,반도체·전자,뉴스 등록,eetimes-japan,eetimes-japan,news,candidate,V4,최근 요청 정상,success,2026-10-05T13:29:21.645933+00:00,,https://rss.itmedia.co.jp/rss/2.0/eetimes.xml,feed
+중국·대만·홍콩,36Kr,https://36kr.com/,중국 기술 기업·스타트업,뉴스 등록,36kr,36kr,news,active,V6,최근 요청 정상,success,2026-10-05T13:23:19.022283+00:00,,https://www.36kr.com/feed,feed
+중국·대만·홍콩,IT之家,https://www.ithome.com/,중국 IT·제품,뉴스 등록,ithome-cn,ithome-cn,news,candidate,V3,최근 요청 정상,success,2026-10-05T13:26:18.743915+00:00,,https://www.ithome.com/rss/,feed
+중국·대만·홍콩,GeekPark,https://www.geekpark.net/,중국 기술·혁신,뉴스 등록,geekpark,geekpark,news,candidate,V4,최근 요청 정상,success,2026-10-05T13:31:18.544136+00:00,,https://www.geekpark.net/rss,feed
+중국·대만·홍콩,钛媒体 TMTPost,https://www.tmtpost.com/,중국 기술 기업,뉴스 등록,tmtpost,tmtpost,news,candidate,V3,최근 요청 정상,success,2026-10-05T13:36:20.457313+00:00,,https://www.tmtpost.com/feed,feed
+중국·대만·홍콩,InfoQ 中文,https://www.infoq.cn/,중국 개발·기술,뉴스 등록,infoq-cn,infoq-cn,news,candidate,V4,최근 요청 정상,success,2026-10-05T13:08:10.109456+00:00,,https://www.infoq.cn/feed.xml,feed
+중국·대만·홍콩,iThome Taiwan,https://www.ithome.com.tw/,대만 기업 IT·보안,뉴스 등록,ithome-tw,ithome-tw,news,candidate,V4,최근 요청 정상,success,2026-10-05T13:28:20.455224+00:00,,https://www.ithome.com.tw/rss,feed
+중국·대만·홍콩,科技新報 TechNews,https://technews.tw/,대만 기술·반도체,뉴스 등록,technews-tw,technews-tw,news,candidate,V4,최근 요청 정상,not_modified,2026-10-05T13:25:22.324803+00:00,,https://technews.tw/feed/,feed
+중국·대만·홍콩,DIGITIMES Asia,https://www.digitimes.com/,대만·아시아 공급망,뉴스 등록,digitimes-asia,digitimes-asia,news,candidate,V4,최근 요청 정상,success,2026-10-05T13:29:24.107818+00:00,,https://www.digitimes.com/rss/daily.xml,feed
+중국·대만·홍콩,Unwire HK,https://unwire.hk/,홍콩 IT·기기,뉴스 등록,unwire-hk,unwire-hk,news,candidate,V4,최근 요청 정상,success,2026-10-05T13:22:18.051955+00:00,,https://unwire.hk/feed/,feed
+유럽,Heise,https://www.heise.de/,독일 종합 IT,뉴스 등록,heise,heise;heise-developer;heise-mac-and-i-web,news,candidate,V4,최근 요청 정상,not_modified,2026-10-05T13:35:18.006485+00:00,,https://www.heise.de/rss/heise-atom.xml,feed
+유럽,Golem,https://www.golem.de/,독일 IT·개발,뉴스 등록,golem,golem;golem-mobil,news,candidate,V4,최근 요청 정상,success,2026-10-05T13:24:23.220187+00:00,,https://rss.golem.de/rss.php?feed=RSS2.0,feed
+유럽,ComputerBase,https://www.computerbase.de/,독일 PC·하드웨어,뉴스 등록,computerbase,computerbase,news,candidate,V4,최근 요청 정상,success,2026-10-05T12:54:29.400612+00:00,,https://www.computerbase.de/rss/news.xml,feed
+유럽,Numerama,https://www.numerama.com/,프랑스 기술·사회,뉴스 등록,numerama,numerama,news,candidate,V4,최근 요청 정상,not_modified,2026-10-05T13:19:20.133225+00:00,,https://www.numerama.com/feed/,feed
+유럽,01net,https://www.01net.com/,프랑스 IT·제품,뉴스 등록,01net,01net,news,candidate,V4,최근 요청 정상,success,2026-10-05T13:23:18.087901+00:00,,https://www.01net.com/feed/,feed
+유럽,Le Monde Informatique,https://www.lemondeinformatique.fr/,프랑스 기업 IT,뉴스 등록,lemondeinformatique,lemondeinformatique,news,candidate,V3,최근 요청 정상,success,2026-10-05T13:05:16.142149+00:00,,https://www.lemondeinformatique.fr/flux-rss/thematique/toutes-les-actualites/rss.xml,feed
+유럽,Tweakers,https://tweakers.net/,네덜란드 기술·제품,뉴스 등록,tweakers,tweakers,news,candidate,V4,최근 요청 정상,success,2026-10-05T13:34:18.001626+00:00,,https://tweakers.net/feeds/mixed.xml,feed
+유럽,Xataka,https://www.xataka.com/,스페인 기술·제품,뉴스 등록,xataka,xataka,news,candidate,V4,최근 요청 정상,success,2026-10-05T13:34:19.170945+00:00,,https://www.xataka.com/feedburner.xml,feed
+유럽,Tech.eu,https://tech.eu/,유럽 기술 기업·투자,뉴스 등록,tech-eu,tech-eu,news,candidate,V3,최근 요청 정상,success,2026-10-05T13:29:18.335629+00:00,,https://tech.eu/feed/,feed
+유럽,Sifted,https://sifted.eu/,유럽 스타트업,community 등록,sifted,sifted,community,candidate,V4,최근 요청 정상,success,2026-10-05T13:35:23.032055+00:00,,https://sifted.eu/feed,feed
+유럽,The Next Web,https://thenextweb.com/,유럽 기반 기술·사업,community 등록,the-next-web,the-next-web,community,candidate,V4,최근 요청 정상,success,2026-10-05T13:32:24.089069+00:00,,https://thenextweb.com/feed,feed
+기타 지역,BetaKit,https://betakit.com/,캐나다 기술 기업,뉴스 등록,betakit,betakit,news,candidate,V3,최근 요청 정상,success,2026-10-05T13:05:09.537518+00:00,,https://betakit.com/feed/,feed
+기타 지역,iTnews Australia,https://www.itnews.com.au/,호주 기업 IT,뉴스 등록,itnews-au,itnews-au,news,candidate,V3,최근 요청 정상,success,2026-10-05T13:05:12.569863+00:00,,https://www.itnews.com.au/RSS/rss.ashx,feed
+기타 지역,YourStory,https://yourstory.com/,인도 스타트업,뉴스 등록,yourstory,yourstory,news,candidate,V3,최근 요청 정상,success,2026-10-05T13:05:19.456698+00:00,,https://yourstory.com/feed,feed
+기타 지역,TechCabal,https://techcabal.com/,아프리카 기술 기업,뉴스 등록,techcabal,techcabal,news,candidate,V3,최근 요청 정상,success,2026-10-05T13:05:24.487777+00:00,,https://techcabal.com/feed/,feed
+기타 지역,Tech in Asia,https://www.techinasia.com/,동남아·아시아 기술 기업,뉴스 등록,tech-in-asia,tech-in-asia,news,candidate,V0,최근 실행 기록 없음,,,,https://www.techinasia.com/,crawler
+산업 기술 전문,EE Times,https://www.eetimes.com/,반도체·전자,뉴스 등록,eetimes,eetimes,news,candidate,V4,최근 요청 정상,success,2026-10-05T12:53:31.666465+00:00,,https://www.eetimes.com/feed/,feed
+산업 기술 전문,Semiconductor Engineering,https://semiengineering.com/,반도체 설계·제조,뉴스 등록,semiengineering,semiengineering,news,candidate,V4,최근 요청 정상,not_modified,2026-10-05T13:14:35.658778+00:00,,https://semiengineering.com/feed/,feed
+산업 기술 전문,Electronics Weekly,https://www.electronicsweekly.com/,전자 산업,뉴스 등록,electronics-weekly,electronics-weekly,news,candidate,V4,최근 요청 정상,success,2026-10-05T12:52:36.243152+00:00,,https://www.electronicsweekly.com/feed/,feed
+산업 기술 전문,Light Reading,https://www.lightreading.com/,통신·네트워크,뉴스 등록,lightreading,lightreading,news,candidate,V4,최근 요청 정상,success,2026-10-05T13:14:35.288889+00:00,,https://www.lightreading.com/rss.xml,feed
+산업 기술 전문,The Robot Report,https://www.therobotreport.com/,로봇 산업,뉴스 등록,the-robot-report,the-robot-report,news,candidate,V4,최근 요청 정상,not_modified,2026-10-05T12:48:34.893059+00:00,,https://www.therobotreport.com/feed/,feed
+산업 기술 전문,Electrek,https://electrek.co/,전기차·에너지,뉴스 등록,electrek,electrek,news,candidate,V4,최근 요청 정상,not_modified,2026-10-05T13:28:17.989368+00:00,,https://electrek.co/feed/,feed

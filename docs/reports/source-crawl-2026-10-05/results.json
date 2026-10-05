@@ -1,0 +1,1368 @@
+[
+  {
+    "key": "etri",
+    "name": "ETRI",
+    "checked_at": "2026-10-05T12:26:12.292726+00:00",
+    "method": "html",
+    "endpoint": "https://www.etri.re.kr/kor/bbs/list.etri?b_board_id=ETRI06",
+    "samples": [
+      {
+        "url": "https://www.etri.re.kr/kor/bbs/view.etri?b_board_id=ETRI06&b_idx=19824",
+        "title": "[2026-66호] ﻿ETRI, 의료 휴머노이드 인터페이스로 'IDEA 디자인상' 수상",
+        "published_at": "2026-09-28 15:00:00+00:00",
+        "http_status": 200,
+        "description_chars": 0,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "recent"
+      },
+      {
+        "url": "https://www.etri.re.kr/kor/bbs/view.etri?b_board_id=ETRI06&b_idx=19822",
+        "title": "[2026-65호] ETRI, AI 교통영상 분석 국제대회 2개 부문 1·2위 쾌거",
+        "published_at": "2026-09-21 15:00:00+00:00",
+        "http_status": 200,
+        "description_chars": 0,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "recent"
+      },
+      {
+        "url": "https://www.etri.re.kr/kor/bbs/view.etri?b_board_id=ETRI06&b_idx=19809",
+        "title": "[2026-64호] ETRI, 피지컬 AI 국제표준화 주도한다",
+        "published_at": "2026-09-19 15:00:00+00:00",
+        "http_status": 200,
+        "description_chars": 0,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "recent"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 13,
+    "recent_complete": 3,
+    "status": "sample_pass",
+    "robots": [
+      {
+        "url": "https://www.etri.re.kr/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://www.etri.re.kr/kor/bbs/list.etri?b_board_id=ETRI06",
+        "final_url": "https://www.etri.re.kr/kor/bbs/list.etri?b_board_id=ETRI06",
+        "status": 200,
+        "bytes": 40713,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.etri.re.kr/kor/bbs/view.etri?b_board_id=ETRI06&b_idx=19824",
+        "final_url": "https://www.etri.re.kr/kor/bbs/view.etri?b_board_id=ETRI06&b_idx=19824",
+        "status": 200,
+        "bytes": 655253,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.etri.re.kr/kor/bbs/view.etri?b_board_id=ETRI06&b_idx=19822",
+        "final_url": "https://www.etri.re.kr/kor/bbs/view.etri?b_board_id=ETRI06&b_idx=19822",
+        "status": 200,
+        "bytes": 861903,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.etri.re.kr/kor/bbs/view.etri?b_board_id=ETRI06&b_idx=19809",
+        "final_url": "https://www.etri.re.kr/kor/bbs/view.etri?b_board_id=ETRI06&b_idx=19809",
+        "status": 200,
+        "bytes": 955512,
+        "mime": "text/html"
+      }
+    ]
+  },
+  {
+    "key": "kisti",
+    "name": "KISTI",
+    "checked_at": "2026-10-05T12:26:12.292955+00:00",
+    "method": "html",
+    "endpoint": "https://www.kisti.re.kr/promote/post/news",
+    "samples": [],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "status": "blocked",
+    "reason": "robots blocked/unknown (timed out fetching https://www.kisti.re.kr/robots.txt): https://www.kisti.re.kr/promote/post/news",
+    "robots": [
+      {
+        "url": "https://www.kisti.re.kr/robots.txt",
+        "error": "timed out fetching https://www.kisti.re.kr/robots.txt"
+      }
+    ],
+    "requests": []
+  },
+  {
+    "key": "riken",
+    "name": "RIKEN",
+    "checked_at": "2026-10-05T12:26:12.293077+00:00",
+    "method": "feed",
+    "endpoint": "https://www.riken.jp/en/feed/press_feed/",
+    "samples": [
+      {
+        "stable_id": "https://www.riken.jp/en/news_pubs/research_news/closeup/2026/20260904_1/index.html",
+        "url": "https://www.riken.jp/en/news_pubs/research_news/closeup/2026/20260904_1/index.html",
+        "title": "Shedding light on “microbial dark matter”",
+        "published_at": "2026-09-02 15:00:00+00:00",
+        "author": null,
+        "metrics": {},
+        "description_chars": 0,
+        "feed_body_chars": 0,
+        "status": "old"
+      },
+      {
+        "stable_id": "https://www.riken.jp/en/news_pubs/research_news/closeup/2026/20260828_1/index.html",
+        "url": "https://www.riken.jp/en/news_pubs/research_news/closeup/2026/20260828_1/index.html",
+        "title": "The wisdom of the egg cell",
+        "published_at": "2026-08-27 15:00:00+00:00",
+        "author": null,
+        "metrics": {},
+        "description_chars": 0,
+        "feed_body_chars": 0,
+        "status": "old"
+      },
+      {
+        "stable_id": "https://www.riken.jp/en/news_pubs/research_news/pr/2026/20260807_2/index.html",
+        "url": "https://www.riken.jp/en/news_pubs/research_news/pr/2026/20260807_2/index.html",
+        "title": "New biomedical tech: self-healing hydrogel with electrical polarization",
+        "published_at": "2026-08-11 15:00:00+00:00",
+        "author": null,
+        "metrics": {},
+        "description_chars": 0,
+        "feed_body_chars": 0,
+        "status": "old"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 20,
+    "recent_complete": 0,
+    "status": "needs_work",
+    "robots": [
+      {
+        "url": "https://www.riken.jp/robots.txt",
+        "status": 404
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://www.riken.jp/en/feed/press_feed/",
+        "final_url": "https://www.riken.jp/en/feed/press_feed/",
+        "status": 200,
+        "bytes": 23009,
+        "mime": "application/xml"
+      }
+    ]
+  },
+  {
+    "key": "aist",
+    "name": "AIST",
+    "checked_at": "2026-10-05T12:26:14.180878+00:00",
+    "method": "html",
+    "endpoint": "https://www.aist.go.jp/index_en.html",
+    "samples": [
+      {
+        "url": "https://www.aist.go.jp/aist_e/list/latest_research/2026/20260929/en20260929.html",
+        "title": "Device Developed to Measure the Surface Profile of Curved Mirrors with the World's Highest Accuracy",
+        "published_at": null,
+        "http_status": 200,
+        "description_chars": 0,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "missing_date"
+      },
+      {
+        "url": "https://www.aist.go.jp/aist_e/list/latest_research/2026/20260928/en20260928.html",
+        "title": "Simplifying the Calibration of Current Measurement Instruments with Diamond Quantum Sensing Technology",
+        "published_at": null,
+        "http_status": 200,
+        "description_chars": 0,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "missing_date"
+      },
+      {
+        "url": "https://www.aist.go.jp/aist_e/list/latest_research/2026/20260910/en20260910.html",
+        "title": "Co-digestion of Waste and Wastewater from Biomanufacturing for Energy Recovery",
+        "published_at": null,
+        "http_status": 200,
+        "description_chars": 0,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "missing_date"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 3,
+    "recent_complete": 0,
+    "status": "needs_work",
+    "robots": [
+      {
+        "url": "https://www.aist.go.jp/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://www.aist.go.jp/index_en.html",
+        "final_url": "https://www.aist.go.jp/index_en.html",
+        "status": 200,
+        "bytes": 76024,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.aist.go.jp/aist_e/list/latest_research/2026/20260929/en20260929.html",
+        "final_url": "https://www.aist.go.jp/aist_e/list/latest_research/2026/20260929/en20260929.html",
+        "status": 200,
+        "bytes": 76513,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.aist.go.jp/aist_e/list/latest_research/2026/20260928/en20260928.html",
+        "final_url": "https://www.aist.go.jp/aist_e/list/latest_research/2026/20260928/en20260928.html",
+        "status": 200,
+        "bytes": 76362,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.aist.go.jp/aist_e/list/latest_research/2026/20260910/en20260910.html",
+        "final_url": "https://www.aist.go.jp/aist_e/list/latest_research/2026/20260910/en20260910.html",
+        "status": 200,
+        "bytes": 76387,
+        "mime": "text/html"
+      }
+    ]
+  },
+  {
+    "key": "nict",
+    "name": "NICT",
+    "checked_at": "2026-10-05T12:26:16.701190+00:00",
+    "method": "html",
+    "endpoint": "https://www.nict.go.jp/en/press/index.html",
+    "samples": [
+      {
+        "url": "https://www.nict.go.jp/en/press/2026/09/24-1.html",
+        "title": "Molecular Mechanism of Short-Term Synaptic Plasticity Was Discovered | 2026 | NICT - National Institute of Information and Communications Technology",
+        "published_at": null,
+        "http_status": 200,
+        "description_chars": 1031,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "missing_date"
+      },
+      {
+        "url": "https://www.nict.go.jp/en/press/2026/09/09-1.html",
+        "title": "A Multiplexed Quantum Photonic Interface for Neutral-Atom Quantum Computers | 2026 | NICT - National Institute of Information and Communications Technology",
+        "published_at": null,
+        "http_status": 200,
+        "description_chars": 547,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "missing_date"
+      },
+      {
+        "url": "https://www.nict.go.jp/en/press/2026/07/31-1.html",
+        "title": "National Institute of Information and Communications Technology Launches Its 6th Mid- to Long-Term Plan | 2026 | NICT - National Institute of Information and Communications Technology",
+        "published_at": null,
+        "http_status": 200,
+        "description_chars": 219,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "missing_date"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 10,
+    "recent_complete": 0,
+    "status": "needs_work",
+    "robots": [
+      {
+        "url": "https://www.nict.go.jp/robots.txt",
+        "status": 404
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://www.nict.go.jp/en/press/index.html",
+        "final_url": "https://www.nict.go.jp/en/press/index.html",
+        "status": 200,
+        "bytes": 32268,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.nict.go.jp/en/press/2026/09/24-1.html",
+        "final_url": "https://www.nict.go.jp/en/press/2026/09/24-1.html",
+        "status": 200,
+        "bytes": 39566,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.nict.go.jp/en/press/2026/09/09-1.html",
+        "final_url": "https://www.nict.go.jp/en/press/2026/09/09-1.html",
+        "status": 200,
+        "bytes": 40050,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.nict.go.jp/en/press/2026/07/31-1.html",
+        "final_url": "https://www.nict.go.jp/en/press/2026/07/31-1.html",
+        "status": 200,
+        "bytes": 40747,
+        "mime": "text/html"
+      }
+    ]
+  },
+  {
+    "key": "cas",
+    "name": "CAS",
+    "checked_at": "2026-10-05T12:26:18.712949+00:00",
+    "method": "html",
+    "endpoint": "https://english.cas.cn/newsroom/research-news/",
+    "samples": [
+      {
+        "url": "https://english.cas.cn/newsroom/research-news/202610/t20261001_1201656.shtml",
+        "title": "Bacterial Fermentation Turn Sweet Potato Vines into a Feed Resource",
+        "published_at": "2026-09-30 00:00:00+00:00",
+        "http_status": 200,
+        "description_chars": 3,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "recent"
+      },
+      {
+        "url": "https://english.cas.cn/newsroom/research-news/202609/t20260930_1201624.shtml",
+        "title": "Researchers Uncover a Mechanism Affecting Tungsten Transport in Tokamak Plasmas",
+        "published_at": "2026-09-30 00:00:00+00:00",
+        "http_status": 200,
+        "description_chars": 3,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "recent"
+      },
+      {
+        "url": "https://english.cas.cn/newsroom/research-news/202609/t20260930_1201622.shtml",
+        "title": "Researchers Improve Satellite-Based Cloud Property Retrieval with Polarimetric Observations",
+        "published_at": "2026-09-30 00:00:00+00:00",
+        "http_status": 200,
+        "description_chars": 3,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "recent"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 18,
+    "recent_complete": 3,
+    "status": "sample_pass",
+    "robots": [
+      {
+        "url": "https://english.cas.cn/robots.txt",
+        "status": 404
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://english.cas.cn/newsroom/research-news/",
+        "final_url": "https://english.cas.cn/newsroom/research-news/",
+        "status": 200,
+        "bytes": 77767,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://english.cas.cn/newsroom/research-news/202610/t20261001_1201656.shtml",
+        "final_url": "https://english.cas.cn/newsroom/research-news/202610/t20261001_1201656.shtml",
+        "status": 200,
+        "bytes": 41702,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://english.cas.cn/newsroom/research-news/202609/t20260930_1201624.shtml",
+        "final_url": "https://english.cas.cn/newsroom/research-news/202609/t20260930_1201624.shtml",
+        "status": 200,
+        "bytes": 41266,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://english.cas.cn/newsroom/research-news/202609/t20260930_1201622.shtml",
+        "final_url": "https://english.cas.cn/newsroom/research-news/202609/t20260930_1201622.shtml",
+        "status": 200,
+        "bytes": 41779,
+        "mime": "text/html"
+      }
+    ]
+  },
+  {
+    "key": "iii",
+    "name": "III",
+    "checked_at": "2026-10-05T12:26:21.243763+00:00",
+    "method": "html",
+    "endpoint": "https://www.iii.org.tw/en/news/newsroom",
+    "samples": [
+      {
+        "url": "https://www.iii.org.tw/en/news/newsroom",
+        "title": "III News｜Newsroom｜News｜III",
+        "published_at": null,
+        "http_status": 200,
+        "description_chars": 250,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "missing_date"
+      },
+      {
+        "url": "https://www.iii.org.tw/en/news/newsroom/iii-news",
+        "title": "III News｜Newsroom｜News｜III",
+        "published_at": null,
+        "http_status": 200,
+        "description_chars": 250,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "missing_date"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 2,
+    "recent_complete": 0,
+    "status": "needs_work",
+    "robots": [
+      {
+        "url": "https://www.iii.org.tw/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://www.iii.org.tw/en/news/newsroom",
+        "final_url": "https://www.iii.org.tw/en/news/newsroom/iii-news",
+        "status": 200,
+        "bytes": 85937,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.iii.org.tw/en/news/newsroom",
+        "final_url": "https://www.iii.org.tw/en/news/newsroom/iii-news",
+        "status": 200,
+        "bytes": 85937,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.iii.org.tw/en/news/newsroom/iii-news",
+        "final_url": "https://www.iii.org.tw/en/news/newsroom/iii-news",
+        "status": 200,
+        "bytes": 85937,
+        "mime": "text/html"
+      }
+    ]
+  },
+  {
+    "key": "a-star-research",
+    "name": "A*STAR Research",
+    "checked_at": "2026-10-05T12:26:23.423089+00:00",
+    "method": "feed",
+    "endpoint": "https://research.a-star.edu.sg/feed/",
+    "samples": [
+      {
+        "stable_id": "https://research.a-star.edu.sg/?post_type=article&p=21781",
+        "url": "https://research.a-star.edu.sg/articles/highlights/a-second-job-in-antifungal-defence/",
+        "title": "A second job in antifungal defence",
+        "published_at": "2026-09-29 00:02:11+00:00",
+        "author": null,
+        "metrics": {},
+        "description_chars": 154,
+        "feed_body_chars": 154,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://research.a-star.edu.sg/?post_type=article&p=21799",
+        "url": "https://research.a-star.edu.sg/articles/highlights/motion-matters-of-the-heart/",
+        "title": "(Motion) matters of the heart",
+        "published_at": "2026-09-25 00:00:12+00:00",
+        "author": null,
+        "metrics": {},
+        "description_chars": 135,
+        "feed_body_chars": 135,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://research.a-star.edu.sg/?post_type=article&p=21764",
+        "url": "https://research.a-star.edu.sg/articles/highlights/mapping-cancers-metabolic-landscape/",
+        "title": "Mapping cancer’s metabolic landscape",
+        "published_at": "2026-09-23 00:00:17+00:00",
+        "author": null,
+        "metrics": {},
+        "description_chars": 160,
+        "feed_body_chars": 160,
+        "status": "recent"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 12,
+    "recent_complete": 3,
+    "status": "sample_pass",
+    "robots": [
+      {
+        "url": "https://research.a-star.edu.sg/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://research.a-star.edu.sg/feed/",
+        "final_url": "https://research.a-star.edu.sg/feed/",
+        "status": 200,
+        "bytes": 15550,
+        "mime": "application/rss+xml"
+      }
+    ]
+  },
+  {
+    "key": "tech-in-asia",
+    "name": "Tech in Asia",
+    "checked_at": "2026-10-05T12:26:24.388374+00:00",
+    "method": "blocked",
+    "endpoint": "https://www.techinasia.com/",
+    "samples": [],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "status": "blocked",
+    "reason": "직접 접근 403; 공식 피드/제휴 조건 확인 필요"
+  },
+  {
+    "key": "dfki",
+    "name": "DFKI",
+    "checked_at": "2026-10-05T12:26:24.388416+00:00",
+    "method": "html",
+    "endpoint": "https://www.dfki.de/en/web/news-media/press/press-releases",
+    "samples": [],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "status": "blocked",
+    "reason": "HTTP 403",
+    "robots": [
+      {
+        "url": "https://www.dfki.de/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://www.dfki.de/en/web/news-media/press/press-releases",
+        "final_url": "https://www.dfki.de/en/web/news-media/press/press-releases",
+        "status": 403,
+        "bytes": 5601,
+        "mime": "text/html"
+      }
+    ]
+  },
+  {
+    "key": "pv-magazine",
+    "name": "pv magazine",
+    "checked_at": "2026-10-05T12:26:26.603142+00:00",
+    "method": "feed",
+    "endpoint": "https://www.pv-magazine.com/feed/",
+    "samples": [
+      {
+        "stable_id": "https://www.pv-magazine.com/?p=73950",
+        "url": "https://www.pv-magazine.com/2026/10/05/perovskite-may-leak-less-lead-than-lead-solder-silicon-say-scientists/",
+        "title": "Perovskite may leak less lead than lead-solder silicon, say scientists",
+        "published_at": "2026-10-05 12:15:00+00:00",
+        "author": "Brian Publicover",
+        "metrics": {},
+        "description_chars": 533,
+        "feed_body_chars": 5238,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://www.pv-magazine.com/?p=73944",
+        "url": "https://www.pv-magazine.com/2026/10/05/digital-twin-tech-offers-anti-involution-strategies-for-chinas-pv-industry/",
+        "title": "Digital twin tech offers ‘anti-involution’ strategies for China’s PV industry",
+        "published_at": "2026-10-05 11:13:01+00:00",
+        "author": "Emiliano Bellini",
+        "metrics": {},
+        "description_chars": 715,
+        "feed_body_chars": 9956,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://www.pv-magazine.com/?p=73945",
+        "url": "https://www.pv-magazine.com/2026/10/05/eu-grants-cross-border-solar-wind-project-priority-status/",
+        "title": "EU grants cross-border solar, wind project priority status",
+        "published_at": "2026-10-05 09:49:55+00:00",
+        "author": "Patrick Jowett",
+        "metrics": {},
+        "description_chars": 437,
+        "feed_body_chars": 2724,
+        "status": "recent"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 10,
+    "recent_complete": 3,
+    "status": "sample_pass",
+    "robots": [
+      {
+        "url": "https://www.pv-magazine.com/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://www.pv-magazine.com/feed/",
+        "final_url": "https://www.pv-magazine.com/feed/",
+        "status": 200,
+        "bytes": 74617,
+        "mime": "application/rss+xml"
+      }
+    ]
+  },
+  {
+    "key": "electrive",
+    "name": "electrive",
+    "checked_at": "2026-10-05T12:26:27.173859+00:00",
+    "method": "feed",
+    "endpoint": "https://www.electrive.com/feed/",
+    "samples": [
+      {
+        "stable_id": "https://www.electrive.com/?p=321409",
+        "url": "https://www.electrive.com/2026/10/05/lg-energy-solution-signs-mou-with-us-startup-indigotech/",
+        "title": "LG Energy Solution signs MoU with US startup Indigotech",
+        "published_at": "2026-10-05 12:00:00+00:00",
+        "author": "guest author",
+        "metrics": {},
+        "description_chars": 595,
+        "feed_body_chars": 0,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://www.electrive.com/?p=321421",
+        "url": "https://www.electrive.com/2026/10/05/catl-opens-largest-ning-service-centre-outside-asia-in-oslo/",
+        "title": "CATL opens largest Ning Service Centre outside Asia in Oslo",
+        "published_at": "2026-10-05 11:38:00+00:00",
+        "author": "Jasmin Apitzsch-Krause",
+        "metrics": {},
+        "description_chars": 538,
+        "feed_body_chars": 0,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://www.electrive.com/?p=321427",
+        "url": "https://www.electrive.com/2026/10/05/bmw-ix5-ix3-40-xdrive-order-start-and-os-x-update/",
+        "title": "BMW iX5 & iX3 40 xDrive order start and OS X update",
+        "published_at": "2026-10-05 11:08:00+00:00",
+        "author": "Victoria Zippmann",
+        "metrics": {},
+        "description_chars": 418,
+        "feed_body_chars": 0,
+        "status": "recent"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 20,
+    "recent_complete": 3,
+    "status": "sample_pass",
+    "robots": [
+      {
+        "url": "https://www.electrive.com/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://www.electrive.com/feed/",
+        "final_url": "https://www.electrive.com/feed/",
+        "status": 200,
+        "bytes": 52074,
+        "mime": "application/rss+xml"
+      }
+    ]
+  },
+  {
+    "key": "inria",
+    "name": "Inria",
+    "checked_at": "2026-10-05T12:26:29.196159+00:00",
+    "method": "html",
+    "endpoint": "https://www.inria.fr/en/actualites_evenements",
+    "samples": [
+      {
+        "url": "https://www.inria.fr/en/amoc-projections-climatiques-statistiques",
+        "title": "AMOC: Towards More Reliable Climate Projections Through Statistics",
+        "published_at": "2026-09-23 06:25:11+00:00",
+        "http_status": 200,
+        "description_chars": 476,
+        "body_candidate_chars": 112,
+        "body_selector": "article",
+        "status": "recent"
+      },
+      {
+        "url": "https://www.inria.fr/en/michael-arbel-une-bourse-erc-pour-des-modeles-ia-plus-fiables",
+        "title": "Michael Arbel: An ERC Grant for more reliable AI models",
+        "published_at": "2026-09-24 08:28:30+00:00",
+        "http_status": 200,
+        "description_chars": 427,
+        "body_candidate_chars": 104,
+        "body_selector": "article",
+        "status": "recent"
+      },
+      {
+        "url": "https://www.inria.fr/en/france-2030-launch-ai-evaluation-program",
+        "title": "France 2030 | Launch of the AI Evaluation Program: a scientific roadmap for the evaluation and safety of artificial intelligence",
+        "published_at": "2026-09-22 06:15:06+00:00",
+        "http_status": 200,
+        "description_chars": 293,
+        "body_candidate_chars": 190,
+        "body_selector": "article",
+        "status": "recent"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 15,
+    "recent_complete": 3,
+    "status": "sample_pass",
+    "robots": [
+      {
+        "url": "https://www.inria.fr/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://www.inria.fr/en/actualites_evenements",
+        "final_url": "https://www.inria.fr/en/actualites_evenements",
+        "status": 200,
+        "bytes": 377606,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.inria.fr/en/amoc-projections-climatiques-statistiques",
+        "final_url": "https://www.inria.fr/en/amoc-projections-climatiques-statistiques",
+        "status": 200,
+        "bytes": 147572,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.inria.fr/en/michael-arbel-une-bourse-erc-pour-des-modeles-ia-plus-fiables",
+        "final_url": "https://www.inria.fr/en/michael-arbel-une-bourse-erc-pour-des-modeles-ia-plus-fiables",
+        "status": 200,
+        "bytes": 147304,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.inria.fr/en/france-2030-launch-ai-evaluation-program",
+        "final_url": "https://www.inria.fr/en/france-2030-launch-ai-evaluation-program",
+        "status": 200,
+        "bytes": 143036,
+        "mime": "text/html"
+      }
+    ]
+  },
+  {
+    "key": "cea",
+    "name": "CEA",
+    "checked_at": "2026-10-05T12:26:29.241565+00:00",
+    "method": "html",
+    "endpoint": "https://www.cea.fr/english/Pages/news-list.aspx",
+    "samples": [
+      {
+        "url": "https://www.cea.fr/english/Pages/News/press-contacts.aspx",
+        "title": "Press contacts",
+        "published_at": null,
+        "http_status": 200,
+        "description_chars": 0,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "missing_date"
+      },
+      {
+        "url": "https://www.cea.fr/english/Pages/News/partnership-international-dune-experiment.aspx",
+        "title": "Franco American Cooperation: CEA and the U.S. Department of Energy (DOE) Strengthen Partnership on the International DUNE Experiment",
+        "published_at": null,
+        "http_status": 200,
+        "description_chars": 442,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "missing_date"
+      },
+      {
+        "url": "https://www.cea.fr/english/Pages/News/VivaTech-2026-CEA-Showcases-Its-Innovations-and-Start-ups-aiming-towards-technological-Sovereignty.aspx",
+        "title": "VivaTech 2026 : CEA Showcases Its Innovations and Start-ups aiming towards technological Sovereignty",
+        "published_at": null,
+        "http_status": 200,
+        "description_chars": 356,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "missing_date"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 11,
+    "recent_complete": 0,
+    "status": "needs_work",
+    "robots": [
+      {
+        "url": "https://www.cea.fr/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://www.cea.fr/english/Pages/news-list.aspx",
+        "final_url": "https://www.cea.fr/english/Pages/news-list.aspx",
+        "status": 200,
+        "bytes": 95393,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.cea.fr/english/Pages/News/press-contacts.aspx",
+        "final_url": "https://www.cea.fr/english/Pages/News/press-contacts.aspx",
+        "status": 200,
+        "bytes": 80530,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.cea.fr/english/Pages/News/partnership-international-dune-experiment.aspx",
+        "final_url": "https://www.cea.fr/english/Pages/News/partnership-international-dune-experiment.aspx",
+        "status": 200,
+        "bytes": 84404,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.cea.fr/english/Pages/News/VivaTech-2026-CEA-Showcases-Its-Innovations-and-Start-ups-aiming-towards-technological-Sovereignty.aspx",
+        "final_url": "https://www.cea.fr/english/Pages/News/VivaTech-2026-CEA-Showcases-Its-Innovations-and-Start-ups-aiming-towards-technological-Sovereignty.aspx",
+        "status": 200,
+        "bytes": 83916,
+        "mime": "text/html"
+      }
+    ]
+  },
+  {
+    "key": "cnrs",
+    "name": "CNRS",
+    "checked_at": "2026-10-05T12:26:35.129373+00:00",
+    "method": "html",
+    "endpoint": "https://www.cnrs.fr/en/press",
+    "samples": [],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 0,
+    "recent_complete": 0,
+    "status": "needs_work",
+    "reason": "No article links/items; inspect rendered list or official feed",
+    "robots": [
+      {
+        "url": "https://www.cnrs.fr/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://www.cnrs.fr/en/press",
+        "final_url": "https://www.cnrs.fr/en/press",
+        "status": 200,
+        "bytes": 42322,
+        "mime": "text/html"
+      }
+    ]
+  },
+  {
+    "key": "tno",
+    "name": "TNO",
+    "checked_at": "2026-10-05T12:26:35.760093+00:00",
+    "method": "html",
+    "endpoint": "https://www.tno.nl/en/newsroom/news/",
+    "samples": [],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 0,
+    "recent_complete": 0,
+    "status": "needs_work",
+    "reason": "No article links/items; inspect rendered list or official feed",
+    "robots": [
+      {
+        "url": "https://www.tno.nl/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://www.tno.nl/en/newsroom/news/",
+        "final_url": "https://www.tno.nl/en/newsroom/news/",
+        "status": 200,
+        "bytes": 143411,
+        "mime": "text/html"
+      }
+    ]
+  },
+  {
+    "key": "vtt",
+    "name": "VTT",
+    "checked_at": "2026-10-05T12:26:37.826924+00:00",
+    "method": "html",
+    "endpoint": "https://www.vttresearch.com/en/news-and-stories",
+    "samples": [
+      {
+        "url": "https://www.vttresearch.com/en/news-and-ideas/chain-reaction-growth-begins-vtt-launches-its-new-strategy",
+        "title": "A chain reaction for growth begins – VTT launches its new strategy | VTT",
+        "published_at": "2026-06-03 00:00:00+00:00",
+        "http_status": 200,
+        "description_chars": 424,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "old"
+      },
+      {
+        "url": "https://www.vttresearch.com/en/news-and-ideas/vtt-spinouts-increase-rd-investment-and-employ-growing-number-researchers",
+        "title": "VTT spinouts increase R&D investment and employ a growing number of researchers | VTT",
+        "published_at": "2026-06-09 00:00:00+00:00",
+        "http_status": 200,
+        "description_chars": 492,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "old"
+      },
+      {
+        "url": "https://www.vttresearch.com/en/news-and-ideas/jani-kivioja-appointed-lead-vtts-quantum-technologies-research-area-accelerate",
+        "title": "Jani Kivioja appointed to lead VTT’s Quantum Technologies research area to accelerate the commercialisation of research | VTT",
+        "published_at": "2026-10-05 00:00:00+00:00",
+        "http_status": 200,
+        "description_chars": 406,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "recent"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 19,
+    "recent_complete": 1,
+    "status": "partial",
+    "robots": [
+      {
+        "url": "https://www.vttresearch.com/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://www.vttresearch.com/en/news-and-stories",
+        "final_url": "https://www.vttresearch.com/en/news-stories/news-and-stories",
+        "status": 200,
+        "bytes": 251808,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.vttresearch.com/en/news-and-ideas/chain-reaction-growth-begins-vtt-launches-its-new-strategy",
+        "final_url": "https://www.vttresearch.com/en/news-and-ideas/chain-reaction-growth-begins-vtt-launches-its-new-strategy",
+        "status": 200,
+        "bytes": 181145,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.vttresearch.com/en/news-and-ideas/vtt-spinouts-increase-rd-investment-and-employ-growing-number-researchers",
+        "final_url": "https://www.vttresearch.com/en/news-and-ideas/vtt-spinouts-increase-rd-investment-and-employ-growing-number-researchers",
+        "status": 200,
+        "bytes": 193195,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.vttresearch.com/en/news-and-ideas/jani-kivioja-appointed-lead-vtts-quantum-technologies-research-area-accelerate",
+        "final_url": "https://www.vttresearch.com/en/news-and-ideas/jani-kivioja-appointed-lead-vtts-quantum-technologies-research-area-accelerate",
+        "status": 200,
+        "bytes": 191042,
+        "mime": "text/html"
+      }
+    ]
+  },
+  {
+    "key": "csem",
+    "name": "CSEM",
+    "checked_at": "2026-10-05T12:26:39.566816+00:00",
+    "method": "html",
+    "endpoint": "https://www.csem.ch/en/",
+    "samples": [],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 0,
+    "recent_complete": 0,
+    "status": "needs_work",
+    "reason": "No article links/items; inspect rendered list or official feed",
+    "robots": [
+      {
+        "url": "https://www.csem.ch/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://www.csem.ch/en/",
+        "final_url": "https://www.csem.ch/en/",
+        "status": 200,
+        "bytes": 296645,
+        "mime": "text/html"
+      }
+    ]
+  },
+  {
+    "key": "csiro",
+    "name": "CSIRO",
+    "checked_at": "2026-10-05T12:26:42.784129+00:00",
+    "method": "html",
+    "endpoint": "https://www.csiro.au/en/News",
+    "samples": [
+      {
+        "url": "https://www.csiro.au/en/news/All/Articles/2026/September/Wildflowers-and-telescopes",
+        "title": "World-leading radio telescopes give space for stunning wildflowers",
+        "published_at": null,
+        "http_status": 200,
+        "description_chars": 211,
+        "body_candidate_chars": 4789,
+        "body_selector": "article",
+        "status": "missing_date"
+      },
+      {
+        "url": "https://www.csiro.au/en/news/All/Articles/2026/September/History-of-computing",
+        "title": "Building Australia’s first computer",
+        "published_at": null,
+        "http_status": 200,
+        "description_chars": 236,
+        "body_candidate_chars": 22417,
+        "body_selector": "article",
+        "status": "missing_date"
+      },
+      {
+        "url": "https://www.csiro.au/en/news/All/Articles/2026/September/How-drones-are-being-put-to-work-in-environmental-research",
+        "title": "Eyes in the sky: how drones are being put to work for science and sustainability",
+        "published_at": null,
+        "http_status": 200,
+        "description_chars": 184,
+        "body_candidate_chars": 12146,
+        "body_selector": "article",
+        "status": "missing_date"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 6,
+    "recent_complete": 0,
+    "status": "needs_work",
+    "robots": [
+      {
+        "url": "https://www.csiro.au/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://www.csiro.au/en/News",
+        "final_url": "https://www.csiro.au/en/News",
+        "status": 200,
+        "bytes": 130300,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.csiro.au/en/news/All/Articles/2026/September/Wildflowers-and-telescopes",
+        "final_url": "https://www.csiro.au/en/news/All/Articles/2026/September/Wildflowers-and-telescopes",
+        "status": 200,
+        "bytes": 130745,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.csiro.au/en/news/All/Articles/2026/September/History-of-computing",
+        "final_url": "https://www.csiro.au/en/news/All/Articles/2026/September/History-of-computing",
+        "status": 200,
+        "bytes": 141046,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://www.csiro.au/en/news/All/Articles/2026/September/How-drones-are-being-put-to-work-in-environmental-research",
+        "final_url": "https://www.csiro.au/en/news/All/Articles/2026/September/How-drones-are-being-put-to-work-in-environmental-research",
+        "status": 200,
+        "bytes": 137992,
+        "mime": "text/html"
+      }
+    ]
+  },
+  {
+    "key": "nrc-canada",
+    "name": "NRC Canada",
+    "checked_at": "2026-10-05T12:26:43.590023+00:00",
+    "method": "html",
+    "endpoint": "https://nrc.canada.ca/en/stories",
+    "samples": [],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "status": "blocked",
+    "reason": "robots blocked/unknown (timed out fetching https://nrc.canada.ca/robots.txt): https://nrc.canada.ca/en/stories",
+    "robots": [
+      {
+        "url": "https://nrc.canada.ca/robots.txt",
+        "error": "timed out fetching https://nrc.canada.ca/robots.txt"
+      }
+    ],
+    "requests": []
+  },
+  {
+    "key": "iet-e-t",
+    "name": "IET E&T",
+    "checked_at": "2026-10-05T12:26:52.512683+00:00",
+    "method": "html",
+    "endpoint": "https://eandt.theiet.org/news",
+    "samples": [
+      {
+        "url": "https://eandt.theiet.org/2026/10/02/subsea-digital-link-between-europe-and-canada-cards",
+        "title": "",
+        "published_at": null,
+        "error": "robots blocked/unknown (403): https://www.eandtmagazine.org/noindex/rscc/verify?data=Xl7Kxfui7HP6BqVyQ13Z8HmnWeWmDFVpJsVC7Ea38Gf9zAFEbkTBm%2FQcA%2B%2Feq7RmVUXIVKkZsPgCbtkxLoRhjQZURYDlu4JcbFHQHBrFbEKVf7Lq8V9okFBH7mKp5rPvdpb2In2nzu%2FTB%2FOhXhs7YQBA%2BMgne2TKH9G4iiiwdRWLjXl5TZ4zpnrfzTAjaPvriS%2FE%2BFdbwF7gCaaii%2BJt8BV9Cm1YVdA1MBNGvunkzA0tUh5PGrvMklCaGVKQ37v4Sm6dV64QAsLXVJVtSYWM7fjOGPuMm3O6J0Rpuzt2%2BrquBxAEv%2FspwKoPcuoKWqCuutCeaobQ%2FUcG3LX2T5K102ivYTrsSVJaY5IBF4c%2BDafI2dxJFTYyqv7fi7%2B3r3FI9HkY%2BwjjuSiZu5opZImSRnnsIJ%2FSO%2BYc1i5iAZOJsrsanfboKBBrYoUc73KFeZuwVExcKvZ0jZ2kcTBGERlyNH2nEd0ufEMcepIA%2BdYexXYbcpDBKtfr%2FTXuJQUnxhYoAJ98BGc4bxuD5%2Bv4bgCuz5Dct7bA07LMWmfnxrXf7ue%2FjDlFXXuviR%2FIWNph3qfh8Pll80UPy2ICMc9Y0thi8wcQzs83bUedmfCus3S1%2FQoZMVeSL2Pu0c23KXPL57SH2v0CakNFg0iMBbJk70KxxJ6VK%2Fedtqo2x0bF9DFZMXKwbPUyD48T9nV8WITs5Is0c6QSTyhsJkUVfLDeg%2F2ig%2FZogiKMfhk8%2FtAoUgwwHiJN5qkqdWPtVjPWPfLCqlLdTLVavEt993A%3D&monkey=S3z5l%2BVcEv0%2Bfqf%2Fdju%2BEEh8kYz0eR0j&source=%2F2026%2F10%2F02%2Fsubsea-digital-link-between-europe-and-canada-cards",
+        "status": "fetch_failed"
+      },
+      {
+        "url": "https://eandt.theiet.org/2026/10/02/hinkley-point-b-decommissioning-enters-new-phase-dismantling-begins",
+        "title": "",
+        "published_at": null,
+        "error": "robots blocked/unknown (403): https://www.eandtmagazine.org/noindex/rscc/verify?data=QVlDSNIDL1zXOfQiOx5PdlTCO6ALezjbjOfxDdrsZ4sxzbPoUWPXCDE3yRAIWOhjigAfuqsrsO1XjD46z5lchumt7PcQYJOaHxWu%2BZ130Qz73WWwIAOtoZkN5WmwWEwqmskok%2BSRNyGx2gIjBHx4hTQfFaxSUvUDAREg5WTk22L%2FlQj3tg0RfRklMH2SuslWY9O23LQvthPOFVAVj%2F1WzYu%2BdL%2F901wwTZHjR6yDKuKkWbxAgCW2VSWWBrv005IyKk%2BCyR1HW9JGiqesH8B1v%2BXGUwCsdgNlKxPM6hB5x82yOasX1bVPL9J5IvrHnBzUCl8LmGNqACFlkvETICBQSd2Quy%2BEENnud9Jlvf5XDDOpD40jeokze0fiYsDrF%2BGViGmL72nMlhKRtf79%2BMUU9%2F81A1JXNogDh6Mg%2BzeUKVzLzBSW3DLsVSBgDNRm5UqNX5j%2F8bo7ILZS1qN%2BuR4A4VCaAH8SiU9lG%2B0PTl2i%2BGPWQW1FkMuyLm6%2FFET9Gg6BgZN3EsuRBuSeEScXuKL49cARXMDD%2FZjz1Fh92RWWSC%2BPgW0Ww5n3ShFubcFM0SQ6gaoHVKQP0YbtNfM8cWQiQbsv3d%2Bb2vxAe2wYqWG9MJrfaUmU5kNZjGHBzzV%2FmdAgxdmRP6GqHnWqWPB2DD5YyE7qR1nwhPt0zJRYOWP06qhZtBdegoRaPUU4B3S%2F9lHrYUYkMZzF%2BaF8Z0SD08dG%2BAmLtIrsSmy2lV%2B2fdWaW9sSbMtEF5hSIGh%2B%2BfbCwA8cB3Pnt6y9RsATYCrPvxVvqMKfp1ztFniWxwvhNS%2BcuSA%3D&monkey=u457kw1k1Y8bVoSsP3c0PCA%2FJ%2FuNk8DM&source=%2F2026%2F10%2F02%2Fhinkley-point-b-decommissioning-enters-new-phase-dismantling-begins",
+        "status": "fetch_failed"
+      },
+      {
+        "url": "https://eandt.theiet.org/2026/10/02/airbus-a350f-cargo-plane-takes-flight-promise-40-fuel-savings",
+        "title": "",
+        "published_at": null,
+        "error": "robots blocked/unknown (403): https://www.eandtmagazine.org/noindex/rscc/verify?data=EwxFbfZugKTUO%2Bclh3dn8IoUUoxLM8s3qWAAtRw%2FdhvPNgejJT2jL7LmWoQL0ZX1uzd4xHcKQaGVLaQTYYN8HbmwprD08vD7aBkcb%2B7eG%2FVuhU%2B1tVU1sjp2K8cy%2BQGyXNng3As5oVxihlDCXTcStq0vx3OOTWaXDyBlbBa9J4KC%2Fs%2Ba%2B%2BhpqtsEGGmErW94T%2BeFbydGvYRE9FMgO1z8Wxs5GBnnEc18mAjxmrHuPLL8RuC6gpUeLFhlpvx%2BtUva%2FrksizFPfTVNJbWyRYFT7maf%2BIAxsvbdQhywuXNdQmoU4cj5%2FVuXbZaQQ1CGs%2B%2FpuofL%2F%2B4lgArDxrAf%2BYjMf%2FMMehd0EftJXiPZ7Az6QHhWh0sdI3r5RnhCWVifedG7gF2dlBl7LK9j8m4kHCpK4k%2FhIEfO2S1uX8Kh5ltGN4xKbshfq%2Fof%2Fjo907ZFKf5Lrd%2FSqW0XOuucUHv7PQucqC8NUheuPFbuqRhg1tl3XTGT623OU8AunEjNW97EzQvXVXvFC4N6Rut0iWKodhpKQPS%2BDksXXe6PY551cI30sAGppIyyQSnJ1dTyqcUf306e5Vn2gOFwpZGZkGQFTG%2FQzhBv8yGUBL%2BYpeYeRKfrRFT1qNofKT8LH5M8vIJtHa9cmIWrGqWrzMXqIhZ6v7nTv3FBPxgNG4bKlZh7EUfCBHxYlmY2uFzr%2F9BBfqNX6G2JcfKZQ%2B53PdFeQO%2BCvahg%2Bmml0v5Atc%2Fo3acgeA9HsCFDxdUvDeTWUfm1bC5MqfOrZzCff%2Fz0OfdODISpHWnY%2F4vlnqWTyQ%2BK&monkey=0ow6Ostqm0yU22iaDuJmonJpA%2BNjNTYM&source=%2F2026%2F10%2F02%2Fairbus-a350f-cargo-plane-takes-flight-promise-40-fuel-savings",
+        "status": "fetch_failed"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 10,
+    "recent_complete": 0,
+    "status": "needs_work",
+    "robots": [
+      {
+        "url": "https://eandt.theiet.org/robots.txt",
+        "status": 200
+      },
+      {
+        "url": "https://www.eandtmagazine.org/robots.txt",
+        "status": 403
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://eandt.theiet.org/news",
+        "final_url": "https://eandt.theiet.org/news",
+        "status": 200,
+        "bytes": 195096,
+        "mime": "text/html"
+      }
+    ]
+  },
+  {
+    "key": "optics-org",
+    "name": "optics.org",
+    "checked_at": "2026-10-05T12:26:55.814916+00:00",
+    "method": "html",
+    "endpoint": "https://optics.org/news",
+    "samples": [
+      {
+        "url": "https://optics.org/news/business-news",
+        "title": "Business News | optics.org",
+        "published_at": null,
+        "http_status": 200,
+        "description_chars": 0,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "missing_date"
+      },
+      {
+        "url": "https://optics.org/news/applications",
+        "title": "Photonics Applications News | optics.org",
+        "published_at": null,
+        "http_status": 200,
+        "description_chars": 0,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "missing_date"
+      },
+      {
+        "url": "https://optics.org/news/research-and-development",
+        "title": "Research & Development | optics.org",
+        "published_at": null,
+        "http_status": 200,
+        "description_chars": 0,
+        "body_candidate_chars": 0,
+        "body_selector": "article",
+        "status": "missing_date"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 24,
+    "recent_complete": 0,
+    "status": "needs_work",
+    "robots": [
+      {
+        "url": "https://optics.org/robots.txt",
+        "status": 404
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://optics.org/news",
+        "final_url": "https://optics.org/news",
+        "status": 200,
+        "bytes": 72345,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://optics.org/news/business-news",
+        "final_url": "https://optics.org/news/business-news",
+        "status": 200,
+        "bytes": 71931,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://optics.org/news/applications",
+        "final_url": "https://optics.org/news/applications",
+        "status": 200,
+        "bytes": 71912,
+        "mime": "text/html"
+      },
+      {
+        "url": "https://optics.org/news/research-and-development",
+        "final_url": "https://optics.org/news/research-and-development",
+        "status": 200,
+        "bytes": 72435,
+        "mime": "text/html"
+      }
+    ]
+  },
+  {
+    "key": "display-daily",
+    "name": "Display Daily",
+    "checked_at": "2026-10-05T12:26:58.813271+00:00",
+    "method": "blocked",
+    "endpoint": "https://displaydaily.com/",
+    "samples": [],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "status": "blocked",
+    "reason": "직접 접근 403; 공식 피드/제휴 조건 확인 필요"
+  },
+  {
+    "key": "healthcare-it-news",
+    "name": "Healthcare IT News",
+    "checked_at": "2026-10-05T12:26:58.813293+00:00",
+    "method": "blocked",
+    "endpoint": "https://www.healthcareitnews.com/",
+    "samples": [],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "status": "blocked",
+    "reason": "직접 접근 403; 공식 피드/제휴 조건 확인 필요"
+  },
+  {
+    "key": "mobihealthnews",
+    "name": "MobiHealthNews",
+    "checked_at": "2026-10-05T12:26:58.813301+00:00",
+    "method": "blocked",
+    "endpoint": "https://www.mobihealthnews.com/",
+    "samples": [],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "status": "blocked",
+    "reason": "직접 접근 403; 공식 피드/제휴 조건 확인 필요"
+  },
+  {
+    "key": "infoq",
+    "name": "InfoQ",
+    "checked_at": "2026-10-05T12:26:58.813308+00:00",
+    "method": "feed",
+    "endpoint": "https://feed.infoq.com/",
+    "samples": [],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "status": "blocked",
+    "reason": "robots blocked/unknown (406): https://feed.infoq.com/",
+    "robots": [
+      {
+        "url": "https://feed.infoq.com/robots.txt",
+        "status": 406
+      }
+    ],
+    "requests": []
+  },
+  {
+    "key": "pv-magazine-india",
+    "name": "pv magazine India",
+    "checked_at": "2026-10-05T12:26:59.378155+00:00",
+    "method": "feed",
+    "endpoint": "https://www.pv-magazine-india.com/feed/",
+    "samples": [
+      {
+        "stable_id": "https://www.pv-magazine-india.com/?p=17146",
+        "url": "https://www.pv-magazine-india.com/2026/10/05/ultratech-cement-surpasses-2-gw-of-green-energy-capacity-for-captive-use/",
+        "title": "UltraTech Cement surpasses 2 GW of green energy capacity for captive use",
+        "published_at": "2026-10-05 10:47:00+00:00",
+        "author": "Uma Gupta",
+        "metrics": {},
+        "description_chars": 186,
+        "feed_body_chars": 2300,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://www.pv-magazine-india.com/?p=17144",
+        "url": "https://www.pv-magazine-india.com/2026/10/05/solex-energy-secures-inr-75-96-crore-order-for-n-type-topcon-solar-modules/",
+        "title": "Solex Energy secures INR 75.96 crore order for n-type TOPCon solar modules",
+        "published_at": "2026-10-05 08:47:18+00:00",
+        "author": "Uma Gupta",
+        "metrics": {},
+        "description_chars": 145,
+        "feed_body_chars": 981,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://www.pv-magazine-india.com/?p=17143",
+        "url": "https://www.pv-magazine-india.com/2026/10/05/german-startup-wins-grant-for-grid-charging-sodium-ion-home-battery/",
+        "title": "German startup wins grant for grid-charging sodium-ion home battery",
+        "published_at": "2026-10-05 07:46:03+00:00",
+        "author": "Brian Publicover",
+        "metrics": {},
+        "description_chars": 207,
+        "feed_body_chars": 2339,
+        "status": "recent"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 10,
+    "recent_complete": 3,
+    "status": "sample_pass",
+    "robots": [
+      {
+        "url": "https://www.pv-magazine-india.com/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://www.pv-magazine-india.com/feed/",
+        "final_url": "https://www.pv-magazine-india.com/feed/",
+        "status": 200,
+        "bytes": 44297,
+        "mime": "application/rss+xml"
+      }
+    ]
+  }
+]

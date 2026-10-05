@@ -1,0 +1,13 @@
+{
+  "timeout_seconds": 30,
+  "tested_urls": [
+    "https://www.kisti.re.kr/robots.txt",
+    "https://nrc.canada.ca/robots.txt",
+    "https://semiwiki.com/feed/"
+  ],
+  "outcomes": [
+    "timeout",
+    "timeout",
+    "timeout"
+  ]
+}

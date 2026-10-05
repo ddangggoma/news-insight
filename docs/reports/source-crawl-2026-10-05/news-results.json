@@ -1,0 +1,1404 @@
+[
+  {
+    "key": "news-etnews",
+    "name": "전자신문",
+    "checked_at": "2026-10-05T12:31:33.842050+00:00",
+    "method": "feed",
+    "endpoint": "https://rss.etnews.com/Section901.xml",
+    "samples": [
+      {
+        "stable_id": "20261005000140",
+        "url": "https://www.etnews.com/20261005000140",
+        "title": "“한달새 20% 넘게 올랐는데, 앞으로 더 뛴다”…삼전닉스 넘어 반도체 랠리 이끈 ETF",
+        "published_at": "2026-10-05 10:06:26+00:00",
+        "author": "이상목",
+        "metrics": {},
+        "description_chars": 249,
+        "feed_body_chars": 0,
+        "status": "recent"
+      },
+      {
+        "stable_id": "20261005000139",
+        "url": "https://www.etnews.com/20261005000139",
+        "title": "노벨생리의학상에 카를 다이서로스·페터 헤게만·게오르크 나겔…'광유전학' 개척",
+        "published_at": "2026-10-05 10:06:20+00:00",
+        "author": "송윤섭",
+        "metrics": {},
+        "description_chars": 250,
+        "feed_body_chars": 0,
+        "status": "recent"
+      },
+      {
+        "stable_id": "20261005000138",
+        "url": "https://www.etnews.com/20261005000138",
+        "title": "돈 아끼려 외식 피하고, 집밥만 먹었는데…통장 잔고가 왜이래?",
+        "published_at": "2026-10-05 10:03:28+00:00",
+        "author": "이상목",
+        "metrics": {},
+        "description_chars": 249,
+        "feed_body_chars": 0,
+        "status": "recent"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 20,
+    "recent_complete": 3,
+    "status": "sample_pass",
+    "robots": [
+      {
+        "url": "https://rss.etnews.com/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://rss.etnews.com/Section901.xml",
+        "final_url": "https://rss.etnews.com/Section901.xml",
+        "status": 200,
+        "bytes": 33653,
+        "mime": "text/xml"
+      }
+    ]
+  },
+  {
+    "key": "news-thelec",
+    "name": "디일렉",
+    "checked_at": "2026-10-05T12:31:33.842257+00:00",
+    "method": "feed",
+    "endpoint": "https://www.thelec.kr/rss/allArticle.xml",
+    "samples": [
+      {
+        "stable_id": "https://www.thelec.kr/news/articleView.html?idxno=63251",
+        "url": "https://www.thelec.kr/news/articleView.html?idxno=63251",
+        "title": "HD현대사이트솔루션, 18톤급 전동지게차 출시",
+        "published_at": "2026-10-05 21:22:27+00:00",
+        "author": "김은규 기자",
+        "metrics": {},
+        "description_chars": 300,
+        "feed_body_chars": 0,
+        "status": "future_date"
+      },
+      {
+        "stable_id": "https://www.thelec.kr/news/articleView.html?idxno=63239",
+        "url": "https://www.thelec.kr/news/articleView.html?idxno=63239",
+        "title": "엔비디아 AI 노트북 OLED 한국이 독점",
+        "published_at": "2026-10-05 12:26:15+00:00",
+        "author": "김건 기자",
+        "metrics": {},
+        "description_chars": 299,
+        "feed_body_chars": 0,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://www.thelec.kr/news/articleView.html?idxno=63232",
+        "url": "https://www.thelec.kr/news/articleView.html?idxno=63232",
+        "title": "AI 반도체 대응, 후공정 테스트 생태계 '대면적' 속도",
+        "published_at": "2026-10-05 12:21:13+00:00",
+        "author": "정일주 기자",
+        "metrics": {},
+        "description_chars": 300,
+        "feed_body_chars": 0,
+        "status": "recent"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 20,
+    "recent_complete": 2,
+    "status": "partial",
+    "robots": [
+      {
+        "url": "https://www.thelec.kr/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://www.thelec.kr/rss/allArticle.xml",
+        "final_url": "https://www.thelec.kr/rss/allArticle.xml",
+        "status": 200,
+        "bytes": 51693,
+        "mime": "application/xml"
+      }
+    ]
+  },
+  {
+    "key": "news-the-register",
+    "name": "The Register",
+    "checked_at": "2026-10-05T12:31:33.842397+00:00",
+    "method": "feed",
+    "endpoint": "https://www.theregister.com/headlines.atom",
+    "samples": [],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "status": "blocked",
+    "reason": "robots blocked/unknown (200): https://www.theregister.com/headlines.atom",
+    "robots": [
+      {
+        "url": "https://www.theregister.com/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": []
+  },
+  {
+    "key": "news-itmedia-news",
+    "name": "ITmedia NEWS",
+    "checked_at": "2026-10-05T12:31:34.410419+00:00",
+    "method": "feed",
+    "endpoint": "https://rss.itmedia.co.jp/rss/2.0/news_bursts.xml",
+    "samples": [
+      {
+        "stable_id": "https://www.itmedia.co.jp/news/article/2610/05/2000002016/",
+        "url": "https://www.itmedia.co.jp/news/article/2610/05/2000002016/",
+        "title": "ホワイトエッセンス、約105万アカウントの個人情報流出　8月発表の不正アクセス調査で判明",
+        "published_at": "2026-10-05 10:34:48+00:00",
+        "author": null,
+        "metrics": {},
+        "description_chars": 134,
+        "feed_body_chars": 0,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://www.itmedia.co.jp/news/article/2610/05/2000002017/",
+        "url": "https://www.itmedia.co.jp/news/article/2610/05/2000002017/",
+        "title": "巨大化を指南！？　AI活用で身近になる植物栽培　健康や仕事に「緑の効用」の識者に聞く",
+        "published_at": "2026-10-05 10:29:40+00:00",
+        "author": null,
+        "metrics": {},
+        "description_chars": 101,
+        "feed_body_chars": 0,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://www.itmedia.co.jp/news/article/2610/05/2000002011/",
+        "url": "https://www.itmedia.co.jp/news/article/2610/05/2000002011/",
+        "title": "「焼肉きんぐ」個人情報約1079万件が漏えい　公式アプリのシステムに不正アクセス　ほぼ全会員分に相当",
+        "published_at": "2026-10-05 09:39:42+00:00",
+        "author": null,
+        "metrics": {},
+        "description_chars": 107,
+        "feed_body_chars": 0,
+        "status": "recent"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 20,
+    "recent_complete": 3,
+    "status": "sample_pass",
+    "robots": [
+      {
+        "url": "https://rss.itmedia.co.jp/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://rss.itmedia.co.jp/rss/2.0/news_bursts.xml",
+        "final_url": "https://rss.itmedia.co.jp/rss/2.0/news_bursts.xml",
+        "status": 200,
+        "bytes": 29467,
+        "mime": "application/xml"
+      }
+    ]
+  },
+  {
+    "key": "news-ithome-tw",
+    "name": "iThome 台灣",
+    "checked_at": "2026-10-05T12:31:34.974347+00:00",
+    "method": "feed",
+    "endpoint": "https://www.ithome.com.tw/rss",
+    "samples": [
+      {
+        "stable_id": "https://www.ithome.com.tw/news/179393",
+        "url": "https://www.ithome.com.tw/news/179393",
+        "title": "Rust預告停止32位元Windows主機工具，開發者需改採交叉編譯",
+        "published_at": "2026-10-05 12:10:27+00:00",
+        "author": "李建興",
+        "metrics": {},
+        "description_chars": 131,
+        "feed_body_chars": 0,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://www.ithome.com.tw/news/179404",
+        "url": "https://www.ithome.com.tw/news/179404",
+        "title": "駭客組織ShinyHunters成員在約旦遭捕，據報將協助FBI追查同夥",
+        "published_at": "2026-10-05 12:10:00+00:00",
+        "author": "張明德",
+        "metrics": {},
+        "description_chars": 48,
+        "feed_body_chars": 0,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://www.ithome.com.tw/news/179401",
+        "url": "https://www.ithome.com.tw/news/179401",
+        "title": "AI導致低品質報告氾濫，arXiv將限制報告每月提交最多2篇",
+        "published_at": "2026-10-05 11:10:57+00:00",
+        "author": "林妍溱",
+        "metrics": {},
+        "description_chars": 78,
+        "feed_body_chars": 0,
+        "status": "recent"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 20,
+    "recent_complete": 3,
+    "status": "sample_pass",
+    "robots": [
+      {
+        "url": "https://www.ithome.com.tw/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://www.ithome.com.tw/rss",
+        "final_url": "https://www.ithome.com.tw/rss",
+        "status": 200,
+        "bytes": 20428,
+        "mime": "application/rss+xml"
+      }
+    ]
+  },
+  {
+    "key": "news-ithome-cn",
+    "name": "IT之家",
+    "checked_at": "2026-10-05T12:31:34.987937+00:00",
+    "method": "feed",
+    "endpoint": "https://www.ithome.com/rss/",
+    "samples": [
+      {
+        "stable_id": "https://www.ithome.com/1/009/869.htm",
+        "url": "https://www.ithome.com/1/009/869.htm",
+        "title": "苹果悄悄提升 iCloud 邮箱别名创建上限：从 3 个增至 9 个",
+        "published_at": "2026-10-05 12:31:26+00:00",
+        "author": null,
+        "metrics": {},
+        "description_chars": 605,
+        "feed_body_chars": 0,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://www.ithome.com/1/009/868.htm",
+        "url": "https://www.ithome.com/1/009/868.htm",
+        "title": "珠海拱北海关查获旅客人身绑藏旧手机 79 台",
+        "published_at": "2026-10-05 12:25:50+00:00",
+        "author": null,
+        "metrics": {},
+        "description_chars": 688,
+        "feed_body_chars": 0,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://www.ithome.com/1/009/867.htm",
+        "url": "https://www.ithome.com/1/009/867.htm",
+        "title": "三星 Galaxy S27 Ultra 基础颜色选项曝光：黑色、蓝色、浅粉色、白色",
+        "published_at": "2026-10-05 12:23:38+00:00",
+        "author": null,
+        "metrics": {},
+        "description_chars": 746,
+        "feed_body_chars": 0,
+        "status": "recent"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 20,
+    "recent_complete": 3,
+    "status": "sample_pass",
+    "robots": [
+      {
+        "url": "https://www.ithome.com/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://www.ithome.com/rss/",
+        "final_url": "https://www.ithome.com/rss/",
+        "status": 200,
+        "bytes": 202460,
+        "mime": "text/xml"
+      }
+    ]
+  },
+  {
+    "key": "news-heise",
+    "name": "heise online",
+    "checked_at": "2026-10-05T12:31:39.548179+00:00",
+    "method": "feed",
+    "endpoint": "https://www.heise.de/rss/heise-atom.xml",
+    "samples": [
+      {
+        "stable_id": "http://heise.de/-11475851",
+        "url": "https://www.heise.de/news/Zeekr-9X-Luxus-PHEV-mit-seriellem-Hybrid-und-900-Volt-Akku-fuer-119-500-Euro-11475851.html?wt_mc=rss.red.ho.ho.atom.beitrag.beitrag",
+        "title": "Zeekr 9X: Luxus-PHEV mit seriellem Hybrid und 900-Volt-Akku für 119.500 Euro",
+        "published_at": "2026-10-05 12:21:00+00:00",
+        "author": "Florian Pillau",
+        "metrics": {},
+        "description_chars": 148,
+        "feed_body_chars": 510,
+        "status": "recent"
+      },
+      {
+        "stable_id": "http://heise.de/-11476237",
+        "url": "https://www.heise.de/news/Chemnitzer-Linux-Tage-2027-Der-Termin-steht-11476237.html?wt_mc=rss.red.ho.ho.atom.beitrag.beitrag",
+        "title": "Chemnitzer Linux-Tage 2027: Der Termin steht",
+        "published_at": "2026-10-05 12:08:00+00:00",
+        "author": "Dirk Knop",
+        "metrics": {},
+        "description_chars": 113,
+        "feed_body_chars": 488,
+        "status": "recent"
+      },
+      {
+        "stable_id": "http://heise.de/-11467925",
+        "url": "https://www.heise.de/news/iX-Webinar-AI-Act-kompakt-Kennzeichnung-KI-Kompetenz-Hochrisiko-KI-11467925.html?wt_mc=rss.red.ho.ho.atom.beitrag.beitrag",
+        "title": "heise-Angebot: iX-Webinar: AI Act kompakt – Kennzeichnung, KI-Kompetenz, Hochrisiko-KI",
+        "published_at": "2026-10-05 12:00:00+00:00",
+        "author": "Ilona Krause",
+        "metrics": {},
+        "description_chars": 154,
+        "feed_body_chars": 612,
+        "status": "recent"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 20,
+    "recent_complete": 3,
+    "status": "sample_pass",
+    "robots": [
+      {
+        "url": "https://www.heise.de/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://www.heise.de/rss/heise-atom.xml",
+        "final_url": "https://www.heise.de/rss/heise-atom.xml",
+        "status": 200,
+        "bytes": 208500,
+        "mime": "application/atom+xml"
+      }
+    ]
+  },
+  {
+    "key": "news-golem",
+    "name": "Golem.de",
+    "checked_at": "2026-10-05T12:31:42.622239+00:00",
+    "method": "feed",
+    "endpoint": "https://rss.golem.de/rss.php?feed=RSS2.0",
+    "samples": [
+      {
+        "stable_id": "https://www.golem.de/2610/213715.html",
+        "url": "https://www.golem.de/news/anzeige-prime-deal-days-2026-schon-jetzt-fruehe-prime-angebote-sichern-2610-213715.html",
+        "title": "Anzeige: Prime Deal Days 2026 - schon jetzt frühe Prime-Angebote sichern",
+        "published_at": "2026-10-05 12:13:02+00:00",
+        "author": null,
+        "metrics": {},
+        "description_chars": 390,
+        "feed_body_chars": 517,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://www.golem.de/2610/213712.html",
+        "url": "https://www.golem.de/news/anzeige-luna-controller-fuer-prime-mitglieder-zum-tiefpreis-bei-amazon-2610-213712.html",
+        "title": "Anzeige: Luna-Controller für Prime-Mitglieder zum Tiefpreis bei Amazon",
+        "published_at": "2026-10-05 11:44:02+00:00",
+        "author": null,
+        "metrics": {},
+        "description_chars": 343,
+        "feed_body_chars": 470,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://www.golem.de/2610/213702.html",
+        "url": "https://www.golem.de/news/open-source-ki-agent-im-selbstversuch-schickt-mich-hermes-als-itler-in-fruehrente-2610-213702.html",
+        "title": "(g+) Open-Source-KI-Agent im Selbstversuch: Schickt mich Hermes als ITler in Frührente?",
+        "published_at": "2026-10-05 11:30:02+00:00",
+        "author": null,
+        "metrics": {},
+        "description_chars": 413,
+        "feed_body_chars": 540,
+        "status": "recent"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 20,
+    "recent_complete": 3,
+    "status": "sample_pass",
+    "robots": [
+      {
+        "url": "https://rss.golem.de/robots.txt",
+        "status": 404
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://rss.golem.de/rss.php?feed=RSS2.0",
+        "final_url": "https://rss.golem.de/rss.php?feed=RSS2.0",
+        "status": 200,
+        "bytes": 68240,
+        "mime": "application/rss+xml"
+      }
+    ]
+  },
+  {
+    "key": "news-36kr",
+    "name": "36氪",
+    "checked_at": "2026-10-05T12:31:45.247532+00:00",
+    "method": "feed",
+    "endpoint": "https://www.36kr.com/feed",
+    "samples": [
+      {
+        "stable_id": "https://36kr.com/newsflashes/4012921962827912?f=rss",
+        "url": "https://36kr.com/newsflashes/4012921962827912?f=rss",
+        "title": "2026年诺贝尔生理学或医学奖揭晓",
+        "published_at": "2026-10-05 11:55:19+00:00",
+        "author": null,
+        "metrics": {},
+        "description_chars": 144,
+        "feed_body_chars": 0,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://36kr.com/newsflashes/4012634863669383?f=rss",
+        "url": "https://36kr.com/newsflashes/4012634863669383?f=rss",
+        "title": "世界在建最大跨度桥梁新进展，中国基建加速出海",
+        "published_at": "2026-10-05 10:30:00+00:00",
+        "author": null,
+        "metrics": {},
+        "description_chars": 266,
+        "feed_body_chars": 0,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://36kr.com/newsflashes/4012632104636296?f=rss",
+        "url": "https://36kr.com/newsflashes/4012632104636296?f=rss",
+        "title": "现房销售新政叠加房贷贴息落地，国庆期间多地楼市表现亮眼",
+        "published_at": "2026-10-05 10:00:09+00:00",
+        "author": null,
+        "metrics": {},
+        "description_chars": 256,
+        "feed_body_chars": 0,
+        "status": "recent"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 20,
+    "recent_complete": 3,
+    "status": "sample_pass",
+    "robots": [
+      {
+        "url": "https://www.36kr.com/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://www.36kr.com/feed",
+        "final_url": "https://www.36kr.com/feed",
+        "status": 200,
+        "bytes": 151854,
+        "mime": "application/rss+xml"
+      }
+    ]
+  },
+  {
+    "key": "news-sifted",
+    "name": "Sifted",
+    "checked_at": "2026-10-05T12:31:45.998211+00:00",
+    "method": "feed",
+    "endpoint": "https://sifted.eu/feed",
+    "samples": [
+      {
+        "stable_id": "https://sifted.eu/articles/8-pre-seed-rounds-led-by-tier-1-us-investors-in-ai-native-companies/",
+        "url": "https://sifted.eu/articles/8-pre-seed-rounds-led-by-tier-1-us-investors-in-ai-native-companies/",
+        "title": "8 pre-seed rounds led by Tier 1 US investors in AI-native companies",
+        "published_at": "2026-10-05 05:00:58+00:00",
+        "author": null,
+        "metrics": {},
+        "description_chars": 0,
+        "feed_body_chars": 0,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://sifted.eu/articles/five-key-takeaways-from-sifted-summit-2026/",
+        "url": "https://sifted.eu/articles/five-key-takeaways-from-sifted-summit-2026/",
+        "title": "Five key takeaways from Sifted Summit 2026",
+        "published_at": "2026-10-05 05:00:52+00:00",
+        "author": null,
+        "metrics": {},
+        "description_chars": 0,
+        "feed_body_chars": 0,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://sifted.eu/articles/veremark-pisces/",
+        "url": "https://sifted.eu/articles/veremark-pisces/",
+        "title": "Why a $100m Series B startup decided to test the LSE’s new private market",
+        "published_at": "2026-10-05 05:00:02+00:00",
+        "author": null,
+        "metrics": {},
+        "description_chars": 0,
+        "feed_body_chars": 0,
+        "status": "recent"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 20,
+    "recent_complete": 3,
+    "status": "sample_pass",
+    "robots": [
+      {
+        "url": "https://sifted.eu/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://sifted.eu/feed",
+        "final_url": "https://sifted.eu/feed",
+        "status": 200,
+        "bytes": 9546,
+        "mime": "application/rss+xml"
+      }
+    ]
+  },
+  {
+    "key": "news-eetimes",
+    "name": "EE Times",
+    "checked_at": "2026-10-05T12:31:47.920095+00:00",
+    "method": "feed",
+    "endpoint": "https://www.eetimes.com/feed/",
+    "samples": [
+      {
+        "stable_id": "https://www.eetimes.com/?p=101779461",
+        "url": "https://www.eetimes.com/gpt-synopsys-combines-ic-design-eda-with-agentic-ai/",
+        "title": "GPT-Synopsys Combines IC Design EDA with Agentic AI",
+        "published_at": "2026-10-05 12:00:00+00:00",
+        "author": "Majeed Ahmad",
+        "metrics": {},
+        "description_chars": 342,
+        "feed_body_chars": 414,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://www.eetimes.com/?p=101779417",
+        "url": "https://www.eetimes.com/electric-car-makers-need-to-appeal-to-the-other-90/",
+        "title": "Electric Car Makers Need to Appeal to the ‘Other 90%’",
+        "published_at": "2026-10-05 05:30:55+00:00",
+        "author": "Charles Murray",
+        "metrics": {},
+        "description_chars": 327,
+        "feed_body_chars": 365,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://www.eetimes.com/?p=101777496",
+        "url": "https://www.eetimes.com/autosens-2026-regulations-drive-automotive-sensing-architectures/",
+        "title": "AutoSens 2026: Regulation Drives Automotive Sensing Architectures",
+        "published_at": "2026-10-02 15:58:50+00:00",
+        "author": "Pablo Valerio",
+        "metrics": {},
+        "description_chars": 408,
+        "feed_body_chars": 320,
+        "status": "recent"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 10,
+    "recent_complete": 3,
+    "status": "sample_pass",
+    "robots": [
+      {
+        "url": "https://www.eetimes.com/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://www.eetimes.com/feed/",
+        "final_url": "https://www.eetimes.com/feed/",
+        "status": 200,
+        "bytes": 22930,
+        "mime": "application/rss+xml"
+      }
+    ]
+  },
+  {
+    "key": "news-hackaday",
+    "name": "Hackaday",
+    "checked_at": "2026-10-05T12:31:48.136678+00:00",
+    "method": "feed",
+    "endpoint": "https://hackaday.com/blog/feed/",
+    "samples": [
+      {
+        "stable_id": "https://hackaday.com/?p=1169990",
+        "url": "https://hackaday.com/2026/10/05/porting-video-games-to-vhs/",
+        "title": "Porting Video Games to VHS",
+        "published_at": "2026-10-05 11:00:16+00:00",
+        "author": "Maya Posch",
+        "metrics": {},
+        "description_chars": 541,
+        "feed_body_chars": 2271,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://hackaday.com/?p=1169978",
+        "url": "https://hackaday.com/2026/10/05/conveyor-belt-gboard-brings-the-keys-to-you/",
+        "title": "Conveyor Belt GBoard Brings the Keys to You",
+        "published_at": "2026-10-05 08:00:24+00:00",
+        "author": "Tyler August",
+        "metrics": {},
+        "description_chars": 544,
+        "feed_body_chars": 2798,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://hackaday.com/?p=1170018",
+        "url": "https://hackaday.com/2026/10/04/its-gw-basic-jim-but-not-as-we-know-it/",
+        "title": "It’s GW-BASIC, Jim, But Not as We Know It",
+        "published_at": "2026-10-05 05:00:40+00:00",
+        "author": "Tyler August",
+        "metrics": {},
+        "description_chars": 541,
+        "feed_body_chars": 2183,
+        "status": "recent"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 7,
+    "recent_complete": 3,
+    "status": "sample_pass",
+    "robots": [
+      {
+        "url": "https://hackaday.com/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://hackaday.com/blog/feed/",
+        "final_url": "https://hackaday.com/blog/feed/",
+        "status": 200,
+        "bytes": 61023,
+        "mime": "application/rss+xml"
+      }
+    ]
+  },
+  {
+    "key": "news-cnx-software",
+    "name": "CNX Software",
+    "checked_at": "2026-10-05T12:31:49.464619+00:00",
+    "method": "feed",
+    "endpoint": "https://www.cnx-software.com/feed/",
+    "samples": [
+      {
+        "stable_id": "https://www.cnx-software.com/?p=175717",
+        "url": "https://www.cnx-software.com/2026/10/05/debix-m8391-01-industrial-sbc-features-mediatek-genio-720-soc-with-9-tops-npu-dual-display-support/",
+        "title": "DEBIX M8391-01 industrial SBC features MediaTek Genio 720 SoC with 9 TOPS NPU, dual-display support",
+        "published_at": "2026-10-05 09:00:49+00:00",
+        "author": "Debashis Das",
+        "metrics": {},
+        "description_chars": 1629,
+        "feed_body_chars": 0,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://www.cnx-software.com/?p=177936",
+        "url": "https://www.cnx-software.com/2026/10/05/geekworm-ups-scap-5v5a-a-supercapacitor-ups-hat-for-raspberry-pi-5/",
+        "title": "Geekworm UPS Scap 5V5A – A supercapacitor UPS HAT for Raspberry Pi 5",
+        "published_at": "2026-10-05 00:00:22+00:00",
+        "author": "Debashis Das",
+        "metrics": {},
+        "description_chars": 1496,
+        "feed_body_chars": 0,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://www.cnx-software.com/?p=177928",
+        "url": "https://www.cnx-software.com/2026/10/04/esp-sdr-firmware-turns-esp32-into-a-2-4-5-ghz-software-defined-radio-sdr/",
+        "title": "ESP-SDR firmware turns ESP32 into a 2.4/5 GHz Software-Defined Radio (SDR)",
+        "published_at": "2026-10-04 03:00:42+00:00",
+        "author": "Debashis Das",
+        "metrics": {},
+        "description_chars": 1738,
+        "feed_body_chars": 0,
+        "status": "recent"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 20,
+    "recent_complete": 3,
+    "status": "sample_pass",
+    "robots": [
+      {
+        "url": "https://www.cnx-software.com/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://www.cnx-software.com/feed/",
+        "final_url": "https://www.cnx-software.com/feed/",
+        "status": 200,
+        "bytes": 114102,
+        "mime": "application/rss+xml"
+      }
+    ]
+  },
+  {
+    "key": "news-semiengineering",
+    "name": "Semiconductor Engineering",
+    "checked_at": "2026-10-05T12:31:49.779954+00:00",
+    "method": "feed",
+    "endpoint": "https://semiengineering.com/feed/",
+    "samples": [
+      {
+        "stable_id": "https://semiengineering.com/?p=24282260",
+        "url": "https://semiengineering.com/the-agentic-ai-supercycle/",
+        "title": "The Agentic AI Super Cycle",
+        "published_at": "2026-10-05 07:01:51+00:00",
+        "author": "Geoff Tate",
+        "metrics": {},
+        "description_chars": 295,
+        "feed_body_chars": 18623,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://semiengineering.com/?p=24282330",
+        "url": "https://semiengineering.com/extreme-environments-push-chips-to-their-breaking-point/",
+        "title": "Extreme Environments Push Chips To Their Breaking Point",
+        "published_at": "2026-10-05 07:01:21+00:00",
+        "author": "Liz Allan",
+        "metrics": {},
+        "description_chars": 424,
+        "feed_body_chars": 19289,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://semiengineering.com/?p=24282337",
+        "url": "https://semiengineering.com/tracing-hardware-design-from-physical-devices-to-rtl-infineon-tu-munich/",
+        "title": "Tracing Hardware Design From Physical Devices to RTL (Infineon, TU Munich)",
+        "published_at": "2026-10-02 22:46:46+00:00",
+        "author": "Technical Paper Link",
+        "metrics": {},
+        "description_chars": 891,
+        "feed_body_chars": 2162,
+        "status": "recent"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 10,
+    "recent_complete": 3,
+    "status": "sample_pass",
+    "robots": [
+      {
+        "url": "https://semiengineering.com/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://semiengineering.com/feed/",
+        "final_url": "https://semiengineering.com/feed/",
+        "status": 200,
+        "bytes": 191783,
+        "mime": "application/rss+xml"
+      }
+    ]
+  },
+  {
+    "key": "news-tech-eu",
+    "name": "Tech.eu",
+    "checked_at": "2026-10-05T12:31:52.664193+00:00",
+    "method": "feed",
+    "endpoint": "https://tech.eu/feed/",
+    "samples": [],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "status": "blocked",
+    "reason": "robots blocked/unknown (200): https://tech.eu/feed/",
+    "robots": [
+      {
+        "url": "https://tech.eu/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": []
+  },
+  {
+    "key": "news-eetimes-japan",
+    "name": "EE Times Japan",
+    "checked_at": "2026-10-05T12:31:52.967578+00:00",
+    "method": "feed",
+    "endpoint": "https://rss.itmedia.co.jp/rss/2.0/eetimes.xml",
+    "samples": [
+      {
+        "stable_id": "https://eetimes.itmedia.co.jp/ee/articles/2610/05/news033.html",
+        "url": "https://eetimes.itmedia.co.jp/ee/articles/2610/05/news033.html",
+        "title": "エンジニアの生存戦略――手持ちの「不完全な道具」を使い倒して前進する",
+        "published_at": "2026-10-05 06:30:00+00:00",
+        "author": null,
+        "metrics": {},
+        "description_chars": 104,
+        "feed_body_chars": 0,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://eetimes.itmedia.co.jp/ee/articles/2610/05/news015.html",
+        "url": "https://eetimes.itmedia.co.jp/ee/articles/2610/05/news015.html",
+        "title": "日立とファナック、工場でフィジカルAI実証 27年度確立へ",
+        "published_at": "2026-10-05 04:30:00+00:00",
+        "author": null,
+        "metrics": {},
+        "description_chars": 130,
+        "feed_body_chars": 0,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://eetimes.itmedia.co.jp/ee/articles/2610/05/news046.html",
+        "url": "https://eetimes.itmedia.co.jp/ee/articles/2610/05/news046.html",
+        "title": "ニデック動向や業界勢力図に注目　2026年9月の記事ランキング",
+        "published_at": "2026-10-05 03:30:00+00:00",
+        "author": null,
+        "metrics": {},
+        "description_chars": 48,
+        "feed_body_chars": 0,
+        "status": "recent"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 20,
+    "recent_complete": 3,
+    "status": "sample_pass",
+    "robots": [
+      {
+        "url": "https://rss.itmedia.co.jp/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://rss.itmedia.co.jp/rss/2.0/eetimes.xml",
+        "final_url": "https://rss.itmedia.co.jp/rss/2.0/eetimes.xml",
+        "status": 200,
+        "bytes": 11931,
+        "mime": "application/xml"
+      }
+    ]
+  },
+  {
+    "key": "news-nikkei-xtech",
+    "name": "日経クロステック",
+    "checked_at": "2026-10-05T12:31:53.115694+00:00",
+    "method": "feed",
+    "endpoint": "https://xtech.nikkei.com/rss/index.rdf",
+    "samples": [
+      {
+        "stable_id": "https://xtech.nikkei.com/atcl/nxt/column/18/00001/12074/",
+        "url": "https://xtech.nikkei.com/atcl/nxt/column/18/00001/12074/",
+        "title": "大和証券、委託先で11万人分の情報漏洩か　「被害は当社以外も」",
+        "published_at": "2026-10-05 10:45:00+00:00",
+        "author": null,
+        "metrics": {},
+        "description_chars": 117,
+        "feed_body_chars": 0,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://xtech.nikkei.com/atcl/nxt/news/24/03407/",
+        "url": "https://xtech.nikkei.com/atcl/nxt/news/24/03407/",
+        "title": "タイムズカー、9月末で退会できなかった利用者が発生　アクセス集中が影響",
+        "published_at": "2026-10-05 09:20:00+00:00",
+        "author": null,
+        "metrics": {},
+        "description_chars": 179,
+        "feed_body_chars": 0,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://xtech.nikkei.com/atcl/nxt/news/24/03406/",
+        "url": "https://xtech.nikkei.com/atcl/nxt/news/24/03406/",
+        "title": "国税庁e-Taxで79人分の申告書を他人が閲覧した可能性、KSK2とは別の不具合",
+        "published_at": "2026-10-05 06:40:00+00:00",
+        "author": null,
+        "metrics": {},
+        "description_chars": 71,
+        "feed_body_chars": 0,
+        "status": "recent"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 20,
+    "recent_complete": 3,
+    "status": "sample_pass",
+    "robots": [
+      {
+        "url": "https://xtech.nikkei.com/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://xtech.nikkei.com/rss/index.rdf",
+        "final_url": "https://xtech.nikkei.com/rss/index.rdf",
+        "status": 200,
+        "bytes": 80299,
+        "mime": "application/rdf+xml"
+      }
+    ]
+  },
+  {
+    "key": "news-digitimes-asia",
+    "name": "DIGITIMES Asia",
+    "checked_at": "2026-10-05T12:31:53.614005+00:00",
+    "method": "feed",
+    "endpoint": "https://www.digitimes.com/rss/daily.xml",
+    "samples": [
+      {
+        "stable_id": "https://www.digitimes.com/news/a20261005PD246/amazon-nuclear-demand-plant-revenue.html",
+        "url": "https://www.digitimes.com/news/a20261005PD246/amazon-nuclear-demand-plant-revenue.html",
+        "title": "Amazon signs 20-year nuclear power deal with Constellation for AI demand",
+        "published_at": "2026-10-05 11:38:00+00:00",
+        "author": "DIGITIMES",
+        "metrics": {},
+        "description_chars": 320,
+        "feed_body_chars": 17,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://www.digitimes.com/news/a20261005PD249/foxconn-revenue-demand-electronics-growth.html",
+        "url": "https://www.digitimes.com/news/a20261005PD249/foxconn-revenue-demand-electronics-growth.html",
+        "title": "Foxconn September revenue tops NT$1 trillion for first time on AI, ICT demand",
+        "published_at": "2026-10-05 10:24:37+00:00",
+        "author": "Scarlett Yu",
+        "metrics": {},
+        "description_chars": 240,
+        "feed_body_chars": 19,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://www.digitimes.com/news/a20261005PD243/largan-precision-revenue-smartphone-demand-production.html",
+        "url": "https://www.digitimes.com/news/a20261005PD243/largan-precision-revenue-smartphone-demand-production.html",
+        "title": "Largan Precision sees steady smartphone lens demand as CPO fibre arrays near production",
+        "published_at": "2026-10-05 10:08:21+00:00",
+        "author": "Levi Li",
+        "metrics": {},
+        "description_chars": 213,
+        "feed_body_chars": 17,
+        "status": "recent"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 20,
+    "recent_complete": 3,
+    "status": "sample_pass",
+    "robots": [
+      {
+        "url": "https://www.digitimes.com/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://www.digitimes.com/rss/daily.xml",
+        "final_url": "https://www.digitimes.com/rss/daily.xml",
+        "status": 200,
+        "bytes": 68141,
+        "mime": "text/xml"
+      }
+    ]
+  },
+  {
+    "key": "news-betakit",
+    "name": "BetaKit",
+    "checked_at": "2026-10-05T12:31:54.404869+00:00",
+    "method": "feed",
+    "endpoint": "https://betakit.com/feed/",
+    "samples": [
+      {
+        "stable_id": "https://betakit.com/?p=410515",
+        "url": "https://betakit.com/qa-an-anthropologist-pulls-back-the-curtain-on-the-humans-behind-ai/",
+        "title": "Q&A: An anthropologist pulls back the curtain on the humans behind AI",
+        "published_at": "2026-10-05 10:00:00+00:00",
+        "author": "Trevor Nichols",
+        "metrics": {},
+        "description_chars": 824,
+        "feed_body_chars": 12539,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://betakit.com/?p=410534",
+        "url": "https://betakit.com/ex-vanguard-exec-aims-to-launch-canadas-first-investment-dealer-solely-focused-on-prediction-markets/",
+        "title": "Ex-Vanguard exec aims to launch Canada’s first investment dealer solely focused on prediction markets",
+        "published_at": "2026-10-02 21:26:15+00:00",
+        "author": "Josh Scott",
+        "metrics": {},
+        "description_chars": 898,
+        "feed_body_chars": 4911,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://betakit.com/?p=410525",
+        "url": "https://betakit.com/oscp-closes-6-million-usd-series-a-round-to-power-navigation-without-gps/",
+        "title": "OSCP closes $6-million USD Series A round to power navigation without GPS",
+        "published_at": "2026-10-02 20:07:56+00:00",
+        "author": "Trevor Nichols",
+        "metrics": {},
+        "description_chars": 821,
+        "feed_body_chars": 4792,
+        "status": "recent"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 20,
+    "recent_complete": 3,
+    "status": "sample_pass",
+    "robots": [
+      {
+        "url": "https://betakit.com/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://betakit.com/feed/",
+        "final_url": "https://betakit.com/feed/",
+        "status": 200,
+        "bytes": 1398283,
+        "mime": "application/rss+xml"
+      }
+    ]
+  },
+  {
+    "key": "news-itnews-au",
+    "name": "iTnews Australia",
+    "checked_at": "2026-10-05T12:31:54.762593+00:00",
+    "method": "feed",
+    "endpoint": "https://www.itnews.com.au/RSS/rss.ashx",
+    "samples": [
+      {
+        "stable_id": "https://www.itnews.com.au/news/colonial-first-state-turns-marketing-automation-into-an-always-on-engagement-engine-629251",
+        "url": "https://www.itnews.com.au/news/colonial-first-state-turns-marketing-automation-into-an-always-on-engagement-engine-629251?utm_source=feed&utm_medium=rss&utm_campaign=iTnews+",
+        "title": "Colonial First State turns marketing automation into an always-on engagement engine",
+        "published_at": "2026-10-04 18:00:00+00:00",
+        "author": null,
+        "metrics": {},
+        "description_chars": 34,
+        "feed_body_chars": 0,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://www.itnews.com.au/news/nsw-national-parks-web-app-accessed-by-openai-agent-629402",
+        "url": "https://www.itnews.com.au/news/nsw-national-parks-web-app-accessed-by-openai-agent-629402?utm_source=feed&utm_medium=rss&utm_campaign=iTnews+",
+        "title": "NSW National Parks web app accessed by OpenAI agent",
+        "published_at": "2026-10-04 02:11:00+00:00",
+        "author": null,
+        "metrics": {},
+        "description_chars": 40,
+        "feed_body_chars": 0,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://www.itnews.com.au/news/nsw-health-uses-ai-to-help-map-staff-access-to-digital-patient-record-system-629328",
+        "url": "https://www.itnews.com.au/news/nsw-health-uses-ai-to-help-map-staff-access-to-digital-patient-record-system-629328?utm_source=feed&utm_medium=rss&utm_campaign=iTnews+",
+        "title": "NSW Health uses AI to help map staff access to digital patient record system",
+        "published_at": "2026-10-01 20:55:00+00:00",
+        "author": null,
+        "metrics": {},
+        "description_chars": 20,
+        "feed_body_chars": 0,
+        "status": "recent"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 20,
+    "recent_complete": 3,
+    "status": "sample_pass",
+    "robots": [
+      {
+        "url": "https://www.itnews.com.au/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://www.itnews.com.au/RSS/rss.ashx",
+        "final_url": "https://www.itnews.com.au/RSS/rss.ashx",
+        "status": 200,
+        "bytes": 10524,
+        "mime": "application/xml"
+      }
+    ]
+  },
+  {
+    "key": "news-lemondeinformatique",
+    "name": "Le Monde Informatique",
+    "checked_at": "2026-10-05T12:31:54.805409+00:00",
+    "method": "feed",
+    "endpoint": "https://www.lemondeinformatique.fr/flux-rss/thematique/toutes-les-actualites/rss.xml",
+    "samples": [
+      {
+        "stable_id": "https://www.lemondeinformatique.fr/actualites/lire-anssi-le-gendarme-de-la-cybersecurite-francais-pirate-100833.html",
+        "url": "https://www.lemondeinformatique.fr/actualites/lire-anssi-le-gendarme-de-la-cybersecurite-francais-pirate-100833.html",
+        "title": "ANSSI : Le gendarme de la cybersécurité français piraté",
+        "published_at": "2026-10-05 12:13:30+00:00",
+        "author": "Elgodjam Hanna",
+        "metrics": {},
+        "description_chars": 163,
+        "feed_body_chars": 0,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://www.lemondeinformatique.fr/actualites/lire-hexatrust-lance-la-6eme-edition-de-son-programme-accelerateur-100832.html",
+        "url": "https://www.lemondeinformatique.fr/actualites/lire-hexatrust-lance-la-6eme-edition-de-son-programme-accelerateur-100832.html",
+        "title": "Hexatrust lance la 6ème édition de son programme Accélérateur",
+        "published_at": "2026-10-05 12:07:06+00:00",
+        "author": null,
+        "metrics": {},
+        "description_chars": 164,
+        "feed_body_chars": 0,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://www.lemondeinformatique.fr/actualites/lire-microsoft-pointe-la-montee-en-puissance-des-attaques-assistees-par-l-ia-100829.html",
+        "url": "https://www.lemondeinformatique.fr/actualites/lire-microsoft-pointe-la-montee-en-puissance-des-attaques-assistees-par-l-ia-100829.html",
+        "title": "Microsoft pointe la montée en puissance des attaques assistées par l'IA",
+        "published_at": "2026-10-05 09:36:09+00:00",
+        "author": null,
+        "metrics": {},
+        "description_chars": 175,
+        "feed_body_chars": 0,
+        "status": "recent"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 20,
+    "recent_complete": 3,
+    "status": "sample_pass",
+    "robots": [
+      {
+        "url": "https://www.lemondeinformatique.fr/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://www.lemondeinformatique.fr/flux-rss/thematique/toutes-les-actualites/rss.xml",
+        "final_url": "https://www.lemondeinformatique.fr/flux-rss/thematique/toutes-les-actualites/rss.xml",
+        "status": 200,
+        "bytes": 17633,
+        "mime": "application/rss+xml"
+      }
+    ]
+  },
+  {
+    "key": "news-yourstory",
+    "name": "YourStory",
+    "checked_at": "2026-10-05T12:31:55.844580+00:00",
+    "method": "feed",
+    "endpoint": "https://yourstory.com/feed",
+    "samples": [
+      {
+        "stable_id": "https://yourstory.com/2026/10/ipo-acevector-weak-market-debut-shares-list-below-issue-price",
+        "url": "https://yourstory.com/2026/10/ipo-acevector-weak-market-debut-shares-list-below-issue-price",
+        "title": "AceVector makes weak market debut, shares list 11.5% below issue price",
+        "published_at": "2026-10-05 12:25:12+00:00",
+        "author": null,
+        "metrics": {},
+        "description_chars": 141,
+        "feed_body_chars": 2631,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://yourstory.com/2026/10/vc-funding-in-september-dips-year-on-year",
+        "url": "https://yourstory.com/2026/10/vc-funding-in-september-dips-year-on-year",
+        "title": "VC funding in September dips 8.3% year on year",
+        "published_at": "2026-10-05 12:13:37+00:00",
+        "author": null,
+        "metrics": {},
+        "description_chars": 100,
+        "feed_body_chars": 6009,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://yourstory.com/2026/10/startup-news-and-updates-daily-roundup-october-5-2026",
+        "url": "https://yourstory.com/2026/10/startup-news-and-updates-daily-roundup-october-5-2026",
+        "title": "Startup news and updates: daily roundup (October 5, 2026)",
+        "published_at": "2026-10-05 08:52:37+00:00",
+        "author": null,
+        "metrics": {},
+        "description_chars": 135,
+        "feed_body_chars": 6244,
+        "status": "recent"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 20,
+    "recent_complete": 3,
+    "status": "sample_pass",
+    "robots": [
+      {
+        "url": "https://yourstory.com/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://yourstory.com/feed",
+        "final_url": "https://yourstory.com/feed",
+        "status": 200,
+        "bytes": 326581,
+        "mime": "application/rss+xml"
+      }
+    ]
+  },
+  {
+    "key": "news-techcabal",
+    "name": "TechCabal",
+    "checked_at": "2026-10-05T12:31:58.060869+00:00",
+    "method": "feed",
+    "endpoint": "https://techcabal.com/feed/",
+    "samples": [
+      {
+        "stable_id": "https://techcabal.com/?p=198800",
+        "url": "https://techcabal.com/2026/10/05/dispute-naivas-flexpay-police-cells/",
+        "title": "How a $231,000 dispute between Naivas and FlexPay ended in police cells",
+        "published_at": "2026-10-05 11:13:28+00:00",
+        "author": "Adonijah Ndege",
+        "metrics": {},
+        "description_chars": 173,
+        "feed_body_chars": 16120,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://techcabal.com/?p=198770",
+        "url": "https://techcabal.com/2026/10/05/%f0%9f%91%a8%f0%9f%8f%bf%f0%9f%9a%80techcabal-daily-jig-is-up-for-spam-callers/",
+        "title": "👨🏿‍🚀TechCabal Daily – Jig is up for spam callers",
+        "published_at": "2026-10-05 06:15:48+00:00",
+        "author": "Emmanuel Nwosu",
+        "metrics": {},
+        "description_chars": 232,
+        "feed_body_chars": 55327,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://techcabal.com/?p=198745",
+        "url": "https://techcabal.com/2026/10/03/day-1-1000-of-cedisaver/",
+        "title": "The $100 sandal that sparked a Ghanaian e-Commerce engine",
+        "published_at": "2026-10-03 09:26:15+00:00",
+        "author": "Opeyemi Kareem",
+        "metrics": {},
+        "description_chars": 94,
+        "feed_body_chars": 7838,
+        "status": "recent"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 10,
+    "recent_complete": 3,
+    "status": "sample_pass",
+    "robots": [
+      {
+        "url": "https://techcabal.com/robots.txt",
+        "status": 404
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://techcabal.com/feed/",
+        "final_url": "https://techcabal.com/feed/",
+        "status": 200,
+        "bytes": 308547,
+        "mime": "application/rss+xml"
+      }
+    ]
+  },
+  {
+    "key": "news-restofworld",
+    "name": "Rest of World",
+    "checked_at": "2026-10-05T12:31:58.149817+00:00",
+    "method": "feed",
+    "endpoint": "https://restofworld.org/feed/",
+    "samples": [
+      {
+        "stable_id": "https://restofworld.org/2026/ai-data-center-memory-chip-shortage-cheap-smartphones-digital-divide/",
+        "url": "https://restofworld.org/2026/ai-data-center-memory-chip-shortage-cheap-smartphones-digital-divide/?utm_source=rss&utm_medium=rss&utm_campaign=feeds",
+        "title": "The AI boom is making the world’s cheapest smartphones disappear",
+        "published_at": "2026-10-05 10:00:43+00:00",
+        "author": "Kinling Lo",
+        "metrics": {},
+        "description_chars": 139,
+        "feed_body_chars": 216,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://restofworld.org/2026/african-leaders-un-security-council-ai-safety/",
+        "url": "https://restofworld.org/2026/african-leaders-un-security-council-ai-safety/?utm_source=rss&utm_medium=rss&utm_campaign=feeds",
+        "title": "Who gets to decide if AI is safe? Africa wants a say",
+        "published_at": "2026-10-02 10:00:00+00:00",
+        "author": "Danai Nesta Kupemba",
+        "metrics": {},
+        "description_chars": 94,
+        "feed_body_chars": 212,
+        "status": "recent"
+      },
+      {
+        "stable_id": "https://restofworld.org/2026/saudi-arabia-ceer-motors-ev-exobot-pif-lucid-byd/",
+        "url": "https://restofworld.org/2026/saudi-arabia-ceer-motors-ev-exobot-pif-lucid-byd/?utm_source=rss&utm_medium=rss&utm_campaign=feeds",
+        "title": "Awkward: Saudi Arabia’s new EV brand takes on the U.S. rival it already controls",
+        "published_at": "2026-10-01 10:00:00+00:00",
+        "author": "Indranil Ghosh",
+        "metrics": {},
+        "description_chars": 29,
+        "feed_body_chars": 208,
+        "status": "recent"
+      }
+    ],
+    "policy_review": "pending",
+    "production_enabled": false,
+    "discovered": 12,
+    "recent_complete": 3,
+    "status": "sample_pass",
+    "robots": [
+      {
+        "url": "https://restofworld.org/robots.txt",
+        "status": 200
+      }
+    ],
+    "requests": [
+      {
+        "url": "https://restofworld.org/feed/",
+        "final_url": "https://restofworld.org/feed/latest/",
+        "status": 200,
+        "bytes": 15275,
+        "mime": "application/xml"
+      }
+    ]
+  }
+]

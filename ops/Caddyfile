@@ -2,6 +2,9 @@
 	# Caddy listens on the same ports inside the container (docs/PORTS.md).
 	https_port {$CADDY_HTTPS_PORT:8700}
 	http_port {$CADDY_HTTP_PORT:8701}
+	# Clients connecting to a literal IP may omit TLS SNI. Use the configured
+	# host as the certificate fallback so IP-based HTTPS still works.
+	default_sni {$PUBLIC_HOST:localhost}
 	# Built-in redirects drop the port when it equals https_port, so we redirect
 	# explicitly below. Certificate automation stays enabled.
 	auto_https disable_redirects

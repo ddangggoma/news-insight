@@ -1,0 +1,192 @@
+version: 1
+sources:
+- key: x-karpathy
+  name: X Andrej Karpathy
+  track: community
+  category: open_social
+  access_method: json_api
+  endpoint_url: https://api.x.com/2/tweets/search/recent?query=from%3Akarpathy+-is%3Aretweet&max_results=10&tweet.fields=created_at%2Cauthor_id%2Cpublic_metrics
+  official_domain: x.com
+  operator: Andrej Karpathy on X
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: Andrej Karpathy 공식 사이트로 소유 확인한 기술 의견 채널; API 인증·예산·삭제 처리 전 보류
+  storage_right: excerpt_allowed
+  config:
+    manual_review: true
+    auth:
+      secret: X_BEARER_TOKEN
+    list_path: data
+    fields:
+      id: id
+      title: text
+      summary: text
+      published_at: created_at
+      author: author_id
+    title_limit: 120
+    url_template: https://x.com/i/web/status/{id}
+    metrics:
+      likes: public_metrics.like_count
+      reposts: public_metrics.retweet_count
+    identity_evidence: https://karpathy.ai/
+- key: x-sama
+  name: X Sam Altman
+  track: community
+  category: open_social
+  access_method: json_api
+  endpoint_url: https://api.x.com/2/tweets/search/recent?query=from%3Asama+-is%3Aretweet&max_results=10&tweet.fields=created_at%2Cauthor_id%2Cpublic_metrics
+  official_domain: x.com
+  operator: Sam Altman on X
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: Sam Altman 공식 사이트로 소유 확인한 기술 의견 채널; API 인증·예산·삭제 처리 전 보류
+  storage_right: excerpt_allowed
+  config:
+    manual_review: true
+    auth:
+      secret: X_BEARER_TOKEN
+    list_path: data
+    fields:
+      id: id
+      title: text
+      summary: text
+      published_at: created_at
+      author: author_id
+    title_limit: 120
+    url_template: https://x.com/i/web/status/{id}
+    metrics:
+      likes: public_metrics.like_count
+      reposts: public_metrics.retweet_count
+    identity_evidence: https://blog.samaltman.com/
+- key: x-martinfowler
+  name: X Martin Fowler
+  track: community
+  category: open_social
+  access_method: json_api
+  endpoint_url: https://api.x.com/2/tweets/search/recent?query=from%3Amartinfowler+-is%3Aretweet&max_results=10&tweet.fields=created_at%2Cauthor_id%2Cpublic_metrics
+  official_domain: x.com
+  operator: Martin Fowler on X
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: Martin Fowler 공식 사이트로 소유 확인한 기술 의견 채널; API 인증·예산·삭제 처리 전 보류
+  storage_right: excerpt_allowed
+  config:
+    manual_review: true
+    auth:
+      secret: X_BEARER_TOKEN
+    list_path: data
+    fields:
+      id: id
+      title: text
+      summary: text
+      published_at: created_at
+      author: author_id
+    title_limit: 120
+    url_template: https://x.com/i/web/status/{id}
+    metrics:
+      likes: public_metrics.like_count
+      reposts: public_metrics.retweet_count
+    identity_evidence: https://martinfowler.com/aboutMe.html
+- key: reddit-programming
+  name: Reddit r/programming
+  track: community
+  category: dev_forum
+  access_method: json_api
+  endpoint_url: https://oauth.reddit.com/r/programming/new?limit=25&raw_json=1
+  official_domain: reddit.com
+  operator: Reddit community r/programming
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: 기술 토론·사용 경험; Reddit 승인·OAuth·삭제 처리 전 수집 보류
+  storage_right: excerpt_allowed
+  config:
+    manual_review: true
+    auth:
+      secret: REDDIT_ACCESS_TOKEN
+    list_path: data.children
+    fields:
+      id: data.name
+      title: data.title
+      summary: data.selftext
+      published_at: data.created_utc
+      author: data.author
+    url_template: https://www.reddit.com{data.permalink|path}
+- key: reddit-machinelearning
+  name: Reddit r/MachineLearning
+  track: community
+  category: dev_forum
+  access_method: json_api
+  endpoint_url: https://oauth.reddit.com/r/MachineLearning/new?limit=25&raw_json=1
+  official_domain: reddit.com
+  operator: Reddit community r/MachineLearning
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: 기술 토론·사용 경험; Reddit 승인·OAuth·삭제 처리 전 수집 보류
+  storage_right: excerpt_allowed
+  config:
+    manual_review: true
+    auth:
+      secret: REDDIT_ACCESS_TOKEN
+    list_path: data.children
+    fields:
+      id: data.name
+      title: data.title
+      summary: data.selftext
+      published_at: data.created_utc
+      author: data.author
+    url_template: https://www.reddit.com{data.permalink|path}
+- key: reddit-localllama
+  name: Reddit r/LocalLLaMA
+  track: community
+  category: dev_forum
+  access_method: json_api
+  endpoint_url: https://oauth.reddit.com/r/LocalLLaMA/new?limit=25&raw_json=1
+  official_domain: reddit.com
+  operator: Reddit community r/LocalLLaMA
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: 기술 토론·사용 경험; Reddit 승인·OAuth·삭제 처리 전 수집 보류
+  storage_right: excerpt_allowed
+  config:
+    manual_review: true
+    auth:
+      secret: REDDIT_ACCESS_TOKEN
+    list_path: data.children
+    fields:
+      id: data.name
+      title: data.title
+      summary: data.selftext
+      published_at: data.created_utc
+      author: data.author
+    url_template: https://www.reddit.com{data.permalink|path}
+- key: reddit-cybersecurity
+  name: Reddit r/cybersecurity
+  track: community
+  category: dev_forum
+  access_method: json_api
+  endpoint_url: https://oauth.reddit.com/r/cybersecurity/new?limit=25&raw_json=1
+  official_domain: reddit.com
+  operator: Reddit community r/cybersecurity
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: 기술 토론·사용 경험; Reddit 승인·OAuth·삭제 처리 전 수집 보류
+  storage_right: excerpt_allowed
+  config:
+    manual_review: true
+    auth:
+      secret: REDDIT_ACCESS_TOKEN
+    list_path: data.children
+    fields:
+      id: data.name
+      title: data.title
+      summary: data.selftext
+      published_at: data.created_utc
+      author: data.author
+    url_template: https://www.reddit.com{data.permalink|path}

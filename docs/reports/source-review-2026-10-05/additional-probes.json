@@ -1,0 +1,146 @@
+[
+  {
+    "name": "Bruce Schneier",
+    "url": "https://www.schneier.com/feed/atom/",
+    "checked_at": "2026-10-05T05:28:19.127617+00:00",
+    "status": 200,
+    "final_url": "https://www.schneier.com/feed/atom/",
+    "entries": 10,
+    "feed_title": "Schneier on Security",
+    "sample_dates": [
+      "2026-10-02T21:02:18Z",
+      "2026-10-02T14:52:46Z",
+      "2026-10-02T11:02:19Z"
+    ],
+    "sample_urls": [
+      "https://www.schneier.com/blog/archives/2026/10/friday-squid-blogging-eu-is-trying-to-fight-unregulated-squid-fishing.html",
+      "https://www.schneier.com/blog/archives/2026/10/unidentified-flock-cameras-in-florida.html",
+      "https://www.schneier.com/blog/archives/2026/10/how-american-political-campaigns-are-using-ai-and-what-theyre-spending-on-the-tools.html"
+    ]
+  },
+  {
+    "name": "Troy Hunt",
+    "url": "https://www.troyhunt.com/rss/",
+    "checked_at": "2026-10-05T05:28:19.128103+00:00",
+    "status": 200,
+    "final_url": "https://www.troyhunt.com/rss/",
+    "entries": 15,
+    "feed_title": "Troy Hunt",
+    "sample_dates": [
+      "Sun, 04 Oct 2026 11:52:23 GMT",
+      "Mon, 28 Sep 2026 07:24:49 GMT",
+      "Wed, 23 Sep 2026 05:18:34 GMT"
+    ],
+    "sample_urls": [
+      "https://www.troyhunt.com/weekly-update-524/",
+      "https://www.troyhunt.com/weekly-update-523/",
+      "https://www.troyhunt.com/weekly-update-522/"
+    ]
+  },
+  {
+    "name": "Sebastian Raschka",
+    "url": "https://magazine.sebastianraschka.com/feed",
+    "checked_at": "2026-10-05T05:28:19.128199+00:00",
+    "status": 200,
+    "final_url": "https://magazine.sebastianraschka.com/feed",
+    "entries": 20,
+    "feed_title": "Ahead of AI",
+    "sample_dates": [
+      "Tue, 29 Sep 2026 10:50:25 GMT",
+      "Wed, 09 Sep 2026 11:14:25 GMT",
+      "Sat, 22 Aug 2026 11:11:39 GMT"
+    ],
+    "sample_urls": [
+      "https://magazine.sebastianraschka.com/p/classifier-history-and-jev",
+      "https://magazine.sebastianraschka.com/p/gpt-6-astra-looped-transformers-and",
+      "https://magazine.sebastianraschka.com/p/claude-watermarking"
+    ]
+  },
+  {
+    "name": "Lilian Weng",
+    "url": "https://lilianweng.github.io/index.xml",
+    "checked_at": "2026-10-05T05:28:19.311413+00:00",
+    "status": 200,
+    "final_url": "https://lilianweng.github.io/index.xml",
+    "entries": 53,
+    "feed_title": "Lil'Log",
+    "sample_dates": [
+      "Sat, 04 Jul 2026 00:00:00 +0000",
+      "Wed, 24 Jun 2026 00:00:00 +0000",
+      "Thu, 01 May 2025 00:00:00 +0000"
+    ],
+    "sample_urls": [
+      "https://lilianweng.github.io/posts/2026-07-04-harness/",
+      "https://lilianweng.github.io/posts/2026-06-24-scaling-laws/",
+      "https://lilianweng.github.io/posts/2025-05-01-thinking/"
+    ]
+  },
+  {
+    "name": "Sam Altman blog",
+    "url": "https://blog.samaltman.com/posts.atom",
+    "checked_at": "2026-10-05T05:28:19.340487+00:00",
+    "status": 200,
+    "final_url": "https://blog.samaltman.com/posts.atom",
+    "entries": 30,
+    "feed_title": "Sam Altman",
+    "sample_dates": [
+      "2026-04-10T22:55:13Z",
+      "2025-10-04T00:37:50Z",
+      "2025-09-30T17:13:47Z"
+    ],
+    "sample_urls": [
+      "https://blog.samaltman.com/2279512",
+      "https://blog.samaltman.com/sora-update-number-1",
+      "https://blog.samaltman.com/sora-2"
+    ]
+  },
+  {
+    "name": "IIJ engineers",
+    "url": "https://eng-blog.iij.ad.jp/feed",
+    "checked_at": "2026-10-05T05:28:19.773337+00:00",
+    "status": 200,
+    "final_url": "https://eng-blog.iij.ad.jp/feed",
+    "entries": 10,
+    "feed_title": "IIJ Engineers Blog",
+    "sample_dates": [
+      "Mon, 05 Oct 2026 00:37:41 +0000",
+      "Fri, 02 Oct 2026 00:47:33 +0000",
+      "Thu, 01 Oct 2026 08:48:25 +0000"
+    ],
+    "sample_urls": [
+      "https://eng-blog.iij.ad.jp/archives/37863",
+      "https://eng-blog.iij.ad.jp/archives/37950",
+      "https://eng-blog.iij.ad.jp/archives/37969"
+    ]
+  },
+  {
+    "name": "LINE engineering",
+    "url": "https://engineering.linecorp.com/en/feed/",
+    "checked_at": "2026-10-05T05:28:19.789543+00:00",
+    "status": 200,
+    "final_url": "https://techblog.lycorp.co.jp/en/feed/index.xml",
+    "entries": 50,
+    "feed_title": "LY Corporation Tech Blog",
+    "sample_dates": [
+      "Wed, 16 Sep 2026 06:45:00 GMT",
+      "Tue, 25 Aug 2026 07:00:00 GMT",
+      "Mon, 27 Jul 2026 08:30:00 GMT"
+    ],
+    "sample_urls": [
+      "https://techblog.lycorp.co.jp/en/a-large-scale-ios-configuration-system-implemented-with-an-attributedstring-structure",
+      "https://techblog.lycorp.co.jp/en/developing-harmfulness-detection-model-for-open-chat-metadata",
+      "https://techblog.lycorp.co.jp/en/applying-e2ee-to-apache-kafka-in-line-app"
+    ]
+  },
+  {
+    "name": "LG official newsroom",
+    "url": "https://www.lg.com/global/newsroom/",
+    "checked_at": "2026-10-05T05:28:19.918385+00:00",
+    "status": 200,
+    "final_url": "https://www.lg.com/global/newsroom/",
+    "entries": 0,
+    "feed_title": "",
+    "sample_dates": [],
+    "sample_urls": []
+  }
+]

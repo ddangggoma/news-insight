@@ -1,0 +1,52 @@
+﻿key,name,country,fields,method,endpoint,status,recent_complete,reason,production_enabled,policy_review
+etri,ETRI,한국,ai;connectivity;display_av;robotics_mobility,html,https://www.etri.re.kr/kor/bbs/list.etri?b_board_id=ETRI06,sample_pass,3,,False,pending
+kisti,KISTI,한국,cloud_data;ai,html,https://www.kisti.re.kr/promote/post/news,blocked,,robots blocked/unknown (timed out fetching https://www.kisti.re.kr/robots.txt): https://www.kisti.re.kr/promote/post/news,False,pending
+riken,RIKEN,일본,ai;frontier;health_tech,feed,https://www.riken.jp/en/feed/press_feed/,needs_work,0,,False,pending
+aist,AIST,일본,semis;manufacturing;energy,html,https://www.aist.go.jp/index_en.html,needs_work,0,,False,pending
+nict,NICT,일본,connectivity;security;frontier,html,https://www.nict.go.jp/en/press/index.html,partial,1,,False,pending
+cas,CAS,중국,semis;frontier;ai,html,https://english.cas.cn/newsroom/research-news/,sample_pass,3,,False,pending
+iii,III,대만,platform_sw;security;manufacturing,html,https://www.iii.org.tw/en/news/newsroom,needs_work,0,,False,pending
+a-star-research,A*STAR Research,싱가포르,semis;health_tech;manufacturing,feed,https://research.a-star.edu.sg/feed/,sample_pass,3,,False,pending
+tech-in-asia,Tech in Asia,싱가포르·동남아,platform_sw;cloud_data;ai,blocked,https://www.techinasia.com/,blocked,,직접 접근 403; 공식 피드/제휴 조건 확인 필요,False,pending
+dfki,DFKI,독일,ai;robotics_mobility;manufacturing,html,https://www.dfki.de/en/web/news-media/press/press-releases,blocked,,HTTP 403,False,pending
+pv-magazine,pv magazine,독일·국제판,energy,feed,https://www.pv-magazine.com/feed/,sample_pass,3,,False,pending
+electrive,electrive,독일·국제판,energy;robotics_mobility,feed,https://www.electrive.com/feed/,sample_pass,3,,False,pending
+inria,Inria,프랑스,ai;platform_sw;security,html,https://www.inria.fr/en/actualites_evenements,sample_pass,3,,False,pending
+cea,CEA,프랑스,semis;energy;frontier,html,https://www.cea.fr/english/Pages/news-list.aspx,partial,1,,False,pending
+cnrs,CNRS,프랑스,frontier;ai;health_tech,html,https://www.cnrs.fr/en/newsroom,sample_pass,3,,False,pending
+tno,TNO,네덜란드,connectivity;energy;manufacturing,html,https://www.tno.nl/en/newsroom/news/,sample_pass,3,,False,pending
+vtt,VTT,핀란드,semis;energy;manufacturing,html,https://www.vttresearch.com/en/news-and-stories,sample_pass,3,,False,pending
+csem,CSEM,스위스,semis;health_tech;display_av;frontier,html,https://www.csem.ch/en/news/,partial,1,,False,pending
+csiro,CSIRO,호주,ai;energy;manufacturing,html,https://www.csiro.au/en/News,sample_pass,3,,False,pending
+nrc-canada,NRC Canada,캐나다,semis;frontier;manufacturing,html,https://nrc.canada.ca/en/stories,blocked,,robots blocked/unknown (timed out fetching https://nrc.canada.ca/robots.txt): https://nrc.canada.ca/en/stories,False,pending
+iet-e-t,IET E&T,영국,connectivity;energy;manufacturing,html,https://eandt.theiet.org/news,needs_work,0,,False,pending
+optics-org,optics.org,국제·국가확인보류,display_av;frontier;semis,html,https://optics.org/news,sample_pass,3,,False,pending
+display-daily,Display Daily,국제·국가확인보류,display_av,blocked,https://displaydaily.com/,blocked,,직접 접근 403; 공식 피드/제휴 조건 확인 필요,False,pending
+healthcare-it-news,Healthcare IT News,미국·국제판,health_tech;security,blocked,https://www.healthcareitnews.com/,blocked,,직접 접근 403; 공식 피드/제휴 조건 확인 필요,False,pending
+mobihealthnews,MobiHealthNews,미국·국제판,health_tech,blocked,https://www.mobihealthnews.com/,blocked,,직접 접근 403; 공식 피드/제휴 조건 확인 필요,False,pending
+infoq,InfoQ,국제·국가확인보류,platform_sw;cloud_data;ai,feed,https://feed.infoq.com/,blocked,,robots blocked/unknown (406): https://feed.infoq.com/,False,pending
+pv-magazine-india,pv magazine India,인도 시장·독일 발행그룹,energy,feed,https://www.pv-magazine-india.com/feed/,sample_pass,3,,False,pending
+news-etnews,전자신문,한국,ai;connectivity;manufacturing,feed,https://rss.etnews.com/Section901.xml,sample_pass,3,,False,pending
+news-thelec,디일렉,한국,semis;display_av,feed,https://www.thelec.kr/rss/allArticle.xml,partial,2,,False,pending
+news-the-register,The Register,영국,cloud_data;security,feed,https://www.theregister.com/headlines.atom,blocked,,robots blocked/unknown (200): https://www.theregister.com/headlines.atom,False,pending
+news-itmedia-news,ITmedia NEWS,일본,platform_sw;ai,feed,https://rss.itmedia.co.jp/rss/2.0/news_bursts.xml,sample_pass,3,,False,pending
+news-ithome-tw,iThome 台灣,대만,platform_sw;security,feed,https://www.ithome.com.tw/rss,sample_pass,3,,False,pending
+news-ithome-cn,IT之家,중국,platform_sw;semis,feed,https://www.ithome.com/rss/,sample_pass,3,,False,pending
+news-heise,heise online,독일,security;platform_sw,feed,https://www.heise.de/rss/heise-atom.xml,sample_pass,3,,False,pending
+news-golem,Golem.de,독일,platform_sw;semis,feed,https://rss.golem.de/rss.php?feed=RSS2.0,sample_pass,3,,False,pending
+news-36kr,36氪,중국,ai;cloud_data,feed,https://www.36kr.com/feed,sample_pass,3,,False,pending
+news-sifted,Sifted,영국·유럽,ai;platform_sw,feed,https://sifted.eu/feed,sample_pass,3,,False,pending
+news-eetimes,EE Times,미국·국제,semis,feed,https://www.eetimes.com/feed/,sample_pass,3,,False,pending
+news-hackaday,Hackaday,미국·국제,manufacturing;robotics_mobility,feed,https://hackaday.com/blog/feed/,sample_pass,3,,False,pending
+news-cnx-software,CNX Software,국제,connectivity;semis,feed,https://www.cnx-software.com/feed/,sample_pass,3,,False,pending
+news-semiengineering,Semiconductor Engineering,미국·국제,semis,feed,https://semiengineering.com/feed/,sample_pass,3,,False,pending
+news-tech-eu,Tech.eu,유럽,ai;platform_sw,feed,https://tech.eu/feed/,blocked,,robots blocked/unknown (200): https://tech.eu/feed/,False,pending
+news-eetimes-japan,EE Times Japan,일본,semis,feed,https://rss.itmedia.co.jp/rss/2.0/eetimes.xml,sample_pass,3,,False,pending
+news-nikkei-xtech,日経クロステック,일본,manufacturing;connectivity,feed,https://xtech.nikkei.com/rss/index.rdf,sample_pass,3,,False,pending
+news-digitimes-asia,DIGITIMES Asia,대만,semis,feed,https://www.digitimes.com/rss/daily.xml,sample_pass,3,,False,pending
+news-betakit,BetaKit,캐나다,platform_sw;ai,feed,https://betakit.com/feed/,sample_pass,3,,False,pending
+news-itnews-au,iTnews Australia,호주,cloud_data;security,feed,https://www.itnews.com.au/RSS/rss.ashx,sample_pass,3,,False,pending
+news-lemondeinformatique,Le Monde Informatique,프랑스,cloud_data;security,feed,https://www.lemondeinformatique.fr/flux-rss/thematique/toutes-les-actualites/rss.xml,sample_pass,3,,False,pending
+news-yourstory,YourStory,인도,ai;platform_sw,feed,https://yourstory.com/feed,sample_pass,3,,False,pending
+news-techcabal,TechCabal,나이지리아·아프리카,platform_sw;cloud_data,feed,https://techcabal.com/feed/,sample_pass,3,,False,pending
+news-restofworld,Rest of World,국제·신흥시장,platform_sw;ai,feed,https://restofworld.org/feed/,sample_pass,3,,False,pending

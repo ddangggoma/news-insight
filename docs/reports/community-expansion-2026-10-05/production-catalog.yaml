@@ -1,0 +1,455 @@
+version: 1
+sources:
+- key: martin-fowler
+  name: Martin Fowler
+  track: community
+  category: expert_blog
+  access_method: feed
+  endpoint_url: https://martinfowler.com/feed.atom
+  official_domain: martinfowler.com
+  operator: Martin Fowler
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: 'Martin Fowler: 소프트웨어 설계·아키텍처; 공식 공개 피드의 기술 동향·경험·의견 추적'
+  storage_right: excerpt_allowed
+  config:
+    country: 국제
+    themes:
+    - cloud_data
+    - platform_sw
+    publisher_group: Martin Fowler
+    probe_max_age_days: 30
+    max_age_days: 30
+- key: troy-hunt
+  name: Troy Hunt
+  track: community
+  category: expert_blog
+  access_method: feed
+  endpoint_url: https://www.troyhunt.com/rss/
+  official_domain: troyhunt.com
+  operator: Troy Hunt
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: 'Troy Hunt: 보안 사고·실무; 공식 공개 피드의 기술 동향·경험·의견 추적'
+  storage_right: excerpt_allowed
+  config:
+    country: 국제
+    themes:
+    - security
+    publisher_group: Troy Hunt
+    probe_max_age_days: 30
+    max_age_days: 30
+- key: bruce-schneier
+  name: Bruce Schneier
+  track: community
+  category: expert_blog
+  access_method: feed
+  endpoint_url: https://www.schneier.com/feed/atom/
+  official_domain: schneier.com
+  operator: Bruce Schneier
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: 'Bruce Schneier: 보안 기술·정책; 공식 공개 피드의 기술 동향·경험·의견 추적'
+  storage_right: excerpt_allowed
+  config:
+    country: 국제
+    themes:
+    - security
+    publisher_group: Bruce Schneier
+    probe_max_age_days: 30
+    max_age_days: 30
+- key: andrej-karpathy
+  name: Andrej Karpathy Bear Blog
+  track: community
+  category: expert_blog
+  access_method: feed
+  endpoint_url: https://karpathy.bearblog.dev/feed/
+  official_domain: karpathy.bearblog.dev
+  operator: Andrej Karpathy Bear Blog
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: 'Andrej Karpathy Bear Blog: AI 연구·교육; 공식 공개 피드의 기술 동향·경험·의견 추적'
+  storage_right: excerpt_allowed
+  config:
+    country: 국제
+    themes:
+    - ai
+    publisher_group: Andrej Karpathy Bear Blog
+    probe_max_age_days: 30
+    max_age_days: 30
+- key: chip-huyen
+  name: Chip Huyen
+  track: community
+  category: expert_blog
+  access_method: feed
+  endpoint_url: https://huyenchip.com/feed.xml
+  official_domain: huyenchip.com
+  operator: Chip Huyen
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: 'Chip Huyen: AI 엔지니어링; 공식 공개 피드의 기술 동향·경험·의견 추적'
+  storage_right: excerpt_allowed
+  config:
+    country: 국제
+    themes:
+    - ai
+    publisher_group: Chip Huyen
+    probe_max_age_days: 30
+    max_age_days: 30
+- key: sam-altman
+  name: Sam Altman Blog
+  track: community
+  category: expert_blog
+  access_method: feed
+  endpoint_url: https://blog.samaltman.com/posts.atom
+  official_domain: samaltman.com
+  operator: Sam Altman Blog
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: 'Sam Altman Blog: AI 산업·경영; 본인 의견; 공식 공개 피드의 기술 동향·경험·의견 추적'
+  storage_right: excerpt_allowed
+  config:
+    country: 국제
+    themes:
+    - ai
+    publisher_group: Sam Altman Blog
+    probe_max_age_days: 30
+    max_age_days: 30
+- key: lilian-weng
+  name: Lilian Weng
+  track: community
+  category: expert_blog
+  access_method: feed
+  endpoint_url: https://lilianweng.github.io/index.xml
+  official_domain: lilianweng.github.io
+  operator: Lilian Weng
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: 'Lilian Weng: AI 연구 해설; 공식 공개 피드의 기술 동향·경험·의견 추적'
+  storage_right: excerpt_allowed
+  config:
+    country: 국제
+    themes:
+    - ai
+    publisher_group: Lilian Weng
+    probe_max_age_days: 30
+    max_age_days: 30
+- key: brendan-gregg
+  name: Brendan Gregg
+  track: community
+  category: expert_blog
+  access_method: feed
+  endpoint_url: https://www.brendangregg.com/blog/rss.xml
+  official_domain: brendangregg.com
+  operator: Brendan Gregg
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: 'Brendan Gregg: 성능 분석·시스템; 공식 공개 피드의 기술 동향·경험·의견 추적'
+  storage_right: excerpt_allowed
+  config:
+    country: 국제
+    themes:
+    - cloud_data
+    publisher_group: Brendan Gregg
+    probe_max_age_days: 30
+    max_age_days: 30
+- key: dan-luu
+  name: Dan Luu
+  track: community
+  category: expert_blog
+  access_method: feed
+  endpoint_url: https://danluu.com/atom.xml
+  official_domain: danluu.com
+  operator: Dan Luu
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: 'Dan Luu: 시스템·소프트웨어 분석; 공식 공개 피드의 기술 동향·경험·의견 추적'
+  storage_right: excerpt_allowed
+  config:
+    country: 국제
+    themes:
+    - cloud_data
+    - platform_sw
+    publisher_group: Dan Luu
+    probe_max_age_days: 30
+    max_age_days: 30
+- key: eli-bendersky
+  name: Eli Bendersky
+  track: community
+  category: expert_blog
+  access_method: feed
+  endpoint_url: https://eli.thegreenplace.net/feeds/all.atom.xml
+  official_domain: eli.thegreenplace.net
+  operator: Eli Bendersky
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: 'Eli Bendersky: 프로그래밍·시스템; 공식 공개 피드의 기술 동향·경험·의견 추적'
+  storage_right: excerpt_allowed
+  config:
+    country: 국제
+    themes:
+    - platform_sw
+    publisher_group: Eli Bendersky
+    probe_max_age_days: 30
+    max_age_days: 30
+- key: dave-cheney
+  name: Dave Cheney
+  track: community
+  category: expert_blog
+  access_method: feed
+  endpoint_url: https://dave.cheney.net/feed
+  official_domain: dave.cheney.net
+  operator: Dave Cheney
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: 'Dave Cheney: Go·소프트웨어 엔지니어링; 공식 공개 피드의 기술 동향·경험·의견 추적'
+  storage_right: excerpt_allowed
+  config:
+    country: 국제
+    themes:
+    - platform_sw
+    publisher_group: Dave Cheney
+    probe_max_age_days: 30
+    max_age_days: 30
+- key: huggingface-forum
+  name: Hugging Face Forums
+  track: community
+  category: dev_forum
+  access_method: feed
+  endpoint_url: https://discuss.huggingface.co/latest.rss
+  official_domain: huggingface.co
+  operator: Hugging Face
+  region: global_en
+  language: en
+  poll_class: community
+  dx_relevance: 'Hugging Face Forums: 공개 기술 토론 신호; 공식 공개 피드의 기술 동향·경험·의견 추적'
+  storage_right: excerpt_allowed
+  config:
+    country: 국제
+    themes:
+    - ai
+    publisher_group: Hugging Face
+    probe_max_age_days: 30
+    max_age_days: 30
+- key: python-discuss
+  name: Python Discussions
+  track: community
+  category: dev_forum
+  access_method: feed
+  endpoint_url: https://discuss.python.org/latest.rss
+  official_domain: python.org
+  operator: Python Software Foundation
+  region: global_en
+  language: en
+  poll_class: community
+  dx_relevance: 'Python Discussions: 공개 기술 토론 신호; 공식 공개 피드의 기술 동향·경험·의견 추적'
+  storage_right: excerpt_allowed
+  config:
+    country: 국제
+    themes:
+    - platform_sw
+    publisher_group: Python Software Foundation
+    probe_max_age_days: 30
+    max_age_days: 30
+- key: rust-users-forum
+  name: Rust Users Forum
+  track: community
+  category: dev_forum
+  access_method: feed
+  endpoint_url: https://users.rust-lang.org/latest.rss
+  official_domain: rust-lang.org
+  operator: Rust Community
+  region: global_en
+  language: en
+  poll_class: community
+  dx_relevance: 'Rust Users Forum: 공개 기술 토론 신호; 공식 공개 피드의 기술 동향·경험·의견 추적'
+  storage_right: excerpt_allowed
+  config:
+    country: 국제
+    themes:
+    - platform_sw
+    publisher_group: Rust Community
+    probe_max_age_days: 30
+    max_age_days: 30
+- key: kubernetes-discuss
+  name: Kubernetes Discussions
+  track: community
+  category: dev_forum
+  access_method: feed
+  endpoint_url: https://discuss.kubernetes.io/latest.rss
+  official_domain: kubernetes.io
+  operator: Kubernetes Community
+  region: global_en
+  language: en
+  poll_class: community
+  dx_relevance: 'Kubernetes Discussions: 공개 기술 토론 신호; 공식 공개 피드의 기술 동향·경험·의견 추적'
+  storage_right: excerpt_allowed
+  config:
+    country: 국제
+    themes:
+    - cloud_data
+    publisher_group: Kubernetes Community
+    probe_max_age_days: 30
+    max_age_days: 30
+- key: arduino-forum
+  name: Arduino Forum
+  track: community
+  category: dev_forum
+  access_method: feed
+  endpoint_url: https://forum.arduino.cc/latest.rss
+  official_domain: arduino.cc
+  operator: Arduino
+  region: global_en
+  language: en
+  poll_class: community
+  dx_relevance: 'Arduino Forum: 공개 기술 토론 신호; 공식 공개 피드의 기술 동향·경험·의견 추적'
+  storage_right: excerpt_allowed
+  config:
+    country: 이탈리아 / 국제
+    themes:
+    - manufacturing
+    - connectivity
+    publisher_group: Arduino
+    probe_max_age_days: 30
+    max_age_days: 30
+- key: home-assistant-forum
+  name: Home Assistant Community
+  track: community
+  category: dev_forum
+  access_method: feed
+  endpoint_url: https://community.home-assistant.io/latest.rss
+  official_domain: home-assistant.io
+  operator: Home Assistant Community
+  region: global_en
+  language: en
+  poll_class: community
+  dx_relevance: 'Home Assistant Community: 공개 기술 토론 신호; 공식 공개 피드의 기술 동향·경험·의견 추적'
+  storage_right: excerpt_allowed
+  config:
+    country: 국제
+    themes:
+    - connectivity
+    - energy
+    publisher_group: Home Assistant Community
+    probe_max_age_days: 30
+    max_age_days: 30
+- key: tabnews
+  name: TabNews
+  track: community
+  category: dev_forum
+  access_method: feed
+  endpoint_url: https://www.tabnews.com.br/recentes/rss
+  official_domain: tabnews.com.br
+  operator: TabNews
+  region: eu_other
+  language: pt
+  poll_class: community
+  dx_relevance: 'TabNews: 공개 기술 토론 신호; 공식 공개 피드의 기술 동향·경험·의견 추적'
+  storage_right: excerpt_allowed
+  config:
+    country: 브라질
+    themes:
+    - platform_sw
+    publisher_group: TabNews
+    probe_max_age_days: 30
+    max_age_days: 30
+- key: mastodon-martin-fowler
+  name: Martin Fowler Mastodon RSS
+  track: community
+  category: open_social
+  access_method: feed
+  endpoint_url: https://toot.thoughtworks.com/@mfowler.rss
+  official_domain: toot.thoughtworks.com
+  operator: Martin Fowler
+  region: global_en
+  language: en
+  poll_class: community
+  dx_relevance: 'Martin Fowler Mastodon RSS: 공개 기술 토론 신호; 공식 공개 피드의 기술 동향·경험·의견 추적'
+  storage_right: excerpt_allowed
+  config:
+    country: 국제
+    themes:
+    - platform_sw
+    - cloud_data
+    publisher_group: Martin Fowler
+    probe_max_age_days: 30
+    max_age_days: 30
+- key: hashnode-engineering
+  name: Hashnode Engineering
+  track: community
+  category: expert_blog
+  access_method: feed
+  endpoint_url: https://engineering.hashnode.com/rss.xml
+  official_domain: hashnode.com
+  operator: Hashnode
+  region: global_en
+  language: en
+  poll_class: slow
+  dx_relevance: 'Hashnode Engineering: Hashnode 개발팀의 자사 기술 발표; 공식 공개 피드의 기술 동향·경험·의견
+    추적'
+  storage_right: excerpt_allowed
+  config:
+    country: 국제
+    themes:
+    - platform_sw
+    - cloud_data
+    publisher_group: Hashnode
+    probe_max_age_days: 30
+    max_age_days: 30
+- key: velog-trending
+  name: Velog Trending
+  track: community
+  category: dev_forum
+  access_method: crawler
+  endpoint_url: https://velog.io/
+  official_domain: velog.io
+  operator: Velog
+  region: kr
+  language: ko
+  poll_class: community
+  dx_relevance: 한국 Velog 개발자 커뮤니티의 공개 트렌딩 기술 글; 전체 플랫폼 전수 수집과 구분
+  storage_right: excerpt_allowed
+  config:
+    country: 한국
+    themes:
+    - platform_sw
+    publisher_group: Velog
+    timezone: Asia/Seoul
+    max_age_days: 30
+    mode: velog
+    parser_note: Public Next.js hydration JSON; no JavaScript execution or article
+      body fetch
+- key: bluesky-martinfowler-com
+  name: Bluesky Martin Fowler
+  track: community
+  category: open_social
+  access_method: atproto
+  endpoint_url: https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=martinfowler.com&limit=30
+  official_domain: bsky.app
+  operator: Martin Fowler on Bluesky
+  region: global_en
+  language: en
+  poll_class: community
+  dx_relevance: Martin Fowler 공식 소개에서 연결한 Bluesky 계정의 소프트웨어 설계·아키텍처 의견
+  storage_right: excerpt_allowed
+  config:
+    preset: bluesky_author_feed
+    allowed_hosts:
+    - public.api.bsky.app
+    country: 국제
+    themes:
+    - platform_sw
+    - cloud_data
+    publisher_group: Martin Fowler
+    probe_max_age_days: 30
