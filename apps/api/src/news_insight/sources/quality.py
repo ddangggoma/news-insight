@@ -4,7 +4,7 @@ Signals come from the last 7 days of Korean cards: DX relevance (scope dx / dx_d
 and translation success. Sources with enough classified items are judged:
 - relevance below PAUSE_BELOW → paused (`low DX relevance …`), whatever their stage,
 - V4/V5 sources at or above PROMOTE_AT with good translation → V5 passed, then V6 in
-  descending relevance order while their track has room (check_quota).
+  descending relevance order (track targets are minimum goals, never caps).
 """
 
 from dataclasses import dataclass, field

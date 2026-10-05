@@ -225,3 +225,19 @@ def test_sitemap_skips_archive_pages_by_listing_date_and_by_page_date() -> None:
     # a source can ask for a longer window
     longer = collector.collect(context("https://www.example.co.kr/sitemap.xml", max_age_days=10000))
     assert len(longer.items) == 3
+
+
+def test_openalex_requests_carry_the_contact_address(monkeypatch: object) -> None:
+    from news_insight.collect import context as ctx
+    from news_insight.config import get_settings
+
+    settings = get_settings()
+    original = settings.openalex_mailto
+    try:
+        object.__setattr__(settings, "openalex_mailto", "someone@example.com")
+        url = "https://api.openalex.org/works?filter=from_publication_date:{today-30d}&per-page=50"
+        assert ctx.polite_url(url) == url + "&mailto=someone@example.com"
+        assert ctx.polite_url(url + "&mailto=x@y.z") == url + "&mailto=x@y.z"
+        assert ctx.polite_url("https://example.com/feed") == "https://example.com/feed"
+    finally:
+        object.__setattr__(settings, "openalex_mailto", original)
