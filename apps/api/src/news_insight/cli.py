@@ -533,7 +533,9 @@ def cards_run(
         except BlockingIOError:
             typer.echo("another card run is active; skipping")
             return
-        agy, qwen = _card_engines(qwen_only)
+        agy, local = _card_engines(qwen_only)
+        # Antigravity only unless asked: a spent quota waits for the next run
+        qwen = local if qwen_only or settings.card_qwen_fallback else None
         policy = CardPolicy(
             agy_batch=settings.card_agy_batch,
             agy_parallel=settings.card_agy_parallel,
