@@ -4,6 +4,7 @@ Values within one axis are OR-ed, axes are AND-ed. `conditions(skip=...)` leaves
 facet counts show what choosing another value on that axis would give.
 """
 
+import re
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -31,7 +32,8 @@ def in_current_tree() -> ColumnElement[bool]:
 
 
 SCOPES = {"relevant": ("dx", "dx_dependency"), "dx": ("dx",), "all": None}
-AXES = ("field", "theme", "signal", "impact", "track", "region")
+AXES = ("field", "theme", "signal", "impact", "track", "region")  # facet axes
+COMPANY_KEY = re.compile(r"^[^\s]{2,80}$")  # registry keys are normalised (no spaces)
 ALLOWED: dict[str, frozenset[str]] = {
     "field": FIELD_KEYS,
     "theme": THEME_KEYS,
@@ -64,7 +66,10 @@ class ReaderFilters:
         values: dict[str, tuple[str, ...]] = {}
         for axis, raw in axes.items():
             chosen = tuple(dict.fromkeys(v for v in raw or [] if v))
-            unknown = [v for v in chosen if v not in ALLOWED[axis]]
+            if axis == "company":  # registry keys change in the console: checked by shape only
+                unknown = [v for v in chosen if not COMPANY_KEY.match(v)]
+            else:
+                unknown = [v for v in chosen if v not in ALLOWED[axis]]
             if unknown:
                 raise FilterError(f"unknown {axis} '{unknown[0]}'")
             if chosen:
@@ -105,6 +110,8 @@ def _axis_condition(axis: str, chosen: tuple[str, ...]) -> ColumnElement[bool]:
         return ItemCard.signal_type.in_(chosen)
     if axis == "impact":
         return ItemCard.impact.in_(chosen)
+    if axis == "company":
+        return or_(*(ItemCard.company_keys.contains([value]) for value in chosen))
     if axis == "track":
         return Item.track.in_([Track(value) for value in chosen])
     return Source.region.in_([Region(value) for value in chosen])

@@ -66,9 +66,9 @@ companies:
   - {key: deeplearningai, name: DeepLearning.AI, name_ko: 딥러닝AI, kind: institute, region: us, themes: [ai__foundation_models], domains: [deeplearning.ai], aliases: [deeplearning.ai, thebatch]}
   - {key: ukaisi, name: UK AI Security Institute, name_ko: 영국 AI보안연구소, kind: regulator, region: eu, themes: [ai__ai_safety_eval], aliases: [aisi, aisecurityinstitute, aisafetyinstitute, 영국ai안전연구소]}
   - {key: metr, name: METR, name_ko: METR, kind: institute, region: us, themes: [ai__ai_safety_eval]}
-  - {key: stanfordhai, name: Stanford HAI, name_ko: 스탠퍼드 HAI, kind: institute, region: us, themes: [ai__ai_safety_eval, ai__foundation_models], aliases: [스탠퍼드hai, 스탠포드hai, stanforduniversityhai]}
-  - {key: mila, name: Mila, name_ko: 밀라, kind: institute, region: other, themes: [ai__foundation_models], aliases: [milaquebec, 몬트리올대학교mila, mila퀘벡]}
-  - {key: vectorinstitute, name: Vector Institute, name_ko: 벡터연구소, kind: institute, region: other, themes: [ai__foundation_models]}
+  - {key: stanfordhai, name: Stanford HAI, name_ko: 스탠퍼드 HAI, kind: institute, region: us, themes: [ai__ai_safety_eval, ai__foundation_models], domains: [stanford.edu], aliases: [스탠퍼드hai, 스탠포드hai, stanforduniversityhai]}
+  - {key: mila, name: Mila, name_ko: 밀라, kind: institute, region: other, themes: [ai__foundation_models], domains: [mila.quebec], aliases: [milaquebec, 몬트리올대학교mila, mila퀘벡]}
+  - {key: vectorinstitute, name: Vector Institute, name_ko: 벡터연구소, kind: institute, region: other, themes: [ai__foundation_models], domains: [vectorinstitute.ai]}
 
   # ── semis · 반도체·컴퓨팅 HW ──
   - {key: qualcomm, name: Qualcomm, name_ko: 퀄컴, region: us, relation: supplier, themes: [semis__ap_soc_npu, ai__on_device_ai, connectivity__cellular_5g_6g, robotics_mobility__sdv_cockpit], domains: [qualcomm.com], aliases: [snapdragon, 스냅드래곤, 高通]}
@@ -172,10 +172,10 @@ companies:
 
   # ── connectivity · 무선·네트워크 ──
   - {key: 3gpp, name: 3GPP, name_ko: 3GPP, kind: standards_body, region: other, themes: [connectivity__cellular_5g_6g, connectivity__satellite_ntn], domains: [3gpp.org]}
-  - {key: gsma, name: GSMA, name_ko: GSMA, kind: standards_body, region: eu, themes: [connectivity__cellular_5g_6g]}
-  - {key: oranalliance, name: O-RAN Alliance, name_ko: O-RAN 얼라이언스, kind: standards_body, region: other, themes: [connectivity__ran_core], aliases: [oran]}
-  - {key: etsi, name: ETSI, name_ko: ETSI, kind: standards_body, region: eu, themes: [connectivity__cellular_5g_6g, security__device_security]}
-  - {key: ieee, name: IEEE, name_ko: IEEE, kind: standards_body, region: us, themes: [connectivity__short_range_wireless]}
+  - {key: gsma, name: GSMA, name_ko: GSMA, kind: standards_body, region: eu, themes: [connectivity__cellular_5g_6g], domains: [gsma.com]}
+  - {key: oranalliance, name: O-RAN Alliance, name_ko: O-RAN 얼라이언스, kind: standards_body, region: other, themes: [connectivity__ran_core], domains: [o-ran.org], aliases: [oran]}
+  - {key: etsi, name: ETSI, name_ko: ETSI, kind: standards_body, region: eu, themes: [connectivity__cellular_5g_6g, security__device_security], domains: [etsi.org]}
+  - {key: ieee, name: IEEE, name_ko: IEEE, kind: standards_body, region: us, themes: [connectivity__short_range_wireless], domains: [ieee.org]}
   - {key: ericsson, name: Ericsson, name_ko: 에릭슨, region: eu, relation: competitor, themes: [connectivity__ran_core, connectivity__cellular_5g_6g, connectivity__network_ops], domains: [ericsson.com], aliases: [爱立信, エリクソン]}
   - {key: nokia, name: Nokia, name_ko: 노키아, region: eu, relation: competitor, themes: [connectivity__ran_core, connectivity__cellular_5g_6g, connectivity__network_ops], domains: [nokia.com], aliases: [诺基亚, nokiabelllabs]}
   - {key: zte, name: ZTE, name_ko: ZTE, region: cn, relation: competitor, themes: [connectivity__ran_core, connectivity__cellular_5g_6g], aliases: [中兴, 중싱]}
@@ -193,10 +193,10 @@ companies:
   - {key: softbank, name: SoftBank, name_ko: 소프트뱅크, region: jp, themes: [connectivity__cellular_5g_6g, cloud_data__ai_datacenter], domains: [softbank.jp], aliases: [ソフトバンク, 软银, softbankgroup, 소프트뱅크그룹]}
   - {key: rakuten, name: Rakuten, name_ko: 라쿠텐, region: jp, themes: [connectivity__ran_core, connectivity__cellular_5g_6g], aliases: [楽天, rakutenmobile, 라쿠텐모바일, rakutensymphony]}
   - {key: chinamobile, name: China Mobile, name_ko: 차이나모바일, region: cn, themes: [connectivity__cellular_5g_6g], aliases: [中国移动]}
-  - {key: wifialliance, name: Wi-Fi Alliance, name_ko: 와이파이 얼라이언스, kind: standards_body, region: us, themes: [connectivity__short_range_wireless]}
-  - {key: bluetoothsig, name: Bluetooth SIG, name_ko: 블루투스 SIG, kind: standards_body, region: us, themes: [connectivity__short_range_wireless]}
+  - {key: wifialliance, name: Wi-Fi Alliance, name_ko: 와이파이 얼라이언스, kind: standards_body, region: us, themes: [connectivity__short_range_wireless], domains: [wi-fi.org]}
+  - {key: bluetoothsig, name: Bluetooth SIG, name_ko: 블루투스 SIG, kind: standards_body, region: us, themes: [connectivity__short_range_wireless], domains: [bluetooth.com]}
   - {key: firaconsortium, name: FiRa Consortium, name_ko: FiRa 컨소시엄, kind: standards_body, region: us, themes: [connectivity__short_range_wireless], aliases: [fira]}
-  - {key: nfcforum, name: NFC Forum, name_ko: NFC 포럼, kind: standards_body, region: us, themes: [connectivity__short_range_wireless]}
+  - {key: nfcforum, name: NFC Forum, name_ko: NFC 포럼, kind: standards_body, region: us, themes: [connectivity__short_range_wireless], domains: [nfc-forum.org]}
   - {key: nordicsemiconductor, name: Nordic Semiconductor, name_ko: 노르딕세미컨덕터, region: eu, themes: [connectivity__short_range_wireless, connectivity__smart_home_iot], aliases: [nordic]}
   - {key: realtek, name: Realtek, name_ko: 리얼텍, region: tw, themes: [connectivity__short_range_wireless], aliases: [瑞昱]}
   - {key: siliconlabs, name: Silicon Labs, name_ko: 실리콘랩스, region: us, themes: [connectivity__smart_home_iot, connectivity__short_range_wireless], aliases: [siliconlaboratories]}
@@ -209,12 +209,12 @@ companies:
   - {key: globalstar, name: Globalstar, name_ko: 글로벌스타, region: us, themes: [connectivity__satellite_ntn]}
   - {key: eutelsat, name: Eutelsat OneWeb, name_ko: 유텔샛, region: eu, themes: [connectivity__satellite_ntn], aliases: [oneweb, 원웹]}
   - {key: viasat, name: Viasat, name_ko: 비아샛, region: us, themes: [connectivity__satellite_ntn]}
-  - {key: csa, name: Connectivity Standards Alliance, name_ko: CSA, kind: standards_body, region: us, themes: [connectivity__smart_home_iot], aliases: [connectivitystandardsalliance, csaiot]}
+  - {key: csa, name: Connectivity Standards Alliance, name_ko: CSA, kind: standards_body, region: us, themes: [connectivity__smart_home_iot], domains: [csa-iot.org], aliases: [connectivitystandardsalliance, csaiot]}
   - {key: amazon, name: Amazon, name_ko: 아마존, region: us, relation: competitor, themes: [cloud_data__cloud_platforms, connectivity__smart_home_iot, connectivity__satellite_ntn, manufacturing__logistics_automation, cloud_data__edge_cloud], domains: [aboutamazon.com, amazon.com, amazon.science], aliases: [aws, amazonwebservices, 아마존웹서비스, alexa, 알렉사, kuiper, projectkuiper, 카이퍼, kindle, 킨들, zoox, 죽스, amazonrobotics, 아마존로보틱스]}
   - {key: tuya, name: Tuya, name_ko: 투야, region: cn, themes: [connectivity__smart_home_iot], aliases: [涂鸦, tuyasmart]}
   - {key: signify, name: Signify, name_ko: 시그니파이, region: eu, themes: [connectivity__smart_home_iot], domains: [signify.com], aliases: [philipshue, 필립스휴]}
   - {key: ikea, name: IKEA, name_ko: 이케아, region: eu, themes: [connectivity__smart_home_iot]}
-  - {key: nabucasa, name: Nabu Casa (Home Assistant), name_ko: 나부카사, kind: startup, region: us, themes: [connectivity__smart_home_iot], aliases: [homeassistant, 홈어시스턴트]}
+  - {key: nabucasa, name: Nabu Casa (Home Assistant), name_ko: 나부카사, kind: startup, region: us, themes: [connectivity__smart_home_iot]}
   - {key: aqara, name: Aqara, name_ko: 아카라, region: cn, themes: [connectivity__smart_home_iot], aliases: [lumiunited]}
 
   # ── platform_sw · 플랫폼·소프트웨어 ──
@@ -228,9 +228,9 @@ companies:
   - {key: epicgames, name: Epic Games, name_ko: 에픽게임즈, region: us, themes: [platform_sw__app_ecosystem, platform_sw__developer_tools], aliases: [unrealengine, 언리얼엔진]}
   - {key: qtgroup, name: Qt Group, name_ko: Qt그룹, region: eu, themes: [platform_sw__developer_tools, robotics_mobility__sdv_cockpit], domains: [qt.io], aliases: [qtcompany]}
   - {key: mozilla, name: Mozilla, name_ko: 모질라, kind: institute, region: us, themes: [platform_sw__web_cross_platform, security__privacy_crypto], domains: [mozilla.org], aliases: [firefox, 파이어폭스, mozillafoundation]}
-  - {key: w3c, name: W3C, name_ko: W3C, kind: standards_body, region: other, themes: [platform_sw__web_cross_platform, platform_sw__ux_accessibility], aliases: [worldwidewebconsortium]}
-  - {key: linuxfoundation, name: Linux Foundation, name_ko: 리눅스재단, kind: standards_body, region: us, themes: [platform_sw__device_os, platform_sw__developer_tools], aliases: [리눅스파운데이션]}
-  - {key: openjsfoundation, name: OpenJS Foundation, name_ko: OpenJS 재단, kind: standards_body, region: us, themes: [platform_sw__web_cross_platform], aliases: [openjs]}
+  - {key: w3c, name: W3C, name_ko: W3C, kind: standards_body, region: other, themes: [platform_sw__web_cross_platform, platform_sw__ux_accessibility], domains: [w3.org], aliases: [worldwidewebconsortium]}
+  - {key: linuxfoundation, name: Linux Foundation, name_ko: 리눅스재단, kind: standards_body, region: us, themes: [platform_sw__device_os, platform_sw__developer_tools], domains: [linuxfoundation.org], aliases: [리눅스파운데이션]}
+  - {key: openjsfoundation, name: OpenJS Foundation, name_ko: OpenJS 재단, kind: standards_body, region: us, themes: [platform_sw__web_cross_platform], domains: [openjsf.org], aliases: [openjs]}
   - {key: canonical, name: Canonical, name_ko: 캐노니컬, region: eu, themes: [platform_sw__device_os]}
   - {key: redhat, name: Red Hat, name_ko: 레드햇, region: us, themes: [cloud_data__infra_ops, platform_sw__device_os], aliases: [레드헷]}
   - {key: ibm, name: IBM, name_ko: IBM, region: us, themes: [frontier__quantum, cloud_data__cloud_platforms, frontier__neuromorphic_photonic], domains: [ibm.com], aliases: [ibmresearch, ibm리서치, hashicorp, 해시코프]}
@@ -267,7 +267,7 @@ companies:
   - {key: palantir, name: Palantir, name_ko: 팔란티어, region: us, themes: [cloud_data__data_ml_platform]}
   - {key: weightsandbiases, name: Weights & Biases, name_ko: 웨이츠앤바이어시스, kind: startup, region: us, themes: [cloud_data__data_ml_platform], aliases: [wandb, weights&biases]}
   - {key: grafanalabs, name: Grafana Labs, name_ko: 그라파나랩스, region: us, themes: [cloud_data__infra_ops], aliases: [grafana]}
-  - {key: cncf, name: CNCF, name_ko: CNCF, kind: standards_body, region: us, themes: [cloud_data__infra_ops], aliases: [cloudnativecomputingfoundation]}
+  - {key: cncf, name: CNCF, name_ko: CNCF, kind: standards_body, region: us, themes: [cloud_data__infra_ops], domains: [cncf.io], aliases: [cloudnativecomputingfoundation]}
   - {key: dropbox, name: Dropbox, name_ko: 드롭박스, region: us, themes: [cloud_data__infra_ops], domains: [dropbox.tech, dropbox.com]}
 
   # ── security · 보안·신뢰 ──
@@ -284,7 +284,7 @@ companies:
   - {key: ahnlab, name: AhnLab, name_ko: 안랩, region: kr, themes: [security__app_cloud_security], aliases: [안철수연구소]}
   - {key: skshieldus, name: SK shieldus, name_ko: SK쉴더스, region: kr, themes: [security__app_cloud_security], aliases: [sk쉴더스, 에스케이쉴더스]}
   - {key: okta, name: Okta, name_ko: 옥타, region: us, themes: [security__identity_auth], aliases: [auth0]}
-  - {key: fidoalliance, name: FIDO Alliance, name_ko: FIDO 얼라이언스, kind: standards_body, region: us, themes: [security__identity_auth], aliases: [fido, 파이도얼라이언스]}
+  - {key: fidoalliance, name: FIDO Alliance, name_ko: FIDO 얼라이언스, kind: standards_body, region: us, themes: [security__identity_auth], domains: [fidoalliance.org], aliases: [fido, 파이도얼라이언스]}
   - {key: yubico, name: Yubico, name_ko: 유비코, region: eu, themes: [security__identity_auth], aliases: [yubikey, 유비키]}
   - {key: raonsecure, name: RaonSecure, name_ko: 라온시큐어, region: kr, themes: [security__identity_auth]}
   - {key: cyberark, name: CyberArk, name_ko: 사이버아크, region: other, themes: [security__identity_auth]}
@@ -296,22 +296,22 @@ companies:
   - {key: cryptolab, name: CryptoLab, name_ko: 크립토랩, kind: startup, region: kr, themes: [security__privacy_crypto]}
   - {key: proton, name: Proton, name_ko: 프로톤, region: eu, themes: [security__privacy_crypto], aliases: [protonmail, 프로톤메일, protonvpn]}
   - {key: signalfoundation, name: Signal Foundation, name_ko: 시그널재단, kind: institute, region: us, themes: [security__privacy_crypto], aliases: [signalmessenger, 시그널메신저]}
-  - {key: c2pa, name: C2PA, name_ko: C2PA, kind: standards_body, region: us, themes: [security__ai_security_provenance], aliases: [contentauthenticityinitiative, 콘텐츠자격증명]}
+  - {key: c2pa, name: C2PA, name_ko: C2PA, kind: standards_body, region: us, themes: [security__ai_security_provenance], domains: [c2pa.org], aliases: [contentauthenticityinitiative, 콘텐츠자격증명]}
   - {key: truepic, name: Truepic, name_ko: 트루픽, kind: startup, region: us, themes: [security__ai_security_provenance]}
   - {key: digimarc, name: Digimarc, name_ko: 디지마크, region: us, themes: [security__ai_security_provenance]}
   - {key: hiddenlayer, name: HiddenLayer, name_ko: 히든레이어, kind: startup, region: us, themes: [security__ai_security_provenance]}
   - {key: lakera, name: Lakera, name_ko: 라케라, kind: startup, region: eu, themes: [security__ai_security_provenance]}
-  - {key: openssf, name: OpenSSF, name_ko: OpenSSF, kind: standards_body, region: us, themes: [security__software_supply_chain], aliases: [opensourcesecurityfoundation]}
+  - {key: openssf, name: OpenSSF, name_ko: OpenSSF, kind: standards_body, region: us, themes: [security__software_supply_chain], domains: [openssf.org], aliases: [opensourcesecurityfoundation]}
   - {key: snyk, name: Snyk, name_ko: 스닉, region: us, themes: [security__software_supply_chain]}
   - {key: sonatype, name: Sonatype, name_ko: 소나타입, region: us, themes: [security__software_supply_chain]}
   - {key: chainguard, name: Chainguard, name_ko: 체인가드, kind: startup, region: us, themes: [security__software_supply_chain]}
   - {key: jfrog, name: JFrog, name_ko: 제이프로그, region: other, themes: [security__software_supply_chain]}
   - {key: socketdev, name: Socket.dev, name_ko: 소켓데브, kind: startup, region: us, themes: [security__software_supply_chain], aliases: [socketdev, socket.dev]}
-  - {key: mitre, name: MITRE, name_ko: MITRE, kind: institute, region: us, themes: [security__software_supply_chain], aliases: [mitrecorporation, mitreattack]}
-  - {key: cisa, name: CISA, name_ko: CISA, kind: regulator, region: us, themes: [security__software_supply_chain, security__app_cloud_security], aliases: [미국사이버보안인프라보안국]}
-  - {key: nist, name: NIST, name_ko: NIST, kind: regulator, region: us, themes: [security__privacy_crypto, ai__ai_safety_eval], aliases: [미국국립표준기술연구소, 미국표준기술연구소]}
-  - {key: enisa, name: ENISA, name_ko: ENISA, kind: regulator, region: eu, themes: [security__app_cloud_security, security__privacy_crypto], aliases: [유럽연합사이버보안청]}
-  - {key: kisa, name: KISA, name_ko: 한국인터넷진흥원, kind: regulator, region: kr, themes: [security__app_cloud_security, security__privacy_crypto], aliases: [인터넷진흥원]}
+  - {key: mitre, name: MITRE, name_ko: MITRE, kind: institute, region: us, themes: [security__software_supply_chain], domains: [mitre.org], aliases: [mitrecorporation, mitreattack]}
+  - {key: cisa, name: CISA, name_ko: CISA, kind: regulator, region: us, themes: [security__software_supply_chain, security__app_cloud_security], domains: [cisa.gov], aliases: [미국사이버보안인프라보안국]}
+  - {key: nist, name: NIST, name_ko: NIST, kind: regulator, region: us, themes: [security__privacy_crypto, ai__ai_safety_eval], domains: [nist.gov], aliases: [미국국립표준기술연구소, 미국표준기술연구소]}
+  - {key: enisa, name: ENISA, name_ko: ENISA, kind: regulator, region: eu, themes: [security__app_cloud_security, security__privacy_crypto], domains: [europa.eu], aliases: [유럽연합사이버보안청]}
+  - {key: kisa, name: KISA, name_ko: 한국인터넷진흥원, kind: regulator, region: kr, themes: [security__app_cloud_security, security__privacy_crypto], domains: [kisa.or.kr], aliases: [인터넷진흥원]}
   - {key: pipc, name: Personal Information Protection Commission, name_ko: 개인정보보호위원회, kind: regulator, region: kr, themes: [security__privacy_crypto], aliases: [개인정보위, 개보위]}
   - {key: ukico, name: UK Information Commissioner's Office, name_ko: 영국 정보위원회, kind: regulator, region: eu, themes: [security__privacy_crypto], aliases: [informationcommissionersoffice, 영국정보위원회, 영국ico]}
 
@@ -393,9 +393,9 @@ companies:
   - {key: teladoc, name: Teladoc Health, name_ko: 텔라닥, region: us, themes: [health_tech__remote_care], aliases: [teladochealth]}
   - {key: doctornow, name: Doctor Now, name_ko: 닥터나우, kind: startup, region: kr, themes: [health_tech__remote_care]}
   - {key: epicsystems, name: Epic Systems, name_ko: 에픽시스템즈, region: us, themes: [health_tech__health_data_interop], aliases: [epicehr, mychart]}
-  - {key: hl7, name: HL7 International, name_ko: HL7, kind: standards_body, region: us, themes: [health_tech__health_data_interop], aliases: [hl7international]}
-  - {key: onc, name: ONC (ASTP), name_ko: ONC, kind: regulator, region: us, themes: [health_tech__health_data_interop], aliases: [astp, astponc]}
-  - {key: fda, name: FDA, name_ko: 미국 식품의약국, kind: regulator, region: us, themes: [health_tech__medical_ai_samd], aliases: [usfda, 미국fda, 식품의약국]}
+  - {key: hl7, name: HL7 International, name_ko: HL7, kind: standards_body, region: us, themes: [health_tech__health_data_interop], domains: [hl7.org], aliases: [hl7international]}
+  - {key: onc, name: ONC (ASTP), name_ko: ONC, kind: regulator, region: us, themes: [health_tech__health_data_interop], domains: [healthit.gov], aliases: [astp, astponc]}
+  - {key: fda, name: FDA, name_ko: 미국 식품의약국, kind: regulator, region: us, themes: [health_tech__medical_ai_samd], domains: [fda.gov], aliases: [usfda, 미국fda, 식품의약국]}
   - {key: mfds, name: MFDS, name_ko: 식품의약품안전처, kind: regulator, region: kr, themes: [health_tech__medical_ai_samd], aliases: [식약처]}
   - {key: hyodol, name: Hyodol, name_ko: 효돌, kind: startup, region: kr, themes: [health_tech__aging_care]}
   - {key: intuitionrobotics, name: Intuition Robotics, name_ko: 인튜이션로보틱스, kind: startup, region: other, themes: [health_tech__aging_care], aliases: [elliq]}
@@ -493,24 +493,24 @@ companies:
   - {key: ambiq, name: Ambiq, name_ko: 앰비크, region: us, themes: [energy__power_efficiency, ai__on_device_ai], aliases: [ambiqmicro]}
   - {key: biofourmis, name: Biofourmis, name_ko: 바이오포미스, kind: startup, region: us, themes: [health_tech__remote_care]}
   # ── research institutes, regulators, IP offices that often lead reports ──
-  - {key: itri, name: ITRI, name_ko: 대만공업기술연구원, kind: institute, region: tw, themes: [semis__packaging_chiplet, manufacturing__smart_factory], aliases: [공업기술연구원, 대만itri, 대만연구기관, 대만기술연구, 대만연구소, industrialtechnologyresearchinstitute, 工研院]}
-  - {key: imec, name: imec, name_ko: imec, kind: institute, region: eu, themes: [semis__packaging_chiplet, semis__ap_soc_npu], aliases: [아이멕]}
+  - {key: itri, name: ITRI, name_ko: 대만공업기술연구원, kind: institute, region: tw, themes: [semis__packaging_chiplet, manufacturing__smart_factory], domains: [itri.org.tw], aliases: [공업기술연구원, 대만itri, 대만연구기관, 대만기술연구, 대만연구소, industrialtechnologyresearchinstitute, 工研院]}
+  - {key: imec, name: imec, name_ko: imec, kind: institute, region: eu, themes: [semis__packaging_chiplet, semis__ap_soc_npu], domains: [imec-int.com], aliases: [아이멕]}
   - {key: cealeti, name: CEA-Leti, name_ko: CEA-Leti, kind: institute, region: eu, themes: [semis__packaging_chiplet], aliases: [leti]}
-  - {key: astar, name: A*STAR, name_ko: A*STAR, kind: institute, region: other, themes: [semis__packaging_chiplet], aliases: [a*star, 싱가포르과학기술연구청]}
-  - {key: etri, name: ETRI, name_ko: 한국전자통신연구원, kind: institute, region: kr, themes: [connectivity__cellular_5g_6g, ai__foundation_models], aliases: [전자통신연구원]}
+  - {key: astar, name: A*STAR, name_ko: A*STAR, kind: institute, region: other, themes: [semis__packaging_chiplet], domains: [a-star.edu.sg], aliases: [a*star, 싱가포르과학기술연구청]}
+  - {key: etri, name: ETRI, name_ko: 한국전자통신연구원, kind: institute, region: kr, themes: [connectivity__cellular_5g_6g, ai__foundation_models], domains: [etri.re.kr], aliases: [전자통신연구원]}
   - {key: kaist, name: KAIST, name_ko: KAIST, kind: institute, region: kr, themes: [ai__foundation_models], aliases: [카이스트, 한국과학기술원]}
-  - {key: uspto, name: USPTO, name_ko: 미국 특허상표청, kind: regulator, region: us, themes: [], aliases: [미국특허청, 미국특허상표청]}
-  - {key: epo, name: European Patent Office, name_ko: 유럽특허청, kind: regulator, region: eu, themes: [], aliases: [europeanpatentoffice]}
-  - {key: kipo, name: KIPO, name_ko: 특허청, kind: regulator, region: kr, themes: [], aliases: [한국특허청, 지식재산처]}
-  - {key: msit, name: MSIT, name_ko: 과학기술정보통신부, kind: regulator, region: kr, themes: [], aliases: [과기정통부, 과기부]}
-  - {key: ntia, name: NTIA, name_ko: NTIA, kind: regulator, region: us, themes: [connectivity__cellular_5g_6g]}
-  - {key: fcc, name: FCC, name_ko: 미국 연방통신위원회, kind: regulator, region: us, themes: [connectivity__cellular_5g_6g, connectivity__satellite_ntn], aliases: [연방통신위원회, 미국fcc]}
-  - {key: firstnet, name: FirstNet Authority, name_ko: FirstNet, kind: regulator, region: us, themes: [connectivity__cellular_5g_6g], aliases: [firstnetauthority]}
-  - {key: europeancommission, name: European Commission, name_ko: EU 집행위원회, kind: regulator, region: eu, themes: [], aliases: [eu집행위원회, 유럽연합집행위원회, 집행위원회, eucommission]}
-  - {key: imda, name: IMDA, name_ko: 싱가포르 정보통신미디어개발청, kind: regulator, region: other, themes: [ai__ai_safety_eval], aliases: [infocommmediadevelopmentauthority]}
-  - {key: moda, name: Taiwan Ministry of Digital Affairs, name_ko: 대만 디지털발전부, kind: regulator, region: tw, themes: [], aliases: [대만디지털발전부, 대만디지털산업서, 디지털산업서, 數位發展部, 数位发展部]}
-  - {key: csis, name: CSIS, name_ko: CSIS, kind: institute, region: us, themes: [], aliases: [전략국제문제연구소]}
-  - {key: trendforce, name: TrendForce, name_ko: 트렌드포스, kind: institute, region: tw, themes: [semis__memory_storage, display_av__display_panel], aliases: [集邦咨询]}
+  - {key: uspto, name: USPTO, name_ko: 미국 특허상표청, kind: regulator, region: us, themes: [], domains: [uspto.gov], aliases: [미국특허청, 미국특허상표청]}
+  - {key: epo, name: European Patent Office, name_ko: 유럽특허청, kind: regulator, region: eu, themes: [], domains: [epo.org], aliases: [europeanpatentoffice]}
+  - {key: kipo, name: KIPO, name_ko: 특허청, kind: regulator, region: kr, themes: [], domains: [kipo.go.kr], aliases: [한국특허청, 지식재산처]}
+  - {key: msit, name: MSIT, name_ko: 과학기술정보통신부, kind: regulator, region: kr, themes: [], domains: [msit.go.kr], aliases: [과기정통부, 과기부]}
+  - {key: ntia, name: NTIA, name_ko: NTIA, kind: regulator, region: us, themes: [connectivity__cellular_5g_6g], domains: [ntia.gov]}
+  - {key: fcc, name: FCC, name_ko: 미국 연방통신위원회, kind: regulator, region: us, themes: [connectivity__cellular_5g_6g, connectivity__satellite_ntn], domains: [fcc.gov], aliases: [연방통신위원회, 미국fcc]}
+  - {key: firstnet, name: FirstNet Authority, name_ko: FirstNet, kind: regulator, region: us, themes: [connectivity__cellular_5g_6g], domains: [firstnet.gov], aliases: [firstnetauthority]}
+  - {key: europeancommission, name: European Commission, name_ko: EU 집행위원회, kind: regulator, region: eu, themes: [], domains: [europa.eu], aliases: [eu집행위원회, 유럽연합집행위원회, 집행위원회, eucommission]}
+  - {key: imda, name: IMDA, name_ko: 싱가포르 정보통신미디어개발청, kind: regulator, region: other, themes: [ai__ai_safety_eval], domains: [imda.gov.sg], aliases: [infocommmediadevelopmentauthority]}
+  - {key: moda, name: Taiwan Ministry of Digital Affairs, name_ko: 대만 디지털발전부, kind: regulator, region: tw, themes: [], domains: [moda.gov.tw], aliases: [대만디지털발전부, 대만디지털산업서, 디지털산업서, 數位發展部, 数位发展部]}
+  - {key: csis, name: CSIS, name_ko: CSIS, kind: institute, region: us, themes: [], domains: [csis.org], aliases: [전략국제문제연구소]}
+  - {key: trendforce, name: TrendForce, name_ko: 트렌드포스, kind: institute, region: tw, themes: [semis__memory_storage, display_av__display_panel], domains: [trendforce.com], aliases: [集邦咨询]}
   - {key: counterpoint, name: Counterpoint Research, name_ko: 카운터포인트리서치, kind: institute, region: other, themes: [platform_sw__device_os], aliases: [counterpointresearch, 카운터포인트]}
   - {key: idc, name: IDC, name_ko: IDC, kind: institute, region: us, themes: [], aliases: [internationaldatacorporation]}
   - {key: gartner, name: Gartner, name_ko: 가트너, kind: institute, region: us, themes: []}

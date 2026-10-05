@@ -25,3 +25,8 @@ def keyword_element(name: str) -> Any:
     return (
         func.jsonb_array_elements_text(ItemCard.technology_keys).table_valued("value").lateral(name)
     )
+
+
+def company_element(name: str) -> Any:
+    """Lateral set of a card's registered company keys (plan 12)."""
+    return func.jsonb_array_elements_text(ItemCard.company_keys).table_valued("value").lateral(name)

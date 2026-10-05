@@ -32,6 +32,13 @@ class StoryBrief(BaseModel):
     tracks: list[str]
 
 
+class CompanyRef(BaseModel):
+    key: str
+    label: str
+    relation: str  # to Samsung DX: self · competitor · supplier · partner · peer
+    kind: str
+
+
 class ReaderItem(BaseModel):
     id: int
     url: str
@@ -52,6 +59,7 @@ class ReaderItem(BaseModel):
     first_seen_at: datetime
     metrics: dict[str, int]
     story: StoryBrief | None
+    companies: list[CompanyRef] = []
 
 
 class FeedPage(BaseModel):
@@ -270,6 +278,18 @@ class Radar(BaseModel):
     signals: list[RadarSignal] = []
 
 
+class CompanyProfile(BaseModel):
+    """Registry entry of a company (plan 12)."""
+
+    key: str
+    name: str
+    name_ko: str | None
+    kind: str
+    region: str
+    relation: str
+    themes: list[str]  # main themes in the registry
+
+
 class TopicDetail(BaseModel):
     kind: str
     topic: Topic
@@ -278,6 +298,93 @@ class TopicDetail(BaseModel):
     signal_types: list[Count]
     regions: list[Count]
     stories: list[ReaderItem]
+    # companies reported with this topic in the window (registered names only)
+    companies: list[KeywordCount] = []
+    # kind=theme: the registry's major companies of the theme; kind=company: none
+    major_companies: list[CompanyRef] = []
+    profile: CompanyProfile | None = None  # kind=company
+
+
+class ActivityShift(BaseModel):
+    """The signal type whose share of a company's reports moved most against the baseline."""
+
+    signal_type: str
+    share: float  # current window
+    baseline_share: float  # earlier windows
+    z: float  # two-proportion z
+
+
+class CompanyTopic(Topic):
+    name: str
+    name_ko: str | None
+    kind: str
+    region: str
+    relation: str
+    self_reports: int  # current window, from the company's own domains
+    signal_mix: dict[str, int]  # current window, by signal type
+    baseline_mix: dict[str, int]  # earlier windows
+    shift: ActivityShift | None
+    top_themes: list[Count]  # current window
+
+
+class LeaderShare(BaseModel):
+    key: str
+    label: str
+    count: int
+    share: float  # of the theme's company-tagged reports this window (percent)
+    previous_share: float | None
+
+
+class ThemeLeaders(BaseModel):
+    theme: str
+    total: int  # company-tagged reports this window
+    previous_total: int
+    leaders: list[LeaderShare]
+    previous_leader: str | None
+    leader_changed: bool
+
+
+class ThemeEntry(BaseModel):
+    """A company reported in a theme for the first time in the span, outside its main themes."""
+
+    key: str
+    label: str
+    theme: str
+    count: int
+    sources: int
+
+
+class Entrant(BaseModel):
+    """A company first reported recently: registered (debut) or a name the registry lacks."""
+
+    key: str
+    name: str
+    registered: bool
+    cards: int
+    sources: int
+    first_seen: datetime | None = None
+
+
+class CompanyPair(BaseModel):
+    a: str
+    b: str
+    count: int
+    lift: float
+    is_new: bool
+    signal_type: str | None  # most common signal type of the pair's reports
+
+
+class CompanyRadar(BaseModel):
+    window: RadarWindow
+    periods: list[str]
+    tagged: list[int]  # company-tagged reports per window
+    companies: list[CompanyTopic]
+    organizations: list[CompanyTopic]  # institutes, regulators, standards bodies
+    theme_leaders: list[ThemeLeaders]
+    entries: list[ThemeEntry]
+    entrants: list[Entrant]
+    pairs: list[CompanyPair]
+    signals: list[RadarSignal] = []
 
 
 class PublicDigest(BaseModel):
