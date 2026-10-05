@@ -277,6 +277,9 @@ def collect(root: Path, since: timedelta) -> list[Event]:
     events: list[Event] = []
     for name in CONTAINERS:
         events.extend(parse_lines(name, docker_lines(f"news-insight-{name}-1", since)))
+        # logs of containers a deploy replaced (scripts/deploy.sh archives them)
+        for archived in sorted((root / "ops" / "logs" / "containers").glob(f"{name}-*.log")):
+            events.extend(parse_lines(name, host_lines(archived)))
     for name in HOST_LOGS:
         events.extend(
             parse_lines(f"host:{name}", host_lines(root / "ops" / "logs" / f"{name}.log"))
