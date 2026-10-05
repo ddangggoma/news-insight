@@ -610,23 +610,36 @@ def stories_semantic(
     """Merge stories that report one event in other words or languages (bge-m3 + LLM judge, CLU-1).
 
     Host-side: needs LM Studio (embeddings) and Antigravity (judge); runs after `cards run`."""
-    from news_insight.stories.semantic import lm_studio_embed, run
+    from news_insight.stories.semantic import embed_pending, lm_studio_embed, run
 
     settings = get_settings()
     agy, _ = _card_engines(False)
     assert agy is not None
+    model = settings.lm_studio_embedding_model
+    embed = lm_studio_embed(settings.lm_studio_url, model)
     now = datetime.now(UTC)
+    # embed in committed batches, so a long backfill keeps what it has done
+    embedded = 0
+    while embedded < embed_limit:
+        with session_scope() as session:
+            done = embed_pending(
+                session, embed, model=model, now=now, limit=min(1000, embed_limit - embedded)
+            )
+        embedded += done
+        if done == 0:
+            break
     with session_scope() as session:
         stats = run(
             session,
-            embed=lm_studio_embed(settings.lm_studio_url, settings.lm_studio_embedding_model),
+            embed=embed,
             ask=agy.ask,
-            model=settings.lm_studio_embedding_model,
+            model=model,
             now=now,
             since=now - timedelta(minutes=since_minutes) if since_minutes else None,
             max_judged=max_judged,
-            embed_limit=embed_limit,
+            embed_limit=0,
         )
+    stats.embedded = embedded
     typer.echo(
         f"embedded={stats.embedded} candidates={stats.candidates} judged={stats.judged} "
         f"merged={stats.merged} guarded={stats.skipped.get('guard', 0)}"
