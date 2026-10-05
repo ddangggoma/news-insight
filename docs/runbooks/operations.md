@@ -110,11 +110,10 @@ P9 완료 기준은 7일 연속 05:00 발행 성공(또는 Fail-safe 정상 동�
 
 - 운영은 `/Users/ggoma/WorkSpace/NEWS_INSIGHT-live`에서 합니다. 이 트리는 `origin/main`에 고정된 git worktree이고 `.env`는 개발 트리의 파일을 가리키는 심볼릭 링크입니다.
   - launchd 카드(10분)·다이제스트(05:00) 작업은 이 트리에서 돌고, 로그는 `NEWS_INSIGHT-live/ops/logs/`에 남습니다.
-  - 배포도 이 트리에서 `docker compose up -d --build`(또는 `scripts/release.sh`)로 합니다.
+  - 배포는 이 트리에서 `scripts/deploy.sh`로 합니다. `docker compose up -d --build`는 2026-10-05 네 번 멈췄습니다(Docker Desktop 24 / Compose 2.18: 새 컨테이너를 만들고 시작하지 않음). 스크립트는 이미지를 먼저 빌드하고, 앱 컨테이너(migrate·api·worker·scheduler·web)만 지운 뒤 `--no-build`로 띄우고, 상태·스모크 검사를 합니다. 마이그레이션이 바뀌면 먼저 백업합니다. postgres·redis는 건드리지 않습니다. 정지 시간은 약 1분입니다.
 - 새 main을 반영하는 순서:
   ```bash
-  cd /Users/ggoma/WorkSpace/NEWS_INSIGHT-live && git fetch -q origin && git checkout -q --detach origin/main
-  docker compose up -d --build
+  cd /Users/ggoma/WorkSpace/NEWS_INSIGHT-live && scripts/deploy.sh
   ```
   마이그레이션은 compose의 migrate 서비스가 실행합니다.
 - 개발 트리(`NEWS_INSIGHT`)에서는 어떤 브랜치를 체크아웃해도 운영 작업에 영향이 없습니다.
