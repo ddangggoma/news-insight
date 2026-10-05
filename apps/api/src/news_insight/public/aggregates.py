@@ -66,9 +66,8 @@ def facets(session: Session, filters: ReaderFilters, window: Window) -> dict[str
     return result
 
 
-def keyword_counts(
-    session: Session, conditions: list[ColumnElement[bool]]
-) -> dict[str, tuple[str, int]]:
+def keyword_counts(session: Session, conditions: list[ColumnElement[bool]]) -> dict[str, int]:
+    """Items per normalized keyword; labels are looked up later, only for the keys shown."""
     element = keyword_element("kw")
     normalized = element.c.value
     statement = (
@@ -82,9 +81,7 @@ def keyword_counts(
         .where(*conditions)
         .group_by(normalized)
     )
-    counts = {str(key): int(count) for key, count in session.execute(statement).tuples() if key}
-    labels = labels_for(session, counts)
-    return {key: (labels[key], count) for key, count in counts.items()}
+    return {str(key): int(count) for key, count in session.execute(statement).tuples() if key}
 
 
 def _total(session: Session, conditions: list[ColumnElement[bool]]) -> int:
@@ -100,16 +97,19 @@ def insights(session: Session, filters: ReaderFilters, window: Window) -> Insigh
 
     now_keywords = keyword_counts(session, current)
     before = keyword_counts(session, previous) if previous is not None else {}
-    ranked = sorted(now_keywords.items(), key=lambda pair: (-pair[1][1], pair[0]))
-    top = [(key, value) for key, value in ranked if value[1] >= KEYWORD_MIN_COUNT][:KEYWORD_TOP]
+    ranked = sorted(now_keywords.items(), key=lambda pair: (-pair[1], pair[0]))
+    top = [(key, count) for key, count in ranked if count >= KEYWORD_MIN_COUNT][:KEYWORD_TOP]
     top_keys = {key for key, _ in top}
+    related = [key for key, _ in ranked if key not in top_keys][:RELATED_TOP]
+    # labels only for what is shown: a busy week has tens of thousands of keys (2026-10-05)
+    labels = labels_for(session, [*top_keys, *related])
 
     def trend(key: str, label: str, count: int) -> KeywordTrend:
         if previous is None:
             return KeywordTrend(
                 key=key, label=label, count=count, previous=None, change=None, is_new=False
             )
-        prior = before.get(key, ("", 0))[1]
+        prior = before.get(key, 0)
         change = round((count - prior) / prior * 100, 1) if prior else None
         return KeywordTrend(
             key=key, label=label, count=count, previous=prior, change=change, is_new=prior == 0
@@ -121,8 +121,8 @@ def insights(session: Session, filters: ReaderFilters, window: Window) -> Insigh
     return Insights(
         total=_total(session, current),
         previous_total=_total(session, previous) if previous is not None else None,
-        keywords=[trend(key, label, count) for key, (label, count) in top],
-        related_keywords=[label for key, (label, _) in ranked if key not in top_keys][:RELATED_TOP],
+        keywords=[trend(key, labels[key], count) for key, count in top],
+        related_keywords=[labels[key] for key in related],
         fields=counts(_grouped(session, ItemCard.field, current)),
         signal_types=counts(_axis_counts(session, "signal", current)),
         impacts=counts(_grouped(session, ItemCard.impact, current)),

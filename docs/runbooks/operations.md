@@ -146,5 +146,5 @@ scripts/dev.sh audit         # 수집·중복·카드/번역·분류·이슈 묶
 - 결과는 `ops/reports/`에 Markdown으로 남습니다. 기간·행 수는 `news-insight ops logs --hours 6 --top 40`처럼 직접 줄 수 있습니다.
 - 오류 시그니처: 숫자·ID·UUID·링크·따옴표 값을 지운 첫 줄. 같은 고장은 한 줄로 묶이고 횟수·처음·마지막 시각이 붙습니다. Postgres 제약 이름처럼 짧은 이름은 남깁니다.
 - 고친 뒤에는 같은 명령을 다시 돌려 숫자가 줄었는지 봅니다.
-- 한계: postgres 로그에는 데이터베이스 이름이 없어 테스트·점검 DB(`news_insight_test`, `_check`)의 오류도 섞입니다(`log_line_prefix`에 `%d` 추가 권장). 느린 쿼리 원인은 `pg_stat_statements`가 없어 추적하지 못합니다.
+- PostgreSQL 설정(2026-10-05): `pg_stat_statements` 사전 로드(확장은 마이그레이션 0023), `shared_buffers` 512MB, 로그 앞머리에 데이터베이스 이름(`log_line_prefix=%m [%p] %d`). compose에 적어 두었고, 운영 서버에는 `ALTER SYSTEM`으로 같은 값을 넣고 컨테이너를 재생성하지 않고 재시작했습니다. `scripts/dev.sh audit`가 총 실행 시간 상위 쿼리를 보여 줍니다.
 
