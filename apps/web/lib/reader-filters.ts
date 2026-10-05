@@ -3,6 +3,7 @@ import { REGION_LABEL, TRACK_LABEL } from "@/lib/format";
 import type { QueryValue } from "@/lib/query";
 import { withQuery } from "@/lib/query";
 import type { SearchParams } from "@/lib/params";
+import { COMPANY_KEY } from "@/lib/radar";
 import { FIELD_LABEL, IMPACT_LABEL, SIGNAL_LABEL, THEME_LABEL } from "@/lib/taxonomy";
 
 export const AXES = ["field", "theme", "signal", "impact", "track", "region"] as const;
@@ -26,6 +27,8 @@ export type Period = keyof typeof PERIODS;
 export type Sort = keyof typeof SORTS;
 
 export type ReaderFilters = Record<Axis, string[]> & {
+  /** Registry company keys (plan 12): not a facet, set from company chips. */
+  company: string[];
   scope: Scope;
   period: Period;
   sort: Sort;
@@ -51,6 +54,7 @@ export function parseReaderFilters(params: SearchParams): ReaderFilters {
   const page = Number.parseInt(values(params, "page")[0] ?? "1", 10);
   return {
     ...axes,
+    company: [...new Set(values(params, "company").filter((v) => COMPANY_KEY.test(v)))],
     scope: choice(values(params, "scope")[0], SCOPES, DEFAULTS.scope),
     period: choice(values(params, "period")[0], PERIODS, DEFAULTS.period),
     sort: choice(values(params, "sort")[0], SORTS, DEFAULTS.sort),
@@ -68,6 +72,7 @@ export function apiParams(filters: ReaderFilters): Record<string, QueryValue> {
     page: filters.page,
   };
   for (const axis of AXES) if (filters[axis].length) params[axis] = filters[axis];
+  if (filters.company.length) params.company = filters.company;
   if (filters.q) params.q = filters.q;
   return params;
 }
@@ -78,6 +83,7 @@ function href(filters: ReaderFilters): string {
     period: filters.period === DEFAULTS.period ? undefined : filters.period,
     sort: filters.sort === DEFAULTS.sort ? undefined : filters.sort,
     ...Object.fromEntries(AXES.map((axis) => [axis, filters[axis]])),
+    company: filters.company,
     q: filters.q || undefined,
     page: filters.page > 1 ? filters.page : undefined,
   });
@@ -93,8 +99,9 @@ export function toggleHref(filters: ReaderFilters, axis: Axis, key: string): str
   return href({ ...filters, [axis]: next, page: 1 });
 }
 
-export function removeHref(filters: ReaderFilters, axis: Axis | "q", key: string): string {
+export function removeHref(filters: ReaderFilters, axis: Axis | "q" | "company", key: string): string {
   if (axis === "q") return href({ ...filters, q: "", page: 1 });
+  if (axis === "company") return href({ ...filters, company: filters.company.filter((v) => v !== key), page: 1 });
   return href({ ...filters, [axis]: filters[axis].filter((v) => v !== key), page: 1 });
 }
 
@@ -105,15 +112,22 @@ export function setHref(filters: ReaderFilters, name: "scope" | "period" | "sort
 /** Drops every axis and the search, keeps scope, period and sort. */
 export function clearHref(filters: ReaderFilters): string {
   const empty = Object.fromEntries(AXES.map((axis) => [axis, []])) as unknown as Record<Axis, string[]>;
-  return href({ ...filters, ...empty, q: "", page: 1 });
+  return href({ ...filters, ...empty, company: [], q: "", page: 1 });
 }
 
-export type Chip = { axis: Axis | "q"; key: string; label: string };
+export type Chip = { axis: Axis | "q" | "company"; key: string; label: string };
 
-export function activeChips(filters: ReaderFilters): Chip[] {
+/** Feed link for one company (from a card's company chip). */
+export function companyHref(key: string): string {
+  return withQuery("/", { company: key });
+}
+
+/** `companies`: company key → display name, taken from the loaded cards. */
+export function activeChips(filters: ReaderFilters, companies: Record<string, string> = {}): Chip[] {
   const chips: Chip[] = AXES.flatMap((axis) =>
     filters[axis].map((key) => ({ axis, key, label: AXIS_LABELS[axis][key] ?? key })),
   );
+  for (const key of filters.company) chips.push({ axis: "company", key, label: `기업: ${companies[key] ?? key}` });
   if (filters.q) chips.push({ axis: "q", key: filters.q, label: `“${filters.q}”` });
   return chips;
 }

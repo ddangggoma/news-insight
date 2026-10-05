@@ -456,8 +456,10 @@ def company_radar(
         )
     # ranked by reports from other outlets: a busy newsroom is not news
     topics.sort(key=lambda t: (-(t.counts[-1] - t.self_reports), -t.z, t.key))
-    companies = [t for t in topics if CompanyKind(t.kind) not in ORGANIZATIONS]
-    organizations = [t for t in topics if CompanyKind(t.kind) in ORGANIZATIONS]
+    # a company quiet this window is not news unless it is falling
+    shown = [t for t in topics if t.counts[-1] > 0 or t.state == "falling"]
+    companies = [t for t in shown if CompanyKind(t.kind) not in ORGANIZATIONS]
+    organizations = [t for t in shown if CompanyKind(t.kind) in ORGANIZATIONS]
     labels = {t.key: t.label or t.name for t in topics}
     tagged = _tagged(session, base, windows)
     # "first", "new" and "entered" need earlier windows with reports (the radar's own gate)

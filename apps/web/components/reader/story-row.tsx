@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { TrackBadge } from "@/components/console/badges";
-import { SignalTag, FieldTag, ImpactBadge } from "@/components/reader/labels";
+import { CompanyChips, SignalTag, FieldTag, ImpactBadge } from "@/components/reader/labels";
 import { formatNumber, formatRelative, REGION_LABEL } from "@/lib/format";
 import type { ReaderItem } from "@/lib/reader-types";
 
@@ -43,6 +43,7 @@ export function StoryRow({ item, now }: { item: ReaderItem; now?: Date }) {
         <span>{REGION_LABEL[item.region]}</span>
         {item.keywords.length ? <span className="text-primary">{item.keywords.slice(0, 4).map((k) => `#${k}`).join(" ")}</span> : null}
       </div>
+      <CompanyChips companies={item.companies} />
     </article>
   );
 }

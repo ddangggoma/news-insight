@@ -1,6 +1,7 @@
 export const RADAR_SECTIONS = [
   ["signals", "신호"],
   ["landscape", "지도"],
+  ["companies", "기업"],
   ["matrix", "포지셔닝"],
   ["timing", "타이밍"],
   ["calendar", "캘린더"],

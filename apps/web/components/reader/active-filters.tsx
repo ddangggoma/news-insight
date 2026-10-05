@@ -3,8 +3,8 @@ import Link from "next/link";
 
 import { activeChips, clearHref, type ReaderFilters, removeHref } from "@/lib/reader-filters";
 
-export function ActiveFilters({ filters }: { filters: ReaderFilters }) {
-  const chips = activeChips(filters);
+export function ActiveFilters({ filters, companies }: { filters: ReaderFilters; companies?: Record<string, string> }) {
+  const chips = activeChips(filters, companies);
   if (!chips.length) return <span className="text-sm text-muted-foreground">분야·사업부를 골라 좁혀 보세요</span>;
   return (
     <>
