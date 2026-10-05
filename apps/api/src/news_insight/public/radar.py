@@ -174,7 +174,11 @@ def _series(
     last = len(windows) - 1
     bucket = _bucket(windows)
     paced = _paced(windows, cutoffs)
-    items = func.count(distinct(Item.id))
+    # one row per item and key: a card per item, a story per item (story_items.item_id is the
+    # primary key), and themes, keyword keys and company keys are de-duplicated when written,
+    # so count(*) equals count(DISTINCT item) without sorting ~60 aggregates (2026-10-05: the
+    # keyword series took 2.6 s of a 6.7 s radar)
+    items = func.count()
     key, join, label = _dimension(dimension)
     n_paced = len(windows) if cutoffs is not None else 0
     columns = [
