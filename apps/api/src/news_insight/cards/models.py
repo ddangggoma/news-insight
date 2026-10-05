@@ -23,6 +23,7 @@ class ItemCard(Base):
         Index("ix_item_cards_keywords", "keywords", postgresql_using="gin"),
         Index("ix_item_cards_themes", "themes", postgresql_using="gin"),
         Index("ix_item_cards_technology_keys", "technology_keys", postgresql_using="gin"),
+        Index("ix_item_cards_company_keys", "company_keys", postgresql_using="gin"),
         Index(
             "ix_item_cards_title_ko_trgm",
             "title_ko",
@@ -58,6 +59,10 @@ class ItemCard(Base):
     technology_keys: Mapped[list[str]] = mapped_column(JSONB, default=list, server_default="[]")
     # phrases the theme list does not cover (checklist CLS-1)
     topic_candidates: Mapped[list[str]] = mapped_column(JSONB, default=list, server_default="[]")
+    # companies and organisations the item is about, as the engine wrote them (plan 12)
+    companies: Mapped[list[str]] = mapped_column(JSONB, default=list, server_default="[]")
+    # registered company keys matched from `companies` and `keywords`; set by a trigger
+    company_keys: Mapped[list[str]] = mapped_column(JSONB, default=list, server_default="[]")
 
 
 class CardRun(Base):

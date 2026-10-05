@@ -1,0 +1,516 @@
+# Company registry seed (plan 12): who the cards are about.
+#
+# key       canonical key (normalised like technology keys: lower case; spaces, hyphens,
+#           underscores and middle dots removed)
+# name      display name (official spelling)          name_ko  Korean spelling
+# kind      company (default) | startup | institute | regulator | standards_body
+# region    headquarters: kr | us | cn | jp | tw | eu | other
+# relation  to Samsung DX: self | competitor | supplier | partner | peer (default)
+# themes    main taxonomy v2 themes (field__theme): the "major companies" of each theme and the
+#           baseline for theme-entry signals
+# domains   official domains: reports from sources on these domains count as self-announced
+# aliases   other spellings, translations, product brands that stand for the company
+#
+# Card company tags (`item_cards.company_keys`) match the LLM `companies` list and the card
+# keywords against key, name, name_ko and aliases, whole phrase only. Edit day to day in the
+# console; `news-insight companies seed` upserts this file and keeps console edits.
+version: 1
+companies:
+  # ── Samsung (self) ──
+  - {key: samsungelectronics, name: Samsung Electronics, name_ko: 삼성전자, region: kr, relation: self, themes: [platform_sw__device_os, display_av__picture_processing, semis__ap_soc_npu, semis__memory_storage, ai__on_device_ai], domains: [samsung.com], aliases: [samsung, 삼성, samsungmobile, 삼성모바일, galaxy, 갤럭시, smartthings, 스마트싱스, exynos, 엑시노스, isocell, samsungresearch, 삼성리서치, samsungfoundry, 삼성파운드리, samsungnetworks, knox]}
+  - {key: samsungdisplay, name: Samsung Display, name_ko: 삼성디스플레이, region: kr, relation: self, themes: [display_av__display_panel], domains: [samsungdisplay.com]}
+  - {key: samsungsdi, name: Samsung SDI, name_ko: 삼성SDI, region: kr, relation: self, themes: [energy__battery_charging], domains: [samsungsdi.com]}
+  - {key: samsungelectromechanics, name: Samsung Electro-Mechanics, name_ko: 삼성전기, region: kr, relation: self, themes: [semis__packaging_chiplet, display_av__camera_imaging], domains: [samsungsem.com], aliases: [semco]}
+  - {key: samsungsds, name: Samsung SDS, name_ko: 삼성SDS, region: kr, relation: self, themes: [cloud_data__cloud_platforms, manufacturing__smart_factory], domains: [samsungsds.com]}
+  - {key: harman, name: Harman, name_ko: 하만, region: us, relation: self, themes: [robotics_mobility__sdv_cockpit, display_av__audio_acoustics], domains: [harman.com], aliases: [harmaninternational, jbl]}
+
+  # ── ai · AI 모델·에이전트 ──
+  - {key: openai, name: OpenAI, name_ko: 오픈AI, region: us, themes: [ai__foundation_models, ai__ai_agents, ai__ai_coding], domains: [openai.com], aliases: [오픈에이아이]}
+  - {key: anthropic, name: Anthropic, name_ko: 앤트로픽, region: us, themes: [ai__foundation_models, ai__ai_coding, ai__ai_safety_eval, ai__ai_agents], domains: [anthropic.com], aliases: [앤스로픽]}
+  - {key: google, name: Google, name_ko: 구글, region: us, relation: partner, themes: [ai__foundation_models, platform_sw__device_os, cloud_data__cloud_platforms, platform_sw__app_ecosystem, ai__ai_agents, ai__on_device_ai, platform_sw__web_cross_platform, platform_sw__ux_accessibility], domains: [blog.google, googleblog.com, research.google, withgoogle.com, google.com], aliases: [alphabet, 알파벳, googleresearch, 구글리서치, googlecloud, 구글클라우드, gcp, fitbit, 핏빗, nest, googlenest, youtube, 유튜브]}
+  - {key: googledeepmind, name: Google DeepMind, name_ko: 구글 딥마인드, region: us, relation: partner, themes: [ai__foundation_models, robotics_mobility__humanoid_embodied], domains: [deepmind.google, deepmind.com], aliases: [deepmind, 딥마인드]}
+  - {key: meta, name: Meta, name_ko: 메타, region: us, relation: competitor, themes: [ai__foundation_models, display_av__xr_spatial, frontier__neurotech_bci], domains: [fb.com, about.fb.com, meta.com], aliases: [metaplatforms, 메타플랫폼스, facebook, 페이스북, metaai, 메타ai, realitylabs, 리얼리티랩스, oculus, 오큘러스, instagram, 인스타그램, whatsapp, 왓츠앱]}
+  - {key: microsoft, name: Microsoft, name_ko: 마이크로소프트, region: us, relation: partner, themes: [ai__foundation_models, cloud_data__cloud_platforms, platform_sw__device_os, platform_sw__developer_tools, ai__ai_agents, platform_sw__web_cross_platform, platform_sw__ux_accessibility], domains: [microsoft.com, windows.com], aliases: [마소, msft, azure, 애저, microsoftazure, nuance, 뉘앙스]}
+  - {key: xai, name: xAI, name_ko: xAI, region: us, themes: [ai__foundation_models, cloud_data__ai_datacenter], domains: [x.ai], aliases: [엑스에이아이]}
+  - {key: mistralai, name: Mistral AI, name_ko: 미스트랄AI, region: eu, themes: [ai__foundation_models, ai__model_efficiency], domains: [mistral.ai], aliases: [mistral, 미스트랄]}
+  - {key: cohere, name: Cohere, name_ko: 코히어, region: other, themes: [ai__foundation_models], domains: [cohere.com]}
+  - {key: deepseek, name: DeepSeek, name_ko: 딥시크, region: cn, themes: [ai__foundation_models, ai__model_efficiency], domains: [deepseek.com], aliases: [深度求索]}
+  - {key: alibaba, name: Alibaba, name_ko: 알리바바, region: cn, themes: [ai__foundation_models, cloud_data__cloud_platforms], domains: [alibabagroup.com, alibabacloud.com], aliases: [alibabagroup, 알리바바그룹, alibabacloud, 알리바바클라우드, aliyun, 阿里巴巴, 阿里云, 통의천문]}
+  - {key: moonshotai, name: Moonshot AI, name_ko: 문샷AI, kind: startup, region: cn, themes: [ai__foundation_models], aliases: [moonshot, 월지암면, 月之暗面]}
+  - {key: zhipuai, name: Zhipu AI, name_ko: 즈푸AI, kind: startup, region: cn, themes: [ai__foundation_models], aliases: [zai, zhipu, 智谱, 智谱ai, 지푸ai]}
+  - {key: minimax, name: MiniMax, name_ko: 미니맥스, kind: startup, region: cn, themes: [ai__foundation_models, ai__multimodal_perception]}
+  - {key: baidu, name: Baidu, name_ko: 바이두, region: cn, themes: [ai__foundation_models, robotics_mobility__autonomous_driving], domains: [baidu.com], aliases: [百度, apollogo, 아폴로고]}
+  - {key: tencent, name: Tencent, name_ko: 텐센트, region: cn, themes: [ai__foundation_models, platform_sw__app_ecosystem, cloud_data__cloud_platforms], domains: [tencent.com], aliases: [腾讯, wechat, 위챗, tencentcloud, 텐센트클라우드]}
+  - {key: bytedance, name: ByteDance, name_ko: 바이트댄스, region: cn, themes: [ai__foundation_models, platform_sw__app_ecosystem, display_av__xr_spatial], domains: [bytedance.com], aliases: [字节跳动, tiktok, 틱톡, doubao, 더우바오]}
+  - {key: perplexity, name: Perplexity, name_ko: 퍼플렉시티, kind: startup, region: us, themes: [ai__ai_agents, platform_sw__app_ecosystem], domains: [perplexity.ai], aliases: [perplexityai]}
+  - {key: huggingface, name: Hugging Face, name_ko: 허깅페이스, kind: startup, region: us, themes: [ai__foundation_models, cloud_data__data_ml_platform, ai__model_efficiency], domains: [huggingface.co], aliases: [허깅페이스hub]}
+  - {key: stabilityai, name: Stability AI, name_ko: 스태빌리티AI, kind: startup, region: eu, themes: [ai__multimodal_perception], aliases: [stability, 스테빌리티ai]}
+  - {key: runway, name: Runway, name_ko: 런웨이, kind: startup, region: us, themes: [ai__multimodal_perception], aliases: [runwayml]}
+  - {key: midjourney, name: Midjourney, name_ko: 미드저니, kind: startup, region: us, themes: [ai__multimodal_perception]}
+  - {key: elevenlabs, name: ElevenLabs, name_ko: 일레븐랩스, kind: startup, region: us, themes: [ai__multimodal_perception]}
+  - {key: blackforestlabs, name: Black Forest Labs, name_ko: 블랙포레스트랩스, kind: startup, region: eu, themes: [ai__multimodal_perception], aliases: [bfl]}
+  - {key: naver, name: NAVER, name_ko: 네이버, region: kr, themes: [ai__foundation_models, cloud_data__cloud_platforms, platform_sw__app_ecosystem], domains: [naver.com, navercorp.com], aliases: [navercorp, 네이버클라우드, navercloud, hyperclovax, 하이퍼클로바x, naverlabs, 네이버랩스]}
+  - {key: kakao, name: Kakao, name_ko: 카카오, region: kr, themes: [ai__foundation_models, platform_sw__app_ecosystem], domains: [kakao.com, kakaocorp.com], aliases: [kakaocorp, 카카오톡, kakaotalk, kakaobrain, 카카오브레인]}
+  - {key: lgairesearch, name: LG AI Research, name_ko: LG AI연구원, kind: institute, region: kr, themes: [ai__foundation_models], domains: [lgresearch.ai], aliases: [lgai연구원, lgai, exaone, 엑사원]}
+  - {key: upstage, name: Upstage, name_ko: 업스테이지, kind: startup, region: kr, themes: [ai__foundation_models, ai__model_efficiency], domains: [upstage.ai]}
+  - {key: sktelecom, name: SK Telecom, name_ko: SK텔레콤, region: kr, themes: [connectivity__cellular_5g_6g, ai__ai_agents, cloud_data__ai_datacenter], domains: [sktelecom.com], aliases: [skt, sk텔레콤, 에스케이텔레콤, 에이닷]}
+  - {key: kt, name: KT, name_ko: KT, region: kr, themes: [connectivity__cellular_5g_6g, cloud_data__cloud_platforms], domains: [kt.com], aliases: [케이티, ktcloud, kt클라우드, 믿음]}
+  - {key: lguplus, name: LG Uplus, name_ko: LG유플러스, region: kr, themes: [connectivity__cellular_5g_6g, connectivity__smart_home_iot], domains: [lguplus.com], aliases: [lgu+, 엘지유플러스, 유플러스, lg유플]}
+  - {key: anysphere, name: Anysphere (Cursor), name_ko: 애니스피어, kind: startup, region: us, themes: [ai__ai_coding], domains: [cursor.com], aliases: [cursor, 커서, cursorai]}
+  - {key: cognition, name: Cognition, name_ko: 코그니션, kind: startup, region: us, themes: [ai__ai_coding], aliases: [cognitionai, cognitionlabs, windsurf, 윈드서프]}
+  - {key: replit, name: Replit, name_ko: 리플릿, kind: startup, region: us, themes: [ai__ai_coding, platform_sw__developer_tools]}
+  - {key: langchain, name: LangChain, name_ko: 랭체인, kind: startup, region: us, themes: [ai__ai_agents, platform_sw__developer_tools], domains: [langchain.com], aliases: [langgraph, 랭그래프]}
+  - {key: liquidai, name: Liquid AI, name_ko: 리퀴드AI, kind: startup, region: us, themes: [ai__model_efficiency, ai__on_device_ai]}
+  - {key: nota, name: Nota AI, name_ko: 노타, kind: startup, region: kr, themes: [ai__model_efficiency, ai__on_device_ai], aliases: [notaai, 노타ai]}
+  - {key: scaleai, name: Scale AI, name_ko: 스케일AI, kind: startup, region: us, themes: [cloud_data__data_ml_platform, ai__ai_safety_eval]}
+  - {key: deeplearningai, name: DeepLearning.AI, name_ko: 딥러닝AI, kind: institute, region: us, themes: [ai__foundation_models], domains: [deeplearning.ai], aliases: [deeplearning.ai, thebatch]}
+  - {key: ukaisi, name: UK AI Security Institute, name_ko: 영국 AI보안연구소, kind: regulator, region: eu, themes: [ai__ai_safety_eval], aliases: [aisi, aisecurityinstitute, aisafetyinstitute, 영국ai안전연구소]}
+  - {key: metr, name: METR, name_ko: METR, kind: institute, region: us, themes: [ai__ai_safety_eval]}
+  - {key: stanfordhai, name: Stanford HAI, name_ko: 스탠퍼드 HAI, kind: institute, region: us, themes: [ai__ai_safety_eval, ai__foundation_models], aliases: [스탠퍼드hai, 스탠포드hai, stanforduniversityhai]}
+  - {key: mila, name: Mila, name_ko: 밀라, kind: institute, region: other, themes: [ai__foundation_models], aliases: [milaquebec, 몬트리올대학교mila, mila퀘벡]}
+  - {key: vectorinstitute, name: Vector Institute, name_ko: 벡터연구소, kind: institute, region: other, themes: [ai__foundation_models]}
+
+  # ── semis · 반도체·컴퓨팅 HW ──
+  - {key: qualcomm, name: Qualcomm, name_ko: 퀄컴, region: us, relation: supplier, themes: [semis__ap_soc_npu, ai__on_device_ai, connectivity__cellular_5g_6g, robotics_mobility__sdv_cockpit], domains: [qualcomm.com], aliases: [snapdragon, 스냅드래곤, 高通]}
+  - {key: mediatek, name: MediaTek, name_ko: 미디어텍, region: tw, relation: supplier, themes: [semis__ap_soc_npu, ai__on_device_ai, connectivity__short_range_wireless], domains: [mediatek.com], aliases: [dimensity, 디멘시티, 联发科]}
+  - {key: apple, name: Apple, name_ko: 애플, region: us, relation: competitor, themes: [platform_sw__device_os, semis__ap_soc_npu, display_av__xr_spatial, health_tech__biosensing, ai__on_device_ai, platform_sw__ux_accessibility, health_tech__health_data_interop], domains: [apple.com], aliases: [애플사, appleinc, iphone제조사, 苹果, アップル]}
+  - {key: nvidia, name: NVIDIA, name_ko: 엔비디아, region: us, relation: supplier, themes: [cloud_data__ai_datacenter, semis__ap_soc_npu, robotics_mobility__humanoid_embodied, robotics_mobility__sensing_digital_twin], domains: [nvidia.com], aliases: [英伟达, エヌビディア, geforce, 지포스]}
+  - {key: amd, name: AMD, name_ko: AMD, region: us, relation: supplier, themes: [cloud_data__ai_datacenter, semis__ap_soc_npu], domains: [amd.com], aliases: [advancedmicrodevices, ryzen, 라이젠]}
+  - {key: intel, name: Intel, name_ko: 인텔, region: us, relation: supplier, themes: [semis__ap_soc_npu, semis__packaging_chiplet, cloud_data__ai_datacenter], domains: [intel.com, intc.com], aliases: [英特尔, インテル, intelfoundry, 인텔파운드리]}
+  - {key: arm, name: Arm, name_ko: Arm, region: eu, relation: supplier, themes: [semis__ap_soc_npu, energy__power_efficiency, security__device_security], domains: [arm.com], aliases: [armholdings, arm홀딩스, 에이알엠]}
+  - {key: tsmc, name: TSMC, name_ko: TSMC, region: tw, relation: supplier, themes: [semis__packaging_chiplet, semis__ap_soc_npu], domains: [tsmc.com], aliases: [台积电, 台積電, 대만tsmc, taiwansemiconductor]}
+  - {key: skhynix, name: SK hynix, name_ko: SK하이닉스, region: kr, relation: supplier, themes: [semis__memory_storage, semis__packaging_chiplet], domains: [skhynix.co.kr, skhynix.com], aliases: [sk하이닉스, 하이닉스, hynix, 에스케이하이닉스]}
+  - {key: micron, name: Micron, name_ko: 마이크론, region: us, relation: supplier, themes: [semis__memory_storage], domains: [micron.com], aliases: [microntechnology, 美光]}
+  - {key: kioxia, name: Kioxia, name_ko: 키옥시아, region: jp, relation: supplier, themes: [semis__memory_storage], domains: [kioxia.com], aliases: [キオクシア, 铠侠]}
+  - {key: sandisk, name: Sandisk, name_ko: 샌디스크, region: us, relation: supplier, themes: [semis__memory_storage]}
+  - {key: westerndigital, name: Western Digital, name_ko: 웨스턴디지털, region: us, themes: [semis__memory_storage]}
+  - {key: seagate, name: Seagate, name_ko: 씨게이트, region: us, themes: [semis__memory_storage]}
+  - {key: ymtc, name: YMTC, name_ko: YMTC, region: cn, relation: competitor, themes: [semis__memory_storage], aliases: [长江存储, yangtzememory]}
+  - {key: cxmt, name: CXMT, name_ko: CXMT, region: cn, relation: competitor, themes: [semis__memory_storage], aliases: [长鑫存储, changxinmemory, 창신메모리]}
+  - {key: phison, name: Phison, name_ko: 파이슨, region: tw, themes: [semis__memory_storage]}
+  - {key: amkor, name: Amkor, name_ko: 앰코, region: us, relation: supplier, themes: [semis__packaging_chiplet], aliases: [amkortechnology, 앰코테크놀로지]}
+  - {key: aseholdings, name: ASE Technology, name_ko: ASE, region: tw, relation: supplier, themes: [semis__packaging_chiplet], aliases: [日月光]}
+  - {key: hanmisemiconductor, name: Hanmi Semiconductor, name_ko: 한미반도체, region: kr, themes: [semis__packaging_chiplet], aliases: [한미반도]}
+  - {key: ibiden, name: Ibiden, name_ko: 이비덴, region: jp, themes: [semis__packaging_chiplet]}
+  - {key: ucieconsortium, name: UCIe Consortium, name_ko: UCIe 컨소시엄, kind: standards_body, region: us, themes: [semis__packaging_chiplet], aliases: [ucie]}
+  - {key: jedec, name: JEDEC, name_ko: JEDEC, kind: standards_body, region: us, themes: [semis__memory_storage], domains: [jedec.org]}
+  - {key: riscvinternational, name: RISC-V International, name_ko: RISC-V 인터내셔널, kind: standards_body, region: eu, themes: [semis__ap_soc_npu], aliases: [riscv재단]}
+  - {key: sifive, name: SiFive, name_ko: 사이파이브, kind: startup, region: us, themes: [semis__ap_soc_npu]}
+  - {key: tenstorrent, name: Tenstorrent, name_ko: 텐스토렌트, kind: startup, region: other, themes: [semis__ap_soc_npu, cloud_data__ai_datacenter]}
+  - {key: rebellions, name: Rebellions, name_ko: 리벨리온, kind: startup, region: kr, themes: [semis__ap_soc_npu, cloud_data__ai_datacenter], aliases: [리벨리온즈]}
+  - {key: furiosaai, name: FuriosaAI, name_ko: 퓨리오사AI, kind: startup, region: kr, themes: [semis__ap_soc_npu, cloud_data__ai_datacenter], aliases: [furiosa, 퓨리오사]}
+  - {key: deepx, name: DEEPX, name_ko: 딥엑스, kind: startup, region: kr, themes: [semis__ap_soc_npu, ai__on_device_ai]}
+  - {key: cerebras, name: Cerebras, name_ko: 세레브라스, kind: startup, region: us, themes: [cloud_data__ai_datacenter, semis__ap_soc_npu], aliases: [cerebrassystems]}
+  - {key: groq, name: Groq, name_ko: 그록, kind: startup, region: us, themes: [cloud_data__ai_datacenter]}
+  - {key: unisoc, name: UNISOC, name_ko: 유니SOC, region: cn, themes: [semis__ap_soc_npu], aliases: [紫光展锐, 展锐]}
+  - {key: huawei, name: Huawei, name_ko: 화웨이, region: cn, relation: competitor, themes: [platform_sw__device_os, connectivity__cellular_5g_6g, semis__ap_soc_npu, robotics_mobility__sdv_cockpit], domains: [huawei.com], aliases: [华为, 華為, hisilicon, 하이실리콘, harmonyos, 하모니os, 鸿蒙, kirin, 기린칩, huaweicloud, 화웨이클라우드, ascend]}
+  - {key: sony, name: Sony, name_ko: 소니, region: jp, relation: competitor, themes: [semis__sensor_chips, display_av__picture_processing, display_av__camera_imaging, display_av__audio_acoustics], domains: [sony.com, sony.net], aliases: [ソニー, 索尼, sonygroup, 소니그룹, sonysemiconductor, 소니세미컨덕터, playstation, 플레이스테이션]}
+  - {key: omnivision, name: OmniVision, name_ko: 옴니비전, region: cn, relation: supplier, themes: [semis__sensor_chips], aliases: [豪威]}
+  - {key: stmicroelectronics, name: STMicroelectronics, name_ko: ST마이크로일렉트로닉스, region: eu, relation: supplier, themes: [semis__sensor_chips, semis__power_rf_semis], domains: [st.com], aliases: [stmicro, st마이크로]}
+  - {key: bosch, name: Bosch, name_ko: 보쉬, region: eu, relation: supplier, themes: [semis__sensor_chips, robotics_mobility__sdv_cockpit, connectivity__smart_home_iot], domains: [bosch-presse.de, bosch.com], aliases: [robertbosch, 博世, boschsensortec]}
+  - {key: infineon, name: Infineon, name_ko: 인피니언, region: eu, relation: supplier, themes: [semis__power_rf_semis, security__device_security, energy__power_efficiency], domains: [infineon.com], aliases: [infineontechnologies, 英飞凌, インフィニオン]}
+  - {key: amsosram, name: ams OSRAM, name_ko: ams오스람, region: eu, themes: [semis__sensor_chips], aliases: [osram, 오스람]}
+  - {key: tdk, name: TDK, name_ko: TDK, region: jp, relation: supplier, themes: [semis__sensor_chips, energy__battery_charging], aliases: [invensense]}
+  - {key: onsemi, name: onsemi, name_ko: 온세미, region: us, relation: supplier, themes: [semis__power_rf_semis, semis__sensor_chips], aliases: [onsemiconductor, 온세미컨덕터]}
+  - {key: nxp, name: NXP Semiconductors, name_ko: NXP, region: eu, relation: supplier, themes: [semis__power_rf_semis, connectivity__short_range_wireless, robotics_mobility__sdv_cockpit, security__device_security], aliases: [nxpsemiconductors]}
+  - {key: texasinstruments, name: Texas Instruments, name_ko: 텍사스인스트루먼트, region: us, themes: [semis__power_rf_semis, energy__power_efficiency], aliases: [텍사스인스트루먼츠]}
+  - {key: renesas, name: Renesas, name_ko: 르네사스, region: jp, relation: supplier, themes: [semis__power_rf_semis, robotics_mobility__sdv_cockpit], domains: [renesas.com], aliases: [renesaselectronics, ルネサス, 瑞萨]}
+  - {key: wolfspeed, name: Wolfspeed, name_ko: 울프스피드, region: us, themes: [semis__power_rf_semis]}
+  - {key: rohm, name: ROHM, name_ko: 로옴, region: jp, themes: [semis__power_rf_semis], aliases: [ローム, rohmsemiconductor]}
+  - {key: qorvo, name: Qorvo, name_ko: 코보, region: us, relation: supplier, themes: [semis__power_rf_semis]}
+  - {key: skyworks, name: Skyworks, name_ko: 스카이웍스, region: us, relation: supplier, themes: [semis__power_rf_semis]}
+  - {key: broadcom, name: Broadcom, name_ko: 브로드컴, region: us, relation: supplier, themes: [semis__power_rf_semis, connectivity__short_range_wireless, cloud_data__ai_datacenter, cloud_data__infra_ops], domains: [broadcom.com], aliases: [博通, vmware, vm웨어]}
+  - {key: murata, name: Murata, name_ko: 무라타, region: jp, relation: supplier, themes: [semis__power_rf_semis], aliases: [村田製作所, 무라타제작소, muratamanufacturing]}
+  - {key: analogdevices, name: Analog Devices, name_ko: 아날로그디바이스, region: us, themes: [semis__power_rf_semis]}
+  - {key: navitas, name: Navitas Semiconductor, name_ko: 나비타스, region: us, themes: [energy__power_efficiency, semis__power_rf_semis]}
+
+  # ── display_av · 디스플레이·영상·오디오 ──
+  - {key: lgelectronics, name: LG Electronics, name_ko: LG전자, region: kr, relation: competitor, themes: [display_av__picture_processing, connectivity__smart_home_iot, robotics_mobility__sdv_cockpit, energy__home_energy], domains: [lg.com, lgnewsroom.com], aliases: [lg, lg전자, 엘지전자, 엘지, lgthinq, 씽큐, thinq, webos, 웹os]}
+  - {key: lgdisplay, name: LG Display, name_ko: LG디스플레이, region: kr, relation: supplier, themes: [display_av__display_panel], domains: [lgdisplay.com], aliases: [lgd, lg디스플레이, 엘지디스플레이]}
+  - {key: boe, name: BOE, name_ko: BOE, region: cn, relation: competitor, themes: [display_av__display_panel], aliases: [京东方, boetechnology]}
+  - {key: tclcsot, name: TCL CSOT, name_ko: TCL CSOT, region: cn, relation: competitor, themes: [display_av__display_panel], aliases: [csot, 华星光电, 차이나스타]}
+  - {key: tianma, name: Tianma, name_ko: 톈마, region: cn, themes: [display_av__display_panel], aliases: [天马, 티엔마]}
+  - {key: visionox, name: Visionox, name_ko: 비전옥스, region: cn, themes: [display_av__display_panel], aliases: [维信诺]}
+  - {key: sharp, name: Sharp, name_ko: 샤프, region: jp, relation: competitor, themes: [display_av__display_panel, display_av__picture_processing], domains: [global.sharp, sharp.co.jp], aliases: [シャープ, 夏普]}
+  - {key: japandisplay, name: Japan Display, name_ko: 재팬디스플레이, region: jp, themes: [display_av__display_panel], aliases: [jdi, ジャパンディスプレイ]}
+  - {key: auo, name: AUO, name_ko: AUO, region: tw, themes: [display_av__display_panel], aliases: [友达, 友達, auoptronics]}
+  - {key: innolux, name: Innolux, name_ko: 이노룩스, region: tw, themes: [display_av__display_panel], aliases: [群创, 群創]}
+  - {key: universaldisplay, name: Universal Display, name_ko: 유니버설디스플레이, region: us, relation: supplier, themes: [display_av__display_panel], aliases: [udc]}
+  - {key: corning, name: Corning, name_ko: 코닝, region: us, relation: supplier, themes: [display_av__display_panel, frontier__advanced_materials], aliases: [gorillaglass, 고릴라글라스]}
+  - {key: tcl, name: TCL, name_ko: TCL, region: cn, relation: competitor, themes: [display_av__picture_processing], aliases: [tclelectronics, tcl전자]}
+  - {key: hisense, name: Hisense, name_ko: 하이센스, region: cn, relation: competitor, themes: [display_av__picture_processing], aliases: [海信]}
+  - {key: xiaomi, name: Xiaomi, name_ko: 샤오미, region: cn, relation: competitor, themes: [platform_sw__device_os, display_av__camera_imaging, connectivity__smart_home_iot, robotics_mobility__sdv_cockpit], domains: [mi.com], aliases: [小米, シャオミ, hyperos, 하이퍼os, redmi, 레드미, xiaomiev, 샤오미자동차]}
+  - {key: vivo, name: vivo, name_ko: 비보, region: cn, relation: competitor, themes: [display_av__camera_imaging, platform_sw__device_os]}
+  - {key: oppo, name: OPPO, name_ko: 오포, region: cn, relation: competitor, themes: [display_av__camera_imaging, platform_sw__device_os], domains: [oppo.com], aliases: [oneplus, 원플러스, coloros]}
+  - {key: honor, name: Honor, name_ko: 아너, region: cn, relation: competitor, themes: [platform_sw__device_os], aliases: [荣耀, 아너폰]}
+  - {key: transsion, name: Transsion, name_ko: 트랜션, region: cn, relation: competitor, themes: [platform_sw__device_os], aliases: [传音, tecno, infinix]}
+  - {key: motorola, name: Motorola, name_ko: 모토로라, region: us, relation: competitor, themes: [platform_sw__device_os], aliases: [motorolamobility]}
+  - {key: lenovo, name: Lenovo, name_ko: 레노버, region: cn, relation: competitor, themes: [platform_sw__device_os, cloud_data__ai_datacenter], aliases: [联想]}
+  - {key: adobe, name: Adobe, name_ko: 어도비, region: us, themes: [display_av__camera_imaging, security__ai_security_provenance, platform_sw__ux_accessibility], aliases: [firefly, 파이어플라이]}
+  - {key: canon, name: Canon, name_ko: 캐논, region: jp, themes: [display_av__camera_imaging], aliases: [キヤノン, 佳能]}
+  - {key: nikon, name: Nikon, name_ko: 니콘, region: jp, themes: [display_av__camera_imaging], aliases: [ニコン]}
+  - {key: dji, name: DJI, name_ko: DJI, region: cn, themes: [display_av__camera_imaging], aliases: [大疆, 디제이아이]}
+  - {key: insta360, name: Insta360, name_ko: 인스타360, region: cn, themes: [display_av__camera_imaging], aliases: [arashivision]}
+  - {key: gopro, name: GoPro, name_ko: 고프로, region: us, themes: [display_av__camera_imaging]}
+  - {key: dolby, name: Dolby, name_ko: 돌비, region: us, relation: partner, themes: [display_av__audio_acoustics, display_av__codec_streaming, display_av__picture_processing], aliases: [dolbylaboratories, dolbyatmos, 돌비애트모스, dolbyvision, 돌비비전]}
+  - {key: sonos, name: Sonos, name_ko: 소노스, region: us, relation: competitor, themes: [display_av__audio_acoustics]}
+  - {key: bose, name: Bose, name_ko: 보스, region: us, relation: competitor, themes: [display_av__audio_acoustics]}
+  - {key: sennheiser, name: Sennheiser, name_ko: 젠하이저, region: eu, themes: [display_av__audio_acoustics]}
+  - {key: cirruslogic, name: Cirrus Logic, name_ko: 시러스로직, region: us, relation: supplier, themes: [display_av__audio_acoustics]}
+  - {key: netflix, name: Netflix, name_ko: 넷플릭스, region: us, relation: partner, themes: [display_av__codec_streaming, platform_sw__app_ecosystem], domains: [netflixtechblog.com, netflix.com]}
+  - {key: aomedia, name: Alliance for Open Media, name_ko: AOMedia, kind: standards_body, region: us, themes: [display_av__codec_streaming], aliases: [allianceforopenmedia]}
+  - {key: atsc, name: ATSC, name_ko: ATSC, kind: standards_body, region: us, themes: [display_av__codec_streaming]}
+  - {key: spotify, name: Spotify, name_ko: 스포티파이, region: eu, themes: [display_av__codec_streaming, platform_sw__app_ecosystem], domains: [atspotify.com, spotify.com]}
+  - {key: akamai, name: Akamai, name_ko: 아카마이, region: us, themes: [display_av__codec_streaming, cloud_data__edge_cloud]}
+  - {key: xreal, name: XREAL, name_ko: 엑스리얼, kind: startup, region: cn, relation: competitor, themes: [display_av__xr_spatial], aliases: [nreal, 엔리얼]}
+  - {key: rokid, name: Rokid, name_ko: 로키드, kind: startup, region: cn, themes: [display_av__xr_spatial]}
+  - {key: snapinc, name: Snap Inc, name_ko: 스냅Inc, region: us, relation: competitor, themes: [display_av__xr_spatial], aliases: [snapchat, 스냅챗, snapspectacles]}
+  - {key: essilorluxottica, name: EssilorLuxottica, name_ko: 에실로룩소티카, region: eu, relation: partner, themes: [display_av__xr_spatial], aliases: [luxottica, 룩소티카, rayban, 레이밴]}
+  - {key: vuzix, name: Vuzix, name_ko: 뷰직스, region: us, themes: [display_av__xr_spatial]}
+  - {key: magicleap, name: Magic Leap, name_ko: 매직리프, region: us, themes: [display_av__xr_spatial]}
+  - {key: varjo, name: Varjo, name_ko: 바르요, kind: startup, region: eu, themes: [display_av__xr_spatial]}
+
+  # ── connectivity · 무선·네트워크 ──
+  - {key: 3gpp, name: 3GPP, name_ko: 3GPP, kind: standards_body, region: other, themes: [connectivity__cellular_5g_6g, connectivity__satellite_ntn], domains: [3gpp.org]}
+  - {key: gsma, name: GSMA, name_ko: GSMA, kind: standards_body, region: eu, themes: [connectivity__cellular_5g_6g]}
+  - {key: oranalliance, name: O-RAN Alliance, name_ko: O-RAN 얼라이언스, kind: standards_body, region: other, themes: [connectivity__ran_core], aliases: [oran]}
+  - {key: etsi, name: ETSI, name_ko: ETSI, kind: standards_body, region: eu, themes: [connectivity__cellular_5g_6g, security__device_security]}
+  - {key: ieee, name: IEEE, name_ko: IEEE, kind: standards_body, region: us, themes: [connectivity__short_range_wireless]}
+  - {key: ericsson, name: Ericsson, name_ko: 에릭슨, region: eu, relation: competitor, themes: [connectivity__ran_core, connectivity__cellular_5g_6g, connectivity__network_ops], domains: [ericsson.com], aliases: [爱立信, エリクソン]}
+  - {key: nokia, name: Nokia, name_ko: 노키아, region: eu, relation: competitor, themes: [connectivity__ran_core, connectivity__cellular_5g_6g, connectivity__network_ops], domains: [nokia.com], aliases: [诺基亚, nokiabelllabs]}
+  - {key: zte, name: ZTE, name_ko: ZTE, region: cn, relation: competitor, themes: [connectivity__ran_core, connectivity__cellular_5g_6g], aliases: [中兴, 중싱]}
+  - {key: mavenir, name: Mavenir, name_ko: 매버니어, region: us, themes: [connectivity__ran_core]}
+  - {key: cisco, name: Cisco, name_ko: 시스코, region: us, themes: [connectivity__network_ops, security__app_cloud_security], domains: [cisco.com], aliases: [ciscosystems, 思科]}
+  - {key: juniper, name: Juniper Networks, name_ko: 주니퍼, region: us, themes: [connectivity__network_ops], aliases: [junipernetworks]}
+  - {key: hpe, name: Hewlett Packard Enterprise, name_ko: HPE, region: us, themes: [connectivity__network_ops, cloud_data__ai_datacenter], aliases: [hewlettpackardenterprise, aruba, arubanetworks]}
+  - {key: arista, name: Arista Networks, name_ko: 아리스타, region: us, themes: [connectivity__network_ops, cloud_data__ai_datacenter], aliases: [aristanetworks]}
+  - {key: verizon, name: Verizon, name_ko: 버라이즌, region: us, relation: partner, themes: [connectivity__cellular_5g_6g, cloud_data__edge_cloud], domains: [verizon.com]}
+  - {key: att, name: AT&T, name_ko: AT&T, region: us, relation: partner, themes: [connectivity__cellular_5g_6g], aliases: [at&t, 에이티앤티]}
+  - {key: tmobile, name: T-Mobile, name_ko: T모바일, region: us, relation: partner, themes: [connectivity__cellular_5g_6g, connectivity__satellite_ntn], aliases: [tmobileus, 티모바일]}
+  - {key: nttdocomo, name: NTT DOCOMO, name_ko: NTT도코모, region: jp, relation: partner, themes: [connectivity__cellular_5g_6g], aliases: [docomo, 도코모, ドコモ]}
+  - {key: ntt, name: NTT, name_ko: NTT, region: jp, themes: [connectivity__network_ops, frontier__neuromorphic_photonic], aliases: [nttgroup, 日本電信電話, nttdata, ntt데이터, iown]}
+  - {key: kddi, name: KDDI, name_ko: KDDI, region: jp, relation: partner, themes: [connectivity__cellular_5g_6g]}
+  - {key: softbank, name: SoftBank, name_ko: 소프트뱅크, region: jp, themes: [connectivity__cellular_5g_6g, cloud_data__ai_datacenter], domains: [softbank.jp], aliases: [ソフトバンク, 软银, softbankgroup, 소프트뱅크그룹]}
+  - {key: rakuten, name: Rakuten, name_ko: 라쿠텐, region: jp, themes: [connectivity__ran_core, connectivity__cellular_5g_6g], aliases: [楽天, rakutenmobile, 라쿠텐모바일, rakutensymphony]}
+  - {key: chinamobile, name: China Mobile, name_ko: 차이나모바일, region: cn, themes: [connectivity__cellular_5g_6g], aliases: [中国移动]}
+  - {key: wifialliance, name: Wi-Fi Alliance, name_ko: 와이파이 얼라이언스, kind: standards_body, region: us, themes: [connectivity__short_range_wireless]}
+  - {key: bluetoothsig, name: Bluetooth SIG, name_ko: 블루투스 SIG, kind: standards_body, region: us, themes: [connectivity__short_range_wireless]}
+  - {key: firaconsortium, name: FiRa Consortium, name_ko: FiRa 컨소시엄, kind: standards_body, region: us, themes: [connectivity__short_range_wireless], aliases: [fira]}
+  - {key: nfcforum, name: NFC Forum, name_ko: NFC 포럼, kind: standards_body, region: us, themes: [connectivity__short_range_wireless]}
+  - {key: nordicsemiconductor, name: Nordic Semiconductor, name_ko: 노르딕세미컨덕터, region: eu, themes: [connectivity__short_range_wireless, connectivity__smart_home_iot], aliases: [nordic]}
+  - {key: realtek, name: Realtek, name_ko: 리얼텍, region: tw, themes: [connectivity__short_range_wireless], aliases: [瑞昱]}
+  - {key: siliconlabs, name: Silicon Labs, name_ko: 실리콘랩스, region: us, themes: [connectivity__smart_home_iot, connectivity__short_range_wireless], aliases: [siliconlaboratories]}
+  - {key: espressif, name: Espressif, name_ko: 에스프레시프, region: cn, themes: [connectivity__smart_home_iot], domains: [espressif.com], aliases: [esp32, 乐鑫]}
+  - {key: spacex, name: SpaceX, name_ko: 스페이스X, region: us, themes: [connectivity__satellite_ntn], aliases: [starlink, 스타링크, 스페이스엑스]}
+  - {key: astspacemobile, name: AST SpaceMobile, name_ko: AST스페이스모바일, region: us, themes: [connectivity__satellite_ntn]}
+  - {key: skylo, name: Skylo, name_ko: 스카일로, kind: startup, region: us, relation: partner, themes: [connectivity__satellite_ntn]}
+  - {key: lynkglobal, name: Lynk Global, name_ko: 링크글로벌, kind: startup, region: us, themes: [connectivity__satellite_ntn], aliases: [lynk]}
+  - {key: iridium, name: Iridium, name_ko: 이리듐, region: us, themes: [connectivity__satellite_ntn]}
+  - {key: globalstar, name: Globalstar, name_ko: 글로벌스타, region: us, themes: [connectivity__satellite_ntn]}
+  - {key: eutelsat, name: Eutelsat OneWeb, name_ko: 유텔샛, region: eu, themes: [connectivity__satellite_ntn], aliases: [oneweb, 원웹]}
+  - {key: viasat, name: Viasat, name_ko: 비아샛, region: us, themes: [connectivity__satellite_ntn]}
+  - {key: csa, name: Connectivity Standards Alliance, name_ko: CSA, kind: standards_body, region: us, themes: [connectivity__smart_home_iot], aliases: [connectivitystandardsalliance, csaiot]}
+  - {key: amazon, name: Amazon, name_ko: 아마존, region: us, relation: competitor, themes: [cloud_data__cloud_platforms, connectivity__smart_home_iot, connectivity__satellite_ntn, manufacturing__logistics_automation, cloud_data__edge_cloud], domains: [aboutamazon.com, amazon.com, amazon.science], aliases: [aws, amazonwebservices, 아마존웹서비스, alexa, 알렉사, kuiper, projectkuiper, 카이퍼, kindle, 킨들, zoox, 죽스, amazonrobotics, 아마존로보틱스]}
+  - {key: tuya, name: Tuya, name_ko: 투야, region: cn, themes: [connectivity__smart_home_iot], aliases: [涂鸦, tuyasmart]}
+  - {key: signify, name: Signify, name_ko: 시그니파이, region: eu, themes: [connectivity__smart_home_iot], domains: [signify.com], aliases: [philipshue, 필립스휴]}
+  - {key: ikea, name: IKEA, name_ko: 이케아, region: eu, themes: [connectivity__smart_home_iot]}
+  - {key: nabucasa, name: Nabu Casa (Home Assistant), name_ko: 나부카사, kind: startup, region: us, themes: [connectivity__smart_home_iot], aliases: [homeassistant, 홈어시스턴트]}
+  - {key: aqara, name: Aqara, name_ko: 아카라, region: cn, themes: [connectivity__smart_home_iot], aliases: [lumiunited]}
+
+  # ── platform_sw · 플랫폼·소프트웨어 ──
+  - {key: github, name: GitHub, name_ko: 깃허브, region: us, themes: [platform_sw__developer_tools, ai__ai_coding, security__software_supply_chain], domains: [github.blog, github.com], aliases: [githubcopilot, 깃허브코파일럿]}
+  - {key: jetbrains, name: JetBrains, name_ko: 젯브레인즈, region: eu, themes: [platform_sw__developer_tools, ai__ai_coding], domains: [blog.jetbrains.com, jetbrains.com]}
+  - {key: gitlab, name: GitLab, name_ko: 깃랩, region: us, themes: [platform_sw__developer_tools, security__software_supply_chain]}
+  - {key: vercel, name: Vercel, name_ko: 버셀, kind: startup, region: us, themes: [platform_sw__web_cross_platform, platform_sw__developer_tools]}
+  - {key: dockerinc, name: Docker Inc, name_ko: 도커Inc, region: us, themes: [platform_sw__developer_tools, cloud_data__infra_ops]}
+  - {key: atlassian, name: Atlassian, name_ko: 아틀라시안, region: other, themes: [platform_sw__developer_tools]}
+  - {key: unity, name: Unity, name_ko: 유니티, region: us, themes: [platform_sw__developer_tools, robotics_mobility__sensing_digital_twin], domains: [unity.com], aliases: [unitytechnologies]}
+  - {key: epicgames, name: Epic Games, name_ko: 에픽게임즈, region: us, themes: [platform_sw__app_ecosystem, platform_sw__developer_tools], aliases: [unrealengine, 언리얼엔진]}
+  - {key: qtgroup, name: Qt Group, name_ko: Qt그룹, region: eu, themes: [platform_sw__developer_tools, robotics_mobility__sdv_cockpit], domains: [qt.io], aliases: [qtcompany]}
+  - {key: mozilla, name: Mozilla, name_ko: 모질라, kind: institute, region: us, themes: [platform_sw__web_cross_platform, security__privacy_crypto], domains: [mozilla.org], aliases: [firefox, 파이어폭스, mozillafoundation]}
+  - {key: w3c, name: W3C, name_ko: W3C, kind: standards_body, region: other, themes: [platform_sw__web_cross_platform, platform_sw__ux_accessibility], aliases: [worldwidewebconsortium]}
+  - {key: linuxfoundation, name: Linux Foundation, name_ko: 리눅스재단, kind: standards_body, region: us, themes: [platform_sw__device_os, platform_sw__developer_tools], aliases: [리눅스파운데이션]}
+  - {key: openjsfoundation, name: OpenJS Foundation, name_ko: OpenJS 재단, kind: standards_body, region: us, themes: [platform_sw__web_cross_platform], aliases: [openjs]}
+  - {key: canonical, name: Canonical, name_ko: 캐노니컬, region: eu, themes: [platform_sw__device_os]}
+  - {key: redhat, name: Red Hat, name_ko: 레드햇, region: us, themes: [cloud_data__infra_ops, platform_sw__device_os], aliases: [레드헷]}
+  - {key: ibm, name: IBM, name_ko: IBM, region: us, themes: [frontier__quantum, cloud_data__cloud_platforms, frontier__neuromorphic_photonic], domains: [ibm.com], aliases: [ibmresearch, ibm리서치, hashicorp, 해시코프]}
+  - {key: figma, name: Figma, name_ko: 피그마, region: us, themes: [platform_sw__ux_accessibility]}
+  - {key: vivarepublica, name: Viva Republica (Toss), name_ko: 비바리퍼블리카, region: kr, themes: [platform_sw__app_ecosystem], domains: [toss.tech, toss.im], aliases: [toss, 토스]}
+  - {key: coupang, name: Coupang, name_ko: 쿠팡, region: kr, themes: [platform_sw__app_ecosystem, manufacturing__logistics_automation]}
+  - {key: woowabrothers, name: Woowa Brothers, name_ko: 우아한형제들, region: kr, themes: [platform_sw__app_ecosystem], domains: [woowahan.com], aliases: [배달의민족, 배민, baemin]}
+  - {key: lycorp, name: LY Corporation, name_ko: LY코퍼레이션, region: jp, themes: [platform_sw__app_ecosystem], domains: [lycorp.co.jp], aliases: [lyコーポレーション, line야후, lineyahoo, 라인야후]}
+  - {key: nhn, name: NHN, name_ko: NHN, region: kr, themes: [cloud_data__cloud_platforms, platform_sw__app_ecosystem], domains: [nhncloud.com], aliases: [nhncloud, nhn클라우드]}
+  - {key: lgcns, name: LG CNS, name_ko: LG CNS, region: kr, themes: [cloud_data__cloud_platforms, manufacturing__smart_factory], domains: [lgcns.com], aliases: [엘지씨엔에스]}
+  - {key: skax, name: SK AX, name_ko: SK AX, region: kr, themes: [cloud_data__cloud_platforms], domains: [skax.co.kr], aliases: [skcc, sk주식회사ax, skc&c]}
+  - {key: mercari, name: Mercari, name_ko: 메루카리, region: jp, themes: [platform_sw__app_ecosystem], domains: [mercari.com], aliases: [メルカリ]}
+  - {key: stripe, name: Stripe, name_ko: 스트라이프, region: us, themes: [platform_sw__app_ecosystem]}
+  - {key: paypal, name: PayPal, name_ko: 페이팔, region: us, themes: [platform_sw__app_ecosystem]}
+
+  # ── cloud_data · 클라우드·데이터센터 ──
+  - {key: oracle, name: Oracle, name_ko: 오라클, region: us, themes: [cloud_data__cloud_platforms, cloud_data__ai_datacenter, health_tech__health_data_interop], aliases: [oci, oraclecloud, 오라클클라우드, oraclehealth, cerner, 서너]}
+  - {key: coreweave, name: CoreWeave, name_ko: 코어위브, region: us, themes: [cloud_data__ai_datacenter]}
+  - {key: nebius, name: Nebius, name_ko: 네비우스, region: eu, themes: [cloud_data__ai_datacenter]}
+  - {key: lambdalabs, name: Lambda (GPU cloud), name_ko: 람다랩스, kind: startup, region: us, themes: [cloud_data__ai_datacenter], aliases: [lambdalabs]}
+  - {key: crusoe, name: Crusoe, name_ko: 크루소, kind: startup, region: us, themes: [cloud_data__ai_datacenter]}
+  - {key: supermicro, name: Supermicro, name_ko: 슈퍼마이크로, region: us, themes: [cloud_data__ai_datacenter], aliases: [supermicrocomputer]}
+  - {key: dell, name: Dell Technologies, name_ko: 델테크놀로지스, region: us, themes: [cloud_data__ai_datacenter], aliases: [delltechnologies, 델테크놀로지스]}
+  - {key: vertiv, name: Vertiv, name_ko: 버티브, region: us, themes: [cloud_data__ai_datacenter]}
+  - {key: schneiderelectric, name: Schneider Electric, name_ko: 슈나이더일렉트릭, region: eu, themes: [cloud_data__ai_datacenter, energy__home_energy, manufacturing__smart_factory], aliases: [schneider, 슈나이더]}
+  - {key: equinix, name: Equinix, name_ko: 에퀴닉스, region: us, themes: [cloud_data__ai_datacenter]}
+  - {key: cloudflare, name: Cloudflare, name_ko: 클라우드플레어, region: us, themes: [cloud_data__edge_cloud, security__app_cloud_security], domains: [cloudflare.com, blog.cloudflare.com]}
+  - {key: fastly, name: Fastly, name_ko: 패스틀리, region: us, themes: [cloud_data__edge_cloud]}
+  - {key: databricks, name: Databricks, name_ko: 데이터브릭스, region: us, themes: [cloud_data__data_ml_platform]}
+  - {key: snowflake, name: Snowflake, name_ko: 스노우플레이크, region: us, themes: [cloud_data__data_ml_platform]}
+  - {key: datadog, name: Datadog, name_ko: 데이터독, region: us, themes: [cloud_data__infra_ops]}
+  - {key: confluent, name: Confluent, name_ko: 컨플루언트, region: us, themes: [cloud_data__data_ml_platform]}
+  - {key: mongodb, name: MongoDB, name_ko: 몽고DB, region: us, themes: [cloud_data__data_ml_platform]}
+  - {key: palantir, name: Palantir, name_ko: 팔란티어, region: us, themes: [cloud_data__data_ml_platform]}
+  - {key: weightsandbiases, name: Weights & Biases, name_ko: 웨이츠앤바이어시스, kind: startup, region: us, themes: [cloud_data__data_ml_platform], aliases: [wandb, weights&biases]}
+  - {key: grafanalabs, name: Grafana Labs, name_ko: 그라파나랩스, region: us, themes: [cloud_data__infra_ops], aliases: [grafana]}
+  - {key: cncf, name: CNCF, name_ko: CNCF, kind: standards_body, region: us, themes: [cloud_data__infra_ops], aliases: [cloudnativecomputingfoundation]}
+  - {key: dropbox, name: Dropbox, name_ko: 드롭박스, region: us, themes: [cloud_data__infra_ops], domains: [dropbox.tech, dropbox.com]}
+
+  # ── security · 보안·신뢰 ──
+  - {key: crowdstrike, name: CrowdStrike, name_ko: 크라우드스트라이크, region: us, themes: [security__app_cloud_security]}
+  - {key: paloaltonetworks, name: Palo Alto Networks, name_ko: 팔로알토네트웍스, region: us, themes: [security__app_cloud_security, security__ai_security_provenance], aliases: [paloalto, 팔로알토, unit42, protectai]}
+  - {key: wiz, name: Wiz, name_ko: 위즈, region: us, themes: [security__app_cloud_security]}
+  - {key: zscaler, name: Zscaler, name_ko: 지스케일러, region: us, themes: [security__app_cloud_security]}
+  - {key: fortinet, name: Fortinet, name_ko: 포티넷, region: us, themes: [security__app_cloud_security]}
+  - {key: checkpoint, name: Check Point, name_ko: 체크포인트, region: other, themes: [security__app_cloud_security], aliases: [checkpointsoftware]}
+  - {key: sentinelone, name: SentinelOne, name_ko: 센티넬원, region: us, themes: [security__app_cloud_security]}
+  - {key: trendmicro, name: Trend Micro, name_ko: 트렌드마이크로, region: jp, themes: [security__app_cloud_security]}
+  - {key: kaspersky, name: Kaspersky, name_ko: 카스퍼스키, region: other, themes: [security__app_cloud_security]}
+  - {key: sophos, name: Sophos, name_ko: 소포스, region: eu, themes: [security__app_cloud_security]}
+  - {key: ahnlab, name: AhnLab, name_ko: 안랩, region: kr, themes: [security__app_cloud_security], aliases: [안철수연구소]}
+  - {key: skshieldus, name: SK shieldus, name_ko: SK쉴더스, region: kr, themes: [security__app_cloud_security], aliases: [sk쉴더스, 에스케이쉴더스]}
+  - {key: okta, name: Okta, name_ko: 옥타, region: us, themes: [security__identity_auth], aliases: [auth0]}
+  - {key: fidoalliance, name: FIDO Alliance, name_ko: FIDO 얼라이언스, kind: standards_body, region: us, themes: [security__identity_auth], aliases: [fido, 파이도얼라이언스]}
+  - {key: yubico, name: Yubico, name_ko: 유비코, region: eu, themes: [security__identity_auth], aliases: [yubikey, 유비키]}
+  - {key: raonsecure, name: RaonSecure, name_ko: 라온시큐어, region: kr, themes: [security__identity_auth]}
+  - {key: cyberark, name: CyberArk, name_ko: 사이버아크, region: other, themes: [security__identity_auth]}
+  - {key: thales, name: Thales, name_ko: 탈레스, region: eu, themes: [security__device_security, security__identity_auth], aliases: [thalesgroup]}
+  - {key: rambus, name: Rambus, name_ko: 램버스, region: us, themes: [security__device_security, semis__memory_storage]}
+  - {key: pqshield, name: PQShield, name_ko: PQ실드, kind: startup, region: eu, themes: [security__privacy_crypto], domains: [pqshield.com]}
+  - {key: sandboxaq, name: SandboxAQ, name_ko: 샌드박스AQ, kind: startup, region: us, themes: [security__privacy_crypto, frontier__quantum]}
+  - {key: zama, name: Zama, name_ko: 자마, kind: startup, region: eu, themes: [security__privacy_crypto]}
+  - {key: cryptolab, name: CryptoLab, name_ko: 크립토랩, kind: startup, region: kr, themes: [security__privacy_crypto]}
+  - {key: proton, name: Proton, name_ko: 프로톤, region: eu, themes: [security__privacy_crypto], aliases: [protonmail, 프로톤메일, protonvpn]}
+  - {key: signalfoundation, name: Signal Foundation, name_ko: 시그널재단, kind: institute, region: us, themes: [security__privacy_crypto], aliases: [signalmessenger, 시그널메신저]}
+  - {key: c2pa, name: C2PA, name_ko: C2PA, kind: standards_body, region: us, themes: [security__ai_security_provenance], aliases: [contentauthenticityinitiative, 콘텐츠자격증명]}
+  - {key: truepic, name: Truepic, name_ko: 트루픽, kind: startup, region: us, themes: [security__ai_security_provenance]}
+  - {key: digimarc, name: Digimarc, name_ko: 디지마크, region: us, themes: [security__ai_security_provenance]}
+  - {key: hiddenlayer, name: HiddenLayer, name_ko: 히든레이어, kind: startup, region: us, themes: [security__ai_security_provenance]}
+  - {key: lakera, name: Lakera, name_ko: 라케라, kind: startup, region: eu, themes: [security__ai_security_provenance]}
+  - {key: openssf, name: OpenSSF, name_ko: OpenSSF, kind: standards_body, region: us, themes: [security__software_supply_chain], aliases: [opensourcesecurityfoundation]}
+  - {key: snyk, name: Snyk, name_ko: 스닉, region: us, themes: [security__software_supply_chain]}
+  - {key: sonatype, name: Sonatype, name_ko: 소나타입, region: us, themes: [security__software_supply_chain]}
+  - {key: chainguard, name: Chainguard, name_ko: 체인가드, kind: startup, region: us, themes: [security__software_supply_chain]}
+  - {key: jfrog, name: JFrog, name_ko: 제이프로그, region: other, themes: [security__software_supply_chain]}
+  - {key: socketdev, name: Socket.dev, name_ko: 소켓데브, kind: startup, region: us, themes: [security__software_supply_chain], aliases: [socketdev, socket.dev]}
+  - {key: mitre, name: MITRE, name_ko: MITRE, kind: institute, region: us, themes: [security__software_supply_chain], aliases: [mitrecorporation, mitreattack]}
+  - {key: cisa, name: CISA, name_ko: CISA, kind: regulator, region: us, themes: [security__software_supply_chain, security__app_cloud_security], aliases: [미국사이버보안인프라보안국]}
+  - {key: nist, name: NIST, name_ko: NIST, kind: regulator, region: us, themes: [security__privacy_crypto, ai__ai_safety_eval], aliases: [미국국립표준기술연구소, 미국표준기술연구소]}
+  - {key: enisa, name: ENISA, name_ko: ENISA, kind: regulator, region: eu, themes: [security__app_cloud_security, security__privacy_crypto], aliases: [유럽연합사이버보안청]}
+  - {key: kisa, name: KISA, name_ko: 한국인터넷진흥원, kind: regulator, region: kr, themes: [security__app_cloud_security, security__privacy_crypto], aliases: [인터넷진흥원]}
+  - {key: pipc, name: Personal Information Protection Commission, name_ko: 개인정보보호위원회, kind: regulator, region: kr, themes: [security__privacy_crypto], aliases: [개인정보위, 개보위]}
+  - {key: ukico, name: UK Information Commissioner's Office, name_ko: 영국 정보위원회, kind: regulator, region: eu, themes: [security__privacy_crypto], aliases: [informationcommissionersoffice, 영국정보위원회, 영국ico]}
+
+  # ── robotics_mobility · 로보틱스·모빌리티 ──
+  - {key: irobot, name: iRobot, name_ko: 아이로봇, region: us, relation: competitor, themes: [robotics_mobility__home_service_robot], aliases: [roomba, 룸바]}
+  - {key: roborock, name: Roborock, name_ko: 로보락, region: cn, relation: competitor, themes: [robotics_mobility__home_service_robot], aliases: [石头科技]}
+  - {key: ecovacs, name: Ecovacs, name_ko: 에코백스, region: cn, relation: competitor, themes: [robotics_mobility__home_service_robot], aliases: [科沃斯]}
+  - {key: dreame, name: Dreame, name_ko: 드리미, region: cn, relation: competitor, themes: [robotics_mobility__home_service_robot], aliases: [追觅, dreametech]}
+  - {key: narwal, name: Narwal, name_ko: 나르왈, region: cn, relation: competitor, themes: [robotics_mobility__home_service_robot], aliases: [云鲸]}
+  - {key: sharkninja, name: SharkNinja, name_ko: 샤크닌자, region: us, relation: competitor, themes: [robotics_mobility__home_service_robot]}
+  - {key: bearrobotics, name: Bear Robotics, name_ko: 베어로보틱스, kind: startup, region: us, themes: [robotics_mobility__home_service_robot]}
+  - {key: pudurobotics, name: Pudu Robotics, name_ko: 푸두로보틱스, region: cn, themes: [robotics_mobility__home_service_robot], aliases: [pudu, 普渡]}
+  - {key: keenon, name: Keenon Robotics, name_ko: 키논로보틱스, region: cn, themes: [robotics_mobility__home_service_robot], aliases: [擎朗]}
+  - {key: tesla, name: Tesla, name_ko: 테슬라, region: us, themes: [robotics_mobility__autonomous_driving, robotics_mobility__humanoid_embodied, energy__battery_charging, energy__home_energy], domains: [tesla.com], aliases: [optimus, 옵티머스, fsd, powerwall, 파워월]}
+  - {key: figureai, name: Figure AI, name_ko: 피규어AI, kind: startup, region: us, themes: [robotics_mobility__humanoid_embodied]}
+  - {key: agilityrobotics, name: Agility Robotics, name_ko: 어질리티로보틱스, kind: startup, region: us, themes: [robotics_mobility__humanoid_embodied]}
+  - {key: bostondynamics, name: Boston Dynamics, name_ko: 보스턴다이내믹스, region: us, themes: [robotics_mobility__humanoid_embodied, manufacturing__factory_robotics], domains: [bostondynamics.com]}
+  - {key: unitree, name: Unitree, name_ko: 유니트리, region: cn, themes: [robotics_mobility__humanoid_embodied], aliases: [宇树, unitreerobotics]}
+  - {key: 1xtechnologies, name: 1X Technologies, name_ko: 1X테크놀로지스, kind: startup, region: eu, themes: [robotics_mobility__humanoid_embodied]}
+  - {key: apptronik, name: Apptronik, name_ko: 앱트로닉, kind: startup, region: us, themes: [robotics_mobility__humanoid_embodied]}
+  - {key: ubtech, name: UBTECH, name_ko: 유비테크, region: cn, themes: [robotics_mobility__humanoid_embodied], aliases: [优必选]}
+  - {key: agibot, name: AgiBot, name_ko: 애지봇, kind: startup, region: cn, themes: [robotics_mobility__humanoid_embodied], aliases: [智元, 智元机器人, zhiyuan]}
+  - {key: fourierintelligence, name: Fourier Intelligence, name_ko: 푸리에인텔리전스, kind: startup, region: cn, themes: [robotics_mobility__humanoid_embodied, health_tech__aging_care], aliases: [傅利叶]}
+  - {key: physicalintelligence, name: Physical Intelligence, name_ko: 피지컬인텔리전스, kind: startup, region: us, themes: [robotics_mobility__humanoid_embodied]}
+  - {key: skildai, name: Skild AI, name_ko: 스킬드AI, kind: startup, region: us, themes: [robotics_mobility__humanoid_embodied], aliases: [skild]}
+  - {key: rainbowrobotics, name: Rainbow Robotics, name_ko: 레인보우로보틱스, region: kr, relation: partner, themes: [robotics_mobility__humanoid_embodied, manufacturing__factory_robotics], aliases: [레인보우로보틱]}
+  - {key: waymo, name: Waymo, name_ko: 웨이모, region: us, themes: [robotics_mobility__autonomous_driving], domains: [waymo.com], aliases: [waymoone, 웨이모원]}
+  - {key: mobileye, name: Mobileye, name_ko: 모빌아이, region: other, themes: [robotics_mobility__autonomous_driving], domains: [mobileye.com]}
+  - {key: ponyai, name: Pony.ai, name_ko: 포니AI, region: cn, themes: [robotics_mobility__autonomous_driving], aliases: [pony.ai, 小马智行]}
+  - {key: weride, name: WeRide, name_ko: 위라이드, region: cn, themes: [robotics_mobility__autonomous_driving], aliases: [文远知行]}
+  - {key: aurorainnovation, name: Aurora Innovation, name_ko: 오로라이노베이션, region: us, themes: [robotics_mobility__autonomous_driving], aliases: [aurorainnovation]}
+  - {key: wayve, name: Wayve, name_ko: 웨이브, kind: startup, region: eu, themes: [robotics_mobility__autonomous_driving]}
+  - {key: momenta, name: Momenta, name_ko: 모멘타, kind: startup, region: cn, themes: [robotics_mobility__autonomous_driving]}
+  - {key: horizonrobotics, name: Horizon Robotics, name_ko: 호라이즌로보틱스, region: cn, themes: [robotics_mobility__autonomous_driving, semis__ap_soc_npu], aliases: [地平线]}
+  - {key: uber, name: Uber, name_ko: 우버, region: us, themes: [robotics_mobility__autonomous_driving]}
+  - {key: gm, name: General Motors, name_ko: GM, region: us, themes: [robotics_mobility__sdv_cockpit, robotics_mobility__autonomous_driving], aliases: [generalmotors, 제너럴모터스, cruise, 크루즈]}
+  - {key: hyundaimotorgroup, name: Hyundai Motor Group, name_ko: 현대자동차그룹, region: kr, relation: partner, themes: [robotics_mobility__sdv_cockpit, robotics_mobility__autonomous_driving], aliases: [hyundai, 현대차, 현대자동차, hyundaimotor, 현대차그룹, kia, 기아, 42dot, 포티투닷, motional, 모셔널]}
+  - {key: toyota, name: Toyota, name_ko: 토요타, region: jp, themes: [robotics_mobility__sdv_cockpit, robotics_mobility__autonomous_driving], domains: [global.toyota, toyota.com], aliases: [도요타, トヨタ, 丰田, wovenbytoyota, 우븐바이토요타, toyotaresearchinstitute]}
+  - {key: honda, name: Honda, name_ko: 혼다, region: jp, themes: [robotics_mobility__sdv_cockpit], domains: [global.honda], aliases: [ホンダ, 本田]}
+  - {key: sonyhondamobility, name: Sony Honda Mobility, name_ko: 소니혼다모빌리티, region: jp, themes: [robotics_mobility__sdv_cockpit], aliases: [afeela, 아필라]}
+  - {key: volkswagen, name: Volkswagen, name_ko: 폭스바겐, region: eu, themes: [robotics_mobility__sdv_cockpit], domains: [volkswagen-newsroom.com], aliases: [vw, volkswagengroup, cariad, 카리아드]}
+  - {key: bmw, name: BMW, name_ko: BMW, region: eu, themes: [robotics_mobility__sdv_cockpit]}
+  - {key: mercedesbenz, name: Mercedes-Benz, name_ko: 메르세데스-벤츠, region: eu, themes: [robotics_mobility__sdv_cockpit], aliases: [mercedes, 벤츠, 메르세데스벤츠]}
+  - {key: byd, name: BYD, name_ko: BYD, region: cn, themes: [robotics_mobility__sdv_cockpit, energy__battery_charging], aliases: [比亚迪, 비야디]}
+  - {key: rivian, name: Rivian, name_ko: 리비안, region: us, themes: [robotics_mobility__sdv_cockpit]}
+  - {key: xpeng, name: XPeng, name_ko: 샤오펑, region: cn, themes: [robotics_mobility__sdv_cockpit, robotics_mobility__humanoid_embodied], aliases: [小鹏, 小鹏汽车]}
+  - {key: continental, name: Continental, name_ko: 콘티넨탈, region: eu, relation: peer, themes: [robotics_mobility__sdv_cockpit, robotics_mobility__sensing_digital_twin], domains: [continental.com], aliases: [continentalag, aumovio]}
+  - {key: aptiv, name: Aptiv, name_ko: 앱티브, region: eu, themes: [robotics_mobility__sdv_cockpit]}
+  - {key: lgmagna, name: LG Magna e-Powertrain, name_ko: LG마그나, region: kr, themes: [robotics_mobility__sdv_cockpit], aliases: [lg마그나이파워트레인]}
+  - {key: siemens, name: Siemens, name_ko: 지멘스, region: eu, themes: [manufacturing__smart_factory, robotics_mobility__sensing_digital_twin], domains: [siemens.com], aliases: [西门子, ジーメンス, siemensdigitalindustries]}
+  - {key: dassaultsystemes, name: Dassault Systèmes, name_ko: 다쏘시스템, region: eu, themes: [robotics_mobility__sensing_digital_twin], aliases: [dassault, 다쏘]}
+  - {key: ptc, name: PTC, name_ko: PTC, region: us, themes: [robotics_mobility__sensing_digital_twin, manufacturing__smart_factory]}
+  - {key: hexagon, name: Hexagon, name_ko: 헥사곤, region: eu, themes: [robotics_mobility__sensing_digital_twin, manufacturing__quality_inspection]}
+  - {key: synopsys, name: Synopsys, name_ko: 시높시스, region: us, themes: [robotics_mobility__sensing_digital_twin, semis__ap_soc_npu], aliases: [ansys, 앤시스]}
+  - {key: hesai, name: Hesai, name_ko: 허사이, region: cn, themes: [robotics_mobility__sensing_digital_twin, robotics_mobility__autonomous_driving], aliases: [禾赛]}
+  - {key: luminar, name: Luminar, name_ko: 루미나, region: us, themes: [robotics_mobility__sensing_digital_twin]}
+  - {key: ouster, name: Ouster, name_ko: 아우스터, region: us, themes: [robotics_mobility__sensing_digital_twin]}
+  - {key: innoviz, name: Innoviz, name_ko: 이노비즈, region: other, themes: [robotics_mobility__sensing_digital_twin]}
+
+  # ── health_tech · 헬스테크 ──
+  - {key: oura, name: Oura, name_ko: 오우라, kind: startup, region: eu, relation: competitor, themes: [health_tech__biosensing], aliases: [ouraring, 오우라링]}
+  - {key: withings, name: Withings, name_ko: 위딩스, region: eu, relation: competitor, themes: [health_tech__biosensing, health_tech__remote_care], domains: [withings.com]}
+  - {key: garmin, name: Garmin, name_ko: 가민, region: us, relation: competitor, themes: [health_tech__biosensing], domains: [garmin.com]}
+  - {key: whoop, name: WHOOP, name_ko: 후프, kind: startup, region: us, relation: competitor, themes: [health_tech__biosensing]}
+  - {key: ultrahuman, name: Ultrahuman, name_ko: 울트라휴먼, kind: startup, region: other, relation: competitor, themes: [health_tech__biosensing]}
+  - {key: dexcom, name: Dexcom, name_ko: 덱스콤, region: us, themes: [health_tech__biosensing], aliases: [stelo]}
+  - {key: abbott, name: Abbott, name_ko: 애보트, region: us, themes: [health_tech__biosensing], aliases: [freestylelibre, 프리스타일리브레]}
+  - {key: masimo, name: Masimo, name_ko: 마시모, region: us, themes: [health_tech__biosensing]}
+  - {key: skylabs, name: Sky Labs, name_ko: 스카이랩스, kind: startup, region: kr, themes: [health_tech__biosensing], aliases: [카트비피, cartbp]}
+  - {key: lunit, name: Lunit, name_ko: 루닛, region: kr, themes: [health_tech__medical_ai_samd]}
+  - {key: vuno, name: VUNO, name_ko: 뷰노, region: kr, themes: [health_tech__medical_ai_samd]}
+  - {key: aidoc, name: Aidoc, name_ko: 에이독, kind: startup, region: other, themes: [health_tech__medical_ai_samd]}
+  - {key: vizai, name: Viz.ai, name_ko: 비즈AI, kind: startup, region: us, themes: [health_tech__medical_ai_samd], aliases: [viz.ai]}
+  - {key: gehealthcare, name: GE HealthCare, name_ko: GE헬스케어, region: us, themes: [health_tech__medical_ai_samd]}
+  - {key: siemenshealthineers, name: Siemens Healthineers, name_ko: 지멘스헬시니어스, region: eu, themes: [health_tech__medical_ai_samd]}
+  - {key: philips, name: Philips, name_ko: 필립스, region: eu, themes: [health_tech__medical_ai_samd, health_tech__remote_care], domains: [philips.com], aliases: [royalphilips, 飞利浦]}
+  - {key: medtronic, name: Medtronic, name_ko: 메드트로닉, region: us, themes: [health_tech__remote_care, health_tech__medical_ai_samd], domains: [medtronic.com]}
+  - {key: tempus, name: Tempus AI, name_ko: 템퍼스, region: us, themes: [health_tech__medical_ai_samd], aliases: [tempusai]}
+  - {key: teladoc, name: Teladoc Health, name_ko: 텔라닥, region: us, themes: [health_tech__remote_care], aliases: [teladochealth]}
+  - {key: doctornow, name: Doctor Now, name_ko: 닥터나우, kind: startup, region: kr, themes: [health_tech__remote_care]}
+  - {key: epicsystems, name: Epic Systems, name_ko: 에픽시스템즈, region: us, themes: [health_tech__health_data_interop], aliases: [epicehr, mychart]}
+  - {key: hl7, name: HL7 International, name_ko: HL7, kind: standards_body, region: us, themes: [health_tech__health_data_interop], aliases: [hl7international]}
+  - {key: onc, name: ONC (ASTP), name_ko: ONC, kind: regulator, region: us, themes: [health_tech__health_data_interop], aliases: [astp, astponc]}
+  - {key: fda, name: FDA, name_ko: 미국 식품의약국, kind: regulator, region: us, themes: [health_tech__medical_ai_samd], aliases: [usfda, 미국fda, 식품의약국]}
+  - {key: mfds, name: MFDS, name_ko: 식품의약품안전처, kind: regulator, region: kr, themes: [health_tech__medical_ai_samd], aliases: [식약처]}
+  - {key: hyodol, name: Hyodol, name_ko: 효돌, kind: startup, region: kr, themes: [health_tech__aging_care]}
+  - {key: intuitionrobotics, name: Intuition Robotics, name_ko: 인튜이션로보틱스, kind: startup, region: other, themes: [health_tech__aging_care], aliases: [elliq]}
+
+  # ── energy · 에너지·지속가능성 ──
+  - {key: catl, name: CATL, name_ko: CATL, region: cn, relation: competitor, themes: [energy__battery_charging], aliases: [宁德时代, 닝더스다이]}
+  - {key: lgenergysolution, name: LG Energy Solution, name_ko: LG에너지솔루션, region: kr, relation: competitor, themes: [energy__battery_charging], aliases: [lges, lg엔솔, 엘지에너지솔루션]}
+  - {key: skon, name: SK On, name_ko: SK온, region: kr, relation: competitor, themes: [energy__battery_charging], aliases: [sk온]}
+  - {key: panasonic, name: Panasonic, name_ko: 파나소닉, region: jp, relation: competitor, themes: [energy__battery_charging, display_av__picture_processing], domains: [panasonic.com, news.panasonic.com], aliases: [パナソニック, 松下, panasonicenergy]}
+  - {key: atl, name: ATL (Amperex Technology), name_ko: ATL, region: cn, relation: supplier, themes: [energy__battery_charging], aliases: [amperextechnology, 新能源科技]}
+  - {key: quantumscape, name: QuantumScape, name_ko: 퀀텀스케이프, region: us, themes: [energy__battery_charging]}
+  - {key: solidpower, name: Solid Power, name_ko: 솔리드파워, region: us, themes: [energy__battery_charging]}
+  - {key: factorialenergy, name: Factorial Energy, name_ko: 팩토리얼에너지, kind: startup, region: us, themes: [energy__battery_charging]}
+  - {key: anker, name: Anker, name_ko: 앤커, region: cn, themes: [energy__battery_charging], aliases: [ankerinnovations, 安克]}
+  - {key: wirelesspowerconsortium, name: Wireless Power Consortium, name_ko: WPC, kind: standards_body, region: us, themes: [energy__battery_charging], aliases: [wpc]}
+  - {key: usbif, name: USB-IF, name_ko: USB-IF, kind: standards_body, region: us, themes: [energy__battery_charging], aliases: [usbimplementersforum]}
+  - {key: enphase, name: Enphase Energy, name_ko: 엔페이즈, region: us, themes: [energy__home_energy], aliases: [enphaseenergy]}
+  - {key: solaredge, name: SolarEdge, name_ko: 솔라엣지, region: other, themes: [energy__home_energy]}
+  - {key: generac, name: Generac, name_ko: 제네락, region: us, themes: [energy__home_energy], aliases: [ecobee, 에코비]}
+  - {key: spanio, name: SPAN (home energy), name_ko: 스팬에너지, kind: startup, region: us, themes: [energy__home_energy]}
+  - {key: powerintegrations, name: Power Integrations, name_ko: 파워인테그레이션스, region: us, themes: [energy__power_efficiency]}
+  - {key: ifixit, name: iFixit, name_ko: 아이픽스잇, region: us, themes: [energy__circular_materials]}
+  - {key: fairphone, name: Fairphone, name_ko: 페어폰, kind: startup, region: eu, themes: [energy__circular_materials]}
+  - {key: backmarket, name: Back Market, name_ko: 백마켓, kind: startup, region: eu, themes: [energy__circular_materials]}
+  - {key: redwoodmaterials, name: Redwood Materials, name_ko: 레드우드머티리얼즈, kind: startup, region: us, themes: [energy__circular_materials, energy__battery_charging]}
+  - {key: umicore, name: Umicore, name_ko: 유미코어, region: eu, themes: [energy__circular_materials]}
+  - {key: frameworkcomputer, name: Framework Computer, name_ko: 프레임워크, kind: startup, region: us, themes: [energy__circular_materials], aliases: [frameworklaptop]}
+
+  # ── manufacturing · 제조 기술 ──
+  - {key: rockwellautomation, name: Rockwell Automation, name_ko: 로크웰오토메이션, region: us, themes: [manufacturing__smart_factory], aliases: [rockwell]}
+  - {key: abb, name: ABB, name_ko: ABB, region: eu, themes: [manufacturing__factory_robotics, manufacturing__smart_factory]}
+  - {key: fanuc, name: FANUC, name_ko: 화낙, region: jp, themes: [manufacturing__factory_robotics], aliases: [ファナック, 파낙]}
+  - {key: yaskawa, name: Yaskawa, name_ko: 야스카와, region: jp, themes: [manufacturing__factory_robotics], aliases: [安川電機, yaskawaelectric]}
+  - {key: kuka, name: KUKA, name_ko: 쿠카, region: eu, themes: [manufacturing__factory_robotics]}
+  - {key: universalrobots, name: Universal Robots, name_ko: 유니버설로봇, region: eu, themes: [manufacturing__factory_robotics], aliases: [teradyne, 테라다인]}
+  - {key: doosanrobotics, name: Doosan Robotics, name_ko: 두산로보틱스, region: kr, themes: [manufacturing__factory_robotics]}
+  - {key: hdhyundairobotics, name: HD Hyundai Robotics, name_ko: HD현대로보틱스, region: kr, themes: [manufacturing__factory_robotics], aliases: [현대로보틱스]}
+  - {key: mitsubishielectric, name: Mitsubishi Electric, name_ko: 미쓰비시전기, region: jp, themes: [manufacturing__smart_factory], aliases: [三菱電機, 미쓰비시일렉트릭]}
+  - {key: honeywell, name: Honeywell, name_ko: 하니웰, region: us, themes: [manufacturing__smart_factory]}
+  - {key: foxconn, name: Foxconn, name_ko: 폭스콘, region: tw, relation: supplier, themes: [manufacturing__smart_factory, cloud_data__ai_datacenter], aliases: [honhai, 홍하이, 鸿海, 鴻海]}
+  - {key: lselectric, name: LS ELECTRIC, name_ko: LS일렉트릭, region: kr, themes: [manufacturing__smart_factory]}
+  - {key: makinarocks, name: MakinaRocks, name_ko: 마키나락스, kind: startup, region: kr, themes: [manufacturing__smart_factory]}
+  - {key: cognex, name: Cognex, name_ko: 코그넥스, region: us, themes: [manufacturing__quality_inspection]}
+  - {key: keyence, name: Keyence, name_ko: 키엔스, region: jp, themes: [manufacturing__quality_inspection], aliases: [キーエンス]}
+  - {key: landingai, name: Landing AI, name_ko: 랜딩AI, kind: startup, region: us, themes: [manufacturing__quality_inspection]}
+  - {key: kla, name: KLA, name_ko: KLA, region: us, themes: [manufacturing__quality_inspection], aliases: [klatencor]}
+  - {key: kohyoung, name: Koh Young, name_ko: 고영테크놀러지, region: kr, themes: [manufacturing__quality_inspection], aliases: [고영]}
+  - {key: zeiss, name: ZEISS, name_ko: 자이스, region: eu, themes: [manufacturing__quality_inspection], aliases: [carlzeiss, 칼자이스]}
+  - {key: symbotic, name: Symbotic, name_ko: 심보틱, region: us, themes: [manufacturing__logistics_automation]}
+  - {key: ocado, name: Ocado, name_ko: 오카도, region: eu, themes: [manufacturing__logistics_automation]}
+  - {key: autostore, name: AutoStore, name_ko: 오토스토어, region: eu, themes: [manufacturing__logistics_automation]}
+  - {key: geekplus, name: Geek+, name_ko: 긱플러스, region: cn, themes: [manufacturing__logistics_automation], aliases: [geek+, 极智嘉]}
+  - {key: locusrobotics, name: Locus Robotics, name_ko: 로커스로보틱스, kind: startup, region: us, themes: [manufacturing__logistics_automation]}
+  - {key: dexterityai, name: Dexterity AI, name_ko: 덱스테리티AI, kind: startup, region: us, themes: [manufacturing__logistics_automation]}
+  - {key: zebratechnologies, name: Zebra Technologies, name_ko: 지브라테크놀로지스, region: us, themes: [manufacturing__logistics_automation]}
+
+  # ── frontier · 미래 기술 ──
+  - {key: ionq, name: IonQ, name_ko: 아이온큐, region: us, themes: [frontier__quantum]}
+  - {key: quantinuum, name: Quantinuum, name_ko: 퀀티뉴엄, region: us, themes: [frontier__quantum]}
+  - {key: rigetti, name: Rigetti, name_ko: 리게티, region: us, themes: [frontier__quantum], aliases: [rigetticomputing]}
+  - {key: dwave, name: D-Wave, name_ko: 디웨이브, region: other, themes: [frontier__quantum], aliases: [dwavequantum]}
+  - {key: psiquantum, name: PsiQuantum, name_ko: 사이퀀텀, kind: startup, region: us, themes: [frontier__quantum]}
+  - {key: xanadu, name: Xanadu, name_ko: 자나두, kind: startup, region: other, themes: [frontier__quantum]}
+  - {key: pasqal, name: Pasqal, name_ko: 파스칼, kind: startup, region: eu, themes: [frontier__quantum]}
+  - {key: quera, name: QuEra, name_ko: 큐에라, kind: startup, region: us, themes: [frontier__quantum], aliases: [queracomputing]}
+  - {key: atomcomputing, name: Atom Computing, name_ko: 아톰컴퓨팅, kind: startup, region: us, themes: [frontier__quantum]}
+  - {key: aliceandbob, name: Alice & Bob, name_ko: 앨리스앤밥, kind: startup, region: eu, themes: [frontier__quantum], aliases: [alice&bob]}
+  - {key: brainchip, name: BrainChip, name_ko: 브레인칩, region: other, themes: [frontier__neuromorphic_photonic], aliases: [akida]}
+  - {key: lightmatter, name: Lightmatter, name_ko: 라이트매터, kind: startup, region: us, themes: [frontier__neuromorphic_photonic]}
+  - {key: ayarlabs, name: Ayar Labs, name_ko: 아야르랩스, kind: startup, region: us, themes: [frontier__neuromorphic_photonic, semis__packaging_chiplet]}
+  - {key: celestialai, name: Celestial AI, name_ko: 셀레스티얼AI, kind: startup, region: us, themes: [frontier__neuromorphic_photonic]}
+  - {key: innatera, name: Innatera, name_ko: 이나테라, kind: startup, region: eu, themes: [frontier__neuromorphic_photonic]}
+  - {key: prophesee, name: Prophesee, name_ko: 프로페시, kind: startup, region: eu, themes: [frontier__neuromorphic_photonic, semis__sensor_chips]}
+  - {key: synsense, name: SynSense, name_ko: 신센스, kind: startup, region: cn, themes: [frontier__neuromorphic_photonic]}
+  - {key: basf, name: BASF, name_ko: BASF, region: eu, themes: [frontier__advanced_materials]}
+  - {key: dupont, name: DuPont, name_ko: 듀폰, region: us, themes: [frontier__advanced_materials]}
+  - {key: toray, name: Toray, name_ko: 도레이, region: jp, themes: [frontier__advanced_materials], aliases: [東レ]}
+  - {key: lgchem, name: LG Chem, name_ko: LG화학, region: kr, themes: [frontier__advanced_materials, energy__battery_charging], aliases: [lg화학, 엘지화학]}
+  - {key: poscofuturem, name: POSCO Future M, name_ko: 포스코퓨처엠, region: kr, themes: [frontier__advanced_materials, energy__battery_charging]}
+  - {key: appliedmaterials, name: Applied Materials, name_ko: 어플라이드머티어리얼즈, region: us, themes: [frontier__advanced_materials, semis__packaging_chiplet], aliases: [amat]}
+  - {key: neuralink, name: Neuralink, name_ko: 뉴럴링크, kind: startup, region: us, themes: [frontier__neurotech_bci]}
+  - {key: synchron, name: Synchron, name_ko: 싱크론, kind: startup, region: us, themes: [frontier__neurotech_bci]}
+  - {key: precisionneuroscience, name: Precision Neuroscience, name_ko: 프리시전뉴로사이언스, kind: startup, region: us, themes: [frontier__neurotech_bci]}
+  - {key: blackrockneurotech, name: Blackrock Neurotech, name_ko: 블랙록뉴로텍, kind: startup, region: us, themes: [frontier__neurotech_bci]}
+  - {key: paradromics, name: Paradromics, name_ko: 패러드로믹스, kind: startup, region: us, themes: [frontier__neurotech_bci]}
+  - {key: neurable, name: Neurable, name_ko: 뉴러블, kind: startup, region: us, themes: [frontier__neurotech_bci]}
+
+  - {key: robocare, name: Robocare, name_ko: 로보케어, kind: startup, region: kr, themes: [health_tech__aging_care, robotics_mobility__home_service_robot]}
+  - {key: wonderfulplatform, name: Wonderful Platform, name_ko: 원더풀플랫폼, kind: startup, region: kr, themes: [health_tech__aging_care], aliases: [다솜이, dasomi]}
+  - {key: labradorsystems, name: Labrador Systems, name_ko: 래브라도시스템즈, kind: startup, region: us, themes: [health_tech__aging_care, robotics_mobility__home_service_robot]}
+  - {key: bemyeyes, name: Be My Eyes, name_ko: 비마이아이즈, kind: startup, region: eu, themes: [platform_sw__ux_accessibility]}
+  - {key: zededa, name: ZEDEDA, name_ko: 제데다, kind: startup, region: us, themes: [cloud_data__edge_cloud]}
+  - {key: intersystems, name: InterSystems, name_ko: 인터시스템즈, region: us, themes: [health_tech__health_data_interop]}
+  - {key: epc, name: Efficient Power Conversion, name_ko: EPC, region: us, themes: [energy__power_efficiency, semis__power_rf_semis], aliases: [epcgan, efficientpowerconversion]}
+  - {key: ambiq, name: Ambiq, name_ko: 앰비크, region: us, themes: [energy__power_efficiency, ai__on_device_ai], aliases: [ambiqmicro]}
+  - {key: biofourmis, name: Biofourmis, name_ko: 바이오포미스, kind: startup, region: us, themes: [health_tech__remote_care]}
+  # ── research institutes, regulators, IP offices that often lead reports ──
+  - {key: itri, name: ITRI, name_ko: 대만공업기술연구원, kind: institute, region: tw, themes: [semis__packaging_chiplet, manufacturing__smart_factory], aliases: [공업기술연구원, 대만itri, 대만연구기관, 대만기술연구, 대만연구소, industrialtechnologyresearchinstitute, 工研院]}
+  - {key: imec, name: imec, name_ko: imec, kind: institute, region: eu, themes: [semis__packaging_chiplet, semis__ap_soc_npu], aliases: [아이멕]}
+  - {key: cealeti, name: CEA-Leti, name_ko: CEA-Leti, kind: institute, region: eu, themes: [semis__packaging_chiplet], aliases: [leti]}
+  - {key: astar, name: A*STAR, name_ko: A*STAR, kind: institute, region: other, themes: [semis__packaging_chiplet], aliases: [a*star, 싱가포르과학기술연구청]}
+  - {key: etri, name: ETRI, name_ko: 한국전자통신연구원, kind: institute, region: kr, themes: [connectivity__cellular_5g_6g, ai__foundation_models], aliases: [전자통신연구원]}
+  - {key: kaist, name: KAIST, name_ko: KAIST, kind: institute, region: kr, themes: [ai__foundation_models], aliases: [카이스트, 한국과학기술원]}
+  - {key: uspto, name: USPTO, name_ko: 미국 특허상표청, kind: regulator, region: us, themes: [], aliases: [미국특허청, 미국특허상표청]}
+  - {key: epo, name: European Patent Office, name_ko: 유럽특허청, kind: regulator, region: eu, themes: [], aliases: [europeanpatentoffice]}
+  - {key: kipo, name: KIPO, name_ko: 특허청, kind: regulator, region: kr, themes: [], aliases: [한국특허청, 지식재산처]}
+  - {key: msit, name: MSIT, name_ko: 과학기술정보통신부, kind: regulator, region: kr, themes: [], aliases: [과기정통부, 과기부]}
+  - {key: ntia, name: NTIA, name_ko: NTIA, kind: regulator, region: us, themes: [connectivity__cellular_5g_6g]}
+  - {key: fcc, name: FCC, name_ko: 미국 연방통신위원회, kind: regulator, region: us, themes: [connectivity__cellular_5g_6g, connectivity__satellite_ntn], aliases: [연방통신위원회, 미국fcc]}
+  - {key: firstnet, name: FirstNet Authority, name_ko: FirstNet, kind: regulator, region: us, themes: [connectivity__cellular_5g_6g], aliases: [firstnetauthority]}
+  - {key: europeancommission, name: European Commission, name_ko: EU 집행위원회, kind: regulator, region: eu, themes: [], aliases: [eu집행위원회, 유럽연합집행위원회, 집행위원회, eucommission]}
+  - {key: imda, name: IMDA, name_ko: 싱가포르 정보통신미디어개발청, kind: regulator, region: other, themes: [ai__ai_safety_eval], aliases: [infocommmediadevelopmentauthority]}
+  - {key: moda, name: Taiwan Ministry of Digital Affairs, name_ko: 대만 디지털발전부, kind: regulator, region: tw, themes: [], aliases: [대만디지털발전부, 대만디지털산업서, 디지털산업서, 數位發展部, 数位发展部]}
+  - {key: csis, name: CSIS, name_ko: CSIS, kind: institute, region: us, themes: [], aliases: [전략국제문제연구소]}
+  - {key: trendforce, name: TrendForce, name_ko: 트렌드포스, kind: institute, region: tw, themes: [semis__memory_storage, display_av__display_panel], aliases: [集邦咨询]}
+  - {key: counterpoint, name: Counterpoint Research, name_ko: 카운터포인트리서치, kind: institute, region: other, themes: [platform_sw__device_os], aliases: [counterpointresearch, 카운터포인트]}
+  - {key: idc, name: IDC, name_ko: IDC, kind: institute, region: us, themes: [], aliases: [internationaldatacorporation]}
+  - {key: gartner, name: Gartner, name_ko: 가트너, kind: institute, region: us, themes: []}

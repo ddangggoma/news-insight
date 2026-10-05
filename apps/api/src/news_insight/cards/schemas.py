@@ -17,6 +17,7 @@ MAX_SUMMARY_LINES = 3
 MAX_KEYWORDS = 5
 MAX_THEMES = 2
 MAX_TOPIC_CANDIDATES = 2
+MAX_COMPANIES = 5
 
 
 class CardInput(BaseModel):
@@ -55,6 +56,18 @@ class Classification(BaseModel):
     relevance: int | None = None
     # free phrases for topics the theme list does not cover well (checklist CLS-1)
     topic_candidates: list[str] = Field(default_factory=list)
+    # companies and organisations the item is about (plan 12); matched to the registry in SQL
+    companies: list[str] = Field(default_factory=list)
+
+    @field_validator("companies")
+    @classmethod
+    def _companies(cls, value: list[str]) -> list[str]:
+        seen: list[str] = []
+        for name in value:
+            name = " ".join(name.split()).lstrip("#")[:80]
+            if name and name.casefold() not in {s.casefold() for s in seen}:
+                seen.append(name)
+        return seen[:MAX_COMPANIES]
 
     @field_validator("topic_candidates")
     @classmethod
@@ -116,6 +129,7 @@ CLASSIFICATION_PROPERTIES: dict[str, Any] = {
     "scope": {"type": "string", "enum": sorted(SCOPE_KEYS)},
     "relevance": {"type": "integer", "minimum": 0, "maximum": 100},
     "topic_candidates": {"type": "array", "items": {"type": "string"}},
+    "companies": {"type": "array", "items": {"type": "string"}},
 }
 
 
@@ -164,6 +178,9 @@ CLASSIFICATION_RULES = [
     "  relevance: DX 기술 전략 담당자에게 유용한 정도 0~100.",
     "  topic_candidates: 테마 목록이 이 기사의 핵심 기술을 잘 담지 못할 때만 그 기술·주제를",
     "    짧은 한국어 명사구로 0~2개(예: '위성 직접통신', '액체냉각'). 잘 맞으면 빈 배열.",
+    "  companies: 기사의 주체이거나 직접 대상인 기업·기관 0~5개, 공식 표기",
+    "    (예: Samsung Electronics, TSMC, 현대자동차, Figure AI).",
+    "    발행 매체·단순 비교 대상·인물은 넣지 않는다. 없으면 빈 배열.",
 ]
 
 CARD_INSTRUCTIONS = "\n".join(
