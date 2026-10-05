@@ -122,3 +122,28 @@ P9 완료 기준은 7일 연속 05:00 발행 성공(또는 Fail-safe 정상 동�
 - **개발 트리에서 compose를 띄우지 않습니다.** 두 트리가 같은 compose 프로젝트(`news-insight`)를 쓰지만 바인드 마운트 경로가 트리마다 달라, 다른 트리에서 `compose up`을 하면 실행 중인 컨테이너가 새로 만들어집니다. 2026-10-05 개발 트리의 `verify`(db 단계)가 운영 postgres를 다시 만들려다 Docker가 멈추지 못해 DB가 약 10분, 그 전 배포에서 약 20분 내려갔습니다. 이제 `scripts/dev.sh`의 `db`는 postgres·redis가 건강하면 건드리지 않고, `up`·`down`·`db`는 다른 트리가 띄운 스택이면 거부합니다(`FORCE=1`로만 넘김).
 - 앱 컨테이너(migrate·api·worker·scheduler·web)는 `init: true`(tini)로 돕니다. 이전에는 PID 1(uvicorn·celery)이 헬스체크 프로세스를 거두지 못해 좀비가 쌓였고, Docker가 컨테이너를 멈추거나 바꾸지 못해 배포가 세 번 멈췄습니다(2026-10-05).
 - 그래도 멈추면: `docker ps -a | grep news-insight`로 이름 앞에 해시가 붙은 반쯤 만든 컨테이너를 `docker rm`, 좀비가 된 컨테이너는 `docker rm -f` 뒤 운영 트리에서 `docker compose up -d --no-deps <서비스>`. 데이터는 볼륨에 있어 안전합니다.
+
+## 12. 로그와 점검 체계 (2026-10-05)
+
+**어디에 남나**
+
+| 출처 | 위치 | 형식 | 보관 |
+|---|---|---|---|
+| api·worker·scheduler | `docker logs news-insight-<서비스>-1` | 한 줄 JSON(`ts`, `level`, `service`, `logger`, `msg`, 요청이면 `request_id`·`path`·`status`·`ms`, 예외면 `exc`) | 컨테이너마다 20MB × 5개 |
+| web·caddy·postgres·redis | `docker logs …` | 각자 형식(caddy는 JSON) | 20MB × 5개 |
+| 호스트 작업(카드·다이제스트·백업) | `ops/logs/{cards,digest,backup}.log` | JSON 줄 + 요약 한 줄 | 20MB 넘으면 `.1`~`.3`으로 돌림 |
+
+- 2026-10-05 정비: uvicorn·celery가 따로 찍던 평문 트레이스백을 JSON 핸들러로 모음, 처리되지 않은 API 예외를 `unhandled error`(경로 포함)로 기록, scheduler가 `service: worker`로 찍히던 것 수정, CLI 실패를 rich 상자 대신 JSON 한 줄(`command failed`)로, 컨테이너 로그 무제한 → 상한.
+
+**분석 (호스트에서, 읽기 전용)**
+
+```bash
+scripts/dev.sh logs-report   # 지난 24시간: 서비스별 오류·경고, 오류 시그니처 상위, API 경로별 상태·p50/p95, Celery 작업 실패, 카드 실행
+scripts/dev.sh audit         # 수집·중복·카드/번역·분류·이슈 묶기·DB·컨테이너 점검과 심각도별 발견 사항
+```
+
+- 결과는 `ops/reports/`에 Markdown으로 남습니다. 기간·행 수는 `news-insight ops logs --hours 6 --top 40`처럼 직접 줄 수 있습니다.
+- 오류 시그니처: 숫자·ID·UUID·링크·따옴표 값을 지운 첫 줄. 같은 고장은 한 줄로 묶이고 횟수·처음·마지막 시각이 붙습니다. Postgres 제약 이름처럼 짧은 이름은 남깁니다.
+- 고친 뒤에는 같은 명령을 다시 돌려 숫자가 줄었는지 봅니다.
+- 한계: postgres 로그에는 데이터베이스 이름이 없어 테스트·점검 DB(`news_insight_test`, `_check`)의 오류도 섞입니다(`log_line_prefix`에 `%d` 추가 권장). 느린 쿼리 원인은 `pg_stat_statements`가 없어 추적하지 못합니다.
+

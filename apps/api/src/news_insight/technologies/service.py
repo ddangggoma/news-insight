@@ -80,23 +80,35 @@ def refresh_labels(session: Session, *, now: datetime, days: int = 180) -> int:
     return len(spellings)
 
 
+LABEL_CHUNK = 10_000
+
+
 def labels_for(session: Session, keys: Iterable[str]) -> dict[str, str]:
     """Display labels: registry label, else the most common spelling, else the key."""
     wanted = list(dict.fromkeys(keys))
     if not wanted:
         return {}
-    labels = dict(
-        session.execute(
-            select(KeywordLabel.key, KeywordLabel.label).where(KeywordLabel.key.in_(wanted))
+    labels: dict[str, str] = {}
+    # chunked: a busy week has tens of thousands of keyword keys, past PostgreSQL's 65,535 bind
+    # parameters per statement (2026-10-05: /api/public/insights answered 500)
+    for start in range(0, len(wanted), LABEL_CHUNK):
+        chunk = wanted[start : start + LABEL_CHUNK]
+        labels.update(
+            session.execute(
+                select(KeywordLabel.key, KeywordLabel.label).where(KeywordLabel.key.in_(chunk))
+            )
+            .tuples()
+            .all()
         )
-        .tuples()
-        .all()
-    )
-    labels.update(
-        session.execute(select(Technology.key, Technology.label).where(Technology.key.in_(wanted)))
-        .tuples()
-        .all()
-    )
+    for start in range(0, len(wanted), LABEL_CHUNK):
+        chunk = wanted[start : start + LABEL_CHUNK]
+        labels.update(
+            session.execute(
+                select(Technology.key, Technology.label).where(Technology.key.in_(chunk))
+            )
+            .tuples()
+            .all()
+        )
     return {key: labels.get(key, key) for key in wanted}
 
 
