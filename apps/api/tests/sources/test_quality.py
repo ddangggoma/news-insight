@@ -77,9 +77,10 @@ def test_low_relevance_pauses_and_high_relevance_promotes(db_session: Session) -
     assert lossy.validation_stage is ValidationStage.V4  # translation 80% < 95%
 
 
-def test_full_track_keeps_sources_at_v5_and_dry_run_changes_nothing(
+def test_a_track_past_its_goal_still_promotes_and_dry_run_changes_nothing(
     db_session: Session, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    # track targets are minimum goals, never caps (user decision 2026-10-05)
     monkeypatch.setitem(portfolio.TRACK_TARGETS, Track.NEWS, 0)
     best = source_with(db_session, "best", ["dx"] * 25)
     preview = run_quality(db_session, now=NOW, apply=False)
@@ -87,8 +88,8 @@ def test_full_track_keeps_sources_at_v5_and_dry_run_changes_nothing(
 
     run = run_quality(db_session, now=NOW)
 
-    assert run.track_full == ["best"]
-    assert best.validation_stage is ValidationStage.V5 and best.status is SourceStatus.CANDIDATE
+    assert run.track_full == [] and run.promoted_v6 == ["best"]
+    assert best.validation_stage is ValidationStage.V6 and best.status is SourceStatus.ACTIVE
 
 
 def test_console_lists_source_quality(db_session: Session) -> None:

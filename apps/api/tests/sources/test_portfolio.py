@@ -54,12 +54,14 @@ def test_empty_report_has_zero_shares() -> None:
     assert build_report([]).region_share(Region.KR) == 0.0
 
 
-def test_quota_blocks_full_track() -> None:
-    active = [(Track.OSS, Region.GLOBAL_EN)] * 25
+def test_track_targets_are_goals_not_caps() -> None:
+    # user decision 2026-10-05: promote every source that passes, report the goal
+    active = [(Track.OSS, Region.GLOBAL_EN)] * 30
 
     result = check_quota(active, track=Track.OSS, region=Region.GLOBAL_EN)
 
-    assert result.reasons == ["track 'oss' is full (25/25)"]
+    assert result.passed
+    assert (result.metrics["track_goal"], result.metrics["track_below_goal"]) == (25, False)
 
 
 def test_region_capacity_is_reported_but_does_not_block() -> None:
@@ -78,6 +80,8 @@ def test_quota_passes_with_room() -> None:
     assert result.passed
     assert result.metrics == {
         "track_active": 0,
+        "track_goal": 100,
+        "track_below_goal": True,
         "region_active": 0,
         "region_capacity": 65,
         "region_over_capacity": False,
