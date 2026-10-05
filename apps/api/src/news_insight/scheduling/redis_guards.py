@@ -11,7 +11,7 @@ import redis
 
 from news_insight.config import get_settings
 
-_TOKEN_BUCKET = """
+TOKEN_BUCKET = """
 local capacity = tonumber(ARGV[1])
 local refill = tonumber(ARGV[2])
 local now = tonumber(ARGV[3])
@@ -62,7 +62,7 @@ class DomainRateLimiter:
         self._per_minute = per_minute
         self._clock = clock
         self._prefix = prefix
-        self._script = client.register_script(_TOKEN_BUCKET)
+        self._script = client.register_script(TOKEN_BUCKET)
 
     def try_acquire(self, domain: str, *, per_minute: int | None = None) -> bool:
         budget = per_minute or self._per_minute

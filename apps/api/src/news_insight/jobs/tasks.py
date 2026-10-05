@@ -12,6 +12,7 @@ from news_insight.content.retention import downsample_snapshots, purge_expired_b
 from news_insight.db import session_scope
 from news_insight.jobs.celery_app import celery_app
 from news_insight.net.safe_fetch import SafeFetcher
+from news_insight.scheduling.providers import ProviderGate
 from news_insight.scheduling.redis_guards import DomainRateLimiter, SourceLock, get_redis
 from news_insight.sources.autovalidate import auto_validate
 from news_insight.sources.canary import run_canaries
@@ -46,6 +47,7 @@ def collect_source_task(source_id: int) -> str:
                 fetcher=fetcher,
                 limiter=DomainRateLimiter(client, per_minute=settings.domain_rate_per_minute),
                 now=datetime.now(UTC),
+                gate=ProviderGate(client),
             )
             return run.outcome.value
 
@@ -63,7 +65,11 @@ AUTO_VALIDATE_BATCH = 100
 def auto_validate_task() -> dict[str, Any]:
     with SafeFetcher.from_settings(get_settings()) as fetcher:
         stats = auto_validate(
-            session_scope, fetcher=fetcher, now=datetime.now(UTC), limit=AUTO_VALIDATE_BATCH
+            session_scope,
+            fetcher=fetcher,
+            now=datetime.now(UTC),
+            limit=AUTO_VALIDATE_BATCH,
+            gate=ProviderGate(get_redis()),
         )
     return asdict(stats)
 
