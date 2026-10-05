@@ -24,6 +24,9 @@ x-python-env: &python-env
 
 x-python-image: &python-image
   image: news-insight-api:${IMAGE_TAG:-local}
+  # tini as PID 1: reaps healthcheck processes and forwards SIGTERM. Without it Docker could not
+  # stop or replace these containers (zombie PIDs, hung deploys on 2026-10-05)
+  init: true
   build:
     context: ./apps/api
   environment: *python-env
@@ -74,6 +77,7 @@ services:
 
   web:
     image: news-insight-web:${IMAGE_TAG:-local}
+    init: true
     build:
       context: ./apps/web
     environment:
