@@ -119,6 +119,10 @@ services:
       - shared_buffers=512MB
       - -c
       - log_line_prefix=%m [%p] %d
+      # radar aggregates over jsonb_array_elements get huge cost estimates, so JIT compiled
+      # them: 2.3 s of compiling for 50 ms of work (2026-10-05); the corpus never needs JIT
+      - -c
+      - jit=off
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-news_insight}
       POSTGRES_USER: ${POSTGRES_USER:-news}
