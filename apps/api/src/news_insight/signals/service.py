@@ -7,11 +7,13 @@ evidence, and the published briefing lists them with links to the radar.
 
 from datetime import date, datetime
 from typing import Any
+from urllib.parse import quote
 
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from news_insight.public import radar as radar_queries
+from news_insight.public.companies import COMPANY_TONES, company_radar
 from news_insight.public.filters import ReaderFilters
 from news_insight.public.periods import calendar_window, current_key
 from news_insight.public.signals import TONES
@@ -30,6 +32,10 @@ TONE_LABEL = {
     "gap": "국내 공백",
     "link": "융합 신호",
     "cool": "관심 감소",
+    "company_surge": "기업 급부상",
+    "company_shift": "기업 활동 전환",
+    "theme_entry": "기업 새 테마 진입",
+    "new_entrant": "신흥 업체",
 }
 PERIOD = "week"
 
@@ -42,7 +48,8 @@ def snapshot(session: Session, *, day: date, now: datetime) -> list[RadarSignalS
     rows: list[RadarSignalSnapshot] = []
     for window in (current, current.previous()):
         body = radar_queries.radar(session, filters, window, current.key, now)
-        for signal in body.signals:
+        companies = company_radar(session, filters, window, current.key, now)
+        for signal in [*body.signals, *companies.signals]:
             rows.append(
                 RadarSignalSnapshot(
                     snapshot_date=day,
@@ -68,7 +75,7 @@ def for_day(session: Session, day: date) -> list[RadarSignalSnapshot]:
     rows = list(
         session.scalars(select(RadarSignalSnapshot).where(RadarSignalSnapshot.snapshot_date == day))
     )
-    order = {tone: i for i, tone in enumerate(TONES)}
+    order = {tone: i for i, tone in enumerate((*TONES, *COMPANY_TONES))}
     rows.sort(key=lambda r: (not r.is_current, order.get(r.tone, 99)))
     seen: set[tuple[str, str]] = set()
     picked = []
@@ -89,6 +96,8 @@ def ensure(session: Session, *, day: date, now: datetime) -> list[RadarSignalSna
 
 
 def radar_path(row: RadarSignalSnapshot) -> str:
+    if row.focus_kind == "search":  # a company name the registry does not know yet
+        return f"/?q={quote(row.focus_key)}"
     return f"/radar/{row.period}/{row.window_key}?focus={row.focus_kind}:{row.focus_key}"
 
 

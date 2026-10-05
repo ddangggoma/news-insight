@@ -18,7 +18,7 @@ from news_insight.console.queries import latest_metrics
 from news_insight.content.models import Item
 from news_insight.digest.models import Digest
 from news_insight.digest.schemas import DigestContent, DigestItemRef, Insight
-from news_insight.public.feed import _reader_item
+from news_insight.public.feed import _reader_item, company_refs
 from news_insight.public.schemas import ReaderItem
 from news_insight.signals import service as radar_signals
 from news_insight.sources.models import Source
@@ -124,8 +124,9 @@ def _items(session: Session, item_ids: list[int]) -> dict[int, ReaderItem]:
         ).tuples()
     )
     metrics = latest_metrics(session, [item.id for item, *_ in rows])
+    names = company_refs(session, [card for _, _, card, _ in rows])
     return {
-        item.id: _reader_item(item, source, card, story, metrics.get(item.id, {}))
+        item.id: _reader_item(item, source, card, story, metrics.get(item.id, {}), names)
         for item, source, card, story in rows
     }
 

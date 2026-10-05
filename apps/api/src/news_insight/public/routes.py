@@ -14,6 +14,7 @@ from news_insight.digest.models import Digest
 from news_insight.digest.schemas import DigestSummary
 from news_insight.public import aggregates, radar_cache
 from news_insight.public import briefings as briefing_queries
+from news_insight.public import companies as company_queries
 from news_insight.public import feed as feed_queries
 from news_insight.public import radar as radar_queries
 from news_insight.public.auth import require_public_key
@@ -26,6 +27,7 @@ from news_insight.public.periods import (
     rolling_window,
 )
 from news_insight.public.schemas import (
+    CompanyRadar,
     FeedPage,
     Insights,
     PublicDigest,
@@ -74,6 +76,7 @@ def reader_filters(
     impact: Values = None,
     track: Values = None,
     region: Values = None,
+    company: Values = None,
 ) -> ReaderFilters:
     try:
         return ReaderFilters.build(
@@ -85,6 +88,7 @@ def reader_filters(
             impact=impact,
             track=track,
             region=region,
+            company=company,
         )
     except FilterError as error:
         raise _unprocessable(error) from error
@@ -175,6 +179,24 @@ def get_radar(
     )
 
 
+@router.get("/radar/companies", response_model=CompanyRadar)
+def get_radar_companies(
+    session: DB, filters: Filters, window: RadarPeriod, now: Now, cache: RadarCache
+) -> Response:
+    """Company radar (plan 12): momentum, activity shifts, theme leaders, entrants, pairs."""
+    body, hit = radar_cache.cached_json(
+        radar_cache.view_key("companies", window, filters),
+        radar_cache.ttl_for(window, now),
+        lambda: company_queries.company_radar(
+            session, filters, window, current_key(window.kind, now), now
+        ),
+        client=cache,
+    )
+    return Response(
+        body, media_type="application/json", headers={"X-Cache": "hit" if hit else "miss"}
+    )
+
+
 @router.get("/radar/topic", response_model=TopicDetail)
 def get_radar_topic(
     session: DB,
@@ -182,10 +204,10 @@ def get_radar_topic(
     window: RadarPeriod,
     now: Now,
     cache: RadarCache,
-    kind: Literal["field", "theme", "keyword"],
+    kind: Literal["field", "theme", "keyword", "company"],
     value: Annotated[str, Query(min_length=1, max_length=200)],
 ) -> Response:
-    """One field, theme or keyword (normalized key) over the radar window and its filters."""
+    """One field, theme, keyword or company (normalized key) over the radar window and filters."""
     if kind == "field" and value not in FIELD_KEYS:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, f"unknown field '{value}'")
     if kind == "theme" and value not in THEME_KEYS:

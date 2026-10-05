@@ -7,11 +7,13 @@ from sqlalchemy import ColumnElement, func, select
 from sqlalchemy.orm import Session
 
 from news_insight.cards.models import CardStatus, ItemCard
+from news_insight.companies.service import info_for
 from news_insight.console.queries import latest_metrics
 from news_insight.content.models import Item
 from news_insight.public.filters import ReaderFilters, in_current_tree, in_window, joined
 from news_insight.public.periods import Window
 from news_insight.public.schemas import (
+    CompanyRef,
     FeedPage,
     LinkedItem,
     ReaderItem,
@@ -24,8 +26,24 @@ from news_insight.stories.models import ItemRef, Story, StoryItem
 Sort = Literal["recent", "relevance", "coverage"]
 
 
+def company_refs(session: Session, cards: Sequence[ItemCard]) -> dict[str, CompanyRef]:
+    """Registry names of the companies on these cards (one query per page)."""
+    keys = {key for card in cards for key in card.company_keys or []}
+    return {
+        key: CompanyRef(
+            key=key, label=info.name_ko or info.name, relation=info.relation, kind=info.kind
+        )
+        for key, info in info_for(session, keys).items()
+    }
+
+
 def _reader_item(
-    item: Item, source: Source, card: ItemCard, story: Story | None, metrics: dict[str, int]
+    item: Item,
+    source: Source,
+    card: ItemCard,
+    story: Story | None,
+    metrics: dict[str, int],
+    companies: dict[str, CompanyRef] | None = None,
 ) -> ReaderItem:
     return ReaderItem(
         id=item.id,
@@ -54,6 +72,7 @@ def _reader_item(
         )
         if story is not None
         else None,
+        companies=[companies[k] for k in card.company_keys or [] if companies and k in companies],
     )
 
 
@@ -110,9 +129,10 @@ def feed(
         ).tuples()
     )
     metrics = latest_metrics(session, [item.id for item, *_ in rows])
+    names = company_refs(session, [card for _, _, card, _ in rows])
     return FeedPage(
         items=[
-            _reader_item(item, source, card, story, metrics.get(item.id, {}))
+            _reader_item(item, source, card, story, metrics.get(item.id, {}), names)
             for item, source, card, story in rows
         ],
         total=total,
@@ -217,7 +237,7 @@ def item_detail(session: Session, item_id: int) -> ReaderItemDetail | None:
         same_field = [_linked(*linked) for linked in _published(session, same_ids)]
 
     return ReaderItemDetail(
-        item=_reader_item(item, source, card, story, metrics),
+        item=_reader_item(item, source, card, story, metrics, company_refs(session, [card])),
         story_items=story_items,
         signals=signals,
         same_field=same_field,

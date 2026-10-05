@@ -19,15 +19,18 @@ from sqlalchemy import ColumnElement, case, distinct, func, literal, null, selec
 from sqlalchemy.orm import Session
 
 from news_insight.cards.models import ItemCard
+from news_insight.companies.service import info_for
 from news_insight.content.models import Item, ItemMetricSnapshot
 from news_insight.public.aggregates import KEYWORD_MIN_COUNT
 from news_insight.public.feed import feed
 from news_insight.public.filters import ReaderFilters, joined
-from news_insight.public.keywords import keyword_element
+from news_insight.public.keywords import company_element, keyword_element
 from news_insight.public.periods import KST, Window, trailing_windows
 from news_insight.public.schemas import (
     Anomaly,
     Calendar,
+    CompanyProfile,
+    CompanyRef,
     Count,
     EngagedItem,
     Engagement,
@@ -63,7 +66,7 @@ PAIR_POOL = 40
 PAIR_TOP = 24
 RESEARCH = (Track.RESEARCH_IP, Track.OSS)
 IMPACTS = ("opportunity", "risk", "watch")
-KINDS = ("field", "theme", "keyword")
+KINDS = ("field", "theme", "keyword", "company")
 OFFICIAL = "official_vendor"
 # ties between tracks reached at the same moment go research-first
 PIPELINE = (Track.RESEARCH_IP, Track.OSS, Track.COMMUNITY, Track.NEWS)
@@ -130,6 +133,9 @@ def _dimension(dimension: str) -> tuple[Any, Any, Any]:
             func.jsonb_array_elements_text(ItemCard.themes).table_valued("value").lateral("element")
         )
         return join.c.value, join, None
+    if dimension == "company":
+        join = company_element("element")
+        return join.c.value, join, None  # names come from the registry after grouping
     join = keyword_element("element")
     return join.c.value, join, None  # labels are looked up once after grouping
 
@@ -221,6 +227,9 @@ def _series(
     if dimension == "keyword":
         for key_value, label in labels_for(session, result).items():
             result[key_value].label = label
+    if dimension == "company":
+        for key_value, info in info_for(session, result).items():
+            result[key_value].label = info.name_ko or info.name
     return result
 
 
@@ -817,6 +826,8 @@ def topic_condition(kind: str, value: str) -> ColumnElement[bool]:
         return ItemCard.field == value
     if kind == "theme":
         return ItemCard.themes.contains([value])
+    if kind == "company":
+        return ItemCard.company_keys.contains([value])
     return ItemCard.technology_keys.contains([value])
 
 
@@ -883,10 +894,15 @@ def topic_detail(
     related = _series(session, base, [window], "keyword")
     related.pop(value, None)
     keywords = sorted(related.items(), key=lambda kv: (-kv[1].counts[-1], kv[0]))[:12]
+    named = _series(session, base, [window], "company")
+    named.pop(value, None)
+    companies = sorted(named.items(), key=lambda kv: (-kv[1].counts[-1], kv[0]))[:10]
     stories = feed(session, filters, window, sort="coverage", page=1, size=5, extra=[condition])
+    registry = info_for(session) if kind in ("theme", "company") else {}
+    info = registry.get(value) if kind == "company" else None
     return TopicDetail(
         kind=kind,
-        topic=topic,
+        topic=topic.model_copy(update={"label": info.name_ko or info.name}) if info else topic,
         themes=[c for c in _counts(session, current, "theme") if c.key != value][:8],
         keywords=[
             KeywordCount(key=key, label=s.label or key, count=s.counts[-1]) for key, s in keywords
@@ -894,4 +910,23 @@ def topic_detail(
         signal_types=_counts(session, current, "signal"),
         regions=_counts(session, current, "region"),
         stories=stories.items,
+        companies=[
+            KeywordCount(key=key, label=s.label or key, count=s.counts[-1]) for key, s in companies
+        ],
+        major_companies=[
+            CompanyRef(key=c.key, label=c.name_ko or c.name, relation=c.relation, kind=c.kind)
+            for c in sorted(registry.values(), key=lambda c: c.key)
+            if kind == "theme" and value in c.themes
+        ],
+        profile=CompanyProfile(
+            key=info.key,
+            name=info.name,
+            name_ko=info.name_ko,
+            kind=info.kind,
+            region=info.region,
+            relation=info.relation,
+            themes=info.themes,
+        )
+        if info
+        else None,
     )
