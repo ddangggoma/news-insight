@@ -30,6 +30,9 @@ fi
 TAG="$(git rev-parse --short=12 HEAD)"
 log "$PREVIOUS -> $TAG"
 
+# host jobs read .env with uv, which stops at the first line it cannot parse
+scripts/check-env.sh || { log "fix .env first (values with spaces need quotes)"; exit 1; }
+
 # a schema change gets a fresh backup first (the daily one may be a day old)
 if [[ "$PREVIOUS" != "$TAG" ]] && ! git diff --quiet "$PREVIOUS" "$TAG" -- apps/api/migrations/versions; then
   log "new migration: backing up first"

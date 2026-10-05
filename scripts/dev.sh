@@ -65,10 +65,13 @@ rotate()        {
 }
 
 # 05:00 KST (launchd): freeze if Celery has not, shortlist, Claude digest, gates, publish
-digest()        { rotate digest; (cd "$API" && uv run --env-file "$ROOT/.env" news-insight daily publish); }
+# uv stops reading .env at a line it cannot parse: say so in the job log (keys after it vanish)
+env_check()     { "$ROOT/scripts/check-env.sh" || echo "WARNING: .env is not fully readable by uv; keys after the reported line are missing" >&2; }
+digest()        { rotate digest; env_check; (cd "$API" && uv run --env-file "$ROOT/.env" news-insight daily publish); }
 # Host-side: agy is logged in here, and LM Studio is reached on localhost (not host.docker.internal).
 cards()         {
   rotate cards
+  env_check
   (cd "$API" && LM_STUDIO_URL=http://127.0.0.1:1234 uv run --env-file "$ROOT/.env" news-insight cards run)
   # CLU-1: merge stories told in other words or languages (bge-m3 + judge); never fails the card run
   (cd "$API" && LM_STUDIO_URL=http://127.0.0.1:1234 uv run --env-file "$ROOT/.env" news-insight stories semantic) \
