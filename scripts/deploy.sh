@@ -36,9 +36,14 @@ log "building images (the running stack keeps serving)"
 timeout 900 docker compose build
 
 log "replacing ${APP[*]}"
+# a removed container takes its log with it: keep it for `news-insight ops logs` (7 days)
+ARCHIVE="$ROOT/ops/logs/containers"
+mkdir -p "$ARCHIVE"
 for service in "${APP[@]}"; do
+  timeout 60 docker logs --timestamps "news-insight-$service-1" >"$ARCHIVE/$service-$(date +%Y%m%d-%H%M%S).log" 2>&1 || true
   timeout 90 docker rm -f "news-insight-$service-1" >/dev/null 2>&1 || true
 done
+find "$ARCHIVE" -name '*.log' -mtime +7 -delete
 timeout 300 docker compose up -d --no-build --no-deps "${APP[@]}" >/dev/null
 
 for service in api web; do

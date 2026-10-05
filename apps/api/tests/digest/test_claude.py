@@ -64,6 +64,18 @@ def test_runs_tool_less_in_an_empty_directory_and_parses_output() -> None:
         ),
         (FakeRunner(raises=subprocess.TimeoutExpired("claude", 30)), "timed out"),
         (FakeRunner(raises=FileNotFoundError("claude")), "cannot run"),
+        # the CLI's own explanation is kept (2026-10-05: only "claude exited 1:" was logged)
+        (
+            FakeRunner(
+                returncode=1,
+                stdout=json.dumps({**ENVELOPE, "is_error": True, "result": "Not logged in"}),
+            ),
+            "exited 1: Not logged in",
+        ),
+        (
+            FakeRunner(stdout=json.dumps({**ENVELOPE, "is_error": True, "result": "usage limit"})),
+            "reported an error: success: usage limit",
+        ),
     ],
 )
 def test_failures_raise_claude_error(runner: FakeRunner, message: str) -> None:

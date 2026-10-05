@@ -70,6 +70,17 @@ def safe_env(environ: Mapping[str, str]) -> dict[str, str]:
     }
 
 
+def _reason(stdout: str, stderr: str) -> str:
+    """The most specific failure text the CLI left: its JSON result, else stderr, else stdout."""
+    try:
+        envelope = json.loads(stdout)
+    except ValueError:
+        envelope = None
+    if isinstance(envelope, dict) and envelope.get("result"):
+        return str(envelope["result"])[:300]
+    return (stderr.strip() or stdout.strip())[-300:]
+
+
 class ClaudeCli:
     def __init__(
         self, *, executable: str, timeout_seconds: int, runner: Runner = subprocess.run
@@ -122,13 +133,19 @@ class ClaudeCli:
             except OSError as exc:
                 raise ClaudeError(f"cannot run claude: {exc}") from exc
         if completed.returncode != 0:
-            raise ClaudeError(f"claude exited {completed.returncode}: {completed.stderr[-300:]}")
+            # the CLI explains most failures in its JSON result, not on stderr ("Not logged in",
+            # a usage limit): 2026-10-05's 05:00 digest failed with only "claude exited 1:"
+            reason = _reason(completed.stdout, completed.stderr)
+            raise ClaudeError(f"claude exited {completed.returncode}: {reason}")
         try:
             envelope = json.loads(completed.stdout)
         except ValueError as exc:
             raise ClaudeError("claude returned non-JSON output") from exc
         if envelope.get("is_error") or envelope.get("subtype") != "success":
-            raise ClaudeError(f"claude reported an error: {envelope.get('subtype')}")
+            raise ClaudeError(
+                f"claude reported an error: {envelope.get('subtype')}: "
+                f"{str(envelope.get('result') or '')[:200]}"
+            )
         structured = envelope.get("structured_output")
         if not isinstance(structured, dict):
             raise ClaudeError("claude returned no structured output")
