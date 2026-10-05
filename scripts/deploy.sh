@@ -66,8 +66,14 @@ done
 docker compose exec -T web node -e "fetch('http://127.0.0.1:3000/internal/revalidate',{method:'POST',headers:{'x-console-key':process.env.CONSOLE_API_KEY}}).then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))" \
   || log "warning: reader cache revalidation failed"
 
+# Caddy only holds a certificate for PUBLIC_HOST (an IP since 2026-10-05): ask for that name,
+# connected to the local port, so the check needs neither DNS nor hairpin NAT
+HOST="$(sed -n 's/^PUBLIC_HOST=//p' .env 2>/dev/null | tr -d "\"'" | tail -1)"
+HOST="${HOST:-localhost}"
+PORT="${CADDY_HTTPS_PORT:-8700}"
 for path in /radar/week/"$(date +%G-W%V)" /briefings; do
-  code="$(curl -sk -o /dev/null -w '%{http_code}' "https://localhost:${CADDY_HTTPS_PORT:-8700}$path")"
+  code="$(curl -sk -o /dev/null -w '%{http_code}' --connect-to "$HOST:$PORT:127.0.0.1:$PORT" \
+    "https://$HOST:$PORT$path" || true)"
   log "smoke $path -> $code"
   [[ "$code" == 200 ]] || exit 1
 done
