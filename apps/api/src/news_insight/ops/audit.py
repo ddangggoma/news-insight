@@ -504,6 +504,19 @@ def database(session: Session) -> Section:
              and pid <> pg_backend_pid() order by query_start limit 10""",
     )
     section.tables.append(long_running)
+    tracking = _statements_ready(session)
+    if tracking:
+        section.tables.append(
+            _table(
+                session,
+                "총 실행 시간 상위 쿼리 (pg_stat_statements)",
+                """select calls, round(total_exec_time) as total_ms, round(mean_exec_time) as mean_ms,
+                          left(regexp_replace(query, '\\s+', ' ', 'g'), 140) as query
+                   from pg_stat_statements
+                   where dbid = (select oid from pg_database where datname = current_database())
+                   order by total_exec_time desc limit 12""",
+            )
+        )
     section.tables.append(
         Table(
             "요약",
@@ -511,7 +524,10 @@ def database(session: Session) -> Section:
             [
                 ("버퍼 캐시 적중률 %", hit),
                 ("누적 교착(deadlock)", deadlocks),
-                ("pg_stat_statements", "없음 — 느린 쿼리 원인 추적 불가"),
+                (
+                    "pg_stat_statements",
+                    "사용 중" if tracking else "없음 — 느린 쿼리 원인 추적 불가",
+                ),
             ],
         )
     )
@@ -537,15 +553,24 @@ def database(session: Session) -> Section:
                 ", ".join(f"{r[1]}({r[2]})" for r in unused.rows[:5]),
             )
         )
-    section.findings.append(
-        Finding(
-            "low",
-            "DB",
-            "pg_stat_statements 미설치",
-            "느린 API(/facets, /items 4~5초)의 원인 쿼리를 잡으려면 확장과 shared_preload_libraries 설정 필요.",
+    if not tracking:
+        section.findings.append(
+            Finding(
+                "low",
+                "DB",
+                "pg_stat_statements 미사용",
+                "느린 쿼리 원인을 잡으려면 shared_preload_libraries와 확장(마이그레이션 0023)이 필요.",
+            )
         )
-    )
     return section
+
+
+def _statements_ready(session: Session) -> bool:
+    """The extension exists and the server preloads it (the view errors otherwise)."""
+    if not _one(session, "select count(*) from pg_extension where extname = 'pg_stat_statements'"):
+        return False
+    preload = str(_one(session, "show shared_preload_libraries") or "")
+    return "pg_stat_statements" in preload
 
 
 # ── containers (host) ───────────────────────────────────────────────────────────────────────
