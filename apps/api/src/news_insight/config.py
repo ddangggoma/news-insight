@@ -40,8 +40,15 @@ class Settings(BaseSettings):
     card_agy_min_five_hour: int = 2
     card_agy_batch: int = 100
     card_agy_parallel: int = 3
+    # Codex first, then Antigravity, each down to its reserve, then local Qwen (2026-10-05)
+    codex_cli: str = "codex"  # launchd has no nvm on PATH: set CODEX_CLI to the native binary
+    codex_home: str = ""  # default ~/.codex (session files hold the rate-limit snapshot)
+    card_codex_enabled: bool = True
+    card_codex_model: str = ""  # the account's default Codex model
+    card_codex_batch: int = 40
+    card_codex_parallel: int = 2
     card_qwen_batch: int = 5
-    card_qwen_fallback: bool = False  # cards and reclassification on Antigravity only (2026-10-05)
+    card_qwen_fallback: bool = True  # after Codex and Antigravity are down to their reserves
     card_unvalidated_daily_cap: int = 40  # cards per non-active source per 24 hours (2026-10-05)
     card_timeout_seconds: int = 300
     card_time_budget_seconds: int = 540

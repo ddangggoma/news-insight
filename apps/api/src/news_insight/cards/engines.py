@@ -1,6 +1,6 @@
-"""Card engines: Antigravity CLI (Gemini Flash, primary) and local Qwen via LM Studio (fallback).
+"""Card engines: Codex CLI and Antigravity CLI (metered, in that order), local Qwen via LM Studio.
 
-Both run without tools and only see public item metadata plus the stored excerpt (D18).
+All run without tools and only see public item metadata plus the stored excerpt (D18).
 """
 
 import json
@@ -10,6 +10,7 @@ import subprocess
 import tempfile
 from collections.abc import Callable
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Protocol
 
 import httpx
@@ -25,7 +26,15 @@ from news_insight.cards.schemas import (
 from news_insight.digest.claude import safe_env
 
 Runner = Callable[..., subprocess.CompletedProcess[str]]
-QUOTA_MARKERS = ("quota", "rate limit", "rate_limit", "resource_exhausted", "exhausted", "429")
+QUOTA_MARKERS = (
+    "quota",
+    "rate limit",
+    "rate_limit",
+    "usage limit",
+    "resource_exhausted",
+    "exhausted",
+    "429",
+)
 USAGE_LINE = re.compile(r"^Gemini Models\t(Weekly|Five Hour) Limit Remaining\t(\d+)%", re.M)
 
 
@@ -34,7 +43,7 @@ class EngineError(Exception):
 
 
 class QuotaExhausted(EngineError):
-    """Antigravity reported that its usage limit is spent; switch to the fallback."""
+    """A metered engine reported that its usage limit is spent; switch to the next engine."""
 
 
 @dataclass(frozen=True)
@@ -76,9 +85,13 @@ class CardEngine(Protocol):
 
 
 class MeteredEngine(CardEngine, Protocol):
-    """An engine with a usage limit it can report (Antigravity)."""
+    """An engine with a usage limit it can report (Codex, Antigravity)."""
 
     def usage(self) -> Quota: ...
+
+    def ask(self, prompt: str, schema: dict[str, Any]) -> EngineOutput:
+        """One tool-less structured call (story-merge judge, evaluations)."""
+        ...
 
 
 def _payload(inputs: list[CardInput] | list[ClassifyInput]) -> str:
@@ -224,3 +237,221 @@ class QwenEngine:
             return EngineOutput(raw=json.loads(content), model=self._model)
         except (httpx.HTTPError, KeyError, IndexError, TypeError, ValueError) as exc:
             raise EngineError(f"qwen failed: {exc}") from exc
+
+
+# Codex runs with every tool off: article text is untrusted and the cards are public, so the
+# model must not be able to read local files (a read-only sandbox still allows reading).
+CODEX_DISABLED = (
+    "shell_tool",
+    "unified_exec",
+    "apps",
+    "browser_use",
+    "browser_use_external",
+    "computer_use",
+    "in_app_browser",
+    "image_generation",
+    "memories",
+    "plugins",
+    "remote_plugin",
+    "skill_search",
+    "skill_mcp_dependency_install",
+    "hooks",
+    "view_image",
+    "sleep_tool",
+    "code_mode_host",
+    "goals",
+    "tool_suggest",
+)
+
+
+def codex_quota(rollout: str) -> Quota | None:
+    """Remaining percentage from the last rate-limit snapshot in a Codex session file.
+
+    Codex reports the weekly window as `primary` and a short window as `secondary` when the plan
+    has one (a Plus plan had none on 2026-10-05: treated as unlimited)."""
+    found: Quota | None = None
+    for line in rollout.splitlines():
+        if '"rate_limits"' not in line:
+            continue
+        try:
+            event = json.loads(line)
+        except ValueError:
+            continue
+        limits = _find(event, "rate_limits")
+        if not isinstance(limits, dict) or not isinstance(limits.get("primary"), dict):
+            continue
+        secondary = limits.get("secondary")
+        found = Quota(
+            weekly=_remaining(limits["primary"]),
+            five_hour=_remaining(secondary) if isinstance(secondary, dict) else 100,
+        )
+    return found
+
+
+def _remaining(window: dict[str, Any]) -> int | None:
+    used = window.get("used_percent")
+    return max(0, int(100 - float(used))) if isinstance(used, int | float) else None
+
+
+def _find(node: Any, key: str) -> Any:
+    if isinstance(node, dict):
+        if key in node:
+            return node[key]
+        for value in node.values():
+            found = _find(value, key)
+            if found is not None:
+                return found
+    return None
+
+
+class CodexEngine:
+    """`codex exec` with every tool disabled, user config ignored, in an empty directory.
+
+    The session is persisted only long enough to read its rate-limit snapshot (`usage`), then
+    its file is deleted so the user's Codex history does not fill up with card batches."""
+
+    name = "codex"
+
+    def __init__(
+        self,
+        *,
+        executable: str,
+        model: str | None,
+        timeout_seconds: int,
+        sessions_dir: Path,
+        runner: Runner = subprocess.run,
+    ) -> None:
+        self._executable = executable
+        self._model = model
+        self._timeout = timeout_seconds
+        self._sessions = sessions_dir
+        self._runner = runner
+        self._quota: Quota | None = None
+
+    def _command(self, schema_path: Path) -> list[str]:
+        command = [
+            self._executable,
+            "exec",
+            "--json",
+            "--skip-git-repo-check",
+            "--ignore-user-config",
+            "--ignore-rules",
+            "--sandbox",
+            "read-only",
+            "--color",
+            "never",
+            "-c",
+            'web_search="disabled"',
+            "--output-schema",
+            str(schema_path),
+        ]
+        for feature in CODEX_DISABLED:
+            command += ["--disable", feature]
+        if self._model:
+            command += ["--model", self._model]
+        return [*command, "-"]  # the prompt comes on stdin (batches are large)
+
+    def ask(self, prompt: str, schema: dict[str, Any]) -> EngineOutput:
+        with tempfile.TemporaryDirectory(prefix="cards-codex-") as workdir:
+            schema_path = Path(workdir) / "schema.json"
+            schema_path.write_text(json.dumps(_strict(schema)), encoding="utf-8")
+            try:
+                completed = self._runner(
+                    self._command(schema_path),
+                    input=prompt,
+                    capture_output=True,
+                    text=True,
+                    timeout=self._timeout + 60,
+                    cwd=workdir,
+                    env=safe_env(os.environ),
+                    check=False,
+                )
+            except subprocess.TimeoutExpired as exc:
+                raise EngineError(f"codex timed out after {self._timeout}s") from exc
+            except OSError as exc:
+                raise EngineError(f"cannot run codex: {exc}") from exc
+        thread, message, errors = _codex_events(completed.stdout)
+        if thread:
+            self._read_quota(thread)
+        if message is None:
+            detail = " | ".join(errors)[-300:] or completed.stderr[-300:]
+            if any(marker in detail.lower() for marker in QUOTA_MARKERS):
+                raise QuotaExhausted(f"codex quota: {detail}")
+            raise EngineError(f"codex exited {completed.returncode}: {detail}")
+        try:
+            structured = json.loads(message)
+        except ValueError as exc:
+            raise EngineError("codex final message is not JSON") from exc
+        if not isinstance(structured, dict):
+            raise EngineError("codex returned no structured output")
+        return EngineOutput(raw=structured, model=self._model or "codex-default")
+
+    def _read_quota(self, thread: str) -> None:
+        for path in self._sessions.glob(f"**/rollout-*{thread}.jsonl"):
+            try:
+                quota = codex_quota(path.read_text(encoding="utf-8"))
+                path.unlink()
+            except OSError:
+                continue
+            if quota is not None:
+                self._quota = quota
+
+    def usage(self) -> Quota:
+        if self._quota is None:  # nothing run yet: a tiny call reports the limits
+            self.ask('{"ok": true} 를 그대로 돌려준다.', _PING_SCHEMA)
+        return self._quota or Quota(weekly=None, five_hour=None)
+
+    def generate(self, inputs: list[CardInput]) -> EngineOutput:
+        return self.ask(f"{CARD_INSTRUCTIONS}\n입력:\n{_payload(inputs)}", CARD_BATCH_SCHEMA)
+
+    def classify(self, inputs: list[ClassifyInput]) -> EngineOutput:
+        return self.ask(
+            f"{CLASSIFY_INSTRUCTIONS}\n입력:\n{_payload(inputs)}", CLASSIFY_BATCH_SCHEMA
+        )
+
+
+_PING_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {"ok": {"type": "boolean"}},
+    "required": ["ok"],
+}
+
+
+def _strict(schema: Any) -> Any:
+    """OpenAI structured outputs want `additionalProperties: false` on every object."""
+    if isinstance(schema, dict):
+        out = {key: _strict(value) for key, value in schema.items()}
+        if out.get("type") == "object":
+            out.setdefault("additionalProperties", False)
+        return out
+    if isinstance(schema, list):
+        return [_strict(value) for value in schema]
+    return schema
+
+
+def _codex_events(stdout: str) -> tuple[str | None, str | None, list[str]]:
+    """(thread id, last agent message, error messages) from `codex exec --json` output."""
+    thread: str | None = None
+    message: str | None = None
+    errors: list[str] = []
+    for line in stdout.splitlines():
+        try:
+            event = json.loads(line)
+        except ValueError:
+            continue
+        if not isinstance(event, dict):
+            continue
+        kind = event.get("type")
+        if kind == "thread.started":
+            thread = str(event.get("thread_id") or "") or None
+        elif kind == "item.completed" and isinstance(event.get("item"), dict):
+            item = event["item"]
+            if item.get("type") == "agent_message":
+                message = str(item.get("text", ""))
+            elif item.get("type") == "error":
+                errors.append(str(item.get("message", "")))
+        elif kind in ("turn.failed", "error"):
+            error = event.get("error")
+            text = error.get("message") if isinstance(error, dict) else event.get("message")
+            errors.append(str(text or kind))
+    return thread, message, errors

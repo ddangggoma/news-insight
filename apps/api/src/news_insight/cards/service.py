@@ -2,7 +2,7 @@
 
 import logging
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import AbstractContextManager
 from dataclasses import dataclass, field
@@ -17,7 +17,6 @@ from news_insight.cards.engines import (
     EngineError,
     EngineOutput,
     MeteredEngine,
-    Quota,
     QuotaExhausted,
 )
 from news_insight.cards.models import CardRun, CardStatus, ItemCard
@@ -327,7 +326,7 @@ class CardRunStats:
     soft: int = 0  # kept on the last attempt although a fact was lost
     reused: int = 0  # copied from a card of the same URL or content
     batches: dict[str, int] = field(default_factory=dict)
-    quota: dict[str, int | None] = field(default_factory=dict)
+    quota: dict[str, Any] = field(default_factory=dict)
     notes: list[str] = field(default_factory=list)
 
 
@@ -335,10 +334,13 @@ class CardRunStats:
 class CardPolicy:
     agy_batch: int = 100
     agy_parallel: int = 3  # independent agy processes per round (quota is the real cap)
+    codex_batch: int = 40
+    codex_parallel: int = 2
+    codex_classify_batch: int = 100
     qwen_batch: int = 5
     classify_batch: int = 200  # classification-only calls carry title, summary and keywords
     qwen_classify_batch: int = 20
-    min_weekly: int = 10  # D18: cards may use 90 % of the weekly Antigravity limit
+    min_weekly: int = 10  # D18: cards may use 90 % of each metered engine's weekly limit
     min_five_hour: int = 2
     time_budget_seconds: float = 540.0
     unvalidated_daily_cap: int | None = 40  # cards per non-active source per 24 hours
@@ -358,83 +360,109 @@ FAILED_ROUNDS = 2  # Antigravity rounds in a row where every call failed before 
 def run_cards(
     open_session: SessionScope,
     *,
-    agy: MeteredEngine | None,
+    agy: MeteredEngine | None = None,
     qwen: CardEngine | None,
     policy: CardPolicy,
+    metered: Sequence[MeteredEngine] | None = None,
     clock: Clock = _now,
     monotonic: Callable[[], float] = time.monotonic,
 ) -> CardRunStats:
     """Generate cards and reclassify stale ones until nothing is pending or time runs out.
 
-    Antigravity is used while its quota allows (D18). Without a Qwen engine (the default since
-    2026-10-05, user request) a spent quota ends the run until the next one, and a failed batch
-    is retried later while the run goes on, stopping after FAILED_ROUNDS rounds that all fail.
-    With Qwen passed in (`card_qwen_fallback` or `--qwen-only`) the run continues there.
-    While cards wait for a newer taxonomy, one Antigravity lane per round reclassifies them
-    so new items are never starved (checklist CLS-2). On Qwen, reclassification waits for new items.
+    Metered engines are used in order while each keeps its reserve (D18: `min_weekly` percent of
+    the weekly limit is never spent): Codex, then Antigravity (2026-10-05, user request). When
+    the last one is spent the run continues on Qwen if it was passed in (`card_qwen_fallback` or
+    `--qwen-only`), otherwise items wait for the next run. A quota error moves to the next
+    engine at once; other failures are retried, moving on after FAILED_ROUNDS rounds that all
+    fail (or at once when only Qwen is left, as before). While cards wait for a newer taxonomy,
+    one metered lane per round reclassifies them so new items are never starved (CLS-2).
     """
     stats = CardRunStats()
     deadline = monotonic() + policy.time_budget_seconds
-    use_agy = agy is not None
+    chain: list[MeteredEngine] = list(metered) if metered is not None else ([agy] if agy else [])
+    at = 0  # index of the metered engine in use; len(chain) once all are spent or down
     fallback = "switching to qwen" if qwen is not None else "waiting for the next run"
     failed_rounds = 0
     attempted: set[int] = set()
     classify_attempted: set[int] = set()
-    quota = Quota(weekly=None, five_hour=None)
+
+    def advance(reason: str) -> None:
+        nonlocal at, failed_rounds
+        at += 1
+        failed_rounds = 0
+        following = chain[at].name if at < len(chain) else None
+        stats.notes.append(f"{reason}: {'switching to ' + following if following else fallback}")
+        refresh_quota()
 
     def refresh_quota() -> None:
-        nonlocal use_agy, quota
-        if agy is None or not use_agy:
-            return
-        try:
-            quota = agy.usage()
-        except EngineError as exc:
-            stats.notes.append(f"agy usage unavailable: {exc}")
-            use_agy = False
-            return
-        stats.quota = quota.as_dict()
-        if not quota.usable(min_weekly=policy.min_weekly, min_five_hour=policy.min_five_hour):
-            stats.notes.append(f"agy quota reserved ({quota.as_dict()}): {fallback}")
-            use_agy = False
+        nonlocal at
+        while at < len(chain):
+            engine = chain[at]
+            try:
+                quota = engine.usage()
+            except EngineError as exc:
+                stats.notes.append(f"{engine.name} usage unavailable: {exc}")
+                at += 1
+                continue
+            stats.quota = {"engine": engine.name, **quota.as_dict()}
+            if quota.usable(min_weekly=policy.min_weekly, min_five_hour=policy.min_five_hour):
+                return
+            following = chain[at + 1].name if at + 1 < len(chain) else None
+            stats.notes.append(
+                f"{engine.name} quota reserved ({quota.as_dict()}): "
+                + ("switching to " + following if following else fallback)
+            )
+            at += 1
 
     refresh_quota()
     while monotonic() < deadline:
-        engine: CardEngine | None = agy if use_agy else qwen
+        current = chain[at] if at < len(chain) else None
+        engine: CardEngine | None = current if current is not None else qwen
         if engine is None:
             stats.notes.append("no engine available")
             break
-        jobs = _plan_round(open_session, policy, use_agy, attempted, classify_attempted, stats)
+        jobs = _plan_round(
+            open_session,
+            policy,
+            current.name if current else None,
+            attempted,
+            classify_attempted,
+            stats,
+        )
         if not jobs:
             break
         results = _run_jobs(engine, jobs)
-        switch = False
+        exhausted: EngineError | None = None
         for job, result in zip(jobs, results, strict=True):
             ids = {entry.id for entry in job.inputs}
             if isinstance(result, EngineError):
                 (attempted if job.kind == "card" else classify_attempted).difference_update(ids)
-            if isinstance(result, QuotaExhausted) or (
-                isinstance(result, EngineError) and engine is agy and qwen is not None
-            ):
-                stats.notes.append(f"{result}: {fallback}")
-                switch = True
-                continue
-            if isinstance(result, EngineError):
-                stats.notes.append(str(result))
+                if isinstance(result, QuotaExhausted) or (
+                    current is not None and at == len(chain) - 1 and qwen is not None
+                ):
+                    exhausted = result
+                else:
+                    stats.notes.append(str(result))
                 continue
             if job.kind == "card":
                 _store_batch(open_session, engine.name, job.inputs, result, clock(), stats)  # type: ignore[arg-type]
             else:
                 _store_classifications(open_session, job.inputs, result, stats)  # type: ignore[arg-type]
-        if switch:
-            use_agy = False
+        if exhausted is not None and current is not None:
+            advance(str(exhausted))
             continue
         if all(isinstance(r, EngineError) for r in results):
             failed_rounds += 1
-            if engine is not agy or failed_rounds >= FAILED_ROUNDS:
-                break  # engine down: leave items pending for the next run
+            if current is None:
+                break  # Qwen down: leave items pending for the next run
+            if failed_rounds >= FAILED_ROUNDS:
+                if at == len(chain) - 1:
+                    break  # the last metered engine is down: wait for the next run
+                advance(f"{current.name} failed {failed_rounds} rounds")
+                continue
         else:
             failed_rounds = 0
-        if engine is agy:
+        if current is not None:
             refresh_quota()
     return stats
 
@@ -442,19 +470,28 @@ def run_cards(
 def _plan_round(
     open_session: SessionScope,
     policy: CardPolicy,
-    use_agy: bool,
+    metered: str | None,
     attempted: set[int],
     classify_attempted: set[int],
     stats: "CardRunStats | None" = None,
 ) -> list[Job]:
-    lanes = max(1, policy.agy_parallel) if use_agy else 1
-    batch = policy.agy_batch if use_agy else policy.qwen_batch
-    classify_batch = policy.classify_batch if use_agy else policy.qwen_classify_batch
+    """One round of jobs for the metered engine `metered` (by name), or Qwen when None."""
+    if metered == "codex":
+        lanes, batch = max(1, policy.codex_parallel), policy.codex_batch
+        classify_batch = policy.codex_classify_batch
+    elif metered is not None:
+        lanes, batch, classify_batch = (
+            max(1, policy.agy_parallel),
+            policy.agy_batch,
+            policy.classify_batch,
+        )
+    else:
+        lanes, batch, classify_batch = 1, policy.qwen_batch, policy.qwen_classify_batch
     with open_session() as session:
         stale = classify_pending_items(
             session, limit=classify_batch * lanes, exclude=classify_attempted
         )
-        # keep one lane for reclassification while new items also wait (Antigravity only)
+        # keep one lane for reclassification while new items also wait (metered engines only)
         card_lanes = lanes - 1 if stale and lanes > 1 else lanes
         pending = pending_items(
             session,
