@@ -21,7 +21,7 @@ dependencies = [
 ]
 
 [project.scripts]
-news-insight = "news_insight.cli:app"
+news-insight = "news_insight.cli:main"
 
 [dependency-groups]
 dev = [
@@ -56,6 +56,9 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 
 [tool.ruff.lint.per-file-ignores]
 "src/news_insight/strategy/prompts.py" = ["E501"]
+"src/news_insight/ops/logreport.py" = ["E501"]  # Markdown table rows
+"src/news_insight/ops/audit.py" = ["E501"]  # Korean report text
+"tests/ops/test_logreport.py" = ["E501"]  # raw log lines
 
 [tool.mypy]
 python_version = "3.12"

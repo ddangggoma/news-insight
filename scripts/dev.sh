@@ -56,15 +56,27 @@ alembic_check() {
 # Admin magic link without SMTP: prints a single-use 15-minute login URL (P8).
 admin_link()    { (cd "$API" && uv run --env-file "$ROOT/.env" news-insight admin link); }
 
+# Host job logs (launchd appends to ops/logs/*.log): keep the current file under 20 MB plus 3 old
+rotate()        {
+  local file="$ROOT/ops/logs/$1.log"
+  [[ -f "$file" && $(stat -f%z "$file" 2>/dev/null || stat -c%s "$file") -gt 20971520 ]] || return 0
+  rm -f "$file.3"; [[ -f "$file.2" ]] && mv "$file.2" "$file.3"; [[ -f "$file.1" ]] && mv "$file.1" "$file.2"
+  mv "$file" "$file.1"
+}
+
 # 05:00 KST (launchd): freeze if Celery has not, shortlist, Claude digest, gates, publish
-digest()        { (cd "$API" && uv run --env-file "$ROOT/.env" news-insight daily publish); }
+digest()        { rotate digest; (cd "$API" && uv run --env-file "$ROOT/.env" news-insight daily publish); }
 # Host-side: agy is logged in here, and LM Studio is reached on localhost (not host.docker.internal).
 cards()         {
+  rotate cards
   (cd "$API" && LM_STUDIO_URL=http://127.0.0.1:1234 uv run --env-file "$ROOT/.env" news-insight cards run)
   # CLU-1: merge stories told in other words or languages (bge-m3 + judge); never fails the card run
   (cd "$API" && LM_STUDIO_URL=http://127.0.0.1:1234 uv run --env-file "$ROOT/.env" news-insight stories semantic) \
     || echo "stories semantic skipped (LM Studio or Antigravity unavailable)" >&2
 }
+# Log report and whole-flow audit (host-side, read-only); reports land in ops/reports/
+logs_report()   { (cd "$API" && uv run --env-file "$ROOT/.env" news-insight ops logs --root "$ROOT" --write "$ROOT/ops/reports/logs-$(date +%Y%m%d-%H%M).md" >/dev/null) && ls -t "$ROOT"/ops/reports/logs-* | head -1; }
+audit()         { (cd "$API" && uv run --env-file "$ROOT/.env" news-insight ops audit --write "$ROOT/ops/reports/audit-$(date +%Y%m%d-%H%M).md" >/dev/null) && ls -t "$ROOT"/ops/reports/audit-* | head -1; }
 sources_seed()  { (cd "$API" && uv run --env-file "$ROOT/.env" news-insight sources seed); }
 
 verify() {
@@ -76,7 +88,7 @@ verify() {
   printf '\nverify: all checks passed\n'
 }
 
-COMMANDS="up down logs db migrate api-dev web-dev api-test api-lint web-test web-check compose-check alembic-check verify web-e2e radar-qa admin-link digest cards sources-seed"
+COMMANDS="up down logs db migrate api-dev web-dev api-test api-lint web-test web-check compose-check alembic-check verify web-e2e radar-qa admin-link digest cards sources-seed logs-report audit"
 
 usage() {
   echo "usage: scripts/dev.sh <command>"

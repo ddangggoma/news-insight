@@ -57,6 +57,12 @@ def configure_logging(service: str, *, level: int = logging.INFO) -> None:
     root.setLevel(level)
     for noisy in ("httpx", "httpcore", "uvicorn.access"):
         logging.getLogger(noisy).setLevel(logging.WARNING)
+    # uvicorn installs its own plain-text handlers: route its errors (tracebacks included)
+    # through the JSON handler instead (2026-10-05: 500s reached the log only as raw text)
+    for name in ("uvicorn", "uvicorn.error", "uvicorn.access", "celery", "celery.beat"):
+        named = logging.getLogger(name)
+        named.handlers[:] = []
+        named.propagate = True
 
 
 def record_slow_request(path: str, seconds: float, *, now: float | None = None) -> None:
@@ -85,6 +91,11 @@ class RequestLogMiddleware(BaseHTTPMiddleware):
             status = response.status_code
             response.headers["X-Request-ID"] = request_id
             return response
+        except Exception:
+            logging.getLogger("news_insight.http").exception(
+                "unhandled error", extra={"method": request.method, "path": request.url.path}
+            )
+            raise
         finally:
             seconds = time.perf_counter() - started
             path = request.url.path

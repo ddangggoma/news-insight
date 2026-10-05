@@ -35,9 +35,11 @@ BEAT_SCHEDULE: dict[str, dict[str, Any]] = {
 @setup_logging.connect
 def _json_logs(**_: Any) -> None:
     """Celery keeps its own handlers unless this signal is connected."""
+    import sys
+
     from news_insight.observability import configure_logging
 
-    configure_logging("worker")
+    configure_logging("scheduler" if "beat" in sys.argv else "worker")
 
 
 def create_celery() -> Celery:

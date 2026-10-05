@@ -54,7 +54,12 @@ from news_insight.sources.service import (
 )
 from news_insight.stories.service import Thresholds, cluster
 
-app = typer.Typer(help="Daily IT Intelligence operations CLI", no_args_is_help=True)
+# plain tracebacks, not rich boxes: host job logs stay one JSON line per event plus the trace
+app = typer.Typer(
+    help="Daily IT Intelligence operations CLI",
+    no_args_is_help=True,
+    pretty_exceptions_enable=False,
+)
 
 
 @app.callback()
@@ -789,6 +794,45 @@ def ops_check(
             typer.echo(f"    {finding.detail}")
 
 
+@ops_app.command("logs")
+def ops_logs(
+    hours: Annotated[float, typer.Option(help="Look back this many hours")] = 24,
+    root: Annotated[Path, typer.Option(help="Repository root holding ops/logs")] = Path("../.."),
+    write: Annotated[
+        Path | None, typer.Option(help="Also write the Markdown report to this file")
+    ] = None,
+    top: Annotated[int, typer.Option(help="Rows per table")] = 25,
+) -> None:
+    """Host-side log report: errors grouped by signature, API latency, task failures, card runs."""
+    from news_insight.ops.logreport import analyse, collect, render
+
+    until = datetime.now(UTC)
+    since = timedelta(hours=hours)
+    report = analyse(collect(root.resolve(), since), since=until - since, until=until)
+    text = render(report, top=top)
+    if write is not None:
+        write.parent.mkdir(parents=True, exist_ok=True)
+        write.write_text(text, encoding="utf-8")
+    typer.echo(text)
+
+
+@ops_app.command("audit")
+def ops_audit(
+    write: Annotated[Path | None, typer.Option(help="Also write the Markdown report here")] = None,
+    containers: Annotated[bool, typer.Option(help="Include docker stats (host only)")] = True,
+) -> None:
+    """Read-only audit of the whole flow: collection, duplicates, cards, classification, stories,
+    database and containers, with findings ranked by severity."""
+    from news_insight.ops.audit import render, run_audit
+
+    with session_scope() as session:
+        text = render(run_audit(session, with_containers=containers))
+    if write is not None:
+        write.parent.mkdir(parents=True, exist_ok=True)
+        write.write_text(text, encoding="utf-8")
+    typer.echo(text)
+
+
 @tech_app.command("seed")
 def technologies_seed() -> None:
     """Upsert catalog/technologies.yaml, then recompute card keys and labels."""
@@ -876,3 +920,19 @@ def stories_refs_backfill(
                 )
         added = (session.scalar(select(func.count()).select_from(ItemRef)) or 0) - before
     typer.echo(f"items={len(rows)} refs_added={added}")
+
+
+def main() -> None:
+    """Entry point: a failing command leaves one JSON error line (with the trace) in the job log."""
+    import logging
+    import sys
+
+    try:
+        app()
+    except SystemExit:
+        raise
+    except Exception:
+        logging.getLogger("news_insight.cli").exception(
+            "command failed", extra={"argv": sys.argv[1:]}
+        )
+        raise SystemExit(1) from None
