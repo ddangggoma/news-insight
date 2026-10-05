@@ -6,6 +6,7 @@ import Link from "next/link";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { BriefingEntry, BriefingPersona, PublicBriefing } from "@/lib/briefing-types";
+import { COMPANY_SIGNAL_LABEL } from "@/lib/companies";
 import { formatBriefingDate } from "@/lib/format";
 import { SIGNAL_META, type SignalTone } from "@/lib/radar-signals";
 import { FIELD_LABEL, IMPACT_LABEL } from "@/lib/taxonomy";
@@ -80,7 +81,7 @@ function SignalList({ signals }: { signals: NonNullable<PublicBriefing["signals"
         <li key={`${signal.window_key}-${signal.tone}`}>
           <Link href={signal.href} className="block rounded-lg border p-2.5 transition-colors hover:bg-muted/40">
             <p className="text-xs font-medium text-primary">
-              {SIGNAL_META[signal.tone as SignalTone]?.label ?? signal.tone} · {signal.window_key}
+              {SIGNAL_META[signal.tone as SignalTone]?.label ?? COMPANY_SIGNAL_LABEL[signal.tone] ?? signal.tone} · {signal.window_key}
               {signal.is_current ? " (진행 중)" : ""}
             </p>
             <p className="text-sm leading-snug font-semibold">{signal.title}</p>

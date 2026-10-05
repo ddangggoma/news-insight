@@ -4,9 +4,11 @@ import { ViewTransition } from "react";
 
 import { ChartTips } from "@/components/reader/radar/chart-tips";
 import { Change, KeywordBadge, Legend, StateBadge } from "@/components/reader/radar/parts";
+import { COMPANY_KIND_LABEL, COMPANY_REGION_LABEL, RELATION_META } from "@/lib/companies";
 import { formatDateTime, formatDay, formatRelative, REGION_LABEL, TRACK_LABEL } from "@/lib/format";
 import {
   BASELINE_UNIT,
+  type Focus,
   focusParam,
   formatZ,
   last,
@@ -28,7 +30,7 @@ import type { Region, Track } from "@/lib/types";
 import { FIELD_LABEL, IMPACT_LABEL, SIGNAL_LABEL, THEME_LABEL } from "@/lib/taxonomy";
 import { cn } from "@/lib/utils";
 
-const KIND_LABEL = { field: "카테고리", theme: "테마", keyword: "기술" } as const;
+const KIND_LABEL = { field: "카테고리", theme: "테마", keyword: "기술", company: "기업" } as const;
 const TRACK_ORDER: Track[] = ["research_ip", "oss", "community", "news"];
 const TRACK_FILL: Record<Track, string> = {
   research_ip: "var(--viz-research)",
@@ -143,13 +145,14 @@ export function TopicPanel({ detail, radar, view }: { detail: TopicDetail; radar
   const stage = stageOf(share);
   const firstSeen = (Object.entries(topic.first_seen) as [Region, string][]).sort((a, b) => Date.parse(a[1]) - Date.parse(b[1]));
   const impactTotal = topic.impacts.opportunity + topic.impacts.risk + topic.impacts.watch;
-  const at = (focus: { kind: "field" | "theme" | "keyword"; key: string }) => radarHref(radar.window.kind, radar.window.key, { ...view, focus });
+  const at = (focus: Focus) => radarHref(radar.window.kind, radar.window.key, { ...view, focus });
   const field = kind === "field" ? topic.key : kind === "theme" ? topic.key.split("__")[0] : topic.field;
   const period = radar.window.kind === "day" ? "1d" : radar.window.kind === "week" ? "7d" : "30d";
   const explore = withQuery("/", {
     field: kind === "field" ? topic.key : undefined,
     theme: kind === "theme" ? topic.key : undefined,
     q: kind === "keyword" ? topicLabel(kind, topic) : undefined,
+    company: kind === "company" ? topic.key : undefined,
     signal: view.signal,
     scope: view.scope !== "relevant" ? view.scope : undefined,
     period,
@@ -172,6 +175,17 @@ export function TopicPanel({ detail, radar, view }: { detail: TopicDetail; radar
             <StateBadge state={topic.state} />
             <KeywordBadge topic={topic} />
           </h2>
+          {detail.profile ? (
+            <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+              <span>{detail.profile.name}</span>
+              <span className="inline-flex items-center gap-1">
+                <span aria-hidden className="size-2 rounded-full" style={{ background: RELATION_META[detail.profile.relation].color }} />
+                {RELATION_META[detail.profile.relation].label}
+              </span>
+              <span>{COMPANY_KIND_LABEL[detail.profile.kind]}</span>
+              <span>{COMPANY_REGION_LABEL[detail.profile.region] ?? detail.profile.region}</span>
+            </p>
+          ) : null}
           {topic.first_ever ? (
             <p className="mt-1 text-xs text-muted-foreground">첫 보도 {formatDay(topic.first_ever)} · 지금 필터로 전체 기간을 본 기준</p>
           ) : null}
@@ -253,6 +267,48 @@ export function TopicPanel({ detail, radar, view }: { detail: TopicDetail; radar
                   className="rounded-full border bg-background px-2.5 py-0.5 text-xs text-ink-2 transition hover:border-primary hover:text-primary"
                 >
                   {keyword.label} <span className="text-muted-foreground tabular-nums">{keyword.count}</span>
+                </Link>
+              ))}
+            </div>
+          </Section>
+        ) : null}
+
+        {detail.companies?.length ? (
+          <Section title={kind === "company" ? "함께 언급된 기업" : "많이 언급된 기업"}>
+            <div className="flex flex-wrap gap-1.5">
+              {detail.companies.map((company) => (
+                <Link
+                  key={company.key}
+                  href={at({ kind: "company", key: company.key })}
+                  scroll={false}
+                  className="rounded-full border bg-background px-2.5 py-0.5 text-xs text-ink-2 transition hover:border-primary hover:text-primary"
+                >
+                  {company.label} <span className="text-muted-foreground tabular-nums">{company.count}</span>
+                </Link>
+              ))}
+            </div>
+          </Section>
+        ) : null}
+
+        {detail.profile?.themes.length ? (
+          <Section title="주력 테마 (레지스트리)">
+            <div className="flex flex-wrap gap-1.5">
+              {detail.profile.themes.map((theme) => (
+                <Link key={theme} href={at({ kind: "theme", key: theme })} scroll={false} className="text-xs text-primary hover:underline">
+                  {THEME_LABEL[theme] ?? theme} →
+                </Link>
+              ))}
+            </div>
+          </Section>
+        ) : null}
+
+        {detail.major_companies?.length ? (
+          <Section title="이 테마의 주요 기업 (레지스트리)">
+            <div className="flex flex-wrap gap-x-2.5 gap-y-1">
+              {detail.major_companies.map((company) => (
+                <Link key={company.key} href={at({ kind: "company", key: company.key })} scroll={false} className="inline-flex items-center gap-1 text-xs text-ink-2 hover:text-primary">
+                  <span aria-hidden className="size-1.5 rounded-full" style={{ background: RELATION_META[company.relation].color }} />
+                  {company.label}
                 </Link>
               ))}
             </div>

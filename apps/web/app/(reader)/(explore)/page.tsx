@@ -37,12 +37,13 @@ export default async function ExplorePage({ searchParams }: { searchParams: Prom
     latestDigest(),
   ]);
   const pages = Math.max(1, Math.ceil(feed.total / feed.size));
+  const companyNames = Object.fromEntries(feed.items.flatMap((item) => (item.companies ?? []).map((c) => [c.key, c.label])));
 
   const feedColumn = (
     <section aria-label="기사 목록" className="space-y-3">
       <div className="flex flex-wrap items-center gap-2">
         <FacetSheet facets={facets} filters={filters} active={activeChips(filters).length} />
-        <ActiveFilters filters={filters} />
+        <ActiveFilters filters={filters} companies={companyNames} />
       </div>
       <FeedToolbar filters={filters} total={feed.total} itemsTotal={feed.items_total} />
       {feed.items.length ? (

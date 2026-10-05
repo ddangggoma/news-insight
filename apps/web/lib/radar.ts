@@ -33,6 +33,9 @@ export type RadarView = {
   focus: Focus | null;
 };
 
+/** Registry company keys are normalised: no spaces (plan 12). */
+export const COMPANY_KEY = /^\S{2,80}$/;
+
 export function parseFocus(value: string | undefined): Focus | null {
   if (!value) return null;
   const at = value.indexOf(":");
@@ -42,6 +45,7 @@ export function parseFocus(value: string | undefined): Focus | null {
   if (kind === "field") return key in FIELD_LABEL ? { kind, key } : null;
   if (kind === "theme") return key in THEME_LABEL ? { kind, key } : null;
   if (kind === "keyword") return key.length <= 200 ? { kind, key } : null;
+  if (kind === "company") return COMPANY_KEY.test(key) ? { kind, key } : null;
   return null;
 }
 

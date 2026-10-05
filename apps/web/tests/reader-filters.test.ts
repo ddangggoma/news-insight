@@ -70,4 +70,13 @@ describe("reader filters", () => {
       { axis: "q", key: "6G", label: "“6G”" },
     ]);
   });
+
+  it("carries company keys from chips to the API and the chips row", () => {
+    const filters = parseReaderFilters({ company: ["qualcomm", "has space", "qualcomm"], period: "30d" });
+    expect(filters.company).toEqual(["qualcomm"]);
+    expect(apiParams(filters)).toMatchObject({ company: ["qualcomm"] });
+    expect(activeChips(filters, { qualcomm: "퀄컴" })).toEqual([{ axis: "company", key: "qualcomm", label: "기업: 퀄컴" }]);
+    expect(removeHref(filters, "company", "qualcomm")).toBe("/?period=30d");
+    expect(clearHref(filters)).toBe("/?period=30d");
+  });
 });

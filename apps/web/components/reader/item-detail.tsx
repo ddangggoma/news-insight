@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { TrackBadge } from "@/components/console/badges";
-import { SignalTag, FieldTag, ImpactBadge } from "@/components/reader/labels";
+import { CompanyChips, SignalTag, FieldTag, ImpactBadge } from "@/components/reader/labels";
 import { ApiError } from "@/lib/api";
 import { formatDateTime, formatRelative, REGION_LABEL } from "@/lib/format";
 import { readerGet } from "@/lib/reader-api";
@@ -85,6 +85,14 @@ export function ItemDetailView({ detail }: { detail: ReaderItemDetail }) {
           <>
             <dt className="text-muted-foreground">관련도</dt>
             <dd className="tabular-nums">{item.relevance} / 100</dd>
+          </>
+        ) : null}
+        {item.companies?.length ? (
+          <>
+            <dt className="text-muted-foreground">기업</dt>
+            <dd>
+              <CompanyChips companies={item.companies} max={8} />
+            </dd>
           </>
         ) : null}
         {item.keywords.length ? (

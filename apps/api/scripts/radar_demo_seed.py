@@ -639,6 +639,72 @@ def plan_items() -> list[Plan]:
 
 SIGNALS = ["research", "launch", "market", "ecosystem", "standard", "regulation"]
 
+# Company layer (plan 12) on its own random stream, so the radar patterns above stay identical.
+# Planted: a Qualcomm surge in on-device AI and SoCs, Apple's reports turning to regulation, OpenAI
+# entering device OS, Physical Intelligence's debut, an unregistered "Nova Haptics", and a new
+# Samsung × Google pair in device OS; all in the last week.
+crng = random.Random(2026100512)
+THEME_COMPANIES: dict[str, list[tuple[str, float]]] = {
+    "ai__ai_agents": [("OpenAI", 3), ("Anthropic", 2), ("Google", 2), ("Microsoft", 1)],
+    "ai__foundation_models": [("OpenAI", 3), ("Anthropic", 2), ("Google", 2), ("Meta", 1)],
+    "ai__on_device_ai": [
+        ("MediaTek", 2),
+        ("Samsung Electronics", 2),
+        ("Apple", 1),
+        ("Qualcomm", 1),
+    ],
+    "semis__ap_soc_npu": [
+        ("MediaTek", 2),
+        ("Apple", 1),
+        ("Samsung Electronics", 1),
+        ("Qualcomm", 1),
+    ],
+    "semis__memory_storage": [
+        ("SK hynix", 3),
+        ("Micron", 2),
+        ("Samsung Electronics", 2),
+        ("CXMT", 1),
+    ],
+    "semis__packaging_chiplet": [("TSMC", 3), ("Intel", 1), ("Amkor", 1)],
+    "platform_sw__device_os": [("Google", 3), ("Apple", 2), ("Huawei", 1), ("Xiaomi", 1)],
+    "platform_sw__app_ecosystem": [("Apple", 2), ("Google", 2), ("Epic Games", 1)],
+    "display_av__display_panel": [("BOE", 2), ("LG Display", 2), ("Samsung Display", 2)],
+    "display_av__xr_spatial": [("Meta", 3), ("Apple", 2), ("XREAL", 1)],
+    "health_tech__biosensing": [("Apple", 2), ("Oura", 2), ("Samsung Electronics", 1)],
+    "robotics_mobility__humanoid_embodied": [("Figure AI", 2), ("Tesla", 2), ("Unitree", 2)],
+    "robotics_mobility__autonomous_driving": [("Waymo", 3), ("Tesla", 2), ("Baidu", 1)],
+    "connectivity__cellular_5g_6g": [("Ericsson", 2), ("Nokia", 2), ("Huawei", 1)],
+    "energy__battery_charging": [("CATL", 3), ("LG Energy Solution", 2), ("Samsung SDI", 1)],
+    "frontier__quantum": [("IBM", 2), ("Google", 1), ("IonQ", 1)],
+}
+
+
+def companies_for(plan: "Plan", signal: str) -> list[str]:
+    recent = DAYS - plan.day <= 7
+    names: list[str] = []
+    pool = THEME_COMPANIES.get(plan.theme.key, [])
+    if pool and crng.random() < 0.6:
+        for _ in range(crng.choice([1, 1, 2])):
+            name = crng.choices([n for n, _ in pool], [w for _, w in pool])[0]
+            if name not in names:
+                names.append(name)
+    key = plan.theme.key
+    if recent and key in ("ai__on_device_ai", "semis__ap_soc_npu") and crng.random() < 0.9:
+        names.append("Qualcomm")
+    if recent and signal == "regulation" and key.split("__")[0] in ("platform_sw", "ai"):
+        names.append("Apple")
+    if recent and key == "platform_sw__device_os":
+        if crng.random() < 0.5:
+            names.append("OpenAI")
+        if crng.random() < 0.4:
+            names += ["Samsung Electronics", "Google"]
+    if DAYS - plan.day <= 12 and key == "robotics_mobility__humanoid_embodied":
+        if crng.random() < 0.4:
+            names.append("Physical Intelligence")
+        if DAYS - plan.day <= 5 and crng.random() < 0.5:
+            names.append("Nova Haptics")
+    return list(dict.fromkeys(names))[:5]
+
 
 def main() -> None:
     database = make_url(get_settings().database_url).database or ""
@@ -697,6 +763,7 @@ def main() -> None:
             field_key = plan.theme.key.split("__")[0]
             opportunity, risk, _ = plan.theme.impacts
             r = rng.random()
+            signal = rng.choice(SIGNALS)  # same draw order as before the company layer
             session.add(
                 ItemCard(
                     item_id=item.id,
@@ -714,7 +781,8 @@ def main() -> None:
                     generated_at=item.first_seen_at,
                     field=field_key,
                     themes=plan.themes,
-                    signal_type=rng.choice(SIGNALS),
+                    signal_type=signal,
+                    companies=companies_for(plan, signal),
                     impact="opportunity"
                     if r < opportunity
                     else ("risk" if r < opportunity + risk else "watch"),

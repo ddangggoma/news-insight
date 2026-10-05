@@ -8,6 +8,17 @@ export interface StoryBrief {
   tracks: string[];
 }
 
+/** A registered company on a card (plan 12); relation is to Samsung DX. */
+export interface CompanyRef {
+  key: string;
+  label: string;
+  relation: CompanyRelation;
+  kind: CompanyKind;
+}
+
+export type CompanyRelation = "self" | "competitor" | "supplier" | "partner" | "peer";
+export type CompanyKind = "company" | "startup" | "institute" | "regulator" | "standards_body";
+
 export interface ReaderItem {
   id: number;
   url: string;
@@ -28,6 +39,7 @@ export interface ReaderItem {
   first_seen_at: string;
   metrics: Record<string, number>;
   story: StoryBrief | null;
+  companies?: CompanyRef[];
 }
 
 export interface FeedPage {
@@ -96,7 +108,7 @@ export interface RadarWindow {
   elapsed: number | null;
 }
 
-export type TopicKind = "field" | "theme" | "keyword";
+export type TopicKind = "field" | "theme" | "keyword" | "company";
 export type TopicState = "new" | "surging" | "rising" | "steady" | "falling";
 export type TrackMix = Record<Track, number>;
 
@@ -220,6 +232,59 @@ export interface TopicDetail {
   signal_types: Count[];
   regions: Count[];
   stories: ReaderItem[];
+  /** Registered companies reported with this topic in the window. */
+  companies?: { key: string; label: string; count: number }[];
+  /** kind=theme: the registry's major companies of the theme. */
+  major_companies?: CompanyRef[];
+  /** kind=company: the registry entry. */
+  profile?: CompanyProfile | null;
+}
+
+export interface CompanyProfile {
+  key: string;
+  name: string;
+  name_ko: string | null;
+  kind: CompanyKind;
+  region: string;
+  relation: CompanyRelation;
+  themes: string[];
+}
+
+export interface CompanyTopic extends Topic {
+  name: string;
+  name_ko: string | null;
+  kind: CompanyKind;
+  region: string;
+  relation: CompanyRelation;
+  /** Current-window reports from the company's own domains. */
+  self_reports: number;
+  signal_mix: Record<string, number>;
+  baseline_mix: Record<string, number>;
+  shift: { signal_type: string; share: number; baseline_share: number; z: number } | null;
+  top_themes: Count[];
+}
+
+export interface ThemeLeaders {
+  theme: string;
+  total: number;
+  previous_total: number;
+  leaders: { key: string; label: string; count: number; share: number; previous_share: number | null }[];
+  previous_leader: string | null;
+  leader_changed: boolean;
+}
+
+export interface CompanyRadar {
+  window: RadarWindow;
+  periods: string[];
+  /** Company-tagged reports per window. */
+  tagged: number[];
+  companies: CompanyTopic[];
+  organizations: CompanyTopic[];
+  theme_leaders: ThemeLeaders[];
+  entries: { key: string; label: string; theme: string; count: number; sources: number }[];
+  entrants: { key: string; name: string; registered: boolean; cards: number; sources: number; first_seen: string | null }[];
+  pairs: { a: string; b: string; count: number; lift: number; is_new: boolean; signal_type: string | null }[];
+  signals: RadarSignal[];
 }
 
 export type PublicDigest = Omit<DigestOut, "model" | "cost_usd" | "error">;
@@ -228,6 +293,6 @@ export interface RadarSignal {
   tone: string;
   title: string;
   detail: string;
-  focus: { kind: "field" | "theme" | "keyword"; key: string };
+  focus: { kind: "field" | "theme" | "keyword" | "company" | "search"; key: string };
   score: number;
 }

@@ -93,7 +93,14 @@ companies: 기사의 주체이거나 직접 대상인 기업·기관 0~5개(공�
 
 ## 4. 단계 (PR 단위)
 
-- [ ] **K1 레지스트리·카드 기업 태그·백필** — `companies.yaml`(62테마, ~400곳), 마이그레이션 0025(companies·company_aliases, item_cards.companies·company_keys + GIN + `canonical_company_keys` 함수·트리거, 키워드 백필), `Classification.companies` + 프롬프트, 카드·재분류 저장, `news-insight companies seed|candidates`, 테스트.
-- [ ] **K2 API** — `_dimension("company")`, `Radar.companies`(상위 40) + 자사 비율·활동 구성·테마 점유·진입·신흥·쌍, `topic kind=company`, 리더 필터 `company`, 카드 응답 `companies`(이름·관계), 신호 톤 4종.
-- [ ] **K3 웹** — 레이더 기업 섹션·기업 상세·카드 칩·테마 상세 주요 기업, E2E.
+- [x] **K1 레지스트리·카드 기업 태그·백필** (PR #50, 배포·시드: 471곳·별칭 1,553개, 최근 30일 DX 관련 카드 33.6%가 키워드만으로 태그) — `companies.yaml`(62테마, ~400곳), 마이그레이션 0025(companies·company_aliases, item_cards.companies·company_keys + GIN + `canonical_company_keys` 함수·트리거, 키워드 백필), `Classification.companies` + 프롬프트, 카드·재분류 저장, `news-insight companies seed|candidates`, 테스트.
+- [x] **K2 API** (PR #51, 배포) — `_dimension("company")`, `Radar.companies`(상위 40) + 자사 비율·활동 구성·테마 점유·진입·신흥·쌍, `topic kind=company`, 리더 필터 `company`, 카드 응답 `companies`(이름·관계), 신호 톤 4종.
+- [x] **K3 웹** (레이더 "기업" 구역·기업 상세·카드 칩·`?company=` 필터, 데모 시드에 기업 패턴 심음) — 레이더 기업 섹션·기업 상세·카드 칩·테마 상세 주요 기업, E2E.
 - [ ] **K4 최근 카드 LLM 기업 태그 보강** — 최근 90일 DX 관련 카드 중 `companies`가 빈 카드를 분류 전용 레인으로 재처리(쿼터 여유 시, 10% 예비 규칙 준수).
+
+## 5. 실데이터로 확인한 것 (2026-10-05)
+
+- 코퍼스가 2026-10-03부터라 기업 계열에 과거 기간이 없다 → 모든 기업이 "신규·급상승"으로 보였다. 레이더 신호와 같은 기준(이전 기간 절반 이상에 보도)으로 신호·진입·신흥 판정을 끄고, 화면에 "기간이 쌓이면 켜짐"을 안내한다. 약 4주 뒤 레이더 신호 점검(후속 12번)과 함께 확인한다.
+- 자사 채널이 점유를 왜곡한다: 기초모델 테마 1위가 미스트랄AI(자사 뉴스룸 338건), 자율주행 1위가 웨이모, 센서칩·AP 1위가 인피니언이었다. 테마별 점유는 자사 발표를 빼고 계산하고, 기관(ITRI·USPTO·대만 디지털발전부 등 자기 채널이 큰 곳)은 순위에서 분리했다. 기관 공식 도메인을 레지스트리에 넣어 자사 발표로 집계한다.
+- 별칭 정밀도: "homeassistant"는 오픈소스 프로젝트라 나부카사 별칭에서 뺐다. 일반 명사가 되는 별칭(pixel, lambda, 암, figure, line …)은 시드에서 제외했다.
+- 성능: 운영 데이터에서 기업 레이더 1.7~3.0s(캐시 전), 응답 약 83KB, 기업 토픽 상세 0.18s.

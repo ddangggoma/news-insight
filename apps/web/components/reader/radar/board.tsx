@@ -2,6 +2,7 @@
 
 import { type MouseEvent, useEffect, useRef, useState } from "react";
 
+import { CompanyBoard } from "@/components/reader/radar/companies";
 import { ActivityCalendar, EngagementMatrix, FieldCrossMatrix, TopMovers } from "@/components/reader/radar/activity";
 import { Deferred } from "@/components/reader/radar/deferred";
 import { FlowDiagram, ImpactBalance, RankBump } from "@/components/reader/radar/dynamics";
@@ -117,6 +118,16 @@ export function RadarBoard({
             note={`큰 칸 = 카테고리, 안쪽 칸 = 테마. 한 기사가 테마 여러 개에 걸치면 각 테마에 한 번씩 셉니다. 모멘텀 z = (이번 − ${unit} 평균) ÷ 잡음 크기(포아송 하한, 추세 제외).`}
           >
             <CategoryTreemap radar={radar} view={view} />
+          </Panel>
+
+          <Panel
+            id="companies"
+            title="기업 레이더"
+            question="어느 기업이 움직이고, 무엇을 하며, 어디로 넓혀 가나? 새로 떠오르는 업체는?"
+            note="외부 = 다른 매체 보도, 자사 = 그 기업 공식 도메인의 발표(순위는 외부 보도 기준). 전환 = 신호 유형 비중이 기준 기간보다 20%p 이상, 통계적으로 유의하게 늘어난 경우. 기업 태그는 카드의 기업명·키워드를 레지스트리(테마별 주요 기업 470여 곳)에 맞춰 붙입니다."
+          >
+<Deferred minHeight={520}>{() => (<>
+            <CompanyBoard radar={radar} view={view} /></>)}</Deferred>
           </Panel>
 
           <div className="grid gap-5 2xl:grid-cols-2">
