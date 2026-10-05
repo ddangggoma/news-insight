@@ -15,6 +15,7 @@ class Item(Base):
     __tablename__ = "items"
     __table_args__ = (
         UniqueConstraint("source_id", "stable_id", name="uq_items_source_stable"),
+        Index("ix_items_title_lower", text("lower(title)")),  # same-headline story lookup
         Index(
             "ix_items_title_trgm",
             "title",

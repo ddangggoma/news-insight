@@ -3,7 +3,7 @@ from contextlib import contextmanager
 from datetime import UTC, datetime, timedelta
 
 import pytest
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from news_insight.cards.models import CardStatus, ItemCard
@@ -234,3 +234,26 @@ def test_only_one_story_writer_at_a_time() -> None:
         assert first and not second
     with story_writer(name) as again:
         assert again
+
+
+def test_the_same_headline_joins_one_story_whatever_the_translation(db_session: Session) -> None:
+    headline = "Samsung unveils its first clip-style Galaxy earbuds in Korea"
+    add(db_session, "verge", Track.NEWS, [("https://verge.com/clip", headline, "", ["Galaxy"], 60)])
+    add(
+        db_session,
+        "engadget",
+        Track.NEWS,
+        [("https://engadget.com/clip", headline, "", ["Galaxy"], 50)],
+    )
+    translations = iter(
+        ["삼성, 한국서 첫 클립형 갤럭시 이어폰 공개", "갤럭시 버즈 클립 국내 출시 소식"]
+    )
+    for card in db_session.scalars(select(ItemCard).order_by(ItemCard.item_id)):
+        card.title_ko = next(translations)
+    db_session.flush()
+
+    cluster(scope_for(db_session), now=NOW)
+
+    assert db_session.scalar(select(func.count()).select_from(Story)) == 1
+    relations = sorted(r.value for r in db_session.scalars(select(StoryItem.relation)))
+    assert relations == ["exact", "seed"]
