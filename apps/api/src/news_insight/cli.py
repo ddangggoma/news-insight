@@ -737,15 +737,24 @@ def daily_freeze(
 def daily_publish(
     on: Annotated[str | None, typer.Option("--date", help="Briefing date YYYY-MM-DD (KST)")] = None,
     model: Annotated[str | None, typer.Option(help="Claude model alias")] = None,
+    republish: Annotated[
+        bool, typer.Option(help="Publish a new version even if the date is already published")
+    ] = False,
 ) -> None:
-    """Shortlist the frozen candidates, write the digest, run gates, publish (05:00 KST)."""
-    from news_insight.briefing.service import failing, publish
+    """Shortlist the frozen candidates, write the digest, run gates, publish (05:00 KST; launchd
+    runs it again at 06:00 and 07:00, which only act while the date has no published briefing)."""
+    from news_insight.briefing.service import failing, publish, published_for
 
     now = datetime.now(UTC)
+    day = _briefing_date(on, now)
     with session_scope() as session:
+        done = published_for(session, day)
+        if done is not None and not republish:
+            typer.echo(f"{day} v{done.version} already published; nothing to do")
+            return
         briefing = publish(
             session,
-            briefing_date=_briefing_date(on, now),
+            briefing_date=day,
             now=now,
             client=_claude(),
             model=model or get_settings().digest_model,

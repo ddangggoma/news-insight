@@ -18,9 +18,11 @@ from news_insight.briefing.selection import (
 )
 from news_insight.cards.models import CardStatus, ItemCard
 from news_insight.digest.claude import ClaudeClient
+from news_insight.digest.models import Digest, DigestStatus
 from news_insight.digest.service import generate_digest
 from news_insight.signals import service as radar_signals
 from news_insight.stories.models import StoryItem
+from news_insight.strategy.models import StrategyRun, StrategyStatus
 from news_insight.strategy.service import generate_strategy, strategy_ok
 from news_insight.taxonomy.catalog import TAXONOMY_REVISION
 
@@ -44,6 +46,29 @@ def freeze(session: Session, *, briefing_date: date, now: datetime) -> BriefingF
     session.add(snapshot)
     session.flush()
     return snapshot
+
+
+def engine_failed(session: Session, briefing: Briefing) -> bool:
+    """Blocked because the digest fell back on an engine error or the strategy run failed."""
+    if briefing.status is not BriefingStatus.BLOCKED:
+        return False
+    digest = session.get(Digest, briefing.digest_id) if briefing.digest_id else None
+    if digest is not None and digest.status is DigestStatus.FALLBACK and digest.item_count:
+        return True
+    run = session.get(StrategyRun, briefing.strategy_id) if briefing.strategy_id else None
+    return run is not None and run.status is StrategyStatus.FAILED
+
+
+def published_for(session: Session, briefing_date: date) -> Briefing | None:
+    return session.scalars(
+        select(Briefing)
+        .where(
+            Briefing.briefing_date == briefing_date,
+            Briefing.status == BriefingStatus.PUBLISHED,
+        )
+        .order_by(Briefing.version.desc())
+        .limit(1)
+    ).first()
 
 
 def current_briefing(session: Session) -> Briefing | None:
@@ -72,12 +97,15 @@ def publish(
         json.dumps({"freeze": snapshot.id, "ids": ids}, sort_keys=True).encode()
     ).hexdigest()
     same = session.scalars(
-        select(Briefing).where(
-            Briefing.briefing_date == briefing_date, Briefing.input_hash == input_hash
-        )
+        select(Briefing)
+        .where(Briefing.briefing_date == briefing_date, Briefing.input_hash == input_hash)
+        .order_by(Briefing.version.desc())  # the latest attempt decides
+        .limit(1)
     ).first()
-    if same is not None:
+    if same is not None and not engine_failed(session, same):
         return same  # same input: no-op (immutable versions)
+    # a version blocked only because Claude failed (a usage limit, a login lapse) is generated
+    # again on the same input: the 06:00 and 07:00 runs exist for this (2026-10-05)
     signals = radar_signals.evidence(radar_signals.ensure(session, day=briefing_date, now=now))
     digest = (
         generate_digest(

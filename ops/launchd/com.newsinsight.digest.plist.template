@@ -10,11 +10,13 @@
     <string>-lc</string>
     <string>cd "__REPO__" &amp;&amp; scripts/dev.sh digest</string>
   </array>
+  <!-- 05:00 publishes; 06:00 and 07:00 retry only while the date has no published briefing -->
   <key>StartCalendarInterval</key>
-  <dict>
-    <key>Hour</key><integer>5</integer>
-    <key>Minute</key><integer>0</integer>
-  </dict>
+  <array>
+    <dict><key>Hour</key><integer>5</integer><key>Minute</key><integer>0</integer></dict>
+    <dict><key>Hour</key><integer>6</integer><key>Minute</key><integer>0</integer></dict>
+    <dict><key>Hour</key><integer>7</integer><key>Minute</key><integer>0</integer></dict>
+  </array>
   <key>EnvironmentVariables</key>
   <dict>
     <key>PATH</key>

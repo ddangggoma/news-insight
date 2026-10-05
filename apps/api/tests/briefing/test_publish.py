@@ -236,3 +236,31 @@ def test_console_briefing_api(
     assert latest["digest"]["status"] == "published"
     assert {gate["name"] for gate in latest["gates"]} >= {"korean", "domain_cap", "evidence"}
     assert listed[0]["shortlist"] == 8 and listed[0]["failing"] == []
+
+
+class DownClaude(FakeClaude):
+    def generate(
+        self, payload: dict[str, Any], *, schema: dict[str, Any], model: str
+    ) -> ClaudeResult:
+        from news_insight.digest.claude import ClaudeError
+
+        raise ClaudeError("claude exited 1: usage limit reached")
+
+
+def test_a_briefing_blocked_by_an_engine_failure_is_retried(db_session: Session) -> None:
+    from news_insight.briefing.service import engine_failed, published_for
+
+    seed(db_session)
+    common = {"briefing_date": DAY, "model": "opus", "rules": RULES, "with_strategy": False}
+
+    blocked = publish(db_session, now=FREEZE_AT, client=DownClaude(), **common)  # type: ignore[arg-type]
+    assert blocked.status is BriefingStatus.BLOCKED and engine_failed(db_session, blocked)
+    assert published_for(db_session, DAY) is None
+
+    retried = publish(db_session, now=FREEZE_AT + timedelta(hours=1), client=FakeClaude(), **common)  # type: ignore[arg-type]
+
+    assert retried.version == 2 and retried.status is BriefingStatus.PUBLISHED
+    assert published_for(db_session, DAY) is retried
+    # once published, the same input is a no-op again
+    again = publish(db_session, now=FREEZE_AT + timedelta(hours=2), client=FakeClaude(), **common)  # type: ignore[arg-type]
+    assert again.id == retried.id
