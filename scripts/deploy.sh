@@ -72,8 +72,13 @@ HOST="$(sed -n 's/^PUBLIC_HOST=//p' .env 2>/dev/null | tr -d "\"'" | tail -1)"
 HOST="${HOST:-localhost}"
 PORT="${CADDY_HTTPS_PORT:-8700}"
 for path in /radar/week/"$(date +%G-W%V)" /briefings; do
-  code="$(curl -sk -o /dev/null -w '%{http_code}' --connect-to "$HOST:$PORT:127.0.0.1:$PORT" \
-    "https://$HOST:$PORT$path" || true)"
+  # Caddy rate-limits /radar* per IP (20/min): a 429 means wait, not a broken release
+  for attempt in 1 2 3 4; do
+    code="$(curl -sk -o /dev/null -w '%{http_code}' --connect-to "$HOST:$PORT:127.0.0.1:$PORT" \
+      "https://$HOST:$PORT$path" || true)"
+    [[ "$code" == 429 && "$attempt" -lt 4 ]] || break
+    sleep 20
+  done
   log "smoke $path -> $code"
   [[ "$code" == 200 ]] || exit 1
 done
