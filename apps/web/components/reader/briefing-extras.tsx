@@ -208,3 +208,21 @@ export function WatchBox({ watch, refs }: { watch: NonNullable<PublicBriefingWat
     </section>
   );
 }
+
+/** The spoken briefing (plan 13 A1): macOS voice, rendered on the host after publication. */
+export function BriefingAudio({ audio }: { audio: { url: string; seconds: number } }) {
+  const minutes = Math.max(1, Math.round(audio.seconds / 60));
+  return (
+    <section aria-label="브리핑 듣기" className="space-y-1.5 rounded-xl border p-3">
+      <p className="flex items-center justify-between text-xs text-muted-foreground">
+        <span className="font-medium text-foreground">브리핑 듣기</span>
+        <span>
+          약 {minutes}분 · <a href="/podcast.xml" className="underline-offset-2 hover:underline">팟캐스트 구독</a>
+        </span>
+      </p>
+      <audio controls preload="none" src={audio.url} className="h-9 w-full">
+        브라우저가 오디오 재생을 지원하지 않습니다.
+      </audio>
+    </section>
+  );
+}

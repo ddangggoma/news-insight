@@ -99,6 +99,8 @@ export interface PublicBriefing {
   digest_tracks: DigestTrack[];
   /** The newest weekly and monthly briefings (plan 13 C4). */
   periodic?: PeriodicEntry[];
+  /** The spoken briefing, when the host rendered it (plan 13 A1). */
+  audio?: { url: string; seconds: number } | null;
   /** The reader's watched subjects in the briefing day (plan 13 A5). */
   watch?: { kind: "company" | "theme" | "keyword"; key: string; label: string; count: number; item_ids: number[] }[];
   sections: { track: Track; summary: string | null; items: ReaderItem[] }[];
@@ -160,4 +162,14 @@ export interface PublicPeriodic extends PeriodicEntry {
   daily: { briefing_date: string; headline: string | null }[];
   previous_key: string | null;
   next_key: string | null;
+}
+
+/** A rendered spoken briefing (plan 13 A1), listed for the podcast feed. */
+export interface AudioEntry {
+  briefing_date: string;
+  headline: string;
+  url: string;
+  seconds: number;
+  bytes: number;
+  generated_at: string;
 }

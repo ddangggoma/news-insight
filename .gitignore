@@ -17,3 +17,4 @@ test-results/
 playwright-report/
 ops/releases.log
 ops/reports/
+ops/media/

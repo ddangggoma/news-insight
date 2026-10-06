@@ -10,12 +10,14 @@ from pydantic import BaseModel
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from news_insight.audio import render as audio_render
 from news_insight.briefing.models import Briefing, BriefingStatus
 from news_insight.briefing.service import current_briefing, failing
 from news_insight.briefing.strength import Strength, evidence_for, grade
 from news_insight.cards.models import CardStatus, ItemCard
 from news_insight.companies.catalog import ORGANIZATIONS, CompanyKind
 from news_insight.companies.service import info_for
+from news_insight.config import get_settings
 from news_insight.console.briefings import strategy_out
 from news_insight.console.queries import latest_metrics
 from news_insight.content.models import Item
@@ -85,6 +87,11 @@ class BriefingSignal(BaseModel):
     href: str
 
 
+class BriefingAudio(BaseModel):
+    url: str
+    seconds: int
+
+
 class BriefingInsight(Insight):
     strength: Strength | None = None
 
@@ -124,6 +131,8 @@ class PublicBriefing(BaseModel):
     digest_tracks: list[TrackSection] = []
     # the reader's watched companies, themes and keywords in the briefing day (plan 13 A5)
     watch: list[WatchHit] = []
+    # the spoken version, when the host has rendered it (plan 13 A1)
+    audio: BriefingAudio | None = None
     # the newest weekly and monthly briefings, linked from the aside (plan 13 C4)
     periodic: list[PeriodicEntry] = []
     sections: list[BriefingSection]
@@ -185,6 +194,13 @@ def _items(session: Session, item_ids: list[int]) -> dict[int, ReaderItem]:
         item.id: _reader_item(item, source, card, story, metrics.get(item.id, {}), names)
         for item, source, card, story in rows
     }
+
+
+def _audio(briefing: Briefing) -> BriefingAudio | None:
+    recorded = audio_render.entry_for(
+        get_settings().media_dir, briefing.briefing_date.isoformat(), briefing.version
+    )
+    return BriefingAudio(url=recorded.url, seconds=recorded.seconds) if recorded else None
 
 
 def _refs(session: Session, item_ids: set[int]) -> list[DigestItemRef]:
@@ -270,6 +286,7 @@ def public_briefing(session: Session, briefing: Briefing) -> PublicBriefing:
         companies=company_moves(session, shortlist_ids),
         digest_tracks=content.tracks if content else [],
         watch=watch,
+        audio=_audio(briefing),
         periodic=periodic_recent(session, limit=3),
         sections=sections,
         strategy=strategy,
