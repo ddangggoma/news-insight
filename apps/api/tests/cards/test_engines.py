@@ -253,3 +253,15 @@ def test_claude_engine_sends_items_on_stdin_and_maps_limits() -> None:
     with pytest.raises(QuotaExhausted):
         engine.generate(INPUTS)
     assert not engine.usage().usable(min_weekly=10, min_five_hour=2)
+
+
+def test_quiet_hours_and_claude_daily_count() -> None:
+    from datetime import UTC, datetime
+
+    from news_insight.cards.service import in_quiet_hours
+
+    at = lambda hour: datetime(2026, 10, 6, hour - 9 if hour >= 9 else hour + 15, 0, tzinfo=UTC)  # noqa: E731
+    assert in_quiet_hours("3-11", at(5)) and in_quiet_hours("3-11", at(10))
+    assert not in_quiet_hours("3-11", at(11)) and not in_quiet_hours("3-11", at(23))
+    assert in_quiet_hours("22-2", at(23)) and in_quiet_hours("22-2", at(1))
+    assert not in_quiet_hours("", at(5)) and not in_quiet_hours("x", at(5))

@@ -23,7 +23,7 @@ from news_insight.cards.service import CardPolicy, pending_count, record_run, ru
 from news_insight.collect.dead_letters import DeadLetterError, dismiss, list_open, retry
 from news_insight.collect.models import FetchOutcome, SourceRuntime
 from news_insight.collect.service import collect_source
-from news_insight.config import get_settings
+from news_insight.config import Settings, get_settings
 from news_insight.content.trends import metric_movers
 from news_insight.db import session_scope
 from news_insight.digest.claude import ClaudeCli, ClaudeClient
@@ -168,6 +168,17 @@ def _card_engines(qwen_only: bool) -> tuple[list[MeteredEngine], QwenEngine]:
         timeout_seconds=settings.card_timeout_seconds * 2,
     )
     return metered, qwen
+
+
+def _scheduled_claude(settings: Settings) -> bool:
+    """Claude joins a scheduled run outside the quiet hours and below the daily card cap."""
+    from news_insight.cards.service import claude_cards_today, in_quiet_hours
+
+    now = datetime.now(UTC)
+    if not settings.card_claude or in_quiet_hours(settings.card_claude_quiet_hours, now):
+        return False
+    with session_scope() as session:
+        return claude_cards_today(session, now) < settings.card_claude_daily_cap
 
 
 def _judge_engine() -> MeteredEngine | None:
@@ -581,13 +592,14 @@ def cards_run(
             typer.echo("another card run is active; skipping")
             return
         metered, local = _card_engines(qwen_only)
-        if claude:
+        if claude or (not qwen_only and _scheduled_claude(settings)):
             from news_insight.cards.engines import ClaudeEngine
 
             cli = ClaudeCli(
                 executable=settings.claude_cli, timeout_seconds=settings.card_timeout_seconds
             )
-            metered = [ClaudeEngine(cli=cli, model=settings.card_claude_model)]
+            # ahead of Codex and Antigravity; a usage-limit error moves the run down the chain
+            metered = [ClaudeEngine(cli=cli, model=settings.card_claude_model), *metered]
         # Qwen only after every metered engine is down to its reserve (card_qwen_fallback)
         qwen = local if qwen_only or settings.card_qwen_fallback else None
         policy = CardPolicy(

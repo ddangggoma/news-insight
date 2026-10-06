@@ -8,6 +8,7 @@ from contextlib import AbstractContextManager
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from typing import Any
+from zoneinfo import ZoneInfo
 
 from sqlalchemy import and_, func, or_, select
 from sqlalchemy.orm import Session
@@ -105,6 +106,32 @@ def pending_items(
         .limit(limit)
     )
     return list(session.execute(statement).tuples())
+
+
+KST = ZoneInfo("Asia/Seoul")
+
+
+def claude_cards_today(session: Session, now: datetime) -> int:
+    """Cards Claude wrote since midnight KST (the scheduled daily cap)."""
+    midnight = now.astimezone(KST).replace(hour=0, minute=0, second=0, microsecond=0)
+    return (
+        session.scalar(
+            select(func.count())
+            .select_from(ItemCard)
+            .where(ItemCard.engine == "claude", ItemCard.generated_at >= midnight)
+        )
+        or 0
+    )
+
+
+def in_quiet_hours(spec: str, now: datetime) -> bool:
+    """`spec` is "start-end" in KST hours ("3-11": 03:00 to 10:59); empty means never."""
+    try:
+        start, end = (int(part) for part in spec.split("-", 1))
+    except ValueError:
+        return False
+    hour = now.astimezone(KST).hour
+    return start <= hour < end if start <= end else hour >= start or hour < end
 
 
 def pending_count(session: Session) -> int:
@@ -336,7 +363,7 @@ class CardPolicy:
     agy_parallel: int = 3  # independent agy processes per round (quota is the real cap)
     codex_batch: int = 40
     codex_parallel: int = 2
-    claude_batch: int = 20
+    claude_batch: int = 12
     claude_parallel: int = 3
     codex_classify_batch: int = 100
     qwen_batch: int = 5
