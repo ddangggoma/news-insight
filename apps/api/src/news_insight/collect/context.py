@@ -26,7 +26,7 @@ def collect_context(
         etag=etag,
         last_modified=last_modified,
         last_success_at=last_success_at,
-        headers=resolve_auth_headers(source.config),
+        headers={**provider_headers(source.endpoint_url), **resolve_auth_headers(source.config)},
         known_ids=known_ids,
     )
 
@@ -45,3 +45,14 @@ def polite_url(url: str) -> str:
     if not mailto or parts.hostname not in POLITE_HOSTS or "mailto=" in parts.query:
         return url
     return f"{url}{'&' if parts.query else '?'}mailto={quote(mailto, safe='@')}"
+
+
+def provider_headers(url: str) -> dict[str, str]:
+    """Credentials a shared API takes from .env: the OpenAlex key as a Bearer header, so it never
+    appears in a URL, a log line or a stored error message (OpenAlex accepts both forms)."""
+    from news_insight.config import get_settings
+
+    key = get_settings().openalex_api_key
+    if key and urlsplit(url).hostname == "api.openalex.org":
+        return {"Authorization": f"Bearer {key}"}
+    return {}

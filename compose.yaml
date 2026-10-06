@@ -22,6 +22,7 @@ x-python-env: &python-env
   SMTP_PASSWORD: ${SMTP_PASSWORD:-}
   SMTP_FROM: ${SMTP_FROM:-}
   OPENALEX_MAILTO: ${OPENALEX_MAILTO:-}
+  OPENALEX_API_KEY: ${OPENALEX_API_KEY:-}
 
 # every container keeps at most 5 x 20 MB of logs (json-file had no limit)
 x-logging: &logging

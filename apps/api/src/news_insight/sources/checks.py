@@ -4,7 +4,7 @@ from collections.abc import Sequence
 from datetime import UTC, datetime, timedelta
 from urllib.parse import urlsplit
 
-from news_insight.collect.context import collect_context, polite_url
+from news_insight.collect.context import collect_context, polite_url, provider_headers
 from news_insight.collect.contracts import CollectorError, RawItem
 from news_insight.collect.macros import expand_macros
 from news_insight.collect.registry import collector_for
@@ -106,7 +106,7 @@ def check_network(source: Source, fetcher: SafeFetcher) -> CheckResult:
 
     Authenticated APIs are probed with their credentials (V1 already required them)."""
     try:
-        headers = resolve_auth_headers(source.config)
+        headers = {**provider_headers(source.endpoint_url), **resolve_auth_headers(source.config)}
     except SecretError:
         headers = {}
     try:

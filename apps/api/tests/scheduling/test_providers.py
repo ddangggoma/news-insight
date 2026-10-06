@@ -35,3 +35,25 @@ def test_back_off_keeps_the_longest_wait(redis_client: redis.Redis) -> None:
 
     assert 44_900 < gate.backoff_seconds("api.openalex.org") <= 44_947
     assert gate.backoff_seconds("api.crossref.org") == 0
+
+
+def test_an_openalex_key_raises_the_budget_and_travels_as_a_header(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from news_insight.collect.context import provider_headers
+    from news_insight.config import get_settings
+    from news_insight.scheduling.providers import OPENALEX_WITH_KEY, provider
+
+    settings = get_settings()
+    monkeypatch.setattr(settings, "openalex_api_key", "")
+    assert provider("api.openalex.org") is PROVIDERS["api.openalex.org"]
+    assert provider_headers("https://api.openalex.org/works?search=x") == {}
+
+    monkeypatch.setattr(settings, "openalex_api_key", "test-key")
+    assert provider("api.openalex.org") is OPENALEX_WITH_KEY
+    assert min_interval("https://api.openalex.org/works") == 6 * 3600
+    assert provider_headers("https://api.openalex.org/works?search=x") == {
+        "Authorization": "Bearer test-key"
+    }
+    assert provider_headers("https://api.crossref.org/works") == {}
+    assert provider("api.crossref.org") is PROVIDERS["api.crossref.org"]

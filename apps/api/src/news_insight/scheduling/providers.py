@@ -33,6 +33,20 @@ PROVIDERS: dict[str, Provider] = {
     # public pool 1 request/s (polite pool with mailto is more); stay well under it
     "api.crossref.org": Provider(per_day=30 * 60 * 24, burst=1, validate_per_batch=5),
 }
+# with a free OpenAlex key ($1 a day, 10x): about 900 searches, so sources poll every 6 hours
+OPENALEX_WITH_KEY = Provider(
+    per_day=900, burst=5, validate_per_batch=10, min_interval_seconds=6 * 3600
+)
+
+
+def provider(host: str) -> Provider:
+    from news_insight.config import get_settings
+
+    if host == "api.openalex.org" and get_settings().openalex_api_key:
+        return OPENALEX_WITH_KEY
+    return PROVIDERS[host]
+
+
 MAX_BACKOFF_SECONDS = 24 * 3600
 
 
@@ -43,7 +57,7 @@ def provider_host(url: str) -> str | None:
 
 def min_interval(url: str) -> int:
     host = provider_host(url)
-    return PROVIDERS[host].min_interval_seconds if host else 0
+    return provider(host).min_interval_seconds if host else 0
 
 
 class ProviderGate:
@@ -75,13 +89,13 @@ class ProviderGate:
             self._client.set(key, "1", ex=seconds)
 
     def try_acquire(self, host: str) -> bool:
-        provider = PROVIDERS[host]
+        budget = provider(host)
         allowed = self._bucket(
             keys=[f"{self._prefix}bucket:{host}"],
-            args=[provider.burst, provider.per_day / 86400, self._clock()],
+            args=[budget.burst, budget.per_day / 86400, self._clock()],
         )
         return bool(allowed == 1)
 
     def wait_seconds(self, host: str) -> int:
         """Time until the next token at the sustained rate."""
-        return max(60, int(86400 / PROVIDERS[host].per_day))
+        return max(60, int(86400 / provider(host).per_day))
