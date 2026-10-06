@@ -52,10 +52,15 @@ class Settings(BaseSettings):
     card_codex_model: str = ""  # the account's default Codex model
     card_codex_batch: int = 40
     card_codex_parallel: int = 2
-    # `cards run --claude` only (2026-10-06): Claude Code instead of Codex and Antigravity
-    card_claude_model: str = "sonnet"
-    card_claude_batch: int = 20
+    # Claude Code for cards (2026-10-06 user request: clear the backlog with Claude and Qwen).
+    # Scheduled runs put it ahead of Codex and Antigravity outside the quiet hours (KST, the
+    # briefing's Claude budget) and below a daily card cap; `cards run --claude` ignores both.
+    card_claude: bool = True
+    card_claude_model: str = "claude-sonnet-5-5"
+    card_claude_batch: int = 12
     card_claude_parallel: int = 3
+    card_claude_quiet_hours: str = "3-11"
+    card_claude_daily_cap: int = 1500
     card_qwen_batch: int = 5
     card_qwen_fallback: bool = True  # after Codex and Antigravity are down to their reserves
     # Qwen full time (2026-10-06, user request): its lanes run next to Codex/Antigravity too
