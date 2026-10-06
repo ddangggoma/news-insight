@@ -8,7 +8,7 @@ function escapeXml(value: string): string {
 export function digestFeed(origin: string, digests: DigestSummary[]): string {
   const items = digests
     .map((digest) => {
-      const link = `${origin}/digests/${digest.digest_date}`;
+      const link = `${origin}/briefings/${digest.digest_date}`;
       return [
         "<item>",
         `<title>${escapeXml(`${digest.digest_date} · ${digest.headline}`)}</title>`,

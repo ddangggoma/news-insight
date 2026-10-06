@@ -1,7 +1,9 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { BriefingAside } from "@/components/reader/briefing-aside";
+import { BriefingMain } from "@/components/reader/briefing-main";
+import { BriefingPanes } from "@/components/reader/briefing-panes";
 import type { PublicBriefing } from "@/lib/briefing-types";
 import { formatBriefingDate } from "@/lib/format";
 import type { ReaderItem } from "@/lib/reader-types";
@@ -33,8 +35,22 @@ const BRIEFING: PublicBriefing = {
   version: 1,
   published_at: "2026-10-04T20:00:00Z",
   headline: "헤드라인",
+  tldr: ["첫째 요점", "둘째 요점", "셋째 요점"],
   overview: null,
-  insights: [{ title: "i", body: "b", item_ids: [1, 2] }],
+  insights: [
+    {
+      title: "i",
+      body: "b",
+      item_ids: [1, 2],
+      continuity: "continuing",
+      previous_title: "어제 인사이트",
+      companies: ["Qualcomm"],
+      strength: { grade: "strong", outlets: 9, tracks: 2, regions: 2, vendor_share: 0, reason: "출처 9곳 · 트랙 2개 · 권역 2곳" },
+    },
+  ],
+  continuing: [{ story_id: 7, item_id: 1, title: "사흘째 이어지는 이야기", days: 3, sources: 6 }],
+  companies: [{ key: "qualcomm", label: "퀄컴", relation: "supplier", kind: "company", count: 2, item_ids: [1, 2] }],
+  digest_tracks: [{ track: "news", summary: "뉴스 요약", categories: [{ category: "independent_media", headline: "범주 헤드라인", points: [{ text: "요점", item_ids: [1] }] }] }],
   sections: [{ track: "news", summary: null, items: [item(1, "ai", "opportunity"), item(2, "ai", "risk"), item(3, "display_av", "watch")] }],
   strategy: {
     personas: [
@@ -66,5 +82,23 @@ describe("briefing aside", () => {
 
   it("formats briefing dates as calendar days", () => {
     expect(formatBriefingDate("2026-10-05")).toBe("2026년 10월 5일 (월)");
+  });
+});
+
+describe("briefing reading depth", () => {
+  it("starts at one minute and opens insights, stories and the full summary on demand", async () => {
+    const { container } = render(<BriefingPanes main={<BriefingMain briefing={BRIEFING} />} aside={<BriefingAside briefing={BRIEFING} past={[]} />} />);
+    const wrapper = container.querySelector("[data-depth]");
+
+    expect(wrapper).toHaveAttribute("data-depth", "one");
+    expect(screen.getByText("첫째 요점")).toBeInTheDocument();
+    expect(screen.getAllByText("퀄컴").length).toBeGreaterThan(0);
+    expect(screen.getByText("근거 강함")).toHaveAttribute("title", "출처 9곳 · 트랙 2개 · 권역 2곳");
+    expect(screen.getByText("이어짐")).toHaveAttribute("title", "이전: 어제 인사이트");
+    expect(screen.getByText("3일째 · 출처 6곳")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "전체 수집 요약" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("radio", { name: "심층" }));
+    expect(wrapper).toHaveAttribute("data-depth", "deep");
   });
 });

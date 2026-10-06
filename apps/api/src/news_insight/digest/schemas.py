@@ -3,7 +3,7 @@
 from datetime import date, datetime
 from typing import TYPE_CHECKING, Any
 
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, field_validator
 
 from news_insight.digest.models import DigestStatus
 from news_insight.sources.enums import Track
@@ -29,17 +29,57 @@ class TrackSection(BaseModel):
     categories: list[CategorySection]
 
 
+CONTINUITY = ("new", "continuing", "escalation", "reversal")
+
+
 class Insight(BaseModel):
     title: str = Field(min_length=1, max_length=120)
     body: str = Field(min_length=1, max_length=800)
     item_ids: list[int] = Field(min_length=2, max_length=10)
+    # against the last three briefings (plan 13 B1): new, still going, growing, turning around
+    continuity: str = "new"
+    previous_title: str | None = None
+    # registered company names the insight is about (plan 12)
+    companies: list[str] = Field(default_factory=list)
+
+    @field_validator("continuity", mode="before")
+    @classmethod
+    def _continuity(cls, value: object) -> str:
+        return value if isinstance(value, str) and value in CONTINUITY else "new"
+
+    @field_validator("previous_title", mode="before")
+    @classmethod
+    def _previous(cls, value: object) -> str | None:
+        return str(value).strip()[:120] or None if value else None
+
+    @field_validator("companies", mode="before")
+    @classmethod
+    def _companies(cls, value: object) -> list[str]:
+        names = (
+            [str(v).strip()[:80] for v in value or [] if str(v).strip()]
+            if isinstance(value, list)
+            else []
+        )
+        return list(dict.fromkeys(names))[:5]
 
 
 class DigestContent(BaseModel):
     headline: str = Field(min_length=1, max_length=160)
+    # three lines a reader can take away in a minute (plan 13 C1)
+    tldr: list[str] = Field(default_factory=list)
     overview: str = Field(min_length=1, max_length=1200)
     tracks: list[TrackSection]
     insights: list[Insight] = Field(max_length=8)
+
+    @field_validator("tldr", mode="before")
+    @classmethod
+    def _tldr(cls, value: object) -> list[str]:
+        lines = (
+            [str(v).strip()[:160] for v in value or [] if str(v).strip()]
+            if isinstance(value, list)
+            else []
+        )
+        return lines[:3]
 
 
 class DigestItemRef(BaseModel):

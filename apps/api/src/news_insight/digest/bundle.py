@@ -9,6 +9,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from news_insight.cards.models import ItemCard
+from news_insight.companies.service import info_for
 from news_insight.console.queries import latest_metrics
 from news_insight.content.models import Item
 from news_insight.content.normalize import truncate
@@ -69,6 +70,9 @@ def build_bundle(
         and (story is None or story.representative_item_id == item.id)
     ]
     metrics = latest_metrics(session, [item.id for item, *_ in kept])
+    registry = info_for(
+        session, {key for _, _, card, _ in kept if card is not None for key in card.company_keys}
+    )
     grouped: dict[Track, dict[str, list[Row]]] = {}
     for row in kept:
         grouped.setdefault(row[0].track, {}).setdefault(row[1].category, []).append(row)
@@ -109,6 +113,11 @@ def build_bundle(
                             "themes": list(card.themes) if card is not None else [],
                             "signal_type": card.signal_type if card is not None else None,
                             "covered_by_sources": story.source_count if story is not None else 1,
+                            "companies": [
+                                registry[key].name
+                                for key in (card.company_keys if card is not None else [])
+                                if key in registry
+                            ],
                         }
                         for item, source, card, story in top
                     ],
