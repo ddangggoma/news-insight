@@ -50,6 +50,7 @@ const BRIEFING: PublicBriefing = {
   ],
   continuing: [{ story_id: 7, item_id: 1, title: "사흘째 이어지는 이야기", days: 3, sources: 6 }],
   companies: [{ key: "qualcomm", label: "퀄컴", relation: "supplier", kind: "company", count: 2, item_ids: [1, 2] }],
+  watch: [{ kind: "company", key: "samsung", label: "삼성전자", count: 4, item_ids: [2] }],
   digest_tracks: [{ track: "news", summary: "뉴스 요약", categories: [{ category: "independent_media", headline: "범주 헤드라인", points: [{ text: "요점", item_ids: [1] }] }] }],
   sections: [{ track: "news", summary: null, items: [item(1, "ai", "opportunity"), item(2, "ai", "risk"), item(3, "display_av", "watch")] }],
   strategy: {
@@ -107,6 +108,9 @@ describe("briefing reading depth", () => {
     expect(screen.getByText("이어짐")).toHaveAttribute("title", "이전: 어제 인사이트");
     expect(screen.getByText("3일째 · 출처 6곳")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "전체 수집 요약" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "내 관심 항목" })).toBeInTheDocument();
+    expect(screen.getByText("삼성전자")).toBeInTheDocument();
+    expect(screen.getByText("4건")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("radio", { name: "심층" }));
     expect(wrapper).toHaveAttribute("data-depth", "deep");

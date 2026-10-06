@@ -97,6 +97,8 @@ export interface PublicBriefing {
   continuing: ContinuingStory[];
   companies: CompanyMove[];
   digest_tracks: DigestTrack[];
+  /** The reader's watched subjects in the briefing day (plan 13 A5). */
+  watch?: { kind: "company" | "theme" | "keyword"; key: string; label: string; count: number; item_ids: number[] }[];
   sections: { track: Track; summary: string | null; items: ReaderItem[] }[];
   strategy: {
     personas: BriefingPersona[];
