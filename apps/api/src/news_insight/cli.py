@@ -568,6 +568,9 @@ CARDS_LOCK = Path(tempfile.gettempdir()) / "news-insight-cards.lock"
 def cards_run(
     budget: Annotated[int | None, typer.Option(help="Time budget in seconds")] = None,
     qwen_only: Annotated[bool, typer.Option(help="Skip Codex and Antigravity; local Qwen")] = False,
+    claude: Annotated[
+        bool, typer.Option(help="Claude Code instead of Codex and Antigravity (Qwen alongside)")
+    ] = False,
 ) -> None:
     """Generate Korean cards for pending items (host-side; launchd runs it every 10 minutes)."""
     settings = get_settings()
@@ -578,6 +581,13 @@ def cards_run(
             typer.echo("another card run is active; skipping")
             return
         metered, local = _card_engines(qwen_only)
+        if claude:
+            from news_insight.cards.engines import ClaudeEngine
+
+            cli = ClaudeCli(
+                executable=settings.claude_cli, timeout_seconds=settings.card_timeout_seconds
+            )
+            metered = [ClaudeEngine(cli=cli, model=settings.card_claude_model)]
         # Qwen only after every metered engine is down to its reserve (card_qwen_fallback)
         qwen = local if qwen_only or settings.card_qwen_fallback else None
         policy = CardPolicy(
@@ -585,6 +595,8 @@ def cards_run(
             agy_parallel=settings.card_agy_parallel,
             codex_batch=settings.card_codex_batch,
             codex_parallel=settings.card_codex_parallel,
+            claude_batch=settings.card_claude_batch,
+            claude_parallel=settings.card_claude_parallel,
             qwen_batch=settings.card_qwen_batch,
             qwen_parallel=settings.card_qwen_parallel,
             min_weekly=settings.card_agy_min_weekly,
