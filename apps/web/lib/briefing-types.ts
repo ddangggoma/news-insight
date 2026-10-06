@@ -97,6 +97,8 @@ export interface PublicBriefing {
   continuing: ContinuingStory[];
   companies: CompanyMove[];
   digest_tracks: DigestTrack[];
+  /** The newest weekly and monthly briefings (plan 13 C4). */
+  periodic?: PeriodicEntry[];
   /** The reader's watched subjects in the briefing day (plan 13 A5). */
   watch?: { kind: "company" | "theme" | "keyword"; key: string; label: string; count: number; item_ids: number[] }[];
   sections: { track: Track; summary: string | null; items: ReaderItem[] }[];
@@ -124,4 +126,38 @@ export interface BriefingEntry {
   headline: string | null;
   items: number;
   published_at: string;
+}
+
+/** Weekly and monthly briefings built from the daily ones (plan 13 C4). */
+export type PeriodKind = "week" | "month";
+
+export interface PeriodicEntry {
+  kind: PeriodKind;
+  key: string;
+  label: string;
+  headline: string;
+  period_start: string;
+  /** inclusive */
+  period_end: string;
+}
+
+export type Trajectory = "new" | "rising" | "steady" | "fading" | "reversal";
+
+export interface PublicPeriodic extends PeriodicEntry {
+  version: number;
+  days: number;
+  generated_at: string;
+  content: {
+    headline: string;
+    tldr: string[];
+    overview: string;
+    trends: { title: string; body: string; item_ids: number[]; trajectory: Trajectory; companies: string[] }[];
+    companies: { name: string; summary: string; item_ids: number[] }[];
+    watch_next: string[];
+    actions: string[];
+  };
+  refs: ItemRef[];
+  daily: { briefing_date: string; headline: string | null }[];
+  previous_key: string | null;
+  next_key: string | null;
 }
