@@ -11,7 +11,7 @@
 	order rate_limit before handle
 }
 
-{$PUBLIC_HOST:localhost} {
+(site) {
 	encode zstd gzip
 
 	# The console API is internal: only the web server calls it, over the compose network.
@@ -64,9 +64,8 @@
 		-Server
 	}
 
-	# HSTS only on a real domain: on localhost it would also force HTTPS on the dev ports.
-	@public_domain not host localhost 127.0.0.1
-	header @public_domain Strict-Transport-Security "max-age=31536000; includeSubDomains"
+	# No HSTS: the site is also served over plain HTTP on the HTTP port (2026-10-06,
+	# user decision), and HSTS would make browsers refuse that.
 
 	handle /api/* {
 		reverse_proxy api:8000
@@ -77,6 +76,12 @@
 	}
 }
 
+# HTTPS on CADDY_HTTPS_PORT and plain HTTP on CADDY_HTTP_PORT serve the same site
+# (2026-10-06: HTTP access was requested; the HTTP port used to redirect to HTTPS).
+{$PUBLIC_HOST:localhost} {
+	import site
+}
+
 http://{$PUBLIC_HOST:localhost} {
-	redir https://{host}:{$CADDY_HTTPS_PORT:8700}{uri} permanent
+	import site
 }

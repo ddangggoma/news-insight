@@ -1,6 +1,6 @@
 "use server";
 
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { ApiError, api } from "@/lib/api";
@@ -28,9 +28,12 @@ export async function completeLogin(form: FormData): Promise<void> {
     if (error instanceof ApiError && (error.status === 401 || error.status === 422)) redirect("/login?error=expired");
     throw error;
   }
+  // Secure only when the request came over HTTPS: the site is also served over plain HTTP
+  // (Caddy's HTTP port, 2026-10-06), where a Secure cookie would never be stored.
+  const https = (await headers()).get("x-forwarded-proto") === "https";
   (await cookies()).set(SESSION_COOKIE, session.token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: process.env.NODE_ENV === "production" && https,
     sameSite: "lax",
     path: "/",
     expires: new Date(session.expires_at),
