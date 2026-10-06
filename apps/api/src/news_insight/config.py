@@ -52,10 +52,12 @@ class Settings(BaseSettings):
     card_codex_model: str = ""  # the account's default Codex model
     card_codex_batch: int = 40
     card_codex_parallel: int = 2
-    # Claude Code for cards (2026-10-06 user request: clear the backlog with Claude and Qwen).
-    # Scheduled runs put it ahead of Codex and Antigravity outside the quiet hours (KST, the
-    # briefing's Claude budget) and below a daily card cap; `cards run --claude` ignores both.
-    card_claude: bool = True
+    # Claude Code for cards. Scheduled runs use it only while `card_claude` is on or before
+    # `card_claude_until` (ISO time): 2026-10-06 user request, Claude until 10-07 01:00 KST and
+    # afterwards only when asked (`cards run --claude`). Outside the quiet hours (KST, the
+    # briefing's Claude budget) and below a daily card cap; `--claude` ignores both.
+    card_claude: bool = False
+    card_claude_until: str = "2026-10-07T01:00:00+09:00"
     card_claude_model: str = "claude-sonnet-5-5"
     card_claude_batch: int = 12
     card_claude_parallel: int = 3
