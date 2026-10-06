@@ -344,6 +344,8 @@ export interface StrategyClaim {
   text: string;
   item_ids: number[];
   horizon?: "1y" | "3y" | "5y";
+  /** Evidence grade added by the reader API (plan 13 B2). */
+  strength?: { grade: "strong" | "medium" | "weak"; reason: string } | null;
 }
 
 export interface StrategyOut {

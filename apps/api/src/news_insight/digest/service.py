@@ -41,7 +41,10 @@ def generate_digest(
     radar cards (PRD-1), context for the articles, never evidence on their own."""
     start, end = digest_window(digest_date)
     bundle = build_bundle(session, start=start, end=end, item_ids=item_ids)
-    payload = {**bundle.payload, "radar_signals": signals} if signals else bundle.payload
+    payload = {**bundle.payload, "radar_signals": signals} if signals else dict(bundle.payload)
+    previous = recent_insights(session, before=digest_date)
+    if previous:
+        payload["previous"] = previous  # plan 13 B1: what the last briefings already said
     input_hash = hashlib.sha256(
         json.dumps(payload, sort_keys=True, ensure_ascii=False).encode("utf-8")
     ).hexdigest()
@@ -166,3 +169,31 @@ def list_digests(session: Session, *, page: int, size: int) -> Page[DigestSummar
         page=page,
         size=size,
     )
+
+
+PREVIOUS_DAYS = 3
+
+
+def recent_insights(session: Session, *, before: date) -> list[dict[str, Any]]:
+    """Headline and insight titles of the latest published digests before `before` (newest
+    first, one per date), so the next digest can say what is new and what continues."""
+    rows = session.scalars(
+        select(Digest)
+        .where(Digest.digest_date < before, Digest.status == DigestStatus.PUBLISHED)
+        .order_by(Digest.digest_date.desc(), Digest.version.desc())
+    )
+    out: list[dict[str, Any]] = []
+    for digest in rows:
+        if out and out[-1]["date"] == digest.digest_date.isoformat():
+            continue
+        content = digest.content or {}
+        out.append(
+            {
+                "date": digest.digest_date.isoformat(),
+                "headline": content.get("headline"),
+                "insights": [i.get("title") for i in content.get("insights", []) if i.get("title")],
+            }
+        )
+        if len(out) == PREVIOUS_DAYS:
+            break
+    return out

@@ -9,7 +9,7 @@ describe("digestFeed", () => {
     ]);
     expect(xml).toContain('<rss version="2.0">');
     expect(xml).toContain("<title>2026-10-04 · AI &amp; &lt;OS&gt;</title>");
-    expect(xml).toContain('<guid isPermaLink="true">https://dx.example/digests/2026-10-04</guid>');
+    expect(xml).toContain('<guid isPermaLink="true">https://dx.example/briefings/2026-10-04</guid>');
     expect(xml).toContain("<pubDate>Sat, 03 Oct 2026 20:00:00 GMT</pubDate>");
   });
 });

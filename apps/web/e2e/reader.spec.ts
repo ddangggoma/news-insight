@@ -13,6 +13,11 @@ test.describe("reader", () => {
     await page.goto("/briefings");
 
     await expect(page.getByRole("heading", { level: 1, name: /온디바이스 AI 경쟁 본격화/ })).toBeVisible();
+    // one-minute view first (plan 13 C1): the insight cards wait for the five-minute view
+    await expect(page.getByRole("heading", { name: "핵심 인사이트" })).toBeHidden();
+    await page.getByRole("radio", { name: "5분" }).click();
+    await expect(page.getByRole("heading", { name: "핵심 인사이트" })).toBeVisible();
+    await page.getByRole("radio", { name: "심층" }).click();
     for (const track of ["뉴스·공식", "논문·특허", "오픈소스", "커뮤니티"]) {
       await expect(page.getByRole("heading", { level: 2, name: track })).toBeVisible();
     }
@@ -26,6 +31,7 @@ test.describe("reader", () => {
     await page.goto("/briefings");
     await page.getByRole("link", { name: "이전 브리핑" }).click();
     await expect(page).toHaveURL(/\/briefings\/\d{4}-\d{2}-\d{2}$/);
+    await page.getByRole("radio", { name: "심층" }).click();
     const main = page.getByRole("tabpanel", { name: "브리핑" });
     await expect(main.getByRole("link", { name: "삼성, 차세대 온디바이스 AI 칩 공개 (전일)" })).toBeVisible();
 
@@ -43,6 +49,7 @@ test.describe("reader", () => {
     test.skip(!isMobile, "mobile only");
     await page.goto("/briefings");
     await expect(page.getByRole("heading", { level: 1, name: /온디바이스 AI 경쟁/ })).toBeVisible();
+    await page.getByRole("radio", { name: "심층" }).click();
     await expect(page.getByRole("heading", { name: "페르소나 통찰" })).toBeHidden();
     await page.getByRole("tab", { name: "인사이트" }).click();
     await expect(page.getByRole("heading", { name: "페르소나 통찰" })).toBeVisible();

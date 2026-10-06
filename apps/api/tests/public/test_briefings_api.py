@@ -78,3 +78,19 @@ def test_archive_lists_headlines(
 
     assert listed["total"] == 1
     assert listed["items"][0]["headline"] == "헤드라인" and listed["items"][0]["items"] == 8
+
+
+def test_briefing_carries_tldr_strength_companies_and_the_full_summary(
+    db_session: Session, public_client: TestClient, public_headers: dict[str, str]
+) -> None:
+    published(db_session)
+
+    body = public_client.get("/api/public/briefings/latest", headers=public_headers).json()
+
+    assert body["tldr"] == [] and body["continuing"] == []
+    samsung = next(c for c in body["companies"] if c["key"] == "samsungelectronics")
+    assert samsung["relation"] == "self" and samsung["count"] >= 1
+    insight = body["insights"][0]
+    assert insight["continuity"] == "new"
+    assert insight["strength"]["grade"] in {"strong", "medium", "weak"}
+    assert body["digest_tracks"][0]["categories"][0]["points"][0]["text"] == "p"

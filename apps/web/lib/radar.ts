@@ -426,3 +426,14 @@ export function netOpportunity(topic: Topic): number | null {
   const total = opportunity + risk + watch;
   return total ? (opportunity - risk) / total : null;
 }
+
+/** ISO week key ("2026-W41") of a calendar date given as YYYY-MM-DD. */
+export function isoWeekKey(day: string): string {
+  const [y, m, d] = day.split("-").map(Number);
+  const date = new Date(Date.UTC(y, m - 1, d));
+  const weekday = date.getUTCDay() || 7;
+  date.setUTCDate(date.getUTCDate() + 4 - weekday);
+  const yearStart = Date.UTC(date.getUTCFullYear(), 0, 1);
+  const week = Math.ceil(((date.getTime() - yearStart) / 86_400_000 + 1) / 7);
+  return `${date.getUTCFullYear()}-W${String(week).padStart(2, "0")}`;
+}

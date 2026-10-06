@@ -11,7 +11,6 @@ export const READER_NAV = [
   { href: "/", label: "탐색" },
   { href: "/briefings", label: "브리핑" },
   { href: "/radar", label: "레이더" },
-  { href: "/digests", label: "다이제스트" },
 ] as const;
 
 export function isReaderActive(pathname: string, href: string): boolean {

@@ -31,7 +31,7 @@ export function DigestBanner({ date, headline, insights }: { date: string; headl
         <Sparkles className="size-3.5" aria-hidden /> {date} 다이제스트
       </p>
       <h2 className="mt-1 text-base leading-snug font-semibold">
-        <Link href={`/digests/${date}`} className="hover:underline">
+        <Link href={`/briefings/${date}`} className="hover:underline">
           {headline}
         </Link>
       </h2>

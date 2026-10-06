@@ -2,6 +2,7 @@ import { CalendarDays, Compass, Map as MapIcon, Radar as RadarIcon, TrendingUp, 
 import type { ReactNode } from "react";
 
 import { EvidenceLinks } from "@/components/console/evidence-links";
+import { StrengthBadge } from "@/components/reader/briefing-extras";
 import Link from "next/link";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -267,13 +268,17 @@ export function BriefingAside({ briefing, past }: { briefing: PublicBriefing; pa
             {report.opportunities.slice(0, 3).map((claim) => (
               <p key={claim.id} className="flex gap-2">
                 <span className={cn("h-fit shrink-0 rounded px-1.5 py-0.5 text-[11px] font-medium", IMPACT_STYLE.opportunity)}>기회</span>
-                <span className="leading-snug">{claim.text}</span>
+                <span className="leading-snug">
+                  {claim.text} <StrengthBadge strength={claim.strength} />
+                </span>
               </p>
             ))}
             {report.risks.slice(0, 3).map((claim) => (
               <p key={claim.id} className="flex gap-2">
                 <span className={cn("h-fit shrink-0 rounded px-1.5 py-0.5 text-[11px] font-medium", IMPACT_STYLE.risk)}>위험</span>
-                <span className="leading-snug">{claim.text}</span>
+                <span className="leading-snug">
+                  {claim.text} <StrengthBadge strength={claim.strength} />
+                </span>
               </p>
             ))}
           </div>
