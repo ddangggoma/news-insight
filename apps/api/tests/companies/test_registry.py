@@ -175,3 +175,32 @@ def test_candidates_are_unregistered_names_with_new_entrants_marked(db_session: 
     assert set(rows) == {"novahaptics", "oldwidgetco"}  # Apple is registered, Lonely is thin
     assert rows["novahaptics"].earlier == 0 and rows["novahaptics"].sources == 3
     assert rows["oldwidgetco"].earlier == 1 and rows["novahaptics"].name == "Nova Haptics"
+
+
+@pytest.mark.db
+def test_backfill_queues_recent_cards_without_companies_and_keeps_them_visible(
+    db_session: Session,
+) -> None:
+    from news_insight.cards.service import classify_pending_condition
+    from news_insight.companies.service import BACKFILL_REVISION, mark_backfill
+    from news_insight.public.filters import in_current_tree
+    from news_insight.taxonomy.catalog import TAXONOMY_REVISION
+
+    empty = card_for(db_session, keywords=["x"], seen=NOW - timedelta(days=3))
+    named = card_for(db_session, companies=["Qualcomm"], seen=NOW - timedelta(days=3))
+    old = card_for(db_session, keywords=["y"], seen=NOW - timedelta(days=120))
+    for card in (empty, named, old):
+        card.taxonomy_revision = TAXONOMY_REVISION
+    db_session.flush()
+
+    assert mark_backfill(db_session, now=NOW, days=90, apply=False) == 1
+    assert mark_backfill(db_session, now=NOW, days=90) == 1
+
+    db_session.refresh(empty)
+    assert empty.taxonomy_revision == BACKFILL_REVISION
+    pending = db_session.scalars(
+        select(ItemCard.id)
+        .join(Item, Item.id == ItemCard.item_id)
+        .where(classify_pending_condition(), in_current_tree())
+    ).all()
+    assert pending == [empty.id]

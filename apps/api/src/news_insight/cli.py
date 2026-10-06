@@ -964,6 +964,19 @@ def companies_recompute() -> None:
     typer.echo(f"cards_rekeyed={changed}")
 
 
+@companies_app.command("backfill")
+def companies_backfill(
+    days: Annotated[int, typer.Option(help="Cards first seen in the last N days")] = 90,
+    dry_run: Annotated[bool, typer.Option(help="Count only")] = False,
+) -> None:
+    """Queue recent DX-relevant cards without an engine company list for reclassification."""
+    from news_insight.companies.service import mark_backfill
+
+    with session_scope() as session:
+        count = mark_backfill(session, now=datetime.now(UTC), days=days, apply=not dry_run)
+    typer.echo(f"{'would queue' if dry_run else 'queued'} {count} cards")
+
+
 @companies_app.command("candidates")
 def companies_candidates(
     days: Annotated[int, typer.Option(help="Window in days")] = 30,
