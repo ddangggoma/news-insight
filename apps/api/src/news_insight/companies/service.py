@@ -10,13 +10,15 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 
-from sqlalchemy import func, select, text
+from sqlalchemy import func, select, text, update
 from sqlalchemy.orm import Session
 
 from news_insight.cards.models import CardStatus, ItemCard
 from news_insight.companies.catalog import CompanyCatalog, CompanyStatus
 from news_insight.companies.models import Company, CompanyAlias
+from news_insight.content.freshness import fresh_condition
 from news_insight.content.models import Item
+from news_insight.taxonomy.catalog import TAXONOMY_REVISION, TAXONOMY_TREE
 from news_insight.technologies.catalog import normalize
 
 RELEVANT_SCOPES = ("dx", "dx_dependency")
@@ -193,3 +195,36 @@ def candidates(
     ]
     found.sort(key=lambda c: (-c.cards, -c.sources, c.key))
     return found[:limit]
+
+
+# a revision of the current tree, so readers still see the cards (`in_current_tree`), that is
+# not the current one, so the reclassification lane picks them up again
+BACKFILL_REVISION = f"{TAXONOMY_TREE}.companies"
+
+
+def mark_backfill(session: Session, *, now: datetime, days: int, apply: bool = True) -> int:
+    """Queue DX-relevant cards of the last `days` that carry no engine company list for one
+    more classification-only pass, which now also extracts companies (plan 12 K4). Returns how
+    many cards were (or, with apply=False, would be) queued."""
+    eligible = (
+        select(ItemCard.id)
+        .join(Item, Item.id == ItemCard.item_id)
+        .where(
+            ItemCard.status == CardStatus.READY,
+            ItemCard.scope.in_(RELEVANT_SCOPES),
+            func.jsonb_array_length(ItemCard.companies) == 0,
+            ItemCard.taxonomy_revision == TAXONOMY_REVISION,
+            Item.first_seen_at >= now - timedelta(days=days),
+            fresh_condition(),
+        )
+    )
+    ids = list(session.scalars(eligible))
+    if apply and ids:
+        for start in range(0, len(ids), 10_000):  # bind-parameter limit
+            session.execute(
+                update(ItemCard)
+                .where(ItemCard.id.in_(ids[start : start + 10_000]))
+                .values(taxonomy_revision=BACKFILL_REVISION)
+            )
+        session.flush()
+    return len(ids)
