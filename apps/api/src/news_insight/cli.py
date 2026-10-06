@@ -582,13 +582,20 @@ def cards_run(
             codex_batch=settings.card_codex_batch,
             codex_parallel=settings.card_codex_parallel,
             qwen_batch=settings.card_qwen_batch,
+            qwen_parallel=settings.card_qwen_parallel,
             min_weekly=settings.card_agy_min_weekly,
             min_five_hour=settings.card_agy_min_five_hour,
             time_budget_seconds=float(budget or settings.card_time_budget_seconds),
             unvalidated_daily_cap=settings.card_unvalidated_daily_cap or None,
         )
         started = datetime.now(UTC)
-        stats = run_cards(session_scope, metered=metered, qwen=qwen, policy=policy)
+        stats = run_cards(
+            session_scope,
+            metered=metered,
+            qwen=qwen,
+            policy=policy,
+            qwen_alongside=settings.card_qwen_alongside and not qwen_only,
+        )
         record_run(session_scope, started, stats)
     batches = " ".join(f"{name}={count}" for name, count in sorted(stats.batches.items()))
     typer.echo(

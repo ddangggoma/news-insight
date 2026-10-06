@@ -338,6 +338,7 @@ class CardPolicy:
     codex_parallel: int = 2
     codex_classify_batch: int = 100
     qwen_batch: int = 5
+    qwen_parallel: int = 1  # Qwen requests at once (LM Studio serves them concurrently)
     classify_batch: int = 200  # classification-only calls carry title, summary and keywords
     qwen_classify_batch: int = 20
     min_weekly: int = 10  # D18: cards may use 90 % of each metered engine's weekly limit
@@ -364,6 +365,7 @@ def run_cards(
     qwen: CardEngine | None,
     policy: CardPolicy,
     metered: Sequence[MeteredEngine] | None = None,
+    qwen_alongside: bool = False,
     clock: Clock = _now,
     monotonic: Callable[[], float] = time.monotonic,
 ) -> CardRunStats:
@@ -372,10 +374,13 @@ def run_cards(
     Metered engines are used in order while each keeps its reserve (D18: `min_weekly` percent of
     the weekly limit is never spent): Codex, then Antigravity (2026-10-05, user request). When
     the last one is spent the run continues on Qwen if it was passed in (`card_qwen_fallback` or
-    `--qwen-only`), otherwise items wait for the next run. A quota error moves to the next
-    engine at once; other failures are retried, moving on after FAILED_ROUNDS rounds that all
-    fail (or at once when only Qwen is left, as before). While cards wait for a newer taxonomy,
-    one metered lane per round reclassifies them so new items are never starved (CLS-2).
+    `--qwen-only`), otherwise items wait for the next run. With `qwen_alongside` Qwen also runs
+    `policy.qwen_parallel` lanes next to the metered engine in every round (2026-10-06, user
+    request: Qwen full time). A quota error moves to the next engine at once; other failures are
+    retried, moving on after FAILED_ROUNDS rounds that all fail (or at once when only Qwen is
+    left). Qwen lanes that fail FAILED_ROUNDS rounds in a row stop for the rest of the run.
+    While cards wait for a newer taxonomy, one metered lane per round reclassifies them so new
+    items are never starved (CLS-2).
     """
     stats = CardRunStats()
     deadline = monotonic() + policy.time_budget_seconds
@@ -383,6 +388,8 @@ def run_cards(
     at = 0  # index of the metered engine in use; len(chain) once all are spent or down
     fallback = "switching to qwen" if qwen is not None else "waiting for the next run"
     failed_rounds = 0
+    qwen_failed_rounds = 0
+    qwen_ok = qwen is not None
     attempted: set[int] = set()
     classify_attempted: set[int] = set()
 
@@ -417,28 +424,32 @@ def run_cards(
     refresh_quota()
     while monotonic() < deadline:
         current = chain[at] if at < len(chain) else None
-        engine: CardEngine | None = current if current is not None else qwen
-        if engine is None:
-            stats.notes.append("no engine available")
+        planned: list[tuple[CardEngine, Job]] = []
+        if current is not None:
+            jobs = _plan_round(
+                open_session, policy, current.name, attempted, classify_attempted, stats
+            )
+            planned += [(current, job) for job in jobs]
+        if qwen is not None and qwen_ok and (current is None or qwen_alongside):
+            jobs = _plan_round(open_session, policy, None, attempted, classify_attempted, stats)
+            planned += [(qwen, job) for job in jobs]
+        if not planned:
+            if current is None and not qwen_ok:
+                stats.notes.append("no engine available")
             break
-        jobs = _plan_round(
-            open_session,
-            policy,
-            current.name if current else None,
-            attempted,
-            classify_attempted,
-            stats,
-        )
-        if not jobs:
-            break
-        results = _run_jobs(engine, jobs)
+        results = _run_pairs(planned)
         exhausted: EngineError | None = None
-        for job, result in zip(jobs, results, strict=True):
+        metered_results: list[EngineOutput | EngineError] = []
+        qwen_results: list[EngineOutput | EngineError] = []
+        for (engine, job), result in zip(planned, results, strict=True):
+            on_qwen = engine is qwen
+            (qwen_results if on_qwen else metered_results).append(result)
             ids = {entry.id for entry in job.inputs}
             if isinstance(result, EngineError):
                 (attempted if job.kind == "card" else classify_attempted).difference_update(ids)
-                if isinstance(result, QuotaExhausted) or (
-                    current is not None and at == len(chain) - 1 and qwen is not None
+                if not on_qwen and (
+                    isinstance(result, QuotaExhausted)
+                    or (at == len(chain) - 1 and qwen is not None)
                 ):
                     exhausted = result
                 else:
@@ -448,22 +459,34 @@ def run_cards(
                 _store_batch(open_session, engine.name, job.inputs, result, clock(), stats)  # type: ignore[arg-type]
             else:
                 _store_classifications(open_session, job.inputs, result, stats)  # type: ignore[arg-type]
-        if exhausted is not None and current is not None:
+        if qwen_results:
+            if all(isinstance(r, EngineError) for r in qwen_results):
+                qwen_failed_rounds += 1
+                if current is None:
+                    break  # Qwen down and nothing else: leave items pending for the next run
+                if qwen_failed_rounds >= FAILED_ROUNDS:
+                    qwen_ok = False
+                    stats.notes.append("qwen lanes stopped for this run after repeated failures")
+            else:
+                qwen_failed_rounds = 0
+        if current is None:
+            continue
+        if exhausted is not None:
             advance(str(exhausted))
             continue
-        if all(isinstance(r, EngineError) for r in results):
+        if metered_results and all(isinstance(r, EngineError) for r in metered_results):
             failed_rounds += 1
-            if current is None:
-                break  # Qwen down: leave items pending for the next run
             if failed_rounds >= FAILED_ROUNDS:
                 if at == len(chain) - 1:
-                    break  # the last metered engine is down: wait for the next run
+                    if not qwen_ok:
+                        break  # the last metered engine is down: wait for the next run
+                    at = len(chain)  # Qwen carries on alone
+                    continue
                 advance(f"{current.name} failed {failed_rounds} rounds")
                 continue
         else:
             failed_rounds = 0
-        if current is not None:
-            refresh_quota()
+        refresh_quota()
     return stats
 
 
@@ -486,7 +509,8 @@ def _plan_round(
             policy.classify_batch,
         )
     else:
-        lanes, batch, classify_batch = 1, policy.qwen_batch, policy.qwen_classify_batch
+        lanes, batch = max(1, policy.qwen_parallel), policy.qwen_batch
+        classify_batch = policy.qwen_classify_batch
     with open_session() as session:
         stale = classify_pending_items(
             session, limit=classify_batch * lanes, exclude=classify_attempted
@@ -523,8 +547,11 @@ def _plan_round(
     return jobs
 
 
-def _run_jobs(engine: CardEngine, jobs: list[Job]) -> list[EngineOutput | EngineError]:
-    def one(job: Job) -> EngineOutput | EngineError:
+def _run_pairs(planned: list[tuple[CardEngine, Job]]) -> list[EngineOutput | EngineError]:
+    """Run every (engine, job) of a round at once: metered lanes and Qwen lanes side by side."""
+
+    def one(pair: tuple[CardEngine, Job]) -> EngineOutput | EngineError:
+        engine, job = pair
         try:
             if job.kind == "card":
                 return engine.generate(job.inputs)  # type: ignore[arg-type]
@@ -532,10 +559,10 @@ def _run_jobs(engine: CardEngine, jobs: list[Job]) -> list[EngineOutput | Engine
         except EngineError as exc:
             return exc
 
-    if len(jobs) == 1:
-        return [one(jobs[0])]
-    with ThreadPoolExecutor(max_workers=len(jobs)) as pool:
-        return list(pool.map(one, jobs))
+    if len(planned) == 1:
+        return [one(planned[0])]
+    with ThreadPoolExecutor(max_workers=len(planned)) as pool:
+        return list(pool.map(one, planned))
 
 
 def _store_classifications(

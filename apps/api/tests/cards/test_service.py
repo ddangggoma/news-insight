@@ -488,3 +488,35 @@ def test_codex_quota_error_moves_on_and_qwen_comes_last(db_session: Session) -> 
 
     assert stats.batches == {"qwen": 2} and stats.ready == 2
     assert {card.engine for card in cards(db_session).values()} == {"qwen"}
+
+
+def test_qwen_lanes_run_next_to_codex_when_alongside(db_session: Session) -> None:
+    seed(db_session, ["a", "b", "c", "d", "e", "f"])
+    codex = FakeCodex([FULL])
+    qwen = FakeEngine("qwen")
+    policy = CardPolicy(
+        codex_batch=2, codex_parallel=1, qwen_batch=1, qwen_parallel=2, time_budget_seconds=1000
+    )
+
+    stats = run_cards(
+        scope_for(db_session), metered=[codex], qwen=qwen, policy=policy, qwen_alongside=True
+    )
+
+    assert stats.ready == 6 and stats.batches["codex"] >= 1 and stats.batches["qwen"] >= 2
+    assert len(qwen.batches[0]) == 1 and set(sum(codex.batches, [])).isdisjoint(
+        sum(qwen.batches, [])
+    )
+
+
+def test_failing_qwen_lanes_stop_while_codex_goes_on(db_session: Session) -> None:
+    seed(db_session, ["a", "b", "c", "d", "e", "f", "g", "h"])
+    codex = FakeCodex([FULL])
+    qwen = FakeEngine("qwen", fail=EngineError("lm studio down"))
+    policy = CardPolicy(codex_batch=2, codex_parallel=1, qwen_batch=1, time_budget_seconds=1000)
+
+    stats = run_cards(
+        scope_for(db_session), metered=[codex], qwen=qwen, policy=policy, qwen_alongside=True
+    )
+
+    assert len(qwen.batches) == 2 and stats.ready == 8 and pending_count(db_session) == 0
+    assert any("qwen lanes stopped" in note for note in stats.notes)
