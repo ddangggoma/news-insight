@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { digestFeed, podcastFeed } from "@/lib/rss";
+import { digestFeed, podcastFeed, requestOrigin } from "@/lib/rss";
 
 describe("digestFeed", () => {
   it("lists digests as RSS items with escaped text and permalinks", () => {
@@ -23,5 +23,13 @@ describe("podcastFeed", () => {
     expect(xml).toContain('<enclosure url="https://dx.example/media/briefings/2026-10-06-v1.m4a" length="1960000" type="audio/mp4"/>');
     expect(xml).toContain("<itunes:duration>4:05</itunes:duration>");
     expect(xml).toContain("<title>2026-10-06 · NPU &amp; 6G</title>");
+  });
+});
+
+describe("requestOrigin", () => {
+  it("uses the forwarded host and scheme behind the proxy", () => {
+    const proxied = new Request("https://0.0.0.0:3000/podcast.xml", { headers: { "x-forwarded-host": "222.0.0.1:8701", "x-forwarded-proto": "http" } });
+    expect(requestOrigin(proxied)).toBe("http://222.0.0.1:8701");
+    expect(requestOrigin(new Request("https://dx.example/feed.xml"))).toBe("https://dx.example");
   });
 });

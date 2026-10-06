@@ -75,6 +75,8 @@ digest()        {
   (cd "$API" && uv run --env-file "$ROOT/.env" news-insight daily publish) || status=$?
   # spoken briefing with macOS `say` (plan 13 A1), served by Caddy from ops/media
   (cd "$API" && MEDIA_DIR="$ROOT/ops/media" uv run --env-file "$ROOT/.env" news-insight audio render) || true
+  # the reader cache may hold the briefing from before its audio existed (10-minute TTL)
+  (cd "$ROOT" && docker compose exec -T web node -e "fetch('http://127.0.0.1:3000/internal/revalidate',{method:'POST',headers:{'x-console-key':process.env.CONSOLE_API_KEY}}).then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))") || true
   (cd "$API" && uv run --env-file "$ROOT/.env" news-insight periodic publish) || true
   return "$status"
 }
