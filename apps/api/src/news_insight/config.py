@@ -35,6 +35,10 @@ class Settings(BaseSettings):
     claude_cli: str = "claude"
     digest_model: str = "opus"
     digest_timeout_seconds: int = 900
+    # spoken briefing (plan 13 A1): rendered on the host with macOS `say`, served by Caddy
+    media_dir: str = "/srv/media"
+    briefing_voice: str = "Yuna"
+    briefing_voice_rate: int = 185
     agy_cli: str = "agy"
     card_agy_model: str = "gemini-3.8-flash-low"
     card_agy_min_weekly: int = 10

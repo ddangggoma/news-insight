@@ -89,6 +89,8 @@ daily_app = typer.Typer(
     help="Daily briefing: 04:40 freeze, 05:00 gated immutable publication", no_args_is_help=True
 )
 app.add_typer(daily_app, name="daily")
+audio_app = typer.Typer(help="Spoken daily briefing (plan 13 A1).", no_args_is_help=True)
+app.add_typer(audio_app, name="audio")
 periodic_app = typer.Typer(help="Weekly and monthly briefings (plan 13 C4).", no_args_is_help=True)
 app.add_typer(periodic_app, name="periodic")
 stories_app = typer.Typer(
@@ -854,6 +856,48 @@ def periodic_publish(
                 typer.echo(f"{target_kind} {row.period_key} {state}")
         if not targets:
             typer.echo("nothing due")
+
+
+@audio_app.command("render")
+def audio_render_command(
+    on: Annotated[str | None, typer.Option("--date", help="Briefing date YYYY-MM-DD (KST)")] = None,
+    force: Annotated[
+        bool, typer.Option(help="Render again even if this version has audio")
+    ] = False,
+) -> None:
+    """Speak the published briefing with macOS `say` into MEDIA_DIR (plan 13 A1). Host only:
+    the digest job runs it after each publish; a version that already has audio is skipped."""
+    from news_insight.audio.render import AudioError, entry_for, render
+    from news_insight.audio.script import build_script
+    from news_insight.public.briefings import public_briefing, published
+
+    settings = get_settings()
+    now = datetime.now(UTC)
+    with session_scope() as session:
+        briefing = published(session, date.fromisoformat(on) if on else None)
+        if briefing is None:
+            typer.echo("no published briefing")
+            return
+        day, version = briefing.briefing_date.isoformat(), briefing.version
+        if not force and entry_for(settings.media_dir, day, version):
+            typer.echo(f"{day} v{version} already has audio")
+            return
+        view = public_briefing(session, briefing)
+    try:
+        entry = render(
+            build_script(view),
+            media_dir=settings.media_dir,
+            briefing_date=day,
+            version=version,
+            headline=view.headline or "",
+            voice=settings.briefing_voice,
+            rate=settings.briefing_voice_rate,
+            now=now,
+        )
+    except AudioError as exc:
+        typer.echo(f"audio failed: {exc}", err=True)
+        raise typer.Exit(1) from exc
+    typer.echo(f"{day} v{version} audio {entry.seconds}s {entry.bytes // 1024} KB")
 
 
 @admin_app.command("link")
