@@ -5,6 +5,18 @@ function escapeXml(value: string): string {
   return value.replace(/[<>&'"]/g, (char) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", "'": "&apos;", '"': "&quot;" })[char] ?? char);
 }
 
+/**
+ * The origin the reader used, for absolute links in feeds. Behind Caddy `request.url` is the
+ * container's own address (https://0.0.0.0:3000), so prefer the forwarded host and scheme
+ * (Caddy sets them and ignores client-sent ones); both the HTTPS and HTTP ports work.
+ */
+export function requestOrigin(request: Request): string {
+  const url = new URL(request.url);
+  const host = request.headers.get("x-forwarded-host") ?? request.headers.get("host") ?? url.host;
+  const proto = (request.headers.get("x-forwarded-proto") ?? url.protocol.replace(":", "")).split(",")[0].trim();
+  return `${proto}://${host.split(",")[0].trim()}`;
+}
+
 /** RSS 2.0 feed of published digests, newest first. */
 export function digestFeed(origin: string, digests: DigestSummary[]): string {
   const items = digests
