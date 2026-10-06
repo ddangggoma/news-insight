@@ -77,3 +77,25 @@ export async function updateTechnology(
   revalidatePath("/console/technologies");
   return { ok: true };
 }
+
+export async function addWatch(kind: string, value: string): Promise<{ ok: boolean; error?: string }> {
+  await requireAdmin();
+  try {
+    await api.post("/api/admin/watchlist", { kind, value });
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : String(error) };
+  }
+  revalidatePath("/console/watchlist");
+  return { ok: true };
+}
+
+export async function removeWatch(id: number): Promise<{ ok: boolean; error?: string }> {
+  await requireAdmin();
+  try {
+    await api.delete(`/api/admin/watchlist/${id}`);
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : String(error) };
+  }
+  revalidatePath("/console/watchlist");
+  return { ok: true };
+}

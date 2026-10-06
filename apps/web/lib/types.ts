@@ -413,3 +413,17 @@ export interface TechnologyCandidate {
   label: string;
   count: number;
 }
+
+/** The reader's watch list (plan 13 A5), managed in the console. */
+export interface WatchItem {
+  id: number;
+  kind: "company" | "theme" | "keyword";
+  key: string;
+  label: string;
+}
+
+export interface WatchPage {
+  items: WatchItem[];
+  suggestions: { kind: WatchItem["kind"]; key: string; label: string; count: number }[];
+  companies: { key: string; label: string }[];
+}

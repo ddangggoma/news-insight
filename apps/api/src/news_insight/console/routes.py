@@ -43,6 +43,7 @@ from news_insight.sources.models import Source
 from news_insight.sources.service import SourceNotFound, get_source
 from news_insight.technologies import console as tech_console
 from news_insight.technologies.catalog import TechStatus
+from news_insight.watchlist import service as watchlist
 
 router = APIRouter(
     prefix="/api/admin", tags=["console"], dependencies=[Depends(require_console_key)]
@@ -479,3 +480,47 @@ def patch_technology(key: str, session: DB, body: tech_console.TechnologyPatch) 
         raise HTTPException(status.HTTP_409_CONFLICT, str(exc)) from exc
     session.commit()
     return {"key": key}
+
+
+class WatchIn(BaseModel):
+    kind: str
+    value: str
+
+
+class WatchPage(BaseModel):
+    items: list[watchlist.WatchOut]
+    suggestions: list[watchlist.Suggestion]
+    companies: list[dict[str, str]]  # registry companies for the picker: key, label
+
+
+@router.get("/watchlist")
+def get_watchlist(session: DB) -> WatchPage:
+    """The reader's watch list (plan 13 A5), suggestions, and the companies to pick from."""
+    from news_insight.companies.service import info_for
+
+    registry = info_for(session)
+    return WatchPage(
+        items=watchlist.items(session),
+        suggestions=watchlist.suggestions(session, now=datetime.now(UTC)),
+        companies=[
+            {"key": c.key, "label": c.name_ko or c.name}
+            for c in sorted(registry.values(), key=lambda c: (c.name_ko or c.name).lower())
+        ],
+    )
+
+
+@router.post("/watchlist", status_code=status.HTTP_201_CREATED)
+def post_watch(session: DB, body: WatchIn) -> watchlist.WatchOut:
+    try:
+        created = watchlist.add(session, kind=body.kind, value=body.value)
+    except watchlist.WatchError as exc:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, str(exc)) from exc
+    session.commit()
+    return created
+
+
+@router.delete("/watchlist/{watch_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_watch(watch_id: int, session: DB) -> None:
+    if not watchlist.remove(session, watch_id):
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "unknown watch item")
+    session.commit()

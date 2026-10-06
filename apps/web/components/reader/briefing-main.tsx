@@ -2,7 +2,7 @@ import { ChevronLeft, ChevronRight, Lightbulb, ShieldCheck } from "lucide-react"
 import Link from "next/link";
 
 import { DepthToggle } from "@/components/reader/briefing-depth";
-import { CollectionSummary, CompanyMoves, ContinuingStories, InsightCard, TldrBox } from "@/components/reader/briefing-extras";
+import { CollectionSummary, CompanyMoves, ContinuingStories, InsightCard, TldrBox, WatchBox } from "@/components/reader/briefing-extras";
 import { StoryRow } from "@/components/reader/story-row";
 import { Button } from "@/components/ui/button";
 import { formatBriefingDate, formatDateTime, TRACK_LABEL } from "@/lib/format";
@@ -54,6 +54,7 @@ export function BriefingMain({ briefing }: { briefing: PublicBriefing }) {
           {briefing.headline ?? "오늘의 데일리 브리핑"}
         </h1>
         <TldrBox tldr={briefing.tldr} insights={briefing.insights} />
+        <WatchBox watch={briefing.watch ?? []} refs={briefing.refs} />
         <div className="group-data-[depth=five]/brief:hidden group-data-[depth=deep]/brief:hidden">
           <CompanyMoves moves={briefing.companies} compact week={week} />
         </div>

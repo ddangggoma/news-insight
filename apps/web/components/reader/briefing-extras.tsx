@@ -1,7 +1,9 @@
 import Link from "next/link";
 
 import { EvidenceLinks } from "@/components/console/evidence-links";
-import type { BriefingInsight, CompanyMove, Continuity, ContinuingStory, DigestTrack, ItemRef, Strength } from "@/lib/briefing-types";
+import type { BriefingInsight, CompanyMove, Continuity, ContinuingStory, DigestTrack, ItemRef, PublicBriefing, Strength } from "@/lib/briefing-types";
+
+type PublicBriefingWatch = PublicBriefing["watch"];
 import { RELATION_META } from "@/lib/companies";
 import { TRACK_LABEL } from "@/lib/format";
 import { radarHref } from "@/lib/radar";
@@ -177,6 +179,32 @@ export function CollectionSummary({ tracks, refs }: { tracks: DigestTrack[]; ref
           ))}
         </div>
       ))}
+    </section>
+  );
+}
+
+const WATCH_KIND: Record<string, string> = { company: "기업", theme: "테마", keyword: "기술" };
+
+/** The reader's watched subjects in today's reports (plan 13 A5); managed in the console. */
+export function WatchBox({ watch, refs }: { watch: NonNullable<PublicBriefingWatch>; refs: ItemRef[] }) {
+  if (!watch.length) return null;
+  return (
+    <section aria-labelledby="watch-title" className="space-y-2 rounded-xl border border-primary/30 p-4">
+      <h2 id="watch-title" className="text-sm font-semibold">
+        내 관심 항목
+      </h2>
+      <ul className="space-y-2.5">
+        {watch.map((hit) => (
+          <li key={`${hit.kind}-${hit.key}`} className="space-y-1">
+            <p className="flex flex-wrap items-baseline gap-2 text-sm">
+              <span className="text-xs text-muted-foreground">{WATCH_KIND[hit.kind] ?? hit.kind}</span>
+              <span className="font-medium">{hit.label}</span>
+              <span className="text-xs text-muted-foreground tabular-nums">{hit.count}건</span>
+            </p>
+            <EvidenceLinks ids={hit.item_ids} items={refs} />
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

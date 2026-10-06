@@ -19,6 +19,7 @@ from news_insight.companies.service import info_for
 from news_insight.console.briefings import strategy_out
 from news_insight.console.queries import latest_metrics
 from news_insight.content.models import Item
+from news_insight.digest.bundle import digest_window
 from news_insight.digest.models import Digest
 from news_insight.digest.schemas import DigestContent, DigestItemRef, Insight, TrackSection
 from news_insight.public.feed import _reader_item, company_refs
@@ -29,6 +30,8 @@ from news_insight.sources.models import Source
 from news_insight.stories.models import Story, StoryItem
 from news_insight.strategy.models import StrategyRun
 from news_insight.strategy.personas import DEFAULT_PERSONA
+from news_insight.watchlist import service as watchlist
+from news_insight.watchlist.service import WatchHit
 
 TRACK_ORDER = ("news", "research_ip", "oss", "community")
 
@@ -117,6 +120,8 @@ class PublicBriefing(BaseModel):
     companies: list[CompanyMove] = []
     # the whole-collection summary by track and category (the digest page, plan 13 C2)
     digest_tracks: list[TrackSection] = []
+    # the reader's watched companies, themes and keywords in the briefing day (plan 13 A5)
+    watch: list[WatchHit] = []
     sections: list[BriefingSection]
     strategy: BriefingStrategy | None
     signals: list[BriefingSignal] = []
@@ -194,6 +199,7 @@ def _refs(session: Session, item_ids: set[int]) -> list[DigestItemRef]:
 
 
 def public_briefing(session: Session, briefing: Briefing) -> PublicBriefing:
+    freeze_window = digest_window(briefing.briefing_date)
     digest = session.get(Digest, briefing.digest_id) if briefing.digest_id else None
     content = DigestContent.model_validate(digest.content) if digest is not None else None
     items = _items(session, [int(entry["item_id"]) for entry in briefing.shortlist])
@@ -243,6 +249,8 @@ def public_briefing(session: Session, briefing: Briefing) -> PublicBriefing:
     if report is not None:
         _grade_report(report, evidence)
     shortlist_ids = [int(entry["item_id"]) for entry in briefing.shortlist]
+    watch = watchlist.hits(session, start=freeze_window[0], end=freeze_window[1])
+    cited.update(i for hit in watch for i in hit.item_ids)
     return PublicBriefing(
         briefing_date=briefing.briefing_date,
         version=briefing.version,
@@ -257,6 +265,7 @@ def public_briefing(session: Session, briefing: Briefing) -> PublicBriefing:
         continuing=continuing_stories(session, shortlist_ids),
         companies=company_moves(session, shortlist_ids),
         digest_tracks=content.tracks if content else [],
+        watch=watch,
         sections=sections,
         strategy=strategy,
         signals=[
