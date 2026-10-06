@@ -23,6 +23,8 @@ from news_insight.digest.bundle import digest_window
 from news_insight.digest.models import Digest
 from news_insight.digest.schemas import DigestContent, DigestItemRef, Insight, TrackSection
 from news_insight.public.feed import _reader_item, company_refs
+from news_insight.public.periodic import PeriodicEntry
+from news_insight.public.periodic import recent as periodic_recent
 from news_insight.public.periods import KST
 from news_insight.public.schemas import ReaderItem
 from news_insight.signals import service as radar_signals
@@ -122,6 +124,8 @@ class PublicBriefing(BaseModel):
     digest_tracks: list[TrackSection] = []
     # the reader's watched companies, themes and keywords in the briefing day (plan 13 A5)
     watch: list[WatchHit] = []
+    # the newest weekly and monthly briefings, linked from the aside (plan 13 C4)
+    periodic: list[PeriodicEntry] = []
     sections: list[BriefingSection]
     strategy: BriefingStrategy | None
     signals: list[BriefingSignal] = []
@@ -266,6 +270,7 @@ def public_briefing(session: Session, briefing: Briefing) -> PublicBriefing:
         companies=company_moves(session, shortlist_ids),
         digest_tracks=content.tracks if content else [],
         watch=watch,
+        periodic=periodic_recent(session, limit=3),
         sections=sections,
         strategy=strategy,
         signals=[

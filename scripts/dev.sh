@@ -67,7 +67,15 @@ rotate()        {
 # 05:00 KST (launchd): freeze if Celery has not, shortlist, Claude digest, gates, publish
 # uv stops reading .env at a line it cannot parse: say so in the job log (keys after it vanish)
 env_check()     { "$ROOT/scripts/check-env.sh" || echo "WARNING: .env is not fully readable by uv; keys after the reported line are missing" >&2; }
-digest()        { rotate digest; env_check; (cd "$API" && uv run --env-file "$ROOT/.env" news-insight daily publish); }
+# then the weekly/monthly briefing (plan 13 C4): a no-op unless the last week or month has none,
+# so Monday's 05:00 run writes the week, and a daily failure never blocks it
+digest()        {
+  rotate digest; env_check
+  local status=0
+  (cd "$API" && uv run --env-file "$ROOT/.env" news-insight daily publish) || status=$?
+  (cd "$API" && uv run --env-file "$ROOT/.env" news-insight periodic publish) || true
+  return "$status"
+}
 # Host-side: agy is logged in here, and LM Studio is reached on localhost (not host.docker.internal).
 cards()         {
   rotate cards

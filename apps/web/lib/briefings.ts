@@ -1,7 +1,7 @@
 import "server-only";
 
 import { ApiError } from "@/lib/api";
-import type { BriefingEntry, PublicBriefing } from "@/lib/briefing-types";
+import type { BriefingEntry, PeriodKind, PublicBriefing, PublicPeriodic } from "@/lib/briefing-types";
 import { REVALIDATE, readerGet } from "@/lib/reader-api";
 import type { Page } from "@/lib/types";
 
@@ -18,4 +18,9 @@ export const briefings = {
   latest: () => orNull(readerGet<PublicBriefing>("/briefings/latest", {}, REVALIDATE.digest)),
   on: (day: string) => orNull(readerGet<PublicBriefing>(`/briefings/${encodeURIComponent(day)}`, {}, REVALIDATE.digest)),
   recent: async () => (await readerGet<Page<BriefingEntry>>("/briefings", { size: 14 }, REVALIDATE.digest)).items,
+};
+
+export const periodic = {
+  latest: (kind: PeriodKind) => orNull(readerGet<PublicPeriodic>(`/periodic/${kind}/latest`, {}, REVALIDATE.digest)),
+  on: (kind: PeriodKind, key: string) => orNull(readerGet<PublicPeriodic>(`/periodic/${kind}/${encodeURIComponent(key)}`, {}, REVALIDATE.digest)),
 };

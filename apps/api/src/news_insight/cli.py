@@ -89,6 +89,8 @@ daily_app = typer.Typer(
     help="Daily briefing: 04:40 freeze, 05:00 gated immutable publication", no_args_is_help=True
 )
 app.add_typer(daily_app, name="daily")
+periodic_app = typer.Typer(help="Weekly and monthly briefings (plan 13 C4).", no_args_is_help=True)
+app.add_typer(periodic_app, name="periodic")
 stories_app = typer.Typer(
     help="Issue clustering (exact/near/event) and cross-track identifiers", no_args_is_help=True
 )
@@ -812,6 +814,46 @@ def daily_publish(
         )
         blocked = failing(briefing.gates)
     typer.echo(line + (f" failed gates: {', '.join(blocked)}" if blocked else ""))
+
+
+@periodic_app.command("publish")
+def periodic_publish(
+    kind: Annotated[
+        str | None, typer.Option(help="week or month (default: whatever is due)")
+    ] = None,
+    key: Annotated[str | None, typer.Option(help="Period key, e.g. 2026-W40 or 2026-09")] = None,
+    model: Annotated[str | None, typer.Option(help="Claude model alias")] = None,
+    republish: Annotated[bool, typer.Option(help="New version if the input changed")] = False,
+) -> None:
+    """Weekly and monthly briefings from the daily ones (plan 13 C4). Without --kind/--key it
+    writes the last completed week and month that have none yet; the digest job runs it after
+    every daily publish, so Monday's 05:00 run produces the week."""
+    from news_insight.periodic import service as periodic
+
+    now = datetime.now(UTC)
+    with session_scope() as session:
+        targets = [(kind, key)] if kind and key else periodic.due(session, now)
+        if kind and not key:
+            targets = [t for t in periodic.due(session, now) if t[0] == kind]
+        for target_kind, target_key in targets:
+            row = periodic.generate(
+                session,
+                kind=target_kind,
+                key=target_key,
+                now=now,
+                client=_claude(),
+                model=model or get_settings().digest_model,
+                republish=republish,
+            )
+            if row is None:
+                typer.echo(
+                    f"{target_kind} {target_key}: fewer than {periodic.MIN_DAYS} daily briefings"
+                )
+            else:
+                state = f"v{row.version} {row.status.value} days={row.days}"
+                typer.echo(f"{target_kind} {row.period_key} {state}")
+        if not targets:
+            typer.echo("nothing due")
 
 
 @admin_app.command("link")

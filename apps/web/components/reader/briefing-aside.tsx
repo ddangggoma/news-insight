@@ -1,9 +1,10 @@
-import { CalendarDays, Compass, Map as MapIcon, Radar as RadarIcon, TrendingUp, Users } from "lucide-react";
+import { CalendarDays, CalendarRange, Compass, Map as MapIcon, Radar as RadarIcon, TrendingUp, Users } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { EvidenceLinks } from "@/components/console/evidence-links";
 import { StrengthBadge } from "@/components/reader/briefing-extras";
 import { PersonaCard } from "@/components/reader/persona-card";
+import { PeriodicLinks } from "@/components/reader/periodic-view";
 import { PersonaFocus } from "@/components/reader/persona-focus";
 import Link from "next/link";
 
@@ -301,6 +302,11 @@ export function BriefingAside({ briefing, past }: { briefing: PublicBriefing; pa
           </div>
         ) : null}
       </Panel>
+      {briefing.periodic?.length ? (
+        <Panel icon={<CalendarRange className="size-4 text-primary" aria-hidden />} title="주간·월간 브리핑">
+          <PeriodicLinks entries={briefing.periodic} />
+        </Panel>
+      ) : null}
       {past.length > 1 ? (
         <Panel icon={<CalendarDays className="size-4 text-primary" aria-hidden />} title="지난 브리핑">
           <PastBriefings entries={past} current={briefing.briefing_date} />
