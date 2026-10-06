@@ -336,6 +336,8 @@ class CardPolicy:
     agy_parallel: int = 3  # independent agy processes per round (quota is the real cap)
     codex_batch: int = 40
     codex_parallel: int = 2
+    claude_batch: int = 20
+    claude_parallel: int = 3
     codex_classify_batch: int = 100
     qwen_batch: int = 5
     qwen_parallel: int = 1  # Qwen requests at once (LM Studio serves them concurrently)
@@ -502,6 +504,9 @@ def _plan_round(
     if metered == "codex":
         lanes, batch = max(1, policy.codex_parallel), policy.codex_batch
         classify_batch = policy.codex_classify_batch
+    elif metered == "claude":
+        lanes, batch = max(1, policy.claude_parallel), policy.claude_batch
+        classify_batch = policy.claude_batch * 3
     elif metered is not None:
         lanes, batch, classify_batch = (
             max(1, policy.agy_parallel),
