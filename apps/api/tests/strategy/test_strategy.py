@@ -52,7 +52,7 @@ def test_personas_fill_missing_and_downgrade_unsupported() -> None:
 
     personas = {p.key: p for p in validate_personas(raw, STORY)}
 
-    assert len(personas) == 30
+    assert len(personas) == 31
     assert personas["ceo"].status == "insight" and personas["ceo"].item_ids == [1, 3]
     assert personas["cfo"].status == "no_signal" and personas["mx_head"].status == "no_signal"
 
@@ -236,7 +236,7 @@ def test_briefing_api_includes_strategy(
     body = console_client.get("/api/admin/briefings/latest", headers=headers).json()
 
     strategy = body["strategy"]
-    assert strategy["status"] == "ok" and len(strategy["personas"]) == 30
+    assert strategy["status"] == "ok" and len(strategy["personas"]) == 31
     mx = next(p for p in strategy["personas"] if p["key"] == "mx_head")
     assert mx["name"] == "MX 사업부장" and mx["status"] == "insight"
     assert strategy["report"]["fields"][0]["claims"][0]["id"] == "ai-1"

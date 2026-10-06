@@ -13,12 +13,15 @@ export interface ItemRef {
 export interface BriefingPersona {
   key: string;
   name: string;
-  group: "executive" | "business" | "domain";
+  group: "practitioner" | "executive" | "business" | "domain";
   status: "insight" | "no_signal";
   headline: string;
   insight: string;
   actions: string[];
   item_ids: number[];
+  /** How much today's articles matter to the role (0-100, plan 13 B6). */
+  relevance?: number;
+  stances?: { theme: string; stance: "opportunity" | "risk" | "watch" }[];
 }
 
 export interface StrategyReport {
@@ -97,6 +100,9 @@ export interface PublicBriefing {
   sections: { track: Track; summary: string | null; items: ReaderItem[] }[];
   strategy: {
     personas: BriefingPersona[];
+    default_persona?: string;
+    /** Themes some roles read as an opportunity and others as a risk. */
+    conflicts?: { theme: string; opportunity: string[]; risk: string[] }[];
     report: StrategyReport | null;
     review_verdict: string | null;
     dropped_claims: number;

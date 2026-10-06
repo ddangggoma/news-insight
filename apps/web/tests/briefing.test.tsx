@@ -53,8 +53,11 @@ const BRIEFING: PublicBriefing = {
   digest_tracks: [{ track: "news", summary: "뉴스 요약", categories: [{ category: "independent_media", headline: "범주 헤드라인", points: [{ text: "요점", item_ids: [1] }] }] }],
   sections: [{ track: "news", summary: null, items: [item(1, "ai", "opportunity"), item(2, "ai", "risk"), item(3, "display_av", "watch")] }],
   strategy: {
+    default_persona: "sensing_analyst",
+    conflicts: [{ theme: "ai__on_device_ai", opportunity: ["MX 사업부장"], risk: ["CFO"] }],
     personas: [
-      { key: "ceo", name: "CEO", group: "executive", status: "insight", headline: "NPU 일정 점검", insight: "x", actions: [], item_ids: [1, 2] },
+      { key: "sensing_analyst", name: "기술전략 센싱 실무자", group: "practitioner", status: "insight", headline: "보고서 근거 3건 확보", insight: "y", actions: ["다음 주 NPU 벤치마크 확인"], item_ids: [1, 2], relevance: 90 },
+      { key: "ceo", name: "CEO", group: "executive", status: "insight", headline: "NPU 일정 점검", insight: "x", actions: [], item_ids: [1, 2], relevance: 40 },
       { key: "cfo", name: "CFO", group: "executive", status: "no_signal", headline: "", insight: "", actions: [], item_ids: [] },
     ],
     report: null,
@@ -72,9 +75,16 @@ describe("briefing aside", () => {
   it("shows persona insights, citation counts and impact by field", () => {
     render(<BriefingAside briefing={BRIEFING} past={[]} />);
 
-    expect(screen.getByText("NPU 일정 점검")).toBeInTheDocument();
+    // the reader's role opens first, then the most relevant roles; the full roster stays below
+    expect(screen.getAllByText("보고서 근거 3건 확보")[0]).toBeInTheDocument();
+    expect(screen.getByText("다음 주 NPU 벤치마크 확인", { selector: "li" })).toBeInTheDocument();
+    expect(screen.getAllByText("NPU 일정 점검").length).toBeGreaterThan(0);
+    expect(screen.getByRole("combobox", { name: "내 역할" })).toHaveValue("sensing_analyst");
+    expect(screen.getByRole("heading", { name: "관점 충돌" })).toBeInTheDocument();
+    expect(screen.getByText("MX 사업부장")).toBeInTheDocument();
     expect(screen.getByText(/신호 없음\(no_signal\) 1명/)).toBeInTheDocument();
-    expect(screen.getAllByText(/인용 2회/)).toHaveLength(2);
+    // items 1 and 2 are cited by the insight, the CEO and the sensing role
+    expect(screen.getAllByText(/인용 3회/)).toHaveLength(2);
     expect(screen.getByText("AI 모델·에이전트")).toBeInTheDocument();
     expect(screen.getByText("디스플레이·영상·오디오")).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "지난 브리핑" })).not.toBeInTheDocument();

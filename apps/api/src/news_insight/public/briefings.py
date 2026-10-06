@@ -28,6 +28,7 @@ from news_insight.signals import service as radar_signals
 from news_insight.sources.models import Source
 from news_insight.stories.models import Story, StoryItem
 from news_insight.strategy.models import StrategyRun
+from news_insight.strategy.personas import DEFAULT_PERSONA
 
 TRACK_ORDER = ("news", "research_ip", "oss", "community")
 
@@ -47,10 +48,22 @@ class BriefingPersona(BaseModel):
     insight: str
     actions: list[str]
     item_ids: list[int]
+    relevance: int = 0
+    stances: list[dict[str, str]] = []
+
+
+class StanceConflict(BaseModel):
+    """A theme some roles read as an opportunity and others as a risk (plan 13 B6)."""
+
+    theme: str
+    opportunity: list[str]
+    risk: list[str]
 
 
 class BriefingStrategy(BaseModel):
     personas: list[BriefingPersona]
+    default_persona: str = DEFAULT_PERSONA
+    conflicts: list[StanceConflict] = []
     report: dict[str, Any] | None
     review_verdict: str | None
     dropped_claims: int
@@ -211,8 +224,10 @@ def public_briefing(session: Session, briefing: Briefing) -> PublicBriefing:
     run = session.get(StrategyRun, briefing.strategy_id) if briefing.strategy_id else None
     if run is not None:
         full = strategy_out(session, run)
+        personas = [BriefingPersona.model_validate(p.model_dump()) for p in full.personas]
         strategy = BriefingStrategy(
-            personas=[BriefingPersona.model_validate(p.model_dump()) for p in full.personas],
+            personas=personas,
+            conflicts=stance_conflicts(personas),
             report=full.report,
             review_verdict=str(full.review.get("verdict")) if full.review else None,
             dropped_claims=full.dropped_claims,
@@ -374,3 +389,22 @@ def _grade_report(report: dict[str, Any], evidence: dict[int, Any]) -> None:
     for claim in _claims(report):
         strength = grade([int(i) for i in claim.get("item_ids", [])], evidence)
         claim["strength"] = strength.model_dump() if strength else None
+
+
+def stance_conflicts(personas: list[BriefingPersona]) -> list[StanceConflict]:
+    """Themes read as an opportunity by some roles and as a risk by others, widest split first."""
+    by_theme: dict[str, dict[str, list[str]]] = {}
+    for persona in personas:
+        if persona.status != "insight":
+            continue
+        for entry in persona.stances:
+            side = by_theme.setdefault(entry["theme"], {"opportunity": [], "risk": []})
+            if entry["stance"] in side:
+                side[entry["stance"]].append(persona.name)
+    conflicts = [
+        StanceConflict(theme=theme, opportunity=sides["opportunity"], risk=sides["risk"])
+        for theme, sides in by_theme.items()
+        if sides["opportunity"] and sides["risk"]
+    ]
+    conflicts.sort(key=lambda c: (-min(len(c.opportunity), len(c.risk)), c.theme))
+    return conflicts[:5]

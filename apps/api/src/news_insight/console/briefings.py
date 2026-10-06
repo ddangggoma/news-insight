@@ -44,6 +44,8 @@ class PersonaOut(BaseModel):
     insight: str
     actions: list[str]
     item_ids: list[int]
+    relevance: int = 0
+    stances: list[dict[str, str]] = []
 
 
 class StrategyOut(BaseModel):
@@ -123,6 +125,8 @@ def strategy_out(session: Session, run: StrategyRun) -> StrategyOut:
             insight=str(p.get("insight") or ""),
             actions=list(p.get("actions") or []),
             item_ids=list(p.get("item_ids") or []),
+            relevance=int(p.get("relevance") or 0),
+            stances=list(p.get("stances") or []),
         )
         for p in run.personas
     ]

@@ -13,8 +13,12 @@ COMMON_RULES = "\n".join(
     ]
 )
 PERSONA_INSTRUCTION = (
-    "아래 30명의 페르소나 각각에 대해 오늘 기사에서 그 역할에 의미 있는 신호가 있으면 status=insight로 "
+    "아래 페르소나 각각에 대해 오늘 기사에서 그 역할에 의미 있는 신호가 있으면 status=insight로 "
     "headline·insight·actions(1~3개)·item_ids를, 근거가 부족하면 status=no_signal을 낸다. 모든 key를 빠짐없이 돌려준다.\n"
+    "relevance는 오늘 기사가 그 역할에 얼마나 중요한지 0~100(대부분 낮고 정말 중요한 역할만 높게). "
+    "stances는 그 역할이 오늘 주요 테마(입력 기사의 themes 키)를 기회(opportunity)·위험(risk)·관찰(watch) 중 "
+    "어떻게 보는지 최대 3개. sensing_analyst(기술전략 센싱 실무자)는 보고서에 쓸 근거와 "
+    "다음에 확인할 신호를 actions로 낸다.\n"
 )
 WRITER_INSTRUCTION = (
     "오늘의 데일리 DX 전략 보고서를 쓴다: summary(경영진 요약), fields(신호가 있는 기술 분야 키별 summary와 "
