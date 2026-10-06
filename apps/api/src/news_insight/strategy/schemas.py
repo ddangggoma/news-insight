@@ -3,13 +3,20 @@ every insight or claim cites at least two published items from different stories
 
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, field_validator
 
 from news_insight.digest.schemas import inline_schema
 from news_insight.strategy.personas import PERSONA_KEYS, PERSONAS
-from news_insight.taxonomy.catalog import FIELD_KEYS
+from news_insight.taxonomy.catalog import FIELD_KEYS, THEME_KEYS
 
 MIN_STORIES = 2
+
+
+class Stance(BaseModel):
+    """How a role reads one theme today (plan 13 B6)."""
+
+    theme: str
+    stance: Literal["opportunity", "risk", "watch"]
 
 
 class PersonaInsight(BaseModel):
@@ -19,6 +26,33 @@ class PersonaInsight(BaseModel):
     insight: str = Field(default="", max_length=900)
     actions: list[str] = Field(default_factory=list, max_length=4)
     item_ids: list[int] = Field(default_factory=list, max_length=8)
+    # how much today's articles matter to this role (0-100) and its reading of the main themes
+    relevance: int = 0
+    stances: list[Stance] = Field(default_factory=list)
+
+    @field_validator("relevance", mode="before")
+    @classmethod
+    def _relevance(cls, value: object) -> int:
+        if isinstance(value, bool) or not isinstance(value, int | float | str):
+            return 0
+        try:
+            return max(0, min(100, int(float(value))))
+        except ValueError:
+            return 0
+
+    @field_validator("stances", mode="before")
+    @classmethod
+    def _stances(cls, value: object) -> list[dict[str, str]]:
+        kept: list[dict[str, str]] = []
+        for entry in value if isinstance(value, list) else []:
+            if (
+                isinstance(entry, dict)
+                and entry.get("theme") in THEME_KEYS
+                and entry.get("stance") in ("opportunity", "risk", "watch")
+                and all(k["theme"] != entry["theme"] for k in kept)
+            ):
+                kept.append({"theme": entry["theme"], "stance": entry["stance"]})
+        return kept[:3]
 
 
 class PersonaBatch(BaseModel):

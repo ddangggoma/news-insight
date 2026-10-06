@@ -3,6 +3,8 @@ import type { ReactNode } from "react";
 
 import { EvidenceLinks } from "@/components/console/evidence-links";
 import { StrengthBadge } from "@/components/reader/briefing-extras";
+import { PersonaCard } from "@/components/reader/persona-card";
+import { PersonaFocus } from "@/components/reader/persona-focus";
 import Link from "next/link";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,10 +12,11 @@ import type { BriefingEntry, BriefingPersona, PublicBriefing } from "@/lib/brief
 import { COMPANY_SIGNAL_LABEL } from "@/lib/companies";
 import { formatBriefingDate } from "@/lib/format";
 import { SIGNAL_META, type SignalTone } from "@/lib/radar-signals";
-import { FIELD_LABEL, IMPACT_LABEL } from "@/lib/taxonomy";
+import { FIELD_LABEL, IMPACT_LABEL, THEME_LABEL } from "@/lib/taxonomy";
 import { cn } from "@/lib/utils";
 
 const GROUPS = [
+  ["practitioner", "실무"],
   ["executive", "경영진"],
   ["business", "사업부장"],
   ["domain", "도메인"],
@@ -51,26 +54,31 @@ function PersonaList({ personas, refs }: { personas: BriefingPersona[]; refs: Pu
   return (
     <div className="space-y-3">
       {insights.map((persona) => (
-        <details key={persona.key} className="group/persona rounded-lg border p-3 open:bg-muted/30">
-          <summary className="cursor-pointer list-none space-y-1 [&::-webkit-details-marker]:hidden">
-            <p className="text-xs font-medium text-primary">{persona.name}</p>
-            <p className="text-sm leading-snug font-semibold">{persona.headline}</p>
-          </summary>
-          <div className="mt-2 space-y-2 text-sm">
-            <p className="leading-relaxed text-foreground/85">{persona.insight}</p>
-            {persona.actions.length > 0 ? (
-              <ul className="list-disc space-y-0.5 pl-4 text-foreground/80">
-                {persona.actions.map((action, index) => (
-                  <li key={index}>{action}</li>
-                ))}
-              </ul>
-            ) : null}
-            <EvidenceLinks ids={persona.item_ids} items={refs} />
-          </div>
-        </details>
+        <PersonaCard key={persona.key} persona={persona} refs={refs} />
       ))}
       {quiet > 0 ? <p className="text-xs text-muted-foreground">신호 없음(no_signal) {quiet}명</p> : null}
     </div>
+  );
+}
+
+const STANCE_LABEL = { opportunity: "기회", risk: "위험" } as const;
+
+/** Themes the roles read in opposite directions: where the strategy debate is. */
+function Conflicts({ conflicts }: { conflicts: NonNullable<NonNullable<PublicBriefing["strategy"]>["conflicts"]> }) {
+  return (
+    <ul className="space-y-2.5 text-sm">
+      {conflicts.map((conflict) => (
+        <li key={conflict.theme} className="space-y-1">
+          <p className="font-medium">{THEME_LABEL[conflict.theme] ?? conflict.theme}</p>
+          {(["opportunity", "risk"] as const).map((side) => (
+            <p key={side} className="flex gap-2 text-xs">
+              <span className={cn("shrink-0 rounded px-1.5 py-px font-semibold", IMPACT_STYLE[side])}>{STANCE_LABEL[side]}</span>
+              <span className="text-ink-2">{conflict[side].join(", ")}</span>
+            </p>
+          ))}
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -209,20 +217,29 @@ export function BriefingAside({ briefing, past }: { briefing: PublicBriefing; pa
       ) : null}
       {strategy ? (
         <Panel icon={<Users className="size-4 text-primary" aria-hidden />} title="페르소나 통찰">
-          <Tabs defaultValue="executive" className="gap-3">
-            <TabsList className="grid w-full grid-cols-3">
-              {GROUPS.map(([group, label]) => (
-                <TabsTrigger key={group} value={group}>
-                  {label}
-                </TabsTrigger>
+          <PersonaFocus personas={strategy.personas} refs={briefing.refs} defaultRole={strategy.default_persona ?? "sensing_analyst"} />
+          <details className="group/roster">
+            <summary className="cursor-pointer text-xs font-medium text-primary">역할별 전체 보기</summary>
+            <Tabs defaultValue="executive" className="mt-3 gap-3">
+              <TabsList className="grid w-full grid-cols-4">
+                {GROUPS.map(([group, label]) => (
+                  <TabsTrigger key={group} value={group}>
+                    {label}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+              {GROUPS.map(([group]) => (
+                <TabsContent key={group} value={group}>
+                  <PersonaList personas={strategy.personas.filter((p) => p.group === group)} refs={briefing.refs} />
+                </TabsContent>
               ))}
-            </TabsList>
-            {GROUPS.map(([group]) => (
-              <TabsContent key={group} value={group}>
-                <PersonaList personas={strategy.personas.filter((p) => p.group === group)} refs={briefing.refs} />
-              </TabsContent>
-            ))}
-          </Tabs>
+            </Tabs>
+          </details>
+        </Panel>
+      ) : null}
+      {strategy?.conflicts?.length ? (
+        <Panel icon={<Users className="size-4 text-primary" aria-hidden />} title="관점 충돌">
+          <Conflicts conflicts={strategy.conflicts} />
         </Panel>
       ) : null}
       {report ? (

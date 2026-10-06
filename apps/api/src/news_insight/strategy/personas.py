@@ -1,19 +1,27 @@
-"""30 active personas (requirements §7): 4 executives, 6 DX business heads, 20 domain leads."""
+"""31 personas (requirements §7): the reader's own role (a technology-strategy sensing
+practitioner, 2026-10-06), 4 executives, 6 DX business heads and 20 domain leads."""
 
 from dataclasses import dataclass
 
-PERSONA_REVISION = "2026-10-04.1"
+PERSONA_REVISION = "2026-10-06.1"
+DEFAULT_PERSONA = "sensing_analyst"  # the reader's role, shown first (plan 13 B6)
 
 
 @dataclass(frozen=True)
 class Persona:
     key: str
     name: str
-    group: str  # executive | business | domain
+    group: str  # practitioner | executive | business | domain
     focus: str
 
 
 PERSONAS: tuple[Persona, ...] = (
+    Persona(
+        "sensing_analyst",
+        "기술전략 센싱 실무자",
+        "practitioner",
+        "기술 동향·경쟁사·신흥 업체 센싱, 보고서용 근거 정리, 다음에 확인할 신호",
+    ),
     Persona("ceo", "CEO", "executive", "전사 포트폴리오·경쟁 구도·M&A·글로벌 리스크"),
     Persona("cto", "CTO", "executive", "핵심 기술 로드맵·플랫폼 전환·R&D 우선순위"),
     Persona(
