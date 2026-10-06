@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     redis_url: str = "redis://localhost:8721/0"
     timezone: str = "Asia/Seoul"
     openalex_mailto: str = ""  # contact address for the OpenAlex polite pool (in .env only)
+    openalex_api_key: str = ""  # free key: 10x the daily budget, sent as a header (in .env only)
     lm_studio_url: str = "http://host.docker.internal:1234"
     lm_studio_model: str = "qwen/qwen3.8-27b"
     lm_studio_embedding_model: str = "text-embedding-bge-m3"  # multilingual story merging (C1)

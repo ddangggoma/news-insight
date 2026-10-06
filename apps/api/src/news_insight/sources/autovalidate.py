@@ -9,7 +9,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from news_insight.net.safe_fetch import SafeFetcher
-from news_insight.scheduling.providers import PROVIDERS, ProviderGate, provider_host
+from news_insight.scheduling.providers import ProviderGate, provider, provider_host
 from news_insight.sources.enums import (
     STAGE_ORDER,
     SourceStatus,
@@ -85,7 +85,7 @@ def auto_validate(
                 if host is not None and gate is not None:
                     if (
                         gate.backoff_seconds(host)
-                        or per_provider.get(host, 0) >= PROVIDERS[host].validate_per_batch
+                        or per_provider.get(host, 0) >= provider(host).validate_per_batch
                         or not gate.try_acquire(host)
                     ):
                         stats.deferred += 1
