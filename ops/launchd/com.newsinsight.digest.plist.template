@@ -10,12 +10,16 @@
     <string>-lc</string>
     <string>cd "__REPO__" &amp;&amp; scripts/dev.sh digest</string>
   </array>
-  <!-- 05:00 publishes; 06:00 and 07:00 retry only while the date has no published briefing -->
+  <!-- 05:00 publishes; 06:00, 07:00, 08:00 and 10:00 retry only while the date has no published
+       briefing (08:00 and 10:00 added 2026-10-06: a Claude session limit blocked all three
+       morning tries on 2026-10-05) -->
   <key>StartCalendarInterval</key>
   <array>
     <dict><key>Hour</key><integer>5</integer><key>Minute</key><integer>0</integer></dict>
     <dict><key>Hour</key><integer>6</integer><key>Minute</key><integer>0</integer></dict>
     <dict><key>Hour</key><integer>7</integer><key>Minute</key><integer>0</integer></dict>
+    <dict><key>Hour</key><integer>8</integer><key>Minute</key><integer>0</integer></dict>
+    <dict><key>Hour</key><integer>10</integer><key>Minute</key><integer>0</integer></dict>
   </array>
   <key>EnvironmentVariables</key>
   <dict>
