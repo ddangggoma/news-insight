@@ -70,11 +70,12 @@ API 키는 카탈로그에 이름만 적고(`config.auth.secret: GITHUB_TOKEN`) 
 
 ## 운영 콘솔과 데일리 다이제스트 (Phase 3.5)
 
-- 콘솔: `https://localhost:8700/console` (Basic Auth). 좌측 메뉴에서 대시보드, 다이제스트, 소스, 수집 현황, DLQ, 수집 항목, 지표 상승 화면을 엽니다.
+- 사이트 전체가 로그인 뒤에 있습니다. `/signup`에서 가입 신청 → 관리자가 콘솔 → 사용자에서 승인하면 로그인됩니다(`docs/runbooks/ops-console.md` §2-1).
+- 콘솔: `https://localhost:8700/console` (관리자 계정). 좌측 메뉴에서 대시보드, 다이제스트, 소스, 수집 현황, DLQ, 수집 항목, 지표 상승 화면을 엽니다.
 - 다이제스트: 매일 05:00 KST에 호스트의 Claude CLI(Opus)가 전일 수집 항목을 트랙 → 하위 범주 → 종합 인사이트로 요약합니다. 모든 문장에 근거 기사 링크가 붙습니다.
 
 ```bash
-scripts/dev.sh admin-link              # 관리자 로그인 링크 출력 (SMTP 미설정 시)
+scripts/dev.sh create-admin            # 첫 관리자 계정 만들기 (비밀번호는 숨김 입력)
 scripts/install-digest-schedule.sh     # launchd에 05:00 다이제스트 등록
 scripts/dev.sh digest                  # 지금 바로 다이제스트 생성
 scripts/demo-db.sh                     # 화면 점검용 데모 DB(news_insight_demo) 생성

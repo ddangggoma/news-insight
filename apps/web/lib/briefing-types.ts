@@ -163,13 +163,3 @@ export interface PublicPeriodic extends PeriodicEntry {
   previous_key: string | null;
   next_key: string | null;
 }
-
-/** A rendered spoken briefing (plan 13 A1), listed for the podcast feed. */
-export interface AudioEntry {
-  briefing_date: string;
-  headline: string;
-  url: string;
-  seconds: number;
-  bytes: number;
-  generated_at: string;
-}

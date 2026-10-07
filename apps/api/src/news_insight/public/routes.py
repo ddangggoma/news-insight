@@ -5,11 +5,8 @@ from datetime import UTC, date, datetime
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
-from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from news_insight.audio import render as audio_render
-from news_insight.config import get_settings
 from news_insight.console.schemas import Page
 from news_insight.db import get_db
 from news_insight.digest import service as digest_service
@@ -301,29 +298,6 @@ def get_periodic(kind: str, key: str, session: DB) -> periodic_queries.PublicPer
     if row is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, f"no published {kind} briefing for {key}")
     return periodic_queries.public_periodic(session, row)
-
-
-class AudioOut(BaseModel):
-    briefing_date: str
-    headline: str
-    url: str
-    seconds: int
-    bytes: int
-    generated_at: datetime
-
-
-@router.get("/audio")
-def list_audio() -> list[AudioOut]:
-    """Rendered spoken briefings, newest first (the podcast feed reads this)."""
-    return [
-        AudioOut(
-            **entry.model_dump(
-                include={"briefing_date", "headline", "seconds", "bytes", "generated_at"}
-            ),
-            url=entry.url,
-        )
-        for entry in audio_render.entries(get_settings().media_dir)
-    ]
 
 
 @router.get("/version")

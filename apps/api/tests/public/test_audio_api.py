@@ -13,7 +13,7 @@ from tests.public.test_briefings_api import published
 pytestmark = pytest.mark.db
 
 
-def test_briefing_script_and_audio_listing(
+def test_briefing_script_and_audio(
     db_session: Session,
     public_client: TestClient,
     public_headers: dict[str, str],
@@ -43,10 +43,8 @@ def test_briefing_script_and_audio_listing(
         runner=fake_runner(),
     )
     body = public_client.get("/api/public/briefings/latest", headers=public_headers).json()
-    listed = public_client.get("/api/public/audio", headers=public_headers).json()
 
     assert body["audio"] == {
         "url": f"/media/briefings/{briefing.briefing_date}-v1.m4a",
         "seconds": 42,
     }
-    assert listed[0]["url"] == body["audio"]["url"] and listed[0]["headline"] == "헤드라인"

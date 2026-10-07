@@ -19,9 +19,21 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   reporter: [["list"]],
   use: { baseURL: WEB, trace: "retain-on-failure", locale: "ko-KR", timezoneId: "Asia/Seoul" },
+  // Every page needs a login (plan 14): setup logs the seeded accounts in once, and the
+  // reader specs start from the saved reader session (e2e/accounts.ts).
   projects: [
-    { name: "desktop", use: { ...devices["Desktop Chrome"], ...browser } },
-    { name: "mobile", use: { ...devices["Pixel 7"], ...browser }, grep: /@mobile/ },
+    { name: "setup", testMatch: /auth\.setup\.ts/, use: { ...browser } },
+    {
+      name: "desktop",
+      use: { ...devices["Desktop Chrome"], ...browser, storageState: "e2e/.auth/reader.json" },
+      dependencies: ["setup"],
+    },
+    {
+      name: "mobile",
+      use: { ...devices["Pixel 7"], ...browser, storageState: "e2e/.auth/reader.json" },
+      grep: /@mobile/,
+      dependencies: ["setup"],
+    },
   ],
   webServer: [
     {

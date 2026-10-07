@@ -53,8 +53,14 @@ alembic_check() {
   (cd "$API" && DATABASE_URL="$CHECK_DB_URL" uv run alembic upgrade head >/dev/null && DATABASE_URL="$CHECK_DB_URL" uv run alembic check)
 }
 
-# Admin magic link without SMTP: prints a single-use 15-minute login URL (P8).
-admin_link()    { (cd "$API" && uv run --env-file "$ROOT/.env" news-insight admin link); }
+# First admin account (plan 14), in the running api container. The password is asked for
+# twice at a hidden prompt, never put on the command line.
+create_admin()  {
+  local username name
+  read -rp "admin username: " username
+  read -rp "display name: " name
+  docker compose exec api news-insight users create-admin "$username" --name "$name"
+}
 
 # Host job logs (launchd appends to ops/logs/*.log): keep the current file under 20 MB plus 3 old
 rotate()        {
@@ -103,7 +109,7 @@ verify() {
   printf '\nverify: all checks passed\n'
 }
 
-COMMANDS="up down logs db migrate api-dev web-dev api-test api-lint web-test web-check compose-check alembic-check verify web-e2e radar-qa admin-link digest cards sources-seed logs-report audit"
+COMMANDS="up down logs db migrate api-dev web-dev api-test api-lint web-test web-check compose-check alembic-check verify web-e2e radar-qa create-admin digest cards sources-seed logs-report audit"
 
 usage() {
   echo "usage: scripts/dev.sh <command>"

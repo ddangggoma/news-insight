@@ -118,8 +118,6 @@ companies_app = typer.Typer(help="Company registry and card company tags", no_ar
 app.add_typer(companies_app, name="companies")
 ops_app = typer.Typer(help="Operational health checks and alerts", no_args_is_help=True)
 app.add_typer(ops_app, name="ops")
-admin_app = typer.Typer(help="Admin magic-link login", no_args_is_help=True)
-app.add_typer(admin_app, name="admin")
 users_app = typer.Typer(help="Site accounts: admin bootstrap and recovery", no_args_is_help=True)
 app.add_typer(users_app, name="users")
 
@@ -902,26 +900,6 @@ def audio_render_command(
         typer.echo(f"audio failed: {exc}", err=True)
         raise typer.Exit(1) from exc
     typer.echo(f"{day} v{version} audio {entry.seconds}s {entry.bytes // 1024} KB")
-
-
-@admin_app.command("link")
-def admin_link() -> None:
-    """Print a single-use 15-minute login link for ADMIN_EMAIL (no SMTP needed)."""
-    from news_insight.auth.mailer import login_url
-    from news_insight.auth.service import issue_login
-
-    settings = get_settings()
-    with session_scope() as session:
-        issued = issue_login(
-            session,
-            email=settings.admin_email,
-            admin_email=settings.admin_email,
-            now=datetime.now(UTC),
-        )
-    if issued is None:
-        typer.echo("too many login links in the last 15 minutes; try again later", err=True)
-        raise typer.Exit(1)
-    typer.echo(login_url(settings, issued.token))
 
 
 def _account(session: Session, username: str) -> int:

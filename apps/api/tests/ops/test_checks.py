@@ -11,6 +11,7 @@ from news_insight.collect.models import FetchOutcome, FetchRun
 from news_insight.config import Settings
 from news_insight.ops import service
 from news_insight.ops.checks import (
+    check_accounts,
     check_cards,
     check_collection,
     check_publication,
@@ -151,3 +152,13 @@ def test_card_failure_rate_alert(db_session: Session) -> None:
     db_session.flush()
 
     assert "cards_failing" in keys(check_cards(db_session, now=AT_0530))
+
+
+def test_missing_admin_account_is_flagged(db_session: Session) -> None:
+    from news_insight.auth.accounts import create_admin
+
+    assert [f.key for f in check_accounts(db_session)] == ["no_admin"]
+    create_admin(
+        db_session, username="boss", password="plum-orbit-4417", name="관리자", now=AT_0530
+    )
+    assert check_accounts(db_session) == []

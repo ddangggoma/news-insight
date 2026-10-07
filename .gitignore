@@ -18,3 +18,4 @@ playwright-report/
 ops/releases.log
 ops/reports/
 ops/media/
+apps/web/e2e/.auth/

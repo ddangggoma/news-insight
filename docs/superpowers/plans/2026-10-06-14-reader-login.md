@@ -4,7 +4,7 @@
 > 변경(2026-10-07): "이메일 토큰 방식이 아니라 id/pw 로그인 방식으로 … 보안을 고려해서 … 가입 신청 후 admin이 승인한 사용자만 접근이 가능하도록."
 > 확정(2026-10-07): "ID/PW 방식으로 변경 … 회원가입 페이지를 만들고 이름을 기입받도록 … admin이 승인해준 ID만 로그인 … 승인이 안된 것은 Admin에게 승인요청 하라고." Google 로그인은 운영 도메인이 없어(IP만 있음) 보류.
 > 실행 규칙은 [10-execution-progress](2026-10-04-10-execution-progress.md)와 같다(브랜치 → verify → PR → CI → 병합 → `NEWS_INSIGHT-live/scripts/deploy.sh`).
-> **상태: 승인 대기.** 사용자 승인 후 PR 1부터 진행한다.
+> **상태: 구현 완료 (2026-10-07).** 사용자 승인과 결정(§6)을 받아 PR 1~4를 구현했다. 계획과 달라진 점은 §7.
 
 ## 0. 목표
 
@@ -196,9 +196,23 @@
    - 범위: 매직링크 코드·`admin_tokens` 삭제, Caddy(HTTP→HTTPS, rate limit), `check-env.sh`, 문서. 문서는 `docs/runbooks/reader-web.md`의 "로그인 없이 누구나" 수정, `ops-console.md`에 사용자 관리·복구 절차, `README.md`, 로드맵 D21을 대체하는 결정 항목.
    - 확인: 운영 배포 후 §3-6 4번 체크리스트.
 
-## 6. 확인 필요 (기본안으로 진행)
+## 6. 결정 (2026-10-07, 사용자)
 
-1. **HTTP 포트** — 기본안: HTTP(8701)를 HTTPS(8700)로 리다이렉트. 비밀번호가 평문으로 오가지 않게 하려는 것이다.
-2. **RSS·팟캐스트 피드** — 기본안: 공개 유지. 구독 앱은 그대로 동작하지만 제목·요약은 공개된다.
-3. **가입 신청 알림** — 기본안: 콘솔 배지 + 운영 알림 메일(SMTP가 설정된 경우).
-4. **관리자 2단계 인증(OTP)** — 기본안: 이번 범위에서 제외하고 후속 작업으로 둔다.
+1. **HTTP 포트** — HTTP(8701)를 **그대로 둔다**. 사용자가 HTTP로 접속한다. HTTP로 로그인하면 비밀번호와 세션 쿠키가 평문으로 오간다는 위험을 런북(`ops-console.md` §2-1)에 적었다. §2-1의 리다이렉트는 하지 않는다.
+2. **RSS·팟캐스트 피드** — **제거**. `/feed.xml`, `/podcast.xml`, 공개 API `/api/public/audio`, 브리핑의 "팟캐스트 구독" 링크를 지웠다.
+3. **가입 신청 알림** — **SMTP 메일**로 `ADMIN_EMAIL`에 보낸다(콘솔 사이드바 배지도 있음).
+4. **2단계 인증** — 이번 범위에서 **제외**.
+
+## 7. 구현 결과와 계획과 달라진 점
+
+- **요청 제한 저장소:** Redis 대신 `auth_events` 테이블에서 센다(접속 주소별 로그인 실패 10분 30회, 가입 1시간 20회). 감사 기록과 같은 행을 쓰므로 따로 저장할 것이 없다.
+- **API 경로:** 사용자용 `/api/admin/accounts/{signup,login,session,logout,logout-others,password}`, 관리자용 `/api/admin/users`, `/api/admin/users/{id}`, `/api/admin/users/{id}/{approve,reject,suspend,reactivate,unlock,role,reset-password,events}`. 매직링크의 `/api/admin/auth/*`와 겹치지 않게 새 경로를 썼고, 매직링크는 PR 4에서 지웠다.
+- **강제 비밀번호 변경 경로:** `/account/password` 대신 `/change-password`. 독자 레이아웃 밖에 있어야 리다이렉트가 돌지 않는다.
+- **세션 검사:** `proxy.ts`가 쿠키 유무가 아니라 **API로 세션을 매 요청 확인**한다(Next 16 문서: 레이아웃은 화면 전환 때 다시 실행되지 않음). 페이지·액션·라우트 핸들러도 다시 확인한다.
+- **쿠키:** HTTP를 유지하므로 `__Host-` 접두사와 HSTS는 쓰지 않는다. 쿠키 이름 `ni_session`, `HttpOnly`·`SameSite=Lax`, HTTPS 요청일 때만 `Secure`.
+- **`users` 필드:** `approved_at/by` 대신 `reviewed_at/by`(승인·거절 모두 기록, 거절 30일 삭제 기준).
+- **음성 파일:** Caddy가 `/media`를 직접 내보내므로 `forward_auth`로 웹의 `/internal/session-check`에 로그인 여부를 묻는다.
+- **관리자 없음 감지:** `check-env.sh`(`.env` 문법 검사) 대신 운영 점검에 `no_admin` 알림을 넣었다.
+- **첫 관리자:** `scripts/dev.sh create-admin`(= `docker compose exec api news-insight users create-admin <아이디> --name <이름>`). E2E는 `--password-stdin` 대신 시드 스크립트로 계정을 만든다.
+- **마이그레이션:** `0028_users`(users, user_sessions, auth_events), `0029_drop_admin_tokens`.
+- **검증:** API 테스트 전체, 웹 단위 테스트, `next build`, Caddyfile `caddy validate`, Playwright E2E(가입 → 승인 요청 안내 → 승인 → 로그인, 비밀번호 초기화 → 변경 강제, 로그아웃, 독자의 콘솔 차단, 무세션 차단).

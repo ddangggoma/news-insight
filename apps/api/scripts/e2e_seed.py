@@ -375,6 +375,28 @@ def seed(session: Session) -> None:
     session.commit()
 
 
+# Login fixtures (plan 14); apps/web/e2e/accounts.ts has the same names and password.
+E2E_PASSWORD = "e2e-plum-orbit-4417"
+
+
+def seed_accounts(session: Session) -> None:
+    from news_insight.auth.accounts import Client, approve, create_admin, register
+
+    admin = create_admin(
+        session, username="e2e.admin", password=E2E_PASSWORD, name="관리자", now=NOW
+    )
+    reader = register(
+        session,
+        username="e2e.reader",
+        password=E2E_PASSWORD,
+        name="독자",
+        now=NOW,
+        client=Client(),
+    )
+    approve(session, admin, reader.id, now=NOW, client=Client())
+    session.commit()
+
+
 if __name__ == "__main__":
     database_url = os.environ["DATABASE_URL"]
     _reset(database_url)
@@ -385,4 +407,5 @@ if __name__ == "__main__":
 
         seed_registry(db, load_technologies())
         seed(db)
+        seed_accounts(db)
     print(f"seeded {database_url.rsplit('/', 1)[-1]}: briefings {YESTERDAY}, {TODAY}")
