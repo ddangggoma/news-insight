@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 
 from news_insight import __version__
+from news_insight.auth.account_routes import router as accounts_router
 from news_insight.auth.routes import router as auth_router
 from news_insight.console.routes import router as console_router
 from news_insight.observability import RequestLogMiddleware, configure_logging
@@ -18,6 +19,7 @@ def create_app() -> FastAPI:
 
     app.include_router(console_router)
     app.include_router(auth_router)
+    app.include_router(accounts_router)
     app.include_router(public_router)
     return app
 

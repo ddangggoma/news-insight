@@ -103,6 +103,14 @@ def briefing_freeze_task() -> int:
         return len(frozen.candidate_ids)
 
 
+@celery_app.task(name="auth.purge")
+def auth_purge_task() -> int:
+    from news_insight.auth.accounts import purge
+
+    with session_scope() as session:
+        return purge(session, now=datetime.now(UTC))
+
+
 @celery_app.task(name="content.purge_expired")
 def purge_expired_task() -> int:
     with session_scope() as session:
