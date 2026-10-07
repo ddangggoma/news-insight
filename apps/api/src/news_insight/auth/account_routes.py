@@ -115,6 +115,7 @@ class TemporaryPassword(BaseModel):
 
 
 class EventOut(BaseModel):
+    id: int
     at: datetime
     event: str
     actor_id: int | None
@@ -124,6 +125,7 @@ class EventOut(BaseModel):
     @classmethod
     def of(cls, event: AuthEvent) -> "EventOut":
         return cls(
+            id=event.id,
             at=event.at,
             event=event.event,
             actor_id=event.actor_id,
@@ -272,6 +274,14 @@ def list_users(
         items=[UserOut.of(user, now) for user in accounts.list_users(db, status_)],
         counts=accounts.status_counts(db),
     )
+
+
+@router.get("/api/admin/users/{user_id}")
+def get_user(user_id: int, db: DB, admin: Admin) -> UserOut:
+    user = db.get(User, user_id)
+    if user is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "no such user")
+    return UserOut.of(user, _now())
 
 
 @router.get("/api/admin/users/{user_id}/events")

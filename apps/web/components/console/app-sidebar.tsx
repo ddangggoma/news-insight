@@ -1,6 +1,6 @@
 "use client";
 
-import { Activity, BellRing, ClipboardCheck, Cpu, Gauge, GitMerge, History, Inbox, Layers, LayoutDashboard, LayoutGrid, Library, Lightbulb, Newspaper, Radar, Rss, Star, TrendingUp } from "lucide-react";
+import { Activity, BellRing, ClipboardCheck, Cpu, Gauge, GitMerge, History, Inbox, Layers, LayoutDashboard, LayoutGrid, Library, Lightbulb, Newspaper, Radar, Rss, Star, TrendingUp, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -12,6 +12,7 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
+  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
@@ -41,13 +42,16 @@ const NAV = [
     { href: "/console/technologies", title: "기술 레지스트리", icon: Cpu },
     { href: "/console/watchlist", title: "관심 목록", icon: Star },
   ] },
+  { label: "관리", items: [
+    { href: "/console/users", title: "사용자", icon: Users },
+  ] },
 ];
 
 export function isActive(pathname: string, href: string): boolean {
   return href === "/console" ? pathname === href : pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function AppSidebar() {
+export function AppSidebar({ pendingUsers = 0 }: { pendingUsers?: number }) {
   const pathname = usePathname();
   const { isMobile, setOpenMobile } = useSidebar();
   return (
@@ -73,6 +77,9 @@ export function AppSidebar() {
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
+                  {item.href === "/console/users" && pendingUsers > 0 ? (
+                    <SidebarMenuBadge aria-label={`승인 대기 ${pendingUsers}건`}>{pendingUsers}</SidebarMenuBadge>
+                  ) : null}
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>

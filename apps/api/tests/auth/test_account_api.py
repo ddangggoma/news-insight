@@ -167,6 +167,10 @@ def test_admin_actions_role_reset_and_conflicts(
     )
     assert forced.status_code == 403
 
+    one = console_client.get(f"/api/admin/users/{reader.id}", headers={**headers, **admin})
+    assert one.json()["username"] == "reader.two" and one.json()["role"] == "admin"
+    missing = console_client.get("/api/admin/users/999999", headers={**headers, **admin})
+    assert missing.status_code == 404
     trail = console_client.get(f"/api/admin/users/{reader.id}/events", headers={**headers, **admin})
     assert [e["event"] for e in trail.json()][:3] == ["login_ok", "password_reset", "role_admin"]
     assert trail.json()[0]["ip"] == "203.0.113.7"
