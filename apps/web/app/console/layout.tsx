@@ -25,7 +25,7 @@ export default async function ConsoleLayout({ children }: { children: ReactNode 
           <Separator orientation="vertical" className="h-4" />
           <span className="text-sm text-muted-foreground">운영 콘솔</span>
           <div className="ml-auto flex items-center gap-1">
-            <span className="hidden text-xs text-muted-foreground sm:inline">{admin}</span>
+            <span className="hidden text-xs text-muted-foreground sm:inline">{admin.name}</span>
             <form action={logout}>
               <Button type="submit" variant="ghost" size="sm">
                 로그아웃

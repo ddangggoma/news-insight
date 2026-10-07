@@ -13,12 +13,19 @@ export class ApiError extends Error {
   }
 }
 
-async function send(method: "GET" | "POST" | "PATCH" | "DELETE", path: string, body?: unknown): Promise<Response> {
+type Headers = Record<string, string>;
+
+async function send(
+  method: "GET" | "POST" | "PATCH" | "DELETE",
+  path: string,
+  body?: unknown,
+  extra: Headers = {},
+): Promise<Response> {
   const key = process.env.CONSOLE_API_KEY;
   if (!key) throw new ApiError(503, "CONSOLE_API_KEY is not configured for the web server");
   const response = await fetch(`${BASE_URL}${path}`, {
     method,
-    headers: { "X-Console-Key": key, ...(body === undefined ? {} : { "Content-Type": "application/json" }) },
+    headers: { ...extra, "X-Console-Key": key, ...(body === undefined ? {} : { "Content-Type": "application/json" }) },
     body: body === undefined ? undefined : JSON.stringify(body),
     cache: "no-store",
   });
@@ -28,13 +35,15 @@ async function send(method: "GET" | "POST" | "PATCH" | "DELETE", path: string, b
   return response;
 }
 
-async function request<T>(method: "GET" | "POST" | "PATCH", path: string, body?: unknown): Promise<T> {
-  return (await (await send(method, path, body)).json()) as T;
+async function request<T>(method: "GET" | "POST" | "PATCH", path: string, body?: unknown, extra?: Headers): Promise<T> {
+  const response = await send(method, path, body, extra);
+  return (response.status === 204 ? undefined : await response.json()) as T;
 }
 
 export const api = {
-  get: <T>(path: string, params?: Record<string, QueryValue>) => request<T>("GET", withQuery(path, params)),
-  post: <T>(path: string, body?: unknown) => request<T>("POST", path, body),
+  get: <T>(path: string, params?: Record<string, QueryValue>, headers?: Headers) =>
+    request<T>("GET", withQuery(path, params), undefined, headers),
+  post: <T>(path: string, body?: unknown, headers?: Headers) => request<T>("POST", path, body, headers),
   patch: <T>(path: string, body?: unknown) => request<T>("PATCH", path, body),
   text: async (path: string) => (await send("GET", path)).text(),
   delete: async (path: string): Promise<void> => {
