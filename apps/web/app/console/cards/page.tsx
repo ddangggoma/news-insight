@@ -14,7 +14,7 @@ import type { CardFailure, CardStats, CardView, Page, Region, Track } from "@/li
 
 export const metadata = { title: "카드 뉴스" };
 
-const ENGINE_LABEL: Record<string, string> = { agy: "Antigravity", qwen: "로컬 Qwen" };
+const ENGINE_LABEL: Record<string, string> = { codex: "Codex", agy: "Antigravity", claude: "Claude", qwen: "로컬 Qwen", reuse: "재사용" };
 
 function options<T extends string>(labels: Record<T, string>) {
   return (Object.entries(labels) as [T, string][]).map(([value, label]) => ({ value, label }));
@@ -68,8 +68,8 @@ export default async function CardsPage({ searchParams }: { searchParams: Promis
         />
         <StatCard title="엔진별 카드" value={engines || "—"} hint={stats.failed ? `실패 ${formatNumber(stats.failed)}건 (3회 재시도 후)` : "실패 없음"} icon={stats.failed ? TriangleAlert : Cpu} />
         <StatCard
-          title="Antigravity 한도"
-          value={quota?.weekly != null ? `주간 ${quota.weekly}% · 5시간 ${quota.five_hour ?? "—"}%` : "—"}
+          title={`${ENGINE_LABEL[quota?.engine ?? "agy"] ?? quota?.engine} 한도`}
+          value={quota?.engine === "claude" ? "조회 불가" : quota?.weekly != null ? `주간 ${quota.weekly}% · 5시간 ${quota.five_hour ?? "—"}%` : "—"}
           hint={stats.last_run ? `마지막 실행 ${formatRelative(stats.last_run.started_at)}` : "아직 실행 기록 없음"}
           icon={Bot}
         />

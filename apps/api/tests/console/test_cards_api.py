@@ -81,7 +81,7 @@ def seed(db_session: Session) -> dict[str, int]:
                 ready=2,
                 failed=1,
                 batches={"agy": 1},
-                quota={"weekly": 80, "five_hour": 50},
+                quota={"engine": "agy", "weekly": 80, "five_hour": 50},
                 note=None,
             ),
         ]
@@ -119,7 +119,7 @@ def test_card_stats_and_korean_titles_on_items(
     assert (stats["ready"], stats["failed"], stats["pending"]) == (2, 1, 0)
     assert stats["ready_today"] >= 1
     assert stats["by_engine"] == {"agy": 1, "qwen": 1}
-    assert stats["last_run"]["quota"] == {"weekly": 80, "five_hour": 50}
+    assert stats["last_run"]["quota"] == {"engine": "agy", "weekly": 80, "five_hour": 50}
     assert items["items"][0]["title_ko"] == "갤럭시 S30 공개"
     assert detail["card"]["keywords"] == ["삼성", "갤럭시"]
 
