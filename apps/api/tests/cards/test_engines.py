@@ -219,3 +219,49 @@ def test_codex_quota_reads_the_last_snapshot() -> None:
     assert quota is not None and quota.weekly == 6
     assert not quota.usable(min_weekly=10, min_five_hour=2)
     assert codex_quota('{"type":"session_meta"}') is None
+
+
+def test_claude_engine_sends_items_on_stdin_and_maps_limits() -> None:
+    import json as _json
+    import subprocess as _subprocess
+
+    from news_insight.cards.engines import ClaudeEngine, QuotaExhausted
+    from news_insight.digest.claude import ClaudeCli
+
+    calls: list[dict[str, Any]] = []
+    reply = {"subtype": "success", "structured_output": {"cards": []}, "modelUsage": {"sonnet": {}}}
+
+    def run(args: list[str], **kwargs: Any) -> _subprocess.CompletedProcess[str]:
+        calls.append({"args": args, "input": kwargs["input"]})
+        if len(calls) == 2:
+            return _subprocess.CompletedProcess(
+                args, 1, '{"result": "Claude usage limit reached"}', ""
+            )
+        return _subprocess.CompletedProcess(args, 0, _json.dumps(reply), "")
+
+    engine = ClaudeEngine(
+        cli=ClaudeCli(executable="claude", timeout_seconds=5, runner=run), model="sonnet"
+    )
+
+    out = engine.generate(INPUTS)
+
+    assert out.raw == {"cards": []} and out.model == "sonnet"
+    args = calls[0]["args"]
+    assert args[args.index("--tools") + 1] == "" and args[args.index("--model") + 1] == "sonnet"
+    assert "items 배열" in args[-1] and _json.loads(calls[0]["input"])["items"][0]["id"] == 7
+    assert engine.usage().usable(min_weekly=10, min_five_hour=2)
+    with pytest.raises(QuotaExhausted):
+        engine.generate(INPUTS)
+    assert not engine.usage().usable(min_weekly=10, min_five_hour=2)
+
+
+def test_quiet_hours_and_claude_daily_count() -> None:
+    from datetime import UTC, datetime
+
+    from news_insight.cards.service import in_quiet_hours
+
+    at = lambda hour: datetime(2026, 10, 6, hour - 9 if hour >= 9 else hour + 15, 0, tzinfo=UTC)  # noqa: E731
+    assert in_quiet_hours("3-11", at(5)) and in_quiet_hours("3-11", at(10))
+    assert not in_quiet_hours("3-11", at(11)) and not in_quiet_hours("3-11", at(23))
+    assert in_quiet_hours("22-2", at(23)) and in_quiet_hours("22-2", at(1))
+    assert not in_quiet_hours("", at(5)) and not in_quiet_hours("x", at(5))

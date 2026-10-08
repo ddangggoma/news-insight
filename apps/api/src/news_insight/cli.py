@@ -25,7 +25,7 @@ from news_insight.cards.service import CardPolicy, pending_count, record_run, ru
 from news_insight.collect.dead_letters import DeadLetterError, dismiss, list_open, retry
 from news_insight.collect.models import FetchOutcome, SourceRuntime
 from news_insight.collect.service import collect_source
-from news_insight.config import get_settings
+from news_insight.config import Settings, get_settings
 from news_insight.content.trends import metric_movers
 from news_insight.db import session_scope
 from news_insight.digest.claude import ClaudeCli, ClaudeClient
@@ -170,6 +170,27 @@ def _card_engines(qwen_only: bool) -> tuple[list[MeteredEngine], QwenEngine]:
         timeout_seconds=settings.card_timeout_seconds * 2,
     )
     return metered, qwen
+
+
+def _scheduled_claude(settings: Settings) -> bool:
+    """Claude joins a scheduled run while enabled (or before `card_claude_until`), outside the
+    quiet hours and below the daily card cap."""
+    from news_insight.cards.service import claude_cards_today, in_quiet_hours
+
+    now = datetime.now(UTC)
+    try:
+        until = (
+            datetime.fromisoformat(settings.card_claude_until)
+            if settings.card_claude_until
+            else None
+        )
+    except ValueError:
+        until = None
+    enabled = settings.card_claude or (until is not None and now < until)
+    if not enabled or in_quiet_hours(settings.card_claude_quiet_hours, now):
+        return False
+    with session_scope() as session:
+        return claude_cards_today(session, now) < settings.card_claude_daily_cap
 
 
 def _judge_engine() -> MeteredEngine | None:
@@ -570,6 +591,9 @@ CARDS_LOCK = Path(tempfile.gettempdir()) / "news-insight-cards.lock"
 def cards_run(
     budget: Annotated[int | None, typer.Option(help="Time budget in seconds")] = None,
     qwen_only: Annotated[bool, typer.Option(help="Skip Codex and Antigravity; local Qwen")] = False,
+    claude: Annotated[
+        bool, typer.Option(help="Claude Code instead of Codex and Antigravity (Qwen alongside)")
+    ] = False,
 ) -> None:
     """Generate Korean cards for pending items (host-side; launchd runs it every 10 minutes)."""
     settings = get_settings()
@@ -580,6 +604,14 @@ def cards_run(
             typer.echo("another card run is active; skipping")
             return
         metered, local = _card_engines(qwen_only)
+        if claude or (not qwen_only and _scheduled_claude(settings)):
+            from news_insight.cards.engines import ClaudeEngine
+
+            cli = ClaudeCli(
+                executable=settings.claude_cli, timeout_seconds=settings.card_timeout_seconds
+            )
+            # ahead of Codex and Antigravity; a usage-limit error moves the run down the chain
+            metered = [ClaudeEngine(cli=cli, model=settings.card_claude_model), *metered]
         # Qwen only after every metered engine is down to its reserve (card_qwen_fallback)
         qwen = local if qwen_only or settings.card_qwen_fallback else None
         policy = CardPolicy(
@@ -587,6 +619,8 @@ def cards_run(
             agy_parallel=settings.card_agy_parallel,
             codex_batch=settings.card_codex_batch,
             codex_parallel=settings.card_codex_parallel,
+            claude_batch=settings.card_claude_batch,
+            claude_parallel=settings.card_claude_parallel,
             qwen_batch=settings.card_qwen_batch,
             qwen_parallel=settings.card_qwen_parallel,
             min_weekly=settings.card_agy_min_weekly,
