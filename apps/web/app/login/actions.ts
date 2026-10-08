@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 
 import { ApiError, api } from "@/lib/api";
-import { LOGIN_MESSAGES, type LoginOutcome, type SessionUser, safeNext } from "@/lib/auth";
+import { LOGIN_MESSAGES, type LoginOutcome, type SessionUser, forgetSession, safeNext } from "@/lib/auth";
 import { clearSessionCookie, clientHeaders, sessionToken, setSessionCookie } from "@/lib/session";
 
 export interface LoginState {
@@ -53,6 +53,7 @@ export async function login(_: LoginState, form: FormData): Promise<LoginState> 
 
 export async function logout(): Promise<void> {
   const token = await sessionToken();
+  forgetSession(token);
   if (token) await api.post("/api/admin/accounts/logout", { token }, await clientHeaders()).catch(() => undefined);
   await clearSessionCookie();
   redirect("/login");

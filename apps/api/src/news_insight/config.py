@@ -32,6 +32,8 @@ class Settings(BaseSettings):
     public_api_key: str = ""
     # radar response cache in Redis (PERF-2); on in compose, off for tests and host dev
     radar_cache: bool = False
+    # console aggregates (card stats, overview) kept this many seconds; 0 = off (tests, host dev)
+    console_cache_seconds: int = 0
     claude_cli: str = "claude"
     digest_model: str = "opus"
     digest_timeout_seconds: int = 900

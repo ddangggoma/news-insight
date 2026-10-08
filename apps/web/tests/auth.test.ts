@@ -3,7 +3,7 @@ import { unstable_doesMiddlewareMatch as doesProxyMatch } from "next/experimenta
 import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { safeNext } from "@/lib/auth";
+import { clearSessionCache, safeNext } from "@/lib/auth";
 import { config, proxy } from "@/proxy";
 
 describe("safeNext", () => {
@@ -55,6 +55,7 @@ describe("proxy", () => {
   const fetchMock = vi.fn();
 
   beforeEach(() => {
+    clearSessionCache();
     vi.stubEnv("CONSOLE_API_KEY", "test-key");
     vi.stubGlobal("fetch", fetchMock);
   });
@@ -115,5 +116,27 @@ describe("proxy", () => {
     fetchMock.mockRejectedValue(new TypeError("fetch failed"));
     const response = await proxy(request("/", { cookie: "live" }));
     expect(response.status).toBe(503);
+  });
+});
+
+describe("session cache", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+  });
+
+  it("reuses a confirmed session briefly and forgets it on logout", async () => {
+    const { forgetSession, lookupSession } = await import("@/lib/auth");
+    clearSessionCache();
+    vi.stubEnv("CONSOLE_API_KEY", "k");
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({ id: 1, username: "a", role: "admin" }), { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await lookupSession("tok");
+    await lookupSession("tok");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    forgetSession("tok");
+    await lookupSession("tok");
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 });

@@ -1,5 +1,6 @@
 import { Activity, AlertTriangle, Database, Inbox, Sparkles } from "lucide-react";
 import Link from "next/link";
+import { cache, Suspense } from "react";
 
 import { TrackBadge } from "@/components/console/badges";
 import { HealthBar, StageChart } from "@/components/console/charts";
@@ -8,20 +9,25 @@ import { PageHeader } from "@/components/console/page-header";
 import { StatCard } from "@/components/console/stat-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { api, ApiError } from "@/lib/api";
 import { formatNumber, formatPercent, formatRelative, REGION_LABEL, TRACK_LABEL } from "@/lib/format";
 import type { CardStats, DigestOut, ItemRow, MoverOut, Overview, Page } from "@/lib/types";
 
 export const metadata = { title: "대시보드" };
 
-async function latestDigest(): Promise<DigestOut | null> {
+// Each section loads on its own (2026-10-08): the page used to wait for every call, so one slow
+// aggregate kept the whole dashboard blank. `cache` shares a call between sections of one request.
+const latestDigest = cache(async (): Promise<DigestOut | null> => {
   try {
     return await api.get<DigestOut>("/api/admin/digests/latest");
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) return null;
     throw error;
   }
-}
+});
+const overviewOnce = cache(() => api.get<Overview>("/api/admin/overview"));
+const cardStatsOnce = cache(() => api.get<CardStats>("/api/admin/cards/stats"));
 
 const MOVER_METRICS = [
   { metric: "stars", label: "스타" },
@@ -29,32 +35,53 @@ const MOVER_METRICS = [
   { metric: "likes", label: "좋아요" },
 ];
 
-export default async function DashboardPage() {
-  const [overview, digest, movers, recent, cardStats] = await Promise.all([
-    api.get<Overview>("/api/admin/overview"),
-    latestDigest(),
-    Promise.all(
-      MOVER_METRICS.map(({ metric }) =>
-        api.get<MoverOut[]>("/api/admin/trends/movers", { metric, days: 1, limit: 5 }),
-      ),
-    ),
-    api.get<Page<ItemRow>>("/api/admin/items", { size: 8 }),
-    api.get<CardStats>("/api/admin/cards/stats"),
-  ]);
-  const topMovers = movers
-    .flatMap((rows, index) => rows.map((mover) => ({ ...mover, label: MOVER_METRICS[index].label })))
-    .filter((mover) => mover.delta > 0)
-    .sort((a, b) => b.delta - a.delta)
-    .slice(0, 6);
-  const totalSources = overview.tracks.reduce((sum, track) => sum + track.total, 0);
-  const activeSources = overview.tracks.reduce((sum, track) => sum + track.active, 0);
-  const { health } = overview;
-  const successRate = health.runs ? (health.success + health.not_modified) / health.runs : Number.NaN;
+function Pending({ className }: { className: string }) {
+  return <Skeleton className={className} />;
+}
 
+export default function DashboardPage() {
   return (
     <>
       <PageHeader title="대시보드" description="수집 포트폴리오, 최근 24시간 수집 건강도, 오늘의 다이제스트" />
+      <Suspense fallback={<Pending className="h-40" />}>
+        <DigestSection />
+      </Suspense>
+      <Suspense
+        fallback={
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {Array.from({ length: 4 }, (_, index) => (
+              <Pending key={index} className="h-28" />
+            ))}
+          </div>
+        }
+      >
+        <StatsSection />
+      </Suspense>
+      <Suspense fallback={<Pending className="h-80" />}>
+        <PortfolioSection />
+      </Suspense>
+      <div className="grid gap-4 lg:grid-cols-3 [&>*]:min-w-0">
+        <Suspense fallback={<Pending className="h-96 lg:col-span-2" />}>
+          <RecentSection />
+        </Suspense>
+        <div className="space-y-4">
+          <Suspense fallback={<Pending className="h-64" />}>
+            <MoversSection />
+          </Suspense>
+          <Suspense fallback={<Pending className="h-48" />}>
+            <RegionsSection />
+          </Suspense>
+        </div>
+      </div>
+    </>
+  );
+}
 
+// ---- sections (markup unchanged from the single-page version) ----
+
+async function DigestSection() {
+  const digest = await latestDigest();
+  return (
       <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
         <CardHeader>
           <CardDescription className="flex items-center gap-2">
@@ -75,7 +102,16 @@ export default async function DashboardPage() {
           ) : null}
         </CardContent>
       </Card>
+  );
+}
 
+async function StatsSection() {
+  const [overview, cardStats] = await Promise.all([overviewOnce(), cardStatsOnce()]);
+  const totalSources = overview.tracks.reduce((sum, track) => sum + track.total, 0);
+  const activeSources = overview.tracks.reduce((sum, track) => sum + track.active, 0);
+  const { health } = overview;
+  const successRate = health.runs ? (health.success + health.not_modified) / health.runs : Number.NaN;
+  return (
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard title="활성 소스" value={`${formatNumber(activeSources)} / ${formatNumber(totalSources)}`} hint="V6 활성 / 등록 후보" icon={Database} />
         <StatCard title="24시간 수집" value={formatNumber(health.runs)} hint={`정상 비율 ${formatPercent(successRate)}`} icon={Activity} />
@@ -87,7 +123,13 @@ export default async function DashboardPage() {
         />
         <StatCard title="조치 필요" value={`${health.open_dead_letters} · ${health.paused_sources}`} hint="미해결 DLQ · 일시정지 소스" icon={health.open_dead_letters ? AlertTriangle : Inbox} />
       </div>
+  );
+}
 
+async function PortfolioSection() {
+  const overview = await overviewOnce();
+  const { health } = overview;
+  return (
       <div className="grid gap-4 lg:grid-cols-3 [&>*]:min-w-0">
         <Card className="lg:col-span-2">
           <CardHeader>
@@ -124,8 +166,12 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+  );
+}
 
-      <div className="grid gap-4 lg:grid-cols-3 [&>*]:min-w-0">
+async function RecentSection() {
+  const recent = await api.get<Page<ItemRow>>("/api/admin/items", { size: 8 });
+  return (
         <Card className="lg:col-span-2">
           <CardHeader className="flex flex-row items-center justify-between">
             <div className="space-y-1.5">
@@ -154,7 +200,19 @@ export default async function DashboardPage() {
             )}
           </CardContent>
         </Card>
-        <div className="space-y-4">
+  );
+}
+
+async function MoversSection() {
+  const movers = await Promise.all(
+    MOVER_METRICS.map(({ metric }) => api.get<MoverOut[]>("/api/admin/trends/movers", { metric, days: 1, limit: 5 })),
+  );
+  const topMovers = movers
+    .flatMap((rows, index) => rows.map((mover) => ({ ...mover, label: MOVER_METRICS[index].label })))
+    .filter((mover) => mover.delta > 0)
+    .sort((a, b) => b.delta - a.delta)
+    .slice(0, 6);
+  return (
           <Card>
             <CardHeader>
               <CardTitle className="text-base">지표 상승 상위</CardTitle>
@@ -181,6 +239,12 @@ export default async function DashboardPage() {
               )}
             </CardContent>
           </Card>
+  );
+}
+
+async function RegionsSection() {
+  const overview = await overviewOnce();
+  return (
           <Card>
             <CardHeader>
               <CardTitle className="text-base">지역 분포</CardTitle>
@@ -202,8 +266,5 @@ export default async function DashboardPage() {
               ))}
             </CardContent>
           </Card>
-        </div>
-      </div>
-    </>
   );
 }

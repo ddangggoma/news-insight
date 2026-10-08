@@ -23,9 +23,41 @@ export interface SessionUser {
 
 export class AuthUnavailable extends Error {}
 
+// A confirmed session is reused for SESSION_CACHE_MS: one page load is a proxy check, a page
+// check and every route the browser fetches, 30-40 API calls before (2026-10-08). The cost: a
+// suspended or demoted account keeps access for at most that long; logout clears it at once.
+// On globalThis so proxy.ts and server components share it in the standalone server.
+const SESSION_CACHE_MS = 5_000;
+const SESSION_CACHE_MAX = 1_000;
+type Cached = { user: SessionUser; until: number };
+const sessions: Map<string, Cached> = ((globalThis as { __niSessions?: Map<string, Cached> }).__niSessions ??= new Map());
+
+/** Empty the session cache (tests). */
+export function clearSessionCache(): void {
+  sessions.clear();
+}
+
+/** Drop a token from the session cache (logout). */
+export function forgetSession(token: string | undefined): void {
+  if (token) sessions.delete(token);
+}
+
 /** The user behind a session token, or null. Throws AuthUnavailable when the API cannot answer. */
 export async function lookupSession(token: string | undefined): Promise<SessionUser | null> {
   if (!token) return null;
+  const hit = sessions.get(token);
+  if (hit && hit.until > Date.now()) return hit.user;
+  const user = await fetchSession(token);
+  if (user) {
+    if (sessions.size >= SESSION_CACHE_MAX) sessions.clear();
+    sessions.set(token, { user, until: Date.now() + SESSION_CACHE_MS });
+  } else {
+    sessions.delete(token);
+  }
+  return user;
+}
+
+async function fetchSession(token: string): Promise<SessionUser | null> {
   const key = process.env.CONSOLE_API_KEY;
   if (!key) throw new AuthUnavailable("CONSOLE_API_KEY is not configured for the web server");
   let response: Response;
