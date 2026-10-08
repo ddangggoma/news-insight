@@ -46,11 +46,20 @@ def collect(
         snapshot["memory_free_pct"] = int(match[1])
     get = http or (lambda url: httpx.get(url, timeout=5).json())
     try:
-        model = get(f"{lm_url.rstrip('/')}/api/v0/models/{lm_model}")
+        # every instance of the model: a reload while another was loading gets an identifier
+        # like "qwen/qwen3.8-27b:2", and requests for the plain name still reach it (2026-10-08)
+        instances = [
+            m
+            for m in get(f"{lm_url.rstrip('/')}/api/v0/models").get("data", [])
+            if m.get("id") == lm_model or str(m.get("id", "")).startswith(f"{lm_model}:")
+        ]
+        loaded = [m for m in instances if m.get("state") == "loaded"]
+        chosen = loaded[0] if loaded else (instances[0] if instances else {})
         snapshot["qwen"] = {
             "model": lm_model,
-            "state": model.get("state"),
-            "context": model.get("loaded_context_length"),
+            "state": chosen.get("state", "missing"),
+            "context": chosen.get("loaded_context_length"),
+            "instances": len(loaded),
         }
     except (httpx.HTTPError, ValueError, AttributeError):
         snapshot["qwen"] = {"model": lm_model, "state": "unreachable", "context": None}
