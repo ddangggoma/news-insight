@@ -48,6 +48,7 @@ from news_insight.sources.enums import Region, SourceStatus, Track, ValidationSt
 from news_insight.sources.ladder import LadderError, pause_source, resume_source, retire_source
 from news_insight.sources.models import Source
 from news_insight.sources.service import SourceNotFound, get_source
+from news_insight.taxonomy.views import TaxonomyOut, taxonomy_view
 from news_insight.technologies import console as tech_console
 from news_insight.technologies.catalog import TechStatus
 from news_insight.watchlist import service as watchlist
@@ -92,6 +93,12 @@ def ops_status(session: DB) -> OpsStatus:
 
     now = datetime.now(UTC)
     return OpsStatus(host=load(get_redis(), now=now), cards=card_engine_health(session))
+
+
+@router.get("/taxonomy/schemes")
+def console_taxonomy(session: DB) -> TaxonomyOut:
+    """Every scheme and node with definitions, aliases and status (plan 15)."""
+    return taxonomy_view(session, detail=True)
 
 
 @router.get("/sources")
