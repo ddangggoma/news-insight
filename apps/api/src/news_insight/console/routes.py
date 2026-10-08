@@ -10,12 +10,14 @@ from sqlalchemy.orm import Session
 
 from news_insight.collect.dead_letters import DeadLetterError, dismiss, retry
 from news_insight.collect.models import DeadLetter, FetchOutcome
+from news_insight.config import get_settings
 from news_insight.console import briefings as briefing_queries
 from news_insight.console import cards as card_queries
 from news_insight.console import queries
 from news_insight.console import reviews as review_queries
 from news_insight.console import stories as story_queries
 from news_insight.console.auth import require_console_key
+from news_insight.console.cache import cached
 from news_insight.console.schemas import (
     CardFailure,
     CardStats,
@@ -68,7 +70,8 @@ def _source(session: Session, key: str) -> Source:
 
 @router.get("/overview")
 def get_overview(session: DB) -> Overview:
-    return queries.overview(session, now=datetime.now(UTC))
+    seconds = get_settings().console_cache_seconds
+    return cached("overview", seconds, lambda: queries.overview(session, now=datetime.now(UTC)))
 
 
 @router.get("/sources")
@@ -303,7 +306,10 @@ def get_topic_candidates(
 
 @router.get("/cards/stats")
 def get_card_stats(session: DB) -> CardStats:
-    return card_queries.card_stats(session, now=datetime.now(UTC))
+    seconds = get_settings().console_cache_seconds
+    return cached(
+        "card_stats", seconds, lambda: card_queries.card_stats(session, now=datetime.now(UTC))
+    )
 
 
 @router.get("/reviews/sample")

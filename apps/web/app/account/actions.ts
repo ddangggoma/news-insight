@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 
 import { ApiError, api } from "@/lib/api";
-import type { SessionUser } from "@/lib/auth";
+import { type SessionUser, forgetSession } from "@/lib/auth";
 import { clientHeaders, currentUser, sessionToken, setSessionCookie } from "@/lib/session";
 
 export interface PasswordState {
@@ -17,11 +17,12 @@ export async function changePassword(_: PasswordState, form: FormData): Promise<
   const password = String(form.get("password") ?? "");
   if (!current) return { errors: { current: "현재 비밀번호를 입력하세요." } };
   if (password !== String(form.get("confirm") ?? "")) return { errors: { confirm: "새 비밀번호가 서로 다릅니다." } };
+  const token = await sessionToken();
   let session: { token: string; expires_at: string; user: SessionUser };
   try {
     session = await api.post(
       "/api/admin/accounts/password",
-      { token: await sessionToken(), current: current.slice(0, 256), password: password.slice(0, 256) },
+      { token, current: current.slice(0, 256), password: password.slice(0, 256) },
       await clientHeaders(),
     );
   } catch (error) {
@@ -34,6 +35,7 @@ export async function changePassword(_: PasswordState, form: FormData): Promise<
     }
     throw error;
   }
+  forgetSession(token); // the API ended the old session; a cached copy must not outlive it
   await setSessionCookie(session.token, session.expires_at);
   redirect("/account?changed=1");
 }

@@ -16,6 +16,7 @@ x-python-env: &python-env
   PUBLIC_API_KEY: ${PUBLIC_API_KEY:-}
   PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-https://localhost:8700}
   RADAR_CACHE: "true"
+  CONSOLE_CACHE_SECONDS: "60"
   SMTP_HOST: ${SMTP_HOST:-}
   SMTP_PORT: ${SMTP_PORT:-587}
   SMTP_USER: ${SMTP_USER:-}
