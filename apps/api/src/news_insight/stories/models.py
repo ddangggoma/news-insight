@@ -2,6 +2,7 @@ from datetime import datetime
 from enum import StrEnum
 from typing import Any
 
+from pgvector.sqlalchemy import Vector
 from sqlalchemy import BigInteger, DateTime, Float, ForeignKey, Index, SmallInteger, String, Text
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB, REAL
 from sqlalchemy.orm import Mapped, mapped_column
@@ -83,8 +84,14 @@ class ItemRef(Base):
     meta: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
 
 
+EMBEDDING_DIMENSIONS = 1024  # bge-m3
+
+
 class ItemEmbedding(Base):
-    """Title embedding for multilingual story merging (checklist CLU-1)."""
+    """Title embedding for multilingual story merging (checklist CLU-1). `embedding` mirrors
+    `vector` as a pgvector column (a trigger keeps them equal) for similarity search in the
+    taxonomy workspace (plan 15-6). No ANN index: an HNSW build took 7.6 min on the live data
+    and an exact scan of ~90k vectors is fast enough for console queries."""
 
     __tablename__ = "item_embeddings"
 
@@ -93,6 +100,7 @@ class ItemEmbedding(Base):
     )
     model: Mapped[str] = mapped_column(String(100))
     vector: Mapped[list[float]] = mapped_column(ARRAY(REAL))
+    embedding: Mapped[Any] = mapped_column(Vector(EMBEDDING_DIMENSIONS), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
 
 

@@ -54,3 +54,36 @@ export async function nodeCards(nodeId: number): Promise<{ item_id: number; titl
   await requireAdmin();
   return api.get(`/api/admin/taxonomy/nodes/${nodeId}/cards`, { limit: 8 });
 }
+
+export interface SimilarCard {
+  item_id: number;
+  title: string | null;
+  similarity: number;
+  first_seen_at: string;
+  labelled: boolean;
+}
+
+/** Cards that read like the text, plan 15-6 (needs the embedding model on the host). */
+export async function similarCards(text: string, nodeId: number | null): Promise<{ ok: true; cards: SimilarCard[]; unlabelled: number } | { ok: false; error: string }> {
+  await requireAdmin();
+  try {
+    const result = await api.post<{ cards: SimilarCard[]; unlabelled: number }>("/api/admin/taxonomy/similar", { text, node_id: nodeId, limit: 20 });
+    return { ok: true, ...result };
+  } catch {
+    return { ok: false, error: "임베딩 모델(LM Studio bge-m3)에 연결할 수 없습니다." };
+  }
+}
+
+export async function nodeMisfits(nodeId: number): Promise<{ members: number; mean_similarity: number | null; cards: { item_id: number; title: string | null; similarity: number }[] }> {
+  await requireAdmin();
+  return api.get(`/api/admin/taxonomy/nodes/${nodeId}/misfits`, { limit: 10 });
+}
+
+export async function candidateClusters(): Promise<{ ok: true; clusters: { label: string; count: number; phrases: { key: string; label: string; count: number }[] }[] } | { ok: false; error: string }> {
+  await requireAdmin();
+  try {
+    return { ok: true, clusters: await api.get("/api/admin/taxonomy/candidates/clusters", { days: 30 }) };
+  } catch {
+    return { ok: false, error: "임베딩 모델(LM Studio bge-m3)에 연결할 수 없습니다." };
+  }
+}
