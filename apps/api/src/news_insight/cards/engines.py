@@ -17,12 +17,12 @@ from typing import Any, Protocol
 import httpx
 
 from news_insight.cards.schemas import (
-    CARD_BATCH_SCHEMA,
-    CARD_INSTRUCTIONS,
-    CLASSIFY_BATCH_SCHEMA,
-    CLASSIFY_INSTRUCTIONS,
     CardInput,
     ClassifyInput,
+    card_batch_schema,
+    card_instructions,
+    classify_batch_schema,
+    classify_instructions,
 )
 from news_insight.digest.claude import ClaudeCli, ClaudeError, safe_env
 
@@ -152,13 +152,13 @@ class AgyEngine:
         return parse_usage(str(envelope.get("response", "")))
 
     def generate(self, inputs: list[CardInput]) -> EngineOutput:
-        prompt = f"{CARD_INSTRUCTIONS}\n입력:\n{_payload(inputs)}"
-        return self.ask(prompt, CARD_BATCH_SCHEMA)
+        prompt = f"{card_instructions()}\n입력:\n{_payload(inputs)}"
+        return self.ask(prompt, card_batch_schema())
 
     def classify(self, inputs: list[ClassifyInput]) -> EngineOutput:
         """Classification only (checklist CLS-2): short input, no translation or summary."""
-        prompt = f"{CLASSIFY_INSTRUCTIONS}\n입력:\n{_payload(inputs)}"
-        return self.ask(prompt, CLASSIFY_BATCH_SCHEMA)
+        prompt = f"{classify_instructions()}\n입력:\n{_payload(inputs)}"
+        return self.ask(prompt, classify_batch_schema())
 
     def ask(self, prompt: str, schema: dict[str, Any]) -> EngineOutput:
         """One tool-less structured call (cards, evaluation judgements)."""
@@ -212,10 +212,10 @@ class QwenEngine:
         self._client = client or httpx.Client(timeout=timeout_seconds, trust_env=False)
 
     def generate(self, inputs: list[CardInput]) -> EngineOutput:
-        return self._chat(CARD_INSTRUCTIONS, _payload(inputs), CARD_BATCH_SCHEMA)
+        return self._chat(card_instructions(), _payload(inputs), card_batch_schema())
 
     def classify(self, inputs: list[ClassifyInput]) -> EngineOutput:
-        return self._chat(CLASSIFY_INSTRUCTIONS, _payload(inputs), CLASSIFY_BATCH_SCHEMA)
+        return self._chat(classify_instructions(), _payload(inputs), classify_batch_schema())
 
     def _chat(self, system: str, payload: str, schema: dict[str, Any]) -> EngineOutput:
         body = {
@@ -403,11 +403,11 @@ class CodexEngine:
         return self._quota or Quota(weekly=None, five_hour=None)
 
     def generate(self, inputs: list[CardInput]) -> EngineOutput:
-        return self.ask(f"{CARD_INSTRUCTIONS}\n입력:\n{_payload(inputs)}", CARD_BATCH_SCHEMA)
+        return self.ask(f"{card_instructions()}\n입력:\n{_payload(inputs)}", card_batch_schema())
 
     def classify(self, inputs: list[ClassifyInput]) -> EngineOutput:
         return self.ask(
-            f"{CLASSIFY_INSTRUCTIONS}\n입력:\n{_payload(inputs)}", CLASSIFY_BATCH_SCHEMA
+            f"{classify_instructions()}\n입력:\n{_payload(inputs)}", classify_batch_schema()
         )
 
 
@@ -503,13 +503,13 @@ class ClaudeEngine:
     def generate(self, inputs: list[CardInput]) -> EngineOutput:
         return self._call(
             {"items": json.loads(_payload(inputs))},
-            f"{CARD_INSTRUCTIONS}\n입력은 stdin JSON의 items 배열이다.",
-            CARD_BATCH_SCHEMA,
+            f"{card_instructions()}\n입력은 stdin JSON의 items 배열이다.",
+            card_batch_schema(),
         )
 
     def classify(self, inputs: list[ClassifyInput]) -> EngineOutput:
         return self._call(
             {"items": json.loads(_payload(inputs))},
-            f"{CLASSIFY_INSTRUCTIONS}\n입력은 stdin JSON의 items 배열이다.",
-            CLASSIFY_BATCH_SCHEMA,
+            f"{classify_instructions()}\n입력은 stdin JSON의 items 배열이다.",
+            classify_batch_schema(),
         )

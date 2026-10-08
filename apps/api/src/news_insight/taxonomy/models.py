@@ -33,12 +33,19 @@ class TaxScheme(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     key: Mapped[str] = mapped_column(String(40), unique=True)
     name: Mapped[str] = mapped_column(String(80))
+    # the lead line of this scheme in the classification prompt (plan 15-2)
+    description: Mapped[str | None] = mapped_column(Text)
     structure: Mapped[str] = mapped_column(String(10), default="tree")  # tree | list
     min_labels: Mapped[int] = mapped_column(Integer, default=0)
     max_labels: Mapped[int] = mapped_column(Integer, default=3)  # LLM picks per card
     llm_depth: Mapped[int | None] = mapped_column(Integer)  # deepest level the LLM chooses
     level_names: Mapped[list[str]] = mapped_column(JSONB, default=list)
     uses: Mapped[list[str]] = mapped_column(JSONB, default=list)  # radar, filters, watch, ...
+    # how cards get nodes: llm (the prompt, down to llm_depth), rule (deeper nodes by keyword),
+    # derived (implies relations)
+    assign: Mapped[list[str]] = mapped_column(
+        JSONB, default=lambda: ["llm"], server_default='["llm"]'
+    )
     sort: Mapped[int] = mapped_column(Integer, default=0)
     status: Mapped[str] = mapped_column(String(20), default="active")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

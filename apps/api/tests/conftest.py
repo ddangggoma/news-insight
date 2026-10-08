@@ -23,6 +23,17 @@ TEST_DATABASE_URL = os.environ.get(
 TEST_REDIS_URL = os.environ.get("TEST_REDIS_URL", "redis://localhost:8721/15")
 
 
+@pytest.fixture(autouse=True)
+def _code_taxonomy() -> Iterator[None]:
+    """Classification uses the code catalog unless a test loads the database schemes
+    (registry.use(registry.load(db_session))): no test reads whatever DATABASE_URL points at."""
+    from news_insight.taxonomy import registry
+
+    registry.use(registry.from_catalog())
+    yield
+    registry.use(None)
+
+
 @pytest.fixture(scope="session")
 def db_engine() -> Iterator[Engine]:
     database = make_url(TEST_DATABASE_URL).database or ""

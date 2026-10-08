@@ -186,6 +186,7 @@ def _apply_classification(card: ItemCard, draft: Classification) -> None:
     card.impact, card.scope, card.relevance = draft.impact, draft.scope, draft.relevance
     card.topic_candidates = draft.topic_candidates
     card.companies = draft.companies
+    card.extra_labels = draft.labels
     card.taxonomy_revision = TAXONOMY_REVISION
     card.classify_attempts = 0
 

@@ -77,7 +77,7 @@ def test_trigger_mirrors_legacy_columns_and_keeps_other_sources(db_session: Sess
     )
     assert labels(db_session, card.item_id) == {
         ("technology", "ai__foundation_models", "legacy"),
-        ("technology", "llm", "legacy"),
+        ("technology", "llm", "rule"),
         ("signal_type", "launch", "legacy"),
         ("impact", "watch", "legacy"),
         ("scope", "dx", "legacy"),
@@ -85,7 +85,7 @@ def test_trigger_mirrors_legacy_columns_and_keeps_other_sources(db_session: Sess
     agents = node(db_session, "technology", "ai__ai_agents")
     db_session.add(
         CardLabel(
-            item_id=card.item_id, node_id=agents.id, scheme_id=agents.scheme_id, source="rule"
+            item_id=card.item_id, node_id=agents.id, scheme_id=agents.scheme_id, source="human"
         )
     )
     db_session.flush()
@@ -96,7 +96,7 @@ def test_trigger_mirrors_legacy_columns_and_keeps_other_sources(db_session: Sess
 
     assert labels(db_session, card.item_id) == {
         ("technology", "ai", "legacy"),  # no theme left: the field stands in
-        ("technology", "ai__ai_agents", "rule"),
+        ("technology", "ai__ai_agents", "human"),
         ("signal_type", "launch", "legacy"),
         ("impact", "watch", "legacy"),
         ("scope", "dx", "legacy"),
