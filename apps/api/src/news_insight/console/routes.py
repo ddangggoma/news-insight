@@ -5,7 +5,7 @@ from typing import Annotated, Any, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import Response
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -162,6 +162,54 @@ def taxonomy_node_cards(
         {"item_id": r[0], "title": r[1], "first_seen_at": r[2], "source": r[3], "node": r[4]}
         for r in rows
     ]
+
+
+class SimilarBody(BaseModel):
+    text: str = Field(min_length=1, max_length=500)
+    node_id: int | None = None
+    limit: int = Field(default=20, ge=1, le=50)
+
+
+@router.post("/taxonomy/similar")
+def taxonomy_similar(body: SimilarBody, session: DB) -> Any:
+    """Cards that read like the text (a node's name and definition), plan 15-6."""
+    from news_insight.taxonomy.embeddings import EmbeddingUnavailable, embedder, similar
+
+    try:
+        return similar(session, body.text, node_id=body.node_id, limit=body.limit, embed=embedder())
+    except EmbeddingUnavailable as exc:
+        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, str(exc)) from exc
+
+
+@router.get("/taxonomy/nodes/{node_id}/misfits")
+def taxonomy_misfits(
+    node_id: int, session: DB, limit: Annotated[int, Query(ge=1, le=50)] = 10
+) -> Any:
+    from news_insight.taxonomy.embeddings import misfits
+
+    return misfits(session, node_id, limit=limit)
+
+
+@router.get("/taxonomy/candidates/clusters")
+def taxonomy_candidate_clusters(
+    session: DB,
+    days: Annotated[int, Query(ge=1, le=180)] = 30,
+    top: Annotated[int, Query(ge=10, le=500)] = 300,
+) -> Any:
+    """Unclassified-topic phrases grouped by meaning (cached an hour: one embedding call)."""
+    from news_insight.console.topics import topic_candidates
+    from news_insight.taxonomy.embeddings import EmbeddingUnavailable, clusters, embedder
+
+    def build() -> list[Any]:
+        found = topic_candidates(session, days=days, now=datetime.now(UTC), min_count=2)[:top]
+        rows = [{"key": c.key, "label": c.label, "count": c.count} for c in found]
+        return [cluster.model_dump() for cluster in clusters(rows, embed=embedder())]
+
+    seconds = 3600 if get_settings().console_cache_seconds else 0
+    try:
+        return cached(f"candidate_clusters:{days}:{top}", seconds, build)
+    except EmbeddingUnavailable as exc:
+        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, str(exc)) from exc
 
 
 @router.post("/taxonomy/preview")

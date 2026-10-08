@@ -9,6 +9,7 @@ import { formatNumber, formatRelative } from "@/lib/format";
 import { suggestKey, type TaxOp } from "@/lib/taxonomy-ops";
 
 import { type ConsoleNode, type ConsoleScheme, type Counts, isInside, levelName, pathLabel } from "./model";
+import { EmbeddingHelp } from "./embedding-help";
 import { NodePicker } from "./node-picker";
 
 type Mode = "child" | "move" | "merge" | "retire" | "split" | "relation" | null;
@@ -193,6 +194,8 @@ export function NodeInspector({
           </div>
         ) : null}
       </section>
+
+      <EmbeddingHelp key={node.id} node={node} />
 
       <section className="space-y-1.5">
         <h3 className="text-sm font-semibold">최근 카드</h3>
