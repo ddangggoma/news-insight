@@ -47,6 +47,10 @@ class ItemCard(Base):
     # classification (P4) against taxonomy_revision
     field: Mapped[str | None] = mapped_column(String(40), index=True)
     themes: Mapped[list[str]] = mapped_column(JSONB, default=list, server_default="[]")
+    # LLM labels for schemes without a column of their own (plan 15-2): {scheme: [node keys]}
+    extra_labels: Mapped[dict[str, list[str]]] = mapped_column(
+        JSONB, default=dict, server_default="{}"
+    )
     businesses: Mapped[list[str]] = mapped_column(JSONB, default=list, server_default="[]")
     signal_type: Mapped[str | None] = mapped_column(String(20), index=True)
     impact: Mapped[str | None] = mapped_column(String(20))

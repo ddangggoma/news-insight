@@ -11,7 +11,15 @@ from typing import Any
 from sqlalchemy import select, text
 from sqlalchemy.orm import Session
 
-from news_insight.taxonomy.catalog import FIELDS, IMPACTS, SCOPES, SIGNAL_TYPES, TAXONOMY_REVISION
+from news_insight.taxonomy.catalog import (
+    DEFINITIONS,
+    FIELDS,
+    IMPACTS,
+    SCHEME_LEADS,
+    SCOPES,
+    SIGNAL_TYPES,
+    TAXONOMY_REVISION,
+)
 from news_insight.taxonomy.models import TaxNode, TaxRevision, TaxScheme
 from news_insight.technologies.catalog import TechStatus
 from news_insight.technologies.models import Technology, TechnologyAlias
@@ -26,6 +34,7 @@ SCHEMES: tuple[dict[str, Any], ...] = (
         "llm_depth": 2,
         "level_names": ["분야", "테마", "기술"],
         "uses": ["radar", "filters", "watch", "briefing", "personas"],
+        "assign": ["llm", "rule", "derived"],
         "sort": 0,
     },
     {
@@ -77,6 +86,7 @@ class _Spec:
     sort: int
     aliases: tuple[str, ...] = ()
     attrs: tuple[tuple[str, Any], ...] = ()
+    definition: str | None = None
 
 
 def _technology_specs(session: Session) -> list[_Spec]:
@@ -102,13 +112,23 @@ def _technology_specs(session: Session) -> list[_Spec]:
 
 
 def _list_specs(nodes: tuple[Any, ...]) -> list[_Spec]:
-    return [_Spec(node.key, node.name, None, index) for index, node in enumerate(nodes)]
+    return [
+        _Spec(node.key, node.name, None, index, definition=DEFINITIONS.get(node.key))
+        for index, node in enumerate(nodes)
+    ]
 
 
 def _upsert_scheme(session: Session, spec: dict[str, Any]) -> tuple[TaxScheme, bool]:
     scheme = session.scalars(select(TaxScheme).where(TaxScheme.key == spec["key"])).one_or_none()
     if scheme is not None:
-        return scheme, False
+        # columns added in 15-2: fill them once, never overwrite console edits
+        changed = False
+        if scheme.description is None and SCHEME_LEADS.get(scheme.key):
+            scheme.description, changed = SCHEME_LEADS[scheme.key], True
+        if spec.get("assign") and list(scheme.assign or []) == ["llm"] != spec["assign"]:
+            scheme.assign, changed = list(spec["assign"]), True
+        session.flush()
+        return scheme, changed
     scheme = TaxScheme(
         key=spec["key"],
         name=spec["name"],
@@ -118,6 +138,8 @@ def _upsert_scheme(session: Session, spec: dict[str, Any]) -> tuple[TaxScheme, b
         llm_depth=spec["llm_depth"],
         level_names=spec.get("level_names", []),
         uses=spec["uses"],
+        assign=spec.get("assign", ["llm"]),
+        description=SCHEME_LEADS.get(spec["key"]),
         sort=spec["sort"],
     )
     session.add(scheme)
@@ -152,6 +174,7 @@ def _sync_nodes(
         parent_id = existing[spec.parent].id if spec.parent else None
         session.flush()
         wanted = {
+            "definition": spec.definition if spec.definition else node.definition,
             "label": spec.label,
             "parent_id": parent_id,
             "sort": spec.sort,
@@ -255,35 +278,26 @@ def seed_taxonomy(session: Session, *, author: str = "seed") -> SeedResult:
     return result
 
 
-# one statement for every card: the trigger's logic, set-based (plan 15-1 backfill)
-BACKFILL_SQL = """
-WITH v AS (
-  SELECT c.item_id, 'technology' AS scheme, t.value AS node
-    FROM item_cards c, jsonb_array_elements_text(coalesce(c.themes, '[]'::jsonb)) AS t(value)
-  UNION ALL
-  SELECT c.item_id, 'technology', t.value
-    FROM item_cards c,
-         jsonb_array_elements_text(coalesce(c.technology_keys, '[]'::jsonb)) AS t(value)
-  UNION ALL
-  SELECT item_id, 'technology', field FROM item_cards
-    WHERE field IS NOT NULL AND jsonb_array_length(coalesce(themes, '[]'::jsonb)) = 0
-  UNION ALL SELECT item_id, 'signal_type', signal_type FROM item_cards WHERE signal_type IS NOT NULL
-  UNION ALL SELECT item_id, 'impact', impact FROM item_cards WHERE impact IS NOT NULL
-  UNION ALL SELECT item_id, 'scope', scope FROM item_cards WHERE scope IS NOT NULL
-)
-INSERT INTO card_labels (item_id, node_id, scheme_id, source)
-SELECT v.item_id, n.id, n.scheme_id, 'legacy'
-FROM v
-JOIN tax_schemes s ON s.key = v.scheme
-JOIN tax_nodes n ON n.scheme_id = s.id AND n.key = v.node
-ON CONFLICT (item_id, node_id) DO NOTHING
-"""
+def relabel(session: Session, item_ids: list[int]) -> None:
+    """Recompute the legacy, llm, rule and derived labels of these cards (relabel_items)."""
+    if item_ids:
+        session.execute(text("SELECT relabel_items(:ids)"), {"ids": item_ids})
 
 
-def backfill_labels(session: Session) -> int:
-    """Rewrite every legacy label from the item_cards columns; returns the label count."""
-    session.execute(text("DELETE FROM card_labels WHERE source = 'legacy'"))
-    session.execute(text(BACKFILL_SQL))
-    return int(
-        session.scalar(text("SELECT count(*) FROM card_labels WHERE source = 'legacy'")) or 0
-    )
+def backfill_labels(session: Session, *, chunk: int = 5000) -> int:
+    """Relabel every card, a chunk at a time; returns the label count (human labels kept)."""
+    last = 0
+    while True:
+        ids = list(
+            session.scalars(
+                text(
+                    "SELECT item_id FROM item_cards WHERE item_id > :last ORDER BY item_id LIMIT :n"
+                ),
+                {"last": last, "n": chunk},
+            )
+        )
+        if not ids:
+            break
+        relabel(session, ids)
+        last = ids[-1]
+    return int(session.scalar(text("SELECT count(*) FROM card_labels")) or 0)

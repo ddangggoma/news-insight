@@ -191,6 +191,30 @@ SCOPES: tuple[Node, ...] = (
     Node("irrelevant", "무관"),
 )
 
+# the wording the classification prompt has used for these nodes (seeded as node definitions,
+# plan 15-2), and the lead line of each list scheme
+DEFINITIONS: dict[str, str] = {
+    "research": "연구·논문·벤치마크",
+    "launch": "제품·기능 출시·리뷰",
+    "standard": "표준·인증",
+    "regulation": "정책·규제·준수",
+    "market": "시장·경쟁·제휴·M&A",
+    "finance": "투자·실적·CAPEX",
+    "ecosystem": "오픈소스·개발자 생태계",
+    "security_event": "취약점·보안 사고",
+    "supply": "공급망·생산",
+    "ip": "특허·소송·라이선스",
+    "dx": "완제품·디바이스 제품·기술 직접",
+    "dx_dependency": "완제품 성능·원가에 직결되는 부품·기술 의존성",
+    "excluded": "메모리·파운드리 증설 같은 반도체 자산 투자 자체",
+    "irrelevant": "기술과 무관: 정치·연예·일반 사회·게임 운영·금융 일반·개인 잡담 등",
+}
+SCHEME_LEADS: dict[str, str] = {
+    "signal_type": "어떤 종류의 소식인지 하나",
+    "impact": "DX(완제품·디바이스) 관점",
+    "scope": "범위 하나",
+}
+
 FIELD_KEYS = frozenset(field.key for field in FIELDS)
 THEME_KEYS = frozenset(theme.key for field in FIELDS for theme in field.themes)
 SIGNAL_TYPE_KEYS = frozenset(node.key for node in SIGNAL_TYPES)
