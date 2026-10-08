@@ -3,10 +3,10 @@
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.orm import Session
 
-from news_insight.content.models import Item, ItemMetricSnapshot
+from news_insight.content.models import Item
 from news_insight.sources.enums import Track
 
 
@@ -18,6 +18,35 @@ class Mover:
     delta: int
 
 
+# Per item with at least two integer readings of the metric: the latest reading (current) and the
+# latest one at or before the window start, or the first one when all fall inside (baseline).
+# Computed in the database: the Python version loaded every snapshot with its item (bodies
+# included) on each call, 3-10 s for the console dashboard's three metrics (2026-10-08).
+MOVERS_SQL = """
+WITH points AS (
+    SELECT s.item_id, s.captured_at, (s.metrics ->> :metric)::bigint AS value
+    FROM item_metric_snapshots s
+    {track_join}
+    WHERE s.captured_at <= :now
+      AND jsonb_typeof(s.metrics -> :metric) = 'number'
+      AND (s.metrics ->> :metric) ~ '^-?[0-9]+$'
+), series AS (
+    SELECT item_id,
+           (array_agg(value ORDER BY captured_at DESC))[1] AS current,
+           (array_agg(value ORDER BY captured_at DESC) FILTER (WHERE captured_at <= :cutoff))[1]
+               AS before,
+           (array_agg(value ORDER BY captured_at))[1] AS first
+    FROM points
+    GROUP BY item_id
+    HAVING count(*) >= 2
+)
+SELECT item_id, current, coalesce(before, first) AS baseline
+FROM series
+ORDER BY current - coalesce(before, first) DESC, item_id
+LIMIT :limit
+"""
+
+
 def metric_movers(
     session: Session,
     *,
@@ -27,29 +56,27 @@ def metric_movers(
     track: Track | None = None,
     limit: int = 20,
 ) -> list[Mover]:
-    statement = (
-        select(ItemMetricSnapshot, Item)
-        .join(Item, Item.id == ItemMetricSnapshot.item_id)
-        .where(ItemMetricSnapshot.captured_at <= now)
-        .order_by(ItemMetricSnapshot.item_id, ItemMetricSnapshot.captured_at)
-    )
+    track_join = "JOIN items i ON i.id = s.item_id AND i.track = :track" if track else ""
+    params: dict[str, object] = {
+        "metric": metric,
+        "now": now,
+        "cutoff": now - window,
+        "limit": limit,
+    }
     if track is not None:
-        statement = statement.where(Item.track == track)
-    series: dict[int, tuple[Item, list[tuple[datetime, int]]]] = {}
-    for snapshot, item in session.execute(statement).tuples():
-        value = snapshot.metrics.get(metric)
-        if isinstance(value, int) and not isinstance(value, bool):
-            series.setdefault(item.id, (item, []))[1].append((snapshot.captured_at, value))
-    cutoff = now - window
-    movers: list[Mover] = []
-    for item, points in series.values():
-        if len(points) < 2:
-            continue
-        before = [value for captured, value in points if captured <= cutoff]
-        baseline = before[-1] if before else points[0][1]
-        current = points[-1][1]
-        movers.append(
-            Mover(item=item, current=current, baseline=baseline, delta=current - baseline)
+        params["track"] = track.value
+    rows = session.execute(text(MOVERS_SQL.format(track_join=track_join)), params).all()
+    items = {
+        item.id: item
+        for item in session.scalars(select(Item).where(Item.id.in_([row.item_id for row in rows])))
+    }
+    return [
+        Mover(
+            item=items[row.item_id],
+            current=int(row.current),
+            baseline=int(row.baseline),
+            delta=int(row.current) - int(row.baseline),
         )
-    movers.sort(key=lambda mover: mover.delta, reverse=True)
-    return movers[:limit]
+        for row in rows
+        if row.item_id in items
+    ]
