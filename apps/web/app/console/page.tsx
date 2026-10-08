@@ -1,4 +1,4 @@
-import { Activity, AlertTriangle, Database, Inbox, Sparkles } from "lucide-react";
+import { Activity, AlertTriangle, Bot, Cpu, Database, HardDrive, Inbox, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { cache, Suspense } from "react";
 
@@ -12,7 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Skeleton } from "@/components/ui/skeleton";
 import { api, ApiError } from "@/lib/api";
 import { formatNumber, formatPercent, formatRelative, REGION_LABEL, TRACK_LABEL } from "@/lib/format";
-import type { CardStats, DigestOut, ItemRow, MoverOut, Overview, Page } from "@/lib/types";
+import type { CardStats, DigestOut, ItemRow, MoverOut, OpsStatus, Overview, Page } from "@/lib/types";
 
 export const metadata = { title: "대시보드" };
 
@@ -43,6 +43,9 @@ export default function DashboardPage() {
   return (
     <>
       <PageHeader title="대시보드" description="수집 포트폴리오, 최근 24시간 수집 건강도, 오늘의 다이제스트" />
+      <Suspense fallback={<Pending className="h-28" />}>
+        <OpsSection />
+      </Suspense>
       <Suspense fallback={<Pending className="h-40" />}>
         <DigestSection />
       </Suspense>
@@ -266,5 +269,61 @@ async function RegionsSection() {
               ))}
             </CardContent>
           </Card>
+  );
+}
+
+const ENGINE_NAME: Record<string, string> = { claude: "Claude", codex: "Codex", agy: "Antigravity", qwen: "Qwen" };
+
+// Host memory (the Mac ran out twice), the local Qwen and when each card engine last worked.
+async function OpsSection() {
+  const ops = await api.get<OpsStatus>("/api/admin/ops/status");
+  const host = ops.host;
+  const swap = host?.swap_total_mb ? (host.swap_used_mb ?? 0) / host.swap_total_mb : null;
+  const tight = (swap !== null && swap >= 0.9) || (host?.memory_free_pct ?? 100) <= 10;
+  const qwen = host?.qwen;
+  return (
+    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <StatCard
+        title="호스트 메모리"
+        value={
+          host ? (
+            <span className={tight ? "text-destructive" : undefined}>
+              스왑 {formatPercent(swap ?? Number.NaN)} · 여유 {host.memory_free_pct ?? "—"}%
+            </span>
+          ) : (
+            "기록 없음"
+          )
+        }
+        hint={host ? `${host.stale ? "오래된 값 · " : ""}${formatRelative(host.captured_at)} 측정 · 스왑 ${formatNumber(host.swap_used_mb ?? 0)}/${formatNumber(host.swap_total_mb ?? 0)} MB` : "카드 작업(10분마다)이 기록합니다"}
+        icon={tight ? AlertTriangle : HardDrive}
+      />
+      <StatCard
+        title="로컬 Qwen"
+        value={qwen ? (qwen.state === "loaded" ? `불러옴 · 컨텍스트 ${formatNumber(qwen.context ?? 0)}` : (qwen.state ?? "알 수 없음")) : "기록 없음"}
+        hint={qwen?.model ?? "LM Studio"}
+        icon={Cpu}
+      />
+      <StatCard
+        title="카드 엔진"
+        value={
+          ops.cards.zero_runs >= 6 ? (
+            <span className="text-destructive">최근 {ops.cards.zero_runs}회 연속 0건</span>
+          ) : (
+            `마지막 실행 ${formatRelative(ops.cards.last_run_at)}`
+          )
+        }
+        hint={
+          <span className="block space-y-0.5">
+            {ops.cards.engines.map((engine) => (
+              <span key={engine.name} className="block truncate" title={engine.latest_note ?? undefined}>
+                {ENGINE_NAME[engine.name] ?? engine.name}: {engine.last_batch_at ? `${formatRelative(engine.last_batch_at)} 처리` : "최근 기록 없음"}
+                {engine.latest_note ? ` · ${engine.latest_note}` : ""}
+              </span>
+            ))}
+          </span>
+        }
+        icon={Bot}
+      />
+    </div>
   );
 }

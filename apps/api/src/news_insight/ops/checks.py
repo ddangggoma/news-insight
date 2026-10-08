@@ -6,6 +6,7 @@ episodes. Times are KST: freeze 04:40, publication 05:00 (launchd), grace until 
 
 from dataclasses import dataclass
 from datetime import datetime, time, timedelta
+from typing import Any
 from zoneinfo import ZoneInfo
 
 from sqlalchemy import func, select
@@ -249,14 +250,75 @@ def check_accounts(session: Session) -> list[Finding]:
     ]
 
 
+HOST_SWAP_RATIO = 0.9
+HOST_FREE_PCT = 10
+ZERO_RUNS = 6  # an hour of card runs that made nothing
+
+
+def check_host(host: dict[str, Any] | None) -> list[Finding]:
+    """macOS memory from the host job's snapshot (ops/host.py); console only, never mailed."""
+    from news_insight.ops.host import swap_ratio
+
+    if not host or host.get("stale"):
+        return []
+    findings: list[Finding] = []
+    ratio = swap_ratio(host)
+    free = host.get("memory_free_pct")
+    if (ratio is not None and ratio >= HOST_SWAP_RATIO) or (
+        free is not None and free <= HOST_FREE_PCT
+    ):
+        findings.append(
+            Finding(
+                "host_memory",
+                Severity.WARNING,
+                "호스트 메모리가 부족합니다",
+                f"스왑 {host.get('swap_used_mb')}/{host.get('swap_total_mb')} MB, "
+                f"여유 메모리 {free}%. Docker가 다시 멈출 수 있습니다: "
+                "Qwen 컨텍스트, 안 쓰는 앱, ARDAgent를 확인하세요.",
+            )
+        )
+    qwen = host.get("qwen") or {}
+    if qwen.get("state") not in (None, "loaded"):
+        findings.append(
+            Finding(
+                "qwen_unloaded",
+                Severity.INFO,
+                f"로컬 Qwen 상태: {qwen.get('state')}",
+                "카드 생성이 Qwen 없이 돌고 있습니다. LM Studio에서 모델을 불러오세요.",
+            )
+        )
+    return findings
+
+
+def check_card_output(session: Session) -> list[Finding]:
+    """Runs keep happening but produce nothing (Qwen 400s, every metered engine at its reserve)."""
+    from news_insight.ops.engines import card_engine_health
+
+    health = card_engine_health(session)
+    if health.zero_runs < ZERO_RUNS or pending_count(session) == 0:
+        return []
+    notes = "; ".join(e.latest_note for e in health.engines if e.latest_note)
+    return [
+        Finding(
+            "cards_zero",
+            Severity.WARNING,
+            f"카드 생성이 최근 {health.zero_runs}회 연속 0건입니다",
+            (notes or "실행은 되지만 결과가 없습니다.")[:400],
+        )
+    ]
+
+
 def run_checks(
     session: Session,
     *,
     now: datetime,
     queue_length: int | None,
     slow_requests: list[str] | None = None,
+    host: dict[str, Any] | None = None,
 ) -> list[Finding]:
     return [
+        *check_host(host),
+        *check_card_output(session),
         *check_publication(session, now=now),
         *check_collection(session, now=now),
         *check_queue(queue_length),

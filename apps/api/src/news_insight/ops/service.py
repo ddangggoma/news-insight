@@ -14,6 +14,8 @@ from news_insight.ops.models import OpsAlert, Severity
 
 log = logging.getLogger(__name__)
 NOTIFY = (Severity.CRITICAL, Severity.WARNING)
+# shown on the console only (2026-10-08, no mail or push alerts for these)
+CONSOLE_ONLY = frozenset({"host_memory", "qwen_unloaded", "cards_zero"})
 
 
 @dataclass
@@ -67,7 +69,11 @@ def sync_alerts(session: Session, findings: list[Finding], *, now: datetime) -> 
 
 def notify(settings: Settings, result: SyncResult, *, now: datetime) -> bool:
     """One e-mail per run listing newly opened critical/warning alerts (SMTP optional)."""
-    fresh = [alert for alert in result.opened if alert.severity in NOTIFY]
+    fresh = [
+        alert
+        for alert in result.opened
+        if alert.severity in NOTIFY and alert.key not in CONSOLE_ONLY
+    ]
     if not fresh:
         return False
     lines = [f"[{a.severity.value}] {a.title}\n  {a.detail}".rstrip() for a in fresh]

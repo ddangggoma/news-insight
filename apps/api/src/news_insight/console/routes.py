@@ -1,7 +1,7 @@
 """Operations console API. Reached only by the web server over the internal network (D16)."""
 
 from datetime import UTC, date, datetime
-from typing import Annotated, Literal
+from typing import Annotated, Any, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import Response
@@ -39,6 +39,7 @@ from news_insight.console.schemas import (
 from news_insight.db import get_db
 from news_insight.digest import service as digest_service
 from news_insight.digest.schemas import DigestOut, DigestSummary
+from news_insight.ops.engines import CardEngineHealth, card_engine_health
 from news_insight.sources.enums import Region, SourceStatus, Track, ValidationStage
 from news_insight.sources.ladder import LadderError, pause_source, resume_source
 from news_insight.sources.models import Source
@@ -72,6 +73,21 @@ def _source(session: Session, key: str) -> Source:
 def get_overview(session: DB) -> Overview:
     seconds = get_settings().console_cache_seconds
     return cached("overview", seconds, lambda: queries.overview(session, now=datetime.now(UTC)))
+
+
+class OpsStatus(BaseModel):
+    host: dict[str, Any] | None  # ops/host.py snapshot from the host card job, `stale` if old
+    cards: CardEngineHealth
+
+
+@router.get("/ops/status")
+def ops_status(session: DB) -> OpsStatus:
+    """Host memory and swap, the local Qwen, and card engine health for the dashboard."""
+    from news_insight.ops.host import load
+    from news_insight.scheduling.redis_guards import get_redis
+
+    now = datetime.now(UTC)
+    return OpsStatus(host=load(get_redis(), now=now), cards=card_engine_health(session))
 
 
 @router.get("/sources")
