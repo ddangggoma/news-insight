@@ -112,7 +112,11 @@ services:
 
   postgres:
     <<: *logging
-    image: postgres:16-alpine
+    # postgres:16-alpine plus pgvector (plan 15-6). deploy.sh builds it but never recreates
+    # this container; switching a running server is a one-off (runbook, plan 15 §7)
+    image: news-insight-postgres:16-pgvector
+    build:
+      context: ./ops/postgres
     # 2026-10-05 audit: slow-query tracking, a cache above the 128 MB default, and the database
     # name in log lines (test databases share this server). The live server got the same values
     # with ALTER SYSTEM, so its container did not have to be recreated

@@ -21,7 +21,14 @@ def test_stack_defines_every_runtime_service() -> None:
 def test_data_store_major_versions_are_pinned() -> None:
     services = load_services()
 
-    assert services["postgres"]["image"].startswith("postgres:16")
+    # postgres is built from ops/postgres (pgvector on the same Alpine base, plan 15-6)
+    dockerfile = (
+        Path(__file__).resolve().parents[3]
+        / services["postgres"]["build"]["context"]
+        / "Dockerfile"
+    )
+    assert "FROM postgres:16-alpine" in dockerfile.read_text()
+    assert services["postgres"]["image"].startswith("news-insight-postgres:16")
     assert services["redis"]["image"].startswith("redis:7")
 
 
