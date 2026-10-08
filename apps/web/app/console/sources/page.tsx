@@ -3,6 +3,7 @@ import Link from "next/link";
 import { StageBadge, StatusBadge, TrackBadge } from "@/components/console/badges";
 import { type Column, DataTable } from "@/components/console/data-table";
 import { FilterBar } from "@/components/console/filter-bar";
+import { BulkBar, BulkCheckbox, BulkSelection } from "@/components/console/source-bulk";
 import { PageHeader } from "@/components/console/page-header";
 import { PaginationBar } from "@/components/console/pagination-bar";
 import { api } from "@/lib/api";
@@ -13,6 +14,7 @@ import type { Page, SourceRow } from "@/lib/types";
 export const metadata = { title: "소스" };
 
 const columns: Column<SourceRow>[] = [
+  { key: "select", header: "", className: "w-8", cell: (row) => <BulkCheckbox sourceKey={row.key} /> },
   {
     key: "name",
     header: "소스",
@@ -64,7 +66,10 @@ export default async function SourcesPage({ searchParams }: { searchParams: Prom
         query={filters.q}
         searchPlaceholder="키 또는 이름 검색"
       />
-      <DataTable columns={columns} rows={data.items} rowKey={(row) => row.key} emptyTitle="조건에 맞는 소스가 없습니다" />
+      <BulkSelection>
+        <BulkBar pageKeys={data.items.map((row) => row.key)} />
+        <DataTable columns={columns} rows={data.items} rowKey={(row) => row.key} emptyTitle="조건에 맞는 소스가 없습니다" />
+      </BulkSelection>
       <PaginationBar pathname="/console/sources" params={filters} page={page} size={data.size} total={data.total} />
     </>
   );

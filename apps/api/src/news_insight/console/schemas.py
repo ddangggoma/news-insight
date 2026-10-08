@@ -1,7 +1,7 @@
 """Response models for the operations console API."""
 
 from datetime import datetime
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -238,6 +238,24 @@ class MoverOut(BaseModel):
 
 class PauseBody(BaseModel):
     reason: str = Field(min_length=1, max_length=300)
+
+
+class BulkSourcesBody(BaseModel):
+    """Pause, resume or retire many sources at once from the console (2026-10-08)."""
+
+    keys: list[str] = Field(min_length=1, max_length=200)
+    action: Literal["pause", "resume", "retire"]
+    reason: str = Field(default="", max_length=300)
+
+
+class BulkFailure(BaseModel):
+    key: str
+    error: str
+
+
+class BulkSourcesResult(BaseModel):
+    done: list[str]
+    failed: list[BulkFailure]
 
 
 class Queued(BaseModel):
