@@ -20,6 +20,7 @@ from news_insight.public import feed as feed_queries
 from news_insight.public import periodic as periodic_queries
 from news_insight.public import radar as radar_queries
 from news_insight.public.auth import require_public_key
+from news_insight.public.distribution import Distribution, DistributionError, distribution
 from news_insight.public.filters import FilterError, ReaderFilters
 from news_insight.public.periods import (
     PeriodError,
@@ -178,6 +179,36 @@ def get_radar(
         radar_cache.view_key("radar", window, filters),
         radar_cache.ttl_for(window, now),
         lambda: radar_queries.radar(session, filters, window, current_key(window.kind, now), now),
+        client=cache,
+    )
+    return Response(
+        body, media_type="application/json", headers={"X-Cache": "hit" if hit else "miss"}
+    )
+
+
+@router.get("/radar/distribution", response_model=Distribution)
+def get_radar_distribution(
+    session: DB,
+    filters: Filters,
+    window: RadarPeriod,
+    now: Now,
+    cache: RadarCache,
+    scheme: Annotated[str, Query(min_length=1, max_length=40)] = "technology",
+    depth: Annotated[int, Query(ge=1, le=10)] = 1,
+    root: Annotated[str | None, Query(max_length=121)] = None,
+) -> Response:
+    """Cards by node at any depth of any scheme, under an optional base node (plan 15-4b)."""
+
+    def build() -> Distribution:
+        try:
+            return distribution(session, filters, window, scheme=scheme, depth=depth, root=root)
+        except DistributionError as error:
+            raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, str(error)) from error
+
+    body, hit = radar_cache.cached_json(
+        radar_cache.view_key(f"distribution:{scheme}:{depth}:{root or ''}", window, filters),
+        radar_cache.ttl_for(window, now),
+        build,
         client=cache,
     )
     return Response(

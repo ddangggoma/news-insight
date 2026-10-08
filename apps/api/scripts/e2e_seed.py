@@ -408,4 +408,9 @@ if __name__ == "__main__":
         seed_registry(db, load_technologies())
         seed(db)
         seed_accounts(db)
+        from news_insight.taxonomy.seed import backfill_labels, seed_taxonomy
+
+        seed_taxonomy(db)  # schemes and labels for the explorer and node filters (plan 15)
+        backfill_labels(db)
+        db.commit()
     print(f"seeded {database_url.rsplit('/', 1)[-1]}: briefings {YESTERDAY}, {TODAY}")
