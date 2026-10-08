@@ -39,11 +39,22 @@ def test_snapshot_parses_swap_memory_and_qwen_and_goes_stale() -> None:
         lm_model="qwen/q",
         now=NOW,
         runner=runner,
-        http=lambda url: {"state": "loaded", "loaded_context_length": 32768, "url": url},
+        http=lambda url: {
+            "data": [
+                {"id": "qwen/q", "state": "not-loaded", "loaded_context_length": None},
+                {"id": "qwen/q:2", "state": "loaded", "loaded_context_length": 16384},
+                {"id": "other", "state": "loaded", "loaded_context_length": 4096},
+            ]
+        },
     )
     assert snapshot["swap_total_mb"] == 19456 and snapshot["swap_used_mb"] == 18950
     assert snapshot["memory_free_pct"] == 9
-    assert snapshot["qwen"] == {"model": "qwen/q", "state": "loaded", "context": 32768}
+    assert snapshot["qwen"] == {
+        "model": "qwen/q",
+        "state": "loaded",
+        "context": 16384,
+        "instances": 1,
+    }
     client = FakeRedis()
     host.save(client, snapshot)  # type: ignore[arg-type]
     assert host.load(client, now=NOW)["stale"] is False  # type: ignore[arg-type,index]
