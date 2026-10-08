@@ -71,16 +71,21 @@ docker compose exec -T web node -e "fetch('http://127.0.0.1:3000/internal/revali
 HOST="$(sed -n 's/^PUBLIC_HOST=//p' .env 2>/dev/null | tr -d "\"'" | tail -1)"
 HOST="${HOST:-localhost}"
 PORT="${CADDY_HTTPS_PORT:-8700}"
-for path in /radar/week/"$(date +%G-W%V)" /briefings; do
-  # Caddy rate-limits /radar* per IP (20/min): a 429 means wait, not a broken release
+# Every page needs a login since plan 14: the login page answers 200 and a protected page
+# redirects to it (a 200 there would mean the session check is gone, a 5xx a broken release)
+for check in "/login 200" "/briefings 307" /radar/week/"$(date +%G-W%V)"" 307"; do
+  path="${check% *}" want="${check##* }"
+  # Caddy rate-limits /radar* and /login per IP: a 429 means wait, not a broken release
   for attempt in 1 2 3 4; do
-    code="$(curl -sk -o /dev/null -w '%{http_code}' --connect-to "$HOST:$PORT:127.0.0.1:$PORT" \
-      "https://$HOST:$PORT$path" || true)"
+    reply="$(curl -sk -o /dev/null -w '%{http_code} %{redirect_url}' \
+      --connect-to "$HOST:$PORT:127.0.0.1:$PORT" "https://$HOST:$PORT$path" || true)"
+    code="${reply%% *}"
     [[ "$code" == 429 && "$attempt" -lt 4 ]] || break
     sleep 20
   done
-  log "smoke $path -> $code"
-  [[ "$code" == 200 ]] || exit 1
+  log "smoke $path -> $reply"
+  [[ "$code" == "$want" ]] || exit 1
+  [[ "$want" != 307 || "${reply#* }" == */login* ]] || exit 1
 done
 mkdir -p ops
 printf '%s\t%s\t%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$TAG" "$PREVIOUS" >> ops/releases.log
