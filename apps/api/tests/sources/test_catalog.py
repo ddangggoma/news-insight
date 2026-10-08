@@ -134,7 +134,7 @@ def test_bundled_presets_resolve_and_github_declares_its_token() -> None:
 
     for entry in entries.values():
         effective_config(entry.config)
-    assert entries["github-on-device-ai"].config["auth"] == {"secret": "GITHUB_TOKEN"}
+    assert entries["github-advisories-pip"].config["auth"] == {"secret": "GITHUB_TOKEN"}
     assert entries["arxiv-cs-ai"].endpoint_url.startswith("https://export.arxiv.org/api/query")
 
 
