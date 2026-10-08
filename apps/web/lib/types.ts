@@ -152,7 +152,7 @@ export interface CardStats {
     ready: number;
     failed: number;
     batches: Record<string, number>;
-    quota: { weekly?: number | null; five_hour?: number | null };
+    quota: { engine?: string; weekly?: number | null; five_hour?: number | null };
     note: string | null;
   } | null;
 }

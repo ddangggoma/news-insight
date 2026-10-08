@@ -71,8 +71,9 @@ export function AppSidebar({ pendingUsers = 0 }: { pendingUsers?: number }) {
             <SidebarMenu>
               {group.items.map((item) => (
                 <SidebarMenuItem key={item.href}>
+                  {/* no prefetch: each prefetch is a full session check in proxy.ts (plan 14), ~20 per page */}
                   <SidebarMenuButton asChild isActive={isActive(pathname, item.href)} tooltip={item.title}>
-                    <Link href={item.href} onClick={() => isMobile && setOpenMobile(false)}>
+                    <Link href={item.href} prefetch={false} onClick={() => isMobile && setOpenMobile(false)}>
                       <item.icon />
                       <span>{item.title}</span>
                     </Link>

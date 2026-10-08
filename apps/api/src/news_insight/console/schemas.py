@@ -164,7 +164,8 @@ class CardRunOut(BaseModel):
     ready: int
     failed: int
     batches: dict[str, int]
-    quota: dict[str, int | None]
+    # {"engine": "codex" | "agy" | "claude", "weekly": %, "five_hour": %} of the engine in use
+    quota: dict[str, int | str | None]
     note: str | None
 
 
