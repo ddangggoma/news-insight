@@ -2,6 +2,7 @@ from datetime import UTC, datetime
 
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from news_insight.collect.contracts import RawItem
@@ -10,6 +11,7 @@ from news_insight.console import routes
 from news_insight.content.ingest import ingest_items
 from news_insight.sources.enums import Region, SourceStatus, Track, ValidationStage
 from news_insight.sources.ladder import CheckResult, record_check
+from news_insight.sources.models import Source
 from tests.factories import build_source
 
 pytestmark = pytest.mark.db
@@ -85,3 +87,39 @@ def test_pause_resume_and_collect_now(
     assert resumed["status"] == SourceStatus.CANDIDATE.value
     assert collected == {"queued": True} and len(queued) == 1
     assert conflict.status_code == 409
+
+
+def test_bulk_pause_resume_and_retire(
+    console_client: TestClient, headers: dict[str, str], db_session: Session
+) -> None:
+    seed(db_session)
+    url = "/api/admin/sources/bulk"
+
+    missing_reason = console_client.post(
+        url, headers=headers, json={"keys": ["news-a"], "action": "pause"}
+    )
+    paused = console_client.post(
+        url,
+        headers=headers,
+        json={"keys": ["news-a", "nope", "news-a"], "action": "pause", "reason": "정리"},
+    ).json()
+    resumed = console_client.post(
+        url, headers=headers, json={"keys": ["news-a"], "action": "resume"}
+    ).json()
+    retired = console_client.post(
+        url,
+        headers=headers,
+        json={"keys": ["news-a"], "action": "retire", "reason": "레포 감시 중단"},
+    ).json()
+    again = console_client.post(
+        url, headers=headers, json={"keys": ["news-a"], "action": "pause", "reason": "x"}
+    ).json()
+
+    assert missing_reason.status_code == 422
+    assert paused == {"done": ["news-a"], "failed": [{"key": "nope", "error": "unknown source"}]}
+    assert resumed["done"] == ["news-a"]
+    assert retired["done"] == ["news-a"]
+    assert again["done"] == [] and "retired" in again["failed"][0]["error"]
+    source = db_session.scalars(select(Source).where(Source.key == "news-a")).one()
+    db_session.refresh(source)
+    assert (source.status, source.paused_reason) == (SourceStatus.RETIRED, "레포 감시 중단")

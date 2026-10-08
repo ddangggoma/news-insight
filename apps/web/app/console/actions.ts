@@ -99,3 +99,20 @@ export async function removeWatch(id: number): Promise<{ ok: boolean; error?: st
   revalidatePath("/console/watchlist");
   return { ok: true };
 }
+
+export type BulkAction = "pause" | "resume" | "retire";
+
+export async function bulkSources(
+  keys: string[],
+  action: BulkAction,
+  reason: string,
+): Promise<{ ok: boolean; done: string[]; failed: { key: string; error: string }[]; error?: string }> {
+  await requireAdmin();
+  try {
+    const result = await api.post<{ done: string[]; failed: { key: string; error: string }[] }>("/api/admin/sources/bulk", { keys, action, reason });
+    revalidatePath("/console/sources", "layout");
+    return { ok: true, ...result };
+  } catch (error) {
+    return { ok: false, done: [], failed: [], error: error instanceof Error ? error.message : String(error) };
+  }
+}

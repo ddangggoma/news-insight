@@ -6,6 +6,7 @@ from typing import Annotated, Any, Literal
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import Response
 from pydantic import BaseModel
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from news_insight.collect.dead_letters import DeadLetterError, dismiss, retry
@@ -19,6 +20,9 @@ from news_insight.console import stories as story_queries
 from news_insight.console.auth import require_console_key
 from news_insight.console.cache import cached
 from news_insight.console.schemas import (
+    BulkFailure,
+    BulkSourcesBody,
+    BulkSourcesResult,
     CardFailure,
     CardStats,
     CardView,
@@ -41,7 +45,7 @@ from news_insight.digest import service as digest_service
 from news_insight.digest.schemas import DigestOut, DigestSummary
 from news_insight.ops.engines import CardEngineHealth, card_engine_health
 from news_insight.sources.enums import Region, SourceStatus, Track, ValidationStage
-from news_insight.sources.ladder import LadderError, pause_source, resume_source
+from news_insight.sources.ladder import LadderError, pause_source, resume_source, retire_source
 from news_insight.sources.models import Source
 from news_insight.sources.service import SourceNotFound, get_source
 from news_insight.technologies import console as tech_console
@@ -128,6 +132,35 @@ def get_source_detail(key: str, session: DB) -> SourceDetail:
     if detail is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, f"unknown source '{key}'")
     return detail
+
+
+@router.post("/sources/bulk")
+def bulk_sources(body: BulkSourcesBody, session: DB) -> BulkSourcesResult:
+    """Each key on its own: an unknown key or a ladder refusal is reported, the rest still run.
+    Retiring keeps the row for provenance; a catalog entry revives it at the next seed."""
+    reason = body.reason.strip()
+    if body.action in ("pause", "retire") and not reason:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "a reason is required")
+    found = {s.key: s for s in session.scalars(select(Source).where(Source.key.in_(body.keys)))}
+    done: list[str] = []
+    failed: list[BulkFailure] = []
+    for key in dict.fromkeys(body.keys):
+        source = found.get(key)
+        if source is None:
+            failed.append(BulkFailure(key=key, error="unknown source"))
+            continue
+        try:
+            if body.action == "pause":
+                pause_source(session, source, reason=reason)
+            elif body.action == "resume":
+                resume_source(session, source)
+            else:
+                retire_source(session, source, reason=reason)
+        except LadderError as exc:
+            failed.append(BulkFailure(key=key, error=str(exc)))
+            continue
+        done.append(key)
+    return BulkSourcesResult(done=done, failed=failed)
 
 
 @router.post("/sources/{key}/pause")
