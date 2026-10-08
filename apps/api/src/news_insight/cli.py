@@ -108,7 +108,9 @@ digest_app = typer.Typer(
     help="Daily digest generated with the Claude CLI (05:00 KST)", no_args_is_help=True
 )
 app.add_typer(digest_app, name="digest")
-taxonomy_app = typer.Typer(help="Taxonomy migrations", no_args_is_help=True)
+taxonomy_app = typer.Typer(
+    help="Taxonomy migrations, schemes and nodes (plan 15)", no_args_is_help=True
+)
 app.add_typer(taxonomy_app, name="taxonomy")
 tech_app = typer.Typer(
     help="Technology registry (third level of the taxonomy)", no_args_is_help=True
@@ -1020,6 +1022,23 @@ def users_unlock(username: str) -> None:
     with session_scope() as session:
         unlock(session, None, _account(session, username), now=datetime.now(UTC))
     typer.echo(f"{username} unlocked")
+
+
+@taxonomy_app.command("seed")
+def taxonomy_seed(
+    backfill: Annotated[bool, typer.Option(help="Rewrite every card's legacy labels too")] = False,
+) -> None:
+    """Upsert schemes and nodes from the code taxonomy and the technology registry (plan 15)."""
+    from news_insight.taxonomy.seed import backfill_labels, seed_taxonomy
+
+    with session_scope() as session:
+        result = seed_taxonomy(session, author="cli")
+        line = f"created={result.created} updated={result.updated} revision={result.revision_id}"
+        if result.skipped:
+            line += f" skipped (unknown theme)={','.join(result.skipped[:10])}"
+        typer.echo(line)
+        if backfill:
+            typer.echo(f"legacy labels={backfill_labels(session)}")
 
 
 @ops_app.command("check")

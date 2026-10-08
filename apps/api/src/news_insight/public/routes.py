@@ -50,6 +50,8 @@ from news_insight.taxonomy.catalog import (
     THEME_KEYS,
     Node,
 )
+from news_insight.taxonomy.views import TaxonomyOut as SchemesOut
+from news_insight.taxonomy.views import taxonomy_view
 
 router = APIRouter(
     prefix="/api/public", tags=["public"], dependencies=[Depends(require_public_key)]
@@ -298,6 +300,12 @@ def get_periodic(kind: str, key: str, session: DB) -> periodic_queries.PublicPer
     if row is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, f"no published {kind} briefing for {key}")
     return periodic_queries.public_periodic(session, row)
+
+
+@router.get("/taxonomy/schemes")
+def get_taxonomy_schemes(session: DB) -> SchemesOut:
+    """Schemes and their active node trees of any depth (plan 15)."""
+    return taxonomy_view(session)
 
 
 @router.get("/version")

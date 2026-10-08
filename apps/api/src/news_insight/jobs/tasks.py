@@ -170,12 +170,17 @@ def ops_check_task() -> dict[str, Any]:
 
 @celery_app.task(name="technologies.refresh")
 def technologies_refresh_task() -> dict[str, int]:
+    from news_insight.taxonomy.seed import seed_taxonomy
     from news_insight.technologies.service import recompute_all, refresh_labels
 
     with session_scope() as session:
+        rekeyed = recompute_all(session)
+        # registry edits become technology nodes until the console edits nodes (plan 15-3)
+        seeded = seed_taxonomy(session, author="technologies.refresh")
         return {
-            "cards_rekeyed": recompute_all(session),
+            "cards_rekeyed": rekeyed,
             "labels": refresh_labels(session, now=datetime.now(UTC)),
+            "tax_nodes_changed": seeded.created + seeded.updated,
         }
 
 

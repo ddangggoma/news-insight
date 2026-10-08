@@ -14,5 +14,6 @@ import news_insight.signals.models  # noqa: F401
 import news_insight.sources.models  # noqa: F401
 import news_insight.stories.models  # noqa: F401
 import news_insight.strategy.models  # noqa: F401
+import news_insight.taxonomy.models  # noqa: F401
 import news_insight.technologies.models  # noqa: F401
 import news_insight.watchlist.models  # noqa: F401
