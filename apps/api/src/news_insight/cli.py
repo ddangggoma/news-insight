@@ -1,6 +1,7 @@
 """Operator CLI: `news-insight sources seed|validate|promote|report`."""
 
 import fcntl
+import sys
 import tempfile
 from collections import Counter
 from datetime import UTC, date, datetime, timedelta
@@ -10,6 +11,7 @@ from zoneinfo import ZoneInfo
 
 import typer
 from sqlalchemy import func, select
+from sqlalchemy.orm import Session
 
 from news_insight.cards.engines import (
     AgyEngine,
@@ -116,8 +118,8 @@ companies_app = typer.Typer(help="Company registry and card company tags", no_ar
 app.add_typer(companies_app, name="companies")
 ops_app = typer.Typer(help="Operational health checks and alerts", no_args_is_help=True)
 app.add_typer(ops_app, name="ops")
-admin_app = typer.Typer(help="Admin magic-link login", no_args_is_help=True)
-app.add_typer(admin_app, name="admin")
+users_app = typer.Typer(help="Site accounts: admin bootstrap and recovery", no_args_is_help=True)
+app.add_typer(users_app, name="users")
 
 KST = ZoneInfo("Asia/Seoul")
 FAILED_OUTCOMES = (FetchOutcome.FAILED, FetchOutcome.DEAD_LETTERED)
@@ -934,24 +936,90 @@ def audio_render_command(
     typer.echo(f"{day} v{version} audio {entry.seconds}s {entry.bytes // 1024} KB")
 
 
-@admin_app.command("link")
-def admin_link() -> None:
-    """Print a single-use 15-minute login link for ADMIN_EMAIL (no SMTP needed)."""
-    from news_insight.auth.mailer import login_url
-    from news_insight.auth.service import issue_login
+def _account(session: Session, username: str) -> int:
+    from news_insight.auth.accounts import find_user
 
-    settings = get_settings()
+    user = find_user(session, username)
+    if user is None:
+        raise _fail(f"no user {username!r}")
+    return user.id
+
+
+@users_app.command("create-admin")
+def users_create_admin(
+    username: str,
+    name: Annotated[str, typer.Option(help="Display name")],
+    password_stdin: Annotated[
+        bool, typer.Option(help="Read the password from the first line of stdin")
+    ] = False,
+) -> None:
+    """Create an active admin account. The password is never taken from argv or the environment."""
+    from news_insight.auth.accounts import FormError, create_admin
+
+    if password_stdin:
+        password = sys.stdin.readline().rstrip("\r\n")
+    else:
+        password = typer.prompt("Password", hide_input=True, confirmation_prompt=True)
+    try:
+        with session_scope() as session:
+            user = create_admin(
+                session, username=username, password=password, name=name, now=datetime.now(UTC)
+            )
+            typer.echo(f"admin {user.username} created")
+    except FormError as error:
+        raise _fail(error.message) from None
+
+
+@users_app.command("list")
+def users_list() -> None:
+    """List accounts with their role and status."""
+    from news_insight.auth.accounts import list_users
+
     with session_scope() as session:
-        issued = issue_login(
-            session,
-            email=settings.admin_email,
-            admin_email=settings.admin_email,
-            now=datetime.now(UTC),
-        )
-    if issued is None:
-        typer.echo("too many login links in the last 15 minutes; try again later", err=True)
-        raise typer.Exit(1)
-    typer.echo(login_url(settings, issued.token))
+        for user in list_users(session):
+            typer.echo(
+                f"{user.username:<32} {user.role.value:<6} {user.status.value:<9} {user.name}"
+            )
+
+
+@users_app.command("approve")
+def users_approve(username: str) -> None:
+    """Approve a pending (or rejected) sign-up."""
+    from news_insight.auth.accounts import ActionError, Client, approve
+
+    try:
+        with session_scope() as session:
+            approve(
+                session, None, _account(session, username), now=datetime.now(UTC), client=Client()
+            )
+    except ActionError as error:
+        raise _fail(str(error)) from None
+    typer.echo(f"{username} approved")
+
+
+@users_app.command("reset-password")
+def users_reset_password(username: str) -> None:
+    """Print a temporary password; the user must change it at the next login."""
+    from news_insight.auth.accounts import ActionError, Client, reset_password
+
+    try:
+        with session_scope() as session:
+            temporary = reset_password(
+                session, None, _account(session, username), now=datetime.now(UTC), client=Client()
+            )
+    except ActionError as error:
+        raise _fail(str(error)) from None
+    typer.echo(temporary)
+
+
+@users_app.command("unlock")
+def users_unlock(username: str) -> None:
+    """Clear the failed-login lock of an account."""
+    from news_insight.auth.accounts import unlock
+
+    with session_scope() as session:
+        unlock(session, None, _account(session, username), now=datetime.now(UTC))
+    typer.echo(f"{username} unlocked")
 
 
 @ops_app.command("check")

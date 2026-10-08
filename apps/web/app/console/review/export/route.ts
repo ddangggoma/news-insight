@@ -1,10 +1,12 @@
 import { api } from "@/lib/api";
-import { currentAdmin } from "@/lib/session";
+import { currentUser } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(): Promise<Response> {
-  if (!(await currentAdmin())) return new Response("login required", { status: 401 });
+  const user = await currentUser();
+  if (!user) return new Response("login required", { status: 401 });
+  if (user.role !== "admin" || user.must_change_password) return new Response("admin only", { status: 403 });
   const csv = await api.text("/api/admin/reviews/export.csv");
   return new Response(csv, {
     headers: {

@@ -1,33 +1,32 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { LoginForm } from "@/components/reader/login-form";
+import { LoginForm } from "@/components/auth/login-form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { safeNext } from "@/lib/auth";
 import { param, type SearchParams } from "@/lib/params";
 
-export const metadata: Metadata = { title: "관리자 로그인", robots: { index: false } };
+export const metadata: Metadata = { title: "로그인", robots: { index: false } };
 
 export default async function LoginPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
-  const expired = param(await searchParams, "error") === "expired";
+  const next = safeNext(param(await searchParams, "next"));
   return (
     <main className="flex min-h-screen items-center justify-center px-4">
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>
-            <h1>운영 콘솔 로그인</h1>
+            <h1>DX 인텔리전스 로그인</h1>
           </CardTitle>
-          <CardDescription>등록된 관리자 이메일로 일회용 로그인 링크를 보냅니다.</CardDescription>
+          <CardDescription>관리자가 승인한 계정만 로그인할 수 있습니다.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {expired ? (
-            <p role="alert" className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
-              링크가 만료되었거나 이미 사용되었습니다. 새 링크를 요청하세요.
-            </p>
-          ) : null}
-          <LoginForm />
-          <Link href="/" className="block text-center text-sm text-muted-foreground hover:text-foreground">
-            ← 오늘의 브리핑으로
-          </Link>
+          <LoginForm next={next === "/" ? undefined : next} />
+          <p className="text-center text-sm text-muted-foreground">
+            계정이 없나요?{" "}
+            <Link href="/signup" className="font-medium text-foreground underline-offset-4 hover:underline">
+              회원가입
+            </Link>
+          </p>
         </CardContent>
       </Card>
     </main>

@@ -84,7 +84,7 @@ V3(파서 통과) → 24시간 canary 수집 → V4 → 7일 카드 품질(DX �
 | 웹 운영 의존성(`npm audit --omit=dev`) | 0. 개발 도구 `shadcn` CLI 경로(fast-glob → micromatch → braces)에만 경고 7건 — 운영 이미지에 포함되지 않음 |
 | SSRF | 사설·루프백·링크로컬 주소 차단, 리다이렉트 매 홉 재검증, DNS 재바인딩 대비 피어 검증, 교차 호스트 리다이렉트에서 자격 증명 제거(테스트 19개) |
 | XSS | 요약·제목은 React 텍스트로만 렌더링. `dangerouslySetInnerHTML`은 콘솔 차트의 고정 색상 CSS 한 곳뿐(사용자 데이터 없음) |
-| 관리자 인증 | 매직링크(해시 저장, 15분 1회용, 14일 세션, 발급 한도, 스캐너 안전 확인 버튼), 콘솔 레이아웃·액션·내보내기에서 서버 검증 |
+| 사이트 인증 (plan 14) | 아이디/비밀번호(Argon2id, 흔한 비밀번호 거부), 가입은 관리자 승인 후에만 로그인, 5회 실패 잠금·접속 주소별 실패 제한, 세션 해시 저장(14일·3일 미사용 만료), 모든 요청에서 서버 검증, 콘솔과 사용자 관리 API는 관리자 역할 재확인, 감사 기록 180일. HTTP(8701)로 로그인하면 평문 전송(사용자 결정으로 HTTP 유지) |
 | 내부 API | `/api/admin`, `/api/public`은 Caddy에서 404. 각각 별도 키 |
 | 응답 헤더 | CSP, X-Frame-Options DENY, nosniff, Referrer-Policy, Permissions-Policy, COOP. HSTS는 실제 도메인(`PUBLIC_HOST`가 localhost가 아닐 때)에서만 |
 | 컨테이너 | api·web 모두 비root 사용자로 실행 |
@@ -97,7 +97,7 @@ P9 완료 기준은 7일 연속 05:00 발행 성공(또는 Fail-safe 정상 동�
 ## 10. 성능·관측성 기반 (2026-10-04, 점검표 단계 A)
 
 - **인덱스** (마이그레이션 0016): `items.first_seen_at`, `(source_id, first_seen_at)`, 본문 만료 부분 인덱스, `item_cards.themes` GIN, 지표 스냅샷 `captured_at`. 시간 창 조회 1,018ms → 31ms, 테마 필터 379ms → 2ms.
-- **속도 제한**: Caddy를 `ops/caddy/Dockerfile`로 빌드합니다(`caddy-ratelimit` 포함). IP당 분당 120회, `/radar*`는 20회이고 초과하면 429와 `Retry-After`를 돌려줍니다. 정적 파일은 제외입니다. 값은 `.env`의 `RATE_LIMIT_PAGES`·`RATE_LIMIT_RADAR`로 바꿉니다. Docker Desktop(Mac)에서는 모든 접속이 같은 게이트웨이 IP로 보이므로 한도가 공유됩니다. 리눅스 서버나 도메인 배포에서는 실제 IP 기준입니다.
+- **속도 제한**: Caddy를 `ops/caddy/Dockerfile`로 빌드합니다(`caddy-ratelimit` 포함). IP당 분당 120회, `/radar*`는 20회이고 초과하면 429와 `Retry-After`를 돌려줍니다. 정적 파일은 제외입니다. `/login`·`/signup`은 분당 30회입니다. 값은 `.env`의 `RATE_LIMIT_PAGES`·`RATE_LIMIT_RADAR`·`RATE_LIMIT_AUTH`로 바꿉니다. Docker Desktop(Mac)에서는 모든 접속이 같은 게이트웨이 IP로 보이므로 한도가 공유됩니다. 리눅스 서버나 도메인 배포에서는 실제 IP 기준입니다.
 - **구조화 로그**: API·Celery·CLI가 모두 JSON 한 줄로 stderr에 남깁니다(`service`, `request_id`, `source_id` 등). 찾을 때는 `docker compose logs api | grep '"level": "warning"'`. API 응답에는 `X-Request-ID`가 붙습니다.
 - **새 알림**:
   - `api_slow`: 최근 1시간에 5초 넘게 걸린 API 응답이 5건 이상

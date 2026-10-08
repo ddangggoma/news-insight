@@ -3,12 +3,14 @@ import { NextResponse, type NextRequest } from "next/server";
 import { ApiError } from "@/lib/api";
 import { isRadarKind } from "@/lib/radar";
 import { REVALIDATE, readerGet } from "@/lib/reader-api";
+import { currentUser } from "@/lib/session";
 import type { TopicDetail } from "@/lib/reader-types";
 
 const PASSED = ["scope", "signal", "field", "kind", "value"] as const;
 
 /** One topic's detail for the radar's side panel, fetched in the browser when the focus changes (WEB-1). */
 export async function GET(request: NextRequest, { params }: { params: Promise<{ period: string; key: string }> }) {
+  if (!(await currentUser())) return NextResponse.json({ detail: "login required" }, { status: 401 });
   const { period, key } = await params;
   if (!isRadarKind(period)) return NextResponse.json({ detail: "unknown period" }, { status: 404 });
   const search = request.nextUrl.searchParams;

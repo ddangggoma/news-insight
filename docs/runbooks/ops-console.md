@@ -6,7 +6,7 @@
 
 ```
 브라우저 ──HTTPS──▶ Caddy(8700) ──▶ web(Next.js) ──내부망 + X-Console-Key──▶ api(/api/admin)
-                    │  /console*   : 매직링크 세션 필요 (web이 api로 검증)
+                    │  모든 화면    : 로그인 세션 필요 (web이 요청마다 api로 검증), /console*은 관리자만
                     │  /api/admin* : 외부에서는 항상 404
 호스트 launchd(05:00) ──▶ scripts/dev.sh digest ──▶ Claude CLI(Opus, 도구 비활성화) ──▶ DB(digests)
 ```
@@ -16,15 +16,25 @@
 
 ## 2. 처음 설정 (1회)
 
-### 2-1. 관리자 로그인 (매직링크, Phase 8)
+### 2-1. 로그인과 사용자 승인 (plan 14, 2026-10-07)
 
-콘솔은 `ADMIN_EMAIL`(기본 `ddangggoma@gmail.com`) 한 주소로만 로그인합니다. 비밀번호는 없습니다.
+사이트 전체(독자 화면과 콘솔)가 아이디/비밀번호 로그인 뒤에 있습니다. 누구나 `/signup`에서 가입 신청(아이디·이름·비밀번호)을 할 수 있지만, **관리자가 승인한 계정만** 로그인됩니다. 승인 전 계정으로 로그인하면 "승인 대기 중입니다. 관리자에게 승인을 요청하세요."가 나옵니다.
 
-1. `https://localhost:8700/login`에서 이메일을 입력하면, 관리자 주소일 때만 15분짜리 일회용 링크가 발급됩니다. 화면에는 어느 주소든 같은 안내가 나옵니다.
-2. 링크를 열고 **로그인** 버튼을 누르면 14일 세션이 시작됩니다. 메일 보안 스캐너가 링크를 미리 열어도 버튼을 누르기 전에는 토큰이 소모되지 않습니다.
-3. 로그아웃은 콘솔 오른쪽 위 버튼으로 합니다. 세션은 서버에서 폐기됩니다.
+**첫 관리자 만들기 (배포 직후 1회).** 이 계정이 없으면 아무도 가입을 승인할 수 없습니다. 비밀번호는 숨김 입력으로 두 번 묻습니다(명령줄·환경 변수로는 받지 않음).
 
-**메일 발송 설정 (선택).** `.env`에 SMTP를 넣으면 링크가 메일로 옵니다. Gmail은 2단계 인증을 켠 뒤 앱 비밀번호를 만들어 `SMTP_PASSWORD`에 넣습니다.
+```bash
+scripts/dev.sh create-admin      # = docker compose exec api news-insight users create-admin <아이디> --name <이름>
+```
+
+활성 관리자가 없으면 운영 알림 `no_admin`(주의)이 열립니다.
+
+**가입 승인.** 콘솔 → 관리 → **사용자**(`/console/users`). 승인 대기 수가 사이드바에 표시됩니다.
+- 승인 대기: 승인 / 거절. 거절된 신청은 30일, 90일 넘게 승인되지 않은 신청은 90일 뒤 자동 삭제됩니다.
+- 사용 중: 관리자로·독자로 변경, 정지, 비밀번호 초기화(임시 비밀번호를 한 번만 보여 줌, 첫 로그인 때 변경 강제), 잠금 해제.
+- 정지: 다시 사용. 아이디를 누르면 그 계정의 기록(가입·로그인·승인 등, 180일 보관)을 봅니다.
+- 자기 계정과 마지막 관리자는 정지·강등할 수 없습니다.
+
+**가입 알림 메일.** `.env`에 SMTP를 넣으면 새 가입 신청마다 `ADMIN_EMAIL`로 메일이 갑니다(운영 알림과 같은 계정). Gmail은 2단계 인증을 켠 뒤 앱 비밀번호를 만들어 `SMTP_PASSWORD`에 넣습니다. 메일의 콘솔 링크는 `PUBLIC_BASE_URL`을 따릅니다.
 
 ```
 SMTP_HOST=smtp.gmail.com
@@ -33,15 +43,23 @@ SMTP_USER=<보내는 주소>
 SMTP_PASSWORD=<앱 비밀번호>
 ```
 
-**SMTP 없이 로그인.** 이 Mac에서 다음 명령을 실행하면 링크가 출력됩니다. 15분 안에 브라우저로 여세요.
+**보안 규칙.**
+- 비밀번호: Argon2id 해시로만 저장. 10자 이상, 흔한 비밀번호(`apps/api/catalog/common-passwords.txt`)와 아이디가 들어간 비밀번호는 거부.
+- 무차별 대입: 연속 5회 실패하면 15분 잠금, 이후 실패마다 2배(최대 24시간). 같은 접속 주소의 실패가 10분에 30회를 넘으면 잠시 거부. Caddy도 `/login`·`/signup`을 분당 30회(`RATE_LIMIT_AUTH`)로 제한합니다.
+- 틀린 비밀번호, 없는 아이디, 잠긴 계정은 모두 같은 메시지입니다. 승인 대기·거절·정지는 비밀번호가 맞을 때만 알려 줍니다.
+- 세션: 토큰은 SHA-256 해시로만 저장(`user_sessions`), 14일 또는 3일 미사용 시 만료. 비밀번호 변경·초기화, 정지, 역할 변경 때 그 사용자의 세션이 모두 끝납니다. `/account`에서 "다른 기기 모두 로그아웃"을 할 수 있습니다.
+- 웹 서버는 모든 요청(페이지·화면 전환·라우트·서버 액션)에서 세션을 API로 확인합니다(`apps/web/proxy.ts`). 콘솔은 관리자 역할만, 사용자 관리 API는 API에서도 역할을 다시 확인합니다.
+- 브리핑 음성 파일(`/media`)은 Caddy가 직접 내보내므로 `forward_auth`로 웹 서버에 로그인 여부를 묻습니다.
+- **HTTP 접속(8701) 주의:** 사용자 결정(2026-10-07)으로 HTTP를 유지합니다. HTTP로 로그인하면 비밀번호와 세션 쿠키가 암호화 없이 네트워크를 지납니다. 믿을 수 없는 네트워크(공용 Wi-Fi 등)에서는 HTTPS(8700)로 접속하세요.
+
+**계정 복구 (호스트에서).**
 
 ```bash
-scripts/dev.sh admin-link
+docker compose exec api news-insight users list                 # 계정·권한·상태
+docker compose exec api news-insight users unlock <아이디>       # 잠금 해제
+docker compose exec api news-insight users reset-password <아이디>  # 임시 비밀번호 출력
+docker compose exec api news-insight users approve <아이디>      # 콘솔 없이 승인
 ```
-
-- 토큰은 SHA-256 해시로만 저장됩니다(`admin_tokens`). 15분에 5개까지만 발급되고, 만료된 토큰은 새 발급 시 지워집니다.
-- 링크 주소는 `PUBLIC_BASE_URL`(기본 `https://localhost:8700`)을 따릅니다. 도메인을 쓰면 함께 바꾸세요.
-- 이전의 Caddy Basic Auth(`CONSOLE_PASSWORD_HASH`)는 더 이상 쓰지 않습니다. `.env`에 남아 있어도 무시됩니다.
 
 ### 2-2. 콘솔 API 키 확인
 
@@ -148,9 +166,11 @@ scripts/demo-db.sh
 
 | 증상 | 원인과 조치 |
 |---|---|
-| `/console`이 계속 `/login`으로 돌아감 | 세션 만료 또는 폐기. `scripts/dev.sh admin-link`로 새 링크를 받아 로그인 |
-| 로그인 링크 메일이 오지 않음 | SMTP 미설정이거나 15분 5회 한도 초과. `docker compose logs api`에서 `magic link` 확인, 없으면 `scripts/dev.sh admin-link` |
-| 링크를 열었더니 "만료" 안내 | 15분이 지났거나 이미 사용한 링크. 새 링크 요청 |
+| 계속 `/login`으로 돌아감 | 세션 만료(14일·3일 미사용) 또는 폐기(비밀번호 변경·정지·역할 변경). 다시 로그인 |
+| "아이디 또는 비밀번호가 올바르지 않습니다"가 계속 나옴 | 5회 실패로 잠겼을 수 있음. `users unlock <아이디>` 또는 콘솔 → 사용자 → 잠금 해제 |
+| 관리자 비밀번호를 잊음 | `docker compose exec api news-insight users reset-password <아이디>`로 임시 비밀번호를 받아 로그인 후 변경 |
+| 가입 알림 메일이 오지 않음 | SMTP 미설정 또는 발송 실패. `docker compose logs api`에서 `sign-up notice` 확인. 콘솔 사이드바의 승인 대기 수로도 확인 가능 |
+| 모든 화면이 "인증 서버에 연결할 수 없습니다"(503) | api가 내려갔거나 web의 `CONSOLE_API_KEY`가 비어 있음. `docker compose ps`, `.env` 확인 |
 | 콘솔에 "데이터를 불러오지 못했습니다 … 401" | web과 api의 `CONSOLE_API_KEY`가 다름. `.env` 확인 후 `docker compose up -d` |
 | "CONSOLE_API_KEY is not configured" | web 컨테이너에 키가 없음. `.env`에 값을 넣고 재기동 |
 | 다이제스트가 계속 대체본 | `ops/logs/digest.log`와 콘솔의 오류 문구 확인. `claude -p "hi"`로 CLI 로그인 상태 확인 |

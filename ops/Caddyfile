@@ -32,7 +32,7 @@
 		respond 404
 	}
 
-	# /console is guarded by the web server's magic-link session (P8).
+	# Every page needs a login: the web server checks the session on each request (plan 14).
 
 	# Per-IP request limits on public pages (checklist OPS-2). The radar aggregates the
 	# whole corpus on a cache miss, so it gets a tighter budget. Static assets are free.
@@ -49,6 +49,15 @@
 		zone pages {
 			key {remote_host}
 			events {$RATE_LIMIT_PAGES:120}
+			window 1m
+		}
+		# Login and sign-up form posts (plan 14); the API also locks accounts and throttles failures
+		zone auth {
+			match {
+				path /login /signup
+			}
+			key {remote_host}
+			events {$RATE_LIMIT_AUTH:30}
 			window 1m
 		}
 	}
@@ -75,8 +84,12 @@
 	# which Safari and podcast apps need to seek. Only .m4a files, no listings.
 	@audio path_regexp audio ^/media/briefings/[0-9]{4}-[0-9]{2}-[0-9]{2}-v[0-9]+\.m4a$
 	handle @audio {
+		# Caddy serves these itself, so ask the web server whether the visitor is logged in (plan 14)
+		forward_auth web:3000 {
+			uri /internal/session-check
+		}
 		root * /srv
-		header Cache-Control "public, max-age=86400"
+		header Cache-Control "private, max-age=86400"
 		file_server
 	}
 	handle /media/* {

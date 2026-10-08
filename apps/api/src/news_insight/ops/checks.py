@@ -11,6 +11,7 @@ from zoneinfo import ZoneInfo
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from news_insight.auth.models import Role, User, UserStatus
 from news_insight.briefing.models import Briefing, BriefingFreeze, BriefingStatus
 from news_insight.briefing.service import failing
 from news_insight.cards.models import CardRun
@@ -227,6 +228,27 @@ def check_slow_requests(slow: list[str] | None) -> list[Finding]:
     ]
 
 
+def check_accounts(session: Session) -> list[Finding]:
+    """Plan 14: without an active admin nobody can approve sign-ups or open the console."""
+    admins = session.scalar(
+        select(func.count())
+        .select_from(User)
+        .where(User.role == Role.ADMIN, User.status == UserStatus.ACTIVE)
+    )
+    if admins:
+        return []
+    return [
+        Finding(
+            "no_admin",
+            Severity.WARNING,
+            "활성 관리자 계정이 없습니다",
+            "가입 신청을 승인할 사람이 없습니다. 서버에서 "
+            "`docker compose exec api news-insight users create-admin <아이디> --name <이름>`"
+            "으로 만드세요.",
+        )
+    ]
+
+
 def run_checks(
     session: Session,
     *,
@@ -240,4 +262,5 @@ def run_checks(
         *check_queue(queue_length),
         *check_cards(session, now=now),
         *check_slow_requests(slow_requests),
+        *check_accounts(session),
     ]

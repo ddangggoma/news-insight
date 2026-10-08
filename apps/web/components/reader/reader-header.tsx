@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 
 import { ThemeToggle } from "@/components/console/theme-toggle";
+import { type AccountSummary, AccountMenu } from "@/components/reader/account-menu";
 import { cn } from "@/lib/utils";
 
 export const READER_NAV = [
@@ -17,7 +18,7 @@ export function isReaderActive(pathname: string, href: string): boolean {
   return href === "/" ? pathname === "/" || pathname.startsWith("/items") : pathname.startsWith(href);
 }
 
-export function ReaderHeader() {
+export function ReaderHeader({ user }: { user: AccountSummary }) {
   const pathname = usePathname();
   const query = useSearchParams().get("q") ?? "";
   return (
@@ -60,8 +61,9 @@ export function ReaderHeader() {
             className="h-9 min-w-0 flex-1 bg-transparent text-sm outline-none"
           />
         </form>
-        <div className="ml-auto md:ml-0">
+        <div className="ml-auto flex items-center gap-1 md:ml-0">
           <ThemeToggle />
+          <AccountMenu user={user} />
         </div>
       </div>
     </header>

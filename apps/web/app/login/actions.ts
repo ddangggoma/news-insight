@@ -1,50 +1,59 @@
 "use server";
 
-import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { ApiError, api } from "@/lib/api";
-import { SESSION_COOKIE } from "@/lib/session";
+import { LOGIN_MESSAGES, type LoginOutcome, type SessionUser, safeNext } from "@/lib/auth";
+import { clearSessionCookie, clientHeaders, sessionToken, setSessionCookie } from "@/lib/session";
 
 export interface LoginState {
-  sent: boolean;
   error?: string;
+  outcome?: LoginOutcome;
+  username?: string;
 }
 
-export async function requestLogin(_: LoginState, form: FormData): Promise<LoginState> {
-  const email = String(form.get("email") ?? "").trim();
-  if (!email.includes("@") || email.length > 320) return { sent: false, error: "이메일 주소를 확인하세요." };
-  await api.post("/api/admin/auth/request", { email });
-  // Same answer for every address: the page never reveals which one is the admin's.
-  return { sent: true };
+interface SessionOut {
+  token: string;
+  expires_at: string;
+  user: SessionUser;
 }
 
-export async function completeLogin(form: FormData): Promise<void> {
-  const token = String(form.get("token") ?? "");
-  let session: { token: string; expires_at: string };
-  try {
-    session = await api.post<{ token: string; expires_at: string }>("/api/admin/auth/verify", { token });
-  } catch (error) {
-    if (error instanceof ApiError && (error.status === 401 || error.status === 422)) redirect("/login?error=expired");
-    throw error;
+function outcomeOf(error: ApiError): LoginOutcome {
+  if (error.status === 429) return "throttled";
+  if (error.status === 403) {
+    try {
+      const outcome = (JSON.parse(error.message) as { outcome?: string }).outcome;
+      if (outcome === "pending" || outcome === "rejected" || outcome === "suspended") return outcome;
+    } catch {
+      // fall through: an unexpected body is treated as a failed login
+    }
   }
-  // Secure only when the request came over HTTPS: the site is also served over plain HTTP
-  // (Caddy's HTTP port, 2026-10-06), where a Secure cookie would never be stored.
-  const https = (await headers()).get("x-forwarded-proto") === "https";
-  (await cookies()).set(SESSION_COOKIE, session.token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production" && https,
-    sameSite: "lax",
-    path: "/",
-    expires: new Date(session.expires_at),
-  });
-  redirect("/console");
+  return "invalid";
+}
+
+export async function login(_: LoginState, form: FormData): Promise<LoginState> {
+  const username = String(form.get("username") ?? "").trim();
+  const password = String(form.get("password") ?? "");
+  if (!username || !password) return { error: "아이디와 비밀번호를 입력하세요.", username };
+  let session: SessionOut;
+  try {
+    session = await api.post<SessionOut>(
+      "/api/admin/accounts/login",
+      { username: username.slice(0, 64), password: password.slice(0, 256) },
+      await clientHeaders(),
+    );
+  } catch (error) {
+    if (!(error instanceof ApiError) || error.status >= 500) throw error;
+    const outcome = outcomeOf(error);
+    return { error: LOGIN_MESSAGES[outcome], outcome, username };
+  }
+  await setSessionCookie(session.token, session.expires_at);
+  redirect(session.user.must_change_password ? "/change-password" : safeNext(form.get("next")));
 }
 
 export async function logout(): Promise<void> {
-  const store = await cookies();
-  const token = store.get(SESSION_COOKIE)?.value;
-  if (token) await api.post("/api/admin/auth/logout", { token }).catch(() => undefined);
-  store.delete(SESSION_COOKIE);
-  redirect("/");
+  const token = await sessionToken();
+  if (token) await api.post("/api/admin/accounts/logout", { token }, await clientHeaders()).catch(() => undefined);
+  await clearSessionCookie();
+  redirect("/login");
 }

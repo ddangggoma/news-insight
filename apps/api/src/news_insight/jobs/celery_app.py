@@ -25,6 +25,10 @@ BEAT_SCHEDULE: dict[str, dict[str, Any]] = {
         "task": "technologies.refresh",
         "schedule": crontab(hour=3, minute=45),  # keys and labels after registry edits
     },
+    "auth-purge": {
+        "task": "auth.purge",
+        "schedule": crontab(hour=3, minute=20),  # dead sessions, old sign-ups, audit past 180 days
+    },
     "content-purge-expired": {
         "task": "content.purge_expired",
         "schedule": crontab(hour=3, minute=15),  # Asia/Seoul (celery timezone)
