@@ -1,6 +1,6 @@
 "use client";
 
-import { Activity, BellRing, ChevronDown, ClipboardCheck, Cpu, Gauge, GitMerge, History, Inbox, Layers, LayoutDashboard, LayoutGrid, Library, Lightbulb, Newspaper, Radar, Rss, Star, TrendingUp, Users } from "lucide-react";
+import { Activity, BellRing, ChevronDown, Network, ClipboardCheck, Cpu, Gauge, GitMerge, History, Inbox, Layers, LayoutDashboard, LayoutGrid, Library, Lightbulb, Newspaper, Radar, Rss, Star, TrendingUp, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -45,6 +45,7 @@ const NAV: { label: string; folded?: boolean; items: { href: string; title: stri
     { href: "/console/dlq", title: "DLQ", icon: Inbox },
   ] },
   { label: "분류 관리", folded: true, items: [
+    { href: "/console/taxonomy", title: "분류 체계", icon: Network },
     { href: "/console/review", title: "관련성 검토", icon: ClipboardCheck },
     { href: "/console/topic-candidates", title: "미분류 신호", icon: Lightbulb },
     { href: "/console/technologies", title: "기술 레지스트리", icon: Cpu },

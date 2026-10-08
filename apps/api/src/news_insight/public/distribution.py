@@ -124,7 +124,8 @@ def distribution(
     nodes = [
         DistributionNode(
             key=key,
-            label=label,
+            # a label shallower than the depth: cards placed on this node with nothing below
+            label=label if d >= depth else f"{label} (세부 미지정)",
             depth=d,
             parent_key=parent_key,
             count=int(c),

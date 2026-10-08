@@ -38,6 +38,8 @@ class SchemeOut(BaseModel):
     llm_depth: int | None
     level_names: list[str]
     uses: list[str]
+    assign: list[str] = []
+    description: str | None = None
     nodes: list[NodeOut] | list[NodeDetail]
 
 
@@ -77,6 +79,8 @@ def taxonomy_view(session: Session, *, detail: bool = False) -> TaxonomyOut:
                 llm_depth=s.llm_depth,
                 level_names=list(s.level_names or []),
                 uses=list(s.uses or []),
+                assign=list(s.assign or []),
+                description=s.description,
                 nodes=[
                     model.model_validate(n, from_attributes=True) for n in by_scheme.get(s.id, [])
                 ],
