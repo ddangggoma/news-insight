@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { THEME_LABEL } from "@/lib/taxonomy";
 import type { WatchItem, WatchPage } from "@/lib/types";
 
-const KIND_LABEL: Record<WatchItem["kind"], string> = { company: "기업", theme: "테마", keyword: "기술 키워드" };
+const KIND_LABEL: Record<WatchItem["kind"], string> = { company: "기업", theme: "테마", keyword: "기술 키워드", node: "분류 노드" };
 
 function useRun() {
   const [pending, start] = useTransition();
@@ -25,7 +25,7 @@ function useRun() {
   return { pending, run };
 }
 
-export function WatchAdd({ companies }: { companies: WatchPage["companies"] }) {
+export function WatchAdd({ companies, nodes = [] }: { companies: WatchPage["companies"]; nodes?: { group: string; options: { value: string; label: string; depth: number }[] }[] }) {
   const { pending, run } = useRun();
   const [kind, setKind] = useState<WatchItem["kind"]>("company");
   const [value, setValue] = useState("");
@@ -60,6 +60,20 @@ export function WatchAdd({ companies }: { companies: WatchPage["companies"] }) {
             <option key={c.key} value={c.key}>
               {c.label}
             </option>
+          ))}
+        </select>
+      ) : kind === "node" ? (
+        <select id="watch-node" aria-label="분류 노드" value={value} onChange={(event) => setValue(event.target.value)} className="h-9 min-w-64 rounded-md border bg-background px-2 text-sm">
+          <option value="">노드 선택 (어느 체계·깊이든)</option>
+          {nodes.map((group) => (
+            <optgroup key={group.group} label={group.group}>
+              {group.options.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {"\u00a0\u00a0".repeat(option.depth - 1)}
+                  {option.label}
+                </option>
+              ))}
+            </optgroup>
           ))}
         </select>
       ) : kind === "theme" ? (

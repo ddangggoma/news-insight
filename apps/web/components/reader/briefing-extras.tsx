@@ -183,7 +183,7 @@ export function CollectionSummary({ tracks, refs }: { tracks: DigestTrack[]; ref
   );
 }
 
-const WATCH_KIND: Record<string, string> = { company: "기업", theme: "테마", keyword: "기술" };
+const WATCH_KIND: Record<string, string> = { company: "기업", theme: "테마", keyword: "기술", node: "분류" };
 
 /** The reader's watched subjects in today's reports (plan 13 A5); managed in the console. */
 export function WatchBox({ watch, refs }: { watch: NonNullable<PublicBriefingWatch>; refs: ItemRef[] }) {

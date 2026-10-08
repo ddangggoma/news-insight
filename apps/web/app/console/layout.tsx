@@ -7,7 +7,9 @@ import { ThemeToggle } from "@/components/console/theme-toggle";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { TaxonomyLabels } from "@/components/taxonomy-labels";
 import { api } from "@/lib/api";
+import { loadTaxonomy } from "@/lib/taxonomy-server";
 import { requireAdmin, sessionToken } from "@/lib/session";
 import type { AlertOut } from "@/lib/types";
 
@@ -15,15 +17,17 @@ export const dynamic = "force-dynamic";
 
 export default async function ConsoleLayout({ children }: { children: ReactNode }) {
   const admin = await requireAdmin();
-  const [alerts, pendingUsers] = await Promise.all([
+  const [alerts, pendingUsers, taxonomy] = await Promise.all([
     api.get<AlertOut[]>("/api/admin/alerts", { limit: 20 }).catch(() => []),
     api
       .get<{ counts: { pending: number } }>("/api/admin/users", { status: "pending" }, { "X-Session-Token": await sessionToken() })
       .then((data) => data.counts.pending)
       .catch(() => 0),
+    loadTaxonomy(),
   ]);
   return (
     <SidebarProvider>
+      <TaxonomyLabels taxonomy={taxonomy} />
       <AppSidebar pendingUsers={pendingUsers} />
       <SidebarInset>
         <header className="sticky top-0 z-10 flex h-14 items-center gap-2 border-b bg-background/80 px-4 backdrop-blur">

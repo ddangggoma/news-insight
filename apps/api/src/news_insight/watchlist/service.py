@@ -17,11 +17,13 @@ from news_insight.companies.models import Company
 from news_insight.content.freshness import fresh_condition
 from news_insight.content.models import Item
 from news_insight.taxonomy.catalog import LABELS, THEME_KEYS
+from news_insight.taxonomy.models import TaxNode, TaxScheme
+from news_insight.taxonomy.query import parse_ref, under_nodes
 from news_insight.technologies.catalog import normalize
 from news_insight.technologies.service import alias_map
 from news_insight.watchlist.models import WatchItem
 
-KINDS = ("company", "theme", "keyword")
+KINDS = ("company", "theme", "keyword", "node")
 RELEVANT = ("dx", "dx_dependency")
 TOP_ITEMS = 3
 
@@ -70,6 +72,20 @@ def add(session: Session, *, kind: str, value: str) -> WatchOut:
         if value not in THEME_KEYS:
             raise WatchError(f"unknown theme '{value}'")
         key, label = value, LABELS.get(value, value)
+    elif kind == "node":  # any scheme and depth, `scheme:key` (plan 15-4)
+        ref = parse_ref(value) if len(value) <= 80 else None
+        found = (
+            session.scalars(
+                select(TaxNode)
+                .join(TaxScheme, TaxScheme.id == TaxNode.scheme_id)
+                .where(TaxScheme.key == ref[0], TaxNode.key == ref[1], TaxNode.status == "active")
+            ).one_or_none()
+            if ref
+            else None
+        )
+        if found is None:
+            raise WatchError(f"unknown node '{value}'")
+        key, label = value, found.label
     elif kind == "keyword":
         normalized = normalize(value)
         if len(normalized) < 2:
@@ -101,6 +117,9 @@ def _condition(kind: str, key: str) -> ColumnElement[bool]:
         return ItemCard.company_keys.contains([key])
     if kind == "theme":
         return ItemCard.themes.contains([key])
+    if kind == "node":
+        ref = parse_ref(key)
+        return under_nodes((ref,)) if ref else ItemCard.item_id.is_(None)
     return ItemCard.technology_keys.contains([key])
 
 

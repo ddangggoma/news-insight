@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { RadarBoard } from "@/components/reader/radar/board";
@@ -56,6 +57,12 @@ export default async function RadarPage({ params, searchParams }: Props) {
           기술 분류 체계가 {radar.taxonomy_revised_on}에 개정되었습니다(12개 기술 분야·62개 테마·신호 유형). 그 이전 기간은 새 체계로 다시 분류하는 중이라, 이전 기간과의 증감·추세는 참고용으로 보세요.
         </p>
       ) : null}
+      <p className="text-sm">
+        <Link href={`/radar/${period}/${key}/taxonomy`} className="font-medium text-primary hover:underline">
+          분류 탐색 →
+        </Link>
+        <span className="ml-2 text-muted-foreground">체계·깊이를 골라 트리맵으로 보기</span>
+      </p>
       <RadarControls radar={radar} view={view} />
       <SectionNav />
 

@@ -57,6 +57,20 @@ test.describe("reader", () => {
     expect(overflow).toBeLessThanOrEqual(0);
   });
 
+  test("taxonomy explorer drills from fields into themes and switches schemes", async ({ page }) => {
+    await page.goto("/radar?period=month");
+    await page.getByRole("link", { name: "분류 탐색 →" }).click();
+    await expect(page.getByRole("heading", { level: 1, name: "분류 탐색" })).toBeVisible();
+    await expect(page.getByRole("img", { name: "분류 분포 트리맵" })).toBeVisible();
+    const firstField = page.getByRole("table").getByRole("link").first();
+    await firstField.click();
+    await expect(page).toHaveURL(/root=technology%3A/);
+    await expect(page.getByText("기준", { exact: true })).toBeVisible();
+    await page.getByRole("navigation", { name: "체계" }).getByRole("link", { name: "신호 유형" }).click();
+    await expect(page).toHaveURL(/scheme=signal_type/);
+    await expect(page.getByRole("table")).toBeVisible();
+  });
+
   test("radar opens the current month, focuses a theme and filters by signal type", async ({ page }) => {
     await page.goto("/radar?period=month");
     await expect(page).toHaveURL(/\/radar\/month\/\d{4}-\d{2}$/);

@@ -296,3 +296,24 @@ export interface RadarSignal {
   focus: { kind: "field" | "theme" | "keyword" | "company" | "search"; key: string };
   score: number;
 }
+
+/** Radar distribution over any scheme, depth and base node (plan 15-4b). */
+export interface DistributionNode {
+  key: string;
+  label: string;
+  depth: number;
+  parent_key: string | null;
+  count: number;
+  previous: number;
+  delta: number;
+}
+
+export interface Distribution {
+  scheme: string;
+  depth: number;
+  root: DistributionNode | null;
+  nodes: DistributionNode[];
+  total: number;
+  previous_total: number;
+  schemes: { key: string; name: string; max_depth: number; level_names: string[] }[];
+}

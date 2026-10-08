@@ -2,20 +2,28 @@ import { EmptyState } from "@/components/console/empty-state";
 import { PageHeader } from "@/components/console/page-header";
 import { KIND_LABEL, WatchAdd, WatchRemove, WatchSuggest } from "@/components/console/watch-forms";
 import { api } from "@/lib/api";
+import { nodeOptions, type TaxonomySchemes } from "@/lib/taxonomy-live";
 import type { WatchPage } from "@/lib/types";
 
 export const metadata = { title: "관심 목록" };
 
 export default async function WatchlistPage() {
-  const page = await api.get<WatchPage>("/api/admin/watchlist");
+  const [page, taxonomy] = await Promise.all([
+    api.get<WatchPage>("/api/admin/watchlist"),
+    api.get<TaxonomySchemes>("/api/admin/taxonomy/schemes").catch(() => null),
+  ]);
+  const nodes = (taxonomy?.schemes ?? []).map((scheme) => ({
+    group: scheme.name,
+    options: nodeOptions({ ...scheme, nodes: scheme.nodes.filter((n) => n.status === "active") }),
+  }));
   return (
     <>
       <PageHeader
         title="관심 목록"
-        description="여기 넣은 기업·테마·기술 키워드는 매일 브리핑 맨 위 '내 관심 항목'에 그날 보도 수와 대표 기사로 나옵니다. 메일·푸시 알림은 보내지 않습니다."
+        description="여기 넣은 기업·테마·기술 키워드·분류 노드(어느 체계·깊이든, 하위 포함)는 매일 브리핑 맨 위 '내 관심 항목'에 그날 보도 수와 대표 기사로 나옵니다. 메일·푸시 알림은 보내지 않습니다."
       />
       <section className="space-y-3">
-        <WatchAdd companies={page.companies} />
+        <WatchAdd companies={page.companies} nodes={nodes} />
         {page.items.length ? (
           <ul className="divide-y rounded-lg border">
             {page.items.map((item) => (
