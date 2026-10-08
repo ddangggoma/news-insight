@@ -1027,14 +1027,18 @@ def ops_check(
     apply: Annotated[bool, typer.Option(help="Record alert episodes and send e-mail")] = False,
 ) -> None:
     """Run the health checks (publication SLA, collection, queue, cards) and list findings."""
-    from news_insight.jobs.tasks import queue_length, slow_requests
+    from news_insight.jobs.tasks import _host_snapshot, queue_length, slow_requests
     from news_insight.ops.checks import run_checks
     from news_insight.ops.service import notify, sync_alerts
 
     now = datetime.now(UTC)
     with session_scope() as session:
         findings = run_checks(
-            session, now=now, queue_length=queue_length(), slow_requests=slow_requests(now)
+            session,
+            now=now,
+            queue_length=queue_length(),
+            slow_requests=slow_requests(now),
+            host=_host_snapshot(now),
         )
         if apply:
             notify(get_settings(), sync_alerts(session, findings, now=now), now=now)
@@ -1044,6 +1048,26 @@ def ops_check(
         typer.echo(f"[{finding.severity.value}] {finding.key}: {finding.title}")
         if finding.detail:
             typer.echo(f"    {finding.detail}")
+
+
+@ops_app.command("host-snapshot")
+def ops_host_snapshot() -> None:
+    """Record macOS memory, swap and the local Qwen state for the console (host only; the card
+    job runs it every 10 minutes)."""
+    from news_insight.ops.host import collect, save
+    from news_insight.scheduling.redis_guards import get_redis
+
+    settings = get_settings()
+    snapshot = collect(
+        lm_url=settings.lm_studio_url, lm_model=settings.lm_studio_model, now=datetime.now(UTC)
+    )
+    save(get_redis(), snapshot)
+    qwen = snapshot.get("qwen") or {}
+    typer.echo(
+        f"swap {snapshot.get('swap_used_mb')}/{snapshot.get('swap_total_mb')} MB, "
+        f"free {snapshot.get('memory_free_pct')}%, "
+        f"qwen {qwen.get('state')} ctx={qwen.get('context')}"
+    )
 
 
 @ops_app.command("logs")

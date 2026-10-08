@@ -427,3 +427,20 @@ export interface WatchPage {
   suggestions: { kind: WatchItem["kind"]; key: string; label: string; count: number }[];
   companies: { key: string; label: string }[];
 }
+
+/** Host memory, the local Qwen and card engine health (dashboard, 2026-10-08). */
+export interface OpsStatus {
+  host: {
+    captured_at: string;
+    stale: boolean;
+    swap_total_mb?: number;
+    swap_used_mb?: number;
+    memory_free_pct?: number;
+    qwen?: { model: string; state: string | null; context: number | null };
+  } | null;
+  cards: {
+    engines: { name: string; last_batch_at: string | null; latest_note: string | null }[];
+    zero_runs: number;
+    last_run_at: string | null;
+  };
+}

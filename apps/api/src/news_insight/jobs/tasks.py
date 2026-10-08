@@ -138,6 +138,13 @@ def slow_requests(now: datetime) -> list[str] | None:
     return [r.decode() if isinstance(r, bytes) else str(r) for r in raw]  # type: ignore[union-attr]
 
 
+def _host_snapshot(now: datetime) -> dict[str, Any] | None:
+    from news_insight.ops.host import load
+    from news_insight.scheduling.redis_guards import get_redis
+
+    return load(get_redis(), now=now)
+
+
 @celery_app.task(name="ops.check")
 def ops_check_task() -> dict[str, Any]:
     from news_insight.ops.checks import run_checks
@@ -146,7 +153,11 @@ def ops_check_task() -> dict[str, Any]:
     now = datetime.now(UTC)
     with session_scope() as session:
         findings = run_checks(
-            session, now=now, queue_length=queue_length(), slow_requests=slow_requests(now)
+            session,
+            now=now,
+            queue_length=queue_length(),
+            slow_requests=slow_requests(now),
+            host=_host_snapshot(now),
         )
         result = sync_alerts(session, findings, now=now)
         notify(get_settings(), result, now=now)
