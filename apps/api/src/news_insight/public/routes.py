@@ -81,6 +81,7 @@ def reader_filters(
     track: Values = None,
     region: Values = None,
     company: Values = None,
+    node: Values = None,
 ) -> ReaderFilters:
     try:
         return ReaderFilters.build(
@@ -93,6 +94,7 @@ def reader_filters(
             track=track,
             region=region,
             company=company,
+            node=node,
         )
     except FilterError as error:
         raise _unprocessable(error) from error

@@ -689,6 +689,8 @@ def _prompt_tokens(session: Session) -> int:
 
 def _run_ops(session: Session, ops: list[Any]) -> tuple[_Run, list[OpOutcome]]:
     run = _Run(session)
+    # column rewrites skip the per-card trigger; every affected card is relabelled once below
+    session.execute(text("SET LOCAL news.bulk_relabel = 'on'"))
     outcomes: list[OpOutcome] = []
     for op in ops:
         outcomes.append(HANDLERS[op.op](run, op))
@@ -702,6 +704,7 @@ def _run_ops(session: Session, ops: list[Any]) -> tuple[_Run, list[OpOutcome]]:
             text("UPDATE item_cards SET taxonomy_revision = :r WHERE item_id = ANY(:ids)"),
             {"r": REQUEUE, "ids": sorted(run.requeue)},
         )
+    session.execute(text("SET LOCAL news.bulk_relabel = 'off'"))
     return run, outcomes
 
 

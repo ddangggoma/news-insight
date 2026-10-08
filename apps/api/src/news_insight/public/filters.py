@@ -17,13 +17,9 @@ from news_insight.public.periods import Window
 from news_insight.sources.enums import Region, Track
 from news_insight.sources.models import Source
 from news_insight.stories.models import Story, StoryItem
-from news_insight.taxonomy.catalog import (
-    FIELD_KEYS,
-    IMPACT_KEYS,
-    SIGNAL_TYPE_KEYS,
-    TAXONOMY_TREE,
-    THEME_KEYS,
-)
+from news_insight.taxonomy import registry as taxonomy
+from news_insight.taxonomy.catalog import TAXONOMY_TREE
+from news_insight.taxonomy.query import parse_ref, under_nodes
 
 
 def in_current_tree() -> ColumnElement[bool]:
@@ -34,14 +30,23 @@ def in_current_tree() -> ColumnElement[bool]:
 SCOPES = {"relevant": ("dx", "dx_dependency"), "dx": ("dx",), "all": None}
 AXES = ("field", "theme", "signal", "impact", "track", "region")  # facet axes
 COMPANY_KEY = re.compile(r"^[^\s]{2,80}$")  # registry keys are normalised (no spaces)
-ALLOWED: dict[str, frozenset[str]] = {
-    "field": FIELD_KEYS,
-    "theme": THEME_KEYS,
-    "signal": SIGNAL_TYPE_KEYS,
-    "impact": IMPACT_KEYS,
+FIXED: dict[str, frozenset[str]] = {
     "track": frozenset(track.value for track in Track),
     "region": frozenset(region.value for region in Region),
 }
+
+
+def allowed(axis: str) -> frozenset[str]:
+    """Taxonomy axes follow the current schemes (plan 15-4: nodes change in the console)."""
+    if axis in FIXED:
+        return FIXED[axis]
+    registry = taxonomy.current()
+    if axis in ("field", "theme"):
+        tech = registry.scheme("technology")
+        depth = 1 if axis == "field" else 2
+        return frozenset(n.key for n in tech.nodes if n.depth == depth)
+    scheme = {"signal": "signal_type", "impact": "impact"}[axis]
+    return frozenset(registry.scheme(scheme).by_key) if scheme in registry.schemes else frozenset()
 
 
 class FilterError(ValueError):
@@ -68,8 +73,10 @@ class ReaderFilters:
             chosen = tuple(dict.fromkeys(v for v in raw or [] if v))
             if axis == "company":  # registry keys change in the console: checked by shape only
                 unknown = [v for v in chosen if not COMPANY_KEY.match(v)]
+            elif axis == "node":  # scheme:key of any scheme and depth, checked by shape
+                unknown = [v for v in chosen if parse_ref(v) is None]
             else:
-                unknown = [v for v in chosen if v not in ALLOWED[axis]]
+                unknown = [v for v in chosen if v not in allowed(axis)]
             if unknown:
                 raise FilterError(f"unknown {axis} '{unknown[0]}'")
             if chosen:
@@ -112,6 +119,8 @@ def _axis_condition(axis: str, chosen: tuple[str, ...]) -> ColumnElement[bool]:
         return ItemCard.impact.in_(chosen)
     if axis == "company":
         return or_(*(ItemCard.company_keys.contains([value]) for value in chosen))
+    if axis == "node":
+        return under_nodes(tuple(ref for v in chosen if (ref := parse_ref(v)) is not None))
     if axis == "track":
         return Item.track.in_([Track(value) for value in chosen])
     return Source.region.in_([Region(value) for value in chosen])

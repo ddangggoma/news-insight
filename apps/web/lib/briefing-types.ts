@@ -102,7 +102,7 @@ export interface PublicBriefing {
   /** The spoken briefing, when the host rendered it (plan 13 A1). */
   audio?: { url: string; seconds: number } | null;
   /** The reader's watched subjects in the briefing day (plan 13 A5). */
-  watch?: { kind: "company" | "theme" | "keyword"; key: string; label: string; count: number; item_ids: number[] }[];
+  watch?: { kind: "company" | "theme" | "keyword" | "node"; key: string; label: string; count: number; item_ids: number[] }[];
   sections: { track: Track; summary: string | null; items: ReaderItem[] }[];
   strategy: {
     personas: BriefingPersona[];

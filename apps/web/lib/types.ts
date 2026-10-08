@@ -417,7 +417,7 @@ export interface TechnologyCandidate {
 /** The reader's watch list (plan 13 A5), managed in the console. */
 export interface WatchItem {
   id: number;
-  kind: "company" | "theme" | "keyword";
+  kind: "company" | "theme" | "keyword" | "node";
   key: string;
   label: string;
 }
