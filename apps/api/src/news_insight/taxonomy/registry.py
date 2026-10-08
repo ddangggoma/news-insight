@@ -216,6 +216,13 @@ def _refresh(session: Session) -> Registry:
     return load(session) if latest is not None else from_catalog()
 
 
+def invalidate() -> None:
+    """Forget the cached registry (after a change); a pinned one (tests) stays."""
+    global _cached, _checked
+    with _lock:
+        _cached, _checked = None, 0.0
+
+
 def use(registry: Registry | None) -> None:
     """Pin a registry (tests) or unpin it with None; also forgets the cached one."""
     global _override, _cached, _checked

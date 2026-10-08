@@ -9,6 +9,7 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from news_insight.auth.account_routes import Admin
 from news_insight.collect.dead_letters import DeadLetterError, dismiss, retry
 from news_insight.collect.models import DeadLetter, FetchOutcome
 from news_insight.config import get_settings
@@ -48,6 +49,10 @@ from news_insight.sources.enums import Region, SourceStatus, Track, ValidationSt
 from news_insight.sources.ladder import LadderError, pause_source, resume_source, retire_source
 from news_insight.sources.models import Source
 from news_insight.sources.service import SourceNotFound, get_source
+from news_insight.taxonomy.changes import ChangeError, ChangeResult, ChangeSet
+from news_insight.taxonomy.changes import apply as apply_changes
+from news_insight.taxonomy.changes import preview as preview_changes
+from news_insight.taxonomy.changes import rollback as rollback_changes
 from news_insight.taxonomy.views import TaxonomyOut, taxonomy_view
 from news_insight.technologies import console as tech_console
 from news_insight.technologies.catalog import TechStatus
@@ -99,6 +104,88 @@ def ops_status(session: DB) -> OpsStatus:
 def console_taxonomy(session: DB) -> TaxonomyOut:
     """Every scheme and node with definitions, aliases and status (plan 15)."""
     return taxonomy_view(session, detail=True)
+
+
+@router.get("/taxonomy/counts")
+def taxonomy_counts(
+    session: DB, scheme: str = "technology", days: Annotated[int | None, Query(ge=1, le=365)] = 30
+) -> dict[int, dict[str, int]]:
+    """Cards per node (own and with descendants) in the window, for the tree editor."""
+    from news_insight.taxonomy.changes import counts
+
+    seconds = get_settings().console_cache_seconds
+    return cached(
+        f"taxonomy_counts:{scheme}:{days}",
+        seconds,
+        lambda: counts(session, scheme, days=days, now=datetime.now(UTC)),
+    )
+
+
+@router.get("/taxonomy/revisions")
+def taxonomy_revisions(
+    session: DB, limit: Annotated[int, Query(ge=1, le=100)] = 30
+) -> list[dict[str, Any]]:
+    from news_insight.taxonomy.models import TaxRevision
+
+    rows = session.scalars(select(TaxRevision).order_by(TaxRevision.id.desc()).limit(limit))
+    return [
+        {
+            "id": r.id,
+            "created_at": r.created_at,
+            "author": r.author,
+            "note": r.note,
+            "status": r.status,
+            "ops": [op for entry in r.changes or [] for op in entry.get("ops", [])],
+        }
+        for r in rows
+    ]
+
+
+@router.get("/taxonomy/nodes/{node_id}/cards")
+def taxonomy_node_cards(
+    node_id: int, session: DB, limit: Annotated[int, Query(ge=1, le=50)] = 10
+) -> list[dict[str, Any]]:
+    """Recent cards on the node or its descendants, with how each label was given."""
+    from sqlalchemy import text as sql
+
+    rows = session.execute(
+        sql(
+            "SELECT DISTINCT ON (i.id) i.id, coalesce(c.title_ko, i.title), i.first_seen_at,"
+            " l.source, n.key"
+            " FROM card_labels l JOIN tax_nodes n ON n.id = l.node_id"
+            " JOIN items i ON i.id = l.item_id LEFT JOIN item_cards c ON c.item_id = i.id"
+            " WHERE :node = ANY(n.path) ORDER BY i.id DESC LIMIT :n"
+        ),
+        {"node": node_id, "n": limit},
+    )
+    return [
+        {"item_id": r[0], "title": r[1], "first_seen_at": r[2], "source": r[3], "node": r[4]}
+        for r in rows
+    ]
+
+
+@router.post("/taxonomy/preview")
+def taxonomy_preview(body: ChangeSet, session: DB, admin: Admin) -> ChangeResult:
+    try:
+        return preview_changes(session, body, now=datetime.now(UTC))
+    except ChangeError as exc:
+        raise HTTPException(status.HTTP_409_CONFLICT, str(exc)) from exc
+
+
+@router.post("/taxonomy/apply")
+def taxonomy_apply(body: ChangeSet, session: DB, admin: Admin) -> ChangeResult:
+    try:
+        return apply_changes(session, body, author=admin.username, now=datetime.now(UTC))
+    except ChangeError as exc:
+        raise HTTPException(status.HTTP_409_CONFLICT, str(exc)) from exc
+
+
+@router.post("/taxonomy/revisions/{revision_id}/rollback")
+def taxonomy_rollback(revision_id: int, session: DB, admin: Admin) -> ChangeResult:
+    try:
+        return rollback_changes(session, revision_id, author=admin.username, now=datetime.now(UTC))
+    except ChangeError as exc:
+        raise HTTPException(status.HTTP_409_CONFLICT, str(exc)) from exc
 
 
 @router.get("/sources")
