@@ -117,8 +117,12 @@ class SafeFetcher:
         *,
         allowed_mime: frozenset[str] | None = None,
         headers: Mapping[str, str] | None = None,
+        form: Mapping[str, str] | None = None,
     ) -> FetchResponse:
+        """GET, or a form POST when `form` is given (an OAuth token request); a POST never
+        follows a redirect."""
         started = time.monotonic()
+        method = "GET" if form is None else "POST"
         request_headers = {"User-Agent": self._user_agent, **(headers or {})}
         origin_host = httpx.URL(url).host
         current = url
@@ -126,9 +130,13 @@ class SafeFetcher:
         for _ in range(self._max_redirects + 1):
             self._validate_target(current)
             try:
-                with self._client.stream("GET", current, headers=request_headers) as response:
+                with self._client.stream(
+                    method, current, headers=request_headers, data=form
+                ) as response:
                     self._check_peer(response)
                     if response.status_code in REDIRECT_STATUSES:
+                        if form is not None:
+                            raise FetchBlocked("post_redirect", f"POST redirected: {current}")
                         location = response.headers.get("location")
                         if not location:
                             raise FetchFailed(

@@ -110,17 +110,24 @@ def check_network(source: Source, fetcher: SafeFetcher) -> CheckResult:
     except SecretError:
         headers = {}
     try:
-        response = fetcher.fetch(
-            expand_macros(probe_url(source), now=datetime.now(UTC)),
-            allowed_mime=(
-                HTML_MIME
-                if source.access_method is AccessMethod.RESEARCH_API
-                and source.config.get("mode") == "epo_publications"
-                else EXPECTED_MIME[source.access_method]
-            ),
-            headers=headers,
-        )
+        if source.config.get("mode") == "epo_ops":  # token + one-record search (plan 16 #5)
+            from news_insight.collect import epo_ops
+
+            response = epo_ops.probe(source, fetcher, datetime.now(UTC))
+        else:
+            response = fetcher.fetch(
+                expand_macros(probe_url(source), now=datetime.now(UTC)),
+                allowed_mime=(
+                    HTML_MIME
+                    if source.access_method is AccessMethod.RESEARCH_API
+                    and source.config.get("mode") == "epo_publications"
+                    else EXPECTED_MIME[source.access_method]
+                ),
+                headers=headers,
+            )
     except FetchError as exc:
+        return CheckResult.from_reasons([str(exc)], {"error": exc.code})
+    except CollectorError as exc:
         return CheckResult.from_reasons([str(exc)], {"error": exc.code})
     reasons: list[str] = []
     if response.status_code != 200:

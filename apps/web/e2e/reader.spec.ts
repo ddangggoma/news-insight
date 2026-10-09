@@ -105,4 +105,13 @@ test.describe("reader", () => {
     await expect(page.getByLabel("기간")).toHaveValue("30");
     await expect(page.getByLabel("범위").locator("option")).not.toHaveCount(1);
   });
+
+  test("patent signals switch between months and quarters (plan 16 #5)", async ({ page }) => {
+    await page.goto("/patents");
+    await expect(page.getByRole("heading", { level: 1, name: "특허 신호" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /월별 특허 신호/ })).toBeVisible();
+    await page.getByRole("link", { name: "분기별" }).click();
+    await expect(page).toHaveURL(/kind=quarter/);
+    await expect(page.getByRole("heading", { name: /분기별 특허 신호/ })).toBeVisible();
+  });
 });

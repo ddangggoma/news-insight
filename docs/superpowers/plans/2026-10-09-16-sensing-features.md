@@ -95,3 +95,18 @@
     - mastodon.social 중문 태그 6곳, 기업·기관·팟캐스트 6곳
   - **떨어진 것:** 본토 대형 매체·관청은 대부분 RSS가 없거나(404), HTTP만 쓰거나, 자바스크립트 렌더링·403이라 자동 크롤러도 기사를 찾지 못했다.
   - **OpenAlex 보류:** 운영에 `OPENALEX_API_KEY`가 없어 모든 요청이 IP 공용 무료 한도(하루 0.1달러)를 쓴다. probe가 한도를 소진해 2026-10-09 21시부터 기존 OpenAlex 수집이 09:00 KST 초기화까지 막혔다. 중화권 OpenAlex 검색 31곳은 probe를 통과했지만, 키가 생기면 넣는다.
+- **#5 특허 신호 (2026-10-10):**
+  - **수집:** EPO OPS 3.2 공보 검색 수집기(`mode: epo_ops`)를 만들었다.
+    - 매 실행마다 OAuth client-credentials 토큰을 받아 캐시하고, CQL(`pn=US|EP|CN and cpc=… and pd>={today-30d}`)로 최신 서지 정보를 가져온다.
+    - 제목은 영문을 우선하고, 출원인(epodoc)·초록·공개일을 담는다.
+    - 수집처는 18곳이다: 미국·유럽·중국 각 6곳, CPC G06N·H04W·H10K·H01M·G06V·B25J. EP와 CN을 같은 수로 넣어 중화권=유럽 수를 지켰다(208:208).
+    - 키(`SOURCE_SECRET_EPO_OPS_KEY`·`SOURCE_SECRET_EPO_OPS_SECRET`, developers.epo.org 무료 등록)가 없으면 V1~V3가 "자격 증명 없음"으로 멈춰 수집하지 않는다.
+    - 토큰 요청 때문에 `SafeFetcher`에 form POST를 더했다. POST는 리다이렉트를 따르지 않고, 다른 안전 장치는 같다.
+  - **제외한 것:**
+    - USPTO PatentsView: PatentSearch API가 2026-03-20 USPTO Open Data Portal 이전으로 중단됐다(도메인 없음, 재개일 없음). 미국 공보는 OPS로 대신 본다.
+    - KIPRIS: "국내 수집처는 더 늘리지 않는다"는 지시에 따라 넣지 않았다.
+  - **화면 `/patents`:**
+    - 대상: `ip` 신호 카드와 특허청 출처 카드(무관 제외).
+    - 월별(12개월)·분기별(8분기) 막대: 특허청 공보와 기사를 나눠 보인다.
+    - 기술 분야(기술 체계 2단계로 묶음)·기업별 이번 기간·변화·추이선, 그리고 최근 목록.
+    - 탐색 화면으로 이어지는 링크는 `theme`/`field`/`company`와 `signal=ip`를 붙인다.

@@ -32,6 +32,11 @@ def _secret(name: Any, environ: Mapping[str, str]) -> str:
     return value
 
 
+def secret_value(name: str, *, environ: Mapping[str, str] = os.environ) -> str:
+    """A named credential for collectors that sign requests themselves (EPO OPS)."""
+    return _secret(name, environ)
+
+
 def _header_name(name: Any) -> str:
     header = str(name or "")
     if not HEADER_NAME.fullmatch(header):
