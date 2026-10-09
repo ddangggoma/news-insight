@@ -25,3 +25,10 @@ describe("changeLabel", () => {
     expect([changeLabel(3, 1), changeLabel(1, 3), changeLabel(2, 0), changeLabel(0, 0), changeLabel(2, 2)]).toEqual(["+2", "-2", "새로", "–", "0"]);
   });
 });
+
+describe("formatUsd", () => {
+  it("writes rough dollar sizes in Korean units", async () => {
+    const { formatUsd } = await import("@/lib/deal-types");
+    expect([formatUsd(150_000_000), formatUsd(30_000_000), formatUsd(500), formatUsd(null)]).toEqual(["약 1.5억 달러", "약 3,000만 달러", "약 500 달러", ""]);
+  });
+});

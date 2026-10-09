@@ -7,6 +7,7 @@ import news_insight.cards.models  # noqa: F401
 import news_insight.collect.models  # noqa: F401
 import news_insight.companies.models  # noqa: F401
 import news_insight.content.models  # noqa: F401
+import news_insight.deals.models  # noqa: F401
 import news_insight.digest.models  # noqa: F401
 import news_insight.dossiers.models  # noqa: F401
 import news_insight.ops.models  # noqa: F401

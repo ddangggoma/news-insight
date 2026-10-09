@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 from news_insight.ask import service as ask_service
 from news_insight.console.schemas import Page
 from news_insight.db import get_db
+from news_insight.deals import views as deal_views
 from news_insight.digest import service as digest_service
 from news_insight.digest.models import Digest
 from news_insight.digest.schemas import DigestSummary
@@ -343,6 +344,19 @@ def get_periodic(kind: str, key: str, session: DB) -> periodic_queries.PublicPer
 def get_taxonomy_schemes(session: DB) -> SchemesOut:
     """Schemes and their active node trees of any depth (plan 15)."""
     return taxonomy_view(session)
+
+
+@router.get("/deals")
+def get_deals(
+    session: DB,
+    now: Now,
+    days: Annotated[int, Query(ge=7, le=365)] = 90,
+    kind: Literal["investment", "acquisition", "partnership", "ipo", "joint_venture", "licensing"]
+    | None = None,
+    company: Annotated[str | None, Query(max_length=80)] = None,
+) -> deal_views.DealView:
+    """Investments, acquisitions and partnerships from the cards (plan 16 #8)."""
+    return deal_views.deal_view(session, days=days, now=now, kind=kind, company=company)
 
 
 @router.get("/patents")
