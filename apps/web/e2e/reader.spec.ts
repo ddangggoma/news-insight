@@ -135,4 +135,13 @@ test.describe("reader", () => {
     }
     await page.screenshot({ path: "test-results/roadmap-820.png" });
   });
+
+  test("opportunity board filters by role (plan 16 #10)", async ({ page }) => {
+    await page.goto("/board");
+    await expect(page.getByRole("heading", { level: 1, name: /기회·위협 보드/ })).toBeVisible();
+    await page.getByLabel("역할").selectOption("mx_head");
+    await page.getByRole("button", { name: "보기" }).click();
+    await expect(page).toHaveURL(/persona=mx_head/);
+    await expect(page.getByRole("heading", { level: 1, name: /MX 사업부장/ })).toBeVisible();
+  });
 });

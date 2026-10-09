@@ -40,3 +40,10 @@ describe("movement", () => {
     expect(movement([{ month: "a", index: 2.1, count: 3 }])).toBe("");
   });
 });
+
+describe("opportunityShare", () => {
+  it("is the opportunity share of opportunity and risk", async () => {
+    const { opportunityShare } = await import("@/lib/board-types");
+    expect([opportunityShare({ opportunity: 3, risk: 1, watch: 9 }), opportunityShare({ opportunity: 0, risk: 0, watch: 2 })]).toEqual([75, 50]);
+  });
+});
