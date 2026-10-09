@@ -94,4 +94,15 @@ test.describe("reader", () => {
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     expect(overflow).toBeLessThanOrEqual(0);
   });
+
+  test("ask page takes a question with a period and scope (plan 16 #1)", async ({ page }) => {
+    await page.goto("/ask");
+    await expect(page.getByRole("heading", { level: 1, name: "질문하기" })).toBeVisible();
+    const submit = page.getByRole("button", { name: "질문", exact: true });
+    await expect(submit).toBeDisabled();
+    await page.getByLabel("질문", { exact: true }).fill("온디바이스 AI 칩 경쟁 동향은?");
+    await expect(submit).toBeEnabled();
+    await expect(page.getByLabel("기간")).toHaveValue("30");
+    await expect(page.getByLabel("범위").locator("option")).not.toHaveCount(1);
+  });
 });

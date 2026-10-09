@@ -675,6 +675,26 @@ def cards_triage(
     typer.echo(f"embedded={embedded} scored={scored}")
 
 
+@cards_app.command("embed")
+def cards_embed(
+    limit: Annotated[int, typer.Option(help="Cards to embed this run")] = 2000,
+) -> None:
+    """Embed ready cards for questions over the corpus (plan 16 #1; host: LM Studio bge-m3)."""
+    from news_insight.ask.service import embed_cards
+    from news_insight.taxonomy.embeddings import embedder
+
+    settings = get_settings()
+    with session_scope() as session:
+        done = embed_cards(
+            session,
+            embedder(),
+            model=settings.lm_studio_embedding_model,
+            now=datetime.now(UTC),
+            limit=limit,
+        )
+    typer.echo(f"embedded={done}")
+
+
 @cards_app.command("triage-train")
 def cards_triage_train() -> None:
     """Fit the carding-priority model on recent cards (nightly; plan 16 #3)."""

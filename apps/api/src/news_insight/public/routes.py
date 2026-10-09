@@ -1,12 +1,15 @@
 """Reader API for the public web. Reached only by the web server over the internal network."""
 
+import threading
 from collections.abc import Sequence
 from datetime import UTC, date, datetime
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
+from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
+from news_insight.ask import service as ask_service
 from news_insight.console.schemas import Page
 from news_insight.db import get_db
 from news_insight.digest import service as digest_service
@@ -339,6 +342,51 @@ def get_periodic(kind: str, key: str, session: DB) -> periodic_queries.PublicPer
 def get_taxonomy_schemes(session: DB) -> SchemesOut:
     """Schemes and their active node trees of any depth (plan 15)."""
     return taxonomy_view(session)
+
+
+class AskIn(BaseModel):
+    question: str = Field(min_length=2, max_length=500)
+    days: int = Field(default=30, ge=1, le=365)
+    node: str | None = Field(default=None, max_length=120)
+
+
+def ask_engines() -> tuple[ask_service.Embed, ask_service.Chat, str]:
+    from news_insight.config import get_settings
+    from news_insight.taxonomy.embeddings import embedder
+
+    settings = get_settings()
+    chat = ask_service.lm_studio_chat(settings.lm_studio_url, settings.lm_studio_model)
+    return embedder(), chat, settings.lm_studio_model
+
+
+Engines = Annotated[tuple[ask_service.Embed, ask_service.Chat, str], Depends(ask_engines)]
+# one question at a time per API process: the local Qwen also writes the cards
+_asking = threading.Lock()
+
+
+@router.post("/ask")
+def post_ask(session: DB, body: AskIn, now: Now, engines: Engines) -> ask_service.AskResult:
+    """Answer a question from the cards, citing them (plan 16 #1)."""
+    if not _asking.acquire(blocking=False):
+        raise HTTPException(status.HTTP_429_TOO_MANY_REQUESTS, "another question is running")
+    embed, chat, model = engines
+    try:
+        return ask_service.ask(
+            session,
+            body.question.strip(),
+            days=body.days,
+            node=body.node,
+            embed=embed,
+            chat=chat,
+            model=model,
+            now=now,
+        )
+    except Exception as exc:  # noqa: BLE001 - LM Studio down, a timeout, a missing model
+        raise HTTPException(
+            status.HTTP_503_SERVICE_UNAVAILABLE, f"local model unavailable: {type(exc).__name__}"
+        ) from exc
+    finally:
+        _asking.release()
 
 
 @router.get("/version")
