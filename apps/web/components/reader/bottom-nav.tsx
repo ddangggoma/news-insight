@@ -1,6 +1,6 @@
 "use client";
 
-import { Compass, FileText, MessageSquareText, Radar } from "lucide-react";
+import { Compass, FileText, FolderKanban, MessageSquareText, Radar } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -11,6 +11,7 @@ const ITEMS = [
   { href: "/", label: "탐색", icon: Compass },
   { href: "/briefings", label: "브리핑", icon: FileText },
   { href: "/radar", label: "레이더", icon: Radar },
+  { href: "/dossiers", label: "주제", icon: FolderKanban },
   { href: "/ask", label: "질문", icon: MessageSquareText },
 ];
 
@@ -19,7 +20,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="하단 메뉴"
-      className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-4 border-t bg-background pb-[env(safe-area-inset-bottom)] md:hidden"
+      className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t bg-background pb-[env(safe-area-inset-bottom)] md:hidden"
     >
       {ITEMS.map((item) => {
         const active = isReaderActive(pathname, item.href);

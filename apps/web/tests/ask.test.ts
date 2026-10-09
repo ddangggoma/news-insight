@@ -11,3 +11,10 @@ describe("citationParts", () => {
     expect(citationParts("근거가 부족합니다.", 0)).toEqual(["근거가 부족합니다."]);
   });
 });
+
+describe("splitList", () => {
+  it("splits on commas and lines without blanks or repeats", async () => {
+    const { splitList } = await import("@/lib/dossier-types");
+    expect(splitList("NPU, 온디바이스 AI,\nNPU, ,")).toEqual(["NPU", "온디바이스 AI"]);
+  });
+});
