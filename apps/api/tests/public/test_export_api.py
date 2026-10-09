@@ -28,6 +28,7 @@ def test_citations_are_numbered_in_order_of_first_use() -> None:
     text = markdown(DOC)
     assert "본문 [1][2]" in text and "둘째 [2]" in text  # unknown id 99 is dropped
     assert "1. [Card seven](https://ex.com/7) — B" in text and "### 소제목" in text
+    assert "- 첫 줄\n\n본문" in text  # a paragraph after a list starts its own block
 
 
 def test_word_and_slides_open_with_their_libraries() -> None:
