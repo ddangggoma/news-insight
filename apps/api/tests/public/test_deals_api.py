@@ -94,22 +94,18 @@ def test_scan_reads_hinted_cards_once_and_the_view_sums_them(
 
     seen: list[str] = []
     stats = scan(db_session, fake_chat(seen), model="qwen", now=NOW, limit=50)
-    assert stats.deals == 3 and stats.read == len(hinted)
+    assert stats.deals == 2 and stats.read == len(hinted)
     assert scan(db_session, fake_chat(seen), model="qwen", now=NOW, limit=50).read == 0
     undisclosed = db_session.scalars(select(Deal).where(Deal.actor == "미공개")).one()
     assert undisclosed.counterparty == "EdgeCo" and undisclosed.actor_key is None
     deals = {d.kind: d for d in db_session.scalars(select(Deal).where(Deal.actor != "미공개"))}
     assert deals["investment"].currency == "USD" and deals["investment"].amount_usd == 50000000
-    assert deals["joint_venture"].amount_usd == pytest.approx(3e12 / 1380, rel=0.01)
-    # a date far from the report falls back to the report date
-    assert (
-        deals["joint_venture"].announced_on == NOW.date()
-        or deals["joint_venture"].announced_on is not None
-    )
+    # 1999 is background history the article only mentions: dropped
+    assert "joint_venture" not in deals
     assert db_session.scalars(select(DealScan)).all()
 
     body = public_client.get("/api/public/deals", headers=public_headers).json()
-    assert body["total"] == 2  # the two reports of the EdgeCo round are one deal
+    assert body["total"] == 1  # the two reports of the EdgeCo round are one deal
     edge = next(d for d in body["deals"] if d["kind"] == "investment")
     assert edge["reports"] == 2 and edge["actor_key"] == "qualcomm"
     kinds = {k["kind"]: k for k in body["kinds"]}
@@ -119,9 +115,9 @@ def test_scan_reads_hinted_cards_once_and_the_view_sums_them(
     assert pair["counterparty"] == "EdgeCo" and pair["counterparty_key"] is None
     assert body["deals"][0]["title"]
     only = public_client.get(
-        "/api/public/deals", params={"kind": "joint_venture"}, headers=public_headers
+        "/api/public/deals", params={"kind": "partnership"}, headers=public_headers
     ).json()
-    assert only["total"] == 1
+    assert only["total"] == 0
 
 
 def test_a_failed_batch_leaves_cards_for_the_next_run(db_session: Session) -> None:
