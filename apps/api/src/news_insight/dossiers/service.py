@@ -15,7 +15,20 @@ from datetime import date, datetime, timedelta
 from typing import Any
 
 from pydantic import BaseModel, Field, field_validator
-from sqlalchemy import ColumnElement, Text, and_, cast, false, func, not_, or_, select
+from sqlalchemy import (
+    ColumnElement,
+    Integer,
+    Text,
+    and_,
+    bindparam,
+    cast,
+    false,
+    func,
+    not_,
+    or_,
+    select,
+)
+from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Session
 
 from news_insight.ask.models import CardEmbedding
@@ -69,7 +82,7 @@ class DossierIn(BaseModel):
     keywords: list[str] = Field(default_factory=list, max_length=30)
     exclude: list[str] = Field(default_factory=list, max_length=30)
     statement: str | None = Field(default=None, max_length=500)
-    min_similarity: float = Field(default=0.6, ge=0.4, le=0.9)
+    min_similarity: float = Field(default=0.5, ge=0.4, le=0.9)
 
     @field_validator("nodes")
     @classmethod
@@ -317,6 +330,26 @@ def _base(dossier: Dossier) -> list[ColumnElement[bool]]:
     return [*ReaderFilters().conditions(), match_condition(dossier)]
 
 
+def matched_ids(
+    session: Session, dossier: Dossier, *, since: datetime, until: datetime
+) -> list[int]:
+    """The dossier's cards in a window, found once. Ordering or paging this query directly lets
+    the planner walk the time index and test the OR of criteria row by row (a minute on the
+    live data); the id list then serves every view (2026-10-09)."""
+    return list(
+        session.scalars(
+            joined(select(Item.id)).where(
+                *_base(dossier), Item.first_seen_at >= since, Item.first_seen_at < until
+            )
+        )
+    )
+
+
+def among(ids: Sequence[int]) -> ColumnElement[bool]:
+    """Item.id = ANY(:ids), one array parameter however long the list."""
+    return Item.id == func.any(bindparam(None, list(ids), type_=ARRAY(Integer)))
+
+
 def summaries(session: Session, *, now: datetime) -> list[DossierSummary]:
     dossiers = session.scalars(
         select(Dossier).where(Dossier.status == "active").order_by(Dossier.updated_at.desc())
@@ -468,7 +501,7 @@ def detail(session: Session, dossier: Dossier, *, now: datetime) -> DossierDetai
                 Source.name.label("source"),
             )
         )
-        .where(*_base(dossier), Item.first_seen_at >= start, Item.first_seen_at < now)
+        .where(among(matched_ids(session, dossier, since=start, until=now)))
         .order_by(Item.first_seen_at.desc())
         .limit(ROW_CAP)
     ).all()
@@ -551,7 +584,7 @@ def items(
         sort=sort,
         page=page,
         size=size,
-        extra=[match_condition(dossier)],
+        extra=[among(matched_ids(session, dossier, since=window.start or now, until=now))],
     )
 
 
@@ -609,8 +642,9 @@ def suggestions(
         )
         .join(CardEmbedding, CardEmbedding.item_id == Item.id)
         .where(
-            *_base(dossier),
-            Item.first_seen_at >= now - timedelta(days=SUGGEST_DAYS),
+            among(
+                matched_ids(session, dossier, since=now - timedelta(days=SUGGEST_DAYS), until=now)
+            ),
             Item.id.not_in(attached),
         )
         .order_by(distance)

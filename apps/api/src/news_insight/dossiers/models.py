@@ -25,7 +25,9 @@ class Dossier(Base):
     exclude: Mapped[list[str]] = mapped_column(JSONB, default=list)
     statement: Mapped[str | None] = mapped_column(Text)
     statement_embedding: Mapped[Any] = mapped_column(Vector(1024), nullable=True)
-    min_similarity: Mapped[float] = mapped_column(Float, default=0.6)
+    # bge-m3 card-to-sentence similarity: the closest cards to a topic sentence score ~0.55-0.6,
+    # the 100th closest ~0.5 on the live data (2026-10-09)
+    min_similarity: Mapped[float] = mapped_column(Float, default=0.5)
     status: Mapped[str] = mapped_column(String(20), default="active", index=True)
     created_by: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
     updated_by: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))

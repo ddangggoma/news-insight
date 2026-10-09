@@ -19,7 +19,7 @@ export async function saveDossier(_: FormState, form: FormData): Promise<FormSta
     title: String(form.get("title") ?? "").trim(),
     description: String(form.get("description") ?? "").trim() || null,
     statement: String(form.get("statement") ?? "").trim() || null,
-    min_similarity: Number(form.get("min_similarity") ?? 0.6),
+    min_similarity: Number(form.get("min_similarity") ?? 0.5),
     keywords: splitList(String(form.get("keywords") ?? "")),
     exclude: splitList(String(form.get("exclude") ?? "")),
     companies: splitList(String(form.get("companies") ?? "")),
