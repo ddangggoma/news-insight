@@ -15,6 +15,7 @@ FINANCE = (
     Spec("Qualcomm invests in edge AI startup", "verge", 5, "ai", ("ai__ai_agents",), "finance"),
     Spec("배터리 합작 법인 설립 MOU", "etnews", 8, "energy", (), "ecosystem"),
     Spec("No money talk here", "verge", 6, "ai", ("ai__ai_agents",), "finance"),
+    Spec("EdgeCo raises a Series B round", "etnews", 7, "ai", ("ai__ai_agents",), "finance"),
 )
 
 
@@ -38,6 +39,19 @@ def fake_chat(seen: list[str]) -> Any:
                         "stage": "시리즈 B",
                         "date": "2026-10-03",
                         "summary": "퀄컴이 엣지 AI 스타트업에 투자했다.",
+                    }
+                )
+            if "EdgeCo raises" in row["title"]:  # the same deal, investor not named
+                deals.append(
+                    {
+                        "kind": "investment",
+                        "actor": "미상 (투자자 정보 없음)",
+                        "counterparty": "EdgeCo",
+                        "amount": 51000000,
+                        "currency": "USD",
+                        "stage": "Series B",
+                        "date": "2026-10-03",
+                        "summary": "EdgeCo가 시리즈 B를 유치했다.",
                     }
                 )
             if "합작" in row["title"]:
@@ -80,9 +94,11 @@ def test_scan_reads_hinted_cards_once_and_the_view_sums_them(
 
     seen: list[str] = []
     stats = scan(db_session, fake_chat(seen), model="qwen", now=NOW, limit=50)
-    assert stats.deals == 2 and stats.read == len(hinted)
+    assert stats.deals == 3 and stats.read == len(hinted)
     assert scan(db_session, fake_chat(seen), model="qwen", now=NOW, limit=50).read == 0
-    deals = {d.kind: d for d in db_session.scalars(select(Deal))}
+    undisclosed = db_session.scalars(select(Deal).where(Deal.actor == "미공개")).one()
+    assert undisclosed.counterparty == "EdgeCo" and undisclosed.actor_key is None
+    deals = {d.kind: d for d in db_session.scalars(select(Deal).where(Deal.actor != "미공개"))}
     assert deals["investment"].currency == "USD" and deals["investment"].amount_usd == 50000000
     assert deals["joint_venture"].amount_usd == pytest.approx(3e12 / 1380, rel=0.01)
     # a date far from the report falls back to the report date
@@ -93,7 +109,9 @@ def test_scan_reads_hinted_cards_once_and_the_view_sums_them(
     assert db_session.scalars(select(DealScan)).all()
 
     body = public_client.get("/api/public/deals", headers=public_headers).json()
-    assert body["total"] == 2
+    assert body["total"] == 2  # the two reports of the EdgeCo round are one deal
+    edge = next(d for d in body["deals"] if d["kind"] == "investment")
+    assert edge["reports"] == 2 and edge["actor_key"] == "qualcomm"
     kinds = {k["kind"]: k for k in body["kinds"]}
     assert kinds["investment"]["usd"] == 50000000 and kinds["investment"]["sized"] == 1
     pair = body["pairs"][0]

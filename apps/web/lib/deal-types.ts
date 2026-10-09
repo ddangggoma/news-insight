@@ -33,6 +33,7 @@ export interface DealView {
     title: string;
     source: string;
     url: string;
+    reports: number;
   }[];
 }
 

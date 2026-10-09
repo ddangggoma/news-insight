@@ -160,6 +160,7 @@ export default async function DealsPage({ searchParams }: { searchParams: Promis
                     {d.title}
                   </Link>{" "}
                   · {d.source}
+                  {d.reports > 1 ? ` · 보도 ${d.reports}건` : ""}
                 </p>
               </li>
             ))}
