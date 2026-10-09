@@ -266,3 +266,21 @@ def test_credentials_survive_same_host_redirect() -> None:
     fetcher.fetch("https://example.com/start", headers={"Authorization": "Bearer secret"})
 
     assert seen[1].headers["authorization"] == "Bearer secret"
+
+
+def test_form_post_sends_the_form_and_never_follows_a_redirect() -> None:
+    seen: list[tuple[str, bytes]] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append((request.method, request.content))
+        if request.url.path == "/moved":
+            return httpx.Response(302, headers={"location": "/elsewhere"})
+        return httpx.Response(200, headers={"content-type": "application/json"}, content=b"{}")
+
+    fetcher = make_fetcher(handler)
+    response = fetcher.fetch("https://example.com/token", form={"grant_type": "client_credentials"})
+    assert response.status_code == 200
+    assert seen[0] == ("POST", b"grant_type=client_credentials")
+    with pytest.raises(FetchBlocked) as error:
+        fetcher.fetch("https://example.com/moved", form={"a": "b"})
+    assert error.value.code == "post_redirect"

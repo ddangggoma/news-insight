@@ -20,6 +20,7 @@ from news_insight.public import aggregates, radar_cache
 from news_insight.public import briefings as briefing_queries
 from news_insight.public import companies as company_queries
 from news_insight.public import feed as feed_queries
+from news_insight.public import patents as patent_queries
 from news_insight.public import periodic as periodic_queries
 from news_insight.public import radar as radar_queries
 from news_insight.public.auth import require_public_key
@@ -342,6 +343,17 @@ def get_periodic(kind: str, key: str, session: DB) -> periodic_queries.PublicPer
 def get_taxonomy_schemes(session: DB) -> SchemesOut:
     """Schemes and their active node trees of any depth (plan 15)."""
     return taxonomy_view(session)
+
+
+@router.get("/patents")
+def get_patents(
+    session: DB,
+    now: Now,
+    kind: Literal["month", "quarter"] = "month",
+    page: Annotated[int, Query(ge=1, le=100)] = 1,
+) -> patent_queries.PatentView:
+    """Patent signals by period, technology area and company (plan 16 #5)."""
+    return patent_queries.patent_view(session, kind=kind, now=now, page=page)
 
 
 class AskIn(BaseModel):

@@ -21616,3 +21616,313 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: europepmc_search
+  # ── 특허 신호 (plan 16 #5, 2026-10-10): EPO OPS 공보 검색 — 미국·유럽·중국 각 6 (18) ──
+  # 무료 키(SOURCE_SECRET_EPO_OPS_KEY·SOURCE_SECRET_EPO_OPS_SECRET)가 .env에 있을 때만 검증을 통과한다.
+  # USPTO PatentsView API는 2026-03-20 Open Data Portal 이전 뒤 중단돼(도메인 없음) OPS의 US 공보로 대신한다.
+  # EP·CN을 같은 수로 넣어 중화권=유럽 수를 지킨다.
+  - key: epo-ops-us-ai
+    name: 'EPO OPS 미국 특허 공보: AI·머신러닝 (G06N)'
+    track: research_ip
+    category: patent_office
+    access_method: research_api
+    endpoint_url: https://ops.epo.org/3.2/rest-services/published-data/search/biblio?q=pn%3DUS%20and%20cpc%3DG06N%20and%20pd%3E%3D{today-30d}
+    official_domain: epo.org
+    operator: European Patent Office
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: '미국 특허 공보 CPC G06N(AI·머신러닝): 출원인·기술 분야별 특허 추이 (plan 16 #5)'
+    storage_right: excerpt_allowed
+    config:
+      mode: epo_ops
+      cql: pn=US and cpc=G06N and pd>={today-30d}
+      range: 50
+  - key: epo-ops-us-wireless
+    name: 'EPO OPS 미국 특허 공보: 무선 통신 (H04W)'
+    track: research_ip
+    category: patent_office
+    access_method: research_api
+    endpoint_url: https://ops.epo.org/3.2/rest-services/published-data/search/biblio?q=pn%3DUS%20and%20cpc%3DH04W%20and%20pd%3E%3D{today-30d}
+    official_domain: epo.org
+    operator: European Patent Office
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: '미국 특허 공보 CPC H04W(무선 통신): 출원인·기술 분야별 특허 추이 (plan 16 #5)'
+    storage_right: excerpt_allowed
+    config:
+      mode: epo_ops
+      cql: pn=US and cpc=H04W and pd>={today-30d}
+      range: 50
+  - key: epo-ops-us-oled
+    name: 'EPO OPS 미국 특허 공보: 유기 발광 디스플레이 (H10K)'
+    track: research_ip
+    category: patent_office
+    access_method: research_api
+    endpoint_url: https://ops.epo.org/3.2/rest-services/published-data/search/biblio?q=pn%3DUS%20and%20cpc%3DH10K%20and%20pd%3E%3D{today-30d}
+    official_domain: epo.org
+    operator: European Patent Office
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: '미국 특허 공보 CPC H10K(유기 발광 디스플레이): 출원인·기술 분야별 특허 추이 (plan 16 #5)'
+    storage_right: excerpt_allowed
+    config:
+      mode: epo_ops
+      cql: pn=US and cpc=H10K and pd>={today-30d}
+      range: 50
+  - key: epo-ops-us-battery
+    name: 'EPO OPS 미국 특허 공보: 배터리 (H01M)'
+    track: research_ip
+    category: patent_office
+    access_method: research_api
+    endpoint_url: https://ops.epo.org/3.2/rest-services/published-data/search/biblio?q=pn%3DUS%20and%20cpc%3DH01M%20and%20pd%3E%3D{today-30d}
+    official_domain: epo.org
+    operator: European Patent Office
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: '미국 특허 공보 CPC H01M(배터리): 출원인·기술 분야별 특허 추이 (plan 16 #5)'
+    storage_right: excerpt_allowed
+    config:
+      mode: epo_ops
+      cql: pn=US and cpc=H01M and pd>={today-30d}
+      range: 50
+  - key: epo-ops-us-vision
+    name: 'EPO OPS 미국 특허 공보: 영상 인식 (G06V)'
+    track: research_ip
+    category: patent_office
+    access_method: research_api
+    endpoint_url: https://ops.epo.org/3.2/rest-services/published-data/search/biblio?q=pn%3DUS%20and%20cpc%3DG06V%20and%20pd%3E%3D{today-30d}
+    official_domain: epo.org
+    operator: European Patent Office
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: '미국 특허 공보 CPC G06V(영상 인식): 출원인·기술 분야별 특허 추이 (plan 16 #5)'
+    storage_right: excerpt_allowed
+    config:
+      mode: epo_ops
+      cql: pn=US and cpc=G06V and pd>={today-30d}
+      range: 50
+  - key: epo-ops-us-robot
+    name: 'EPO OPS 미국 특허 공보: 로봇 (B25J)'
+    track: research_ip
+    category: patent_office
+    access_method: research_api
+    endpoint_url: https://ops.epo.org/3.2/rest-services/published-data/search/biblio?q=pn%3DUS%20and%20cpc%3DB25J%20and%20pd%3E%3D{today-30d}
+    official_domain: epo.org
+    operator: European Patent Office
+    region: global_en
+    language: en
+    poll_class: slow
+    dx_relevance: '미국 특허 공보 CPC B25J(로봇): 출원인·기술 분야별 특허 추이 (plan 16 #5)'
+    storage_right: excerpt_allowed
+    config:
+      mode: epo_ops
+      cql: pn=US and cpc=B25J and pd>={today-30d}
+      range: 50
+  - key: epo-ops-ep-ai
+    name: 'EPO OPS 유럽특허 공보: AI·머신러닝 (G06N)'
+    track: research_ip
+    category: patent_office
+    access_method: research_api
+    endpoint_url: https://ops.epo.org/3.2/rest-services/published-data/search/biblio?q=pn%3DEP%20and%20cpc%3DG06N%20and%20pd%3E%3D{today-30d}
+    official_domain: epo.org
+    operator: European Patent Office
+    region: eu_other
+    language: en
+    poll_class: slow
+    dx_relevance: '유럽특허 공보 CPC G06N(AI·머신러닝): 출원인·기술 분야별 특허 추이 (plan 16 #5)'
+    storage_right: excerpt_allowed
+    config:
+      mode: epo_ops
+      cql: pn=EP and cpc=G06N and pd>={today-30d}
+      range: 50
+  - key: epo-ops-ep-wireless
+    name: 'EPO OPS 유럽특허 공보: 무선 통신 (H04W)'
+    track: research_ip
+    category: patent_office
+    access_method: research_api
+    endpoint_url: https://ops.epo.org/3.2/rest-services/published-data/search/biblio?q=pn%3DEP%20and%20cpc%3DH04W%20and%20pd%3E%3D{today-30d}
+    official_domain: epo.org
+    operator: European Patent Office
+    region: eu_other
+    language: en
+    poll_class: slow
+    dx_relevance: '유럽특허 공보 CPC H04W(무선 통신): 출원인·기술 분야별 특허 추이 (plan 16 #5)'
+    storage_right: excerpt_allowed
+    config:
+      mode: epo_ops
+      cql: pn=EP and cpc=H04W and pd>={today-30d}
+      range: 50
+  - key: epo-ops-ep-oled
+    name: 'EPO OPS 유럽특허 공보: 유기 발광 디스플레이 (H10K)'
+    track: research_ip
+    category: patent_office
+    access_method: research_api
+    endpoint_url: https://ops.epo.org/3.2/rest-services/published-data/search/biblio?q=pn%3DEP%20and%20cpc%3DH10K%20and%20pd%3E%3D{today-30d}
+    official_domain: epo.org
+    operator: European Patent Office
+    region: eu_other
+    language: en
+    poll_class: slow
+    dx_relevance: '유럽특허 공보 CPC H10K(유기 발광 디스플레이): 출원인·기술 분야별 특허 추이 (plan 16 #5)'
+    storage_right: excerpt_allowed
+    config:
+      mode: epo_ops
+      cql: pn=EP and cpc=H10K and pd>={today-30d}
+      range: 50
+  - key: epo-ops-ep-battery
+    name: 'EPO OPS 유럽특허 공보: 배터리 (H01M)'
+    track: research_ip
+    category: patent_office
+    access_method: research_api
+    endpoint_url: https://ops.epo.org/3.2/rest-services/published-data/search/biblio?q=pn%3DEP%20and%20cpc%3DH01M%20and%20pd%3E%3D{today-30d}
+    official_domain: epo.org
+    operator: European Patent Office
+    region: eu_other
+    language: en
+    poll_class: slow
+    dx_relevance: '유럽특허 공보 CPC H01M(배터리): 출원인·기술 분야별 특허 추이 (plan 16 #5)'
+    storage_right: excerpt_allowed
+    config:
+      mode: epo_ops
+      cql: pn=EP and cpc=H01M and pd>={today-30d}
+      range: 50
+  - key: epo-ops-ep-vision
+    name: 'EPO OPS 유럽특허 공보: 영상 인식 (G06V)'
+    track: research_ip
+    category: patent_office
+    access_method: research_api
+    endpoint_url: https://ops.epo.org/3.2/rest-services/published-data/search/biblio?q=pn%3DEP%20and%20cpc%3DG06V%20and%20pd%3E%3D{today-30d}
+    official_domain: epo.org
+    operator: European Patent Office
+    region: eu_other
+    language: en
+    poll_class: slow
+    dx_relevance: '유럽특허 공보 CPC G06V(영상 인식): 출원인·기술 분야별 특허 추이 (plan 16 #5)'
+    storage_right: excerpt_allowed
+    config:
+      mode: epo_ops
+      cql: pn=EP and cpc=G06V and pd>={today-30d}
+      range: 50
+  - key: epo-ops-ep-robot
+    name: 'EPO OPS 유럽특허 공보: 로봇 (B25J)'
+    track: research_ip
+    category: patent_office
+    access_method: research_api
+    endpoint_url: https://ops.epo.org/3.2/rest-services/published-data/search/biblio?q=pn%3DEP%20and%20cpc%3DB25J%20and%20pd%3E%3D{today-30d}
+    official_domain: epo.org
+    operator: European Patent Office
+    region: eu_other
+    language: en
+    poll_class: slow
+    dx_relevance: '유럽특허 공보 CPC B25J(로봇): 출원인·기술 분야별 특허 추이 (plan 16 #5)'
+    storage_right: excerpt_allowed
+    config:
+      mode: epo_ops
+      cql: pn=EP and cpc=B25J and pd>={today-30d}
+      range: 50
+  - key: epo-ops-cn-ai
+    name: 'EPO OPS 중국 특허 공보: AI·머신러닝 (G06N)'
+    track: research_ip
+    category: patent_office
+    access_method: research_api
+    endpoint_url: https://ops.epo.org/3.2/rest-services/published-data/search/biblio?q=pn%3DCN%20and%20cpc%3DG06N%20and%20pd%3E%3D{today-30d}
+    official_domain: epo.org
+    operator: European Patent Office
+    region: greater_china
+    language: en
+    poll_class: slow
+    dx_relevance: '중국 특허 공보 CPC G06N(AI·머신러닝): 출원인·기술 분야별 특허 추이 (plan 16 #5)'
+    storage_right: excerpt_allowed
+    config:
+      mode: epo_ops
+      cql: pn=CN and cpc=G06N and pd>={today-30d}
+      range: 50
+  - key: epo-ops-cn-wireless
+    name: 'EPO OPS 중국 특허 공보: 무선 통신 (H04W)'
+    track: research_ip
+    category: patent_office
+    access_method: research_api
+    endpoint_url: https://ops.epo.org/3.2/rest-services/published-data/search/biblio?q=pn%3DCN%20and%20cpc%3DH04W%20and%20pd%3E%3D{today-30d}
+    official_domain: epo.org
+    operator: European Patent Office
+    region: greater_china
+    language: en
+    poll_class: slow
+    dx_relevance: '중국 특허 공보 CPC H04W(무선 통신): 출원인·기술 분야별 특허 추이 (plan 16 #5)'
+    storage_right: excerpt_allowed
+    config:
+      mode: epo_ops
+      cql: pn=CN and cpc=H04W and pd>={today-30d}
+      range: 50
+  - key: epo-ops-cn-oled
+    name: 'EPO OPS 중국 특허 공보: 유기 발광 디스플레이 (H10K)'
+    track: research_ip
+    category: patent_office
+    access_method: research_api
+    endpoint_url: https://ops.epo.org/3.2/rest-services/published-data/search/biblio?q=pn%3DCN%20and%20cpc%3DH10K%20and%20pd%3E%3D{today-30d}
+    official_domain: epo.org
+    operator: European Patent Office
+    region: greater_china
+    language: en
+    poll_class: slow
+    dx_relevance: '중국 특허 공보 CPC H10K(유기 발광 디스플레이): 출원인·기술 분야별 특허 추이 (plan 16 #5)'
+    storage_right: excerpt_allowed
+    config:
+      mode: epo_ops
+      cql: pn=CN and cpc=H10K and pd>={today-30d}
+      range: 50
+  - key: epo-ops-cn-battery
+    name: 'EPO OPS 중국 특허 공보: 배터리 (H01M)'
+    track: research_ip
+    category: patent_office
+    access_method: research_api
+    endpoint_url: https://ops.epo.org/3.2/rest-services/published-data/search/biblio?q=pn%3DCN%20and%20cpc%3DH01M%20and%20pd%3E%3D{today-30d}
+    official_domain: epo.org
+    operator: European Patent Office
+    region: greater_china
+    language: en
+    poll_class: slow
+    dx_relevance: '중국 특허 공보 CPC H01M(배터리): 출원인·기술 분야별 특허 추이 (plan 16 #5)'
+    storage_right: excerpt_allowed
+    config:
+      mode: epo_ops
+      cql: pn=CN and cpc=H01M and pd>={today-30d}
+      range: 50
+  - key: epo-ops-cn-vision
+    name: 'EPO OPS 중국 특허 공보: 영상 인식 (G06V)'
+    track: research_ip
+    category: patent_office
+    access_method: research_api
+    endpoint_url: https://ops.epo.org/3.2/rest-services/published-data/search/biblio?q=pn%3DCN%20and%20cpc%3DG06V%20and%20pd%3E%3D{today-30d}
+    official_domain: epo.org
+    operator: European Patent Office
+    region: greater_china
+    language: en
+    poll_class: slow
+    dx_relevance: '중국 특허 공보 CPC G06V(영상 인식): 출원인·기술 분야별 특허 추이 (plan 16 #5)'
+    storage_right: excerpt_allowed
+    config:
+      mode: epo_ops
+      cql: pn=CN and cpc=G06V and pd>={today-30d}
+      range: 50
+  - key: epo-ops-cn-robot
+    name: 'EPO OPS 중국 특허 공보: 로봇 (B25J)'
+    track: research_ip
+    category: patent_office
+    access_method: research_api
+    endpoint_url: https://ops.epo.org/3.2/rest-services/published-data/search/biblio?q=pn%3DCN%20and%20cpc%3DB25J%20and%20pd%3E%3D{today-30d}
+    official_domain: epo.org
+    operator: European Patent Office
+    region: greater_china
+    language: en
+    poll_class: slow
+    dx_relevance: '중국 특허 공보 CPC B25J(로봇): 출원인·기술 분야별 특허 추이 (plan 16 #5)'
+    storage_right: excerpt_allowed
+    config:
+      mode: epo_ops
+      cql: pn=CN and cpc=B25J and pd>={today-30d}
+      range: 50
