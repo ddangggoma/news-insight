@@ -695,6 +695,28 @@ def cards_embed(
     typer.echo(f"embedded={done}")
 
 
+@cards_app.command("deals")
+def cards_deals(
+    limit: Annotated[int, typer.Option(help="Cards to read this run")] = 36,
+    night: Annotated[bool, typer.Option(help="Only between 00:00 and 06:00 KST")] = False,
+) -> None:
+    """Extract investments, acquisitions and partnerships with the local Qwen (plan 16 #8)."""
+    from news_insight.deals.extract import lm_studio_chat, scan
+    from news_insight.public.periods import KST
+
+    now = datetime.now(UTC)
+    if night and not 0 <= now.astimezone(KST).hour < 6:
+        typer.echo("deals: daytime, skipped (the local Qwen writes cards by day)")
+        return
+    settings = get_settings()
+    chat = lm_studio_chat(settings.lm_studio_url, settings.lm_studio_model)
+    with session_scope() as session:
+        stats = scan(session, chat, model=settings.lm_studio_model, now=now, limit=limit)
+    typer.echo(
+        f"deals: read={stats.read} found={stats.deals} failed_batches={stats.failed_batches}"
+    )
+
+
 @cards_app.command("triage-train")
 def cards_triage_train() -> None:
     """Fit the carding-priority model on recent cards (nightly; plan 16 #3)."""

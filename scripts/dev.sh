@@ -100,6 +100,9 @@ cards()         {
   # plan 16 #1: embed new cards (and backfill older ones) for the ask page
   (cd "$API" && LM_STUDIO_URL=http://127.0.0.1:1234 uv run --env-file "$ROOT/.env" news-insight cards embed) \
     || echo "card embeddings skipped (LM Studio unavailable)" >&2
+  # plan 16 #8: deals from the cards, at night only (capped per run)
+  (cd "$API" && LM_STUDIO_URL=http://127.0.0.1:1234 uv run --env-file "$ROOT/.env" news-insight cards deals --night) \
+    || echo "deal extraction skipped (LM Studio unavailable)" >&2
   # CLU-1: merge stories told in other words or languages (bge-m3 + judge); never fails the card run
   (cd "$API" && LM_STUDIO_URL=http://127.0.0.1:1234 uv run --env-file "$ROOT/.env" news-insight stories semantic) \
     || echo "stories semantic skipped (LM Studio or Antigravity unavailable)" >&2

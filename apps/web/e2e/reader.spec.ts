@@ -114,4 +114,13 @@ test.describe("reader", () => {
     await expect(page).toHaveURL(/kind=quarter/);
     await expect(page.getByRole("heading", { name: /분기별 특허 신호/ })).toBeVisible();
   });
+
+  test("deals page filters by kind and period (plan 16 #8)", async ({ page }) => {
+    await page.goto("/deals");
+    await expect(page.getByRole("heading", { level: 1, name: /투자·제휴/ })).toBeVisible();
+    await page.getByLabel("유형").getByRole("link", { name: /^제휴/ }).click();
+    await expect(page).toHaveURL(/kind=partnership/);
+    await page.getByLabel("기간").getByRole("link", { name: "1년" }).click();
+    await expect(page).toHaveURL(/days=365/);
+  });
 });
