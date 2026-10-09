@@ -123,4 +123,16 @@ test.describe("reader", () => {
     await page.getByLabel("기간").getByRole("link", { name: "1년" }).click();
     await expect(page).toHaveURL(/days=365/);
   });
+
+  test("roadmap groups areas by stage (plan 16 #9)", async ({ page }) => {
+    await page.goto("/roadmap");
+    await expect(page.getByRole("heading", { level: 1, name: "성숙도·로드맵" })).toBeVisible();
+    await expect(page.getByLabel("분야").getByRole("link", { name: "전체" })).toBeVisible();
+    for (const width of [820, 1024, 1280]) {
+      await page.setViewportSize({ width, height: 900 });
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+      expect(overflow, `no sideways scroll at ${width}px`).toBeLessThanOrEqual(0);
+    }
+    await page.screenshot({ path: "test-results/roadmap-820.png" });
+  });
 });
