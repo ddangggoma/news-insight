@@ -3,7 +3,7 @@
 
 export type TaxOp =
   | { op: "create_node"; scheme: string; key: string; label: string; parent?: string | null; definition?: string | null; aliases?: string[]; requeue?: boolean }
-  | { op: "update_node"; scheme: string; key: string; label?: string; definition?: string | null; include_text?: string | null; exclude_text?: string | null; aliases?: string[]; sort?: number; status?: "active" | "deprecated" }
+  | { op: "update_node"; scheme: string; key: string; label?: string; definition?: string | null; include_text?: string | null; exclude_text?: string | null; aliases?: string[]; sort?: number; status?: "active" | "deprecated"; priority?: number }
   | { op: "move_node"; scheme: string; key: string; parent: string | null; requeue?: boolean }
   | { op: "merge_node"; scheme: string; key: string; into: string }
   | { op: "retire_node"; scheme: string; key: string; replacement?: string | null }
@@ -50,6 +50,7 @@ export function describe(op: TaxOp, label: Labeler): string {
     case "update_node": {
       const fields = Object.keys(op).filter((k) => !["op", "scheme", "key"].includes(k));
       if (op.status === "deprecated") return `비활성화: ${label(op.scheme, op.key)}`;
+      if (op.priority != null) return `카드화 우선순위: ${label(op.scheme, op.key)} → ${PRIORITY_LABEL[String(op.priority)] ?? op.priority}`;
       if (op.label) return `이름 변경: ${label(op.scheme, op.key)} → ${op.label}`;
       return `수정: ${label(op.scheme, op.key)} (${fields.join(", ")})`;
     }
@@ -82,3 +83,6 @@ export function suggestKey(label: string): string {
     .replace(/^-+|-+$/g, "")
     .slice(0, 80);
 }
+
+/** Carding priority of a node (plan 16 #3): multiplies its items' triage score. */
+export const PRIORITY_LABEL: Record<string, string> = { "0": "제외", "0.5": "낮음", "1": "보통", "1.5": "높음", "2": "최우선" };

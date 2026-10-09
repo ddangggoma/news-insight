@@ -495,6 +495,16 @@ def get_topic_candidates(
     return topic_candidates(session, days=days, now=datetime.now(UTC), min_count=min_count)
 
 
+@router.get("/cards/triage")
+def get_card_triage(session: DB) -> dict[str, Any]:
+    """Carding priority: model quality, the queue, and what got carded (plan 16 #3)."""
+    from dataclasses import asdict
+
+    from news_insight.cards.triage import coverage
+
+    return asdict(coverage(session, now=datetime.now(UTC)))
+
+
 @router.get("/cards/stats")
 def get_card_stats(session: DB) -> CardStats:
     seconds = get_settings().console_cache_seconds

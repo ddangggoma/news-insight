@@ -6,7 +6,7 @@ import { nodeCards } from "@/app/console/taxonomy/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatNumber, formatRelative } from "@/lib/format";
-import { suggestKey, type TaxOp } from "@/lib/taxonomy-ops";
+import { PRIORITY_LABEL, suggestKey, type TaxOp } from "@/lib/taxonomy-ops";
 
 import { type ConsoleNode, type ConsoleScheme, type Counts, isInside, levelName, pathLabel } from "./model";
 import { EmbeddingHelp } from "./embedding-help";
@@ -106,6 +106,26 @@ export function NodeInspector({
           <span className="text-muted-foreground">별칭 (쉼표로 구분, 카드 키워드와 맞으면 붙습니다)</span>
           <Input value={aliases} onChange={(event) => setAliases(event.target.value)} className="h-8" />
         </label>
+        {scheme.key === "technology" ? (
+          <label className="flex flex-wrap items-center gap-2 text-xs">
+            <span className="text-muted-foreground">카드화 우선순위</span>
+            <select
+              aria-label="카드화 우선순위"
+              value={String(node.attrs.priority ?? 1)}
+              onChange={(event) => onAdd({ op: "update_node", ...base, priority: Number(event.target.value) })}
+              className="h-8 rounded-md border bg-background px-2 text-sm"
+            >
+              {Object.entries(PRIORITY_LABEL).map(([value, text]) => (
+                <option key={value} value={value}>
+                  {text}
+                </option>
+              ))}
+            </select>
+            <span className="text-muted-foreground">
+              {scheme.llm_depth && node.depth <= scheme.llm_depth ? "제목으로 예측한 테마·분야에 적용" : "제목에 이름·별칭이 나오면 적용"} · 제외는 카드화하지 않음
+            </span>
+          </label>
+        ) : null}
         <div className="flex flex-wrap gap-2">
           <Button size="sm" onClick={saveEdits}>
             수정을 변경에 추가

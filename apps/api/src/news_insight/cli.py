@@ -651,6 +651,44 @@ def cards_run(
         typer.echo(f"  note: {note}")
 
 
+@cards_app.command("triage")
+def cards_triage(
+    embed_limit: Annotated[int, typer.Option(help="Titles to embed this run")] = 2000,
+    score_limit: Annotated[int, typer.Option(help="Items to score this run")] = 20000,
+) -> None:
+    """Embed new titles and score items for carding (plan 16 #3; host: LM Studio bge-m3)."""
+    from news_insight.cards.triage import embed_titles, score_pending
+    from news_insight.taxonomy.embeddings import embedder
+
+    settings = get_settings()
+    now = datetime.now(UTC)
+    with session_scope() as session:
+        embedded = embed_titles(
+            session,
+            embedder(),
+            model=settings.lm_studio_embedding_model,
+            now=now,
+            limit=embed_limit,
+        )
+    with session_scope() as session:
+        scored = score_pending(session, now=now, limit=score_limit)
+    typer.echo(f"embedded={embedded} scored={scored}")
+
+
+@cards_app.command("triage-train")
+def cards_triage_train() -> None:
+    """Fit the carding-priority model on recent cards (nightly; plan 16 #3)."""
+    from news_insight.cards.triage import train
+
+    with session_scope() as session:
+        result = train(session, now=datetime.now(UTC))
+    typer.echo(
+        "not enough labelled cards"
+        if result is None
+        else f"model {result.model_id} auc={result.auc} samples={result.samples}"
+    )
+
+
 @cards_app.command("retry-failed")
 def cards_retry_failed(
     days: Annotated[int, typer.Option(help="Items first seen in the last N days")] = 7,

@@ -1,4 +1,4 @@
-import { Bot, Clock, Cpu, Sparkles, TriangleAlert } from "lucide-react";
+import { Bot, Clock, Cpu, ListOrdered, Sparkles, TriangleAlert } from "lucide-react";
 
 import { FilterBar } from "@/components/console/filter-bar";
 import { EmptyState } from "@/components/console/empty-state";
@@ -13,6 +13,17 @@ import { FIELD_LABEL, IMPACT_LABEL, SCOPE_LABEL, SIGNAL_LABEL } from "@/lib/taxo
 import type { CardFailure, CardStats, CardView, Page, Region, Track } from "@/lib/types";
 
 export const metadata = { title: "카드 뉴스" };
+
+// carding priority before the LLM (plan 16 #3)
+interface TriageCoverage {
+  model_id: number | null;
+  trained_at: string | null;
+  auc: number | null;
+  samples: number;
+  scored_waiting: number;
+  top_carded_24h: number | null;
+  dx_share_24h: number | null;
+}
 
 const ENGINE_LABEL: Record<string, string> = { codex: "Codex", agy: "Antigravity", claude: "Claude", qwen: "로컬 Qwen", reuse: "재사용" };
 
@@ -35,7 +46,7 @@ export default async function CardsPage({ searchParams }: { searchParams: Promis
     view: param(sp, "view"),
   };
   const page = pageParam(sp);
-  const [data, stats, failures] = await Promise.all([
+  const [data, stats, failures, triage] = await Promise.all([
     api.get<Page<CardView>>("/api/admin/cards", {
       ...filters,
       view: undefined,
@@ -44,6 +55,7 @@ export default async function CardsPage({ searchParams }: { searchParams: Promis
     }),
     api.get<CardStats>("/api/admin/cards/stats"),
     api.get<CardFailure[]>("/api/admin/cards/failures", { limit: 20 }),
+    api.get<TriageCoverage>("/api/admin/cards/triage").catch(() => null),
   ]);
   const scope7 = stats.scope_7d ?? {};
   const classified7 = Object.entries(scope7).filter(([k]) => k !== "unclassified").reduce((sum, [, v]) => sum + v, 0);
@@ -65,6 +77,16 @@ export default async function CardsPage({ searchParams }: { searchParams: Promis
           value={formatNumber(stats.pending)}
           hint={`${stats.reclassify ? `재분류 대기 ${formatNumber(stats.reclassify)} · ` : ""}7일 성공률 ${formatPercent(stats.success_rate_7d ?? Number.NaN)} · DX 관련 ${formatPercent(classified7 ? relevant7 / classified7 : Number.NaN)}`}
           icon={Clock}
+        />
+        <StatCard
+          title="카드화 우선순위"
+          value={triage?.dx_share_24h != null ? `DX 비율 ${formatPercent(triage.dx_share_24h)}` : "—"}
+          hint={
+            triage?.model_id
+              ? `모델 AUC ${triage.auc?.toFixed(2)} · ${formatRelative(triage.trained_at)} 학습 · 상위 30% 24시간 내 카드화 ${formatPercent(triage.top_carded_24h ?? Number.NaN)} · 점수 매긴 대기 ${formatNumber(triage.scored_waiting)}`
+              : "모델 없음: 최신순으로 카드화 (매일 03:50 학습)"
+          }
+          icon={ListOrdered}
         />
         <StatCard title="엔진별 카드" value={engines || "—"} hint={stats.failed ? `실패 ${formatNumber(stats.failed)}건 (3회 재시도 후)` : "실패 없음"} icon={stats.failed ? TriangleAlert : Cpu} />
         <StatCard
