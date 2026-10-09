@@ -66,8 +66,10 @@ def markdown(doc: Doc) -> str:
     lines = [f"# {doc.title}", "", f"_{doc.subtitle}_", ""]
     for section in doc.sections:
         lines += [f"## {section.title}", ""]
-        for block in section.blocks:
+        for index, block in enumerate(section.blocks):
             text = doc.cite(block, numbers)
+            if index and section.blocks[index - 1].bullet and not block.bullet:
+                lines.append("")  # end the list, or the paragraph joins its last bullet
             if block.heading:
                 lines += [f"### {text}", ""]
             elif block.bullet:
