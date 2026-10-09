@@ -24,6 +24,9 @@ class Settings(BaseSettings):
     smtp_user: str = ""
     smtp_password: str = ""
     smtp_from: str = ""
+    # operational alerts stay on the console (2026-10-09 user decision: no alert mail);
+    # SMTP still sends sign-up notices to the admin
+    ops_alert_mail: bool = False
     fetch_timeout_seconds: float = 15.0
     fetch_max_redirects: int = 3
     fetch_max_bytes: int = 5 * 1024 * 1024

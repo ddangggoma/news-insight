@@ -34,7 +34,7 @@ scripts/dev.sh create-admin      # = docker compose exec api news-insight users 
 - 정지: 다시 사용. 아이디를 누르면 그 계정의 기록(가입·로그인·승인 등, 180일 보관)을 봅니다.
 - 자기 계정과 마지막 관리자는 정지·강등할 수 없습니다.
 
-**가입 알림 메일.** `.env`에 SMTP를 넣으면 새 가입 신청마다 `ADMIN_EMAIL`로 메일이 갑니다(운영 알림과 같은 계정). Gmail은 2단계 인증을 켠 뒤 앱 비밀번호를 만들어 `SMTP_PASSWORD`에 넣습니다. 메일의 콘솔 링크는 `PUBLIC_BASE_URL`을 따릅니다.
+**가입 알림 메일.** `.env`에 SMTP를 넣으면 새 가입 신청마다 `ADMIN_EMAIL`로 메일이 갑니다. 운영 알림은 메일로 보내지 않습니다(`OPS_ALERT_MAIL=true`일 때만). Gmail은 2단계 인증을 켠 뒤 앱 비밀번호를 만들어 `SMTP_PASSWORD`에 넣습니다. 메일의 콘솔 링크는 `PUBLIC_BASE_URL`을 따릅니다.
 
 ```
 SMTP_HOST=smtp.gmail.com
