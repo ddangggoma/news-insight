@@ -18,9 +18,11 @@ from news_insight.digest.models import Digest
 from news_insight.digest.schemas import DigestSummary
 from news_insight.periodic import service as periodic_service
 from news_insight.public import aggregates, radar_cache
+from news_insight.public import board as board_queries
 from news_insight.public import briefings as briefing_queries
 from news_insight.public import companies as company_queries
 from news_insight.public import feed as feed_queries
+from news_insight.public import maturity as maturity_queries
 from news_insight.public import patents as patent_queries
 from news_insight.public import periodic as periodic_queries
 from news_insight.public import radar as radar_queries
@@ -357,6 +359,28 @@ def get_deals(
 ) -> deal_views.DealView:
     """Investments, acquisitions and partnerships from the cards (plan 16 #8)."""
     return deal_views.deal_view(session, days=days, now=now, kind=kind, company=company)
+
+
+@router.get("/board")
+def get_board(
+    session: DB,
+    now: Now,
+    days: Annotated[int, Query(ge=7, le=90)] = 30,
+    persona: Annotated[str | None, Query(max_length=40)] = None,
+) -> board_queries.BoardView:
+    """Opportunities and threats by technology area and horizon (plan 16 #10)."""
+    return board_queries.board_view(session, now=now, days=days, persona=persona)
+
+
+@router.get("/maturity")
+def get_maturity(
+    session: DB,
+    now: Now,
+    days: Annotated[int, Query(ge=30, le=730)] = 180,
+    field: Annotated[str | None, Query(max_length=80)] = None,
+) -> maturity_queries.MaturityView:
+    """Stage of each technology area from its signal mix (plan 16 #9)."""
+    return maturity_queries.maturity_view(session, now=now, days=days, field=field)
 
 
 @router.get("/patents")

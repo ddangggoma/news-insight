@@ -52,8 +52,10 @@ SYSTEM = "\n".join(
         "kind: investment(지분 투자·펀딩 라운드), acquisition(인수·합병),",
         "  partnership(제휴·협력·공급 계약·MOU), ipo(상장), joint_venture(합작 법인),",
         "  licensing(기술·특허 라이선스).",
-        "actor: 투자·인수·제휴를 주도한 쪽. counterparty: 투자받거나 인수되거나 제휴한 상대.",
-        "  둘 다 회사의 공식 이름으로 쓴다.",
+        "actor: 투자자(여럿이면 리드 투자자)·인수자·제휴를 주도한 쪽.",
+        "counterparty: 투자받은 회사·인수된 회사·제휴 상대. 둘 다 회사의 공식 이름으로 쓴다.",
+        "투자·인수에서 투자자나 인수자가 기사에 없으면 actor를 '미공개'로 쓰고,",
+        "  투자받은·인수된 회사는 반드시 counterparty에 둔다.",
         "amount: 숫자만(1.5억 달러 → 150000000, 3조원 → 3000000000000), 모르면 null.",
         "currency: ISO 코드(USD, KRW, CNY, EUR…). stage: 시드·시리즈 A·전략적 투자 등.",
         "date: 발표일 YYYY-MM-DD, 모르면 null. summary: 한국어 한 문장.",
@@ -163,7 +165,22 @@ def _date(raw: Any, fallback: datetime) -> date | None:
     return fallback.date()
 
 
+UNDISCLOSED = "미공개"
+UNKNOWN = re.compile(
+    r"^(미상|미공개|불명|비공개|알\s*수\s*없음|정보\s*없음|unknown|undisclosed|n/?a|none)\b", re.I
+)
+
+
+def _party(value: Any) -> str | None:
+    text = _clean(value, 160)
+    if text and UNKNOWN.match(re.sub(r"[()\[\]]", "", text).strip()):
+        return UNDISCLOSED
+    return text
+
+
 def _key(name: str | None, aliases: dict[str, str]) -> str | None:
+    if name == UNDISCLOSED:
+        return None
     return aliases.get(normalize(name)) if name else None
 
 
@@ -190,11 +207,15 @@ def scan(session: Session, chat: Chat, *, model: str, now: datetime, limit: int)
         for item_id, _, _, seen in batch:
             found = 0
             for raw in by_id.get(item_id, [])[:5]:
-                actor = _clean(raw.get("actor"), 160)
+                actor = _party(raw.get("actor"))
                 kind = raw.get("kind")
                 if not actor or kind not in KINDS:
                     continue
-                counterparty = _clean(raw.get("counterparty"), 160)
+                counterparty = _party(raw.get("counterparty"))
+                if counterparty == UNDISCLOSED:
+                    counterparty = None
+                if actor == UNDISCLOSED and not counterparty:
+                    continue  # nobody named: nothing to track
                 amount = raw.get("amount") if isinstance(raw.get("amount"), int | float) else None
                 currency = (_clean(raw.get("currency"), 8) or "").upper() or None
                 rate = USD.get(currency or "")

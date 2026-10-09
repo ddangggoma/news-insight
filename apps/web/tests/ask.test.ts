@@ -32,3 +32,18 @@ describe("formatUsd", () => {
     expect([formatUsd(150_000_000), formatUsd(30_000_000), formatUsd(500), formatUsd(null)]).toEqual(["약 1.5억 달러", "약 3,000만 달러", "약 500 달러", ""]);
   });
 });
+
+describe("movement", () => {
+  it("reports the index change across the shown months", async () => {
+    const { movement } = await import("@/lib/maturity-types");
+    expect(movement([{ month: "a", index: 2.1, count: 3 }, { month: "b", index: null, count: 0 }, { month: "c", index: 2.6, count: 4 }])).toBe("+0.5");
+    expect(movement([{ month: "a", index: 2.1, count: 3 }])).toBe("");
+  });
+});
+
+describe("opportunityShare", () => {
+  it("is the opportunity share of opportunity and risk", async () => {
+    const { opportunityShare } = await import("@/lib/board-types");
+    expect([opportunityShare({ opportunity: 3, risk: 1, watch: 9 }), opportunityShare({ opportunity: 0, risk: 0, watch: 2 })]).toEqual([75, 50]);
+  });
+});

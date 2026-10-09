@@ -12,6 +12,8 @@ export const READER_NAV = [
   { href: "/", label: "탐색" },
   { href: "/briefings", label: "브리핑" },
   { href: "/radar", label: "레이더" },
+  { href: "/board", label: "보드" },
+  { href: "/roadmap", label: "로드맵" },
   { href: "/deals", label: "투자·제휴" },
   { href: "/patents", label: "특허" },
   { href: "/dossiers", label: "주제" },
