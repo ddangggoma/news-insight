@@ -342,6 +342,35 @@ def get_periodic(kind: str, key: str, session: DB) -> periodic_queries.PublicPer
     return periodic_queries.public_periodic(session, row)
 
 
+ExportFormat = Annotated[Literal["md", "docx", "pptx"], Query(alias="format")]
+
+
+@router.get("/export/briefing/{briefing_date}")
+def export_briefing(briefing_date: date, session: DB, fmt: ExportFormat = "md") -> Response:
+    """A daily briefing as Markdown, Word or PowerPoint (plan 16 #11)."""
+    from news_insight.export.builders import from_briefing
+    from news_insight.export.document import download
+
+    briefing = briefing_queries.published(session, briefing_date)
+    if briefing is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "no published briefing on that date")
+    doc = from_briefing(session, briefing_queries.public_briefing(session, briefing))
+    return download(doc, fmt, f"briefing-{briefing_date}")
+
+
+@router.get("/export/periodic/{kind}/{key}")
+def export_periodic(kind: str, key: str, session: DB, fmt: ExportFormat = "md") -> Response:
+    """A weekly or monthly briefing as Markdown, Word or PowerPoint (plan 16 #11)."""
+    from news_insight.export.builders import from_periodic
+    from news_insight.export.document import download
+
+    row = periodic_service.published(session, kind, key) if kind in periodic_service.KINDS else None
+    if row is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, f"no published {kind} briefing for {key}")
+    doc = from_periodic(session, periodic_queries.public_periodic(session, row))
+    return download(doc, fmt, f"{kind}-{key}")
+
+
 @router.get("/taxonomy/schemes")
 def get_taxonomy_schemes(session: DB) -> SchemesOut:
     """Schemes and their active node trees of any depth (plan 15)."""

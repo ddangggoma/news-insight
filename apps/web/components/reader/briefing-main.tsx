@@ -1,6 +1,7 @@
 import { ChevronLeft, ChevronRight, Lightbulb, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 
+import { ExportLinks } from "@/components/reader/export-links";
 import { DepthToggle } from "@/components/reader/briefing-depth";
 import { BriefingAudio, CollectionSummary, CompanyMoves, ContinuingStories, InsightCard, TldrBox, WatchBox } from "@/components/reader/briefing-extras";
 import { StoryRow } from "@/components/reader/story-row";
@@ -53,6 +54,7 @@ export function BriefingMain({ briefing }: { briefing: PublicBriefing }) {
         <h1 className="text-2xl leading-tight font-bold tracking-tight text-balance md:text-3xl">
           {briefing.headline ?? "오늘의 데일리 브리핑"}
         </h1>
+        <ExportLinks path={`briefing/${briefing.briefing_date}`} />
         <TldrBox tldr={briefing.tldr} insights={briefing.insights} />
         {briefing.audio ? <BriefingAudio audio={briefing.audio} /> : null}
         <WatchBox watch={briefing.watch ?? []} refs={briefing.refs} />

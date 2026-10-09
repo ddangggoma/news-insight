@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { archiveDossier } from "@/app/(reader)/dossiers/actions";
+import { ExportLinks } from "@/components/reader/export-links";
 import { CompanyChips } from "@/components/reader/labels";
 import { DossierHypotheses } from "@/components/reader/dossier-hypotheses";
 import { StoryRow } from "@/components/reader/story-row";
@@ -76,6 +77,7 @@ export default async function DossierPage({ params, searchParams }: { params: Pr
             {formatDateTime(dossier.updated_at)} 수정{dossier.updated_by ? ` · ${dossier.updated_by}` : ""}
             {dossier.created_by ? ` · 만든 사람 ${dossier.created_by}` : ""}
           </p>
+          <ExportLinks path={`dossier/${id}`} />
         </div>
         <Button asChild variant="outline" size="sm">
           <Link href={`/dossiers/${id}/edit`}>

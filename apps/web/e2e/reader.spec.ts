@@ -144,4 +144,15 @@ test.describe("reader", () => {
     await expect(page).toHaveURL(/persona=mx_head/);
     await expect(page.getByRole("heading", { level: 1, name: /MX 사업부장/ })).toBeVisible();
   });
+
+  test("a briefing downloads as Markdown and Word (plan 16 #11)", async ({ page }) => {
+    await page.goto("/briefings");
+    const links = page.getByLabel("내보내기");
+    await expect(links.getByRole("link", { name: "Word" })).toBeVisible();
+    const markdown = await page.request.get(await links.getByRole("link", { name: "Markdown" }).getAttribute("href") ?? "");
+    expect(markdown.status()).toBe(200);
+    expect(await markdown.text()).toMatch(/^# /);
+    const word = await page.request.get(await links.getByRole("link", { name: "Word" }).getAttribute("href") ?? "");
+    expect(word.headers()["content-type"]).toContain("wordprocessingml");
+  });
 });

@@ -5,6 +5,7 @@ from datetime import UTC, datetime
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
+from fastapi.responses import Response
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
@@ -113,6 +114,22 @@ def dossier_items(
     size: Annotated[int, Query(ge=1, le=50)] = 20,
 ) -> FeedPage:
     return service.items(db, _dossier(db, dossier_id), now=now, sort=sort, page=page, size=size)
+
+
+@router.get("/{dossier_id}/export")
+def export_dossier(
+    dossier_id: int,
+    db: DB,
+    user: Reader,
+    now: Now,
+    fmt: Annotated[Literal["md", "docx", "pptx"], Query(alias="format")] = "md",
+) -> Response:
+    """A dossier as Markdown, Word or PowerPoint (plan 16 #11)."""
+    from news_insight.export.builders import from_dossier
+    from news_insight.export.document import download
+
+    detail = service.detail(db, _dossier(db, dossier_id), now=now)
+    return download(from_dossier(db, detail), fmt, f"dossier-{dossier_id}")
 
 
 class HypothesisIn(BaseModel):
