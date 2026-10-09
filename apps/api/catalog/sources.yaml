@@ -19313,3 +19313,2306 @@ sources:
       - cloud_data
       publisher_group: Martin Fowler
       probe_max_age_days: 30
+  # ── 중화권 보강 (plan 16 #7, 2026-10-10): greater_china를 eu_other와 같은 202곳으로 (165) ──
+  # 국내 수집처는 늘리지 않는다. 모두 probe(V0·V2·V3: 최근 30일 3건 이상)를 통과한 것만 넣었다.
+  # OpenAlex 중화권 검색은 OPENALEX_API_KEY가 없으면 IP 공용 무료 한도를 넘겨 기존 OpenAlex 수집까지 막혀 넣지 않았다.
+  - key: cnbeta
+    name: cnBeta
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.cnbeta.com.tw/backend.php
+    official_domain: cnbeta.com.tw
+    operator: cnBeta
+    region: greater_china
+    language: zh
+    poll_class: news
+    dx_relevance: 중국 IT 종합 뉴스; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: mydrivers
+    name: 快科技 (驱动之家)
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://rss.mydrivers.com/rss.aspx?Tid=1
+    official_domain: mydrivers.com
+    operator: 快科技 (驱动之家)
+    region: greater_china
+    language: zh
+    poll_class: news
+    dx_relevance: 중국 하드웨어·모바일 뉴스; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: landian
+    name: 蓝点网
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.landiannews.com/feed
+    official_domain: landiannews.com
+    operator: 蓝点网
+    region: greater_china
+    language: zh
+    poll_class: news
+    dx_relevance: 중국 소프트웨어·OS 뉴스; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: appinn
+    name: 小众软件
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.appinn.com/feed/
+    official_domain: appinn.com
+    operator: 小众软件
+    region: greater_china
+    language: zh
+    poll_class: news
+    dx_relevance: 중국 앱·소프트웨어; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: iplaysoft
+    name: 异次元软件世界
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://feed.iplaysoft.com/
+    official_domain: iplaysoft.com
+    operator: 异次元软件世界
+    region: greater_china
+    language: zh
+    poll_class: news
+    dx_relevance: 소프트웨어 리뷰; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: cnblogs-news
+    name: 博客园新闻
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://feed.cnblogs.com/news/rss
+    official_domain: cnblogs.com
+    operator: 博客园新闻
+    region: greater_china
+    language: zh
+    poll_class: news
+    dx_relevance: 중국 개발자 뉴스; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: tmtpost-rss
+    name: 钛媒体 RSS
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.tmtpost.com/rss.xml
+    official_domain: tmtpost.com
+    operator: 钛媒体 RSS
+    region: greater_china
+    language: zh
+    poll_class: news
+    dx_relevance: 중국 테크 미디어; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: woshipm
+    name: 人人都是产品经理
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.woshipm.com/feed
+    official_domain: woshipm.com
+    operator: 人人都是产品经理
+    region: greater_china
+    language: zh
+    poll_class: news
+    dx_relevance: 제품·UX; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: geekpark-news
+    name: 极客公园 资讯
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://mainssl.geekpark.net/rss.rss
+    official_domain: geekpark.net
+    operator: 极客公园 资讯
+    region: greater_china
+    language: zh
+    poll_class: news
+    dx_relevance: 중국 테크; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: cyzone
+    name: 创业邦
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.cyzone.cn/rss/
+    official_domain: cyzone.cn
+    operator: 创业邦
+    region: greater_china
+    language: zh
+    poll_class: news
+    dx_relevance: 중국 스타트업; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: pandaily
+    name: Pandaily
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://pandaily.com/feed/
+    official_domain: pandaily.com
+    operator: Pandaily
+    region: greater_china
+    language: en
+    poll_class: news
+    dx_relevance: 중국 테크(영문); 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: cnevpost
+    name: CnEVPost
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://cnevpost.com/feed/
+    official_domain: cnevpost.com
+    operator: CnEVPost
+    region: greater_china
+    language: en
+    poll_class: news
+    dx_relevance: 중국 전기차(영문); 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: ecns-tech
+    name: ECNS Sci-Tech
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: http://www.ecns.cn/rss/rss.xml
+    official_domain: ecns.cn
+    operator: ECNS Sci-Tech
+    region: greater_china
+    language: en
+    poll_class: news
+    dx_relevance: 중국 과학기술(영문); 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: ruanyifeng
+    name: 阮一峰周刊
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.ruanyifeng.com/blog/atom.xml
+    official_domain: ruanyifeng.com
+    operator: 阮一峰周刊
+    region: greater_china
+    language: zh
+    poll_class: news
+    dx_relevance: 중국 개발자 주간; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: segmentfault-news
+    name: SegmentFault
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://segmentfault.com/feeds
+    official_domain: segmentfault.com
+    operator: SegmentFault
+    region: greater_china
+    language: zh
+    poll_class: news
+    dx_relevance: 중국 개발자 커뮤니티; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: juejin-news
+    name: 稀土掘金
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://juejin.cn/rss
+    official_domain: juejin.cn
+    operator: 稀土掘金
+    region: greater_china
+    language: zh
+    poll_class: news
+    dx_relevance: 중국 개발자 커뮤니티; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: techbang
+    name: T客邦
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.techbang.com/posts.rss
+    official_domain: techbang.com
+    operator: T客邦
+    region: greater_china
+    language: zh-TW
+    poll_class: news
+    dx_relevance: 대만 IT 리뷰; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: cna-tech
+    name: 中央社 科技
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://feeds.feedburner.com/rsscna/technology
+    official_domain: feedburner.com
+    operator: 中央社 科技
+    region: greater_china
+    language: zh-TW
+    poll_class: news
+    dx_relevance: 대만 통신사 과학기술; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: ltn-business
+    name: 自由時報 財經
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://news.ltn.com.tw/rss/business.xml
+    official_domain: ltn.com.tw
+    operator: 自由時報 財經
+    region: greater_china
+    language: zh-TW
+    poll_class: news
+    dx_relevance: 대만 경제·반도체; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: thenewslens-tech
+    name: 關鍵評論網 科技
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://feeds.feedburner.com/TheNewsLens
+    official_domain: feedburner.com
+    operator: 關鍵評論網 科技
+    region: greater_china
+    language: zh-TW
+    poll_class: news
+    dx_relevance: 대만 시사·테크; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: moneydj-tech
+    name: MoneyDJ 科技
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.moneydj.com/KMDJ/RssCenter.aspx?svc=NR&fno=1&arg=MB010000
+    official_domain: moneydj.com
+    operator: MoneyDJ 科技
+    region: greater_china
+    language: zh-TW
+    poll_class: news
+    dx_relevance: 대만 반도체·전자 산업; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: money-udn-tech
+    name: 經濟日報 產業
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://money.udn.com/rssfeed/news/1001/5591?ch=money
+    official_domain: udn.com
+    operator: 經濟日報 產業
+    region: greater_china
+    language: zh-TW
+    poll_class: news
+    dx_relevance: 대만 산업; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: yahoo-tw-tech
+    name: Yahoo奇摩 科技
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://tw.news.yahoo.com/rss/technology
+    official_domain: yahoo.com
+    operator: Yahoo奇摩 科技
+    region: greater_china
+    language: zh-TW
+    poll_class: news
+    dx_relevance: 대만 테크 종합; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: ithome-tw-cloud
+    name: iThome 雲端
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.ithome.com.tw/rss/cloud
+    official_domain: ithome.com.tw
+    operator: ITHOME 雲端
+    region: greater_china
+    language: zh-TW
+    poll_class: news
+    dx_relevance: 대만 클라우드; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: hkepc
+    name: HKEPC
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.hkepc.com/rss
+    official_domain: hkepc.com
+    operator: HKEPC
+    region: greater_china
+    language: zh-HK
+    poll_class: news
+    dx_relevance: 홍콩 PC·하드웨어; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: pcmarket-hk
+    name: PCM 電腦廣場
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.pcmarket.com.hk/feed/
+    official_domain: pcmarket.com.hk
+    operator: PCM 電腦廣場
+    region: greater_china
+    language: zh-HK
+    poll_class: news
+    dx_relevance: 홍콩 PC·모바일; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: technews-tw-semiconductor
+    name: 科技新報 半導體
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://technews.tw/category/semiconductor/feed/
+    official_domain: technews.tw
+    operator: 科技新報 半導體
+    region: greater_china
+    language: zh-TW
+    poll_class: news
+    dx_relevance: 科技新報 半導體 분야; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: technews-tw-ai
+    name: 科技新報 人工智慧
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://technews.tw/category/ai/feed/
+    official_domain: technews.tw
+    operator: 科技新報 人工智慧
+    region: greater_china
+    language: zh-TW
+    poll_class: news
+    dx_relevance: 科技新報 人工智慧 분야; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: technews-tw-component
+    name: 科技新報 零組件
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://technews.tw/category/component/feed/
+    official_domain: technews.tw
+    operator: 科技新報 零組件
+    region: greater_china
+    language: zh-TW
+    poll_class: news
+    dx_relevance: 科技新報 零組件 분야; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: technews-tw-internet
+    name: 科技新報 網路
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://technews.tw/category/internet/feed/
+    official_domain: technews.tw
+    operator: 科技新報 網路
+    region: greater_china
+    language: zh-TW
+    poll_class: news
+    dx_relevance: 科技新報 網路 분야; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: technews-tw-cutting-edge
+    name: 科技新報 尖端科技
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://technews.tw/category/cutting-edge/feed/
+    official_domain: technews.tw
+    operator: 科技新報 尖端科技
+    region: greater_china
+    language: zh-TW
+    poll_class: news
+    dx_relevance: 科技新報 尖端科技 분야; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: technews-tw-biotech
+    name: 科技新報 生技
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://technews.tw/category/biotech/feed/
+    official_domain: technews.tw
+    operator: 科技新報 生技
+    region: greater_china
+    language: zh-TW
+    poll_class: news
+    dx_relevance: 科技新報 生技 분야; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: technews-tw-finance
+    name: 科技新報 財經
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://technews.tw/category/finance/feed/
+    official_domain: technews.tw
+    operator: 科技新報 財經
+    region: greater_china
+    language: zh-TW
+    poll_class: news
+    dx_relevance: 科技新報 財經 분야; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: unwire-hk-mobile-phone
+    name: Unwire.hk 手機
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://unwire.hk/category/mobile-phone/feed/
+    official_domain: unwire.hk
+    operator: Unwire.hk 手機
+    region: greater_china
+    language: zh-HK
+    poll_class: news
+    dx_relevance: Unwire.hk 手機 분야; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: unwire-hk-computer
+    name: Unwire.hk 電腦
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://unwire.hk/category/computer/feed/
+    official_domain: unwire.hk
+    operator: Unwire.hk 電腦
+    region: greater_china
+    language: zh-HK
+    poll_class: news
+    dx_relevance: Unwire.hk 電腦 분야; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: unwire-hk-ai
+    name: Unwire.hk AI
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://unwire.hk/category/ai/feed/
+    official_domain: unwire.hk
+    operator: Unwire.hk AI
+    region: greater_china
+    language: zh-HK
+    poll_class: news
+    dx_relevance: Unwire.hk AI 분야; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: unwire-hk-wearable
+    name: Unwire.hk 穿戴
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://unwire.hk/category/wearable/feed/
+    official_domain: unwire.hk
+    operator: Unwire.hk 穿戴
+    region: greater_china
+    language: zh-HK
+    poll_class: news
+    dx_relevance: Unwire.hk 穿戴 분야; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: unwire-hk-smarthome
+    name: Unwire.hk 智能家居
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://unwire.hk/category/smarthome/feed/
+    official_domain: unwire.hk
+    operator: Unwire.hk 智能家居
+    region: greater_china
+    language: zh-HK
+    poll_class: news
+    dx_relevance: Unwire.hk 智能家居 분야; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: unwire-hk-ev
+    name: Unwire.hk 電動車
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://unwire.hk/category/ev/feed/
+    official_domain: unwire.hk
+    operator: Unwire.hk 電動車
+    region: greater_china
+    language: zh-HK
+    poll_class: news
+    dx_relevance: Unwire.hk 電動車 분야; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: ithome-tw-security
+    name: iThome 資安
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.ithome.com.tw/rss/security
+    official_domain: ithome.com.tw
+    operator: iThome 資安
+    region: greater_china
+    language: zh-TW
+    poll_class: news
+    dx_relevance: iThome 資安 분야; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: ithome-tw-ai
+    name: iThome AI
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.ithome.com.tw/rss/ai
+    official_domain: ithome.com.tw
+    operator: iThome AI
+    region: greater_china
+    language: zh-TW
+    poll_class: news
+    dx_relevance: iThome AI 분야; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: ithome-tw-devops
+    name: iThome DevOps
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.ithome.com.tw/rss/devops
+    official_domain: ithome.com.tw
+    operator: iThome DevOps
+    region: greater_china
+    language: zh-TW
+    poll_class: news
+    dx_relevance: iThome DevOps 분야; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: ithome-tw-cloud-native
+    name: iThome 雲原生
+    track: news
+    category: independent_media
+    access_method: feed
+    endpoint_url: https://www.ithome.com.tw/rss/cloud-native
+    official_domain: ithome.com.tw
+    operator: iThome 雲原生
+    region: greater_china
+    language: zh-TW
+    poll_class: news
+    dx_relevance: iThome 雲原生 분야; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: lenovo-news
+    name: Lenovo StoryHub
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://news.lenovo.com/feed/
+    official_domain: lenovo.com
+    operator: Lenovo StoryHub
+    region: greater_china
+    language: en
+    poll_class: news
+    dx_relevance: 레노버 공식 발표; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: alizila
+    name: Alizila (Alibaba)
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://www.alizila.com/feed/
+    official_domain: alizila.com
+    operator: Alizila (Alibaba)
+    region: greater_china
+    language: en
+    poll_class: news
+    dx_relevance: 알리바바 공식 뉴스; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: pingcap-blog
+    name: PingCAP Blog
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://www.pingcap.com/blog/feed/
+    official_domain: pingcap.com
+    operator: PingCAP Blog
+    region: greater_china
+    language: en
+    poll_class: news
+    dx_relevance: TiDB·데이터베이스; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: espressif-blog
+    name: Espressif Developer Blog
+    track: news
+    category: official_vendor
+    access_method: feed
+    endpoint_url: https://developer.espressif.com/blog/index.xml
+    official_domain: espressif.com
+    operator: Espressif Developer Blog
+    region: greater_china
+    language: en
+    poll_class: news
+    dx_relevance: ESP32 IoT 개발; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: info-gov-hk
+    name: 香港政府新聞 (創科)
+    track: news
+    category: government
+    access_method: feed
+    endpoint_url: https://www.info.gov.hk/gia/rss/general_en.xml
+    official_domain: info.gov.hk
+    operator: 香港政府新聞 (創科)
+    region: greater_china
+    language: en
+    poll_class: news
+    dx_relevance: 홍콩 정부 발표; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: v2ex-programmer
+    name: V2EX 程序员
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.v2ex.com/feed/programmer.xml
+    official_domain: v2ex.com
+    operator: V2EX 程序员
+    region: greater_china
+    language: zh
+    poll_class: community
+    dx_relevance: V2EX 程序员 노드 화제; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: v2ex-apple
+    name: V2EX Apple
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.v2ex.com/feed/apple.xml
+    official_domain: v2ex.com
+    operator: V2EX Apple
+    region: greater_china
+    language: zh
+    poll_class: community
+    dx_relevance: V2EX Apple 노드 화제; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: v2ex-android
+    name: V2EX Android
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.v2ex.com/feed/android.xml
+    official_domain: v2ex.com
+    operator: V2EX Android
+    region: greater_china
+    language: zh
+    poll_class: community
+    dx_relevance: V2EX Android 노드 화제; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: v2ex-openai
+    name: V2EX OpenAI
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.v2ex.com/feed/openai.xml
+    official_domain: v2ex.com
+    operator: V2EX OpenAI
+    region: greater_china
+    language: zh
+    poll_class: community
+    dx_relevance: V2EX OpenAI 노드 화제; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: v2ex-linux
+    name: V2EX Linux
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.v2ex.com/feed/linux.xml
+    official_domain: v2ex.com
+    operator: V2EX Linux
+    region: greater_china
+    language: zh
+    poll_class: community
+    dx_relevance: V2EX Linux 노드 화제; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: v2ex-python
+    name: V2EX Python
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.v2ex.com/feed/python.xml
+    official_domain: v2ex.com
+    operator: V2EX Python
+    region: greater_china
+    language: zh
+    poll_class: community
+    dx_relevance: V2EX Python 노드 화제; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: v2ex-hardware
+    name: V2EX 硬件
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.v2ex.com/feed/hardware.xml
+    official_domain: v2ex.com
+    operator: V2EX 硬件
+    region: greater_china
+    language: zh
+    poll_class: community
+    dx_relevance: V2EX 硬件 노드 화제; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: v2ex-create
+    name: V2EX 分享创造
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.v2ex.com/feed/create.xml
+    official_domain: v2ex.com
+    operator: V2EX 分享创造
+    region: greater_china
+    language: zh
+    poll_class: community
+    dx_relevance: V2EX 分享创造 노드 화제; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: v2ex-iphone
+    name: V2EX iPhone
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.v2ex.com/feed/iphone.xml
+    official_domain: v2ex.com
+    operator: V2EX iPhone
+    region: greater_china
+    language: zh
+    poll_class: community
+    dx_relevance: V2EX iPhone 노드 화제; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: v2ex-macos
+    name: V2EX macOS
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.v2ex.com/feed/macos.xml
+    official_domain: v2ex.com
+    operator: V2EX macOS
+    region: greater_china
+    language: zh
+    poll_class: community
+    dx_relevance: V2EX macOS 노드 화제; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: v2ex-cloud
+    name: V2EX 云计算
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.v2ex.com/feed/cloud.xml
+    official_domain: v2ex.com
+    operator: V2EX 云计算
+    region: greater_china
+    language: zh
+    poll_class: community
+    dx_relevance: V2EX 云计算 노드 화제; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: v2ex-car
+    name: V2EX 汽车
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.v2ex.com/feed/car.xml
+    official_domain: v2ex.com
+    operator: V2EX 汽车
+    region: greater_china
+    language: zh
+    poll_class: community
+    dx_relevance: V2EX 汽车 노드 화제; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: v2ex-nas
+    name: V2EX NAS
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.v2ex.com/feed/nas.xml
+    official_domain: v2ex.com
+    operator: V2EX NAS
+    region: greater_china
+    language: zh
+    poll_class: community
+    dx_relevance: V2EX NAS 노드 화제; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: v2ex-windows
+    name: V2EX Windows
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.v2ex.com/feed/windows.xml
+    official_domain: v2ex.com
+    operator: V2EX Windows
+    region: greater_china
+    language: zh
+    poll_class: community
+    dx_relevance: V2EX Windows 노드 화제; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: d1ev-web
+    name: 第一电动
+    track: news
+    category: independent_media
+    access_method: crawler
+    endpoint_url: https://www.d1ev.com/news
+    official_domain: d1ev.com
+    operator: 第一电动
+    region: greater_china
+    language: zh
+    poll_class: news
+    dx_relevance: 중국 전기차; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      mode: auto
+      timezone: Asia/Shanghai
+      enrich_limit: 12
+      max_age_days: 30
+  - key: europepmc-cn-wearable-sensor
+    name: 'Europe PMC 중화권: wearable sensor'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22wearable%20sensor%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'wearable sensor' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn-flexible-electronics
+    name: 'Europe PMC 중화권: flexible electronics'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22flexible%20electronics%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'flexible electronics' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn-electronic-skin
+    name: 'Europe PMC 중화권: electronic skin'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22electronic%20skin%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'electronic skin' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn-brain-computer-interface
+    name: 'Europe PMC 중화권: brain-computer interface'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22brain-computer%20interface%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'brain-computer interface' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn-large-language-model
+    name: 'Europe PMC 중화권: large language model'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22large%20language%20model%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'large language model' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn-lithium-battery
+    name: 'Europe PMC 중화권: lithium battery'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22lithium%20battery%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'lithium battery' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn-sodium-ion-battery
+    name: 'Europe PMC 중화권: sodium-ion battery'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22sodium-ion%20battery%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'sodium-ion battery' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn-solid-state-electrolyte
+    name: 'Europe PMC 중화권: solid-state electrolyte'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22solid-state%20electrolyte%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'solid-state electrolyte' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn-perovskite
+    name: 'Europe PMC 중화권: perovskite'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22perovskite%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'perovskite' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn-oled
+    name: 'Europe PMC 중화권: OLED'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22OLED%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'OLED' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn-micro-led
+    name: 'Europe PMC 중화권: micro-LED'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22micro-LED%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'micro-LED' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn-quantum-dot
+    name: 'Europe PMC 중화권: quantum dot'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22quantum%20dot%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'quantum dot' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn-photodetector
+    name: 'Europe PMC 중화권: photodetector'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22photodetector%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'photodetector' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn-triboelectric-nanogenerator
+    name: 'Europe PMC 중화권: triboelectric nanogenerator'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22triboelectric%20nanogenerator%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'triboelectric nanogenerator' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn-smartwatch
+    name: 'Europe PMC 중화권: smartwatch'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22smartwatch%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'smartwatch' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn-digital-health
+    name: 'Europe PMC 중화권: digital health'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22digital%20health%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'digital health' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn-remote-monitoring
+    name: 'Europe PMC 중화권: remote monitoring'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22remote%20monitoring%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'remote monitoring' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn-speech-recognition
+    name: 'Europe PMC 중화권: speech recognition'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22speech%20recognition%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'speech recognition' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn-computer-vision
+    name: 'Europe PMC 중화권: computer vision'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22computer%20vision%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'computer vision' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn-humanoid-robot
+    name: 'Europe PMC 중화권: humanoid robot'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22humanoid%20robot%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'humanoid robot' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn-exoskeleton
+    name: 'Europe PMC 중화권: exoskeleton'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22exoskeleton%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'exoskeleton' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn-drone
+    name: 'Europe PMC 중화권: drone'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22drone%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'drone' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn-6g
+    name: 'Europe PMC 중화권: 6G'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%226G%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 '6G' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn-metasurface
+    name: 'Europe PMC 중화권: metasurface'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22metasurface%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'metasurface' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn-lidar
+    name: 'Europe PMC 중화권: LiDAR'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22LiDAR%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'LiDAR' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn-image-sensor
+    name: 'Europe PMC 중화권: image sensor'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22image%20sensor%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'image sensor' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn-neuromorphic
+    name: 'Europe PMC 중화권: neuromorphic'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22neuromorphic%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'neuromorphic' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn-memristor
+    name: 'Europe PMC 중화권: memristor'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22memristor%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'memristor' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn-edge-computing
+    name: 'Europe PMC 중화권: edge computing'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22edge%20computing%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'edge computing' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn-federated-learning
+    name: 'Europe PMC 중화권: federated learning'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22federated%20learning%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'federated learning' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn-hearing-aid
+    name: 'Europe PMC 중화권: hearing aid'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22hearing%20aid%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'hearing aid' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn-haptic
+    name: 'Europe PMC 중화권: haptic'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22haptic%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'haptic' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn-augmented-reality
+    name: 'Europe PMC 중화권: augmented reality'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22augmented%20reality%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'augmented reality' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn-sleep-monitoring
+    name: 'Europe PMC 중화권: sleep monitoring'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22sleep%20monitoring%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'sleep monitoring' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn-graphene
+    name: 'Europe PMC 중화권: graphene'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22graphene%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'graphene' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn-thermoelectric
+    name: 'Europe PMC 중화권: thermoelectric'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22thermoelectric%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'thermoelectric' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn-supercapacitor
+    name: 'Europe PMC 중화권: supercapacitor'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22supercapacitor%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'supercapacitor' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn-gesture-recognition
+    name: 'Europe PMC 중화권: gesture recognition'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22gesture%20recognition%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'gesture recognition' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: ptt-tech-job
+    name: PTT Tech_Job 科技業工作
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.ptt.cc/atom/Tech_Job.xml
+    official_domain: ptt.cc
+    operator: PTT
+    region: greater_china
+    language: zh-TW
+    poll_class: community
+    dx_relevance: 대만 PTT 科技業工作 게시판 화제; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: ptt-soft-job
+    name: PTT Soft_Job 軟體業工作
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.ptt.cc/atom/Soft_Job.xml
+    official_domain: ptt.cc
+    operator: PTT
+    region: greater_china
+    language: zh-TW
+    poll_class: community
+    dx_relevance: 대만 PTT 軟體業工作 게시판 화제; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: ptt-mobilecomm
+    name: PTT MobileComm 手機通訊
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.ptt.cc/atom/MobileComm.xml
+    official_domain: ptt.cc
+    operator: PTT
+    region: greater_china
+    language: zh-TW
+    poll_class: community
+    dx_relevance: 대만 PTT 手機通訊 게시판 화제; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: ptt-pc-shopping
+    name: PTT PC_Shopping 電腦組裝
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.ptt.cc/atom/PC_Shopping.xml
+    official_domain: ptt.cc
+    operator: PTT
+    region: greater_china
+    language: zh-TW
+    poll_class: community
+    dx_relevance: 대만 PTT 電腦組裝 게시판 화제; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: ptt-ios
+    name: PTT iOS iOS
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.ptt.cc/atom/iOS.xml
+    official_domain: ptt.cc
+    operator: PTT
+    region: greater_china
+    language: zh-TW
+    poll_class: community
+    dx_relevance: 대만 PTT iOS 게시판 화제; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: ptt-android
+    name: PTT Android Android
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.ptt.cc/atom/Android.xml
+    official_domain: ptt.cc
+    operator: PTT
+    region: greater_china
+    language: zh-TW
+    poll_class: community
+    dx_relevance: 대만 PTT Android 게시판 화제; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: ptt-car
+    name: PTT car 汽車
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.ptt.cc/atom/car.xml
+    official_domain: ptt.cc
+    operator: PTT
+    region: greater_china
+    language: zh-TW
+    poll_class: community
+    dx_relevance: 대만 PTT 汽車 게시판 화제; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: ptt-headphone
+    name: PTT Headphone 耳機
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.ptt.cc/atom/Headphone.xml
+    official_domain: ptt.cc
+    operator: PTT
+    region: greater_china
+    language: zh-TW
+    poll_class: community
+    dx_relevance: 대만 PTT 耳機 게시판 화제; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: ptt-dslr
+    name: PTT DSLR 相機
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.ptt.cc/atom/DSLR.xml
+    official_domain: ptt.cc
+    operator: PTT
+    region: greater_china
+    language: zh-TW
+    poll_class: community
+    dx_relevance: 대만 PTT 相機 게시판 화제; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: ptt-ai-art
+    name: PTT AI_Art AI 繪圖
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.ptt.cc/atom/AI_Art.xml
+    official_domain: ptt.cc
+    operator: PTT
+    region: greater_china
+    language: zh-TW
+    poll_class: community
+    dx_relevance: 대만 PTT AI 繪圖 게시판 화제; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: ptt-e-appliance
+    name: PTT E-appliance 家電
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.ptt.cc/atom/E-appliance.xml
+    official_domain: ptt.cc
+    operator: PTT
+    region: greater_china
+    language: zh-TW
+    poll_class: community
+    dx_relevance: 대만 PTT 家電 게시판 화제; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: ptt-storage-zone
+    name: PTT Storage_Zone 儲存裝置
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.ptt.cc/atom/Storage_Zone.xml
+    official_domain: ptt.cc
+    operator: PTT
+    region: greater_china
+    language: zh-TW
+    poll_class: community
+    dx_relevance: 대만 PTT 儲存裝置 게시판 화제; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: v2ex-xiaomi
+    name: V2EX 小米
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.v2ex.com/feed/xiaomi.xml
+    official_domain: v2ex.com
+    operator: V2EX
+    region: greater_china
+    language: zh
+    poll_class: community
+    dx_relevance: V2EX 小米 노드 화제; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: v2ex-huawei
+    name: V2EX 华为
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.v2ex.com/feed/huawei.xml
+    official_domain: v2ex.com
+    operator: V2EX
+    region: greater_china
+    language: zh
+    poll_class: community
+    dx_relevance: V2EX 华为 노드 화제; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: v2ex-go
+    name: V2EX Go
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.v2ex.com/feed/go.xml
+    official_domain: v2ex.com
+    operator: V2EX
+    region: greater_china
+    language: zh
+    poll_class: community
+    dx_relevance: V2EX Go 노드 화제; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: v2ex-ipad
+    name: V2EX iPad
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.v2ex.com/feed/ipad.xml
+    official_domain: v2ex.com
+    operator: V2EX
+    region: greater_china
+    language: zh
+    poll_class: community
+    dx_relevance: V2EX iPad 노드 화제; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: v2ex-ios
+    name: V2EX iOS
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.v2ex.com/feed/ios.xml
+    official_domain: v2ex.com
+    operator: V2EX
+    region: greater_china
+    language: zh
+    poll_class: community
+    dx_relevance: V2EX iOS 노드 화제; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: v2ex-vps
+    name: V2EX VPS
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.v2ex.com/feed/vps.xml
+    official_domain: v2ex.com
+    operator: V2EX
+    region: greater_china
+    language: zh
+    poll_class: community
+    dx_relevance: V2EX VPS 노드 화제; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: v2ex-claude
+    name: V2EX Claude
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.v2ex.com/feed/claude.xml
+    official_domain: v2ex.com
+    operator: V2EX
+    region: greater_china
+    language: zh
+    poll_class: community
+    dx_relevance: V2EX Claude 노드 화제; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: v2ex-gemini
+    name: V2EX Gemini
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.v2ex.com/feed/gemini.xml
+    official_domain: v2ex.com
+    operator: V2EX
+    region: greater_china
+    language: zh
+    poll_class: community
+    dx_relevance: V2EX Gemini 노드 화제; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: v2ex-cursor
+    name: V2EX Cursor
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.v2ex.com/feed/cursor.xml
+    official_domain: v2ex.com
+    operator: V2EX
+    region: greater_china
+    language: zh
+    poll_class: community
+    dx_relevance: V2EX Cursor 노드 화제; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: v2ex-wechat
+    name: V2EX 微信
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.v2ex.com/feed/wechat.xml
+    official_domain: v2ex.com
+    operator: V2EX
+    region: greater_china
+    language: zh
+    poll_class: community
+    dx_relevance: V2EX 微信 노드 화제; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: v2ex-ev
+    name: V2EX 电动车
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.v2ex.com/feed/ev.xml
+    official_domain: v2ex.com
+    operator: V2EX
+    region: greater_china
+    language: zh
+    poll_class: community
+    dx_relevance: V2EX 电动车 노드 화제; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: v2ex-ideas
+    name: V2EX 奇思妙想
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.v2ex.com/feed/ideas.xml
+    official_domain: v2ex.com
+    operator: V2EX
+    region: greater_china
+    language: zh
+    poll_class: community
+    dx_relevance: V2EX 奇思妙想 노드 화제; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: v2ex-career
+    name: V2EX 职场
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.v2ex.com/feed/career.xml
+    official_domain: v2ex.com
+    operator: V2EX
+    region: greater_china
+    language: zh
+    poll_class: community
+    dx_relevance: V2EX 职场 노드 화제; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: v2ex-gts
+    name: V2EX 全球工单
+    track: community
+    category: dev_forum
+    access_method: feed
+    endpoint_url: https://www.v2ex.com/feed/gts.xml
+    official_domain: v2ex.com
+    operator: V2EX
+    region: greater_china
+    language: zh
+    poll_class: community
+    dx_relevance: V2EX 全球工单 노드 화제; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: mastodon-zh-keji
+    name: 'Mastodon mastodon.social #科技'
+    track: community
+    category: open_social
+    access_method: activitypub
+    endpoint_url: https://mastodon.social/api/v1/timelines/tag/%E7%A7%91%E6%8A%80?limit=40
+    official_domain: mastodon.social
+    operator: Mastodon gGmbH
+    region: greater_china
+    language: zh
+    poll_class: community
+    dx_relevance: '#科技 중문 오픈 소셜 반응; 중화권 기술·산업 동향 센싱'
+    storage_right: excerpt_allowed
+    config:
+      preset: mastodon_timeline
+  - key: mastodon-zh-rengongzhineng
+    name: 'Mastodon mastodon.social #人工智能'
+    track: community
+    category: open_social
+    access_method: activitypub
+    endpoint_url: https://mastodon.social/api/v1/timelines/tag/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD?limit=40
+    official_domain: mastodon.social
+    operator: Mastodon gGmbH
+    region: greater_china
+    language: zh
+    poll_class: community
+    dx_relevance: '#人工智能 중문 오픈 소셜 반응; 중화권 기술·산업 동향 센싱'
+    storage_right: excerpt_allowed
+    config:
+      preset: mastodon_timeline
+  - key: mastodon-zh-zhongwen
+    name: 'Mastodon mastodon.social #中文'
+    track: community
+    category: open_social
+    access_method: activitypub
+    endpoint_url: https://mastodon.social/api/v1/timelines/tag/%E4%B8%AD%E6%96%87?limit=40
+    official_domain: mastodon.social
+    operator: Mastodon gGmbH
+    region: greater_china
+    language: zh
+    poll_class: community
+    dx_relevance: '#中文 중문 오픈 소셜 반응; 중화권 기술·산업 동향 센싱'
+    storage_right: excerpt_allowed
+    config:
+      preset: mastodon_timeline
+  - key: mastodon-zh-kaiyuan
+    name: 'Mastodon mastodon.social #开源'
+    track: community
+    category: open_social
+    access_method: activitypub
+    endpoint_url: https://mastodon.social/api/v1/timelines/tag/%E5%BC%80%E6%BA%90?limit=40
+    official_domain: mastodon.social
+    operator: Mastodon gGmbH
+    region: greater_china
+    language: zh
+    poll_class: community
+    dx_relevance: '#开源 중문 오픈 소셜 반응; 중화권 기술·산업 동향 센싱'
+    storage_right: excerpt_allowed
+    config:
+      preset: mastodon_timeline
+  - key: mastodon-zh-taiwan
+    name: 'Mastodon mastodon.social #台灣'
+    track: community
+    category: open_social
+    access_method: activitypub
+    endpoint_url: https://mastodon.social/api/v1/timelines/tag/%E5%8F%B0%E7%81%A3?limit=40
+    official_domain: mastodon.social
+    operator: Mastodon gGmbH
+    region: greater_china
+    language: zh
+    poll_class: community
+    dx_relevance: '#台灣 중문 오픈 소셜 반응; 중화권 기술·산업 동향 센싱'
+    storage_right: excerpt_allowed
+    config:
+      preset: mastodon_timeline
+  - key: mastodon-zh-hongkong
+    name: 'Mastodon mastodon.social #香港'
+    track: community
+    category: open_social
+    access_method: activitypub
+    endpoint_url: https://mastodon.social/api/v1/timelines/tag/%E9%A6%99%E6%B8%AF?limit=40
+    official_domain: mastodon.social
+    operator: Mastodon gGmbH
+    region: greater_china
+    language: zh
+    poll_class: community
+    dx_relevance: '#香港 중문 오픈 소셜 반응; 중화권 기술·산업 동향 센싱'
+    storage_right: excerpt_allowed
+    config:
+      preset: mastodon_timeline
+  - key: podcast-sv101
+    name: 硅谷101
+    track: news
+    category: podcast_newsletter
+    access_method: feed
+    endpoint_url: https://feeds.fireside.fm/sv101/rss
+    official_domain: fireside.fm
+    operator: 硅谷101
+    region: greater_china
+    language: zh
+    poll_class: news
+    dx_relevance: 중문 실리콘밸리 테크 팟캐스트; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+  - key: europepmc-cn2-autonomous-driving
+    name: 'Europe PMC 중화권: autonomous driving'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22autonomous%20driving%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'autonomous driving' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn2-wireless-charging
+    name: 'Europe PMC 중화권: wireless charging'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22wireless%20charging%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'wireless charging' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn2-lithium-metal-anode
+    name: 'Europe PMC 중화권: lithium metal anode'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22lithium%20metal%20anode%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'lithium metal anode' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn2-electric-vehicle
+    name: 'Europe PMC 중화권: electric vehicle'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22electric%20vehicle%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'electric vehicle' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn2-smart-home
+    name: 'Europe PMC 중화권: smart home'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22smart%20home%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'smart home' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn2-internet-of-things
+    name: 'Europe PMC 중화권: internet of things'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22internet%20of%20things%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'internet of things' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn2-point-of-care
+    name: 'Europe PMC 중화권: point-of-care'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22point-of-care%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'point-of-care' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn2-continuous-glucose-monitoring
+    name: 'Europe PMC 중화권: continuous glucose monitoring'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22continuous%20glucose%20monitoring%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'continuous glucose monitoring' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn2-photoplethysmography
+    name: 'Europe PMC 중화권: photoplethysmography'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22photoplethysmography%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'photoplethysmography' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn2-microneedle
+    name: 'Europe PMC 중화권: microneedle'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22microneedle%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'microneedle' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn2-soft-robotics
+    name: 'Europe PMC 중화권: soft robotics'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22soft%20robotics%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'soft robotics' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn2-robotic-surgery
+    name: 'Europe PMC 중화권: robotic surgery'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22robotic%20surgery%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'robotic surgery' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn2-reinforcement-learning
+    name: 'Europe PMC 중화권: reinforcement learning'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22reinforcement%20learning%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'reinforcement learning' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn2-transformer-model
+    name: 'Europe PMC 중화권: transformer model'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22transformer%20model%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'transformer model' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn2-multimodal
+    name: 'Europe PMC 중화권: multimodal'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22multimodal%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'multimodal' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn2-knowledge-distillation
+    name: 'Europe PMC 중화권: knowledge distillation'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22knowledge%20distillation%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'knowledge distillation' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn2-diffusion-model
+    name: 'Europe PMC 중화권: diffusion model'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22diffusion%20model%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'diffusion model' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn2-semiconductor
+    name: 'Europe PMC 중화권: semiconductor'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22semiconductor%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'semiconductor' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn2-two-dimensional-materials
+    name: 'Europe PMC 중화권: two-dimensional materials'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22two-dimensional%20materials%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'two-dimensional materials' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn2-transistor
+    name: 'Europe PMC 중화권: transistor'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22transistor%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'transistor' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn2-laser
+    name: 'Europe PMC 중화권: laser'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22laser%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'laser' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn2-terahertz
+    name: 'Europe PMC 중화권: terahertz'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22terahertz%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'terahertz' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn2-ultrasound-imaging
+    name: 'Europe PMC 중화권: ultrasound imaging'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22ultrasound%20imaging%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'ultrasound imaging' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn2-virtual-reality
+    name: 'Europe PMC 중화권: virtual reality'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22virtual%20reality%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'virtual reality' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn2-eye-tracking
+    name: 'Europe PMC 중화권: eye tracking'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22eye%20tracking%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'eye tracking' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn2-biosensor
+    name: 'Europe PMC 중화권: biosensor'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22biosensor%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'biosensor' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn2-3d-printing
+    name: 'Europe PMC 중화권: 3D printing'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%223D%20printing%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 '3D printing' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn2-hydrogel-sensor
+    name: 'Europe PMC 중화권: hydrogel sensor'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22hydrogel%20sensor%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'hydrogel sensor' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn2-cybersecurity
+    name: 'Europe PMC 중화권: cybersecurity'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22cybersecurity%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'cybersecurity' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn2-privacy-preserving
+    name: 'Europe PMC 중화권: privacy-preserving'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22privacy-preserving%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'privacy-preserving' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
+  - key: europepmc-cn2-digital-twin
+    name: 'Europe PMC 중화권: digital twin'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=%28%22digital%20twin%22%29%20AND%20AFF%3A%28%22China%22%20OR%20%22Taiwan%22%20OR%20%22Hong%20Kong%22%29%20AND%20%28FIRST_PDATE%3A%5B{today-30d}%20TO%20{today}%5D%29&format=json&resultType=lite&pageSize=50&sort=P_PDATE_D%20desc
+    official_domain: ebi.ac.uk
+    operator: EMBL-EBI
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국·대만·홍콩 소속 저자의 'digital twin' 논문; 중화권 연구 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: europepmc_search
