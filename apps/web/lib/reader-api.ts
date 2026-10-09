@@ -42,3 +42,19 @@ export async function readerGet<T>(
   }
   return (await response.json()) as T;
 }
+
+/** Reader POST without caching (questions to the local model, plan 16 #1). */
+export async function readerPost<T>(path: string, body: unknown): Promise<T> {
+  const key = process.env.PUBLIC_API_KEY;
+  if (!key) throw new ApiError(503, "PUBLIC_API_KEY is not configured for the web server");
+  const response = await fetch(`${BASE_URL}/api/public${path}`, {
+    method: "POST",
+    headers: { "X-Public-Key": key, "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    throw new ApiError(response.status, (await response.text()) || response.statusText);
+  }
+  return (await response.json()) as T;
+}
