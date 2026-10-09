@@ -155,4 +155,22 @@ test.describe("reader", () => {
     const word = await page.request.get(await links.getByRole("link", { name: "Word" }).getAttribute("href") ?? "");
     expect(word.headers()["content-type"]).toContain("wordprocessingml");
   });
+
+  test("a card gets a team memo and goes into a new collection (plan 16 #12)", async ({ page }) => {
+    await page.goto("/");
+    await page.getByRole("link", { name: "삼성, 차세대 온디바이스 AI 칩 공개" }).first().click();
+    const memo = `팀 메모 ${Date.now()}`;
+    await page.getByRole("textbox", { name: "팀 메모 쓰기" }).fill(memo);
+    await page.getByRole("button", { name: "남기기" }).click();
+    await expect(page.getByText(memo)).toBeVisible();
+    const name = `모음 ${Date.now()}`;
+    await page.getByLabel("모음 고르기").selectOption("__new__");
+    await page.getByLabel("새 모음 이름").fill(name);
+    await page.getByRole("button", { name: "담기", exact: true }).click();
+    await expect(page.getByRole("status")).toContainText(name);
+    await page.goto("/collections");
+    await page.getByRole("link", { name: new RegExp(name) }).click();
+    await expect(page.getByRole("heading", { level: 1, name })).toBeVisible();
+    await expect(page.getByRole("link", { name: "삼성, 차세대 온디바이스 AI 칩 공개" })).toBeVisible();
+  });
 });

@@ -156,3 +156,12 @@
     - API: `/api/public/export/briefing/{date}`, `/api/public/export/periodic/{kind}/{key}`, `/api/public/dossiers/{id}/export`(세션 필요), 모두 `?format=md|docx|pptx`.
     - 웹: `/export/...` 경로 처리기가 로그인을 확인하고 파일을 내려준다.
     - 브리핑·주간·월간·주제 파일 화면 제목 아래에 "내보내기" 링크를 둔다.
+- **#12 팀 협업 (2026-10-10):**
+  - **테이블:** `team_comments`·`team_collections`·`team_collection_items`(마이그레이션 0038).
+  - **댓글:** 대상은 카드·모음·주제 파일 하나로 묶는다. 카드에 단 댓글이 카드 메모다.
+    - 로그인한 모두가 읽는다. 지우는 것은 쓴 사람이나 관리자만 하며, 지워도 기록은 남는다.
+  - **공유 모음:**
+    - 카드 상세(시트 포함)에서 기존 모음을 고르거나 새 모음을 만들어 담는다. 같은 카드를 다시 담으면 메모만 바뀐다.
+    - `/collections` 목록·만들기와 `/collections/{id}`(담긴 카드·빼기·팀 댓글·보관)을 둔다.
+  - **주제 파일:** 상세에 팀 댓글을 붙였다.
+  - **API:** `/api/public/team/...`는 공개 키와 세션 토큰을 쓴다.

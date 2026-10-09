@@ -5,11 +5,22 @@ import { sessionToken } from "@/lib/session";
 
 const BASE_URL = process.env.API_INTERNAL_URL ?? "http://127.0.0.1:8711";
 
+type Method = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+
 /** Topic dossier API (plan 16 #4): never cached, and always with the reader's session. */
-export async function dossierApi<T>(method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE", path: string, body?: unknown): Promise<T> {
+export async function dossierApi<T>(method: Method, path: string, body?: unknown): Promise<T> {
+  return sessionApi<T>(method, `/api/public/dossiers${path}`, body);
+}
+
+/** Team API (plan 16 #12): comments and shared collections, with the reader's session. */
+export async function teamApi<T>(method: Method, path: string, body?: unknown): Promise<T> {
+  return sessionApi<T>(method, `/api/public/team${path}`, body);
+}
+
+async function sessionApi<T>(method: Method, path: string, body?: unknown): Promise<T> {
   const key = process.env.PUBLIC_API_KEY;
   if (!key) throw new ApiError(503, "PUBLIC_API_KEY is not configured for the web server");
-  const response = await fetch(`${BASE_URL}/api/public/dossiers${path}`, {
+  const response = await fetch(`${BASE_URL}${path}`, {
     method,
     headers: {
       "X-Public-Key": key,
