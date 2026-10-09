@@ -105,7 +105,7 @@ def test_alert_episodes_open_update_and_resolve(
     monkeypatch.setattr(
         service, "send_email", lambda settings, **kw: sent.append(kw["subject"]) or True
     )
-    settings = Settings(_env_file=None, smtp_host="smtp.example")
+    settings = Settings(_env_file=None, smtp_host="smtp.example", ops_alert_mail=True)
 
     first = service.sync_alerts(
         db_session, run_checks(db_session, now=AT_0530, queue_length=0), now=AT_0530
@@ -162,3 +162,19 @@ def test_missing_admin_account_is_flagged(db_session: Session) -> None:
         db_session, username="boss", password="plum-orbit-4417", name="관리자", now=AT_0530
     )
     assert check_accounts(db_session) == []
+
+
+def test_alert_mail_is_off_by_default(db_session: Session, monkeypatch: pytest.MonkeyPatch) -> None:
+    sent: list[str] = []
+    monkeypatch.setattr(
+        service, "send_email", lambda settings, **kw: sent.append(kw["subject"]) or True
+    )
+    result = service.sync_alerts(
+        db_session, run_checks(db_session, now=AT_0530, queue_length=0), now=AT_0530
+    )
+
+    assert (
+        service.notify(Settings(_env_file=None, smtp_host="smtp.example"), result, now=AT_0530)
+        is False
+    )
+    assert sent == [] and result.opened and all(a.notified_at is None for a in result.opened)

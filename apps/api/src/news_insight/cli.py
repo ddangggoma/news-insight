@@ -1043,7 +1043,9 @@ def taxonomy_seed(
 
 @ops_app.command("check")
 def ops_check(
-    apply: Annotated[bool, typer.Option(help="Record alert episodes and send e-mail")] = False,
+    apply: Annotated[
+        bool, typer.Option(help="Record alert episodes (e-mail only with OPS_ALERT_MAIL)")
+    ] = False,
 ) -> None:
     """Run the health checks (publication SLA, collection, queue, cards) and list findings."""
     from news_insight.jobs.tasks import _host_snapshot, queue_length, slow_requests

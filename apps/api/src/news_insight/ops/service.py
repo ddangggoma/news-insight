@@ -1,4 +1,5 @@
-"""Alert episodes from check findings, and e-mail for newly opened critical/warning alerts."""
+"""Alert episodes from check findings, shown on the console. Alert e-mail is off by default
+(2026-10-09 user decision); OPS_ALERT_MAIL=true turns it back on."""
 
 import logging
 from dataclasses import dataclass, field
@@ -68,7 +69,10 @@ def sync_alerts(session: Session, findings: list[Finding], *, now: datetime) -> 
 
 
 def notify(settings: Settings, result: SyncResult, *, now: datetime) -> bool:
-    """One e-mail per run listing newly opened critical/warning alerts (SMTP optional)."""
+    """With OPS_ALERT_MAIL, one e-mail per run listing newly opened critical/warning alerts.
+    Off (the default), nothing is sent: the console's alert banner and page show them."""
+    if not settings.ops_alert_mail:
+        return False
     fresh = [
         alert
         for alert in result.opened

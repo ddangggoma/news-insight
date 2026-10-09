@@ -18,7 +18,7 @@
 
 ## 2. 운영 알림
 
-콘솔 → **운영 알림**(`/console/alerts`)과 콘솔 상단 띠에 표시됩니다. SMTP를 설정하면(ops-console.md §2-1) 새 긴급·주의 알림이 관리자 메일로 갑니다. 지금 상태는 `cd apps/api && uv run --env-file ../../.env news-insight ops check`로도 볼 수 있습니다.
+콘솔 → **운영 알림**(`/console/alerts`)과 콘솔 상단 띠에만 표시됩니다(2026-10-09 결정: 운영 알림 메일 없음). 메일로도 받으려면 `.env`에 `OPS_ALERT_MAIL=true`를 넣고 재배포합니다(SMTP 필요, ops-console.md §2-1). 지금 상태는 `cd apps/api && uv run --env-file ../../.env news-insight ops check`로도 볼 수 있습니다.
 
 | 키 | 수준 | 뜻 | 대응 |
 |---|---|---|---|
