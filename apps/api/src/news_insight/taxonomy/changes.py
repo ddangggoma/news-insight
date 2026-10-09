@@ -12,7 +12,7 @@ cards for reclassification (`requeue`), which the classification lane then works
 from datetime import datetime, timedelta
 from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import func, select, text
 from sqlalchemy.orm import Session
 
@@ -61,6 +61,15 @@ class UpdateNode(BaseModel):
     aliases: list[str] | None = None
     sort: int | None = None
     status: Literal["active", "deprecated"] | None = None
+    # carding priority (plan 16 #3): 0 제외, 0.5 낮음, 1 보통, 1.5 높음, 2 최우선
+    priority: float | None = None
+
+    @field_validator("priority")
+    @classmethod
+    def _priority(cls, value: float | None) -> float | None:
+        if value is not None and value not in (0, 0.5, 1, 1.5, 2):
+            raise ValueError("priority is one of 0, 0.5, 1, 1.5, 2")
+        return value
 
 
 class MoveNode(BaseModel):
@@ -195,6 +204,7 @@ class _Run:
         self.requeue: set[int] = set()
         self.undo: list[dict[str, Any]] = []
         self.touched_schemes: set[int] = set()
+        self.priorities = False  # a node's carding priority changed: rescore the waiting items
 
     def scheme(self, key: str) -> TaxScheme:
         found = self.session.scalars(select(TaxScheme).where(TaxScheme.key == key)).one_or_none()
@@ -370,6 +380,20 @@ def _update_node(run: _Run, op: UpdateNode) -> OpOutcome:
     changes = op.model_dump(exclude={"op", "scheme", "key"}, exclude_unset=True)
     if "aliases" in changes:
         changes["aliases"] = _aliases(changes["aliases"])
+    if "priority" in changes:
+        priority = changes.pop("priority")
+        attrs = dict(node.attrs or {})
+        run.undo.append(
+            {
+                "op": "update_node",
+                "scheme": op.scheme,
+                "key": op.key,
+                "priority": attrs.get("priority", 1),
+            }
+        )
+        attrs["priority"] = 1 if priority is None else priority
+        node.attrs = attrs
+        run.priorities = True
     old = {name: getattr(node, name) for name in changes}
     keys_before = [node.key, *(node.aliases or [])]
     for name, value in changes.items():
@@ -704,6 +728,8 @@ def _run_ops(session: Session, ops: list[Any]) -> tuple[_Run, list[OpOutcome]]:
             text("UPDATE item_cards SET taxonomy_revision = :r WHERE item_id = ANY(:ids)"),
             {"r": REQUEUE, "ids": sorted(run.requeue)},
         )
+    if run.priorities:  # the host triage job scores them again on its next runs
+        session.execute(text("UPDATE item_triage SET model_id = NULL"))
     session.execute(text("SET LOCAL news.bulk_relabel = 'off'"))
     return run, outcomes
 

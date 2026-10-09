@@ -7,6 +7,10 @@ from celery.signals import setup_logging
 from news_insight.config import get_settings
 
 BEAT_SCHEDULE: dict[str, dict[str, Any]] = {
+    "cards-triage-train": {
+        "task": "cards.triage_train",
+        "schedule": crontab(hour=3, minute=50),  # plan 16 #3, after the 03:45 technology refresh
+    },
     "collect-dispatch-due": {"task": "collect.dispatch_due", "schedule": 60.0},
     "sources-run-canaries": {"task": "sources.run_canaries", "schedule": 3600.0},
     "sources-auto-validate": {"task": "sources.auto_validate", "schedule": 600.0},

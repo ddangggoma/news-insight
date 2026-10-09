@@ -1,6 +1,7 @@
 """Korean card generation: pending selection, engine switching, storage and run records."""
 
 import logging
+import math
 import time
 from collections.abc import Callable, Sequence
 from concurrent.futures import ThreadPoolExecutor
@@ -10,7 +11,7 @@ from datetime import UTC, datetime, timedelta
 from typing import Any
 from zoneinfo import ZoneInfo
 
-from sqlalchemy import and_, func, or_, select
+from sqlalchemy import and_, func, or_, select, true
 from sqlalchemy.orm import Session
 
 from news_insight.cards.engines import (
@@ -20,7 +21,7 @@ from news_insight.cards.engines import (
     MeteredEngine,
     QuotaExhausted,
 )
-from news_insight.cards.models import CardRun, CardStatus, ItemCard
+from news_insight.cards.models import CardRun, CardStatus, ItemCard, ItemTriage
 from news_insight.cards.preserve import missing_facts
 from news_insight.cards.schemas import (
     CardDraft,
@@ -71,6 +72,10 @@ def classify_pending_condition() -> Any:
     )
 
 
+EXPLORE_SHARE = 0.1  # newest-first picks next to the score order (keeps training labels unbiased)
+HIGH_DX = 0.8  # a triage probability that may pass the unvalidated-source daily cap
+
+
 def pending_items(
     session: Session,
     *,
@@ -78,10 +83,17 @@ def pending_items(
     exclude: set[int] | None = None,
     unvalidated_daily_cap: int | None = None,
 ) -> list[tuple[Item, Source]]:
-    """Items needing card text, newest first. With `unvalidated_daily_cap`, a source that is not
-    yet active waits once it had that many cards in the last 24 hours, so one unvalidated feed
-    cannot spend the day's Antigravity quota (2026-10-05: sitemaps took 83 % of all cards)."""
-    conditions = [pending_condition()]
+    """Items needing card text, by triage score (plan 16 #3) with a newest-first share.
+
+    Paused and retired sources wait for good, and so do items on a node the reader excluded
+    (triage weight 0). With `unvalidated_daily_cap`, a source that is not yet active waits once
+    it had that many cards in the last 24 hours (2026-10-05: sitemaps took 83 % of all cards),
+    unless triage gives the item a high DX probability."""
+    conditions = [
+        pending_condition(),
+        Source.status.not_in((SourceStatus.PAUSED, SourceStatus.RETIRED)),
+        or_(ItemTriage.item_id.is_(None), ItemTriage.weight > 0),
+    ]
     if exclude:
         conditions.append(Item.id.not_in(exclude))
     if unvalidated_daily_cap is not None:
@@ -96,16 +108,38 @@ def pending_items(
             .group_by(Item.source_id)
             .having(func.count() >= unvalidated_daily_cap)
         )
-        conditions.append(Item.source_id.not_in(busy))
-    statement = (
+        conditions.append(
+            or_(Item.source_id.not_in(busy), func.coalesce(ItemTriage.dx_probability, 0) >= HIGH_DX)
+        )
+    base = (
         select(Item, Source)
         .join(Source, Source.id == Item.source_id)
         .outerjoin(ItemCard, ItemCard.item_id == Item.id)
+        .outerjoin(ItemTriage, ItemTriage.item_id == Item.id)
         .where(*conditions)
-        .order_by(Item.first_seen_at.desc(), Item.id.desc())
-        .limit(limit)
     )
-    return list(session.execute(statement).tuples())
+    ranked_limit = max(1, math.ceil(limit * (1 - EXPLORE_SHARE))) if limit > 1 else limit
+    ranked = list(
+        session.execute(
+            base.order_by(
+                ItemTriage.score.desc().nulls_last(), Item.first_seen_at.desc(), Item.id.desc()
+            ).limit(ranked_limit)
+        ).tuples()
+    )
+    taken = {item.id for item, _ in ranked}
+    rest = limit - len(ranked)
+    newest = (
+        list(
+            session.execute(
+                base.where(Item.id.not_in(taken) if taken else true())
+                .order_by(Item.first_seen_at.desc(), Item.id.desc())
+                .limit(rest)
+            ).tuples()
+        )
+        if rest > 0
+        else []
+    )
+    return ranked + newest
 
 
 KST = ZoneInfo("Asia/Seoul")

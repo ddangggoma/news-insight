@@ -83,3 +83,38 @@ class CardRun(Base):
     batches: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
     quota: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
     note: Mapped[str | None] = mapped_column(Text)
+
+
+class TriageModel(Base):
+    """A linear DX-relevance model over title embeddings plus theme centroids (plan 16 #3),
+    trained nightly on recent cards; the newest active one scores items before carding."""
+
+    __tablename__ = "triage_models"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    trained_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    samples: Mapped[int]
+    auc: Mapped[float]  # on the newest 30% held out
+    weights: Mapped[list[float]] = mapped_column(JSONB)  # 1024 + bias
+    centroids: Mapped[dict[str, list[float]]] = mapped_column(JSONB)  # theme key -> unit vector
+    stats: Mapped[dict[str, Any]] = mapped_column(JSONB)  # score/prior means and spreads, base rate
+    active: Mapped[bool] = mapped_column(default=True)
+
+
+class ItemTriage(Base):
+    """An item's carding priority before it has a card (plan 16 #3)."""
+
+    __tablename__ = "item_triage"
+
+    item_id: Mapped[int] = mapped_column(
+        ForeignKey("items.id", ondelete="CASCADE"), primary_key=True
+    )
+    model_id: Mapped[int | None] = mapped_column(
+        ForeignKey("triage_models.id", ondelete="SET NULL")
+    )
+    dx_probability: Mapped[float]
+    weight: Mapped[float]  # node priority multiplier (themes predicted, technologies matched)
+    score: Mapped[float] = mapped_column(index=True)
+    themes: Mapped[list[str]] = mapped_column(JSONB, default=list)  # predicted, best first
+    matched: Mapped[list[str]] = mapped_column(JSONB, default=list)  # scheme:key matched in title
+    scored_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))

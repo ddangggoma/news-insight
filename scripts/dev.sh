@@ -93,6 +93,9 @@ cards()         {
   # macOS memory, swap and the Qwen state for the console (the containers cannot see them)
   (cd "$API" && LM_STUDIO_URL=http://127.0.0.1:1234 uv run --env-file "$ROOT/.env" news-insight ops host-snapshot) \
     || echo "host snapshot skipped" >&2
+  # plan 16 #3: title embeddings and carding priority before the engines pick what to card
+  (cd "$API" && LM_STUDIO_URL=http://127.0.0.1:1234 uv run --env-file "$ROOT/.env" news-insight cards triage) \
+    || echo "triage skipped (LM Studio unavailable): cards go newest first" >&2
   (cd "$API" && LM_STUDIO_URL=http://127.0.0.1:1234 uv run --env-file "$ROOT/.env" news-insight cards run)
   # CLU-1: merge stories told in other words or languages (bge-m3 + judge); never fails the card run
   (cd "$API" && LM_STUDIO_URL=http://127.0.0.1:1234 uv run --env-file "$ROOT/.env" news-insight stories semantic) \

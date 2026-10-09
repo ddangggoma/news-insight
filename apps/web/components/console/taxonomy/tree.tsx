@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 
 import { Input } from "@/components/ui/input";
 import { formatNumber } from "@/lib/format";
+import { PRIORITY_LABEL } from "@/lib/taxonomy-ops";
 import { cn } from "@/lib/utils";
 
 import { type ConsoleNode, type ConsoleScheme, type Counts, childrenOf, isInside, levelName, visibleIds } from "./model";
@@ -90,6 +91,11 @@ export function TaxonomyTree({
               </button>
               {STATUS[node.status] ? <span className="rounded bg-muted px-1 text-[10px]">{STATUS[node.status]}</span> : null}
               {node.edited_in_console ? <span className="rounded bg-primary/10 px-1 text-[10px] text-primary">콘솔</span> : null}
+              {node.attrs.priority !== undefined && Number(node.attrs.priority) !== 1 ? (
+                <span className={cn("rounded px-1 text-[10px]", Number(node.attrs.priority) === 0 ? "bg-destructive/10 text-destructive" : "bg-amber-500/15 text-amber-700 dark:text-amber-300")} title="카드화 우선순위">
+                  {PRIORITY_LABEL[String(node.attrs.priority)] ?? String(node.attrs.priority)}
+                </span>
+              ) : null}
               <span className="shrink-0 text-xs text-muted-foreground tabular-nums" title="30일 카드 (하위 포함 / 이 노드)">
                 {count ? `${formatNumber(count.total)}${count.own !== count.total ? ` / ${formatNumber(count.own)}` : ""}` : "0"}
               </span>

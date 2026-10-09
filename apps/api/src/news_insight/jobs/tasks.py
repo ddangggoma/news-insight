@@ -193,3 +193,17 @@ def radar_warm_task() -> int:
         return 0
     with session_scope() as session:
         return warm(session, now=datetime.now(UTC), client=client)
+
+
+@celery_app.task(name="cards.triage_train")
+def triage_train_task() -> dict[str, Any]:
+    """Nightly carding-priority model (plan 16 #3); the host job scores with the new one."""
+    from news_insight.cards.triage import train
+
+    with session_scope() as session:
+        result = train(session, now=datetime.now(UTC))
+        return (
+            {}
+            if result is None
+            else {"model": result.model_id, "auc": result.auc, "samples": result.samples}
+        )
