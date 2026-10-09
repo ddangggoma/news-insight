@@ -10,10 +10,10 @@ import type { DossierDetail } from "@/lib/dossier-types";
 
 const field = "w-full rounded-md border bg-background px-3 py-2 text-sm";
 const SIMILARITY = [
-  { value: 0.55, label: "넓게 (0.55)" },
-  { value: 0.6, label: "보통 (0.60)" },
-  { value: 0.65, label: "좁게 (0.65)" },
-  { value: 0.7, label: "아주 좁게 (0.70)" },
+  { value: 0.45, label: "넓게 (0.45)" },
+  { value: 0.5, label: "보통 (0.50)" },
+  { value: 0.55, label: "좁게 (0.55)" },
+  { value: 0.6, label: "아주 좁게 (0.60)" },
 ];
 
 export function DossierForm({ scopes, dossier }: { scopes: ScopeOption[]; dossier?: DossierDetail }) {
@@ -51,7 +51,7 @@ export function DossierForm({ scopes, dossier }: { scopes: ScopeOption[]; dossie
             <label htmlFor="d-similarity" className="text-muted-foreground">
               일치 정도
             </label>
-            <select id="d-similarity" name="min_similarity" defaultValue={String(criteria?.min_similarity ?? 0.6)} className="h-8 rounded-md border bg-background px-2">
+            <select id="d-similarity" name="min_similarity" defaultValue={String(criteria?.min_similarity ?? 0.5)} className="h-8 rounded-md border bg-background px-2">
               {SIMILARITY.map((s) => (
                 <option key={s.value} value={s.value}>
                   {s.label}
