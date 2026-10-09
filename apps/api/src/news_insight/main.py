@@ -6,6 +6,7 @@ from news_insight.console.routes import router as console_router
 from news_insight.dossiers.routes import router as dossiers_router
 from news_insight.observability import RequestLogMiddleware, configure_logging
 from news_insight.public.routes import router as public_router
+from news_insight.team.routes import router as team_router
 
 
 def create_app() -> FastAPI:
@@ -21,6 +22,7 @@ def create_app() -> FastAPI:
     app.include_router(accounts_router)
     app.include_router(public_router)
     app.include_router(dossiers_router)
+    app.include_router(team_router)
     return app
 
 

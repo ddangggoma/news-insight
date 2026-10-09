@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { TrackBadge } from "@/components/console/badges";
+import { ItemTeamPanel } from "@/components/reader/item-team";
 import { CompanyChips, SignalTag, FieldTag, ImpactBadge } from "@/components/reader/labels";
 import { ApiError } from "@/lib/api";
 import { formatDateTime, formatRelative, REGION_LABEL } from "@/lib/format";
@@ -114,6 +115,7 @@ export function ItemDetailView({ detail }: { detail: ReaderItemDetail }) {
       <Linked title={`같은 이슈의 다른 보도 ${detail.story_items.length}건`} rows={detail.story_items} />
       <Linked title="교차 신호 (같은 논문·저장소를 가리키는 항목)" rows={detail.signals} />
       <Linked title="같은 분야 최근 기사" rows={detail.same_field} />
+      <ItemTeamPanel itemId={item.id} />
     </article>
   );
 }

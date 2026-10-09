@@ -4,9 +4,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { archiveDossier } from "@/app/(reader)/dossiers/actions";
+import { ExportLinks } from "@/components/reader/export-links";
 import { CompanyChips } from "@/components/reader/labels";
 import { DossierHypotheses } from "@/components/reader/dossier-hypotheses";
 import { StoryRow } from "@/components/reader/story-row";
+import { TeamComments } from "@/components/reader/team-comments";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ApiError } from "@/lib/api";
@@ -76,6 +78,7 @@ export default async function DossierPage({ params, searchParams }: { params: Pr
             {formatDateTime(dossier.updated_at)} 수정{dossier.updated_by ? ` · ${dossier.updated_by}` : ""}
             {dossier.created_by ? ` · 만든 사람 ${dossier.created_by}` : ""}
           </p>
+          <ExportLinks path={`dossier/${id}`} />
         </div>
         <Button asChild variant="outline" size="sm">
           <Link href={`/dossiers/${id}/edit`}>
@@ -169,6 +172,7 @@ export default async function DossierPage({ params, searchParams }: { params: Pr
       <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_320px]">
         <div className="space-y-5">
           <DossierHypotheses dossierId={id} initial={dossier.hypotheses} />
+          <TeamComments kind="dossier" targetId={id} title="팀 댓글" />
           <section aria-labelledby="timeline-heading" className="space-y-3">
             <h2 id="timeline-heading" className="text-base font-semibold">
               타임라인 (주별 주요 이슈)

@@ -2,6 +2,7 @@ import { ArrowDown, ArrowRight, ArrowUp, ChevronLeft, ChevronRight, Eye, ListChe
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { ExportLinks } from "@/components/reader/export-links";
 import { EvidenceLinks } from "@/components/console/evidence-links";
 import type { PeriodKind, PublicPeriodic, Trajectory } from "@/lib/briefing-types";
 import { formatBriefingDate } from "@/lib/format";
@@ -50,6 +51,7 @@ export function PeriodicView({ period }: { period: PublicPeriodic }) {
           {periodTitle(period.kind, period.key)} · {formatBriefingDate(period.period_start)} ~ {formatBriefingDate(period.period_end)} · 일일 브리핑 {period.days}건
         </p>
         <h1 className="text-2xl font-bold leading-snug">{content.headline}</h1>
+        <ExportLinks path={`periodic/${period.kind}/${period.key}`} />
       </header>
       {content.tldr.length ? (
         <section aria-label="핵심 3줄" className="rounded-xl border bg-muted/30 p-4">
