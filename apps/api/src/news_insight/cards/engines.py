@@ -190,8 +190,40 @@ class AgyEngine:
             except ValueError as exc:
                 raise EngineError("agy structured_output is not JSON") from exc
         if not isinstance(structured, dict):
+            # agy drops structured_output when the answer misses the schema, though the cards
+            # are in `response` (2026-10-10, 5 of 5 captured failures): extra `toolAction` /
+            # `toolSummary` keys after a denied tool call, or the JSON again in a code fence.
+            # Each card is still validated on its own (parse_drafts, parse_classifications).
+            structured = cards_from_text(str(envelope.get("response") or ""))
+        if not isinstance(structured, dict):
             raise EngineError("agy returned no structured output")
         return EngineOutput(raw=structured, model=self._model)
+
+
+_FENCE = re.compile(r"```(?:json)?\s*(.*?)```", re.DOTALL)
+
+
+def cards_from_text(text: str) -> dict[str, Any] | None:
+    """The `{"cards": [...]}` answer inside free text: every JSON value that starts the text,
+    a code fence or a `{"cards"` object is tried, and the one with the most cards that carry
+    an id wins. Keys other than `cards` are dropped."""
+    decoder = json.JSONDecoder()
+    starts = {0, *(m.start() for m in re.finditer(r'\{\s*"cards"', text))}
+    chunks = [text[i:] for i in sorted(starts)] + [m.group(1) for m in _FENCE.finditer(text)]
+    best: list[Any] | None = None
+    for chunk in chunks:
+        chunk = chunk.lstrip()
+        try:
+            value, _ = decoder.raw_decode(chunk)
+        except ValueError:
+            continue
+        cards = value.get("cards") if isinstance(value, dict) else value
+        if not isinstance(cards, list):
+            continue
+        with_ids = sum(1 for card in cards if isinstance(card, dict) and "id" in card)
+        if with_ids and (best is None or with_ids > sum(1 for c in best if "id" in c)):
+            best = [card for card in cards if isinstance(card, dict)]
+    return {"cards": best} if best is not None else None
 
 
 class QwenEngine:

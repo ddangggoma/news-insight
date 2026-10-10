@@ -120,6 +120,10 @@ services:
     image: news-insight-postgres:16-pgvector
     build:
       context: ./ops/postgres
+    # parallel queries share /dev/shm; Docker's 64 MB ran out twice under several card runs
+    # (2026-10-09/10 "could not resize shared memory segment"). Takes effect when the container
+    # is next recreated; until then the live database has max_parallel_workers_per_gather = 0
+    shm_size: 256mb
     # 2026-10-05 audit: slow-query tracking, a cache above the 128 MB default, and the database
     # name in log lines (test databases share this server). The live server got the same values
     # with ALTER SYSTEM, so its container did not have to be recreated

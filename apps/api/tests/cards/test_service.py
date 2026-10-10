@@ -195,6 +195,19 @@ def test_without_qwen_a_failed_batch_is_retried_on_agy(db_session: Session) -> N
     assert {card.engine for card in cards(db_session).values()} == {"agy"}
 
 
+def test_one_malformed_lane_does_not_drop_agy_for_the_run(db_session: Session) -> None:
+    """2026-10-10: a single bad answer among parallel lanes sent the rest of the run to Qwen."""
+    seed(db_session, ["a", "b", "c", "d"])
+    agy = FlakyAgy(failures=1)
+    qwen = FakeEngine("qwen")
+    policy = CardPolicy(agy_batch=1, agy_parallel=2, qwen_batch=1, time_budget_seconds=1000)
+
+    stats = run_cards(scope_for(db_session), agy=agy, qwen=qwen, policy=policy)
+
+    assert stats.ready == 4 and qwen.batches == []
+    assert {card.engine for card in cards(db_session).values()} == {"agy"}
+
+
 def test_without_qwen_repeated_failures_end_the_run(db_session: Session) -> None:
     seed(db_session, ["a"])
     agy = FlakyAgy(failures=10)
