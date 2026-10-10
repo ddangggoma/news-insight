@@ -493,8 +493,9 @@ def run_cards(
     `--qwen-only`), otherwise items wait for the next run. With `qwen_alongside` Qwen also runs
     `policy.qwen_parallel` lanes next to the metered engine in every round (2026-10-06, user
     request: Qwen full time). A quota error moves to the next engine at once; other failures are
-    retried, moving on after FAILED_ROUNDS rounds that all fail (or at once when only Qwen is
-    left). Qwen lanes that fail FAILED_ROUNDS rounds in a row stop for the rest of the run.
+    retried, moving on after FAILED_ROUNDS rounds in a row in which every lane failed; a round
+    where some lanes work resets the count. Qwen lanes that fail FAILED_ROUNDS rounds in a row
+    stop for the rest of the run.
     While cards wait for a newer taxonomy, one metered lane per round reclassifies them so new
     items are never starved (CLS-2).
     """
@@ -563,10 +564,10 @@ def run_cards(
             ids = {entry.id for entry in job.inputs}
             if isinstance(result, EngineError):
                 (attempted if job.kind == "card" else classify_attempted).difference_update(ids)
-                if not on_qwen and (
-                    isinstance(result, QuotaExhausted)
-                    or (at == len(chain) - 1 and qwen is not None)
-                ):
+                # only a spent quota moves on at once; any other failure of one lane is retried
+                # (2026-10-10: one malformed answer among 3-6 lanes dropped Antigravity for the
+                # rest of the run, so whole runs fell back to Qwen)
+                if not on_qwen and isinstance(result, QuotaExhausted):
                     exhausted = result
                 else:
                     stats.notes.append(str(result))
