@@ -19472,19 +19472,6 @@ sources:
     poll_class: news
     dx_relevance: 중국 전기차(영문); 중화권 기술·산업 동향 센싱
     storage_right: excerpt_allowed
-  - key: ecns-tech
-    name: ECNS Sci-Tech
-    track: news
-    category: independent_media
-    access_method: feed
-    endpoint_url: http://www.ecns.cn/rss/rss.xml
-    official_domain: ecns.cn
-    operator: ECNS Sci-Tech
-    region: greater_china
-    language: en
-    poll_class: news
-    dx_relevance: 중국 과학기술(영문); 중화권 기술·산업 동향 센싱
-    storage_right: excerpt_allowed
   - key: ruanyifeng
     name: 阮一峰周刊
     track: news
@@ -19550,58 +19537,6 @@ sources:
     poll_class: news
     dx_relevance: 대만 통신사 과학기술; 중화권 기술·산업 동향 센싱
     storage_right: excerpt_allowed
-  - key: ltn-business
-    name: 自由時報 財經
-    track: news
-    category: independent_media
-    access_method: feed
-    endpoint_url: https://news.ltn.com.tw/rss/business.xml
-    official_domain: ltn.com.tw
-    operator: 自由時報 財經
-    region: greater_china
-    language: zh-TW
-    poll_class: news
-    dx_relevance: 대만 경제·반도체; 중화권 기술·산업 동향 센싱
-    storage_right: excerpt_allowed
-  - key: thenewslens-tech
-    name: 關鍵評論網 科技
-    track: news
-    category: independent_media
-    access_method: feed
-    endpoint_url: https://feeds.feedburner.com/TheNewsLens
-    official_domain: feedburner.com
-    operator: 關鍵評論網 科技
-    region: greater_china
-    language: zh-TW
-    poll_class: news
-    dx_relevance: 대만 시사·테크; 중화권 기술·산업 동향 센싱
-    storage_right: excerpt_allowed
-  - key: moneydj-tech
-    name: MoneyDJ 科技
-    track: news
-    category: independent_media
-    access_method: feed
-    endpoint_url: https://www.moneydj.com/KMDJ/RssCenter.aspx?svc=NR&fno=1&arg=MB010000
-    official_domain: moneydj.com
-    operator: MoneyDJ 科技
-    region: greater_china
-    language: zh-TW
-    poll_class: news
-    dx_relevance: 대만 반도체·전자 산업; 중화권 기술·산업 동향 센싱
-    storage_right: excerpt_allowed
-  - key: money-udn-tech
-    name: 經濟日報 產業
-    track: news
-    category: independent_media
-    access_method: feed
-    endpoint_url: https://money.udn.com/rssfeed/news/1001/5591?ch=money
-    official_domain: udn.com
-    operator: 經濟日報 產業
-    region: greater_china
-    language: zh-TW
-    poll_class: news
-    dx_relevance: 대만 산업; 중화권 기술·산업 동향 센싱
-    storage_right: excerpt_allowed
   - key: yahoo-tw-tech
     name: Yahoo奇摩 科技
     track: news
@@ -19641,214 +19576,6 @@ sources:
     poll_class: news
     dx_relevance: 홍콩 PC·하드웨어; 중화권 기술·산업 동향 센싱
     storage_right: excerpt_allowed
-  - key: pcmarket-hk
-    name: PCM 電腦廣場
-    track: news
-    category: independent_media
-    access_method: feed
-    endpoint_url: https://www.pcmarket.com.hk/feed/
-    official_domain: pcmarket.com.hk
-    operator: PCM 電腦廣場
-    region: greater_china
-    language: zh-HK
-    poll_class: news
-    dx_relevance: 홍콩 PC·모바일; 중화권 기술·산업 동향 센싱
-    storage_right: excerpt_allowed
-  - key: technews-tw-semiconductor
-    name: 科技新報 半導體
-    track: news
-    category: independent_media
-    access_method: feed
-    endpoint_url: https://technews.tw/category/semiconductor/feed/
-    official_domain: technews.tw
-    operator: 科技新報 半導體
-    region: greater_china
-    language: zh-TW
-    poll_class: news
-    dx_relevance: 科技新報 半導體 분야; 중화권 기술·산업 동향 센싱
-    storage_right: excerpt_allowed
-  - key: technews-tw-ai
-    name: 科技新報 人工智慧
-    track: news
-    category: independent_media
-    access_method: feed
-    endpoint_url: https://technews.tw/category/ai/feed/
-    official_domain: technews.tw
-    operator: 科技新報 人工智慧
-    region: greater_china
-    language: zh-TW
-    poll_class: news
-    dx_relevance: 科技新報 人工智慧 분야; 중화권 기술·산업 동향 센싱
-    storage_right: excerpt_allowed
-  - key: technews-tw-component
-    name: 科技新報 零組件
-    track: news
-    category: independent_media
-    access_method: feed
-    endpoint_url: https://technews.tw/category/component/feed/
-    official_domain: technews.tw
-    operator: 科技新報 零組件
-    region: greater_china
-    language: zh-TW
-    poll_class: news
-    dx_relevance: 科技新報 零組件 분야; 중화권 기술·산업 동향 센싱
-    storage_right: excerpt_allowed
-  - key: technews-tw-internet
-    name: 科技新報 網路
-    track: news
-    category: independent_media
-    access_method: feed
-    endpoint_url: https://technews.tw/category/internet/feed/
-    official_domain: technews.tw
-    operator: 科技新報 網路
-    region: greater_china
-    language: zh-TW
-    poll_class: news
-    dx_relevance: 科技新報 網路 분야; 중화권 기술·산업 동향 센싱
-    storage_right: excerpt_allowed
-  - key: technews-tw-cutting-edge
-    name: 科技新報 尖端科技
-    track: news
-    category: independent_media
-    access_method: feed
-    endpoint_url: https://technews.tw/category/cutting-edge/feed/
-    official_domain: technews.tw
-    operator: 科技新報 尖端科技
-    region: greater_china
-    language: zh-TW
-    poll_class: news
-    dx_relevance: 科技新報 尖端科技 분야; 중화권 기술·산업 동향 센싱
-    storage_right: excerpt_allowed
-  - key: technews-tw-biotech
-    name: 科技新報 生技
-    track: news
-    category: independent_media
-    access_method: feed
-    endpoint_url: https://technews.tw/category/biotech/feed/
-    official_domain: technews.tw
-    operator: 科技新報 生技
-    region: greater_china
-    language: zh-TW
-    poll_class: news
-    dx_relevance: 科技新報 生技 분야; 중화권 기술·산업 동향 센싱
-    storage_right: excerpt_allowed
-  - key: technews-tw-finance
-    name: 科技新報 財經
-    track: news
-    category: independent_media
-    access_method: feed
-    endpoint_url: https://technews.tw/category/finance/feed/
-    official_domain: technews.tw
-    operator: 科技新報 財經
-    region: greater_china
-    language: zh-TW
-    poll_class: news
-    dx_relevance: 科技新報 財經 분야; 중화권 기술·산업 동향 센싱
-    storage_right: excerpt_allowed
-  - key: unwire-hk-mobile-phone
-    name: Unwire.hk 手機
-    track: news
-    category: independent_media
-    access_method: feed
-    endpoint_url: https://unwire.hk/category/mobile-phone/feed/
-    official_domain: unwire.hk
-    operator: Unwire.hk 手機
-    region: greater_china
-    language: zh-HK
-    poll_class: news
-    dx_relevance: Unwire.hk 手機 분야; 중화권 기술·산업 동향 센싱
-    storage_right: excerpt_allowed
-  - key: unwire-hk-computer
-    name: Unwire.hk 電腦
-    track: news
-    category: independent_media
-    access_method: feed
-    endpoint_url: https://unwire.hk/category/computer/feed/
-    official_domain: unwire.hk
-    operator: Unwire.hk 電腦
-    region: greater_china
-    language: zh-HK
-    poll_class: news
-    dx_relevance: Unwire.hk 電腦 분야; 중화권 기술·산업 동향 센싱
-    storage_right: excerpt_allowed
-  - key: unwire-hk-ai
-    name: Unwire.hk AI
-    track: news
-    category: independent_media
-    access_method: feed
-    endpoint_url: https://unwire.hk/category/ai/feed/
-    official_domain: unwire.hk
-    operator: Unwire.hk AI
-    region: greater_china
-    language: zh-HK
-    poll_class: news
-    dx_relevance: Unwire.hk AI 분야; 중화권 기술·산업 동향 센싱
-    storage_right: excerpt_allowed
-  - key: unwire-hk-wearable
-    name: Unwire.hk 穿戴
-    track: news
-    category: independent_media
-    access_method: feed
-    endpoint_url: https://unwire.hk/category/wearable/feed/
-    official_domain: unwire.hk
-    operator: Unwire.hk 穿戴
-    region: greater_china
-    language: zh-HK
-    poll_class: news
-    dx_relevance: Unwire.hk 穿戴 분야; 중화권 기술·산업 동향 센싱
-    storage_right: excerpt_allowed
-  - key: unwire-hk-smarthome
-    name: Unwire.hk 智能家居
-    track: news
-    category: independent_media
-    access_method: feed
-    endpoint_url: https://unwire.hk/category/smarthome/feed/
-    official_domain: unwire.hk
-    operator: Unwire.hk 智能家居
-    region: greater_china
-    language: zh-HK
-    poll_class: news
-    dx_relevance: Unwire.hk 智能家居 분야; 중화권 기술·산업 동향 센싱
-    storage_right: excerpt_allowed
-  - key: unwire-hk-ev
-    name: Unwire.hk 電動車
-    track: news
-    category: independent_media
-    access_method: feed
-    endpoint_url: https://unwire.hk/category/ev/feed/
-    official_domain: unwire.hk
-    operator: Unwire.hk 電動車
-    region: greater_china
-    language: zh-HK
-    poll_class: news
-    dx_relevance: Unwire.hk 電動車 분야; 중화권 기술·산업 동향 센싱
-    storage_right: excerpt_allowed
-  - key: ithome-tw-security
-    name: iThome 資安
-    track: news
-    category: independent_media
-    access_method: feed
-    endpoint_url: https://www.ithome.com.tw/rss/security
-    official_domain: ithome.com.tw
-    operator: iThome 資安
-    region: greater_china
-    language: zh-TW
-    poll_class: news
-    dx_relevance: iThome 資安 분야; 중화권 기술·산업 동향 센싱
-    storage_right: excerpt_allowed
-  - key: ithome-tw-ai
-    name: iThome AI
-    track: news
-    category: independent_media
-    access_method: feed
-    endpoint_url: https://www.ithome.com.tw/rss/ai
-    official_domain: ithome.com.tw
-    operator: iThome AI
-    region: greater_china
-    language: zh-TW
-    poll_class: news
-    dx_relevance: iThome AI 분야; 중화권 기술·산업 동향 센싱
-    storage_right: excerpt_allowed
   - key: ithome-tw-devops
     name: iThome DevOps
     track: news
@@ -19861,19 +19588,6 @@ sources:
     language: zh-TW
     poll_class: news
     dx_relevance: iThome DevOps 분야; 중화권 기술·산업 동향 센싱
-    storage_right: excerpt_allowed
-  - key: ithome-tw-cloud-native
-    name: iThome 雲原生
-    track: news
-    category: independent_media
-    access_method: feed
-    endpoint_url: https://www.ithome.com.tw/rss/cloud-native
-    official_domain: ithome.com.tw
-    operator: iThome 雲原生
-    region: greater_china
-    language: zh-TW
-    poll_class: news
-    dx_relevance: iThome 雲原生 분야; 중화권 기술·산업 동향 센싱
     storage_right: excerpt_allowed
   - key: lenovo-news
     name: Lenovo StoryHub
@@ -19926,19 +19640,6 @@ sources:
     language: en
     poll_class: news
     dx_relevance: ESP32 IoT 개발; 중화권 기술·산업 동향 센싱
-    storage_right: excerpt_allowed
-  - key: info-gov-hk
-    name: 香港政府新聞 (創科)
-    track: news
-    category: government
-    access_method: feed
-    endpoint_url: https://www.info.gov.hk/gia/rss/general_en.xml
-    official_domain: info.gov.hk
-    operator: 香港政府新聞 (創科)
-    region: greater_china
-    language: en
-    poll_class: news
-    dx_relevance: 홍콩 정부 발표; 중화권 기술·산업 동향 센싱
     storage_right: excerpt_allowed
   - key: v2ex-programmer
     name: V2EX 程序员
@@ -20710,32 +20411,6 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: europepmc_search
-  - key: ptt-tech-job
-    name: PTT Tech_Job 科技業工作
-    track: community
-    category: dev_forum
-    access_method: feed
-    endpoint_url: https://www.ptt.cc/atom/Tech_Job.xml
-    official_domain: ptt.cc
-    operator: PTT
-    region: greater_china
-    language: zh-TW
-    poll_class: community
-    dx_relevance: 대만 PTT 科技業工作 게시판 화제; 중화권 기술·산업 동향 센싱
-    storage_right: excerpt_allowed
-  - key: ptt-soft-job
-    name: PTT Soft_Job 軟體業工作
-    track: community
-    category: dev_forum
-    access_method: feed
-    endpoint_url: https://www.ptt.cc/atom/Soft_Job.xml
-    official_domain: ptt.cc
-    operator: PTT
-    region: greater_china
-    language: zh-TW
-    poll_class: community
-    dx_relevance: 대만 PTT 軟體業工作 게시판 화제; 중화권 기술·산업 동향 센싱
-    storage_right: excerpt_allowed
   - key: ptt-mobilecomm
     name: PTT MobileComm 手機通訊
     track: community
@@ -20787,19 +20462,6 @@ sources:
     language: zh-TW
     poll_class: community
     dx_relevance: 대만 PTT Android 게시판 화제; 중화권 기술·산업 동향 센싱
-    storage_right: excerpt_allowed
-  - key: ptt-car
-    name: PTT car 汽車
-    track: community
-    category: dev_forum
-    access_method: feed
-    endpoint_url: https://www.ptt.cc/atom/car.xml
-    official_domain: ptt.cc
-    operator: PTT
-    region: greater_china
-    language: zh-TW
-    poll_class: community
-    dx_relevance: 대만 PTT 汽車 게시판 화제; 중화권 기술·산업 동향 센싱
     storage_right: excerpt_allowed
   - key: ptt-headphone
     name: PTT Headphone 耳機
@@ -21022,19 +20684,6 @@ sources:
     poll_class: community
     dx_relevance: V2EX 奇思妙想 노드 화제; 중화권 기술·산업 동향 센싱
     storage_right: excerpt_allowed
-  - key: v2ex-career
-    name: V2EX 职场
-    track: community
-    category: dev_forum
-    access_method: feed
-    endpoint_url: https://www.v2ex.com/feed/career.xml
-    official_domain: v2ex.com
-    operator: V2EX
-    region: greater_china
-    language: zh
-    poll_class: community
-    dx_relevance: V2EX 职场 노드 화제; 중화권 기술·산업 동향 센싱
-    storage_right: excerpt_allowed
   - key: v2ex-gts
     name: V2EX 全球工单
     track: community
@@ -21048,21 +20697,6 @@ sources:
     poll_class: community
     dx_relevance: V2EX 全球工单 노드 화제; 중화권 기술·산업 동향 센싱
     storage_right: excerpt_allowed
-  - key: mastodon-zh-keji
-    name: 'Mastodon mastodon.social #科技'
-    track: community
-    category: open_social
-    access_method: activitypub
-    endpoint_url: https://mastodon.social/api/v1/timelines/tag/%E7%A7%91%E6%8A%80?limit=40
-    official_domain: mastodon.social
-    operator: Mastodon gGmbH
-    region: greater_china
-    language: zh
-    poll_class: community
-    dx_relevance: '#科技 중문 오픈 소셜 반응; 중화권 기술·산업 동향 센싱'
-    storage_right: excerpt_allowed
-    config:
-      preset: mastodon_timeline
   - key: mastodon-zh-rengongzhineng
     name: 'Mastodon mastodon.social #人工智能'
     track: community
@@ -21078,21 +20712,6 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: mastodon_timeline
-  - key: mastodon-zh-zhongwen
-    name: 'Mastodon mastodon.social #中文'
-    track: community
-    category: open_social
-    access_method: activitypub
-    endpoint_url: https://mastodon.social/api/v1/timelines/tag/%E4%B8%AD%E6%96%87?limit=40
-    official_domain: mastodon.social
-    operator: Mastodon gGmbH
-    region: greater_china
-    language: zh
-    poll_class: community
-    dx_relevance: '#中文 중문 오픈 소셜 반응; 중화권 기술·산업 동향 센싱'
-    storage_right: excerpt_allowed
-    config:
-      preset: mastodon_timeline
   - key: mastodon-zh-kaiyuan
     name: 'Mastodon mastodon.social #开源'
     track: community
@@ -21105,36 +20724,6 @@ sources:
     language: zh
     poll_class: community
     dx_relevance: '#开源 중문 오픈 소셜 반응; 중화권 기술·산업 동향 센싱'
-    storage_right: excerpt_allowed
-    config:
-      preset: mastodon_timeline
-  - key: mastodon-zh-taiwan
-    name: 'Mastodon mastodon.social #台灣'
-    track: community
-    category: open_social
-    access_method: activitypub
-    endpoint_url: https://mastodon.social/api/v1/timelines/tag/%E5%8F%B0%E7%81%A3?limit=40
-    official_domain: mastodon.social
-    operator: Mastodon gGmbH
-    region: greater_china
-    language: zh
-    poll_class: community
-    dx_relevance: '#台灣 중문 오픈 소셜 반응; 중화권 기술·산업 동향 센싱'
-    storage_right: excerpt_allowed
-    config:
-      preset: mastodon_timeline
-  - key: mastodon-zh-hongkong
-    name: 'Mastodon mastodon.social #香港'
-    track: community
-    category: open_social
-    access_method: activitypub
-    endpoint_url: https://mastodon.social/api/v1/timelines/tag/%E9%A6%99%E6%B8%AF?limit=40
-    official_domain: mastodon.social
-    operator: Mastodon gGmbH
-    region: greater_china
-    language: zh
-    poll_class: community
-    dx_relevance: '#香港 중문 오픈 소셜 반응; 중화권 기술·산업 동향 센싱'
     storage_right: excerpt_allowed
     config:
       preset: mastodon_timeline
@@ -21926,3 +21515,471 @@ sources:
       mode: epo_ops
       cql: pn=CN and cpc=B25J and pd>={today-30d}
       range: 50
+  # ── 중화권 교체 (2026-10-10, 사용자 요청): OpenAlex 중국 기관 저자 검색 31곳을 더하고 31곳을 뺐다 ──
+  # 뺀 것: 본 피드와 기사가 100% 겹치는 분야 피드 16(unwire-hk·technews-tw·ithome-tw), DX와 먼 일반 시사·금융·
+  # 구인·지역 태그 13, 검증이 멈춰 기사가 없던 2. OpenAlex는 수집·검증이 공유 예산(키 없이 하루 90회)을 나눠 쓴다.
+  - key: openalex-cn-on-device-ai
+    name: 'OpenAlex 중국: on-device AI'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://api.openalex.org/works?filter=from_publication_date:{today-30d},to_publication_date:{today},authorships.institutions.country_code:cn,title_and_abstract.search:on-device%20AI&sort=publication_date:desc&per-page=50
+    official_domain: openalex.org
+    operator: OurResearch
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국 기관 저자의 'on-device AI' 논문; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: openalex_works
+  - key: openalex-cn-large-language-model
+    name: 'OpenAlex 중국: large language model'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://api.openalex.org/works?filter=from_publication_date:{today-30d},to_publication_date:{today},authorships.institutions.country_code:cn,title_and_abstract.search:large%20language%20model&sort=publication_date:desc&per-page=50
+    official_domain: openalex.org
+    operator: OurResearch
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국 기관 저자의 'large language model' 논문; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: openalex_works
+  - key: openalex-cn-multimodal-large-language-model
+    name: 'OpenAlex 중국: multimodal large language model'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://api.openalex.org/works?filter=from_publication_date:{today-30d},to_publication_date:{today},authorships.institutions.country_code:cn,title_and_abstract.search:multimodal%20large%20language%20model&sort=publication_date:desc&per-page=50
+    official_domain: openalex.org
+    operator: OurResearch
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국 기관 저자의 'multimodal large language model' 논문; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: openalex_works
+  - key: openalex-cn-humanoid-robot
+    name: 'OpenAlex 중국: humanoid robot'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://api.openalex.org/works?filter=from_publication_date:{today-30d},to_publication_date:{today},authorships.institutions.country_code:cn,title_and_abstract.search:humanoid%20robot&sort=publication_date:desc&per-page=50
+    official_domain: openalex.org
+    operator: OurResearch
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국 기관 저자의 'humanoid robot' 논문; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: openalex_works
+  - key: openalex-cn-autonomous-driving
+    name: 'OpenAlex 중국: autonomous driving'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://api.openalex.org/works?filter=from_publication_date:{today-30d},to_publication_date:{today},authorships.institutions.country_code:cn,title_and_abstract.search:autonomous%20driving&sort=publication_date:desc&per-page=50
+    official_domain: openalex.org
+    operator: OurResearch
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국 기관 저자의 'autonomous driving' 논문; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: openalex_works
+  - key: openalex-cn-solid-state-battery
+    name: 'OpenAlex 중국: solid-state battery'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://api.openalex.org/works?filter=from_publication_date:{today-30d},to_publication_date:{today},authorships.institutions.country_code:cn,title_and_abstract.search:solid-state%20battery&sort=publication_date:desc&per-page=50
+    official_domain: openalex.org
+    operator: OurResearch
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국 기관 저자의 'solid-state battery' 논문; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: openalex_works
+  - key: openalex-cn-sodium-ion-battery
+    name: 'OpenAlex 중국: sodium-ion battery'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://api.openalex.org/works?filter=from_publication_date:{today-30d},to_publication_date:{today},authorships.institutions.country_code:cn,title_and_abstract.search:sodium-ion%20battery&sort=publication_date:desc&per-page=50
+    official_domain: openalex.org
+    operator: OurResearch
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국 기관 저자의 'sodium-ion battery' 논문; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: openalex_works
+  - key: openalex-cn-lithium-battery
+    name: 'OpenAlex 중국: lithium battery'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://api.openalex.org/works?filter=from_publication_date:{today-30d},to_publication_date:{today},authorships.institutions.country_code:cn,title_and_abstract.search:lithium%20battery&sort=publication_date:desc&per-page=50
+    official_domain: openalex.org
+    operator: OurResearch
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국 기관 저자의 'lithium battery' 논문; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: openalex_works
+  - key: openalex-cn-oled-display
+    name: 'OpenAlex 중국: OLED display'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://api.openalex.org/works?filter=from_publication_date:{today-30d},to_publication_date:{today},authorships.institutions.country_code:cn,title_and_abstract.search:OLED%20display&sort=publication_date:desc&per-page=50
+    official_domain: openalex.org
+    operator: OurResearch
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국 기관 저자의 'OLED display' 논문; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: openalex_works
+  - key: openalex-cn-micro-led
+    name: 'OpenAlex 중국: micro-LED'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://api.openalex.org/works?filter=from_publication_date:{today-30d},to_publication_date:{today},authorships.institutions.country_code:cn,title_and_abstract.search:micro-LED&sort=publication_date:desc&per-page=50
+    official_domain: openalex.org
+    operator: OurResearch
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국 기관 저자의 'micro-LED' 논문; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: openalex_works
+  - key: openalex-cn-perovskite-solar-cell
+    name: 'OpenAlex 중국: perovskite solar cell'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://api.openalex.org/works?filter=from_publication_date:{today-30d},to_publication_date:{today},authorships.institutions.country_code:cn,title_and_abstract.search:perovskite%20solar%20cell&sort=publication_date:desc&per-page=50
+    official_domain: openalex.org
+    operator: OurResearch
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국 기관 저자의 'perovskite solar cell' 논문; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: openalex_works
+  - key: openalex-cn-6g-wireless
+    name: 'OpenAlex 중국: 6G wireless'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://api.openalex.org/works?filter=from_publication_date:{today-30d},to_publication_date:{today},authorships.institutions.country_code:cn,title_and_abstract.search:6G%20wireless&sort=publication_date:desc&per-page=50
+    official_domain: openalex.org
+    operator: OurResearch
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국 기관 저자의 '6G wireless' 논문; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: openalex_works
+  - key: openalex-cn-reconfigurable-intelligent-surface
+    name: 'OpenAlex 중국: reconfigurable intelligent surface'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://api.openalex.org/works?filter=from_publication_date:{today-30d},to_publication_date:{today},authorships.institutions.country_code:cn,title_and_abstract.search:reconfigurable%20intelligent%20surface&sort=publication_date:desc&per-page=50
+    official_domain: openalex.org
+    operator: OurResearch
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국 기관 저자의 'reconfigurable intelligent surface' 논문; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: openalex_works
+  - key: openalex-cn-integrated-sensing-and-communication
+    name: 'OpenAlex 중국: integrated sensing and communication'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://api.openalex.org/works?filter=from_publication_date:{today-30d},to_publication_date:{today},authorships.institutions.country_code:cn,title_and_abstract.search:integrated%20sensing%20and%20communication&sort=publication_date:desc&per-page=50
+    official_domain: openalex.org
+    operator: OurResearch
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국 기관 저자의 'integrated sensing and communication' 논문; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: openalex_works
+  - key: openalex-cn-satellite-internet
+    name: 'OpenAlex 중국: satellite internet'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://api.openalex.org/works?filter=from_publication_date:{today-30d},to_publication_date:{today},authorships.institutions.country_code:cn,title_and_abstract.search:satellite%20internet&sort=publication_date:desc&per-page=50
+    official_domain: openalex.org
+    operator: OurResearch
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국 기관 저자의 'satellite internet' 논문; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: openalex_works
+  - key: openalex-cn-risc-v
+    name: 'OpenAlex 중국: RISC-V'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://api.openalex.org/works?filter=from_publication_date:{today-30d},to_publication_date:{today},authorships.institutions.country_code:cn,title_and_abstract.search:RISC-V&sort=publication_date:desc&per-page=50
+    official_domain: openalex.org
+    operator: OurResearch
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국 기관 저자의 'RISC-V' 논문; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: openalex_works
+  - key: openalex-cn-photonic-chip
+    name: 'OpenAlex 중국: photonic chip'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://api.openalex.org/works?filter=from_publication_date:{today-30d},to_publication_date:{today},authorships.institutions.country_code:cn,title_and_abstract.search:photonic%20chip&sort=publication_date:desc&per-page=50
+    official_domain: openalex.org
+    operator: OurResearch
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국 기관 저자의 'photonic chip' 논문; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: openalex_works
+  - key: openalex-cn-quantum-computing
+    name: 'OpenAlex 중국: quantum computing'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://api.openalex.org/works?filter=from_publication_date:{today-30d},to_publication_date:{today},authorships.institutions.country_code:cn,title_and_abstract.search:quantum%20computing&sort=publication_date:desc&per-page=50
+    official_domain: openalex.org
+    operator: OurResearch
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국 기관 저자의 'quantum computing' 논문; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: openalex_works
+  - key: openalex-cn-neuromorphic-computing
+    name: 'OpenAlex 중국: neuromorphic computing'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://api.openalex.org/works?filter=from_publication_date:{today-30d},to_publication_date:{today},authorships.institutions.country_code:cn,title_and_abstract.search:neuromorphic%20computing&sort=publication_date:desc&per-page=50
+    official_domain: openalex.org
+    operator: OurResearch
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국 기관 저자의 'neuromorphic computing' 논문; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: openalex_works
+  - key: openalex-cn-image-sensor
+    name: 'OpenAlex 중국: image sensor'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://api.openalex.org/works?filter=from_publication_date:{today-30d},to_publication_date:{today},authorships.institutions.country_code:cn,title_and_abstract.search:image%20sensor&sort=publication_date:desc&per-page=50
+    official_domain: openalex.org
+    operator: OurResearch
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국 기관 저자의 'image sensor' 논문; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: openalex_works
+  - key: openalex-cn-lidar
+    name: 'OpenAlex 중국: LiDAR'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://api.openalex.org/works?filter=from_publication_date:{today-30d},to_publication_date:{today},authorships.institutions.country_code:cn,title_and_abstract.search:LiDAR&sort=publication_date:desc&per-page=50
+    official_domain: openalex.org
+    operator: OurResearch
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국 기관 저자의 'LiDAR' 논문; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: openalex_works
+  - key: openalex-cn-smart-glasses
+    name: 'OpenAlex 중국: smart glasses'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://api.openalex.org/works?filter=from_publication_date:{today-30d},to_publication_date:{today},authorships.institutions.country_code:cn,title_and_abstract.search:smart%20glasses&sort=publication_date:desc&per-page=50
+    official_domain: openalex.org
+    operator: OurResearch
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국 기관 저자의 'smart glasses' 논문; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: openalex_works
+  - key: openalex-cn-wearable-sensor
+    name: 'OpenAlex 중국: wearable sensor'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://api.openalex.org/works?filter=from_publication_date:{today-30d},to_publication_date:{today},authorships.institutions.country_code:cn,title_and_abstract.search:wearable%20sensor&sort=publication_date:desc&per-page=50
+    official_domain: openalex.org
+    operator: OurResearch
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국 기관 저자의 'wearable sensor' 논문; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: openalex_works
+  - key: openalex-cn-brain-computer-interface
+    name: 'OpenAlex 중국: brain-computer interface'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://api.openalex.org/works?filter=from_publication_date:{today-30d},to_publication_date:{today},authorships.institutions.country_code:cn,title_and_abstract.search:brain-computer%20interface&sort=publication_date:desc&per-page=50
+    official_domain: openalex.org
+    operator: OurResearch
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국 기관 저자의 'brain-computer interface' 논문; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: openalex_works
+  - key: openalex-cn-federated-learning
+    name: 'OpenAlex 중국: federated learning'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://api.openalex.org/works?filter=from_publication_date:{today-30d},to_publication_date:{today},authorships.institutions.country_code:cn,title_and_abstract.search:federated%20learning&sort=publication_date:desc&per-page=50
+    official_domain: openalex.org
+    operator: OurResearch
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국 기관 저자의 'federated learning' 논문; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: openalex_works
+  - key: openalex-cn-model-compression
+    name: 'OpenAlex 중국: model compression'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://api.openalex.org/works?filter=from_publication_date:{today-30d},to_publication_date:{today},authorships.institutions.country_code:cn,title_and_abstract.search:model%20compression&sort=publication_date:desc&per-page=50
+    official_domain: openalex.org
+    operator: OurResearch
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국 기관 저자의 'model compression' 논문; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: openalex_works
+  - key: openalex-cn-embodied-intelligence
+    name: 'OpenAlex 중국: embodied intelligence'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://api.openalex.org/works?filter=from_publication_date:{today-30d},to_publication_date:{today},authorships.institutions.country_code:cn,title_and_abstract.search:embodied%20intelligence&sort=publication_date:desc&per-page=50
+    official_domain: openalex.org
+    operator: OurResearch
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국 기관 저자의 'embodied intelligence' 논문; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: openalex_works
+  - key: openalex-cn-drone
+    name: 'OpenAlex 중국: drone'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://api.openalex.org/works?filter=from_publication_date:{today-30d},to_publication_date:{today},authorships.institutions.country_code:cn,title_and_abstract.search:drone&sort=publication_date:desc&per-page=50
+    official_domain: openalex.org
+    operator: OurResearch
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국 기관 저자의 'drone' 논문; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: openalex_works
+  - key: openalex-cn-smart-grid
+    name: 'OpenAlex 중국: smart grid'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://api.openalex.org/works?filter=from_publication_date:{today-30d},to_publication_date:{today},authorships.institutions.country_code:cn,title_and_abstract.search:smart%20grid&sort=publication_date:desc&per-page=50
+    official_domain: openalex.org
+    operator: OurResearch
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국 기관 저자의 'smart grid' 논문; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: openalex_works
+  - key: openalex-cn-electric-vehicle-charging
+    name: 'OpenAlex 중국: electric vehicle charging'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://api.openalex.org/works?filter=from_publication_date:{today-30d},to_publication_date:{today},authorships.institutions.country_code:cn,title_and_abstract.search:electric%20vehicle%20charging&sort=publication_date:desc&per-page=50
+    official_domain: openalex.org
+    operator: OurResearch
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국 기관 저자의 'electric vehicle charging' 논문; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: openalex_works
+  - key: openalex-cn-digital-twin
+    name: 'OpenAlex 중국: digital twin'
+    track: research_ip
+    category: academic_index
+    access_method: research_api
+    endpoint_url: https://api.openalex.org/works?filter=from_publication_date:{today-30d},to_publication_date:{today},authorships.institutions.country_code:cn,title_and_abstract.search:digital%20twin&sort=publication_date:desc&per-page=50
+    official_domain: openalex.org
+    operator: OurResearch
+    region: greater_china
+    language: en
+    poll_class: research
+    dx_relevance: 중국 기관 저자의 'digital twin' 논문; 중화권 기술·산업 동향 센싱
+    storage_right: excerpt_allowed
+    config:
+      preset: openalex_works
