@@ -55,6 +55,7 @@ PRESETS: dict[str, dict[str, Any]] = {
             "summary": ["post.record.text", "post.embed.external.description"],
             "published_at": "post.record.createdAt",
             "author": "post.author.handle",
+            "link": "post.embed.external.uri",
         },
         "url_template": "https://bsky.app/profile/{post.author.handle}/post/{post.uri|last}",
         "title_limit": 120,
@@ -73,6 +74,7 @@ PRESETS: dict[str, dict[str, Any]] = {
             "summary": "content",
             "published_at": "created_at",
             "author": "account.acct",
+            "link": "card.url",
         },
         "title_limit": 120,
         "metrics": {

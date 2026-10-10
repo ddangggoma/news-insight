@@ -9,6 +9,8 @@ from sqlalchemy.orm import Session
 
 from news_insight.collect.contracts import RawItem
 from news_insight.collect.models import FetchRun
+from news_insight.content import duplicates
+from news_insight.content.dedup import DedupKeys, dedup_keys, shared_link
 from news_insight.content.models import Item, ItemMetricSnapshot, ItemRevision
 from news_insight.content.normalize import canonical_url, clean_text, content_hash, stable_key
 from news_insight.content.policy import apply_storage_right
@@ -43,9 +45,10 @@ class _Prepared:
     published_at: datetime | None
     digest: str
     metrics: dict[str, int]
+    link: str | None  # the article a social post shares
 
 
-def _prepare(raw: RawItem) -> _Prepared | None:
+def _prepare(raw: RawItem, *, social: bool = False) -> _Prepared | None:
     title = clean_text(raw.title, limit=TITLE_LIMIT)
     url = raw.url.strip()
     canonical = canonical_url(url) if url else ""
@@ -53,6 +56,7 @@ def _prepare(raw: RawItem) -> _Prepared | None:
         return None
     summary = clean_text(raw.summary)
     body = clean_text(raw.body)
+    link = raw.link or (shared_link(raw.summary or raw.body, post_url=url) if social else None)
     return _Prepared(
         stable_id=stable_key(raw.stable_id or canonical),
         url=url,
@@ -64,6 +68,19 @@ def _prepare(raw: RawItem) -> _Prepared | None:
         published_at=raw.published_at,
         digest=content_hash(title, summary, body),
         metrics=dict(raw.metrics),
+        link=link,
+    )
+
+
+def keys_of(item: Item, link: str | None) -> DedupKeys:
+    """Keys from the stored text (summary first: the body may expire), so a backfill and a
+    later ingest of the same text agree."""
+    return dedup_keys(
+        canonical=item.canonical_url,
+        title=item.title,
+        summary=item.summary,
+        body=item.body,
+        link=link,
     )
 
 
@@ -93,8 +110,9 @@ def ingest_items(
 ) -> IngestStats:
     prepared: dict[str, _Prepared] = {}
     rejected = 0
+    social = str(source.access_method) in duplicates.SOCIAL_METHODS
     for raw in items:
-        candidate = _prepare(raw)
+        candidate = _prepare(raw, social=social)
         if candidate is None:
             rejected += 1
             continue
@@ -119,15 +137,16 @@ def ingest_items(
         url_owners.setdefault(url, stable_id)
         owner_titles.setdefault(url, title)
     run_id = fetch_run.id if fetch_run is not None else None
-    new = updated = unchanged = duplicates = 0
+    new = updated = unchanged = duplicate_urls = 0
     touched: dict[str, Item] = {}
+    keyed: list[tuple[Item, DedupKeys, bool]] = []  # new or changed items: (item, keys, changed)
     for candidate in prepared.values():
         item = existing.get(candidate.stable_id)
         if item is None:
             owner = url_owners.setdefault(candidate.canonical, candidate.stable_id)
             owner_titles.setdefault(candidate.canonical, candidate.title)
             if owner != candidate.stable_id:
-                duplicates += 1
+                duplicate_urls += 1
                 # same link and same headline under a new GUID: the same report again, not a new
                 # one (2026-10-05: 355 such copies). Podcast episodes that share one link keep
                 # their own titles and are stored.
@@ -148,6 +167,7 @@ def ingest_items(
             _apply(item, candidate, source, now)
             session.add(item)
             touched[candidate.stable_id] = item
+            keyed.append((item, keys_of(item, candidate.link), False))
             new += 1
         elif item.content_hash == candidate.digest:
             touched[candidate.stable_id] = item
@@ -159,6 +179,7 @@ def ingest_items(
             item.last_changed_at = now
             _apply(item, candidate, source, now)
             touched[candidate.stable_id] = item
+            keyed.append((item, keys_of(item, candidate.link), True))
             updated += 1
         session.add(
             ItemRevision(
@@ -171,13 +192,16 @@ def ingest_items(
             )
         )
     session.flush()
+    # duplicate assignment comes before carding: repeats never reach a card engine
+    for item, keys, changed in sorted(keyed, key=lambda entry: entry[0].id):
+        duplicates.record(session, item.id, keys, now=now, changed=changed)
     snapshots = _record_snapshots(session, touched, prepared, now)
     return IngestStats(
         seen=len(items),
         new=new,
         updated=updated,
         unchanged=unchanged,
-        duplicate_urls=duplicates,
+        duplicate_urls=duplicate_urls,
         rejected=rejected,
         snapshots=snapshots,
     )

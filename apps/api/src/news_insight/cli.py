@@ -629,6 +629,7 @@ def cards_run(
             min_five_hour=settings.card_agy_min_five_hour,
             time_budget_seconds=float(budget or settings.card_time_budget_seconds),
             unvalidated_daily_cap=settings.card_unvalidated_daily_cap or None,
+            cap_bypass_dx=settings.card_cap_bypass_dx,
         )
         started = datetime.now(UTC)
         stats = run_cards(
@@ -673,6 +674,30 @@ def cards_triage(
     with session_scope() as session:
         scored = score_pending(session, now=now, limit=score_limit)
     typer.echo(f"embedded={embedded} scored={scored}")
+
+
+@cards_app.command("dedup")
+def cards_dedup() -> None:
+    """Duplicate keys and roots for items stored before item_dedup existed (one-off backfill,
+    2026-10-10), then copy group cards so repeats leave the queue."""
+    from news_insight.cards.service import reuse_cards
+    from news_insight.content.duplicates import backfill
+
+    now = datetime.now(UTC)
+    with session_scope() as session:
+        stats = backfill(session, now=now)
+    copied = 0
+    while True:
+        with session_scope() as session:
+            done = reuse_cards(session, now=now, limit=5000)
+        copied += len(done)
+        if len(done) < 5000:
+            break
+    kinds = " ".join(f"{kind}={n}" for kind, n in sorted(stats.by_kind.items()))
+    typer.echo(
+        f"keyed={stats.keyed} repeats={stats.repeats} ({kinds or '-'}) "
+        f"links_recovered={stats.links} cards_copied={copied}"
+    )
 
 
 @cards_app.command("embed")
@@ -773,9 +798,23 @@ def cards_status() -> None:
         pending = pending_count(session)
         reclassify = classify_pending_count(session)
         last = session.scalars(select(CardRun).order_by(CardRun.id.desc()).limit(1)).first()
+        from news_insight.content.models import ItemDedup
+
+        repeats = dict(
+            session.execute(
+                select(ItemDedup.matched_by, func.count())
+                .where(ItemDedup.duplicate_of.is_not(None))
+                .group_by(ItemDedup.matched_by)
+            )
+            .tuples()
+            .all()
+        )
         line = (
             f"pending={pending} reclassify={reclassify} ready={counts.get(CardStatus.READY, 0)} "
-            f"failed={counts.get(CardStatus.FAILED, 0)}"
+            f"failed={counts.get(CardStatus.FAILED, 0)} "
+            f"repeats={sum(repeats.values())} ("
+            + " ".join(f"{kind}={n}" for kind, n in sorted(repeats.items()))
+            + ")"
         )
         if last is not None:
             line += (

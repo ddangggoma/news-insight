@@ -11,8 +11,8 @@ from datetime import UTC, datetime, timedelta
 from typing import Any
 from zoneinfo import ZoneInfo
 
-from sqlalchemy import and_, func, or_, select, true
-from sqlalchemy.orm import Session
+from sqlalchemy import and_, exists, func, not_, or_, select, text, true
+from sqlalchemy.orm import Session, aliased
 
 from news_insight.cards.engines import (
     CardEngine,
@@ -32,7 +32,7 @@ from news_insight.cards.schemas import (
     parse_drafts,
 )
 from news_insight.content.freshness import fresh_condition
-from news_insight.content.models import Item
+from news_insight.content.models import Item, ItemDedup
 from news_insight.content.normalize import truncate
 from news_insight.sources.enums import SourceStatus
 from news_insight.sources.models import Source
@@ -49,9 +49,32 @@ def _now() -> datetime:
     return datetime.now(UTC)
 
 
+def waits_for_root() -> Any:
+    """The item repeats an earlier one (content/duplicates.py) that will get a card: it takes
+    a copy of that card instead of an engine call. A root in a paused or retired source, or one
+    whose card gave up, does not hold its repeats back."""
+    root, root_source, root_card = aliased(Item), aliased(Source), aliased(ItemCard)
+    return exists(
+        select(ItemDedup.item_id)
+        .join(root, root.id == ItemDedup.duplicate_of)
+        .join(root_source, root_source.id == root.source_id)
+        .outerjoin(root_card, root_card.item_id == root.id)
+        .where(
+            ItemDedup.item_id == Item.id,
+            root_source.status.not_in((SourceStatus.PAUSED, SourceStatus.RETIRED)),
+            or_(
+                root_card.id.is_(None),
+                root_card.status != CardStatus.FAILED,
+                root_card.attempts < MAX_ATTEMPTS,
+            ),
+        )
+    )
+
+
 def pending_condition() -> Any:
     """Card text is needed: no card yet, the item changed since its card, or a failed card
-    with retries left. A taxonomy revision alone does not regenerate text (checklist CLS-2)."""
+    with retries left. A taxonomy revision alone does not regenerate text (checklist CLS-2).
+    Repeats of another item wait for its card (duplicate removal comes before carding)."""
     return and_(
         fresh_condition(),  # archive pages get no card (2026-10-05 audit)
         or_(
@@ -59,6 +82,7 @@ def pending_condition() -> Any:
             ItemCard.input_hash != Item.content_hash,
             and_(ItemCard.status == CardStatus.FAILED, ItemCard.attempts < MAX_ATTEMPTS),
         ),
+        not_(waits_for_root()),
     )
 
 
@@ -73,7 +97,9 @@ def classify_pending_condition() -> Any:
 
 
 EXPLORE_SHARE = 0.1  # newest-first picks next to the score order (keeps training labels unbiased)
-HIGH_DX = 0.8  # a triage probability that may pass the unvalidated-source daily cap
+# a triage probability that may pass the unvalidated-source daily cap: 0.5 since 2026-10-10
+# (Mastodon cards scored 0.5-0.8 turned out DX-related 89 % of the time, >= 0.8: 96 %)
+CAP_BYPASS_DX = 0.5
 
 
 def pending_items(
@@ -82,6 +108,7 @@ def pending_items(
     limit: int,
     exclude: set[int] | None = None,
     unvalidated_daily_cap: int | None = None,
+    cap_bypass_dx: float = CAP_BYPASS_DX,
 ) -> list[tuple[Item, Source]]:
     """Items needing card text, by triage score (plan 16 #3) with a newest-first share.
 
@@ -109,7 +136,10 @@ def pending_items(
             .having(func.count() >= unvalidated_daily_cap)
         )
         conditions.append(
-            or_(Item.source_id.not_in(busy), func.coalesce(ItemTriage.dx_probability, 0) >= HIGH_DX)
+            or_(
+                Item.source_id.not_in(busy),
+                func.coalesce(ItemTriage.dx_probability, 0) >= cap_bypass_dx,
+            )
         )
     base = (
         select(Item, Source)
@@ -276,39 +306,60 @@ _REUSED_FIELDS = (
 )
 
 
-def reuse_cards(session: Session, items: list[Item], *, now: datetime) -> set[int]:
-    """Copy the ready card of an item with the same URL or the same content (2026-10-05: 7,465
-    URL copies across HN and Europe PMC query sources, 13,192 same-content pages): no engine
-    call. Returns the ids that got a card."""
-    if not items:
+# members of duplicate groups that lack a current card, each with the member to copy from:
+# the root when it has a card, otherwise the earliest member that has one
+_DONORS = text(
+    """
+    with rep as (
+      select item_id, duplicate_of as root from item_dedup where duplicate_of is not null
+    ), grp as (
+      select item_id, root from rep
+      union
+      select root, root from rep
+    )
+    select distinct on (t.item_id) t.item_id, donor.item_id as donor_id
+    from grp t
+    join items i on i.id = t.item_id
+    left join item_cards own on own.item_id = t.item_id
+    join grp donor on donor.root = t.root and donor.item_id <> t.item_id
+    join items di on di.id = donor.item_id
+    join item_cards dc on dc.item_id = donor.item_id
+    where dc.status = 'ready' and dc.input_hash = di.content_hash
+      and (i.published_at is null or i.published_at >= i.first_seen_at - interval '30 days')
+      and (own.id is null or own.input_hash <> i.content_hash or own.status = 'failed')
+    order by t.item_id, (donor.item_id = t.root) desc, donor.item_id
+    limit :limit
+    """
+)
+
+
+def reuse_cards(session: Session, *, now: datetime, limit: int = 5000) -> set[int]:
+    """Copy a card within a duplicate group (content/duplicates.py): every member without a
+    current card takes the root's card, or another member's when the root has none yet. No
+    engine call. Returns the ids that got a card."""
+    pairs = session.execute(_DONORS, {"limit": limit}).tuples().all()
+    if not pairs:
         return set()
-    ids = [item.id for item in items]
-    rows = session.execute(
-        select(Item.canonical_url, Item.content_hash, ItemCard)
-        .join(ItemCard, ItemCard.item_id == Item.id)
-        .where(
-            ItemCard.status == CardStatus.READY,
-            Item.id.not_in(ids),
-            or_(
-                Item.canonical_url.in_({item.canonical_url for item in items}),
-                Item.content_hash.in_({item.content_hash for item in items}),
-            ),
+    donors = {
+        card.item_id: card
+        for card in session.scalars(
+            select(ItemCard).where(ItemCard.item_id.in_({donor for _, donor in pairs}))
         )
-    ).tuples()
-    by_url: dict[str, ItemCard] = {}
-    by_hash: dict[str, ItemCard] = {}
-    for url, content_hash, row in rows:
-        by_url.setdefault(url, row)
-        by_hash.setdefault(content_hash, row)
+    }
+    items = {
+        item.id: item
+        for item in session.scalars(select(Item).where(Item.id.in_({t for t, _ in pairs})))
+    }
+    own = {
+        card.item_id: card
+        for card in session.scalars(select(ItemCard).where(ItemCard.item_id.in_(list(items))))
+    }
     done: set[int] = set()
-    for item in items:
-        match = by_url.get(item.canonical_url) or by_hash.get(item.content_hash)
-        if match is None:
-            continue
-        donor = match
-        card = session.scalars(select(ItemCard).where(ItemCard.item_id == item.id)).one_or_none()
+    for target, donor_id in pairs:
+        donor, item = donors[donor_id], items[target]
+        card = own.get(target)
         if card is None:
-            card = ItemCard(item_id=item.id, attempts=0, summary_ko=[], keywords=[])
+            card = ItemCard(item_id=target, attempts=0, summary_ko=[], keywords=[])
             session.add(card)
         for name in _REUSED_FIELDS:
             setattr(card, name, getattr(donor, name))
@@ -316,7 +367,7 @@ def reuse_cards(session: Session, items: list[Item], *, now: datetime) -> set[in
         card.engine, card.model = REUSED, f"item:{donor.item_id}"
         card.input_hash, card.generated_at = item.content_hash, now
         card.attempts, card.error, card.classify_attempts = 0, None, 0
-        done.add(item.id)
+        done.add(target)
     session.flush()
     return done
 
@@ -409,6 +460,7 @@ class CardPolicy:
     min_five_hour: int = 2
     time_budget_seconds: float = 540.0
     unvalidated_daily_cap: int | None = 40  # cards per non-active source per 24 hours
+    cap_bypass_dx: float = CAP_BYPASS_DX  # triage probability that passes that cap
 
 
 @dataclass(frozen=True)
@@ -584,17 +636,17 @@ def _plan_round(
         )
         # keep one lane for reclassification while new items also wait (metered engines only)
         card_lanes = lanes - 1 if stale and lanes > 1 else lanes
+        # repeats take their group's card first; the queue then holds one item per story
+        reused = reuse_cards(session, now=_now())
+        if stats is not None:
+            stats.reused += len(reused)
         pending = pending_items(
             session,
             limit=batch * card_lanes,
             exclude=attempted,
             unvalidated_daily_cap=policy.unvalidated_daily_cap,
+            cap_bypass_dx=policy.cap_bypass_dx,
         )
-        reused = reuse_cards(session, [item for item, _ in pending], now=_now())
-        if stats is not None:
-            stats.reused += len(reused)
-        attempted.update(reused)
-        pending = [(item, source) for item, source in pending if item.id not in reused]
         keep = lost_facts(session, [item.id for item, _ in pending])
         inputs = [card_input(item, source, keep.get(item.id)) for item, source in pending]
         jobs = [Job("card", inputs[i : i + batch]) for i in range(0, len(inputs), batch)]
