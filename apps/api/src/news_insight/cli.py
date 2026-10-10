@@ -1121,6 +1121,35 @@ def taxonomy_seed(
             typer.echo(f"legacy labels={backfill_labels(session)}")
 
 
+@ops_app.command("keys")
+def ops_keys() -> None:
+    """Check the free API keys from .env against their services; values are never printed."""
+    import httpx
+
+    from news_insight.collect import epo_ops
+    from news_insight.collect.context import provider_headers
+    from news_insight.collect.contracts import CollectorError
+
+    settings = get_settings()
+    url = "https://api.openalex.org/rate-limit"
+    if not settings.openalex_api_key:
+        typer.echo("OpenAlex: OPENALEX_API_KEY is not set")
+    else:
+        try:
+            response = httpx.get(url, headers=provider_headers(url), timeout=30)
+            budget = {k: v for k, v in response.headers.items() if k.startswith("x-ratelimit")}
+            typer.echo(f"OpenAlex: HTTP {response.status_code} {budget}")
+        except httpx.HTTPError as exc:
+            typer.echo(f"OpenAlex: unreachable ({type(exc).__name__})")
+    try:
+        with _fetcher() as fetcher:
+            epo_ops._tokens.clear()
+            epo_ops._token(fetcher)
+        typer.echo("EPO OPS: token issued (key and secret accepted)")
+    except CollectorError as exc:
+        typer.echo(f"EPO OPS: {exc}")
+
+
 @ops_app.command("check")
 def ops_check(
     apply: Annotated[
