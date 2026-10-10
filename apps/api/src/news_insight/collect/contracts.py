@@ -18,6 +18,8 @@ class RawItem:
     summary: str | None = None
     body: str | None = None
     metrics: dict[str, int] = field(default_factory=dict)
+    # the external article a social post shares (Mastodon preview card, Bluesky embed)
+    link: str | None = None
 
 
 @dataclass(frozen=True)

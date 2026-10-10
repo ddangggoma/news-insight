@@ -89,3 +89,26 @@ class ItemMetricSnapshot(Base):
     item_id: Mapped[int] = mapped_column(ForeignKey("items.id", ondelete="CASCADE"))
     captured_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     metrics: Mapped[dict[str, Any]] = mapped_column(JSONB)
+
+
+class ItemDedup(Base):
+    """Duplicate keys of an item (content/dedup.py) and, when it repeats an earlier item, that
+    item: carding sends only the first one and copies its card (2026-10-10)."""
+
+    __tablename__ = "item_dedup"
+
+    item_id: Mapped[int] = mapped_column(
+        ForeignKey("items.id", ondelete="CASCADE"), primary_key=True
+    )
+    url_key: Mapped[str] = mapped_column(String(32), index=True)
+    text_key: Mapped[str | None] = mapped_column(String(32), index=True)
+    title_key: Mapped[str | None] = mapped_column(String(32), index=True)
+    lead_key: Mapped[str | None] = mapped_column(String(32))
+    lead_title: Mapped[bool] = mapped_column(default=False, server_default=false())
+    link_key: Mapped[str | None] = mapped_column(String(32), index=True)
+    # the item this one repeats (always a root: an item that repeats nothing)
+    duplicate_of: Mapped[int | None] = mapped_column(
+        ForeignKey("items.id", ondelete="SET NULL"), index=True
+    )
+    matched_by: Mapped[str | None] = mapped_column(String(10))  # url | text | link | title
+    computed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))

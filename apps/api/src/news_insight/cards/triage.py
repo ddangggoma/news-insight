@@ -23,7 +23,7 @@ from datetime import datetime, timedelta
 from typing import Any
 
 import numpy as np
-from sqlalchemy import func, select, text
+from sqlalchemy import func, not_, select, text
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
@@ -296,6 +296,8 @@ def watch_keys(session: Session) -> tuple[set[str], set[str]]:
 
 def embed_titles(session: Session, embed: Embed, *, model: str, now: datetime, limit: int) -> int:
     """Title embeddings for fresh items that have neither a card nor a vector yet."""
+    from news_insight.cards.service import waits_for_root
+
     rows = (
         session.execute(
             select(Item.id, Item.title)
@@ -307,6 +309,7 @@ def embed_titles(session: Session, embed: Embed, *, model: str, now: datetime, l
                 ItemEmbedding.item_id.is_(None),
                 Source.status.not_in((SourceStatus.PAUSED, SourceStatus.RETIRED)),
                 Item.first_seen_at >= now - timedelta(days=14),
+                not_(waits_for_root()),  # a repeat takes its root's card: no score needed
             )
             .order_by(Item.first_seen_at.desc())
             .limit(limit)
@@ -333,6 +336,8 @@ def embed_titles(session: Session, embed: Embed, *, model: str, now: datetime, l
 
 def score_pending(session: Session, *, now: datetime, limit: int) -> int:
     """Score embedded, uncarded items not yet scored by the active model."""
+    from news_insight.cards.service import waits_for_root
+
     model = active_model(session)
     if model is None:
         return 0
@@ -347,6 +352,7 @@ def score_pending(session: Session, *, now: datetime, limit: int) -> int:
                 func.array_length(ItemEmbedding.vector, 1) == 1024,
                 (ItemTriage.item_id.is_(None)) | (ItemTriage.model_id.is_distinct_from(model.id)),
                 Item.first_seen_at >= now - timedelta(days=14),
+                not_(waits_for_root()),
             )
             .order_by(Item.first_seen_at.desc())
             .limit(limit)

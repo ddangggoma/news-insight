@@ -74,6 +74,7 @@ class Settings(BaseSettings):
     card_qwen_alongside: bool = True
     card_qwen_parallel: int = 2
     card_unvalidated_daily_cap: int = 40  # cards per non-active source per 24 hours (2026-10-05)
+    card_cap_bypass_dx: float = 0.5  # triage probability that passes that cap (2026-10-10)
     card_timeout_seconds: int = 300
     card_time_budget_seconds: int = 540
 

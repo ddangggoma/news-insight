@@ -188,4 +188,5 @@ def _to_item(record: Any, mapping: _Mapping, *, base_url: str) -> RawItem | None
         author=first_text(record, mapping.fields["author"]),
         summary=first_text(record, mapping.fields["summary"]),
         metrics=extract_metrics(record, mapping.metrics),
+        link=first_text(record, mapping.fields.get("link") or []),
     )
