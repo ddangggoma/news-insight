@@ -96,3 +96,14 @@ def test_report_lists_tracks_regions_and_stages(tmp_path: Path) -> None:
     assert "news" in result.output and "0/100" in result.output
     assert "greater_china" in result.output and "0/21" in result.output
     assert "unverified" in result.output
+
+
+def test_ops_keys_reports_missing_keys_without_values(monkeypatch: pytest.MonkeyPatch) -> None:
+    from news_insight.config import Settings
+
+    monkeypatch.setattr(cli, "get_settings", lambda: Settings(_env_file=None))
+    monkeypatch.delenv("SOURCE_SECRET_EPO_OPS_KEY", raising=False)
+    result = CliRunner().invoke(cli.app, ["ops", "keys"])
+    assert result.exit_code == 0
+    assert "OPENALEX_API_KEY is not set" in result.output
+    assert "SOURCE_SECRET_EPO_OPS_KEY is not configured" in result.output
