@@ -265,3 +265,35 @@ def test_quiet_hours_and_claude_daily_count() -> None:
     assert not in_quiet_hours("3-11", at(11)) and not in_quiet_hours("3-11", at(23))
     assert in_quiet_hours("22-2", at(23)) and in_quiet_hours("22-2", at(1))
     assert not in_quiet_hours("", at(5)) and not in_quiet_hours("x", at(5))
+
+
+CARD = {
+    "id": 7,
+    "title_ko": "픽셀 11",
+    "summary_ko": ["구글이 픽셀 11을 공개했다."],
+    "keywords": ["픽셀"],
+}
+
+
+@pytest.mark.parametrize(
+    "response",
+    [
+        # extra agent keys after a denied tool call (2026-10-10 captures)
+        json.dumps({"cards": [CARD], "toolAction": "Submitting cards", "toolSummary": "done"}),
+        # first a draft without ids, then the answer in a code fence
+        '{"cards":[{"title_ko":"x"}]}\n```json\n' + json.dumps([CARD]) + "\n```",
+    ],
+)
+def test_agy_recovers_cards_from_the_response_text(response: str) -> None:
+    envelope = {"status": "SUCCESS", "response": response, "denied_actions": ["write_file"]}
+
+    output = agy(FakeRunner(json.dumps(envelope))).generate(INPUTS)
+
+    assert output.raw == {"cards": [CARD]}
+
+
+def test_agy_without_cards_anywhere_is_still_an_error() -> None:
+    envelope = {"status": "SUCCESS", "response": "I could not finish the cards."}
+
+    with pytest.raises(EngineError, match="no structured output"):
+        agy(FakeRunner(json.dumps(envelope))).generate(INPUTS)
