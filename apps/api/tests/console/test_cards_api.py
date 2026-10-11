@@ -140,3 +140,45 @@ def test_card_failures_and_success_rate(
 
     assert [f["error"] for f in failures] == ["preservation: lost S30"]
     assert stats["success_rate_7d"] == pytest.approx(2 / 3)
+
+
+def test_card_progress_states_days_and_quotas(
+    console_client: TestClient, headers: dict[str, str], db_session: Session
+) -> None:
+    from news_insight.sources.enums import SourceStatus
+
+    seed(db_session)
+    paused = build_source(key="paused", status=SourceStatus.PAUSED)
+    db_session.add(paused)
+    db_session.flush()
+    ingest_items(
+        db_session,
+        paused,
+        [RawItem(stable_id="p", url="https://www.example.com/paused", title="paused item")],
+        fetch_run=None,
+        now=datetime.now(UTC),
+        canary=True,
+    )
+    db_session.flush()
+
+    progress = console_client.get("/api/admin/cards/progress", headers=headers).json()
+    stats = console_client.get("/api/admin/cards/stats", headers=headers).json()
+
+    totals = progress["totals"]
+    assert (totals["ready"], totals["failed"], totals["held"], totals["items"]) == (2, 1, 1, 4)
+    assert totals["pending"] == 0 and stats["pending"] == 0  # paused sources are not waiting
+    today = progress["days"][-1]
+    assert len(progress["days"]) == 14 and today["inflow"] == 4
+    assert today["cards"] == {"agy": 1} and today["failed"] == 1
+    assert len(progress["hours"]) == 48
+    by_status = {row["key"]: row for row in progress["breakdown"]["status"]}
+    assert by_status["paused"]["held"] == 1
+    assert progress["quotas"] == [
+        {
+            "engine": "agy",
+            "weekly": 80,
+            "five_hour": 50,
+            "seen_at": progress["quotas"][0]["seen_at"],
+        }
+    ]
+    assert progress["runs"][0]["ready"] == 2

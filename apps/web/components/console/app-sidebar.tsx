@@ -1,6 +1,6 @@
 "use client";
 
-import { Activity, BellRing, ChevronDown, Network, ClipboardCheck, Cpu, Gauge, GitMerge, History, Inbox, Layers, LayoutDashboard, LayoutGrid, Library, Lightbulb, Newspaper, Radar, Rss, Star, TrendingUp, Users } from "lucide-react";
+import { Activity, BarChart3, BellRing, ChevronDown, Network, ClipboardCheck, Cpu, Gauge, GitMerge, History, Inbox, Layers, LayoutDashboard, LayoutGrid, Library, Lightbulb, Newspaper, Radar, Rss, Star, TrendingUp, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -33,6 +33,7 @@ const NAV: { label: string; folded?: boolean; items: { href: string; title: stri
   ] },
   { label: "분석", items: [
     { href: "/console/cards", title: "카드 뉴스", icon: LayoutGrid },
+    { href: "/console/cards/progress", title: "카드 처리 현황", icon: BarChart3 },
     { href: "/console/stories", title: "이슈 묶음", icon: Layers },
     { href: "/console/signals", title: "교차 신호", icon: GitMerge },
     { href: "/console/trends", title: "지표 상승", icon: TrendingUp },
@@ -70,6 +71,10 @@ export function isActive(pathname: string, href: string): boolean {
 
 export function AppSidebar({ pendingUsers = 0 }: { pendingUsers?: number }) {
   const pathname = usePathname();
+  // the most specific match wins: /console/cards/progress lights only its own entry
+  const activeHref = NAV.flatMap((group) => group.items.map((item) => item.href))
+    .filter((href) => isActive(pathname, href))
+    .sort((a, b) => b.length - a.length)[0];
   const { isMobile, setOpenMobile, state } = useSidebar();
   const [folds, setFolds] = useState<Record<string, boolean>>({});
   useEffect(() => setFolds(readFolds()), []);
@@ -114,7 +119,7 @@ export function AppSidebar({ pendingUsers = 0 }: { pendingUsers?: number }) {
               {group.items.map((item) => (
                 <SidebarMenuItem key={item.href}>
                   {/* no prefetch: each prefetch is a full session check in proxy.ts (plan 14), ~20 per page */}
-                  <SidebarMenuButton asChild isActive={isActive(pathname, item.href)} tooltip={item.title}>
+                  <SidebarMenuButton asChild isActive={item.href === activeHref} tooltip={item.title}>
                     <Link href={item.href} prefetch={false} onClick={() => isMobile && setOpenMobile(false)}>
                       <item.icon />
                       <span>{item.title}</span>

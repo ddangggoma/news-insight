@@ -74,9 +74,13 @@ def waits_for_root() -> Any:
 def pending_condition() -> Any:
     """Card text is needed: no card yet, the item changed since its card, or a failed card
     with retries left. A taxonomy revision alone does not regenerate text (checklist CLS-2).
-    Repeats of another item wait for its card (duplicate removal comes before carding)."""
+    Repeats of another item wait for its card (duplicate removal comes before carding), and
+    items of paused or retired sources are not waiting at all (2026-10-11, user request: they
+    left the queue and the count)."""
+    held = select(Source.id).where(Source.status.in_((SourceStatus.PAUSED, SourceStatus.RETIRED)))
     return and_(
         fresh_condition(),  # archive pages get no card (2026-10-05 audit)
+        Item.source_id.not_in(held.scalar_subquery()),
         or_(
             ItemCard.id.is_(None),
             ItemCard.input_hash != Item.content_hash,
