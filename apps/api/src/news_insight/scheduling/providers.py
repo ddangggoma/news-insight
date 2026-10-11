@@ -32,6 +32,9 @@ PROVIDERS: dict[str, Provider] = {
     ),
     # public pool 1 request/s (polite pool with mailto is more); stay well under it
     "api.crossref.org": Provider(per_day=30 * 60 * 24, burst=1, validate_per_batch=5),
+    # Naver search API: 25,000 calls a day per app and a low per-second cap; 50 candidates
+    # validated at once were all answered 429 (2026-10-11), so a few per batch
+    "openapi.naver.com": Provider(per_day=20_000, burst=2, validate_per_batch=3),
 }
 # with a free OpenAlex key ($1 a day, 10x): about 900 searches, so sources poll every 6 hours
 OPENALEX_WITH_KEY = Provider(

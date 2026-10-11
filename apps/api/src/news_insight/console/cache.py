@@ -30,3 +30,39 @@ def cached[T](key: str, seconds: int, compute: Callable[[], T]) -> T:
 def clear() -> None:
     with _lock:
         _store.clear()
+
+
+_refreshing: set[str] = set()
+
+
+def cached_stale[T](key: str, seconds: int, compute: Callable[[], T]) -> T:
+    """Like `cached`, but an expired answer is still returned at once while a background thread
+    computes the next one (2026-10-11: the card progress page took 7-8 s under card runs).
+    Only the very first request waits. `compute` must open its own database session."""
+    if seconds <= 0:
+        return compute()
+    now = time.monotonic()
+    with _lock:
+        hit = _store.get(key)
+        stale = hit is not None and now - hit[0] >= seconds
+        start = stale and key not in _refreshing
+        if start:
+            _refreshing.add(key)
+    if hit is None:
+        value = compute()
+        with _lock:
+            _store[key] = (time.monotonic(), value)
+        return value
+    if start:
+
+        def refresh() -> None:
+            try:
+                fresh = compute()
+                with _lock:
+                    _store[key] = (time.monotonic(), fresh)
+            finally:
+                with _lock:
+                    _refreshing.discard(key)
+
+        threading.Thread(target=refresh, name=f"cache-{key}", daemon=True).start()
+    return hit[1]  # type: ignore[return-value]

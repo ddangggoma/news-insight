@@ -84,6 +84,15 @@ def keys_of(item: Item, link: str | None) -> DedupKeys:
     )
 
 
+FUTURE_SLACK = timedelta(hours=12)
+
+
+def _not_future(published: datetime | None, now: datetime) -> datetime | None:
+    """A publication time well past the collection time is a feed's time-zone slip (2026-10-11:
+    103 items, t3n and Wired the most); the collection time is the honest bound."""
+    return now if published is not None and published > now + FUTURE_SLACK else published
+
+
 def _apply(item: Item, candidate: _Prepared, source: Source, now: datetime) -> None:
     stored = apply_storage_right(
         source.storage_right, summary=candidate.summary, body=candidate.body, now=now
@@ -95,7 +104,7 @@ def _apply(item: Item, candidate: _Prepared, source: Source, now: datetime) -> N
     item.body = stored.body
     item.body_expires_at = stored.body_expires_at
     item.author = candidate.author
-    item.published_at = candidate.published_at
+    item.published_at = _not_future(candidate.published_at, now)
     item.content_hash = candidate.digest
 
 

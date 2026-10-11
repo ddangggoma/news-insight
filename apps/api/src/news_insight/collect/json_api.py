@@ -9,7 +9,7 @@ import json
 import re
 from dataclasses import dataclass
 from typing import Any
-from urllib.parse import quote, urljoin
+from urllib.parse import parse_qsl, quote, urlencode, urljoin, urlsplit, urlunsplit
 
 from news_insight.collect.contracts import (
     CollectContext,
@@ -56,6 +56,7 @@ class JsonApiCollector:
         if context.config.get("mode") == "epo_ops":
             return collect_ops(self._fetcher, context)
         url = expand_macros(str(context.config.get("url") or context.endpoint_url), now=context.now)
+        url = with_query(url, context.config.get("query_overrides") or {})
         response = fetch_checked(
             self._fetcher, url, allowed_mime=JSON_MIME, headers=request_headers(context)
         )
@@ -107,6 +108,33 @@ class JsonApiCollector:
             last_modified=response.headers.get("last-modified"),
             incomplete=incomplete,
         )
+
+
+def with_query(url: str, overrides: dict[str, Any]) -> str:
+    """Replace query parameters (a preset's fixed choices, such as Europe PMC's resultType=core
+    for abstracts) without touching the catalog URL, which is part of a source's identity."""
+    if not overrides:
+        return url
+    parts = urlsplit(url)
+    query = [
+        (k, v) for k, v in parse_qsl(parts.query, keep_blank_values=True) if k not in overrides
+    ]
+    query += [(str(k), str(v)) for k, v in overrides.items()]
+    return urlunsplit(parts._replace(query=urlencode(query, safe=":,[]{}()*")))
+
+
+def inverted_text(index: Any, limit: int = 4000) -> str | None:
+    """OpenAlex sends abstracts as {word: [positions]}; rebuild the text in position order."""
+    if not isinstance(index, dict) or not index:
+        return None
+    words: dict[int, str] = {}
+    for word, positions in index.items():
+        if isinstance(positions, list):
+            for position in positions:
+                if isinstance(position, int):
+                    words[position] = str(word)
+    text = " ".join(words[position] for position in sorted(words))
+    return text[:limit] or None
 
 
 def _int_or_none(value: Any) -> int | None:
@@ -186,7 +214,8 @@ def _to_item(record: Any, mapping: _Mapping, *, base_url: str) -> RawItem | None
         title=title,
         published_at=parse_datetime(first_value(record, mapping.fields["published_at"])),
         author=first_text(record, mapping.fields["author"]),
-        summary=first_text(record, mapping.fields["summary"]),
+        summary=first_text(record, mapping.fields["summary"])
+        or inverted_text(first_value(record, mapping.fields.get("summary_index") or [])),
         metrics=extract_metrics(record, mapping.metrics),
         link=first_text(record, mapping.fields.get("link") or []),
     )
