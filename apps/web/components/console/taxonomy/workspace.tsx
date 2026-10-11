@@ -8,9 +8,10 @@ import type { Revision, TaxOp } from "@/lib/taxonomy-ops";
 
 import { type Candidate, CandidateInbox } from "./candidates";
 import { ChangeBar } from "./change-bar";
+import { TaxonomyGuide } from "./guide";
 import { RevisionHistory } from "./history";
 import { NodeInspector } from "./inspector";
-import type { ConsoleNode, ConsoleScheme, Counts } from "./model";
+import { applyMoves, type ConsoleNode, type ConsoleScheme, type Counts } from "./model";
 import { SchemePanel } from "./scheme-panel";
 import { TaxonomyTree } from "./tree";
 
@@ -47,6 +48,9 @@ export function TaxonomyWorkspace({ schemes, current, counts, revisions, candida
     return map;
   }, [schemes]);
   const label = (s: string, k: string) => labels.get(`${s}:${k}`) ?? k;
+  // the tree shows the draft's moves before they are applied
+  const preview = useMemo(() => (scheme ? applyMoves(scheme.nodes, ops, scheme.key) : null), [scheme, ops]);
+  const shown = useMemo(() => (scheme && preview ? { ...scheme, nodes: preview.nodes } : scheme), [scheme, preview]);
   const add = (op: TaxOp) => setOps((prev) => [...prev, op]);
 
   if (!scheme) return <p className="text-sm text-muted-foreground">체계가 없습니다. `news-insight taxonomy seed`를 먼저 실행하세요.</p>;
@@ -66,6 +70,7 @@ export function TaxonomyWorkspace({ schemes, current, counts, revisions, candida
           <TabsTrigger value="scheme">체계 설정</TabsTrigger>
           <TabsTrigger value="history">이력</TabsTrigger>
           <TabsTrigger value="candidates">후보 {candidates.length ? <span className="ml-1 text-xs text-muted-foreground">{candidates.length}</span> : null}</TabsTrigger>
+          <TabsTrigger value="guide">사용법</TabsTrigger>
         </TabsList>
         <TabsContent value="tree" className="pt-3">
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
@@ -74,12 +79,15 @@ export function TaxonomyWorkspace({ schemes, current, counts, revisions, candida
                 <input type="checkbox" checked={showInactive} onChange={(e) => setShowInactive(e.target.checked)} /> 비활성·통합 노드도 보기
               </label>
               <TaxonomyTree
-                scheme={scheme}
+                scheme={shown ?? scheme}
+                moved={preview?.moved}
                 counts={counts}
                 selected={selected?.id ?? null}
                 onSelect={setSelected}
                 showInactive={showInactive}
-                onMove={(node, parent) => add({ op: "move_node", scheme: scheme.key, key: node.key, parent: parent?.key ?? null })}
+                onMove={(node, parent, place) =>
+                  add({ op: "move_node", scheme: scheme.key, key: node.key, parent: parent?.key ?? null, ...(place?.before ? { before: place.before.key } : {}), ...(place?.after ? { after: place.after.key } : {}) })
+                }
               />
             </div>
             <div className="min-w-0 rounded-lg border p-3">
@@ -101,6 +109,9 @@ export function TaxonomyWorkspace({ schemes, current, counts, revisions, candida
         </TabsContent>
         <TabsContent value="history" className="pt-3">
           <RevisionHistory revisions={revisions} label={label} />
+        </TabsContent>
+        <TabsContent value="guide" className="pt-3">
+          <TaxonomyGuide />
         </TabsContent>
         <TabsContent value="candidates" className="pt-3">
           <CandidateInbox candidates={candidates} schemes={schemes} onAdd={add} />

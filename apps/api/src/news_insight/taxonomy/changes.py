@@ -78,6 +78,9 @@ class MoveNode(BaseModel):
     key: str
     parent: str | None
     requeue: bool = False
+    # place it among the new siblings (a drop above or below a row); neither: keep its sort
+    before: str | None = None
+    after: str | None = None
 
 
 class MergeNode(BaseModel):
@@ -412,19 +415,109 @@ def _update_node(run: _Run, op: UpdateNode) -> OpOutcome:
     )
 
 
+def _place(run: _Run, scheme: TaxScheme, node: TaxNode, op: MoveNode) -> None:
+    """Renumber the new siblings (10, 20, ...) with `node` before or after the named one."""
+    anchor_key = op.before or op.after
+    if anchor_key is None:
+        return
+    anchor = run.node(scheme, anchor_key)
+    if anchor.parent_id != node.parent_id:
+        raise ChangeError(f"'{anchor_key}' is not under the new parent of '{node.key}'")
+    siblings = sorted(
+        (
+            n
+            for n in run.session.scalars(
+                select(TaxNode).where(
+                    TaxNode.scheme_id == scheme.id,
+                    TaxNode.parent_id.is_(None)
+                    if node.parent_id is None
+                    else TaxNode.parent_id == node.parent_id,
+                    TaxNode.id != node.id,
+                )
+            )
+        ),
+        key=lambda n: (n.sort, n.label),
+    )
+    at = siblings.index(anchor) + (1 if op.after else 0)
+    siblings.insert(at, node)
+    for index, sibling in enumerate(siblings):
+        wanted = (index + 1) * 10
+        if sibling.sort != wanted:
+            run.undo.append(
+                {
+                    "op": "update_node",
+                    "scheme": scheme.key,
+                    "key": sibling.key,
+                    "sort": sibling.sort,
+                }
+            )
+            sibling.sort = wanted
+
+
+def _sync_technology_columns(run: _Run, scheme: TaxScheme, item_ids: set[int]) -> int:
+    """The technology scheme's legacy columns follow the tree: `field` is the top-level node
+    over the card's themes, and a node that became top level is a field, not a theme. Old
+    values go to the undo list; returns how many cards changed."""
+    nodes = {
+        n.key: n
+        for n in run.session.scalars(
+            select(TaxNode).where(TaxNode.scheme_id == scheme.id, TaxNode.status == "active")
+        )
+    }
+    by_id = {n.id: n for n in nodes.values()}
+
+    def root(key: str) -> str:
+        node = nodes[key]
+        return by_id[node.path[0]].key if node.path and node.path[0] in by_id else key
+
+    old: list[dict[str, Any]] = []
+    ids = sorted(item_ids)
+    for start in range(0, len(ids), 5000):
+        rows = run.session.execute(
+            select(ItemCard.item_id, ItemCard.field, ItemCard.themes).where(
+                ItemCard.item_id.in_(ids[start : start + 5000])
+            )
+        ).tuples()
+        for item_id, field, themes in rows:
+            themes = list(themes or [])
+            known = [k for k in themes if k in nodes]
+            kept = [k for k in themes if k not in nodes or nodes[k].depth >= 2]
+            promoted = [k for k in known if nodes[k].depth == 1]
+            new_field = field
+            if any(k in nodes for k in kept):
+                new_field = root(next(k for k in kept if k in nodes))
+            elif promoted:
+                new_field = promoted[0]
+            elif field in nodes and nodes[field].depth >= 2:  # the field itself went down a level
+                new_field = root(field)
+                kept = [field]
+            if new_field != field or kept != themes:
+                old.append({"item_id": item_id, "field": field, "themes": themes})
+                run.session.execute(
+                    text(
+                        "UPDATE item_cards SET field = :f, themes = CAST(:t AS jsonb)"
+                        " WHERE item_id = :id"
+                    ),
+                    {"f": new_field, "t": _json(kept), "id": item_id},
+                )
+    if old:
+        run.undo.append({"op": "restore_columns", "rows": old})
+        run.affected.update(r["item_id"] for r in old)
+    return len(old)
+
+
 def _move_node(run: _Run, op: MoveNode) -> OpOutcome:
     scheme = run.scheme(op.scheme)
     node = run.node(scheme, op.key)
     if scheme.structure == "list" and op.parent:
         raise ChangeError(f"'{op.scheme}' is a list: nodes have no parent")
+    if op.before and op.after:
+        raise ChangeError("give before or after, not both")
     parent = run.node(scheme, op.parent) if op.parent else None
     if parent is not None and node.id in (parent.path or []):
         raise ChangeError(f"'{op.parent}' is inside '{op.key}': a node cannot move under itself")
     old_parent = run.session.get(TaxNode, node.parent_id) if node.parent_id else None
     before = {n.id: n.depth for n in _subtree(run.session, node)}
-    node.parent_id = parent.id if parent else None
-    run.session.flush()
-    rebuild_paths(run.session, scheme.id)
     run.undo.append(
         {
             "op": "move_node",
@@ -433,13 +526,27 @@ def _move_node(run: _Run, op: MoveNode) -> OpOutcome:
             "parent": old_parent.key if old_parent else None,
         }
     )
+    node.parent_id = parent.id if parent else None
+    _place(run, scheme, node, op)
+    run.session.flush()
+    rebuild_paths(run.session, scheme.id)
     hits = run.items_under([node.id])
     run.affected |= hits
+    where = parent.label if parent else "최상위"
+    depth_note = (
+        f" ({before.get(node.id, node.depth)}단계 → {node.depth}단계)"
+        if before.get(node.id, node.depth) != node.depth
+        else ""
+    )
     outcome = OpOutcome(
         op=op.op,
-        summary=f"'{node.label}' 이동 → {parent.label if parent else '최상위'}",
+        summary=f"'{node.label}' 이동 → {where}{depth_note}",
         cards=len(hits),
     )
+    if scheme.key == "technology":
+        synced = _sync_technology_columns(run, scheme, hits)
+        if synced:
+            outcome.summary += f" · 카드 {synced}건의 분야·테마 열 갱신"
     crossed = [
         n
         for n in _subtree(run.session, node)
@@ -509,7 +616,11 @@ def _merge_node(run: _Run, op: MergeNode) -> OpOutcome:
         {"op": "restore_columns", "rows": old_rows},
     ]
     run.affected |= hits | run.items_under([target.id])
-    return OpOutcome(op=op.op, summary=f"'{source.label}' → '{target.label}' 통합", cards=len(hits))
+    summary = f"'{source.label}' → '{target.label}' 통합"
+    # after the undo above, so a rollback restores these values before the originals
+    if scheme.key == "technology" and (synced := _sync_technology_columns(run, scheme, hits)):
+        summary += f" · 카드 {synced}건의 분야·테마 열 갱신"
+    return OpOutcome(op=op.op, summary=summary, cards=len(hits))
 
 
 def _retire_node(run: _Run, op: RetireNode) -> OpOutcome:
@@ -543,7 +654,14 @@ def _retire_node(run: _Run, op: RetireNode) -> OpOutcome:
     ]
     run.affected |= hits
     where = f"→ '{target.label}'" if target else "(라벨 삭제)"
-    return OpOutcome(op=op.op, summary=f"'{source.label}' 폐지 {where}", cards=len(hits))
+    summary = f"'{source.label}' 폐지 {where}"
+    if (
+        target is not None
+        and scheme.key == "technology"
+        and (synced := _sync_technology_columns(run, scheme, hits))
+    ):
+        summary += f" · 카드 {synced}건의 분야·테마 열 갱신"
+    return OpOutcome(op=op.op, summary=summary, cards=len(hits))
 
 
 def _split_node(run: _Run, op: SplitNode) -> OpOutcome:

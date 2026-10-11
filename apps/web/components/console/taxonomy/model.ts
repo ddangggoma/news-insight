@@ -83,3 +83,36 @@ export function pathLabel(nodes: ConsoleNode[], node: ConsoleNode): string {
 export function levelName(scheme: ConsoleScheme, depth: number): string {
   return scheme.level_names[depth - 1] ?? `${depth}단계`;
 }
+
+export type DropPosition = "before" | "inside" | "after";
+
+/** Where a drop lands: the new parent and, for a drop above or below a row, the sibling. */
+export function dropTarget(target: ConsoleNode, position: DropPosition): { parentId: number | null; before?: number; after?: number } {
+  if (position === "inside") return { parentId: target.id };
+  return { parentId: target.parent_id, [position]: target.id };
+}
+
+/** The tree as it will be once the draft's moves are applied (a preview; nothing is saved). */
+export function applyMoves(nodes: ConsoleNode[], ops: { op: string; scheme?: string; key?: string; parent?: string | null; before?: string | null; after?: string | null }[], scheme: string): { nodes: ConsoleNode[]; moved: Set<number> } {
+  const out = nodes.map((n) => ({ ...n }));
+  const byKey = new Map(out.map((n) => [n.key, n]));
+  const moved = new Set<number>();
+  for (const op of ops) {
+    if (op.op !== "move_node" || op.scheme !== scheme || !op.key) continue;
+    const node = byKey.get(op.key);
+    const parent = op.parent ? byKey.get(op.parent) : null;
+    if (!node || parent === undefined) continue;
+    node.parent_id = parent ? parent.id : null;
+    const anchor = op.before ? byKey.get(op.before) : op.after ? byKey.get(op.after) : undefined;
+    if (anchor && anchor.parent_id === node.parent_id) {
+      const siblings = out.filter((n) => n.parent_id === node.parent_id && n.id !== node.id).sort((a, b) => a.sort - b.sort || a.label.localeCompare(b.label, "ko"));
+      siblings.splice(siblings.indexOf(anchor) + (op.after ? 1 : 0), 0, node);
+      siblings.forEach((n, i) => (n.sort = (i + 1) * 10));
+    }
+    moved.add(node.id);
+  }
+  const byId = new Map(out.map((n) => [n.id, n]));
+  const depth = (n: ConsoleNode, guard = 0): number => (n.parent_id && guard < 50 ? depth(byId.get(n.parent_id) ?? n, guard + 1) + 1 : 1);
+  for (const n of out) n.depth = depth(n);
+  return { nodes: out, moved };
+}
