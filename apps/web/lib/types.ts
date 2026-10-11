@@ -444,3 +444,28 @@ export interface OpsStatus {
     last_run_at: string | null;
   };
 }
+
+// card processing progress (console, 2026-10-11)
+export type ProgressState = "ready" | "pending" | "capped" | "repeat" | "failed" | "held" | "archive";
+export interface ProgressRow extends Record<ProgressState, number> {
+  key: string;
+  total: number;
+}
+export interface CardProgress {
+  generated_at: string;
+  totals: Record<ProgressState | "items" | "copied", number>;
+  repeats_by_kind: Record<string, number>;
+  days: { date: string; inflow: number; failed: number; cards: Record<string, number> }[];
+  hours: { hour: string; cards: Record<string, number> }[];
+  breakdown: Record<"status" | "track" | "category" | "region" | "language", ProgressRow[]>;
+  quotas: { engine: string; weekly: number | null; five_hour: number | null; seen_at: string }[];
+  runs: {
+    started_at: string;
+    finished_at: string | null;
+    ready: number;
+    failed: number;
+    batches: Record<string, number>;
+    quota: Record<string, number | string | null>;
+    note: string | null;
+  }[];
+}

@@ -20,6 +20,7 @@ from news_insight.console import reviews as review_queries
 from news_insight.console import stories as story_queries
 from news_insight.console.auth import require_console_key
 from news_insight.console.cache import cached
+from news_insight.console.progress import CardProgress
 from news_insight.console.schemas import (
     BulkFailure,
     BulkSourcesBody,
@@ -503,6 +504,15 @@ def get_card_triage(session: DB) -> dict[str, Any]:
     from news_insight.cards.triage import coverage
 
     return asdict(coverage(session, now=datetime.now(UTC)))
+
+
+@router.get("/cards/progress")
+def get_card_progress(session: DB) -> CardProgress:
+    """Card processing progress: item states, daily and hourly output, quotas, runs."""
+    from news_insight.console.progress import card_progress
+
+    seconds = get_settings().console_cache_seconds
+    return cached("card_progress", seconds, lambda: card_progress(session, now=datetime.now(UTC)))
 
 
 @router.get("/cards/stats")
