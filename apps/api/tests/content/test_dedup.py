@@ -76,3 +76,14 @@ def test_malformed_urls_do_not_raise() -> None:
     assert normalize_url("https://[broken/path") == "https://[broken/path"
     html = '<a href="https://[broken">x</a> <a href="https://ok.example/a">y</a>'
     assert shared_link(html, post_url="https://mastodon.social/@x/1") == "https://ok.example/a"
+
+
+def test_future_publication_times_are_capped_at_collection() -> None:
+    from datetime import UTC, datetime, timedelta
+
+    from news_insight.content.ingest import _not_future
+
+    now = datetime(2026, 10, 11, 12, tzinfo=UTC)
+    assert _not_future(now + timedelta(days=2), now) == now
+    assert _not_future(now + timedelta(hours=3), now) == now + timedelta(hours=3)
+    assert _not_future(None, now) is None

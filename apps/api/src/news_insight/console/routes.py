@@ -509,10 +509,19 @@ def get_card_triage(session: DB) -> dict[str, Any]:
 @router.get("/cards/progress")
 def get_card_progress(session: DB) -> CardProgress:
     """Card processing progress: item states, daily and hourly output, quotas, runs."""
+    from news_insight.console.cache import cached_stale
     from news_insight.console.progress import card_progress
+    from news_insight.db import session_scope
 
     seconds = get_settings().console_cache_seconds
-    return cached("card_progress", seconds, lambda: card_progress(session, now=datetime.now(UTC)))
+    if seconds <= 0:
+        return card_progress(session, now=datetime.now(UTC))
+
+    def compute() -> CardProgress:
+        with session_scope() as own:  # may run in a background refresh thread
+            return card_progress(own, now=datetime.now(UTC))
+
+    return cached_stale("card_progress", seconds, compute)
 
 
 @router.get("/cards/stats")
