@@ -4,7 +4,7 @@
 export type TaxOp =
   | { op: "create_node"; scheme: string; key: string; label: string; parent?: string | null; definition?: string | null; aliases?: string[]; requeue?: boolean }
   | { op: "update_node"; scheme: string; key: string; label?: string; definition?: string | null; include_text?: string | null; exclude_text?: string | null; aliases?: string[]; sort?: number; status?: "active" | "deprecated"; priority?: number }
-  | { op: "move_node"; scheme: string; key: string; parent: string | null; requeue?: boolean }
+  | { op: "move_node"; scheme: string; key: string; parent: string | null; requeue?: boolean; before?: string | null; after?: string | null }
   | { op: "merge_node"; scheme: string; key: string; into: string }
   | { op: "retire_node"; scheme: string; key: string; replacement?: string | null }
   | { op: "split_node"; scheme: string; key: string; parts: { key: string; label: string; aliases?: string[] }[] }
@@ -55,7 +55,7 @@ export function describe(op: TaxOp, label: Labeler): string {
       return `수정: ${label(op.scheme, op.key)} (${fields.join(", ")})`;
     }
     case "move_node":
-      return `이동: ${label(op.scheme, op.key)} → ${op.parent ? label(op.scheme, op.parent) : "최상위"}${op.requeue ? " · 재분류" : ""}`;
+      return `이동: ${label(op.scheme, op.key)} → ${op.parent ? label(op.scheme, op.parent) : "최상위"}${op.before ? ` (${label(op.scheme, op.before)} 앞)` : op.after ? ` (${label(op.scheme, op.after)} 뒤)` : ""}${op.requeue ? " · 재분류" : ""}`;
     case "merge_node":
       return `통합: ${label(op.scheme, op.key)} → ${label(op.scheme, op.into)}`;
     case "retire_node":

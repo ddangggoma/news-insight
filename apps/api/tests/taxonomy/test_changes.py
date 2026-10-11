@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from news_insight.cards.models import ItemCard
 from news_insight.taxonomy import registry
 from news_insight.taxonomy.changes import ChangeError, ChangeSet, apply, preview, rollback
-from news_insight.taxonomy.models import TaxRevision
+from news_insight.taxonomy.models import TaxNode, TaxRevision
 from news_insight.taxonomy.seed import seed_taxonomy
 from news_insight.technologies.catalog import load_technologies
 from news_insight.technologies.service import seed_registry
@@ -168,7 +168,8 @@ def test_move_retire_split_and_errors(db_session: Session) -> None:
         author="b",
         now=NOW,
     )
-    assert themes_of(db_session, cards[2]) == [] and ("technology", "ai", "legacy") in labels(
+    # the move made the card's field follow the theme to semis; retiring the theme keeps it
+    assert themes_of(db_session, cards[2]) == [] and ("technology", "semis", "legacy") in labels(
         db_session, cards[2].item_id
     )
 
@@ -260,3 +261,118 @@ def test_console_change_api_needs_an_admin_session(
     assert revisions[0]["author"] == "boss" and revisions[0]["note"] == "이름"
     assert counts[str(ai.id)]["total"] == 3 and len(cards) == 3
     assert ai.label == "AI·에이전트"
+
+
+def field_of(db_session: Session, card: ItemCard) -> str | None:
+    return db_session.scalar(select(ItemCard.field).where(ItemCard.id == card.id))
+
+
+def test_drag_moves_carry_the_card_columns_and_roll_back(db_session: Session) -> None:
+    cards = setup(db_session)
+    on_device = cards[2]  # themes ["ai__on_device_ai"], field "ai"
+
+    # a theme dropped under another field: its cards' field follows
+    moved = apply(
+        db_session,
+        ops(
+            {
+                "op": "move_node",
+                "scheme": "technology",
+                "key": "ai__on_device_ai",
+                "parent": "semis",
+            }
+        ),
+        author="b",
+        now=NOW,
+    )
+    assert field_of(db_session, on_device) == "semis"
+    assert themes_of(db_session, on_device) == ["ai__on_device_ai"]
+    assert "분야·테마 열 갱신" in moved.outcomes[0].summary
+    assert ("technology", "ai__on_device_ai", "legacy") in labels(db_session, on_device.item_id)
+
+    # dropped at the top level: it is a field now, no longer a theme
+    apply(
+        db_session,
+        ops({"op": "move_node", "scheme": "technology", "key": "ai__on_device_ai", "parent": None}),
+        author="b",
+        now=NOW,
+    )
+    assert field_of(db_session, on_device) == "ai__on_device_ai"
+    assert themes_of(db_session, on_device) == []
+    assert node(db_session, "technology", "ai__on_device_ai").depth == 1
+
+    # rolling back the last move restores both the tree and the columns
+    last = db_session.scalars(select(TaxRevision).order_by(TaxRevision.id.desc())).first()
+    assert last is not None
+    rollback(db_session, last.id, author="b", now=NOW)
+    assert node(db_session, "technology", "ai__on_device_ai").depth == 2
+    assert field_of(db_session, on_device) == "semis"
+    assert themes_of(db_session, on_device) == ["ai__on_device_ai"]
+
+
+def test_a_drop_between_siblings_renumbers_their_order(db_session: Session) -> None:
+    setup(db_session)
+    parent_id = node(db_session, "technology", "ai").id
+    siblings = sorted(
+        db_session.scalars(select(TaxNode).where(TaxNode.parent_id == parent_id)),
+        key=lambda n: (n.sort, n.label),
+    )
+    first, last = siblings[0], siblings[-1]
+    apply(
+        db_session,
+        ops(
+            {
+                "op": "move_node",
+                "scheme": "technology",
+                "key": last.key,
+                "parent": "ai",
+                "before": first.key,
+            }
+        ),
+        author="b",
+        now=NOW,
+    )
+    order = sorted(
+        (node(db_session, "technology", s.key) for s in siblings), key=lambda n: (n.sort, n.label)
+    )
+    assert [n.key for n in order[:2]] == [last.key, first.key]
+    with pytest.raises(ChangeError, match="not under the new parent"):
+        apply(
+            db_session,
+            ops(
+                {
+                    "op": "move_node",
+                    "scheme": "technology",
+                    "key": last.key,
+                    "parent": "semis",
+                    "before": first.key,
+                }
+            ),
+            author="b",
+            now=NOW,
+        )
+
+
+def test_a_merge_across_fields_moves_the_field_and_rolls_back(db_session: Session) -> None:
+    cards = setup(db_session)
+    on_device = cards[2]  # themes ["ai__on_device_ai"], field "ai"
+    merged = apply(
+        db_session,
+        ops(
+            {
+                "op": "merge_node",
+                "scheme": "technology",
+                "key": "ai__on_device_ai",
+                "into": "semis__ap_soc_npu",
+            }
+        ),
+        author="b",
+        now=NOW,
+    )
+    assert themes_of(db_session, on_device) == ["semis__ap_soc_npu"]
+    assert field_of(db_session, on_device) == "semis"
+    assert "분야·테마 열 갱신" in merged.outcomes[0].summary
+    assert merged.revision_id is not None
+    rollback(db_session, merged.revision_id, author="b", now=NOW)
+    assert themes_of(db_session, on_device) == ["ai__on_device_ai"]
+    assert field_of(db_session, on_device) == "ai"
