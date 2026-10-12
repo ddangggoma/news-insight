@@ -2,6 +2,7 @@ import "server-only";
 
 import { ApiError } from "@/lib/api";
 import { type QueryValue, withQuery } from "@/lib/query";
+import { singleFlight } from "@/lib/single-flight";
 
 const BASE_URL = process.env.API_INTERNAL_URL ?? "http://127.0.0.1:8711";
 
@@ -33,14 +34,20 @@ export async function readerGet<T>(
   const key = process.env.PUBLIC_API_KEY;
   if (!key) throw new ApiError(503, "PUBLIC_API_KEY is not configured for the web server");
   const version = await schemaVersion(key);
-  const response = await fetch(`${BASE_URL}/api/public${withQuery(path, { ...params, _v: version })}`, {
-    headers: { "X-Public-Key": key },
-    next: { revalidate, tags: ["reader"] },
+  const url = `${BASE_URL}/api/public${withQuery(path, { ...params, _v: version })}`;
+  // reader responses are the same for every user: concurrent misses share one API call, and
+  // each caller parses its own copy of the body
+  const text = await singleFlight(`reader:${revalidate}:${url}`, async () => {
+    const response = await fetch(url, {
+      headers: { "X-Public-Key": key },
+      next: { revalidate, tags: ["reader"] },
+    });
+    if (!response.ok) {
+      throw new ApiError(response.status, (await response.text()) || response.statusText);
+    }
+    return response.text();
   });
-  if (!response.ok) {
-    throw new ApiError(response.status, (await response.text()) || response.statusText);
-  }
-  return (await response.json()) as T;
+  return JSON.parse(text) as T;
 }
 
 /** Reader POST without caching (questions to the local model, plan 16 #1). */

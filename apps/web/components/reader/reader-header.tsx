@@ -1,28 +1,28 @@
 "use client";
 
-import { Radar, Search } from "lucide-react";
-import Link from "next/link";
+import { Compass, FileText, Handshake, Map as MapIcon, Radar, ScrollText, Search } from "lucide-react";
+import { AppLink as Link } from "@/components/app-link";
 import { usePathname, useSearchParams } from "next/navigation";
 
 import { ThemeToggle } from "@/components/console/theme-toggle";
 import { type AccountSummary, AccountMenu } from "@/components/reader/account-menu";
 import { cn } from "@/lib/utils";
 
+// Reader menu (2026-10-12): the daily briefing first; the opportunity/threat board and the
+// roadmap share one entry with tabs (components/reader/roadmap-tabs.tsx). Dossiers, collections
+// and questions left the menu; their pages still open from a direct link.
 export const READER_NAV = [
-  { href: "/", label: "탐색" },
-  { href: "/briefings", label: "브리핑" },
-  { href: "/radar", label: "레이더" },
-  { href: "/board", label: "보드" },
-  { href: "/roadmap", label: "로드맵" },
-  { href: "/deals", label: "투자·제휴" },
-  { href: "/patents", label: "특허" },
-  { href: "/dossiers", label: "주제" },
-  { href: "/collections", label: "모음" },
-  { href: "/ask", label: "질문" },
+  { href: "/briefings", label: "데일리 브리핑", icon: FileText, match: ["/briefings"] },
+  { href: "/", label: "탐색", icon: Compass, match: ["/items"] },
+  { href: "/radar", label: "레이더", icon: Radar, match: ["/radar"] },
+  { href: "/deals", label: "투자·제휴", icon: Handshake, match: ["/deals"] },
+  { href: "/patents", label: "특허", icon: ScrollText, match: ["/patents"] },
+  { href: "/roadmap", label: "로드맵", icon: MapIcon, match: ["/roadmap", "/board"] },
 ] as const;
 
-export function isReaderActive(pathname: string, href: string): boolean {
-  return href === "/" ? pathname === "/" || pathname.startsWith("/items") : pathname.startsWith(href);
+export function isReaderActive(pathname: string, item: (typeof READER_NAV)[number]): boolean {
+  if (item.href === "/" && pathname === "/") return true;
+  return item.match.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
 }
 
 export function ReaderHeader({ user }: { user: AccountSummary }) {
@@ -42,10 +42,10 @@ export function ReaderHeader({ user }: { user: AccountSummary }) {
             <Link
               key={item.href}
               href={item.href}
-              aria-current={isReaderActive(pathname, item.href) ? "page" : undefined}
+              aria-current={isReaderActive(pathname, item) ? "page" : undefined}
               className={cn(
-                "rounded-md px-3 py-1.5 text-sm text-muted-foreground hover:bg-muted hover:text-foreground",
-                isReaderActive(pathname, item.href) && "bg-muted font-semibold text-foreground",
+                "rounded-md px-3 py-1.5 text-sm whitespace-nowrap text-muted-foreground hover:bg-muted hover:text-foreground",
+                isReaderActive(pathname, item) && "bg-muted font-semibold text-foreground",
               )}
             >
               {item.label}

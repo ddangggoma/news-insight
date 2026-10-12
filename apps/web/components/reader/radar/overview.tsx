@@ -1,5 +1,5 @@
 import { ArrowRightLeft, CalendarClock, FlaskConical, Flame, Globe2, Link2, RotateCcw, SearchCheck, Sparkles, Star, TrendingDown, TrendingUp } from "lucide-react";
-import Link from "next/link";
+import { AppLink as Link } from "@/components/app-link";
 
 import { Change } from "@/components/reader/radar/parts";
 import { Sparkline } from "@/components/reader/sparkline";

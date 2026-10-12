@@ -1,5 +1,5 @@
 import { ExternalLink } from "lucide-react";
-import Link from "next/link";
+import { AppLink as Link } from "@/components/app-link";
 
 import { TrackBadge } from "@/components/console/badges";
 import { ClassificationBadges } from "@/components/console/classification";

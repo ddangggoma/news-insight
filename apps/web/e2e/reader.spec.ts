@@ -6,7 +6,19 @@ test.describe("reader", () => {
   test("explore home lists stories from the seeded week", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("link", { name: "삼성, 차세대 온디바이스 AI 칩 공개" }).first()).toBeVisible();
-    await expect(page.getByRole("navigation", { name: "주요 메뉴" }).getByRole("link", { name: "브리핑" })).toBeVisible();
+    const menu = page.getByRole("navigation", { name: "주요 메뉴" }).getByRole("link");
+    await expect(menu).toHaveText(["데일리 브리핑", "탐색", "레이더", "투자·제휴", "특허", "로드맵"]);
+  });
+
+  test("the roadmap menu holds the roadmap and the opportunity board as tabs", async ({ page }) => {
+    await page.goto("/roadmap");
+    const tabs = page.getByRole("navigation", { name: "로드맵 보기" });
+    await expect(tabs.getByRole("link", { name: "성숙도·로드맵" })).toHaveAttribute("aria-current", "page");
+
+    await tabs.getByRole("link", { name: "기회·위협 보드" }).click();
+    await expect(page).toHaveURL(/\/board$/);
+    await expect(page.getByRole("heading", { level: 1, name: /기회·위협 보드/ })).toBeVisible();
+    await expect(page.getByRole("navigation", { name: "주요 메뉴" }).getByRole("link", { name: "로드맵" })).toHaveAttribute("aria-current", "page");
   });
 
   test("today's briefing shows tracks, personas, evidence, roadmap and impact", async ({ page }) => {

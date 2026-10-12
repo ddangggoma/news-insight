@@ -81,3 +81,21 @@ def test_magic_link_settings_reach_python_services() -> None:
 
     for name in ("PUBLIC_BASE_URL", "SMTP_HOST", "SMTP_PORT", "SMTP_USER", "SMTP_PASSWORD"):
         assert name in env
+
+
+def test_caddy_limits_pages_per_session_and_explains_refusals() -> None:
+    caddyfile = (REPO_ROOT / "ops" / "Caddyfile").read_text(encoding="utf-8")
+
+    # Docker Desktop shows every visitor as one gateway IP: a per-IP page budget is site-wide
+    assert "key {remote_host}:{http.request.cookie.ni_session}" in caddyfile
+    assert "zone site {" in caddyfile
+    # refusals and upstream failures get a page that reloads itself, not an empty 429
+    assert "handle_errors 429 502 503 504 {" in caddyfile
+    assert '<meta http-equiv="refresh"' in caddyfile
+
+
+def test_api_bounds_its_concurrent_requests() -> None:
+    env = load_services()["api"]["environment"]
+
+    assert int(env["API_MAX_INFLIGHT"]) > 0
+    assert float(env["API_QUEUE_SECONDS"]) > 0

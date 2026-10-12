@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { AppLink as Link } from "@/components/app-link";
 
 import { EvidenceLinks } from "@/components/console/evidence-links";
 import type { BriefingInsight, CompanyMove, Continuity, ContinuingStory, DigestTrack, ItemRef, PublicBriefing, Strength } from "@/lib/briefing-types";

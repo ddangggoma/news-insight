@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { AppLink as Link } from "@/components/app-link";
 import { notFound } from "next/navigation";
 
 import { archiveCollection } from "@/app/(reader)/collections/actions";

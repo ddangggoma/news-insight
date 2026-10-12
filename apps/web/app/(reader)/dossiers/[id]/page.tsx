@@ -1,6 +1,6 @@
 import { Pencil } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
+import { AppLink as Link } from "@/components/app-link";
 import { notFound } from "next/navigation";
 
 import { archiveDossier } from "@/app/(reader)/dossiers/actions";

@@ -1,7 +1,7 @@
 "use client";
 
 import { CircleUser, LogOut, Settings, UserCog } from "lucide-react";
-import Link from "next/link";
+import { AppLink as Link } from "@/components/app-link";
 
 import { logout } from "@/app/login/actions";
 import { Button } from "@/components/ui/button";

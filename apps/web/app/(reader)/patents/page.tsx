@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { AppLink as Link } from "@/components/app-link";
 
 import { StoryRow } from "@/components/reader/story-row";
 import { Sparkline } from "@/components/reader/sparkline";

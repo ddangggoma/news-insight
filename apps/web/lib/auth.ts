@@ -1,5 +1,7 @@
 // Shared by proxy.ts and server code, so no "server-only" here: nothing in this file runs in the browser.
 
+import { singleFlight } from "@/lib/single-flight";
+
 const BASE_URL = process.env.API_INTERNAL_URL ?? "http://127.0.0.1:8711";
 
 // Site session cookie (plan 14): an opaque token whose SHA-256 the API stores.
@@ -47,7 +49,8 @@ export async function lookupSession(token: string | undefined): Promise<SessionU
   if (!token) return null;
   const hit = sessions.get(token);
   if (hit && hit.until > Date.now()) return hit.user;
-  const user = await fetchSession(token);
+  // a page load checks the same token from the proxy, the page and each route at once: one call
+  const user = await singleFlight(`session:${token}`, () => fetchSession(token));
   if (user) {
     if (sessions.size >= SESSION_CACHE_MAX) sessions.clear();
     sessions.set(token, { user, until: Date.now() + SESSION_CACHE_MS });

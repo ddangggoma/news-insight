@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { AppLink as Link } from "@/components/app-link";
 
+import { RoadmapTabs } from "@/components/reader/roadmap-tabs";
 import { Sparkline } from "@/components/reader/sparkline";
 import { type AreaMaturity, type MaturityView, movement, type Stage, STAGE_HINT, STAGE_LABEL } from "@/lib/maturity-types";
 import { param, type SearchParams } from "@/lib/params";
@@ -60,6 +61,7 @@ export default async function RoadmapPage({ searchParams }: { searchParams: Prom
 
   return (
     <main className="mx-auto max-w-[1440px] space-y-4 px-4 py-6 md:px-6">
+      <RoadmapTabs active="roadmap" />
       <div>
         <h1 className="text-xl font-semibold">성숙도·로드맵</h1>
         <p className="text-sm text-muted-foreground">

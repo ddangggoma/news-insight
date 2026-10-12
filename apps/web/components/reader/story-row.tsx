@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { AppLink as Link } from "@/components/app-link";
 
 import { TrackBadge } from "@/components/console/badges";
 import { CompanyChips, SignalTag, FieldTag, ImpactBadge } from "@/components/reader/labels";

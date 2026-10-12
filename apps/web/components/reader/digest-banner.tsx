@@ -1,7 +1,7 @@
 "use client";
 
 import { Sparkles, X } from "lucide-react";
-import Link from "next/link";
+import { AppLink as Link } from "@/components/app-link";
 import { useEffect, useState } from "react";
 
 const storageKey = (date: string) => `reader:digest-dismissed:${date}`;

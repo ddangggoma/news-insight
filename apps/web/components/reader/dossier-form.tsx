@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { AppLink as Link } from "@/components/app-link";
 import { useActionState, useState } from "react";
 
 import { type FormState, saveDossier } from "@/app/(reader)/dossiers/actions";

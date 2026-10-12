@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { AppLink as Link } from "@/components/app-link";
 import { useEffect, useState } from "react";
 
 import { ChartTips } from "@/components/reader/radar/chart-tips";

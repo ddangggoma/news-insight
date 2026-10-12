@@ -1,5 +1,5 @@
 import { Activity, AlertTriangle, Bot, Cpu, Database, HardDrive, Inbox, Sparkles } from "lucide-react";
-import Link from "next/link";
+import { AppLink as Link } from "@/components/app-link";
 import { cache, Suspense } from "react";
 
 import { TrackBadge } from "@/components/console/badges";

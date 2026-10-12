@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { AppLink as Link } from "@/components/app-link";
 
 import { DigestStatusBadge } from "@/components/console/badges";
 import { type Column, DataTable } from "@/components/console/data-table";

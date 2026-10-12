@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { AppLink as Link } from "@/components/app-link";
 
 import { RELATION_META } from "@/lib/companies";
 import { companyHref } from "@/lib/reader-filters";

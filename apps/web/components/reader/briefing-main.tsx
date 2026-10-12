@@ -1,5 +1,5 @@
 import { ChevronLeft, ChevronRight, Lightbulb, ShieldCheck } from "lucide-react";
-import Link from "next/link";
+import { AppLink as Link } from "@/components/app-link";
 
 import { ExportLinks } from "@/components/reader/export-links";
 import { DepthToggle } from "@/components/reader/briefing-depth";

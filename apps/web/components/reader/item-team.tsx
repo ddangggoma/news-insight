@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { AppLink as Link } from "@/components/app-link";
 import { useEffect, useState, useTransition } from "react";
 
 import { collect, loadItemTeam, newCollection } from "@/app/(reader)/collections/actions";

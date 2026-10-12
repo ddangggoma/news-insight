@@ -1,5 +1,5 @@
 import { CheckCircle2, Clock, Copy, Gauge, Hourglass, TriangleAlert } from "lucide-react";
-import Link from "next/link";
+import { AppLink as Link } from "@/components/app-link";
 
 import { DailyEngineChart, FlowChart, HourlyEngineChart, StateBar } from "@/components/console/card-progress-charts";
 import { PageHeader } from "@/components/console/page-header";

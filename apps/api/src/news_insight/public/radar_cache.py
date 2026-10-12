@@ -10,6 +10,7 @@ import contextlib
 import hashlib
 import json
 import logging
+import time
 from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
@@ -25,6 +26,11 @@ log = logging.getLogger(__name__)
 OPEN_TTL = 15 * 60
 CLOSED_TTL = 24 * 3600
 PREFIX = "radar:v1"
+# single-flight fill: the computing request holds a lock this long at most; others poll for
+# its result up to FILL_WAIT_SECONDS (the slowest radar view takes about 15 s cold)
+FILL_LOCK_SECONDS = 60
+FILL_WAIT_SECONDS = 30.0
+FILL_POLL_SECONDS = 0.2
 
 
 def _code_hash() -> str:
@@ -68,24 +74,61 @@ def cache_client() -> object | None:
     return get_redis()
 
 
+def _get(client: object, key: str) -> str | None:
+    hit = client.get(key)  # type: ignore[attr-defined]
+    if not hit:
+        return None
+    return hit.decode() if isinstance(hit, bytes) else str(hit)
+
+
+def _wait_for(client: object, key: str, lock: str) -> str | None:
+    """Poll for the entry another request is computing; None once its lock is gone or expired."""
+    deadline = time.monotonic() + FILL_WAIT_SECONDS
+    while time.monotonic() < deadline:
+        time.sleep(FILL_POLL_SECONDS)
+        body = _get(client, key)
+        if body is not None:
+            return body
+        if not client.exists(lock):  # type: ignore[attr-defined]
+            return _get(client, key)
+    return None
+
+
 def cached_json[M: BaseModel](
     key: str, ttl: int, compute: Callable[[], M], *, client: object | None
 ) -> tuple[str, bool]:
-    """(JSON body, served from cache). Without a client, or on a cache outage, compute."""
+    """(JSON body, served from cache). Without a client, or on a cache outage, compute.
+
+    One request computes a missing entry (2026-10-12): a Redis lock marks the fill in progress,
+    and concurrent requests for the same view wait for that result instead of running the same
+    corpus-wide aggregate side by side. A waiter that gives up computes on its own.
+    """
     if client is None:
         return compute().model_dump_json(), False
+    lock = f"{key}:filling"
+    owner = False
     try:
-        hit = client.get(key)  # type: ignore[attr-defined]
-        if hit:
-            return (hit.decode() if isinstance(hit, bytes) else str(hit)), True
+        body = _get(client, key)
+        if body is not None:
+            return body, True
+        owner = bool(client.set(lock, "1", nx=True, ex=FILL_LOCK_SECONDS))  # type: ignore[attr-defined]
+        if not owner:
+            body = _wait_for(client, key, lock)
+            if body is not None:
+                return body, True
     except Exception:  # noqa: BLE001
         log.warning("radar cache unavailable", exc_info=True)
-    body = compute().model_dump_json()
     try:
-        client.set(key, body, ex=ttl)  # type: ignore[attr-defined]
-    except Exception:  # noqa: BLE001
-        log.debug("radar cache write failed", exc_info=True)
-    return body, False
+        body = compute().model_dump_json()
+        try:
+            client.set(key, body, ex=ttl)  # type: ignore[attr-defined]
+        except Exception:  # noqa: BLE001
+            log.debug("radar cache write failed", exc_info=True)
+        return body, False
+    finally:
+        if owner:
+            with contextlib.suppress(Exception):
+                client.delete(lock)  # type: ignore[attr-defined]
 
 
 def warm(session: object, *, now: datetime, client: object) -> int:

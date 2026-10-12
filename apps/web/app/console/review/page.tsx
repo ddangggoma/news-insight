@@ -1,5 +1,5 @@
 import { Download, Shuffle } from "lucide-react";
-import Link from "next/link";
+import { AppLink as Link } from "@/components/app-link";
 import { redirect } from "next/navigation";
 
 import { EmptyState } from "@/components/console/empty-state";

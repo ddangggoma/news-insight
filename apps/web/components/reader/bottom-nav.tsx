@@ -1,36 +1,27 @@
 "use client";
 
-import { Compass, FileText, FolderKanban, MessageSquareText, Radar } from "lucide-react";
-import Link from "next/link";
+import { AppLink as Link } from "@/components/app-link";
 import { usePathname } from "next/navigation";
 
-import { isReaderActive } from "@/components/reader/reader-header";
+import { READER_NAV, isReaderActive } from "@/components/reader/reader-header";
 import { cn } from "@/lib/utils";
-
-const ITEMS = [
-  { href: "/", label: "탐색", icon: Compass },
-  { href: "/briefings", label: "브리핑", icon: FileText },
-  { href: "/radar", label: "레이더", icon: Radar },
-  { href: "/dossiers", label: "주제", icon: FolderKanban },
-  { href: "/ask", label: "질문", icon: MessageSquareText },
-];
 
 export function BottomNav() {
   const pathname = usePathname();
   return (
     <nav
       aria-label="하단 메뉴"
-      className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t bg-background pb-[env(safe-area-inset-bottom)] md:hidden"
+      className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-6 border-t bg-background pb-[env(safe-area-inset-bottom)] md:hidden"
     >
-      {ITEMS.map((item) => {
-        const active = isReaderActive(pathname, item.href);
+      {READER_NAV.map((item) => {
+        const active = isReaderActive(pathname, item);
         return (
           <Link
             key={item.href}
             href={item.href}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "flex flex-col items-center gap-0.5 py-2 text-[11px] text-muted-foreground",
+              "flex flex-col items-center gap-0.5 px-0.5 py-2 text-center text-[11px] leading-tight text-muted-foreground",
               active && "font-semibold text-primary",
             )}
           >

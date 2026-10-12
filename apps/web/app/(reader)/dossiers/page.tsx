@@ -1,6 +1,6 @@
 import { Plus } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
+import { AppLink as Link } from "@/components/app-link";
 
 import { Button } from "@/components/ui/button";
 import { dossierApi } from "@/lib/dossier-api";
