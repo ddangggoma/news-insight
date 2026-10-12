@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { AppLink as Link } from "@/components/app-link";
 
 import type { Insights } from "@/lib/reader-types";
 import { type ReaderFilters, setHref } from "@/lib/reader-filters";

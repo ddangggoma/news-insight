@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { AppLink as Link } from "@/components/app-link";
 
+import { RoadmapTabs } from "@/components/reader/roadmap-tabs";
 import { Button } from "@/components/ui/button";
 import { type BoardClaim, type BoardRow, type BoardView, HORIZON_TEXT, type Horizon, IMPACT_TEXT, type Impact, opportunityShare } from "@/lib/board-types";
 import { param, type SearchParams } from "@/lib/params";
@@ -117,7 +118,8 @@ export default async function BoardPage({ searchParams }: { searchParams: Promis
   const chosen = view.personas.find((p) => p.key === view.persona);
 
   return (
-    <main className="mx-auto max-w-6xl space-y-4 px-4 py-6 md:px-6">
+    <main className="mx-auto max-w-[1440px] space-y-4 px-4 py-6 md:px-6">
+      <RoadmapTabs active="board" />
       <div>
         <h1 className="text-xl font-semibold">기회·위협 보드{chosen ? ` · ${chosen.name}` : ""}</h1>
         <p className="text-sm text-muted-foreground">

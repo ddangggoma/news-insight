@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { AppLink as Link } from "@/components/app-link";
 
 import { ChartTips } from "@/components/reader/radar/chart-tips";
 import { KeywordBadge, Legend, StateBadge } from "@/components/reader/radar/parts";

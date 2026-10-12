@@ -2,9 +2,11 @@ from fastapi import FastAPI
 
 from news_insight import __version__
 from news_insight.auth.account_routes import router as accounts_router
+from news_insight.config import get_settings
 from news_insight.console.routes import router as console_router
 from news_insight.dossiers.routes import router as dossiers_router
 from news_insight.observability import RequestLogMiddleware, configure_logging
+from news_insight.overload import OverloadGuard
 from news_insight.public.routes import router as public_router
 from news_insight.team.routes import router as team_router
 
@@ -12,6 +14,14 @@ from news_insight.team.routes import router as team_router
 def create_app() -> FastAPI:
     configure_logging("api")
     app = FastAPI(title="Daily IT Intelligence API", version=__version__)
+    settings = get_settings()
+    # the last middleware added runs first: the request log wraps the guard, so refused requests
+    # still get an access line with their 503
+    app.add_middleware(
+        OverloadGuard,
+        max_inflight=settings.api_max_inflight,
+        queue_seconds=settings.api_queue_seconds,
+    )
     app.add_middleware(RequestLogMiddleware)
 
     @app.get("/api/health")

@@ -1,5 +1,5 @@
 import { ArrowDown, ArrowRight, ArrowUp, ChevronLeft, ChevronRight, Eye, ListChecks, RefreshCw, Sparkles } from "lucide-react";
-import Link from "next/link";
+import { AppLink as Link } from "@/components/app-link";
 import type { ReactNode } from "react";
 
 import { ExportLinks } from "@/components/reader/export-links";

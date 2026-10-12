@@ -1,5 +1,5 @@
 /// <reference types="react/canary" />
-import Link from "next/link";
+import { AppLink as Link } from "@/components/app-link";
 import { ViewTransition } from "react";
 
 import { ChartTips } from "@/components/reader/radar/chart-tips";

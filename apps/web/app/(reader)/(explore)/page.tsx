@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { AppLink as Link } from "@/components/app-link";
 
 import { ActiveFilters } from "@/components/reader/active-filters";
 import { DigestBanner } from "@/components/reader/digest-banner";

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { AppLink as Link } from "@/components/app-link";
 
 import { EmptyState } from "@/components/console/empty-state";
 import { PageHeader } from "@/components/console/page-header";

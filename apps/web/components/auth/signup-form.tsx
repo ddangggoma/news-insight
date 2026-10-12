@@ -1,7 +1,7 @@
 "use client";
 
 import { MailCheck } from "lucide-react";
-import Link from "next/link";
+import { AppLink as Link } from "@/components/app-link";
 import { useActionState } from "react";
 
 import { type SignupField, type SignupState, signup } from "@/app/signup/actions";

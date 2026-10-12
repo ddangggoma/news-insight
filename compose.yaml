@@ -19,6 +19,9 @@ x-python-env: &python-env
   PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-https://localhost:8700}
   RADAR_CACHE: "true"
   CONSOLE_CACHE_SECONDS: "60"
+  # at most 20 API requests at once; the rest wait 10 s, then 503 + Retry-After (overload.py)
+  API_MAX_INFLIGHT: "20"
+  API_QUEUE_SECONDS: "10"
   SMTP_HOST: ${SMTP_HOST:-}
   SMTP_PORT: ${SMTP_PORT:-587}
   SMTP_USER: ${SMTP_USER:-}
@@ -174,8 +177,9 @@ services:
       PUBLIC_HOST: ${PUBLIC_HOST:-localhost}
       CADDY_HTTPS_PORT: ${CADDY_HTTPS_PORT:-8700}
       CADDY_HTTP_PORT: ${CADDY_HTTP_PORT:-8701}
-      RATE_LIMIT_PAGES: ${RATE_LIMIT_PAGES:-120}
-      RATE_LIMIT_RADAR: ${RATE_LIMIT_RADAR:-20}
+      RATE_LIMIT_PAGES: ${RATE_LIMIT_PAGES:-300}
+      RATE_LIMIT_RADAR: ${RATE_LIMIT_RADAR:-60}
+      RATE_LIMIT_SITE: ${RATE_LIMIT_SITE:-1500}
       RATE_LIMIT_AUTH: ${RATE_LIMIT_AUTH:-30}
     ports:
       - "${CADDY_HTTPS_PORT:-8700}:${CADDY_HTTPS_PORT:-8700}"

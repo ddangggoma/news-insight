@@ -1,7 +1,7 @@
 "use client";
 
 import { Activity, BarChart3, BellRing, ChevronDown, Network, ClipboardCheck, Cpu, Gauge, GitMerge, History, Inbox, Layers, LayoutDashboard, LayoutGrid, Library, Lightbulb, Newspaper, Radar, Rss, Star, TrendingUp, Users } from "lucide-react";
-import Link from "next/link";
+import { AppLink as Link } from "@/components/app-link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -118,9 +118,8 @@ export function AppSidebar({ pendingUsers = 0 }: { pendingUsers?: number }) {
             <SidebarMenu>
               {group.items.map((item) => (
                 <SidebarMenuItem key={item.href}>
-                  {/* no prefetch: each prefetch is a full session check in proxy.ts (plan 14), ~20 per page */}
                   <SidebarMenuButton asChild isActive={item.href === activeHref} tooltip={item.title}>
-                    <Link href={item.href} prefetch={false} onClick={() => isMobile && setOpenMobile(false)}>
+                    <Link href={item.href} onClick={() => isMobile && setOpenMobile(false)}>
                       <item.icon />
                       <span>{item.title}</span>
                     </Link>

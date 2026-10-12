@@ -1,6 +1,7 @@
 import "server-only";
 
 import { type QueryValue, withQuery } from "@/lib/query";
+import { singleFlight } from "@/lib/single-flight";
 
 const BASE_URL = process.env.API_INTERNAL_URL ?? "http://127.0.0.1:8711";
 
@@ -35,14 +36,25 @@ async function send(
   return response;
 }
 
-async function request<T>(method: "GET" | "POST" | "PATCH", path: string, body?: unknown, extra?: Headers): Promise<T> {
+async function request<T>(method: "POST" | "PATCH", path: string, body?: unknown, extra?: Headers): Promise<T> {
   const response = await send(method, path, body, extra);
   return (response.status === 204 ? undefined : await response.json()) as T;
 }
 
+/** GET with concurrent identical calls (same path and headers, so never across users) sharing one
+ * API request; each caller parses its own copy, so no two pages share a mutable object. */
+async function get<T>(path: string, headers: Headers = {}): Promise<T> {
+  const key = `console:${path}:${JSON.stringify(Object.entries(headers).sort())}`;
+  const text = await singleFlight(key, async () => {
+    const response = await send("GET", path, undefined, headers);
+    return response.status === 204 ? "" : response.text();
+  });
+  return (text === "" ? undefined : JSON.parse(text)) as T;
+}
+
 export const api = {
   get: <T>(path: string, params?: Record<string, QueryValue>, headers?: Headers) =>
-    request<T>("GET", withQuery(path, params), undefined, headers),
+    get<T>(withQuery(path, params), headers),
   post: <T>(path: string, body?: unknown, headers?: Headers) => request<T>("POST", path, body, headers),
   patch: <T>(path: string, body?: unknown) => request<T>("PATCH", path, body),
   text: async (path: string) => (await send("GET", path)).text(),

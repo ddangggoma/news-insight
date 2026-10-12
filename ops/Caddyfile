@@ -34,21 +34,30 @@
 
 	# Every page needs a login: the web server checks the session on each request (plan 14).
 
-	# Per-IP request limits on public pages (checklist OPS-2). The radar aggregates the
-	# whole corpus on a cache miss, so it gets a tighter budget. Static assets are free.
+	# Request limits (checklist OPS-2). Docker Desktop hides the visitor's address: every request
+	# arrives from the VM gateway (192.168.65.1), so a per-IP key was one budget for the whole site
+	# and one busy page load locked everyone out with 429 (2026-10-12). Every page needs a login,
+	# so pages and the radar are counted per session cookie; `site` is the overall ceiling, which
+	# also caps anyone who rotates cookies. The radar aggregates the corpus on a cache miss, so it
+	# gets a tighter budget. Static assets are free.
 	@limited not path /_next/static/* /favicon.ico /icon.svg
 	rate_limit @limited {
 		zone radar {
 			match {
 				path /radar /radar/*
 			}
-			key {remote_host}
-			events {$RATE_LIMIT_RADAR:20}
+			key {remote_host}:{http.request.cookie.ni_session}
+			events {$RATE_LIMIT_RADAR:60}
 			window 1m
 		}
 		zone pages {
+			key {remote_host}:{http.request.cookie.ni_session}
+			events {$RATE_LIMIT_PAGES:300}
+			window 1m
+		}
+		zone site {
 			key {remote_host}
-			events {$RATE_LIMIT_PAGES:120}
+			events {$RATE_LIMIT_SITE:1500}
 			window 1m
 		}
 		# Login and sign-up form posts (plan 14); the API also locks accounts and throttles failures
@@ -59,6 +68,45 @@
 			key {remote_host}
 			events {$RATE_LIMIT_AUTH:30}
 			window 1m
+		}
+	}
+
+	# A refused or failed request used to show an empty page. Pages get a short notice that
+	# reloads itself; /api and Next.js data requests (RSC header) keep a plain status so their
+	# callers can handle it.
+	handle_errors 429 502 503 504 {
+		@data `path('/api/*') || header({'RSC': '1'})`
+		handle @data {
+			respond `{"detail":"지금은 요청을 처리할 수 없습니다. 잠시 후 다시 시도하세요."}` {err.status_code}
+		}
+		handle {
+			header Content-Type "text/html; charset=utf-8"
+			header Cache-Control no-store
+			respond <<HTML
+				<!doctype html>
+				<html lang="ko">
+				<head>
+				<meta charset="utf-8">
+				<meta name="viewport" content="width=device-width, initial-scale=1">
+				<meta http-equiv="refresh" content="15">
+				<title>잠시 후 다시 시도합니다</title>
+				<style>
+				body{margin:0;min-height:100vh;display:grid;place-items:center;font-family:system-ui,sans-serif;background:#fafafa;color:#18181b}
+				@media (prefers-color-scheme:dark){body{background:#09090b;color:#fafafa}}
+				main{max-width:28rem;padding:1.5rem;text-align:center}
+				p{color:#71717a;font-size:.9rem;line-height:1.6}
+				a{color:inherit}
+				</style>
+				</head>
+				<body>
+				<main>
+				<h1>잠시 후 다시 연결합니다</h1>
+				<p>요청이 몰렸거나 서버가 다시 시작하는 중입니다. 15초 뒤 이 페이지를 자동으로 다시 엽니다. 새로고침을 반복하면 기다리는 시간이 길어집니다.</p>
+				<p><a href="">지금 다시 시도</a></p>
+				</main>
+				</body>
+				</html>
+				HTML {err.status_code}
 		}
 	}
 

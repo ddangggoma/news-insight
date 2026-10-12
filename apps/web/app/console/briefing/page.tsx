@@ -1,5 +1,5 @@
 import { CircleAlert, CircleCheck, ShieldAlert } from "lucide-react";
-import Link from "next/link";
+import { AppLink as Link } from "@/components/app-link";
 
 import { DigestView } from "@/components/console/digest-view";
 import { EmptyState } from "@/components/console/empty-state";

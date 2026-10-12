@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { AppLink as Link } from "@/components/app-link";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DEAL_KIND_LABEL, type DealKind, type DealView, formatUsd } from "@/lib/deal-types";

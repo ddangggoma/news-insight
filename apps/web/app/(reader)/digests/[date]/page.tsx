@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { AppLink as Link } from "@/components/app-link";
 import { notFound, redirect } from "next/navigation";
 
 import { DigestView } from "@/components/console/digest-view";

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { AppLink as Link } from "@/components/app-link";
 
 import { type Column, DataTable } from "@/components/console/data-table";
 import { PageHeader } from "@/components/console/page-header";

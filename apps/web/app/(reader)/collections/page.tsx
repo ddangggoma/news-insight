@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { AppLink as Link } from "@/components/app-link";
 
 import { createCollection } from "@/app/(reader)/collections/actions";
 import { Button } from "@/components/ui/button";

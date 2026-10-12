@@ -1,7 +1,7 @@
 "use client";
 
 import { ExternalLink, Loader2, Send } from "lucide-react";
-import Link from "next/link";
+import { AppLink as Link } from "@/components/app-link";
 import { useEffect, useState, useTransition } from "react";
 
 import { askQuestion } from "@/app/(reader)/ask/actions";

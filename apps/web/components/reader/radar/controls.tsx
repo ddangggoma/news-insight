@@ -1,5 +1,5 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import Link from "next/link";
+import { AppLink as Link } from "@/components/app-link";
 
 import { FieldPicker } from "@/components/reader/radar/field-picker";
 import { RADAR_KINDS, radarHref, type RadarView } from "@/lib/radar";

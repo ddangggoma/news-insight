@@ -75,7 +75,7 @@ PORT="${CADDY_HTTPS_PORT:-8700}"
 # redirects to it (a 200 there would mean the session check is gone, a 5xx a broken release)
 for check in "/login 200" "/briefings 307" /radar/week/"$(date +%G-W%V)"" 307"; do
   path="${check% *}" want="${check##* }"
-  # Caddy rate-limits /radar* and /login per IP: a 429 means wait, not a broken release
+  # Caddy rate-limits pages per session and /login per IP: a 429 means wait, not a broken release
   for attempt in 1 2 3 4; do
     reply="$(curl -sk -o /dev/null -w '%{http_code} %{redirect_url}' \
       --connect-to "$HOST:$PORT:127.0.0.1:$PORT" "https://$HOST:$PORT$path" || true)"

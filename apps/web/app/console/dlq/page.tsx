@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { AppLink as Link } from "@/components/app-link";
 
 import { DeadLetterActions } from "@/components/console/dead-letter-actions";
 import { type Column, DataTable } from "@/components/console/data-table";

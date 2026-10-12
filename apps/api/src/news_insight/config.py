@@ -37,6 +37,9 @@ class Settings(BaseSettings):
     radar_cache: bool = False
     # console aggregates (card stats, overview) kept this many seconds; 0 = off (tests, host dev)
     console_cache_seconds: int = 0
+    # concurrent API requests admitted at once; the rest wait this long, then get 503 (overload.py)
+    api_max_inflight: int = 0
+    api_queue_seconds: float = 10.0
     claude_cli: str = "claude"
     digest_model: str = "opus"
     digest_timeout_seconds: int = 900

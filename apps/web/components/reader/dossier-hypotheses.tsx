@@ -1,7 +1,7 @@
 "use client";
 
 import { ExternalLink, Lightbulb, Trash2, X } from "lucide-react";
-import Link from "next/link";
+import { AppLink as Link } from "@/components/app-link";
 import { useState, useTransition } from "react";
 
 import { addEvidence, addHypothesis, deleteEvidence, deleteHypothesis, suggestEvidence, updateHypothesis } from "@/app/(reader)/dossiers/actions";

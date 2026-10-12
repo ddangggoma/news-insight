@@ -6,7 +6,7 @@ import { StrengthBadge } from "@/components/reader/briefing-extras";
 import { PersonaCard } from "@/components/reader/persona-card";
 import { PeriodicLinks } from "@/components/reader/periodic-view";
 import { PersonaFocus } from "@/components/reader/persona-focus";
-import Link from "next/link";
+import { AppLink as Link } from "@/components/app-link";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { BriefingEntry, BriefingPersona, PublicBriefing } from "@/lib/briefing-types";
