@@ -284,7 +284,7 @@ def check_host(host: dict[str, Any] | None) -> list[Finding]:
                 "qwen_unloaded",
                 Severity.INFO,
                 f"로컬 Qwen 상태: {qwen.get('state')}",
-                "카드 생성이 Qwen 없이 돌고 있습니다. LM Studio에서 모델을 불러오세요.",
+                "야간 딜 추출이 Qwen 없이 건너뜁니다. LM Studio에서 모델을 불러오세요.",
             )
         )
     return findings

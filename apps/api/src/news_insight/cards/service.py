@@ -482,24 +482,25 @@ def run_cards(
     open_session: SessionScope,
     *,
     agy: MeteredEngine | None = None,
-    qwen: CardEngine | None,
+    partner: CardEngine | None,
     policy: CardPolicy,
     metered: Sequence[MeteredEngine] | None = None,
-    qwen_alongside: bool = False,
+    alongside: bool = False,
     clock: Clock = _now,
     monotonic: Callable[[], float] = time.monotonic,
 ) -> CardRunStats:
     """Generate cards and reclassify stale ones until nothing is pending or time runs out.
 
     Metered engines are used in order while each keeps its reserve (D18: `min_weekly` percent of
-    the weekly limit is never spent): Codex, then Antigravity (2026-10-05, user request). When
-    the last one is spent the run continues on Qwen if it was passed in (`card_qwen_fallback` or
-    `--qwen-only`), otherwise items wait for the next run. With `qwen_alongside` Qwen also runs
-    `policy.qwen_parallel` lanes next to the metered engine in every round (2026-10-06, user
-    request: Qwen full time). A quota error moves to the next engine at once; other failures are
-    retried, moving on after FAILED_ROUNDS rounds in a row in which every lane failed; a round
-    where some lanes work resets the count. Qwen lanes that fail FAILED_ROUNDS rounds in a row
-    stop for the rest of the run.
+    the weekly limit is never spent): Antigravity since 2026-10-13 (Codex before it until then).
+    When the last one is spent the run continues on the `partner` engine if one was passed in
+    (Claude Haiku since 2026-10-13, user request; local Qwen with `--qwen-only`), otherwise
+    items wait for the next run. With `alongside` the partner also runs its lanes next to the
+    metered engine in every round (Qwen full time 2026-10-06, Haiku 2026-10-13). A quota error
+    moves to the next engine at once; other failures are retried, moving on after FAILED_ROUNDS
+    rounds in a row in which every lane failed; a round where some lanes work resets the count.
+    Partner lanes stop for the rest of the run on a quota error or after FAILED_ROUNDS failed
+    rounds in a row.
     While cards wait for a newer taxonomy, one metered lane per round reclassifies them so new
     items are never starved (CLS-2).
     """
@@ -507,10 +508,10 @@ def run_cards(
     deadline = monotonic() + policy.time_budget_seconds
     chain: list[MeteredEngine] = list(metered) if metered is not None else ([agy] if agy else [])
     at = 0  # index of the metered engine in use; len(chain) once all are spent or down
-    fallback = "switching to qwen" if qwen is not None else "waiting for the next run"
+    fallback = f"switching to {partner.name}" if partner is not None else "waiting for the next run"
     failed_rounds = 0
-    qwen_failed_rounds = 0
-    qwen_ok = qwen is not None
+    partner_failed_rounds = 0
+    partner_ok = partner is not None
     attempted: set[int] = set()
     classify_attempted: set[int] = set()
 
@@ -551,28 +552,34 @@ def run_cards(
                 open_session, policy, current.name, attempted, classify_attempted, stats
             )
             planned += [(current, job) for job in jobs]
-        if qwen is not None and qwen_ok and (current is None or qwen_alongside):
-            jobs = _plan_round(open_session, policy, None, attempted, classify_attempted, stats)
-            planned += [(qwen, job) for job in jobs]
+        if partner is not None and partner_ok and (current is None or alongside):
+            jobs = _plan_round(
+                open_session, policy, partner.name, attempted, classify_attempted, stats
+            )
+            planned += [(partner, job) for job in jobs]
         if not planned:
-            if current is None and not qwen_ok:
+            if current is None and not partner_ok:
                 stats.notes.append("no engine available")
             break
         results = _run_pairs(planned)
         exhausted: EngineError | None = None
+        partner_spent: EngineError | None = None
         metered_results: list[EngineOutput | EngineError] = []
-        qwen_results: list[EngineOutput | EngineError] = []
+        partner_results: list[EngineOutput | EngineError] = []
         for (engine, job), result in zip(planned, results, strict=True):
-            on_qwen = engine is qwen
-            (qwen_results if on_qwen else metered_results).append(result)
+            on_partner = engine is partner
+            (partner_results if on_partner else metered_results).append(result)
             ids = {entry.id for entry in job.inputs}
             if isinstance(result, EngineError):
                 (attempted if job.kind == "card" else classify_attempted).difference_update(ids)
                 # only a spent quota moves on at once; any other failure of one lane is retried
                 # (2026-10-10: one malformed answer among 3-6 lanes dropped Antigravity for the
                 # rest of the run, so whole runs fell back to Qwen)
-                if not on_qwen and isinstance(result, QuotaExhausted):
-                    exhausted = result
+                if isinstance(result, QuotaExhausted):
+                    if on_partner:
+                        partner_spent = result
+                    else:
+                        exhausted = result
                 else:
                     stats.notes.append(str(result))
                 continue
@@ -580,16 +587,23 @@ def run_cards(
                 _store_batch(open_session, engine.name, job.inputs, result, clock(), stats)  # type: ignore[arg-type]
             else:
                 _store_classifications(open_session, job.inputs, result, stats)  # type: ignore[arg-type]
-        if qwen_results:
-            if all(isinstance(r, EngineError) for r in qwen_results):
-                qwen_failed_rounds += 1
+        if partner_spent is not None and partner is not None:
+            partner_ok = False
+            stats.notes.append(f"{partner_spent}: {partner.name} lanes stopped for this run")
+            if current is None:
+                break
+        elif partner_results and partner is not None:
+            if all(isinstance(r, EngineError) for r in partner_results):
+                partner_failed_rounds += 1
                 if current is None:
-                    break  # Qwen down and nothing else: leave items pending for the next run
-                if qwen_failed_rounds >= FAILED_ROUNDS:
-                    qwen_ok = False
-                    stats.notes.append("qwen lanes stopped for this run after repeated failures")
+                    break  # partner down and nothing else: leave items pending for the next run
+                if partner_failed_rounds >= FAILED_ROUNDS:
+                    partner_ok = False
+                    stats.notes.append(
+                        f"{partner.name} lanes stopped for this run after repeated failures"
+                    )
             else:
-                qwen_failed_rounds = 0
+                partner_failed_rounds = 0
         if current is None:
             continue
         if exhausted is not None:
@@ -599,9 +613,9 @@ def run_cards(
             failed_rounds += 1
             if failed_rounds >= FAILED_ROUNDS:
                 if at == len(chain) - 1:
-                    if not qwen_ok:
+                    if not partner_ok:
                         break  # the last metered engine is down: wait for the next run
-                    at = len(chain)  # Qwen carries on alone
+                    at = len(chain)  # the partner carries on alone
                     continue
                 advance(f"{current.name} failed {failed_rounds} rounds")
                 continue
@@ -614,19 +628,19 @@ def run_cards(
 def _plan_round(
     open_session: SessionScope,
     policy: CardPolicy,
-    metered: str | None,
+    engine: str | None,
     attempted: set[int],
     classify_attempted: set[int],
     stats: "CardRunStats | None" = None,
 ) -> list[Job]:
-    """One round of jobs for the metered engine `metered` (by name), or Qwen when None."""
-    if metered == "codex":
+    """One round of jobs for the engine named `engine`; None sizes a Qwen round."""
+    if engine == "codex":
         lanes, batch = max(1, policy.codex_parallel), policy.codex_batch
         classify_batch = policy.codex_classify_batch
-    elif metered == "claude":
+    elif engine == "claude":
         lanes, batch = max(1, policy.claude_parallel), policy.claude_batch
         classify_batch = policy.claude_batch * 3
-    elif metered is not None:
+    elif engine not in (None, "qwen"):
         lanes, batch, classify_batch = (
             max(1, policy.agy_parallel),
             policy.agy_batch,
@@ -639,7 +653,7 @@ def _plan_round(
         stale = classify_pending_items(
             session, limit=classify_batch * lanes, exclude=classify_attempted
         )
-        # keep one lane for reclassification while new items also wait (metered engines only)
+        # keep one lane for reclassification while new items also wait (multi-lane engines)
         card_lanes = lanes - 1 if stale and lanes > 1 else lanes
         # repeats take their group's card first; the queue then holds one item per story
         reused = reuse_cards(session, now=_now())
@@ -672,7 +686,7 @@ def _plan_round(
 
 
 def _run_pairs(planned: list[tuple[CardEngine, Job]]) -> list[EngineOutput | EngineError]:
-    """Run every (engine, job) of a round at once: metered lanes and Qwen lanes side by side."""
+    """Run every (engine, job) of a round at once: metered lanes and partner lanes side by side."""
 
     def one(pair: tuple[CardEngine, Job]) -> EngineOutput | EngineError:
         engine, job = pair

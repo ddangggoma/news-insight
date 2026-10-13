@@ -89,7 +89,7 @@ def test_repeats_are_assigned_at_ingest_and_skip_the_queue(db_session: Session) 
     assert pending_count(db_session) == 1  # one story, one engine input
 
     agy = FakeAgy([FULL])
-    stats = run_cards(scope_for(db_session), agy=agy, qwen=None, policy=POLICY)
+    stats = run_cards(scope_for(db_session), agy=agy, partner=None, policy=POLICY)
 
     assert agy.batches == [[root.id]] and stats.ready == 1 and stats.reused == 3
     made = cards(db_session)
@@ -152,7 +152,7 @@ def test_cap_bypass_passes_items_with_a_good_triage_probability(db_session: Sess
     run_cards(
         scope_for(db_session),
         agy=FakeAgy([FULL]),
-        qwen=None,
+        partner=None,
         policy=CardPolicy(
             agy_batch=2, agy_parallel=1, unvalidated_daily_cap=2, time_budget_seconds=1000
         ),

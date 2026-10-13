@@ -128,7 +128,7 @@ def test_agy_generates_all_pending_cards(db_session: Session) -> None:
     seed(db_session, ["a", "b", "c"])
     agy = FakeAgy([FULL])
 
-    stats = run_cards(scope_for(db_session), agy=agy, qwen=FakeEngine("qwen"), policy=POLICY)
+    stats = run_cards(scope_for(db_session), agy=agy, partner=FakeEngine("qwen"), policy=POLICY)
 
     made = cards(db_session)
     assert stats.ready == 3 and stats.batches == {"agy": 2}
@@ -142,7 +142,7 @@ def test_spent_quota_switches_to_qwen(db_session: Session) -> None:
     agy = FakeAgy([FULL, SPENT])
     qwen = FakeEngine("qwen")
 
-    stats = run_cards(scope_for(db_session), agy=agy, qwen=qwen, policy=POLICY)
+    stats = run_cards(scope_for(db_session), agy=agy, partner=qwen, policy=POLICY)
 
     assert stats.batches == {"agy": 1, "qwen": 1}
     assert {card.engine for card in cards(db_session).values()} == {"agy", "qwen"}
@@ -154,7 +154,7 @@ def test_agy_failure_falls_back_to_qwen(db_session: Session, failure: Exception)
     seed(db_session, ["a"])
     agy = FakeAgy([FULL], fail=failure)
 
-    stats = run_cards(scope_for(db_session), agy=agy, qwen=FakeEngine("qwen"), policy=POLICY)
+    stats = run_cards(scope_for(db_session), agy=agy, partner=FakeEngine("qwen"), policy=POLICY)
 
     assert stats.ready == 1 and stats.batches == {"qwen": 1}
 
@@ -163,7 +163,7 @@ def test_without_qwen_a_spent_quota_waits_for_the_next_run(db_session: Session) 
     seed(db_session, ["a", "b", "c"])
     agy = FakeAgy([FULL, SPENT])
 
-    stats = run_cards(scope_for(db_session), agy=agy, qwen=None, policy=POLICY)
+    stats = run_cards(scope_for(db_session), agy=agy, partner=None, policy=POLICY)
 
     assert stats.batches == {"agy": 1} and pending_count(db_session) == 1
     assert any("waiting for the next run" in note for note in stats.notes)
@@ -189,7 +189,7 @@ def test_without_qwen_a_failed_batch_is_retried_on_agy(db_session: Session) -> N
     seed(db_session, ["a", "b"])
     agy = FlakyAgy(failures=1)
 
-    stats = run_cards(scope_for(db_session), agy=agy, qwen=None, policy=POLICY)
+    stats = run_cards(scope_for(db_session), agy=agy, partner=None, policy=POLICY)
 
     assert stats.ready == 2 and len(agy.batches) == 2
     assert {card.engine for card in cards(db_session).values()} == {"agy"}
@@ -202,7 +202,7 @@ def test_one_malformed_lane_does_not_drop_agy_for_the_run(db_session: Session) -
     qwen = FakeEngine("qwen")
     policy = CardPolicy(agy_batch=1, agy_parallel=2, qwen_batch=1, time_budget_seconds=1000)
 
-    stats = run_cards(scope_for(db_session), agy=agy, qwen=qwen, policy=policy)
+    stats = run_cards(scope_for(db_session), agy=agy, partner=qwen, policy=policy)
 
     assert stats.ready == 4 and qwen.batches == []
     assert {card.engine for card in cards(db_session).values()} == {"agy"}
@@ -212,7 +212,7 @@ def test_without_qwen_repeated_failures_end_the_run(db_session: Session) -> None
     seed(db_session, ["a"])
     agy = FlakyAgy(failures=10)
 
-    stats = run_cards(scope_for(db_session), agy=agy, qwen=None, policy=POLICY)
+    stats = run_cards(scope_for(db_session), agy=agy, partner=None, policy=POLICY)
 
     assert stats.ready == 0 and len(agy.batches) == 2 and pending_count(db_session) == 1
 
@@ -223,7 +223,7 @@ def test_qwen_outage_leaves_items_pending(db_session: Session) -> None:
     stats = run_cards(
         scope_for(db_session),
         agy=None,
-        qwen=FakeEngine("qwen", fail=EngineError("down")),
+        partner=FakeEngine("qwen", fail=EngineError("down")),
         policy=POLICY,
     )
 
@@ -236,7 +236,7 @@ def test_missing_cards_retry_then_give_up(db_session: Session) -> None:
     qwen = FakeEngine("qwen", skip=frozenset({"bad"}))
 
     for _ in range(MAX_ATTEMPTS):
-        run_cards(scope_for(db_session), agy=None, qwen=qwen, policy=POLICY)
+        run_cards(scope_for(db_session), agy=None, partner=qwen, policy=POLICY)
 
     card = cards(db_session)["bad"]
     assert (card.status, card.attempts) == (CardStatus.FAILED, MAX_ATTEMPTS)
@@ -245,7 +245,7 @@ def test_missing_cards_retry_then_give_up(db_session: Session) -> None:
 
 def test_changed_items_are_regenerated(db_session: Session) -> None:
     seed(db_session, ["a"])
-    run_cards(scope_for(db_session), agy=None, qwen=FakeEngine("qwen"), policy=POLICY)
+    run_cards(scope_for(db_session), agy=None, partner=FakeEngine("qwen"), policy=POLICY)
     item = db_session.scalars(select(Item)).one()
     item.content_hash = "changed"
     db_session.flush()
@@ -255,7 +255,7 @@ def test_changed_items_are_regenerated(db_session: Session) -> None:
 
 def test_older_taxonomy_reclassifies_without_regenerating_text(db_session: Session) -> None:
     seed(db_session, ["a"])
-    run_cards(scope_for(db_session), agy=None, qwen=FakeEngine("qwen"), policy=POLICY)
+    run_cards(scope_for(db_session), agy=None, partner=FakeEngine("qwen"), policy=POLICY)
     card = cards(db_session)["a"]
     title_before = card.title_ko
     card.taxonomy_revision = "old"
@@ -263,7 +263,7 @@ def test_older_taxonomy_reclassifies_without_regenerating_text(db_session: Sessi
 
     assert pending_count(db_session) == 0 and classify_pending_count(db_session) == 1
     qwen = FakeEngine("qwen")
-    stats = run_cards(scope_for(db_session), agy=None, qwen=qwen, policy=POLICY)
+    stats = run_cards(scope_for(db_session), agy=None, partner=qwen, policy=POLICY)
 
     assert qwen.batches == [] and len(qwen.classified) == 1
     assert stats.classified == 1 and classify_pending_count(db_session) == 0
@@ -274,14 +274,14 @@ def test_older_taxonomy_reclassifies_without_regenerating_text(db_session: Sessi
 
 def test_one_agy_lane_reclassifies_while_new_items_are_carded(db_session: Session) -> None:
     seed(db_session, ["old1", "old2"])
-    run_cards(scope_for(db_session), agy=None, qwen=FakeEngine("qwen"), policy=POLICY)
+    run_cards(scope_for(db_session), agy=None, partner=FakeEngine("qwen"), policy=POLICY)
     for card in cards(db_session).values():
         card.taxonomy_revision = "old"
     seed(db_session, ["new1", "new2", "new3", "new4"])
     agy = FakeAgy([FULL])
     policy = CardPolicy(agy_batch=2, agy_parallel=3, classify_batch=10, time_budget_seconds=1000)
 
-    stats = run_cards(scope_for(db_session), agy=agy, qwen=None, policy=policy)
+    stats = run_cards(scope_for(db_session), agy=agy, partner=None, policy=policy)
 
     first_round_cards = agy.batches[:2]
     assert sorted(id for batch in first_round_cards for id in batch) == sorted(
@@ -292,7 +292,7 @@ def test_one_agy_lane_reclassifies_while_new_items_are_carded(db_session: Sessio
 
 def test_qwen_reclassifies_only_after_new_items(db_session: Session) -> None:
     seed(db_session, ["old"])
-    run_cards(scope_for(db_session), agy=None, qwen=FakeEngine("qwen"), policy=POLICY)
+    run_cards(scope_for(db_session), agy=None, partner=FakeEngine("qwen"), policy=POLICY)
     cards(db_session)["old"].taxonomy_revision = "old"
     seed(db_session, ["new"])
     qwen = FakeEngine("qwen")
@@ -300,14 +300,14 @@ def test_qwen_reclassifies_only_after_new_items(db_session: Session) -> None:
     qwen.generate = lambda inputs: (order.append("card"), FakeEngine.generate(qwen, inputs))[1]  # type: ignore[method-assign]
     qwen.classify = lambda inputs: (order.append("classify"), FakeEngine.classify(qwen, inputs))[1]  # type: ignore[method-assign]
 
-    run_cards(scope_for(db_session), agy=None, qwen=qwen, policy=POLICY)
+    run_cards(scope_for(db_session), agy=None, partner=qwen, policy=POLICY)
 
     assert order == ["card", "classify"]
 
 
 def test_classification_gives_up_after_repeated_failures(db_session: Session) -> None:
     seed(db_session, ["a"])
-    run_cards(scope_for(db_session), agy=None, qwen=FakeEngine("qwen"), policy=POLICY)
+    run_cards(scope_for(db_session), agy=None, partner=FakeEngine("qwen"), policy=POLICY)
     card = cards(db_session)["a"]
     card.taxonomy_revision, card.field = "old", "ai"
     db_session.flush()
@@ -317,7 +317,7 @@ def test_classification_gives_up_after_repeated_failures(db_session: Session) ->
             return EngineOutput(raw={"cards": []}, model="m")
 
     for _ in range(MAX_CLASSIFY_ATTEMPTS):
-        run_cards(scope_for(db_session), agy=None, qwen=Empty("qwen"), policy=POLICY)
+        run_cards(scope_for(db_session), agy=None, partner=Empty("qwen"), policy=POLICY)
 
     assert card.taxonomy_revision == TAXONOMY_REVISION and card.field is None
     assert card.error is not None and card.error.startswith("classification gave up")
@@ -347,7 +347,7 @@ def test_agy_lanes_run_batches_concurrently(db_session: Session) -> None:
     stats = run_cards(
         scope_for(db_session),
         agy=SlowAgy([FULL]),
-        qwen=FakeEngine("qwen"),
+        partner=FakeEngine("qwen"),
         policy=CardPolicy(agy_batch=2, agy_parallel=3, time_budget_seconds=1000),
     )
 
@@ -366,7 +366,7 @@ def test_cards_losing_identifiers_are_rejected_and_retried(db_session: Session) 
             ]
             return EngineOutput(raw={"cards": cards}, model="m")
 
-    run_cards(scope_for(db_session), agy=None, qwen=Lossy("qwen"), policy=POLICY)
+    run_cards(scope_for(db_session), agy=None, partner=Lossy("qwen"), policy=POLICY)
 
     card = cards(db_session)["Galaxy S30 launch"]
     assert card.status is CardStatus.FAILED
@@ -398,12 +398,12 @@ def test_retries_name_the_lost_fact_and_the_last_attempt_keeps_the_card(
     scope = scope_for(db_session)
 
     for _ in range(MAX_ATTEMPTS - 1):
-        run_cards(scope, agy=agy, qwen=None, policy=POLICY)
+        run_cards(scope, agy=agy, partner=None, policy=POLICY)
     failed = cards(db_session)["Galaxy S30 launch"]
     assert failed.status == CardStatus.FAILED and failed.error == "preservation: lost S30"
     assert agy.keeps == [None, ["S30"]]
 
-    stats = run_cards(scope, agy=agy, qwen=None, policy=POLICY)
+    stats = run_cards(scope, agy=agy, partner=None, policy=POLICY)
 
     kept = cards(db_session)["Galaxy S30 launch"]
     assert stats.soft == 1 and kept.status == CardStatus.READY
@@ -432,7 +432,7 @@ def test_an_unvalidated_source_waits_after_its_daily_cap(db_session: Session) ->
     run_cards(
         scope_for(db_session),
         agy=FakeAgy([FULL]),
-        qwen=None,
+        partner=None,
         policy=CardPolicy(agy_batch=2, agy_parallel=1, unvalidated_daily_cap=2),
     )
     assert pending_count(db_session) == 1  # one item left for tomorrow
@@ -447,7 +447,7 @@ def test_same_url_or_same_content_reuses_the_card(db_session: Session) -> None:
 
     seed(db_session, ["original"])
     agy = FakeAgy([FULL])
-    run_cards(scope_for(db_session), agy=agy, qwen=None, policy=POLICY)
+    run_cards(scope_for(db_session), agy=agy, partner=None, policy=POLICY)
     original = db_session.scalars(select(Item).where(Item.title == "original")).one()
     other = build_source(key="other-news", storage_right=StorageRight.EXCERPT_ALLOWED)
     db_session.add(other)
@@ -461,7 +461,7 @@ def test_same_url_or_same_content_reuses_the_card(db_session: Session) -> None:
         canary=True,
     )
 
-    stats = run_cards(scope_for(db_session), agy=agy, qwen=None, policy=POLICY)
+    stats = run_cards(scope_for(db_session), agy=agy, partner=None, policy=POLICY)
 
     copy = cards(db_session)["original (reposted)"]
     assert stats.reused == 1 and len(agy.batches) == 1  # no second engine call
@@ -483,7 +483,7 @@ def test_codex_first_then_agy_when_codex_reaches_its_reserve(db_session: Session
         agy_batch=2, agy_parallel=1, codex_batch=2, codex_parallel=1, time_budget_seconds=1000
     )
 
-    stats = run_cards(scope_for(db_session), metered=[codex, agy], qwen=None, policy=policy)
+    stats = run_cards(scope_for(db_session), metered=[codex, agy], partner=None, policy=policy)
 
     assert stats.batches == {"codex": 1, "agy": 1} and stats.ready == 4
     assert any(
@@ -497,7 +497,7 @@ def test_codex_quota_error_moves_on_and_qwen_comes_last(db_session: Session) -> 
     agy = FakeAgy([SPENT])
     qwen = FakeEngine("qwen")
 
-    stats = run_cards(scope_for(db_session), metered=[codex, agy], qwen=qwen, policy=POLICY)
+    stats = run_cards(scope_for(db_session), metered=[codex, agy], partner=qwen, policy=POLICY)
 
     assert stats.batches == {"qwen": 2} and stats.ready == 2
     assert {card.engine for card in cards(db_session).values()} == {"qwen"}
@@ -512,7 +512,7 @@ def test_qwen_lanes_run_next_to_codex_when_alongside(db_session: Session) -> Non
     )
 
     stats = run_cards(
-        scope_for(db_session), metered=[codex], qwen=qwen, policy=policy, qwen_alongside=True
+        scope_for(db_session), metered=[codex], partner=qwen, policy=policy, alongside=True
     )
 
     assert stats.ready == 6 and stats.batches["codex"] >= 1 and stats.batches["qwen"] >= 2
@@ -528,8 +528,55 @@ def test_failing_qwen_lanes_stop_while_codex_goes_on(db_session: Session) -> Non
     policy = CardPolicy(codex_batch=2, codex_parallel=1, qwen_batch=1, time_budget_seconds=1000)
 
     stats = run_cards(
-        scope_for(db_session), metered=[codex], qwen=qwen, policy=policy, qwen_alongside=True
+        scope_for(db_session), metered=[codex], partner=qwen, policy=policy, alongside=True
     )
 
     assert len(qwen.batches) == 2 and stats.ready == 8 and pending_count(db_session) == 0
     assert any("qwen lanes stopped" in note for note in stats.notes)
+
+
+def test_claude_haiku_lanes_run_next_to_agy(db_session: Session) -> None:
+    """2026-10-13: Antigravity with Claude Haiku alongside, sized by the Claude policy."""
+    seed(db_session, ["a", "b", "c", "d", "e", "f"])
+    agy = FakeAgy([FULL])
+    claude = FakeEngine("claude")
+    policy = CardPolicy(
+        agy_batch=2, agy_parallel=1, claude_batch=2, claude_parallel=1, time_budget_seconds=1000
+    )
+
+    stats = run_cards(
+        scope_for(db_session), metered=[agy], partner=claude, policy=policy, alongside=True
+    )
+
+    assert stats.ready == 6 and stats.batches["agy"] >= 1 and stats.batches["claude"] >= 1
+    assert all(len(batch) == 2 for batch in claude.batches)
+    assert set(sum(agy.batches, [])).isdisjoint(sum(claude.batches, []))
+
+
+def test_spent_claude_stops_its_lanes_while_agy_goes_on(db_session: Session) -> None:
+    seed(db_session, ["a", "b", "c", "d", "e", "f"])
+    agy = FakeAgy([FULL])
+    claude = FakeEngine("claude", fail=QuotaExhausted("claude limit: usage limit reached"))
+    policy = CardPolicy(
+        agy_batch=2, agy_parallel=1, claude_batch=1, claude_parallel=1, time_budget_seconds=1000
+    )
+
+    stats = run_cards(
+        scope_for(db_session), metered=[agy], partner=claude, policy=policy, alongside=True
+    )
+
+    assert len(claude.batches) == 1 and stats.ready == 6 and pending_count(db_session) == 0
+    assert any("claude lanes stopped" in note for note in stats.notes)
+
+
+def test_claude_carries_on_after_agy_reaches_its_reserve(db_session: Session) -> None:
+    seed(db_session, ["a", "b", "c"])
+    agy = FakeAgy([SPENT])
+    claude = FakeEngine("claude")
+
+    stats = run_cards(
+        scope_for(db_session), metered=[agy], partner=claude, policy=POLICY, alongside=True
+    )
+
+    assert stats.batches == {"claude": 1} and stats.ready == 3
+    assert any("switching to claude" in note for note in stats.notes)

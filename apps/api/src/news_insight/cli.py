@@ -15,6 +15,7 @@ from sqlalchemy.orm import Session
 
 from news_insight.cards.engines import (
     AgyEngine,
+    CardEngine,
     CodexEngine,
     EngineError,
     MeteredEngine,
@@ -100,7 +101,7 @@ stories_app = typer.Typer(
 )
 app.add_typer(stories_app, name="stories")
 cards_app = typer.Typer(
-    help="Korean cards: Antigravity CLI first, local Qwen when its quota is spent",
+    help="Korean cards: Antigravity CLI with Claude Haiku alongside",
     no_args_is_help=True,
 )
 app.add_typer(cards_app, name="cards")
@@ -145,7 +146,8 @@ def _claude() -> ClaudeClient:
 
 
 def _card_engines(qwen_only: bool) -> tuple[list[MeteredEngine], QwenEngine]:
-    """Metered engines in order of use (Codex, Antigravity) and the local Qwen fallback."""
+    """Metered engines in order of use (Antigravity; Codex first when enabled) and the local
+    Qwen for `--qwen-only`."""
     settings = get_settings()
     metered: list[MeteredEngine] = []
     if not qwen_only and settings.card_codex_enabled:
@@ -592,9 +594,9 @@ CARDS_LOCK = Path(tempfile.gettempdir()) / "news-insight-cards.lock"
 @cards_app.command("run")
 def cards_run(
     budget: Annotated[int | None, typer.Option(help="Time budget in seconds")] = None,
-    qwen_only: Annotated[bool, typer.Option(help="Skip Codex and Antigravity; local Qwen")] = False,
+    qwen_only: Annotated[bool, typer.Option(help="Local Qwen only, no metered engine")] = False,
     claude: Annotated[
-        bool, typer.Option(help="Claude Code instead of Codex and Antigravity (Qwen alongside)")
+        bool, typer.Option(help="Claude alongside even in quiet hours or over the daily cap")
     ] = False,
 ) -> None:
     """Generate Korean cards for pending items (host-side; launchd runs it every 10 minutes)."""
@@ -606,16 +608,21 @@ def cards_run(
             typer.echo("another card run is active; skipping")
             return
         metered, local = _card_engines(qwen_only)
-        if claude or (not qwen_only and _scheduled_claude(settings)):
+        # the partner runs lanes next to Antigravity and carries on alone after it: Claude Haiku
+        # (2026-10-13, user request), else Qwen when asked for (`--qwen-only`, card_qwen_*)
+        partner: CardEngine | None = None
+        alongside = False
+        if qwen_only:
+            partner = local
+        elif claude or _scheduled_claude(settings):
             from news_insight.cards.engines import ClaudeEngine
 
             cli = ClaudeCli(
                 executable=settings.claude_cli, timeout_seconds=settings.card_timeout_seconds
             )
-            # ahead of Codex and Antigravity; a usage-limit error moves the run down the chain
-            metered = [ClaudeEngine(cli=cli, model=settings.card_claude_model), *metered]
-        # Qwen only after every metered engine is down to its reserve (card_qwen_fallback)
-        qwen = local if qwen_only or settings.card_qwen_fallback else None
+            partner, alongside = ClaudeEngine(cli=cli, model=settings.card_claude_model), True
+        elif settings.card_qwen_fallback:
+            partner, alongside = local, settings.card_qwen_alongside
         policy = CardPolicy(
             agy_batch=settings.card_agy_batch,
             agy_parallel=settings.card_agy_parallel,
@@ -635,9 +642,9 @@ def cards_run(
         stats = run_cards(
             session_scope,
             metered=metered,
-            qwen=qwen,
+            partner=partner,
             policy=policy,
-            qwen_alongside=settings.card_qwen_alongside and not qwen_only,
+            alongside=alongside,
         )
         record_run(session_scope, started, stats)
     batches = " ".join(f"{name}={count}" for name, count in sorted(stats.batches.items()))

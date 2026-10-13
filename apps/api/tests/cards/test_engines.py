@@ -221,7 +221,7 @@ def test_codex_quota_reads_the_last_snapshot() -> None:
     assert codex_quota('{"type":"session_meta"}') is None
 
 
-def test_claude_engine_sends_items_on_stdin_and_maps_limits() -> None:
+def test_claude_engine_sends_items_in_the_prompt_and_maps_limits() -> None:
     import json as _json
     import subprocess as _subprocess
 
@@ -248,7 +248,9 @@ def test_claude_engine_sends_items_on_stdin_and_maps_limits() -> None:
     assert out.raw == {"cards": []} and out.model == "sonnet"
     args = calls[0]["args"]
     assert args[args.index("--tools") + 1] == "" and args[args.index("--model") + 1] == "sonnet"
-    assert "items 배열" in args[-1] and _json.loads(calls[0]["input"])["items"][0]["id"] == 7
+    prompt = args[-1]
+    assert _json.loads(prompt.split("입력:\n", 1)[1])[0]["id"] == 7
+    assert _json.loads(calls[0]["input"]) == {}
     assert engine.usage().usable(min_weekly=10, min_five_hour=2)
     with pytest.raises(QuotaExhausted):
         engine.generate(INPUTS)
