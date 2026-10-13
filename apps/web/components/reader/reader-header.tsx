@@ -1,6 +1,6 @@
 "use client";
 
-import { Compass, FileText, Handshake, Map as MapIcon, Radar, ScrollText, Search } from "lucide-react";
+import { Compass, FileSearch, FileText, Handshake, Map as MapIcon, Radar, ScrollText, Search } from "lucide-react";
 import { AppLink as Link } from "@/components/app-link";
 import { usePathname, useSearchParams } from "next/navigation";
 
@@ -10,7 +10,8 @@ import { cn } from "@/lib/utils";
 
 // Reader menu (2026-10-12): the daily briefing first; the opportunity/threat board and the
 // roadmap share one entry with tabs (components/reader/roadmap-tabs.tsx). Dossiers, collections
-// and questions left the menu; their pages still open from a direct link.
+// and questions left the menu; their pages still open from a direct link. Trend reports on request
+// (plan 17 R1) joined it on 2026-10-13.
 export const READER_NAV = [
   { href: "/briefings", label: "데일리 브리핑", icon: FileText, match: ["/briefings"] },
   { href: "/", label: "탐색", icon: Compass, match: ["/items"] },
@@ -18,6 +19,7 @@ export const READER_NAV = [
   { href: "/deals", label: "투자·제휴", icon: Handshake, match: ["/deals"] },
   { href: "/patents", label: "특허", icon: ScrollText, match: ["/patents"] },
   { href: "/roadmap", label: "로드맵", icon: MapIcon, match: ["/roadmap", "/board"] },
+  { href: "/reports", label: "보고서", icon: FileSearch, match: ["/reports"] },
 ] as const;
 
 export function isReaderActive(pathname: string, item: (typeof READER_NAV)[number]): boolean {

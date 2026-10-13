@@ -11,7 +11,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="하단 메뉴"
-      className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-6 border-t bg-background pb-[env(safe-area-inset-bottom)] md:hidden"
+      className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-7 border-t bg-background pb-[env(safe-area-inset-bottom)] md:hidden"
     >
       {READER_NAV.map((item) => {
         const active = isReaderActive(pathname, item);

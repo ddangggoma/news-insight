@@ -43,6 +43,11 @@ class Settings(BaseSettings):
     claude_cli: str = "claude"
     digest_model: str = "opus"
     digest_timeout_seconds: int = 900
+    # trend reports on request (plan 17 R1): written on the host with the Claude CLI
+    report_model: str = "opus"
+    report_timeout_seconds: int = 1500
+    report_user_daily: int = 5  # admins are not capped per user
+    report_site_daily: int = 20
     # spoken briefing (plan 13 A1): rendered on the host with macOS `say`, served by Caddy
     media_dir: str = "/srv/media"
     briefing_voice: str = "Yuna"

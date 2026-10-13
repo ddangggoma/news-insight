@@ -103,3 +103,15 @@ scripts/dev.sh cards                   # 지금 바로 카드 생성
 - 콘솔: 카드 뉴스(분류 필터, 이슈별 1건 보기) · 이슈 묶음 · 교차 신호 · 관련성 검토(AI 분류 일치율)
 
 자세한 내용은 [중복 묶음·분류 런북](docs/runbooks/stories-classification.md)을 보세요.
+
+## 동향 보고서 (계획 17 R1)
+
+- 리더 메뉴 **보고서**(`/reports`)에서 주제·정보·기간을 주면, 호스트의 Claude CLI(Opus)가 검색 계획을 세우고 수집 카드에서 근거를 모아 HTML 동향 보고서를 씁니다. 주제의 흐름(시계열), 핵심 주체의 과거와 다음 행보, 같은 대상을 둔 다른 주체들(공간), 선례, DX 시사점, 경쟁 가설, 관찰 지표를 담고, 모든 사실 문장에 근거 카드를 답니다.
+- 주제 파일 상세의 "동향 보고서"로 그 주제 파일의 조건을 이어받을 수 있고, HTML·Markdown·Word·PowerPoint로 내보냅니다.
+
+```bash
+scripts/install-report-schedule.sh     # launchd에 1분 주기 보고서 대기열 처리 등록 (운영 트리에서)
+scripts/dev.sh reports                 # 지금 바로 대기 중인 보고서 작성
+```
+
+설계와 연구 조사는 [계획 17](docs/superpowers/plans/2026-10-13-17-event-expansion-analysis.md)을 보세요.
