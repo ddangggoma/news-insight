@@ -123,6 +123,11 @@ ops_app = typer.Typer(help="Operational health checks and alerts", no_args_is_he
 app.add_typer(ops_app, name="ops")
 users_app = typer.Typer(help="Site accounts: admin bootstrap and recovery", no_args_is_help=True)
 app.add_typer(users_app, name="users")
+reports_app = typer.Typer(
+    help="Trend reports readers request, written with the Claude CLI (plan 17 R1)",
+    no_args_is_help=True,
+)
+app.add_typer(reports_app, name="reports")
 
 KST = ZoneInfo("Asia/Seoul")
 FAILED_OUTCOMES = (FetchOutcome.FAILED, FetchOutcome.DEAD_LETTERED)
@@ -1425,6 +1430,63 @@ def stories_refs_backfill(
                 )
         added = (session.scalar(select(func.count()).select_from(ItemRef)) or 0) - before
     typer.echo(f"items={len(rows)} refs_added={added}")
+
+
+REPORTS_LOCK = Path(tempfile.gettempdir()) / "news-insight-reports.lock"
+
+
+@reports_app.command("run")
+def reports_run(
+    limit: Annotated[int, typer.Option(help="Reports to write in this run at most")] = 3,
+    model: Annotated[
+        str | None, typer.Option(help="Claude model alias (default: REPORT_MODEL)")
+    ] = None,
+) -> None:
+    """Write queued trend reports (host-side; launchd runs it every minute)."""
+    from news_insight.digest.claude import ClaudeCli
+    from news_insight.reports.service import run_next
+    from news_insight.taxonomy.embeddings import embedder
+
+    settings = get_settings()
+    with REPORTS_LOCK.open("w") as lock:
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            typer.echo("another report run is active; skipping")
+            return
+        client = ClaudeCli(
+            executable=settings.claude_cli, timeout_seconds=settings.report_timeout_seconds
+        )
+        for _ in range(limit):
+            with session_scope() as session:
+                report = run_next(
+                    session,
+                    client=client,
+                    model=model or settings.report_model,
+                    embed=embedder(),
+                    now=datetime.now(UTC),
+                )
+                if report is None:
+                    return
+                line = f"report {report.id} {report.status} topic={report.topic!r}"
+                if report.cost_usd is not None:
+                    line += f" cost=${report.cost_usd:.3f}"
+                if report.error:
+                    line += f" error={report.error}"
+            typer.echo(line)
+
+
+@reports_app.command("status")
+def reports_status() -> None:
+    """Queued, running and recent reports."""
+    from news_insight.reports.models import TrendReport
+
+    with session_scope() as session:
+        rows = session.scalars(
+            select(TrendReport).order_by(TrendReport.requested_at.desc()).limit(20)
+        ).all()
+        for r in rows:
+            typer.echo(f"{r.id:>5} {r.status:<8} {_kst(r.requested_at)} {r.topic}")
 
 
 def main() -> None:

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.newsinsight.reports</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/zsh</string>
+    <string>-lc</string>
+    <string>cd "__REPO__" &amp;&amp; scripts/dev.sh reports</string>
+  </array>
+  <!-- trend reports readers request (plan 17 R1): the queue is checked every minute; a run
+       writes up to three reports and a lock keeps runs from overlapping -->
+  <key>StartInterval</key>
+  <integer>60</integer>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>__PATH__</string>
+    <key>CLAUDE_CLI</key>
+    <string>__CLAUDE__</string>
+  </dict>
+  <key>StandardOutPath</key>
+  <string>__REPO__/ops/logs/reports.log</string>
+  <key>StandardErrorPath</key>
+  <string>__REPO__/ops/logs/reports.log</string>
+</dict>
+</plist>

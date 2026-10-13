@@ -107,6 +107,12 @@ cards()         {
   (cd "$API" && LM_STUDIO_URL=http://127.0.0.1:1234 uv run --env-file "$ROOT/.env" news-insight stories semantic) \
     || echo "stories semantic skipped (LM Studio or Antigravity unavailable)" >&2
 }
+# Trend reports readers request (plan 17 R1), launchd every minute: the Claude CLI is logged in
+# here, and LM Studio (bge-m3 for meaning search) is reached on localhost. Quiet when the queue is empty.
+reports()       {
+  rotate reports
+  (cd "$API" && LM_STUDIO_URL=http://127.0.0.1:1234 uv run --env-file "$ROOT/.env" news-insight reports run)
+}
 # Log report and whole-flow audit (host-side, read-only); reports land in ops/reports/
 logs_report()   { (cd "$API" && uv run --env-file "$ROOT/.env" news-insight ops logs --root "$ROOT" --write "$ROOT/ops/reports/logs-$(date +%Y%m%d-%H%M).md" >/dev/null) && ls -t "$ROOT"/ops/reports/logs-* | head -1; }
 audit()         { (cd "$API" && uv run --env-file "$ROOT/.env" news-insight ops audit --write "$ROOT/ops/reports/audit-$(date +%Y%m%d-%H%M).md" >/dev/null) && ls -t "$ROOT"/ops/reports/audit-* | head -1; }
@@ -121,7 +127,7 @@ verify() {
   printf '\nverify: all checks passed\n'
 }
 
-COMMANDS="up down logs db migrate api-dev web-dev api-test api-lint web-test web-check compose-check alembic-check verify web-e2e radar-qa create-admin digest cards sources-seed logs-report audit"
+COMMANDS="up down logs db migrate api-dev web-dev api-test api-lint web-test web-check compose-check alembic-check verify web-e2e radar-qa create-admin digest cards reports sources-seed logs-report audit"
 
 usage() {
   echo "usage: scripts/dev.sh <command>"

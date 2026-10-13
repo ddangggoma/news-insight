@@ -12,6 +12,11 @@ export async function dossierApi<T>(method: Method, path: string, body?: unknown
   return sessionApi<T>(method, `/api/public/dossiers${path}`, body);
 }
 
+/** Trend report API (plan 17 R1): requests, status and reports, with the reader's session. */
+export async function reportApi<T>(method: Method, path: string, body?: unknown): Promise<T> {
+  return sessionApi<T>(method, `/api/public/reports${path}`, body);
+}
+
 /** Team API (plan 16 #12): comments and shared collections, with the reader's session. */
 export async function teamApi<T>(method: Method, path: string, body?: unknown): Promise<T> {
   return sessionApi<T>(method, `/api/public/team${path}`, body);

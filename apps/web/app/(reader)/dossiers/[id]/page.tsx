@@ -1,4 +1,4 @@
-import { Pencil } from "lucide-react";
+import { FileSearch, Pencil } from "lucide-react";
 import type { Metadata } from "next";
 import { AppLink as Link } from "@/components/app-link";
 import { notFound } from "next/navigation";
@@ -80,6 +80,12 @@ export default async function DossierPage({ params, searchParams }: { params: Pr
           </p>
           <ExportLinks path={`dossier/${id}`} />
         </div>
+        <Button asChild variant="outline" size="sm">
+          <Link href={`/reports?dossier=${id}`}>
+            <FileSearch className="size-4" aria-hidden />
+            동향 보고서
+          </Link>
+        </Button>
         <Button asChild variant="outline" size="sm">
           <Link href={`/dossiers/${id}/edit`}>
             <Pencil className="size-4" aria-hidden />
