@@ -580,3 +580,20 @@ def test_claude_carries_on_after_agy_reaches_its_reserve(db_session: Session) ->
 
     assert stats.batches == {"claude": 1} and stats.ready == 3
     assert any("switching to claude" in note for note in stats.notes)
+
+
+def test_claude_gets_a_share_of_a_backlog_agy_could_take_alone(db_session: Session) -> None:
+    """A backlog smaller than one Antigravity round still feeds the Haiku lanes."""
+    seed(db_session, ["a", "b", "c", "d", "e"])
+    agy = FakeAgy([FULL])
+    claude = FakeEngine("claude")
+    policy = CardPolicy(
+        agy_batch=100, agy_parallel=3, claude_batch=2, claude_parallel=1, time_budget_seconds=1000
+    )
+
+    stats = run_cards(
+        scope_for(db_session), metered=[agy], partner=claude, policy=policy, alongside=True
+    )
+
+    assert stats.ready == 5 and stats.batches == {"claude": 1, "agy": 1}
+    assert len(claude.batches[0]) == 2 and len(agy.batches[0]) == 3

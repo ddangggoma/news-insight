@@ -547,16 +547,18 @@ def run_cards(
     while monotonic() < deadline:
         current = chain[at] if at < len(chain) else None
         planned: list[tuple[CardEngine, Job]] = []
-        if current is not None:
-            jobs = _plan_round(
-                open_session, policy, current.name, attempted, classify_attempted, stats
-            )
-            planned += [(current, job) for job in jobs]
+        # the partner plans first: Antigravity's 3 x 100 items would otherwise take the whole
+        # usual backlog and leave Haiku idle (2026-10-13 test run: agy=4 batches, claude=0)
         if partner is not None and partner_ok and (current is None or alongside):
             jobs = _plan_round(
                 open_session, policy, partner.name, attempted, classify_attempted, stats
             )
             planned += [(partner, job) for job in jobs]
+        if current is not None:
+            jobs = _plan_round(
+                open_session, policy, current.name, attempted, classify_attempted, stats
+            )
+            planned += [(current, job) for job in jobs]
         if not planned:
             if current is None and not partner_ok:
                 stats.notes.append("no engine available")
