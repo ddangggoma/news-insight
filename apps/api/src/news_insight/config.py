@@ -53,28 +53,32 @@ class Settings(BaseSettings):
     card_agy_min_five_hour: int = 2
     card_agy_batch: int = 100
     card_agy_parallel: int = 3
-    # Codex first, then Antigravity, each down to its reserve, then local Qwen (2026-10-05)
+    # Cards use Antigravity and Claude Haiku only (2026-10-13, user request): Codex and the local
+    # Qwen are off by default. Codex stays available with CARD_CODEX_ENABLED, Qwen with
+    # `cards run --qwen-only` or CARD_QWEN_FALLBACK.
     codex_cli: str = "codex"  # launchd has no nvm on PATH: set CODEX_CLI to the native binary
     codex_home: str = ""  # default ~/.codex (session files hold the rate-limit snapshot)
-    card_codex_enabled: bool = True
+    card_codex_enabled: bool = False
     card_codex_model: str = ""  # the account's default Codex model
     card_codex_batch: int = 40
     card_codex_parallel: int = 2
-    # Claude Code for cards. Scheduled runs use it only while `card_claude` is on or before
-    # `card_claude_until` (ISO time): 2026-10-06 user request, Claude until 10-07 01:00 KST and
-    # afterwards only when asked (`cards run --claude`). Outside the quiet hours (KST, the
-    # briefing's Claude budget) and below a daily card cap; `--claude` ignores both.
-    card_claude: bool = False
-    card_claude_until: str = "2026-10-07T01:00:00+09:00"
-    card_claude_model: str = "claude-sonnet-5-5"
+    # Claude Code for cards: Haiku runs lanes next to Antigravity in every scheduled run and
+    # carries on alone once Antigravity is down to its reserve (2026-10-13, user request).
+    # Scheduled runs use it while `card_claude` is on (or before `card_claude_until`, ISO time),
+    # outside the quiet hours (KST, the briefing's Claude budget) and below a daily card cap;
+    # `cards run --claude` ignores all three.
+    card_claude: bool = True
+    card_claude_until: str = ""
+    card_claude_model: str = "claude-haiku-5-5"
     card_claude_batch: int = 12
     card_claude_parallel: int = 3
     card_claude_quiet_hours: str = "3-11"
     card_claude_daily_cap: int = 1500
     card_qwen_batch: int = 5
-    card_qwen_fallback: bool = True  # after Codex and Antigravity are down to their reserves
-    # Qwen full time (2026-10-06, user request): its lanes run next to Codex/Antigravity too
-    card_qwen_alongside: bool = True
+    # Qwen for cards when Claude is not in the run (quiet hours, daily cap): off since
+    # 2026-10-13; `card_qwen_alongside` also runs its lanes next to Antigravity
+    card_qwen_fallback: bool = False
+    card_qwen_alongside: bool = False
     card_qwen_parallel: int = 2
     card_unvalidated_daily_cap: int = 40  # cards per non-active source per 24 hours (2026-10-05)
     card_cap_bypass_dx: float = 0.5  # triage probability that passes that cap (2026-10-10)

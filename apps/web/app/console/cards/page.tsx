@@ -68,7 +68,7 @@ export default async function CardsPage({ searchParams }: { searchParams: Promis
     <>
       <PageHeader
         title="카드 뉴스"
-        description="수집된 모든 항목을 한국어 카드(제목·요약·키워드·출처)로 정리합니다. Antigravity 우선, 한도 소진 시 로컬 Qwen."
+        description="수집된 모든 항목을 한국어 카드(제목·요약·키워드·출처)로 정리합니다. Antigravity와 Claude Haiku가 함께 처리하고, Antigravity 한도가 예비분까지 쓰이면 Haiku가 이어받습니다."
       />
       <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4 [&>*]:min-w-0">
         <StatCard title="오늘 만든 카드" value={formatNumber(stats.ready_today)} hint={`누적 ${formatNumber(stats.ready)}건`} icon={Sparkles} />
