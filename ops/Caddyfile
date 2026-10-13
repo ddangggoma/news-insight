@@ -110,8 +110,21 @@
 		}
 	}
 
+	# A written trend report (plan 17 R1) opens inside the site's own frame on /reports/{id}:
+	# that page alone may be framed by this origin. Its HTML has no scripts and no outside
+	# resources; the report CSP matches the one the web route sets.
+	@framed_report path_regexp framed_report ^/reports/[0-9]+/view$
+	header @framed_report {
+		Content-Security-Policy "default-src 'none'; style-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'; frame-ancestors 'self'"
+		X-Content-Type-Options nosniff
+		X-Frame-Options SAMEORIGIN
+		Referrer-Policy strict-origin-when-cross-origin
+		-Server
+	}
+
 	# Next.js hydration and next-themes use inline scripts/styles; everything else is same-origin.
-	header {
+	@site_pages not path_regexp site_pages ^/reports/[0-9]+/view$
+	header @site_pages {
 		Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
 		Cross-Origin-Opener-Policy same-origin
 		X-Content-Type-Options nosniff

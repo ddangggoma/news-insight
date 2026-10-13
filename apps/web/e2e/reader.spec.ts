@@ -7,7 +7,7 @@ test.describe("reader", () => {
     await page.goto("/");
     await expect(page.getByRole("link", { name: "삼성, 차세대 온디바이스 AI 칩 공개" }).first()).toBeVisible();
     const menu = page.getByRole("navigation", { name: "주요 메뉴" }).getByRole("link");
-    await expect(menu).toHaveText(["데일리 브리핑", "탐색", "레이더", "투자·제휴", "특허", "로드맵", "보고서"]);
+    await expect(menu).toHaveText(["데일리 브리핑", "탐색", "레이더", "투자·제휴", "특허", "로드맵", "동향 보고서 작성"]);
   });
 
   test("the roadmap menu holds the roadmap and the opportunity board as tabs", async ({ page }) => {

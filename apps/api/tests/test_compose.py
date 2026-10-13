@@ -99,3 +99,16 @@ def test_api_bounds_its_concurrent_requests() -> None:
 
     assert int(env["API_MAX_INFLIGHT"]) > 0
     assert float(env["API_QUEUE_SECONDS"]) > 0
+
+
+def test_caddy_lets_only_the_report_view_into_a_same_origin_frame() -> None:
+    caddyfile = (REPO_ROOT / "ops" / "Caddyfile").read_text(encoding="utf-8")
+
+    # the site refuses every frame; a trend report (plan 17 R1) opens in /reports/{id}'s frame
+    # (2026-10-13: the blanket DENY left that frame "refused to connect")
+    assert "@framed_report path_regexp framed_report ^/reports/[0-9]+/view$" in caddyfile
+    assert "@site_pages not path_regexp site_pages ^/reports/[0-9]+/view$" in caddyfile
+    framed, rest = caddyfile.split("header @framed_report {", 1)[1].split("}", 1)
+    assert "X-Frame-Options SAMEORIGIN" in framed and "frame-ancestors 'self'" in framed
+    site = rest.split("header @site_pages {", 1)[1].split("}", 1)[0]
+    assert "X-Frame-Options DENY" in site and "frame-ancestors 'none'" in site

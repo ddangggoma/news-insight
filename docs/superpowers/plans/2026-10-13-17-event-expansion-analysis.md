@@ -596,7 +596,7 @@ event_dossiers (event_id, built_at, window_from, window_to, axes jsonb, narrativ
 
 ### 12-1. 사용 흐름
 
-1. 리더 메뉴 **보고서**(`/reports`) — 주제, 정보·관점(알고 있는 사실, 궁금한 점, 꼭 다룰 기업·인물), 근거 기간(30·90·180·365일)을 넣고 "보고서 요청". 주제 파일 상세의 "동향 보고서" 버튼은 그 주제 파일의 제목·설명·조건을 넘긴다.
+1. 리더 메뉴 **동향 보고서 작성**(`/reports`) — 주제, 정보·관점(알고 있는 사실, 궁금한 점, 꼭 다룰 기업·인물), 근거 기간(30·90·180·365일)을 넣고 "보고서 요청". 주제 파일 상세의 "동향 보고서" 버튼은 그 주제 파일의 제목·설명·조건을 넘긴다.
 2. 요청은 대기열(`trend_reports`)에 들어가고 상세 화면이 대기 순서·작성 중을 보이며 자동으로 새로 고쳐진다.
 3. 호스트 launchd(`com.newsinsight.reports`, 1분마다 `scripts/dev.sh reports`)가 가장 오래된 요청을 집어 Claude CLI(`REPORT_MODEL`, 기본 opus)로 쓴다. 한 실행에 최대 3건, 잠금 파일로 겹치지 않는다.
 4. 완료되면 상세 화면에 보고서가 틀(iframe)로 보이고 "새 창으로", HTML·Markdown·Word·PowerPoint 내보내기가 있다. 실패하면 이유와 "다시 시도".
@@ -612,7 +612,7 @@ event_dossiers (event_id, built_at, window_from, window_to, axes jsonb, narrativ
 | `reports/service.py` | 요청·한도·대기열·작성·실패 처리(45분 넘게 작성 중이면 다시 대기, 2회 뒤 실패) |
 | `reports/routes.py` | `/api/public/reports` (리더 키 + 세션): 목록·요청·상세·`/html`·`/export`·다시 시도·보관 |
 | `cli.py` | `news-insight reports run [--limit 3] [--model]`, `reports status` |
-| 웹 | `/reports`, `/reports/{id}`, `/reports/{id}/view`(CSP·샌드박스로 HTML 제공), `/export/report/{id}`, 메뉴 "보고서", 주제 파일 버튼 |
+| 웹 | `/reports`, `/reports/{id}`, `/reports/{id}/view`(CSP·샌드박스로 HTML 제공), `/export/report/{id}`, 메뉴 "동향 보고서 작성", 주제 파일 버튼 |
 | 호스트 | `ops/launchd/com.newsinsight.reports.plist.template`, `scripts/install-report-schedule.sh` |
 
 ### 12-3. 한도와 안전
@@ -620,6 +620,7 @@ event_dossiers (event_id, built_at, window_from, window_to, axes jsonb, narrativ
 - 하루 요청 한도: 사용자당 `REPORT_USER_DAILY`(5, 관리자는 제외), 사이트 전체 `REPORT_SITE_DAILY`(20). 사용자당 대기·작성 중 2건.
 - Claude는 도구 없이, 빈 임시 디렉터리에서, 비밀값을 뺀 환경으로 실행된다(다이제스트와 같은 `ClaudeCli`). 입력 데이터의 지시문은 따르지 않도록 프롬프트에 적었다.
 - 보고서 HTML은 우리가 이스케이프해 만든 것이고, 모델이 쓴 글은 텍스트로만 들어간다. 그래도 `default-src 'none'` CSP와 스크립트 없는 iframe 샌드박스로 연다. 외부 링크는 새 창.
+- 사이트 전체는 Caddy가 `X-Frame-Options: DENY`·`frame-ancestors 'none'`으로 틀(iframe) 안 표시를 막는다. 첫 배포에서 보고서 틀이 "연결을 거부했습니다"로 비었다(새 창은 정상). `/reports/{id}/view` 경로만 같은 출처의 틀을 허용(`SAMEORIGIN`, `frame-ancestors 'self'`)하도록 Caddy에 별도 헤더 블록을 두었다.
 - 보고서는 팀 공유(주제 파일과 같음). 보관은 요청자나 관리자만.
 
 ### 12-4. 운영
