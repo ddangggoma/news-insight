@@ -14,7 +14,7 @@ const item = (label: string) => READER_NAV.find((entry) => entry.label === label
 
 describe("reader menu", () => {
   it("starts with the daily briefing and leaves dossiers, collections and questions out", () => {
-    expect(READER_NAV.map((entry) => entry.label)).toEqual(["데일리 브리핑", "탐색", "레이더", "투자·제휴", "특허", "로드맵", "보고서"]);
+    expect(READER_NAV.map((entry) => entry.label)).toEqual(["데일리 브리핑", "탐색", "레이더", "투자·제휴", "특허", "로드맵", "동향 보고서 작성"]);
     expect(READER_NAV.some((entry) => ["/dossiers", "/collections", "/ask"].includes(entry.href))).toBe(false);
   });
 
@@ -28,9 +28,9 @@ describe("reader menu", () => {
     expect(isReaderActive("/", item("데일리 브리핑"))).toBe(false);
   });
 
-  it("lights 보고서 for the list and a report", () => {
-    expect(isReaderActive("/reports", item("보고서"))).toBe(true);
-    expect(isReaderActive("/reports/12", item("보고서"))).toBe(true);
+  it("lights 동향 보고서 작성 for the list and a report", () => {
+    expect(isReaderActive("/reports", item("동향 보고서 작성"))).toBe(true);
+    expect(isReaderActive("/reports/12", item("동향 보고서 작성"))).toBe(true);
   });
 
   it("shows the same seven entries at the bottom on phones", () => {

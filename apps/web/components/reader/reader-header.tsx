@@ -19,7 +19,7 @@ export const READER_NAV = [
   { href: "/deals", label: "투자·제휴", icon: Handshake, match: ["/deals"] },
   { href: "/patents", label: "특허", icon: ScrollText, match: ["/patents"] },
   { href: "/roadmap", label: "로드맵", icon: MapIcon, match: ["/roadmap", "/board"] },
-  { href: "/reports", label: "보고서", icon: FileSearch, match: ["/reports"] },
+  { href: "/reports", label: "동향 보고서 작성", icon: FileSearch, match: ["/reports"] },
 ] as const;
 
 export function isReaderActive(pathname: string, item: (typeof READER_NAV)[number]): boolean {
