@@ -89,4 +89,11 @@ for check in "/login 200" "/briefings 307" /radar/week/"$(date +%G-W%V)"" 307"; 
 done
 mkdir -p ops
 printf '%s\t%s\t%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$TAG" "$PREVIOUS" >> ops/releases.log
+
+# every build leaves the previous :local images untagged and adds build cache: after 63
+# deploys they filled Docker Desktop's 58 GB disk (2026-10-17) and Postgres failed every
+# reader query with DiskFull. Rollback rebuilds from git, so neither is needed.
+timeout 300 docker image prune -f >/dev/null || log "warning: image prune failed"
+timeout 300 docker builder prune -f --keep-storage "${BUILD_CACHE_KEEP:-8GB}" >/dev/null \
+  || log "warning: build cache prune failed"
 log "live: $TAG"

@@ -33,6 +33,7 @@
 | `redis_unreachable` | 긴급 | Redis 연결 실패 | `docker compose up -d redis` |
 | `cards_stalled` | 주의 | 카드 생성 40분 이상 멈춤 | §3 |
 | `cards_backlog` | 참고 | 카드 대기 5,000건 초과 | 05:00 후보는 카드가 있는 기사만 들어갑니다. 한도 상향 또는 Qwen 대기 |
+| `disk_low` | 주의(5% 미만이면 긴급) | Docker Desktop VM 디스크 여유 15% 미만 | `docker system df`로 확인 → `docker image prune -f`, `docker builder prune -f --keep-storage 8GB`. 볼륨은 지우지 않습니다. 2026-10-17에 빌드 캐시와 태그 없는 이미지가 58GB 디스크를 채워 Postgres가 DiskFull로 멈췄고, 탐색 탭은 "기사를 불러오지 못했습니다"를 띄웠습니다. `scripts/deploy.sh`는 배포가 끝날 때마다 이 둘을 정리합니다 |
 
 알림은 검사가 다시 통과하면 자동으로 "해소"됩니다.
 

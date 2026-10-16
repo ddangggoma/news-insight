@@ -290,6 +290,33 @@ def check_host(host: dict[str, Any] | None) -> list[Finding]:
     return findings
 
 
+DISK_WARN_RATIO = 0.15
+DISK_CRITICAL_RATIO = 0.05
+
+
+def check_disk(space: tuple[int, int] | None) -> list[Finding]:
+    """Free space (total, free bytes) on the disk the worker runs on: Docker Desktop's VM disk,
+    shared by Postgres. On 2026-10-17 build cache and old images filled it and every reader
+    page failed: Postgres could not write the temp files its sorts need (DiskFull)."""
+    if not space or not space[0]:
+        return []
+    total, free = space
+    ratio = free / total
+    if ratio >= DISK_WARN_RATIO:
+        return []
+    gb = 1024**3
+    return [
+        Finding(
+            "disk_low",
+            Severity.CRITICAL if ratio < DISK_CRITICAL_RATIO else Severity.WARNING,
+            f"Docker 디스크 여유 공간이 {ratio:.0%}입니다",
+            f"여유 {free / gb:.1f}/{total / gb:.1f} GB. 바닥나면 Postgres 쿼리가 DiskFull로 "
+            "실패해 독자 화면이 열리지 않습니다: `docker image prune -f`, "
+            "`docker builder prune -f --keep-storage 8GB`(운영 런북 §2).",
+        )
+    ]
+
+
 def check_card_output(session: Session) -> list[Finding]:
     """Runs keep happening but produce nothing (Qwen 400s, every metered engine at its reserve)."""
     from news_insight.ops.engines import card_engine_health
@@ -315,8 +342,10 @@ def run_checks(
     queue_length: int | None,
     slow_requests: list[str] | None = None,
     host: dict[str, Any] | None = None,
+    disk: tuple[int, int] | None = None,
 ) -> list[Finding]:
     return [
+        *check_disk(disk),
         *check_host(host),
         *check_card_output(session),
         *check_publication(session, now=now),
