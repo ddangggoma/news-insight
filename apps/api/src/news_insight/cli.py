@@ -1233,8 +1233,8 @@ def ops_check(
 
 @ops_app.command("host-snapshot")
 def ops_host_snapshot() -> None:
-    """Record macOS memory, swap and the local Qwen state for the console (host only; the card
-    job runs it every 10 minutes)."""
+    """Record macOS memory, swap, free disk and the local Qwen state for the console (host only;
+    the card job runs it every 10 minutes)."""
     from news_insight.ops.host import collect, save
     from news_insight.scheduling.redis_guards import get_redis
 
@@ -1244,9 +1244,15 @@ def ops_host_snapshot() -> None:
     )
     save(get_redis(), snapshot)
     qwen = snapshot.get("qwen") or {}
+    total, free = snapshot.get("disk_total_bytes"), snapshot.get("disk_free_bytes")
+    disk = (
+        f"disk {free / 1024**3:.1f}/{total / 1024**3:.1f} GB free ({free / total:.1%})"
+        if total and free is not None
+        else "disk unknown"
+    )
     typer.echo(
         f"swap {snapshot.get('swap_used_mb')}/{snapshot.get('swap_total_mb')} MB, "
-        f"free {snapshot.get('memory_free_pct')}%, "
+        f"free {snapshot.get('memory_free_pct')}%, {disk}, "
         f"qwen {qwen.get('state')} ctx={qwen.get('context')}"
     )
 

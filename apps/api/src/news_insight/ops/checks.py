@@ -252,11 +252,15 @@ def check_accounts(session: Session) -> list[Finding]:
 
 HOST_SWAP_RATIO = 0.9
 HOST_FREE_PCT = 10
+HOST_DISK_WARN_RATIO = 0.10
+HOST_DISK_CRITICAL_RATIO = 0.05
 ZERO_RUNS = 6  # an hour of card runs that made nothing
 
 
 def check_host(host: dict[str, Any] | None) -> list[Finding]:
-    """macOS memory from the host job's snapshot (ops/host.py); console only, never mailed."""
+    """macOS memory and disk from the host job's snapshot (ops/host.py). Memory and Qwen are
+    console only; `host_disk` is mailed (with OPS_ALERT_MAIL) because a full Mac disk stops
+    Docker, Postgres included."""
     from news_insight.ops.host import swap_ratio
 
     if not host or host.get("stale"):
@@ -275,6 +279,21 @@ def check_host(host: dict[str, Any] | None) -> list[Finding]:
                 f"스왑 {host.get('swap_used_mb')}/{host.get('swap_total_mb')} MB, "
                 f"여유 메모리 {free}%. Docker가 다시 멈출 수 있습니다: "
                 "Qwen 컨텍스트, 안 쓰는 앱, ARDAgent를 확인하세요.",
+            )
+        )
+    total, free_bytes = host.get("disk_total_bytes"), host.get("disk_free_bytes")
+    if total and free_bytes is not None and free_bytes / total < HOST_DISK_WARN_RATIO:
+        ratio = free_bytes / total
+        gb = 1024**3
+        findings.append(
+            Finding(
+                "host_disk",
+                Severity.CRITICAL if ratio < HOST_DISK_CRITICAL_RATIO else Severity.WARNING,
+                f"Mac 디스크 여유 공간이 {ratio:.1%}입니다",
+                f"여유 {free_bytes / gb:.1f}/{total / gb:.1f} GB. Docker Desktop의 VM 디스크"
+                "(Docker.raw)가 이 디스크에 있어, 바닥나면 Docker VM과 Postgres가 함께 멈춥니다: "
+                "`docker builder prune -f`, 오래된 ops/logs, Xcode DerivedData를 정리하세요"
+                "(운영 런북 §2).",
             )
         )
     qwen = host.get("qwen") or {}

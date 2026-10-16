@@ -1,5 +1,7 @@
 import subprocess
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
@@ -10,8 +12,10 @@ from news_insight.cards.models import CardRun
 from news_insight.ops import checks, host, service
 from news_insight.ops.checks import check_card_output, check_host
 from news_insight.ops.engines import card_engine_health
+from news_insight.ops.models import Severity
 
 NOW = datetime(2026, 10, 8, 5, 0, tzinfo=UTC)
+GB = 1024**3
 
 
 class FakeRedis:
@@ -59,6 +63,82 @@ def test_snapshot_parses_swap_memory_and_qwen_and_goes_stale() -> None:
     host.save(client, snapshot)  # type: ignore[arg-type]
     assert host.load(client, now=NOW)["stale"] is False  # type: ignore[arg-type,index]
     assert host.load(client, now=NOW + timedelta(hours=1))["stale"] is True  # type: ignore[arg-type,index]
+
+
+def test_snapshot_records_the_mac_data_volume() -> None:
+    seen: list[Path] = []
+
+    def usage(path: Path) -> SimpleNamespace:
+        seen.append(path)
+        return SimpleNamespace(total=926 * GB, used=879 * GB, free=47 * GB)
+
+    snapshot = host.collect(
+        lm_url="http://lm:1234",
+        lm_model="qwen/q",
+        now=NOW,
+        runner=runner,
+        http=lambda url: {},
+        disk_usage=usage,
+    )
+
+    assert seen == [Path.home()]  # the Data volume, where Docker.raw lives; "/" is the system one
+    assert snapshot["disk_total_bytes"] == 926 * GB and snapshot["disk_free_bytes"] == 47 * GB
+
+
+def test_snapshot_skips_the_disk_when_it_cannot_be_read() -> None:
+    def broken(path: Path) -> SimpleNamespace:
+        raise OSError("gone")
+
+    snapshot = host.collect(
+        lm_url="http://lm:1234",
+        lm_model="qwen/q",
+        now=NOW,
+        runner=runner,
+        http=lambda url: {},
+        disk_usage=broken,
+    )
+
+    assert "disk_free_bytes" not in snapshot and snapshot["memory_free_pct"] == 9
+
+
+def test_host_snapshot_command_prints_the_disk(monkeypatch: pytest.MonkeyPatch) -> None:
+    from typer.testing import CliRunner
+
+    from news_insight import cli
+    from news_insight.config import Settings
+
+    saved: list[dict[str, Any]] = []
+    monkeypatch.setattr(cli, "get_settings", lambda: Settings(_env_file=None))
+    monkeypatch.setattr("news_insight.scheduling.redis_guards.get_redis", lambda: None)
+    monkeypatch.setattr(host, "save", lambda client, snapshot: saved.append(snapshot))
+    monkeypatch.setattr(
+        host,
+        "collect",
+        lambda **_: {
+            "memory_free_pct": 40,
+            "disk_total_bytes": 926 * GB,
+            "disk_free_bytes": 47 * GB,
+        },
+    )
+
+    result = CliRunner().invoke(cli.app, ["ops", "host-snapshot"])
+
+    assert result.exit_code == 0, result.output
+    assert "disk 47.0/926.0 GB free (5.1%)" in result.output and len(saved) == 1
+
+
+def test_host_disk_warns_under_10_and_is_critical_under_5_percent() -> None:
+    def disk(free_gb: int, **extra: Any) -> list[checks.Finding]:
+        return check_host({"disk_total_bytes": 926 * GB, "disk_free_bytes": free_gb * GB, **extra})
+
+    assert disk(100) == []
+    [warning] = disk(47)
+    assert warning.key == "host_disk" and warning.severity == Severity.WARNING
+    assert "47.0/926.0 GB" in warning.detail and "Docker.raw" in warning.detail
+    [critical] = disk(40)
+    assert critical.severity == Severity.CRITICAL
+    assert disk(40, stale=True) == []
+    assert "host_disk" not in service.CONSOLE_ONLY  # it takes Docker down: mailed with the rest
 
 
 def test_host_findings_and_console_only_alerts() -> None:
