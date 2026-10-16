@@ -58,6 +58,8 @@ describe("taxonomy workspace parts", () => {
     expect(screen.getByRole("button", { name: "적용" })).toBeDisabled();
     fireEvent.click(screen.getByRole("button", { name: "미리보기" }));
     await waitFor(() => expect(screen.getByLabelText("미리보기 결과")).toHaveTextContent("영향 카드 5"));
+    // The result can render a commit before the transition ends; a click on the still-disabled button is lost.
+    await waitFor(() => expect(screen.getByRole("button", { name: "적용" })).toBeEnabled());
     fireEvent.click(screen.getByRole("button", { name: "적용" }));
     await waitFor(() => expect(applyChanges).toHaveBeenCalled());
     await waitFor(() => expect(onClear).toHaveBeenCalled());
