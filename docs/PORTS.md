@@ -4,8 +4,10 @@
 
 | 호스트 포트 | 용도 | 바인딩 | 설정 위치 | 단계 |
 |---:|---|---|---|---|
-| 8700 | Caddy HTTPS — 전체 스택 진입점 (`https://localhost:8700`) | 0.0.0.0 | `CADDY_HTTPS_PORT` | P1 |
-| 8701 | Caddy HTTP — HTTPS(8700)로 리다이렉트 | 0.0.0.0 | `CADDY_HTTP_PORT` | P1 |
+| 8700 | Caddy HTTPS — 전체 스택 진입점 (`https://localhost:8700`). 운영 Mac에서는 호스트 프록시(HAProxy)가 받아 8702로 넘김 | 0.0.0.0 | `CADDY_HTTPS_PORT` | P1 |
+| 8701 | Caddy HTTP — HTTPS와 같은 사이트. 운영 Mac에서는 호스트 프록시가 받아 8703으로 넘김 | 0.0.0.0 | `CADDY_HTTP_PORT` | P1 |
+| 8702 | Caddy HTTPS, 호스트 프록시 뒤 (운영 Mac 전용, PROXY v2 헤더로 방문자 주소 전달) | 127.0.0.1 | `CADDY_PUBLISH_HTTPS` | 운영 |
+| 8703 | Caddy HTTP, 호스트 프록시 뒤 (운영 Mac 전용) | 127.0.0.1 | `CADDY_PUBLISH_HTTP` | 운영 |
 | 8710 | Next.js 개발 서버 (`npm run dev`, Docker 없이 실행할 때) | localhost | `apps/web/package.json` | P1 |
 | 8711 | FastAPI 개발 서버 (`scripts/dev.sh api-dev`, Docker 없이 실행할 때) | 127.0.0.1 | `scripts/dev.sh` | P1 |
 | 8720 | PostgreSQL 16 (개발 override 전용) | 127.0.0.1 | `compose.override.yaml` | P1 |

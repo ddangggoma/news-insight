@@ -33,6 +33,20 @@ log "$PREVIOUS -> $TAG"
 # host jobs read .env with uv, which stops at the first line it cannot parse
 scripts/check-env.sh || { log "fix .env first (values with spaces need quotes)"; exit 1; }
 
+# Behind the host proxy (scripts/install-proxy.sh) Caddy trusts a PROXY header naming the
+# visitor: its ports must then be loopback-only, and the proxy must hold the public ones
+env_value() { sed -n "s/^$1=//p" .env 2>/dev/null | tr -d "\"'" | tail -1; }
+loopback=0
+[[ "$(env_value CADDY_PUBLISH_HTTPS)" == 127.0.0.1:* && "$(env_value CADDY_PUBLISH_HTTP)" == 127.0.0.1:* ]] && loopback=1
+if [[ -n "$(env_value CADDY_PROXY_FROM)" && "$loopback" == 0 ]]; then
+  log "CADDY_PROXY_FROM needs CADDY_PUBLISH_HTTPS and CADDY_PUBLISH_HTTP on 127.0.0.1"
+  exit 1
+fi
+if [[ "$loopback" == 1 ]] && ! launchctl print "gui/$(id -u)/com.newsinsight.proxy" >/dev/null 2>&1; then
+  log "Caddy is published on loopback but the host proxy is not loaded: scripts/install-proxy.sh"
+  exit 1
+fi
+
 # a schema change gets a fresh backup first (the daily one may be a day old)
 if [[ "$PREVIOUS" != "$TAG" ]] && ! git diff --quiet "$PREVIOUS" "$TAG" -- apps/api/migrations/versions; then
   log "new migration: backing up first"
@@ -68,7 +82,7 @@ docker compose exec -T web node -e "fetch('http://127.0.0.1:3000/internal/revali
 
 # Caddy only holds a certificate for PUBLIC_HOST (an IP since 2026-10-05): ask for that name,
 # connected to the local port, so the check needs neither DNS nor hairpin NAT
-HOST="$(sed -n 's/^PUBLIC_HOST=//p' .env 2>/dev/null | tr -d "\"'" | tail -1)"
+HOST="$(env_value PUBLIC_HOST)"
 HOST="${HOST:-localhost}"
 PORT="${CADDY_HTTPS_PORT:-8700}"
 # Every page needs a login since plan 14: the login page answers 200 and a protected page
