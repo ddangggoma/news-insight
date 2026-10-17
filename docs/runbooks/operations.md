@@ -99,7 +99,7 @@ P9 완료 기준은 7일 연속 05:00 발행 성공(또는 Fail-safe 정상 동�
 ## 10. 성능·관측성 기반 (2026-10-04, 점검표 단계 A)
 
 - **인덱스** (마이그레이션 0016): `items.first_seen_at`, `(source_id, first_seen_at)`, 본문 만료 부분 인덱스, `item_cards.themes` GIN, 지표 스냅샷 `captured_at`. 시간 창 조회 1,018ms → 31ms, 테마 필터 379ms → 2ms.
-- **속도 제한**: Caddy를 `ops/caddy/Dockerfile`로 빌드합니다(`caddy-ratelimit` 포함). IP당 분당 120회, `/radar*`는 20회이고 초과하면 429와 `Retry-After`를 돌려줍니다. 정적 파일은 제외입니다. `/login`·`/signup`은 분당 30회입니다. 값은 `.env`의 `RATE_LIMIT_PAGES`·`RATE_LIMIT_RADAR`·`RATE_LIMIT_AUTH`로 바꿉니다. Docker Desktop(Mac)에서는 모든 접속이 같은 게이트웨이 IP로 보이므로 한도가 공유됩니다. 리눅스 서버나 도메인 배포에서는 실제 IP 기준입니다.
+- **속도 제한**: Caddy를 `ops/caddy/Dockerfile`로 빌드합니다(`caddy-ratelimit` 포함). IP당 분당 120회, `/radar*`는 20회이고 초과하면 429와 `Retry-After`를 돌려줍니다. 정적 파일은 제외입니다. `/login`·`/signup`은 분당 30회입니다. 값은 `.env`의 `RATE_LIMIT_PAGES`·`RATE_LIMIT_RADAR`·`RATE_LIMIT_AUTH`로 바꿉니다. Docker Desktop(Mac)에서는 호스트 프록시(13절) 없이는 모든 접속이 같은 게이트웨이 IP로 보이므로 IP 기준 한도가 공유됩니다. 페이지·레이더는 세션 쿠키 기준이라 영향이 없습니다.
 - **구조화 로그**: API·Celery·CLI가 모두 JSON 한 줄로 stderr에 남깁니다(`service`, `request_id`, `source_id` 등). 찾을 때는 `docker compose logs api | grep '"level": "warning"'`. API 응답에는 `X-Request-ID`가 붙습니다.
 - **새 알림**:
   - `api_slow`: 최근 1시간에 5초 넘게 걸린 API 응답이 5건 이상
@@ -149,4 +149,32 @@ scripts/dev.sh audit         # 수집·중복·카드/번역·분류·이슈 묶
 - 오류 시그니처: 숫자·ID·UUID·링크·따옴표 값을 지운 첫 줄. 같은 고장은 한 줄로 묶이고 횟수·처음·마지막 시각이 붙습니다. Postgres 제약 이름처럼 짧은 이름은 남깁니다.
 - 고친 뒤에는 같은 명령을 다시 돌려 숫자가 줄었는지 봅니다.
 - PostgreSQL 설정(2026-10-05): `pg_stat_statements` 사전 로드(확장은 마이그레이션 0023), `shared_buffers` 512MB, 로그 앞머리에 데이터베이스 이름(`log_line_prefix=%m [%p] %d`). compose에 적어 두었고, 운영 서버에는 `ALTER SYSTEM`으로 같은 값을 넣고 컨테이너를 재생성하지 않고 재시작했습니다. `scripts/dev.sh audit`가 총 실행 시간 상위 쿼리를 보여 줍니다.
+
+## 13. 방문자 주소: 호스트 프록시 (2026-10-17)
+
+Docker Desktop(Mac)은 공개 포트로 들어온 연결을 자기 게이트웨이 주소로 컨테이너에 넘깁니다. 그래서 Caddy·접속 기록·로그인 이력·IP별 속도 제한이 모두 `192.168.65.1`을 봅니다. Docker Desktop 설정(host 네트워킹 포함)으로는 바뀌지 않습니다.
+
+```
+방문자 ──▶ HAProxy(Mac, :8700/:8701) ──PROXY v2 + TLS 그대로──▶ Caddy(127.0.0.1:8702/8703) ──▶ web·api
+```
+
+- HAProxy는 TCP만 넘깁니다. 인증서와 TLS는 지금처럼 Caddy(`caddy_data` 볼륨)가 맡습니다.
+- Caddy는 `CADDY_PROXY_FROM`에서 온 연결만 PROXY 헤더를 읽습니다. 루프백 포트는 compose 네트워크 게이트웨이(2026-10-17 기준 `172.19.0.1`)에서 들어오므로 `172.16.0.0/12`를 믿고, 포트 전달 방식이 바뀔 때를 대비해 `192.168.65.0/24`도 둡니다. 이 값이 비어 있으면(개발·기본값) 아무 헤더도 읽지 않고 지금과 똑같이 동작합니다.
+- 루프백 포트는 이 Mac 안에서만 열립니다. 바깥에서 PROXY 줄을 보내면 HAProxy가 붙인 진짜 헤더 뒤에 남아 400으로 끝납니다.
+
+전환 (운영 트리 `NEWS_INSIGHT-live`, 이 순서대로):
+
+1. `brew install haproxy`
+2. `.env`에 세 줄 추가: `CADDY_PUBLISH_HTTPS=127.0.0.1:8702`, `CADDY_PUBLISH_HTTP=127.0.0.1:8703`, `CADDY_PROXY_FROM="172.16.0.0/12 192.168.65.0/24"`
+3. `scripts/install-proxy.sh`: launchd에 `com.newsinsight.proxy`를 올립니다. Docker가 아직 8700을 쥐고 있으면 2초마다 다시 시도합니다(`ops/logs/proxy.log`에 bind 실패가 쌓이는 것은 정상).
+4. `WITH_CADDY=1 scripts/deploy.sh`: Caddy가 루프백으로 옮겨 가면 HAProxy가 포트를 잡고, 스모크 검사가 HAProxy를 거쳐 통과해야 끝납니다.
+5. 확인: `lsof -nP -iTCP:8700 -sTCP:LISTEN`이 `haproxy`, 콘솔 → 접속 기록에 실제 주소.
+
+`deploy.sh`는 `CADDY_PROXY_FROM`이 있는데 Caddy가 루프백이 아니거나, 루프백인데 프록시가 없으면 배포를 멈춥니다.
+
+장애와 되돌리기:
+
+- HAProxy가 죽으면 사이트가 내려갑니다. launchd가 곧바로 다시 띄웁니다(시험에서 끊김 0.4~0.6초, 열린 연결은 끊김). 상태: `launchctl print gui/$(id -u)/com.newsinsight.proxy`.
+- 설정을 바꾼 뒤에는 `launchctl kickstart -k gui/$(id -u)/com.newsinsight.proxy`(열린 연결이 끊깁니다).
+- 되돌리기: `scripts/install-proxy.sh --remove`, `.env`의 세 줄 삭제, `WITH_CADDY=1 scripts/deploy.sh`. Docker가 다시 8700/8701을 직접 엽니다.
 

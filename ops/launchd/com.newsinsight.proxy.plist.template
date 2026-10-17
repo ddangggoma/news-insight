@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.newsinsight.proxy</string>
+  <!-- the front door on the public ports (ops/haproxy/haproxy.cfg): passes connections to
+       Caddy with the visitor's address. -db keeps it in the foreground for launchd -->
+  <key>ProgramArguments</key>
+  <array>
+    <string>__HAPROXY__</string>
+    <string>-db</string>
+    <string>-f</string>
+    <string>__REPO__/ops/haproxy/haproxy.cfg</string>
+  </array>
+  <!-- the site is down while it is: start at login, and again 2 s after any exit (also while
+       Docker still holds the ports during the switch) -->
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>ThrottleInterval</key>
+  <integer>2</integer>
+  <!-- launchd's default of 256 open files would cap it near 120 connections -->
+  <key>SoftResourceLimits</key>
+  <dict>
+    <key>NumberOfFiles</key>
+    <integer>10240</integer>
+  </dict>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>CADDY_HTTPS_PORT</key>
+    <string>__HTTPS_PORT__</string>
+    <key>CADDY_HTTP_PORT</key>
+    <string>__HTTP_PORT__</string>
+    <key>CADDY_PUBLISH_HTTPS</key>
+    <string>__PUBLISH_HTTPS__</string>
+    <key>CADDY_PUBLISH_HTTP</key>
+    <string>__PUBLISH_HTTP__</string>
+  </dict>
+  <key>StandardOutPath</key>
+  <string>__REPO__/ops/logs/proxy.log</string>
+  <key>StandardErrorPath</key>
+  <string>__REPO__/ops/logs/proxy.log</string>
+</dict>
+</plist>

@@ -41,10 +41,25 @@ def test_only_caddy_publishes_host_ports() -> None:
 def test_caddy_publishes_only_reserved_dev_ports() -> None:
     ports = load_services()["caddy"]["ports"]
 
+    # unset CADDY_PUBLISH_* (everywhere but the live Mac) keeps 8700/8701 on all addresses
     assert ports == [
-        "${CADDY_HTTPS_PORT:-8700}:${CADDY_HTTPS_PORT:-8700}",
-        "${CADDY_HTTP_PORT:-8701}:${CADDY_HTTP_PORT:-8701}",
+        "${CADDY_PUBLISH_HTTPS:-${CADDY_HTTPS_PORT:-8700}}:${CADDY_HTTPS_PORT:-8700}",
+        "${CADDY_PUBLISH_HTTP:-${CADDY_HTTP_PORT:-8701}}:${CADDY_HTTP_PORT:-8701}",
     ]
+
+
+def test_caddy_reads_proxy_headers_only_from_the_configured_gateway() -> None:
+    caddyfile = (REPO_ROOT / "ops" / "Caddyfile").read_text(encoding="utf-8")
+    proxy = (REPO_ROOT / "ops" / "haproxy" / "haproxy.cfg").read_text(encoding="utf-8")
+
+    # the host proxy (live Mac) names the visitor in a PROXY v2 header; TLS stays with Caddy
+    assert load_services()["caddy"]["environment"]["CADDY_PROXY_FROM"] == "${CADDY_PROXY_FROM:-}"
+    assert "allow {$CADDY_PROXY_FROM}" in caddyfile
+    # unset, nothing is read: a header from anyone else is never trusted
+    assert "fallback_policy skip" in caddyfile
+    assert caddyfile.index("proxy_protocol {") < caddyfile.index("\t\t\ttls\n")
+    assert proxy.count("send-proxy-v2") == 2
+    assert "mode tcp" in proxy
 
 
 def test_dev_override_binds_stores_to_loopback_reserved_ports() -> None:
@@ -86,7 +101,7 @@ def test_magic_link_settings_reach_python_services() -> None:
 def test_caddy_limits_pages_per_session_and_explains_refusals() -> None:
     caddyfile = (REPO_ROOT / "ops" / "Caddyfile").read_text(encoding="utf-8")
 
-    # Docker Desktop shows every visitor as one gateway IP: a per-IP page budget is site-wide
+    # without the host proxy every visitor is one gateway IP: a per-IP page budget is site-wide
     assert "key {remote_host}:{http.request.cookie.ni_session}" in caddyfile
     assert "zone site {" in caddyfile
     # refusals and upstream failures get a page that reloads itself, not an empty 429

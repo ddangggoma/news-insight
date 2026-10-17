@@ -181,9 +181,14 @@ services:
       RATE_LIMIT_RADAR: ${RATE_LIMIT_RADAR:-60}
       RATE_LIMIT_SITE: ${RATE_LIMIT_SITE:-1500}
       RATE_LIMIT_AUTH: ${RATE_LIMIT_AUTH:-30}
+      CADDY_PROXY_FROM: ${CADDY_PROXY_FROM:-}
+    # Behind the host proxy (ops/haproxy, live Mac) .env publishes Caddy on loopback only
+    # (CADDY_PUBLISH_HTTPS=127.0.0.1:8702, CADDY_PUBLISH_HTTP=127.0.0.1:8703) and the proxy owns
+    # the public ports. A loopback port reaches Caddy from this network's gateway (172.19.0.1
+    # on 2026-10-17), an all-address port from Docker Desktop's (192.168.65.1).
     ports:
-      - "${CADDY_HTTPS_PORT:-8700}:${CADDY_HTTPS_PORT:-8700}"
-      - "${CADDY_HTTP_PORT:-8701}:${CADDY_HTTP_PORT:-8701}"
+      - "${CADDY_PUBLISH_HTTPS:-${CADDY_HTTPS_PORT:-8700}}:${CADDY_HTTPS_PORT:-8700}"
+      - "${CADDY_PUBLISH_HTTP:-${CADDY_HTTP_PORT:-8701}}:${CADDY_HTTP_PORT:-8701}"
     volumes:
       - ./ops/Caddyfile:/etc/caddy/Caddyfile:ro
       - ./ops/media:/srv/media:ro
