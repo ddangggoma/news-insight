@@ -32,7 +32,7 @@ HTTPS_PORT="${HTTPS_PORT:-8700}" HTTP_PORT="${HTTP_PORT:-8701}"
   exit 1
 }
 [[ -n "$(env_value CADDY_PROXY_FROM)" ]] || {
-  echo "set CADDY_PROXY_FROM=\"172.16.0.0/12 192.168.65.0/24\" in .env first (Caddy ignores the header otherwise)" >&2
+  echo "set CADDY_PROXY_FROM=gateway in .env first (Caddy ignores the header otherwise)" >&2
   exit 1
 }
 CADDY_HTTPS_PORT="$HTTPS_PORT" CADDY_HTTP_PORT="$HTTP_PORT" CADDY_PUBLISH_HTTPS="$PUBLISH_HTTPS" \

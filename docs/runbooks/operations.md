@@ -159,16 +159,16 @@ Docker Desktop(Mac)은 공개 포트로 들어온 연결을 자기 게이트웨�
 ```
 
 - HAProxy는 TCP만 넘깁니다. 인증서와 TLS는 지금처럼 Caddy(`caddy_data` 볼륨)가 맡습니다.
-- Caddy는 `CADDY_PROXY_FROM`에서 온 연결만 PROXY 헤더를 읽습니다. 루프백 포트는 compose 네트워크 게이트웨이(2026-10-17 기준 `172.19.0.1`)에서 들어오므로 `172.16.0.0/12`를 믿고, 포트 전달 방식이 바뀔 때를 대비해 `192.168.65.0/24`도 둡니다. 이 값이 비어 있으면(개발·기본값) 아무 헤더도 읽지 않고 지금과 똑같이 동작합니다.
+- Caddy는 `CADDY_PROXY_FROM`에서 온 연결만 PROXY 헤더를 읽습니다. 루프백 포트는 compose 네트워크 게이트웨이(2026-10-17 기준 `172.19.0.1`)에서 들어오므로, `gateway`로 두면 `ops/caddy/start.sh`가 Caddy를 시작할 때마다 그 주소 하나(`/32`)를 읽어 넣습니다. 같은 네트워크의 다른 컨테이너(web·api·worker)는 자기 주소로 붙으므로 헤더를 꾸며도 믿지 않습니다. 포트 전달 방식이 바뀔 때를 대비해 `192.168.65.0/24`도 둡니다. 이 값이 비어 있으면(개발·기본값) 아무 헤더도 읽지 않고 지금과 똑같이 동작합니다.
 - 루프백 포트는 이 Mac 안에서만 열립니다. 바깥에서 PROXY 줄을 보내면 HAProxy가 붙인 진짜 헤더 뒤에 남아 400으로 끝납니다.
 
 전환 (운영 트리 `NEWS_INSIGHT-live`, 이 순서대로):
 
 1. `brew install haproxy`
-2. `.env`에 세 줄 추가: `CADDY_PUBLISH_HTTPS=127.0.0.1:8702`, `CADDY_PUBLISH_HTTP=127.0.0.1:8703`, `CADDY_PROXY_FROM="172.16.0.0/12 192.168.65.0/24"`
+2. `.env`에 세 줄 추가: `CADDY_PUBLISH_HTTPS=127.0.0.1:8702`, `CADDY_PUBLISH_HTTP=127.0.0.1:8703`, `CADDY_PROXY_FROM=gateway`
 3. `scripts/install-proxy.sh`: launchd에 `com.newsinsight.proxy`를 올립니다. Docker가 아직 8700을 쥐고 있으면 2초마다 다시 시도합니다(`ops/logs/proxy.log`에 bind 실패가 쌓이는 것은 정상).
 4. `WITH_CADDY=1 scripts/deploy.sh`: Caddy가 루프백으로 옮겨 가면 HAProxy가 포트를 잡고, 스모크 검사가 HAProxy를 거쳐 통과해야 끝납니다.
-5. 확인: `lsof -nP -iTCP:8700 -sTCP:LISTEN`이 `haproxy`, 콘솔 → 접속 기록에 실제 주소.
+5. 확인: `lsof -nP -iTCP:8700 -sTCP:LISTEN`이 `haproxy`, `docker logs news-insight-caddy-1 2>&1 | grep start.sh`에 믿는 주소, 콘솔 → 접속 기록에 실제 주소.
 
 `deploy.sh`는 `CADDY_PROXY_FROM`이 있는데 Caddy가 루프백이 아니거나, 루프백인데 프록시가 없으면 배포를 멈춥니다.
 

@@ -12,8 +12,9 @@
 	# Visitor addresses (2026-10-17). Docker Desktop hands every published-port connection to
 	# Caddy from its VM gateway (192.168.65.1). On the live Mac a host proxy (ops/haproxy,
 	# launchd) owns the public ports, Caddy is published on loopback only, and the proxy opens
-	# each connection with a PROXY v2 header naming the visitor. Only CADDY_PROXY_FROM (the
-	# gateway) is read for a header; from anyone else, or when it is unset, nothing is read.
+	# each connection with a PROXY v2 header naming the visitor. Only CADDY_PROXY_FROM (set to
+	# `gateway`, ops/caddy/start.sh makes it the Docker network's gateway) is read for a header;
+	# from anyone else, or when it is unset, nothing is read.
 	servers {
 		listener_wrappers {
 			proxy_protocol {

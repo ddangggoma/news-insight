@@ -59,6 +59,12 @@ def test_caddy_reads_proxy_headers_only_from_the_configured_gateway() -> None:
     assert "fallback_policy skip" in caddyfile
     assert caddyfile.index("proxy_protocol {") < caddyfile.index("\t\t\ttls\n")
     assert proxy.count("send-proxy-v2") == 2
+    # `gateway` trusts the loopback-publish path only, not the other containers on the network
+    start = (REPO_ROOT / "ops" / "caddy" / "start.sh").read_text(encoding="utf-8")
+    dockerfile = (REPO_ROOT / "ops" / "caddy" / "Dockerfile").read_text(encoding="utf-8")
+    assert 'export CADDY_PROXY_FROM="$gw/32 192.168.65.0/24"' in start
+    assert 'ENTRYPOINT ["/usr/local/bin/caddy-start"]' in dockerfile
+    assert "172.16.0.0/12" not in caddyfile + start
     assert "mode tcp" in proxy
 
 
