@@ -31,6 +31,7 @@
 | `dlq_backlog` | 주의 | 미해결 DLQ 50건 초과 | §4 |
 | `queue_backlog` | 주의 | Celery 큐 500건 초과 | `docker compose logs worker`. 일시적이면 자연 해소, 계속되면 worker 재시작 |
 | `redis_unreachable` | 긴급 | Redis 연결 실패 | `docker compose up -d redis` |
+| `host_disk` | 주의(5% 미만이면 긴급) | Mac 데이터 볼륨 여유 10% 미만(카드 작업이 10분마다 `ops host-snapshot`으로 기록) | Docker Desktop의 VM 디스크 `~/Library/Containers/com.docker.docker/Data/vms/0/data/Docker.raw`가 이 디스크에 있어, 바닥나면 Docker VM과 Postgres가 함께 멈춥니다. `df -h ~`로 확인 → `docker builder prune -f`, `docker image prune -f`(볼륨은 지우지 않습니다. 비운 공간은 Docker.raw가 줄어들며 Mac에 돌아옵니다: `du -h` 위 경로), `NEWS_INSIGHT-live/ops/logs`의 오래된 로그, `~/Library/Developer/Xcode/DerivedData`, `uv cache prune`, LM Studio에서 안 쓰는 모델, `tmutil listlocalsnapshots /`의 로컬 스냅샷. 2026-10-17 VM 디스크 정리 뒤에도 여유는 926GB 중 46GB(5%)였습니다 |
 | `cards_stalled` | 주의 | 카드 생성 40분 이상 멈춤 | §3 |
 | `cards_backlog` | 참고 | 카드 대기 5,000건 초과 | 05:00 후보는 카드가 있는 기사만 들어갑니다. 한도 상향 또는 Qwen 대기 |
 | `disk_low` | 주의(5% 미만이면 긴급) | Docker Desktop VM 디스크 여유 15% 미만 | `docker system df`로 확인 → `docker image prune -f`, `docker builder prune -f --keep-storage 8GB`. 볼륨은 지우지 않습니다. 2026-10-17에 빌드 캐시와 태그 없는 이미지가 58GB 디스크를 채워 Postgres가 DiskFull로 멈췄고, 탐색 탭은 "기사를 불러오지 못했습니다"를 띄웠습니다. `scripts/deploy.sh`는 배포가 끝날 때마다 이 둘을 정리합니다 |

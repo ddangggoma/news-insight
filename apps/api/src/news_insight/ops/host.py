@@ -1,15 +1,19 @@
-"""Host health the containers cannot see (2026-10-08): macOS memory and swap, and the local Qwen.
+"""Host health the containers cannot see (2026-10-08): macOS memory, swap and free disk, and the
+local Qwen.
 
 The Mac ran out of memory twice (10-05 jetsam, 10-06 the Docker VM died) and the console said
-nothing. The host card job (`scripts/dev.sh cards`, every 10 min) records a snapshot in Redis;
-the API shows it on the dashboard and the ops check warns from it.
+nothing. Its disk holds Docker.raw, so a full Mac disk stops the Docker VM too (2026-10-17: 5%
+free after the VM disk itself filled). The host card job (`scripts/dev.sh cards`, every 10 min)
+records a snapshot in Redis; the API shows it on the dashboard and the ops check warns from it.
 """
 
 import json
 import re
+import shutil
 import subprocess
 from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 from typing import Any
 
 import httpx
@@ -37,6 +41,7 @@ def collect(
     now: datetime,
     runner: Runner = subprocess.run,
     http: Callable[[str], Any] | None = None,
+    disk_usage: Callable[[Path], Any] = shutil.disk_usage,
 ) -> dict[str, Any]:
     snapshot: dict[str, Any] = {"captured_at": now.isoformat()}
     if match := SWAP.search(_run(runner, ["sysctl", "-n", "vm.swapusage"])):
@@ -44,6 +49,12 @@ def collect(
         snapshot["swap_used_mb"] = round(float(match[2]))
     if match := FREE.search(_run(runner, ["memory_pressure"])):
         snapshot["memory_free_pct"] = int(match[1])
+    try:
+        # home is on the APFS Data volume, next to Docker.raw; "/" is the read-only system volume
+        usage = disk_usage(Path.home())
+        snapshot["disk_total_bytes"], snapshot["disk_free_bytes"] = usage.total, usage.free
+    except OSError:
+        pass
     get = http or (lambda url: httpx.get(url, timeout=5).json())
     try:
         # every instance of the model: a reload while another was loading gets an identifier
