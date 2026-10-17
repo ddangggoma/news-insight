@@ -67,6 +67,15 @@ const DATE_TIME = new Intl.DateTimeFormat("ko-KR", {
   minute: "2-digit",
   hour12: false,
 });
+const STAMP = new Intl.DateTimeFormat("ko-KR", {
+  timeZone: "Asia/Seoul",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hour12: false,
+});
 const DATE = new Intl.DateTimeFormat("ko-KR", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit", day: "2-digit" });
 const NUMBER = new Intl.NumberFormat("ko-KR");
 const RELATIVE = new Intl.RelativeTimeFormat("ko-KR", { numeric: "auto" });
@@ -75,6 +84,13 @@ export function formatDateTime(iso: string | null): string {
   if (!iso) return "—";
   const parts = Object.fromEntries(DATE_TIME.formatToParts(new Date(iso)).map((p) => [p.type, p.value]));
   return `${parts.month}.${parts.day} ${parts.hour}:${parts.minute}`;
+}
+
+/** "10.17 11:29:22" in KST: formatDateTime with seconds, for logs. */
+export function formatStamp(iso: string | null): string {
+  if (!iso) return "—";
+  const parts = Object.fromEntries(STAMP.formatToParts(new Date(iso)).map((p) => [p.type, p.value]));
+  return `${parts.month}.${parts.day} ${parts.hour}:${parts.minute}:${parts.second}`;
 }
 
 /** "2026.09.14" in KST. */

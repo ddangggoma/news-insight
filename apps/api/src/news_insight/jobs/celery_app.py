@@ -31,7 +31,7 @@ BEAT_SCHEDULE: dict[str, dict[str, Any]] = {
     },
     "auth-purge": {
         "task": "auth.purge",
-        "schedule": crontab(hour=3, minute=20),  # dead sessions, old sign-ups, audit past 180 days
+        "schedule": crontab(hour=3, minute=20),  # sessions, sign-ups, audit 180 d, access 30 d
     },
     "content-purge-expired": {
         "task": "content.purge_expired",

@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import StrEnum
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String
+from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from news_insight.db import Base, str_enum
@@ -71,3 +71,30 @@ class AuthEvent(Base):
     actor_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
     ip: Mapped[str | None] = mapped_column(String(45), index=True)
     user_agent: Mapped[str | None] = mapped_column(String(200))
+
+
+class AccessKind(StrEnum):
+    PAGE = "page"  # a page load or client-side navigation
+    ACTION = "action"  # a server action (form post, button)
+    API = "api"  # a route handler the page fetches (radar data, exports)
+    MEDIA = "media"  # a spoken briefing Caddy serves after asking the web server
+
+
+class AccessLog(Base):
+    """What a signed-in account opened, and from where (kept 30 days).
+
+    The web server's proxy sees every request and sends these in batches; prefetches and
+    static assets are never recorded. Logins and logouts stay in auth_events.
+    """
+
+    __tablename__ = "access_logs"
+    __table_args__ = (Index("ix_access_logs_user_id_at", "user_id", "at"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    kind: Mapped[AccessKind] = mapped_column(str_enum(AccessKind))
+    method: Mapped[str] = mapped_column(String(8))
+    path: Mapped[str] = mapped_column(String(300))
+    query: Mapped[str | None] = mapped_column(String(500))
+    ip: Mapped[str | None] = mapped_column(String(45))

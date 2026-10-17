@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 
+import { accessKind, cleanQuery, forwardedIp, recordAccess } from "@/lib/access-log";
 import { AuthUnavailable, SESSION_COOKIE, lookupSession } from "@/lib/auth";
 
 const FORCED_CHANGE = "/change-password";
@@ -25,6 +26,18 @@ export async function proxy(request: NextRequest) {
     const response = NextResponse.redirect(login);
     if (request.cookies.has(SESSION_COOKIE)) response.cookies.delete(SESSION_COOKIE);
     return response;
+  }
+  // the access log (console → 접속 기록): actions and route calls; pages come from the browser
+  const kind = accessKind(request.headers, pathname);
+  if (kind) {
+    recordAccess({
+      user_id: user.id,
+      kind,
+      method: request.method,
+      path: pathname,
+      query: cleanQuery(request.nextUrl.searchParams),
+      ip: forwardedIp(request.headers),
+    });
   }
   if (user.must_change_password && pathname !== FORCED_CHANGE) {
     return NextResponse.redirect(new URL(FORCED_CHANGE, request.url));

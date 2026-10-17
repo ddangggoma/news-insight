@@ -4,6 +4,7 @@ import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { cache } from "react";
 
+import { forwardedIp } from "@/lib/access-log";
 import { SESSION_COOKIE, type SessionUser, lookupSession } from "@/lib/auth";
 
 export { SESSION_COOKIE };
@@ -34,8 +35,7 @@ export async function sessionToken(): Promise<string> {
 /** The browser's address and user agent for the API's rate limits and audit trail. */
 export async function clientHeaders(): Promise<Record<string, string>> {
   const incoming = await headers();
-  // Caddy is the only way in and sets X-Forwarded-For to the connecting address
-  const ip = incoming.get("x-forwarded-for")?.split(",")[0]?.trim();
+  const ip = forwardedIp(incoming);
   const agent = incoming.get("user-agent")?.slice(0, 200);
   return { ...(ip ? { "X-Client-IP": ip } : {}), ...(agent ? { "X-Client-UA": agent } : {}) };
 }
