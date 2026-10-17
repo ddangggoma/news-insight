@@ -1208,7 +1208,7 @@ def ops_check(
     ] = False,
 ) -> None:
     """Run the health checks (publication SLA, collection, queue, cards) and list findings."""
-    from news_insight.jobs.tasks import _host_snapshot, queue_length, slow_requests
+    from news_insight.jobs.tasks import _host_snapshot, disk_space, queue_length, slow_requests
     from news_insight.ops.checks import run_checks
     from news_insight.ops.service import notify, sync_alerts
 
@@ -1220,6 +1220,7 @@ def ops_check(
             queue_length=queue_length(),
             slow_requests=slow_requests(now),
             host=_host_snapshot(now),
+            disk=disk_space(),
         )
         if apply:
             notify(get_settings(), sync_alerts(session, findings, now=now), now=now)

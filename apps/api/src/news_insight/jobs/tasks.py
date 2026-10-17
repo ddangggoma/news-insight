@@ -138,6 +138,21 @@ def slow_requests(now: datetime) -> list[str] | None:
     return [r.decode() if isinstance(r, bytes) else str(r) for r in raw]  # type: ignore[union-attr]
 
 
+def disk_space() -> tuple[int, int] | None:
+    """(total, free) bytes of this container's disk, which is Docker Desktop's VM disk. None on
+    the host (`ops check` from apps/api), where "/" is the Mac's disk."""
+    import os
+    import shutil
+
+    if not os.path.exists("/.dockerenv"):
+        return None
+    try:
+        usage = shutil.disk_usage("/")
+    except OSError:
+        return None
+    return usage.total, usage.free
+
+
 def _host_snapshot(now: datetime) -> dict[str, Any] | None:
     from news_insight.ops.host import load
     from news_insight.scheduling.redis_guards import get_redis
@@ -158,6 +173,7 @@ def ops_check_task() -> dict[str, Any]:
             queue_length=queue_length(),
             slow_requests=slow_requests(now),
             host=_host_snapshot(now),
+            disk=disk_space(),
         )
         result = sync_alerts(session, findings, now=now)
         notify(get_settings(), result, now=now)

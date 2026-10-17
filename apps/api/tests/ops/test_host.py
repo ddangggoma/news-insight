@@ -8,8 +8,9 @@ from sqlalchemy.orm import Session
 
 from news_insight.cards.models import CardRun
 from news_insight.ops import checks, host, service
-from news_insight.ops.checks import check_card_output, check_host
+from news_insight.ops.checks import check_card_output, check_disk, check_host
 from news_insight.ops.engines import card_engine_health
+from news_insight.ops.models import Severity
 
 NOW = datetime(2026, 10, 8, 5, 0, tzinfo=UTC)
 
@@ -72,6 +73,17 @@ def test_host_findings_and_console_only_alerts() -> None:
     assert check_host({**full, "stale": True}) == []
     assert check_host({"swap_total_mb": 1000, "swap_used_mb": 100, "memory_free_pct": 40}) == []
     assert "host_memory" in service.CONSOLE_ONLY and "cards_zero" in service.CONSOLE_ONLY
+
+
+def test_disk_findings_warn_before_postgres_runs_out() -> None:
+    gb = 1024**3
+    assert check_disk(None) == [] and check_disk((58 * gb, 20 * gb)) == []
+    [warning] = check_disk((58 * gb, 6 * gb))
+    assert warning.key == "disk_low" and warning.severity == Severity.WARNING
+    assert "6.0/58.0 GB" in warning.detail
+    [critical] = check_disk((58 * gb, gb // 50))
+    assert critical.severity == Severity.CRITICAL
+    assert "disk_low" not in service.CONSOLE_ONLY  # mailed with OPS_ALERT_MAIL
 
 
 @pytest.mark.db
