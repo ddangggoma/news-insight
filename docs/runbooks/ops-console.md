@@ -5,7 +5,7 @@
 ## 1. 구조 한눈에 보기
 
 ```
-브라우저 ──HTTPS──▶ Caddy(8700) ──▶ web(Next.js) ──내부망 + X-Console-Key──▶ api(/api/admin)
+브라우저 ──HTTPS──▶ 엣지 프록시(8700, operations.md §13) ──▶ Caddy ──▶ web(Next.js) ──내부망 + X-Console-Key──▶ api(/api/admin)
                     │  모든 화면    : 로그인 세션 필요 (web이 요청마다 api로 검증), /console*은 관리자만
                     │  /api/admin* : 외부에서는 항상 404
 호스트 launchd(05:00) ──▶ scripts/dev.sh digest ──▶ Claude CLI(Opus, 도구 비활성화) ──▶ DB(digests)

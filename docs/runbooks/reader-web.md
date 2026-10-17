@@ -5,7 +5,7 @@
 ## 1. 구조
 
 ```
-브라우저 ──HTTPS──▶ Caddy(8700) ──▶ web(Next.js) ──내부망 + X-Public-Key──▶ api(/api/public)
+브라우저 ──HTTPS──▶ 엣지 프록시(8700, operations.md §13) ──▶ Caddy ──▶ web(Next.js) ──내부망 + X-Public-Key──▶ api(/api/public)
                     │  /              : 로그인 세션 (탐색·레이더·브리핑·다이제스트)
                     │  /login, /signup: 로그인 없이
                     │  /console*      : 관리자 역할만 (ops-console.md §2-1)
