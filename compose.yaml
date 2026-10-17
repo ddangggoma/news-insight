@@ -181,9 +181,14 @@ services:
       RATE_LIMIT_RADAR: ${RATE_LIMIT_RADAR:-60}
       RATE_LIMIT_SITE: ${RATE_LIMIT_SITE:-1500}
       RATE_LIMIT_AUTH: ${RATE_LIMIT_AUTH:-30}
+      # empty: ops/caddy/start.sh trusts PROXY headers from the network gateway (operations.md §13)
+      CADDY_PROXY_FROM: ${CADDY_PROXY_FROM:-}
+    # Loopback only. The edge proxy on the Mac (ops/edge/proxy.py, launchd) owns the public ports
+    # and relays here with the visitor's address in a PROXY header, which Caddy trusts from the
+    # network gateway (ops/caddy/start.sh). Published on every interface, anyone could forge it.
     ports:
-      - "${CADDY_HTTPS_PORT:-8700}:${CADDY_HTTPS_PORT:-8700}"
-      - "${CADDY_HTTP_PORT:-8701}:${CADDY_HTTP_PORT:-8701}"
+      - "127.0.0.1:${CADDY_LOCAL_HTTPS_PORT:-8702}:${CADDY_HTTPS_PORT:-8700}"
+      - "127.0.0.1:${CADDY_LOCAL_HTTP_PORT:-8703}:${CADDY_HTTP_PORT:-8701}"
     volumes:
       - ./ops/Caddyfile:/etc/caddy/Caddyfile:ro
       - ./ops/media:/srv/media:ro

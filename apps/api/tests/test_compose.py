@@ -41,10 +41,27 @@ def test_only_caddy_publishes_host_ports() -> None:
 def test_caddy_publishes_only_reserved_dev_ports() -> None:
     ports = load_services()["caddy"]["ports"]
 
+    # the edge proxy on the Mac (ops/edge/proxy.py) owns CADDY_HTTPS_PORT / CADDY_HTTP_PORT
     assert ports == [
-        "${CADDY_HTTPS_PORT:-8700}:${CADDY_HTTPS_PORT:-8700}",
-        "${CADDY_HTTP_PORT:-8701}:${CADDY_HTTP_PORT:-8701}",
+        "127.0.0.1:${CADDY_LOCAL_HTTPS_PORT:-8702}:${CADDY_HTTPS_PORT:-8700}",
+        "127.0.0.1:${CADDY_LOCAL_HTTP_PORT:-8703}:${CADDY_HTTP_PORT:-8701}",
     ]
+
+
+def test_caddy_trusts_proxy_headers_from_the_loopback_publish_only() -> None:
+    """Caddy believes the PROXY header's address. Only the Mac's own processes may send one."""
+    caddyfile = (REPO_ROOT / "ops" / "Caddyfile").read_text(encoding="utf-8")
+    start = (REPO_ROOT / "ops" / "caddy" / "start.sh").read_text(encoding="utf-8")
+    dockerfile = (REPO_ROOT / "ops" / "caddy" / "Dockerfile").read_text(encoding="utf-8")
+
+    # published on every interface, anyone on the internet could forge a visitor address
+    assert all(port.startswith("127.0.0.1:") for port in load_services()["caddy"]["ports"])
+    # trusted: the network gateway Docker relays loopback connections from, read at start;
+    # without it nothing outside the container is trusted (never the VM's 192.168.65.1)
+    assert "allow {$CADDY_PROXY_FROM:127.0.0.1/32}" in caddyfile
+    assert caddyfile.index("proxy_protocol") < caddyfile.index("\t\t\ttls\n")
+    assert "ip -4 route show default" in start and 'CADDY_PROXY_FROM="$gateway/32"' in start
+    assert 'CMD ["caddy-start"]' in dockerfile
 
 
 def test_dev_override_binds_stores_to_loopback_reserved_ports() -> None:

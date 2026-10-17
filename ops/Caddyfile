@@ -9,6 +9,21 @@
 	# explicitly below. Certificate automation stays enabled.
 	auto_https disable_redirects
 	order rate_limit before handle
+	# Visitor addresses (2026-10-17, docs/runbooks/operations.md §13). Docker Desktop's port
+	# publishing hides them: every connection used to arrive from the VM gateway (192.168.65.1).
+	# The edge proxy on the Mac (ops/edge/proxy.py) now owns the public ports and relays to
+	# Caddy's loopback-only ports, starting each connection with a PROXY protocol header that
+	# carries the visitor's address. Headers are used only from CADDY_PROXY_FROM, the network
+	# gateway those loopback connections come from (ops/caddy/start.sh); from anywhere else they
+	# are ignored. {remote_host}, the rate-limit keys and X-Forwarded-For are then the visitor.
+	servers {
+		listener_wrappers {
+			proxy_protocol {
+				allow {$CADDY_PROXY_FROM:127.0.0.1/32}
+			}
+			tls
+		}
+	}
 }
 
 (site) {
@@ -34,12 +49,12 @@
 
 	# Every page needs a login: the web server checks the session on each request (plan 14).
 
-	# Request limits (checklist OPS-2). Docker Desktop hides the visitor's address: every request
-	# arrives from the VM gateway (192.168.65.1), so a per-IP key was one budget for the whole site
-	# and one busy page load locked everyone out with 429 (2026-10-12). Every page needs a login,
-	# so pages and the radar are counted per session cookie; `site` is the overall ceiling, which
-	# also caps anyone who rotates cookies. The radar aggregates the corpus on a cache miss, so it
-	# gets a tighter budget. Static assets are free.
+	# Request limits (checklist OPS-2). Until the edge proxy (2026-10-17, see the top) every
+	# request arrived from the Docker VM gateway, so a per-IP key was one budget for the whole
+	# site and one busy page load locked everyone out with 429 (2026-10-12). Every page needs a
+	# login, so pages and the radar are counted per address and session cookie; `site` caps one
+	# address, including anyone who rotates cookies. The radar aggregates the corpus on a cache
+	# miss, so it gets a tighter budget. Static assets are free.
 	@limited not path /_next/static/* /favicon.ico /icon.svg
 	rate_limit @limited {
 		zone radar {

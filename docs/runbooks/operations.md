@@ -99,7 +99,7 @@ P9 완료 기준은 7일 연속 05:00 발행 성공(또는 Fail-safe 정상 동�
 ## 10. 성능·관측성 기반 (2026-10-04, 점검표 단계 A)
 
 - **인덱스** (마이그레이션 0016): `items.first_seen_at`, `(source_id, first_seen_at)`, 본문 만료 부분 인덱스, `item_cards.themes` GIN, 지표 스냅샷 `captured_at`. 시간 창 조회 1,018ms → 31ms, 테마 필터 379ms → 2ms.
-- **속도 제한**: Caddy를 `ops/caddy/Dockerfile`로 빌드합니다(`caddy-ratelimit` 포함). IP당 분당 120회, `/radar*`는 20회이고 초과하면 429와 `Retry-After`를 돌려줍니다. 정적 파일은 제외입니다. `/login`·`/signup`은 분당 30회입니다. 값은 `.env`의 `RATE_LIMIT_PAGES`·`RATE_LIMIT_RADAR`·`RATE_LIMIT_AUTH`로 바꿉니다. Docker Desktop(Mac)에서는 모든 접속이 같은 게이트웨이 IP로 보이므로 한도가 공유됩니다. 리눅스 서버나 도메인 배포에서는 실제 IP 기준입니다.
+- **속도 제한**: Caddy를 `ops/caddy/Dockerfile`로 빌드합니다(`caddy-ratelimit` 포함). IP당 분당 120회, `/radar*`는 20회이고 초과하면 429와 `Retry-After`를 돌려줍니다. 정적 파일은 제외입니다. `/login`·`/signup`은 분당 30회입니다. 값은 `.env`의 `RATE_LIMIT_PAGES`·`RATE_LIMIT_RADAR`·`RATE_LIMIT_AUTH`로 바꿉니다. 2026-10-17 엣지 프록시(§13) 이전에는 Docker Desktop(Mac)이 모든 접속을 같은 게이트웨이 IP로 보여 한도가 사이트 전체에 하나였습니다. 이제 방문자의 실제 주소 기준입니다.
 - **구조화 로그**: API·Celery·CLI가 모두 JSON 한 줄로 stderr에 남깁니다(`service`, `request_id`, `source_id` 등). 찾을 때는 `docker compose logs api | grep '"level": "warning"'`. API 응답에는 `X-Request-ID`가 붙습니다.
 - **새 알림**:
   - `api_slow`: 최근 1시간에 5초 넘게 걸린 API 응답이 5건 이상
@@ -112,7 +112,7 @@ P9 완료 기준은 7일 연속 05:00 발행 성공(또는 Fail-safe 정상 동�
 ## 11. 운영 트리와 개발 트리 분리 (2026-10-04)
 
 - 운영은 `/Users/ggoma/WorkSpace/NEWS_INSIGHT-live`에서 합니다. 이 트리는 `origin/main`에 고정된 git worktree이고 `.env`는 개발 트리의 파일을 가리키는 심볼릭 링크입니다.
-  - launchd 카드(10분)·다이제스트(05:00) 작업은 이 트리에서 돌고, 로그는 `NEWS_INSIGHT-live/ops/logs/`에 남습니다.
+  - launchd 카드(10분)·다이제스트(05:00) 작업과 엣지 프록시(상시, §13)는 이 트리에서 돌고, 로그는 `NEWS_INSIGHT-live/ops/logs/`에 남습니다.
   - 배포는 이 트리에서 `scripts/deploy.sh`로 합니다. `docker compose up -d --build`는 2026-10-05 네 번 멈췄습니다(Docker Desktop 24 / Compose 2.18: 새 컨테이너를 만들고 시작하지 않음). 스크립트는 이미지를 먼저 빌드하고, 앱 컨테이너(migrate·api·worker·scheduler·web)만 지운 뒤 `--no-build`로 띄우고, 상태·스모크 검사를 합니다. 마이그레이션이 바뀌면 먼저 백업합니다. postgres·redis는 건드리지 않습니다. 정지 시간은 약 1분입니다.
 - 새 main을 반영하는 순서:
   ```bash
@@ -150,3 +150,61 @@ scripts/dev.sh audit         # 수집·중복·카드/번역·분류·이슈 묶
 - 고친 뒤에는 같은 명령을 다시 돌려 숫자가 줄었는지 봅니다.
 - PostgreSQL 설정(2026-10-05): `pg_stat_statements` 사전 로드(확장은 마이그레이션 0023), `shared_buffers` 512MB, 로그 앞머리에 데이터베이스 이름(`log_line_prefix=%m [%p] %d`). compose에 적어 두었고, 운영 서버에는 `ALTER SYSTEM`으로 같은 값을 넣고 컨테이너를 재생성하지 않고 재시작했습니다. `scripts/dev.sh audit`가 총 실행 시간 상위 쿼리를 보여 줍니다.
 
+
+## 13. 실제 접속 주소와 엣지 프록시 (2026-10-17)
+
+**왜 필요한가**
+
+- Docker Desktop(Mac)은 공개 포트를 자체 백엔드(`com.docker.backend`)로 중계하므로, 컨테이너가 보는 출발지 주소가 바뀝니다. 실측(Docker Desktop 4.93): `0.0.0.0`에 공개한 포트는 VM 게이트웨이 `192.168.65.1`, `127.0.0.1`에 공개한 포트는 compose 네트워크 게이트웨이(`172.19.0.1`)로 보입니다.
+- 그래서 `auth_events`·`user_sessions`·`access_logs`의 주소가 모두 `192.168.65.1`이었습니다. Caddy의 주소별 요청 제한(§10)과 API의 주소별 로그인 실패 제한도 사이트 전체에 하나였습니다.
+- Docker Desktop 설정에는 TCP 출발지를 보존하는 옵션이 없습니다. 호스트 네트워킹도 같은 4계층 중계이고, "kernel networking"은 UDP만 다룹니다.
+
+**구성**
+
+```
+방문자 ─▶ Mac :8700 / :8701   엣지 프록시 (launchd com.newsinsight.edge, ops/edge/proxy.py)
+       ─ PROXY v2 헤더(방문자 주소) + 원래 바이트 ─▶ 127.0.0.1:8702 / :8703 (Docker 공개, 루프백 전용)
+       ─▶ Caddy :8700 / :8701 (컨테이너 안) ─ X-Forwarded-For ─▶ web ─ X-Client-IP ─▶ api
+```
+
+- **엣지 프록시**: 표준 라이브러리만 쓰는 Python 3.9 스크립트를 시스템 `/usr/bin/python3`로 돌립니다. TLS를 풀지 않고 바이트만 중계하므로 인증서·HTTP/2는 그대로 Caddy가 처리합니다. IPv4·IPv6를 모두 받고, launchd `KeepAlive`라 죽으면 약 5초 뒤 다시 뜹니다. 파일 한도를 256에서 8192로 올려 동시 연결 약 4천 개까지 받습니다. 로그 `ops/logs/edge.log`에는 시작·오류와 시간당 요약 한 줄만 남습니다.
+- **Caddy**: 전역 `servers > listener_wrappers > proxy_protocol`이 헤더의 주소를 연결 주소로 씁니다. `{remote_host}`, 요청 제한 키, X-Forwarded-For가 모두 방문자 주소가 됩니다. 헤더를 믿는 출처는 `CADDY_PROXY_FROM` 하나입니다. `ops/caddy/start.sh`가 컨테이너를 시작할 때마다 기본 경로의 게이트웨이(루프백 공개 포트로 들어온 연결의 출발지)를 읽어 넣으므로, 네트워크를 다시 만들어 서브넷이 바뀌어도 맞습니다. 다른 출처가 보낸 헤더는 무시합니다.
+- **신뢰 경계**: Caddy 포트는 `127.0.0.1`에만 공개합니다. 이 Mac은 공인 IP(`PUBLIC_HOST`)를 공유기 없이 직접 가지므로, 모든 인터페이스에 공개한 포트는 인터넷에서 바로 닿고 누구나 헤더로 주소를 꾸밀 수 있습니다. `apps/api/tests/test_compose.py`가 이 조건을 검사합니다.
+  - 엣지 프록시는 모든 연결 앞에 자기 헤더를 붙입니다. 방문자가 헤더를 또 보내면 Caddy에는 HTTP 오류로 보여 400이 됩니다.
+  - 방문자가 보낸 X-Forwarded-For는 Caddy가 덮어씁니다.
+  - 남는 위험: 이 Mac의 프로세스와, `host.docker.internal`로 호스트 루프백에 닿는 컨테이너는 8702/8703에 직접 붙어 주소를 꾸밀 수 있습니다. 외부에서는 불가능합니다. 수집 워커의 외부 요청은 SSRF 차단(§8)으로 사설 주소에 가지 못합니다.
+- 한 공유기 뒤의 여러 사람은 한 주소입니다. 같은 회사망에서 여럿이 쓰다 429가 나면 `RATE_LIMIT_SITE`를 올립니다.
+
+**설치와 배포**
+
+- `scripts/deploy.sh`는 작업(`com.newsinsight.edge`)이 없거나 `ops/edge`·plist 템플릿·설치 스크립트가 바뀌면 `scripts/install-edge-proxy.sh`를 돌립니다(재시작 중 약 1초 연결 끊김).
+- 처음 적용할 때는 Caddy의 공개 포트가 바뀌므로 Caddy도 교체합니다.
+  ```bash
+  cd /Users/ggoma/WorkSpace/NEWS_INSIGHT-live && WITH_CADDY=1 scripts/deploy.sh
+  ```
+  엣지 프록시는 Docker가 8700/8701을 놓을 때까지 2초마다 다시 시도합니다(`cannot listen on 8700 … retrying`). 옛 Caddy 컨테이너가 지워지면 바로 포트를 넘겨받으므로, 정지 시간은 평소 Caddy 교체와 같습니다.
+- `scripts/rollback.sh`는 앱 이미지만 바꾸므로 엣지 프록시와 Caddy에 영향이 없습니다.
+
+**확인**
+
+```bash
+lsof -nP -iTCP:8700 -iTCP:8701 -iTCP:8702 -iTCP:8703 -sTCP:LISTEN   # 8700/8701 Python(*), 8702/8703 com.docke(127.0.0.1)
+launchctl print gui/$(id -u)/com.newsinsight.edge | grep -E '^\s*(state|pid|runs) ='
+docker exec news-insight-caddy-1 sh -c 'tr "\0" "\n" </proc/1/environ | grep CADDY_PROXY_FROM'   # 172.19.0.1/32
+tail ops/logs/edge.log
+```
+
+- 다른 기기(휴대폰 LTE 등)로 로그인한 뒤 콘솔 → 접속 기록(`/console/access`)과 로그인 기록에 그 기기의 주소가 보이면 됩니다. 이 Mac에서 `https://localhost:8700`으로 들어가면 `127.0.0.1`, 공인 IP로 들어가면 그 공인 IP입니다.
+
+**장애 대응**
+
+| 증상 | 원인과 조치 |
+|---|---|
+| 사이트 무응답, deploy 스모크 `000` | 엣지 프록시가 안 떠 있음. `tail ops/logs/edge.log`, 다시 띄우기 `launchctl kickstart -k gui/$(id -u)/com.newsinsight.edge`, 작업이 없으면 `scripts/install-edge-proxy.sh` |
+| 로그에 `cannot reach Caddy at 127.0.0.1:8702` | Caddy 컨테이너가 내려감. `docker compose ps caddy`, `docker compose logs caddy` |
+| 로그에 `cannot listen on 8700` 반복 | 다른 프로세스가 8700을 잡음. `lsof -nP -iTCP:8700 -sTCP:LISTEN`. 옛 Caddy(0.0.0.0 공개)라면 `WITH_CADDY=1 scripts/deploy.sh` |
+| 주소가 다시 모두 `172.19.0.1`이나 `192.168.65.1` | Caddy가 헤더를 믿지 않는 상태. Docker Desktop 업데이트로 루프백 공개 포트의 출발지가 바뀌었을 수 있음. 임시 컨테이너를 `news-insight_default`에 붙여 `-p 127.0.0.1:<빈 포트>:<포트>`로 띄우고 `{remote_host}`를 돌려주게 해 실제 출발지를 잰 뒤, `.env`의 `CADDY_PROXY_FROM=<주소>/32`로 지정하고 `WITH_CADDY=1 scripts/deploy.sh` |
+
+**되돌리기**
+
+- Caddy를 다시 `0.0.0.0`에 공개하는 커밋을 main에 올린 뒤 `scripts/install-edge-proxy.sh --uninstall && WITH_CADDY=1 scripts/deploy.sh`. 엣지 프록시가 8700을 잡은 채로는 Docker가 그 포트에 Caddy를 공개하지 못합니다. 프록시를 내린 뒤 배포가 이미지를 빌드하는 동안(보통 1~2분) 사이트가 멈춥니다.
