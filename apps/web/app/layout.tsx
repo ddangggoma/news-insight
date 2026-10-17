@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { type ReactNode, Suspense } from "react";
 
 import { NavigationProgress } from "@/components/navigation-progress";
+import { PageViewBeacon } from "@/components/page-view-beacon";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -21,6 +22,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <Suspense fallback={null}>
             <NavigationProgress />
+            <PageViewBeacon />
           </Suspense>
           <TooltipProvider>{children}</TooltipProvider>
           <Toaster richColors position="top-right" />

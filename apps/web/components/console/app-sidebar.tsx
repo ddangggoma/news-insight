@@ -1,6 +1,6 @@
 "use client";
 
-import { Activity, BarChart3, BellRing, ChevronDown, Network, ClipboardCheck, Cpu, Gauge, GitMerge, History, Inbox, Layers, LayoutDashboard, LayoutGrid, Library, Lightbulb, Newspaper, Radar, Rss, Star, TrendingUp, Users } from "lucide-react";
+import { Activity, BarChart3, BellRing, ChevronDown, Network, ClipboardCheck, Cpu, Gauge, GitMerge, History, Inbox, Layers, LayoutDashboard, LayoutGrid, Library, Lightbulb, Newspaper, Radar, Rss, ScrollText, Star, TrendingUp, Users } from "lucide-react";
 import { AppLink as Link } from "@/components/app-link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -53,6 +53,7 @@ const NAV: { label: string; folded?: boolean; items: { href: string; title: stri
   ] },
   { label: "관리", folded: true, items: [
     { href: "/console/users", title: "사용자", icon: Users },
+    { href: "/console/access", title: "접속 기록", icon: ScrollText },
   ] },
 ];
 const FOLD_KEY = "console-sidebar-folds";

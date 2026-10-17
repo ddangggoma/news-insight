@@ -17,7 +17,8 @@ from sqlalchemy import delete, func, or_, select, update
 from sqlalchemy.orm import Session
 
 from news_insight.auth import passwords
-from news_insight.auth.models import AuthEvent, Role, User, UserSession, UserStatus
+from news_insight.auth.access import ACCESS_KEEP
+from news_insight.auth.models import AccessLog, AuthEvent, Role, User, UserSession, UserStatus
 
 SESSION_TTL = timedelta(days=14)  # absolute
 IDLE_TTL = timedelta(days=3)  # since the session was last used
@@ -514,7 +515,7 @@ def user_events(session: Session, user_id: int, *, limit: int = 100) -> list[Aut
 
 
 def purge(session: Session, *, now: datetime) -> int:
-    """Drop dead sessions, old rejections, stale sign-ups and audit rows past retention."""
+    """Drop dead sessions, old rejections, stale sign-ups, audit and access rows past retention."""
     removed = 0
     for statement in (
         delete(UserSession).where(
@@ -529,6 +530,7 @@ def purge(session: Session, *, now: datetime) -> int:
         ),
         delete(User).where(User.status == UserStatus.PENDING, User.created_at < now - PENDING_KEEP),
         delete(AuthEvent).where(AuthEvent.at < now - EVENTS_KEEP),
+        delete(AccessLog).where(AccessLog.at < now - ACCESS_KEEP),
     ):
         result = session.execute(statement)
         removed += int(getattr(result, "rowcount", 0) or 0)

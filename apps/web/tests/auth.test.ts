@@ -3,6 +3,7 @@ import { unstable_doesMiddlewareMatch as doesProxyMatch } from "next/experimenta
 import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { clearAccessLog } from "@/lib/access-log";
 import { clearSessionCache, safeNext } from "@/lib/auth";
 import { config, proxy } from "@/proxy";
 
@@ -61,6 +62,7 @@ describe("proxy", () => {
   });
 
   afterEach(() => {
+    clearAccessLog();
     vi.unstubAllEnvs();
     vi.unstubAllGlobals();
     fetchMock.mockReset();
