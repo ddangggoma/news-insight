@@ -428,7 +428,7 @@ export interface WatchPage {
   companies: { key: string; label: string }[];
 }
 
-/** Host memory, the local Qwen and card engine health (dashboard, 2026-10-08). */
+/** Host memory and disk, the local Qwen and card engine health (dashboard, 2026-10-08). */
 export interface OpsStatus {
   host: {
     captured_at: string;
@@ -436,6 +436,9 @@ export interface OpsStatus {
     swap_total_mb?: number;
     swap_used_mb?: number;
     memory_free_pct?: number;
+    // the Mac's home volume, where Docker.raw lives (2026-10-17)
+    disk_total_bytes?: number;
+    disk_free_bytes?: number;
     qwen?: { model: string; state: string | null; context: number | null };
   } | null;
   cards: {

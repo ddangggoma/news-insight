@@ -274,17 +274,29 @@ async function RegionsSection() {
 
 const ENGINE_NAME: Record<string, string> = { claude: "Claude", codex: "Codex", agy: "Antigravity", qwen: "Qwen" };
 
-// Host memory (the Mac ran out twice), the local Qwen and when each card engine last worked.
+const GIB = 1024 ** 3;
+
+function gib(bytes: number): string {
+  return formatNumber(Math.round((bytes / GIB) * 10) / 10);
+}
+
+// Host memory (the Mac ran out twice) and disk (it holds Docker.raw, 2026-10-17), the local Qwen
+// and when each card engine last worked.
 async function OpsSection() {
   const ops = await api.get<OpsStatus>("/api/admin/ops/status");
   const host = ops.host;
   const swap = host?.swap_total_mb ? (host.swap_used_mb ?? 0) / host.swap_total_mb : null;
   const tight = (swap !== null && swap >= 0.9) || (host?.memory_free_pct ?? 100) <= 10;
+  const total = host?.disk_total_bytes;
+  const free = host?.disk_free_bytes;
+  const disk = total && free !== undefined ? { total, free, ratio: free / total } : null;
+  // under 10% free is the API's host_disk warning (ops/checks.py)
+  const diskTight = disk !== null && disk.ratio < 0.1;
   const qwen = host?.qwen;
   return (
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
       <StatCard
-        title="호스트 메모리"
+        title="호스트 메모리·디스크"
         value={
           host ? (
             <span className={tight ? "text-destructive" : undefined}>
@@ -294,8 +306,24 @@ async function OpsSection() {
             "기록 없음"
           )
         }
-        hint={host ? `${host.stale ? "오래된 값 · " : ""}${formatRelative(host.captured_at)} 측정 · 스왑 ${formatNumber(host.swap_used_mb ?? 0)}/${formatNumber(host.swap_total_mb ?? 0)} MB` : "카드 작업(10분마다)이 기록합니다"}
-        icon={tight ? AlertTriangle : HardDrive}
+        hint={
+          host ? (
+            <span className="block space-y-0.5">
+              <span className="block">
+                {host.stale ? "오래된 값 · " : ""}
+                {formatRelative(host.captured_at)} 측정 · 스왑 {formatNumber(host.swap_used_mb ?? 0)}/{formatNumber(host.swap_total_mb ?? 0)} MB
+              </span>
+              {disk ? (
+                <span className={diskTight ? "block font-medium text-destructive" : "block"}>
+                  디스크 여유 {gib(disk.free)}/{gib(disk.total)} GB ({formatPercent(disk.ratio)})
+                </span>
+              ) : null}
+            </span>
+          ) : (
+            "카드 작업(10분마다)이 기록합니다"
+          )
+        }
+        icon={tight || diskTight ? AlertTriangle : HardDrive}
       />
       <StatCard
         title="로컬 Qwen"
