@@ -15,8 +15,9 @@
   <true/>
   <key>KeepAlive</key>
   <true/>
+  <!-- the site is unreachable until it is back: restart after 1 s, not launchd's default 10 s -->
   <key>ThrottleInterval</key>
-  <integer>5</integer>
+  <integer>1</integer>
   <key>StandardOutPath</key>
   <string>__REPO__/ops/logs/edge.log</string>
   <key>StandardErrorPath</key>

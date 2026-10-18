@@ -167,7 +167,7 @@ scripts/dev.sh audit         # 수집·중복·카드/번역·분류·이슈 묶
        ─▶ Caddy :8700 / :8701 (컨테이너 안) ─ X-Forwarded-For ─▶ web ─ X-Client-IP ─▶ api
 ```
 
-- **엣지 프록시**: 표준 라이브러리만 쓰는 Python 3.9 스크립트를 시스템 `/usr/bin/python3`로 돌립니다. TLS를 풀지 않고 바이트만 중계하므로 인증서·HTTP/2는 그대로 Caddy가 처리합니다. IPv4·IPv6를 모두 받고, launchd `KeepAlive`라 죽으면 약 5초 뒤 다시 뜹니다. 파일 한도를 256에서 8192로 올려 동시 연결 약 4천 개까지 받습니다. 로그 `ops/logs/edge.log`에는 시작·오류와 시간당 요약 한 줄만 남습니다.
+- **엣지 프록시**: 표준 라이브러리만 쓰는 Python 3.9 스크립트를 시스템 `/usr/bin/python3`로 돌립니다. TLS를 풀지 않고 바이트만 중계하므로 인증서·HTTP/2는 그대로 Caddy가 처리합니다. IPv4·IPv6를 모두 받고, launchd `KeepAlive`라 죽으면 바로 다시 뜹니다(`kill -9` 실측 0.2초). 시작하자마자 계속 죽으면 1초 간격으로 다시 시도합니다(`ThrottleInterval`). 파일 한도를 256에서 8192로 올려 동시 연결 약 4천 개까지 받습니다. 로그 `ops/logs/edge.log`에는 시작·오류와 시간당 요약 한 줄만 남습니다.
 - **Caddy**: 전역 `servers > listener_wrappers > proxy_protocol`이 헤더의 주소를 연결 주소로 씁니다. `{remote_host}`, 요청 제한 키, X-Forwarded-For가 모두 방문자 주소가 됩니다. 헤더를 믿는 출처는 `CADDY_PROXY_FROM` 하나입니다. `ops/caddy/start.sh`가 컨테이너를 시작할 때마다 기본 경로의 게이트웨이(루프백 공개 포트로 들어온 연결의 출발지)를 읽어 넣으므로, 네트워크를 다시 만들어 서브넷이 바뀌어도 맞습니다. 다른 출처가 보낸 헤더는 무시합니다.
 - **신뢰 경계**: Caddy 포트는 `127.0.0.1`에만 공개합니다. 이 Mac은 공인 IP(`PUBLIC_HOST`)를 공유기 없이 직접 가지므로, 모든 인터페이스에 공개한 포트는 인터넷에서 바로 닿고 누구나 헤더로 주소를 꾸밀 수 있습니다. `apps/api/tests/test_compose.py`가 이 조건을 검사합니다.
   - 엣지 프록시는 모든 연결 앞에 자기 헤더를 붙입니다. 방문자가 헤더를 또 보내면 Caddy에는 HTTP 오류로 보여 400이 됩니다.
