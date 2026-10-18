@@ -42,6 +42,16 @@ fi
 log "building images (the running stack keeps serving)"
 timeout 900 docker compose build
 
+# The edge proxy owns the public ports and hands Caddy each visitor's address (operations.md
+# §13): install it when missing, restart it when it changed. While Docker still publishes Caddy
+# on those ports (before the first WITH_CADDY=1 deploy) it waits for them.
+EDGE=(ops/edge ops/launchd/com.newsinsight.edge.plist.template scripts/install-edge-proxy.sh)
+if ! launchctl print "gui/$(id -u)/com.newsinsight.edge" >/dev/null 2>&1 \
+  || ! git diff --quiet "$PREVIOUS" "$TAG" -- "${EDGE[@]}"; then
+  log "installing the edge proxy"
+  scripts/install-edge-proxy.sh
+fi
+
 log "replacing ${APP[*]}"
 # a removed container takes its log with it: keep it for `news-insight ops logs` (7 days)
 ARCHIVE="$ROOT/ops/logs/containers"
@@ -84,6 +94,7 @@ for check in "/login 200" "/briefings 307" /radar/week/"$(date +%G-W%V)"" 307"; 
     sleep 20
   done
   log "smoke $path -> $reply"
+  [[ "$code" != 000 ]] || log "nothing answers on :$PORT: see ops/logs/edge.log (edge proxy) and Caddy"
   [[ "$code" == "$want" ]] || exit 1
   [[ "$want" != 307 || "${reply#* }" == */login* ]] || exit 1
 done
