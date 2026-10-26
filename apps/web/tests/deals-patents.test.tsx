@@ -132,6 +132,7 @@ describe("PatentCard", () => {
     region: "global_en",
     published_at: "2026-09-30T03:00:00Z",
     first_seen_at: "2026-10-04T02:00:00Z",
+    occurred_at: "2026-09-30T03:00:00Z",
     metrics: {},
     story: null,
   };
