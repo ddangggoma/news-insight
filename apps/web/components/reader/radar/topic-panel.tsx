@@ -351,7 +351,7 @@ export function TopicPanel({ detail, radar, view }: { detail: TopicDetail; radar
                   <Link href={`/items/${story.id}`} className="block rounded-xl border px-3 py-2 text-sm leading-snug transition hover:border-primary/50 hover:bg-muted/40">
                     {story.title_ko ?? story.title}
                     <span className="mt-0.5 block text-xs text-muted-foreground">
-                      {TRACK_LABEL[story.track]} · {story.source_name} · {formatRelative(story.first_seen_at)}
+                      {TRACK_LABEL[story.track]} · {story.source_name} · {formatRelative(story.occurred_at)}
                       {story.story && story.story.item_count > 1 ? ` · 보도 ${story.story.item_count}건` : ""}
                     </span>
                   </Link>

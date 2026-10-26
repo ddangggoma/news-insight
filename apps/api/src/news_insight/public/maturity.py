@@ -76,7 +76,7 @@ def maturity_view(
             select(
                 area.label("area"),
                 Item.id,
-                Item.first_seen_at,
+                Item.occurred_at,
                 ItemCard.signal_type,
                 ItemCard.company_keys,
             )
@@ -88,7 +88,7 @@ def maturity_view(
             *ReaderFilters().conditions(),
             TaxScheme.key == "technology",
             TaxNode.depth >= 2,
-            Item.first_seen_at >= since,
+            Item.occurred_at >= since,
             ItemCard.signal_type.in_(list(STAGE_OF)),
         )
         .distinct()
@@ -99,7 +99,7 @@ def maturity_view(
     for row in rows:
         stage = STAGE_OF[row.signal_type]
         stages[row.area][stage] += 1
-        months[row.area][row.first_seen_at.astimezone(KST).strftime("%Y-%m")][stage] += 1
+        months[row.area][row.occurred_at.astimezone(KST).strftime("%Y-%m")][stage] += 1
         companies[row.area].update(row.company_keys or [])
     nodes = {n.id: n for n in session.scalars(select(TaxNode).where(TaxNode.id.in_(list(stages))))}
     parents = {

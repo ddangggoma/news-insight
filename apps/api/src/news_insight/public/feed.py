@@ -63,6 +63,7 @@ def _reader_item(
         region=source.region.value,
         published_at=item.published_at,
         first_seen_at=item.first_seen_at,
+        occurred_at=item.occurred_at,
         metrics=metrics,
         story=StoryBrief(
             id=story.id,
@@ -96,7 +97,7 @@ def feed(
                 partition_by=func.coalesce(StoryItem.story_id, -Item.id),
                 order_by=(
                     (Story.representative_item_id == Item.id).desc().nulls_last(),
-                    Item.first_seen_at.desc(),
+                    Item.occurred_at.desc(),
                 ),
             )
             .label("rank"),
@@ -107,15 +108,15 @@ def feed(
     total = session.scalar(select(func.count()).select_from(picked.subquery())) or 0
     items_total = session.scalar(select(func.count()).select_from(ranked_rows)) or 0
     order = {
-        "recent": (Item.first_seen_at.desc(), Item.id.desc()),
+        "recent": (Item.occurred_at.desc(), Item.id.desc()),
         "relevance": (
             ItemCard.relevance.desc().nulls_last(),
-            Item.first_seen_at.desc(),
+            Item.occurred_at.desc(),
             Item.id.desc(),
         ),
         "coverage": (
             func.coalesce(Story.source_count, 1).desc(),
-            Item.first_seen_at.desc(),
+            Item.occurred_at.desc(),
             Item.id.desc(),
         ),
     }[sort]
@@ -155,7 +156,7 @@ def _published(session: Session, item_ids: list[int]) -> list[tuple[Item, Source
                 ItemCard.status == CardStatus.READY,
                 in_current_tree(),
             )
-            .order_by(Item.first_seen_at.desc(), Item.id.desc())
+            .order_by(Item.occurred_at.desc(), Item.id.desc())
         ).tuples()
     )
 
@@ -169,6 +170,7 @@ def _linked(item: Item, source: Source, card: ItemCard, ref: str | None = None) 
         track=item.track.value,
         source_name=source.name,
         first_seen_at=item.first_seen_at,
+        occurred_at=item.occurred_at,
         ref=ref,
     )
 
@@ -230,7 +232,7 @@ def item_detail(session: Session, item_id: int) -> ReaderItemDetail | None:
                     ItemCard.scope.in_(("dx", "dx_dependency")),
                     Item.id != item.id,
                 )
-                .order_by(Item.first_seen_at.desc())
+                .order_by(Item.occurred_at.desc())
                 .limit(4)
             )
         )

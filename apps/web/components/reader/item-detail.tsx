@@ -33,7 +33,7 @@ function Linked({ title, rows }: { title: string; rows: LinkedItem[] }) {
               <span className="block text-sm leading-snug font-medium">{row.title_ko ?? row.title}</span>
               <span className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                 <TrackBadge track={row.track} />
-                {row.source_name} · {formatRelative(row.first_seen_at)}
+                {row.source_name} · {formatRelative(row.occurred_at)}
                 {row.ref ? <span className="font-mono">{row.ref}</span> : null}
               </span>
             </Link>
@@ -42,6 +42,11 @@ function Linked({ title, rows }: { title: string; rows: LinkedItem[] }) {
       </ul>
     </section>
   );
+}
+
+// collected more than a day after its own date: a backfill or a late feed, worth saying so
+function lateBy(item: ReaderItemDetail["item"]): boolean {
+  return Date.parse(item.first_seen_at) - Date.parse(item.occurred_at) > 86_400_000;
 }
 
 export function ItemDetailView({ detail }: { detail: ReaderItemDetail }) {
@@ -59,7 +64,8 @@ export function ItemDetailView({ detail }: { detail: ReaderItemDetail }) {
         {showOriginal ? <p className="text-sm text-muted-foreground">원제: {item.title}</p> : null}
         <p className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
           <TrackBadge track={item.track} />
-          {item.source_name} · {REGION_LABEL[item.region]} · <time dateTime={item.first_seen_at}>{formatDateTime(item.first_seen_at)}</time>
+          {item.source_name} · {REGION_LABEL[item.region]} · <time dateTime={item.occurred_at}>{formatDateTime(item.occurred_at)}</time>
+          {lateBy(item) ? <span title="기사 날짜보다 늦게 수집됨">(수집 {formatDateTime(item.first_seen_at)})</span> : null}
         </p>
       </header>
       {item.summary_ko.length ? (

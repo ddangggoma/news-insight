@@ -79,11 +79,11 @@ def patent_view(session: Session, *, kind: Kind, now: datetime, page: int = 1) -
     assert start is not None
     base = [*ReaderFilters(scope="all").conditions(), patent_condition()]
     rows = session.execute(
-        joined(select(Item.id, Item.first_seen_at, Source.category, ItemCard.company_keys)).where(
+        joined(select(Item.id, Item.occurred_at, Source.category, ItemCard.company_keys)).where(
             *base,
             ItemCard.scope != "irrelevant",
-            Item.first_seen_at >= start,
-            Item.first_seen_at < end,
+            Item.occurred_at >= start,
+            Item.occurred_at < end,
         )
     ).all()
 
@@ -93,7 +93,7 @@ def patent_view(session: Session, *, kind: Kind, now: datetime, page: int = 1) -
                 return index
         return -1
 
-    slots = {row.id: slot(row.first_seen_at) for row in rows}
+    slots = {row.id: slot(row.occurred_at) for row in rows}
     totals, offices = Counter[int](), Counter[int]()
     company_counts: dict[str, list[int]] = defaultdict(lambda: [0] * len(windows))
     for row in rows:

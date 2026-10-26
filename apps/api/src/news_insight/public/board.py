@@ -29,7 +29,7 @@ ROWS = 25
 class Evidence(BaseModel):
     item_id: int
     title: str
-    first_seen_at: datetime
+    occurred_at: datetime
 
 
 class BoardClaim(BaseModel):
@@ -102,7 +102,7 @@ def board_view(
                 area.label("area"),
                 Item.id,
                 func.coalesce(ItemCard.title_ko, Item.title).label("title"),
-                Item.first_seen_at,
+                Item.occurred_at,
                 ItemCard.impact,
                 ItemCard.relevance,
             )
@@ -114,7 +114,7 @@ def board_view(
             *ReaderFilters().conditions(),
             TaxScheme.key == "technology",
             TaxNode.depth >= 2,
-            Item.first_seen_at >= since,
+            Item.occurred_at >= since,
             ItemCard.impact.in_(IMPACTS),
         )
         .distinct()
@@ -226,10 +226,10 @@ def board_view(
             counts={k: counts[node_id][k] for k in IMPACTS},
             evidence={
                 k: [
-                    Evidence(item_id=r.id, title=r.title, first_seen_at=r.first_seen_at)
+                    Evidence(item_id=r.id, title=r.title, occurred_at=r.occurred_at)
                     for r in sorted(
                         best[node_id][k],
-                        key=lambda r: (r.relevance or 0, r.first_seen_at),
+                        key=lambda r: (r.relevance or 0, r.occurred_at),
                         reverse=True,
                     )[:2]
                 ]

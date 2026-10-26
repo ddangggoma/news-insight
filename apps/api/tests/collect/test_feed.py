@@ -108,3 +108,27 @@ def test_rate_limit_is_retryable() -> None:
         FeedCollector(serving(b"", status=429)).collect(context())
 
     assert (error.value.code, error.value.retryable) == ("rate_limited", True)
+
+
+ZONELESS = b"""<?xml version="1.0"?>
+<rss version="2.0"><channel><title>t</title><link>https://www.example.com</link>
+<description>d</description>
+<item><guid>g-1</guid><link>https://www.example.com/a</link><title>a</title>
+<pubDate>2026-10-02 08:09:31</pubDate></item>
+<item><guid>g-2</guid><link>https://www.example.com/b</link><title>b</title>
+<pubDate>Fri, 02 Oct 2026 08:00:00 +0900</pubDate></item>
+</channel></rss>"""
+
+
+def test_zoneless_dates_are_the_source_local_time() -> None:
+    result = FeedCollector(serving(ZONELESS)).collect(context(config={"timezone": "Asia/Seoul"}))
+
+    zoneless, zoned = result.items
+    assert zoneless.published_at == datetime(2026, 10, 1, 23, 9, 31, tzinfo=UTC)
+    assert zoned.published_at == datetime(2026, 10, 1, 23, 0, tzinfo=UTC)
+
+
+def test_zoneless_dates_stay_utc_without_a_zone() -> None:
+    zoneless, _ = FeedCollector(serving(ZONELESS)).collect(context()).items
+
+    assert zoneless.published_at == datetime(2026, 10, 2, 8, 9, 31, tzinfo=UTC)

@@ -8,11 +8,11 @@ import re
 from dataclasses import dataclass, field
 from typing import Any
 
-from sqlalchemy import ColumnElement, Select, Text, cast, or_
+from sqlalchemy import ColumnElement, Select, Text, cast, exists, or_
 
 from news_insight.cards.models import CardStatus, ItemCard
 from news_insight.content.freshness import fresh_condition
-from news_insight.content.models import Item
+from news_insight.content.models import Item, ItemDedup
 from news_insight.public.periods import Window
 from news_insight.sources.enums import Region, Track
 from news_insight.sources.models import Source
@@ -89,6 +89,9 @@ class ReaderFilters:
             ItemCard.status == CardStatus.READY,
             in_current_tree(),
             fresh_condition(),  # archive pages a sitemap found are not today's news
+            # a repeat of an earlier item (the same toot under two hashtags, a syndicated copy)
+            # counts once: 31 % of a radar week were repeats (2026-10-27 audit)
+            ~exists().where(ItemDedup.item_id == Item.id, ItemDedup.duplicate_of.is_not(None)),
         ]
         scopes = SCOPES[self.scope]
         if scopes is not None:
@@ -127,9 +130,9 @@ def _axis_condition(axis: str, chosen: tuple[str, ...]) -> ColumnElement[bool]:
 
 
 def in_window(window: Window) -> list[ColumnElement[bool]]:
-    conditions: list[ColumnElement[bool]] = [Item.first_seen_at < window.end]
+    conditions: list[ColumnElement[bool]] = [Item.occurred_at < window.end]
     if window.start is not None:
-        conditions.append(Item.first_seen_at >= window.start)
+        conditions.append(Item.occurred_at >= window.start)
     return conditions
 
 

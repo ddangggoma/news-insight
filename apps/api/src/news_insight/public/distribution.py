@@ -91,9 +91,9 @@ def distribution(
     depth = max(1, min(depth, depths.get(chosen.id, 1)))
     previous = window.previous()
     eligible = (
-        joined(select(Item.id.label("item_id"), Item.first_seen_at.label("seen")))
-        .where(*filters.conditions(), Item.first_seen_at < window.end)
-        .where(Item.first_seen_at >= previous.start if previous.start else Item.id.is_not(None))
+        joined(select(Item.id.label("item_id"), Item.occurred_at.label("seen")))
+        .where(*filters.conditions(), Item.occurred_at < window.end)
+        .where(Item.occurred_at >= previous.start if previous.start else Item.id.is_not(None))
         .subquery()
     )
     leaf, bucket = aliased(TaxNode), aliased(TaxNode)

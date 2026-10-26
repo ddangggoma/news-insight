@@ -190,3 +190,30 @@ def test_archive_pages_stay_out_of_the_reader(
     db_session.flush()
 
     assert "Galaxy agent OS" not in titles(feed(public_client, public_headers))
+
+
+def test_repeats_of_an_earlier_item_are_counted_once(
+    public_client: TestClient,
+    public_headers: dict[str, str],
+    ids: dict[str, int],
+    db_session: Session,
+) -> None:
+    from datetime import UTC, datetime
+
+    from news_insight.content.models import ItemDedup
+
+    before = feed(public_client, public_headers)["items_total"]
+    db_session.merge(
+        ItemDedup(
+            item_id=ids["Galaxy agent OS"],
+            url_key="0" * 32,
+            duplicate_of=ids[next(t for t in ids if t != "Galaxy agent OS")],
+            matched_by="url",
+            computed_at=datetime.now(UTC),
+        )
+    )
+    db_session.flush()
+
+    body = feed(public_client, public_headers)
+    assert "Galaxy agent OS" not in titles(body)
+    assert body["items_total"] == before - 1
