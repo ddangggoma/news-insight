@@ -37,6 +37,8 @@ export interface ReaderItem {
   region: Region;
   published_at: string | null;
   first_seen_at: string;
+  /** The article's own date (sanitized published_at, else first_seen_at); newer APIs only. */
+  occurred_at?: string | null;
   metrics: Record<string, number>;
   story: StoryBrief | null;
   companies?: CompanyRef[];
