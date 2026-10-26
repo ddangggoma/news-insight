@@ -19,7 +19,7 @@ class RadarSignalSnapshot(Base):
     period: Mapped[str] = mapped_column(String(10))
     window_key: Mapped[str] = mapped_column(String(20))
     is_current: Mapped[bool]
-    tone: Mapped[str] = mapped_column(String(10))
+    tone: Mapped[str] = mapped_column(String(20))  # company tones run to 13 characters
     focus_kind: Mapped[str] = mapped_column(String(10))
     focus_key: Mapped[str] = mapped_column(String(200))
     title: Mapped[str] = mapped_column(String(300))
