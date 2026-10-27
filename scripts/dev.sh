@@ -86,10 +86,36 @@ digest()        {
   (cd "$API" && uv run --env-file "$ROOT/.env" news-insight periodic publish) || true
   return "$status"
 }
+# LM Studio does not come back by itself when the Mac restarts (2026-10-17: ten nights of deals
+# lost to "connection refused"): wake its server before the steps that use it.
+LMS="${LMS_CLI:-$HOME/.cache/lm-studio/bin/lms}"
+lm_up()         { curl -sf -m 5 http://127.0.0.1:1234/v1/models >/dev/null; }
+lmstudio()      {
+  lm_up && return 0
+  [[ -x "$LMS" ]] || { echo "LM Studio is down and $LMS is missing" >&2; return 1; }
+  echo "LM Studio is down: starting its server" >&2
+  "$LMS" server start >/dev/null 2>&1 || true
+  lm_up || { echo "LM Studio server did not start" >&2; return 1; }
+}
+# Deals need the Qwen loaded at night; after a restart nothing loads it until the 00:00/04:00
+# context job (~/.local/share/news-insight/qwen_context.py, outside the repo), so ask that job.
+QWEN_CONTEXT="${QWEN_CONTEXT:-$HOME/.local/share/news-insight/qwen_context.py}"
+qwen_night()    {
+  local model="${LM_STUDIO_MODEL:-qwen/qwen3.8-27b}" loaded
+  (( 10#$(TZ=Asia/Seoul date +%H) < 6 )) || return 0
+  lm_up || return 0
+  loaded="$("$LMS" ps 2>/dev/null || true)"
+  [[ "$loaded" == *"$model"* ]] && return 0
+  echo "Qwen is not loaded at night: loading it for deals" >&2
+  if [[ -x "$QWEN_CONTEXT" ]]; then "$QWEN_CONTEXT" || true
+  else "$LMS" load "$model" --context-length 16384 --parallel 4 -y >/dev/null || true
+  fi
+}
 # Host-side: agy is logged in here, and LM Studio is reached on localhost (not host.docker.internal).
 cards()         {
   rotate cards
   env_check
+  lmstudio || true
   # macOS memory, swap and the Qwen state for the console (the containers cannot see them)
   (cd "$API" && LM_STUDIO_URL=http://127.0.0.1:1234 uv run --env-file "$ROOT/.env" news-insight ops host-snapshot) \
     || echo "host snapshot skipped" >&2
@@ -101,6 +127,7 @@ cards()         {
   (cd "$API" && LM_STUDIO_URL=http://127.0.0.1:1234 uv run --env-file "$ROOT/.env" news-insight cards embed) \
     || echo "card embeddings skipped (LM Studio unavailable)" >&2
   # plan 16 #8: deals from the cards, at night only (capped per run)
+  qwen_night
   (cd "$API" && LM_STUDIO_URL=http://127.0.0.1:1234 uv run --env-file "$ROOT/.env" news-insight cards deals --night) \
     || echo "deal extraction skipped (LM Studio unavailable)" >&2
   # CLU-1: merge stories told in other words or languages (bge-m3 + judge); never fails the card run

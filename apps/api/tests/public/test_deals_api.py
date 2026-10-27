@@ -1,3 +1,5 @@
+from collections.abc import Iterator
+from contextlib import contextmanager
 from typing import Any
 
 import pytest
@@ -129,3 +131,150 @@ def test_a_failed_batch_leaves_cards_for_the_next_run(db_session: Session) -> No
     stats = scan(db_session, broken, model="qwen", now=NOW, limit=50)
     assert stats.failed_batches == 1 and stats.read == 0
     assert candidates(db_session, now=NOW, limit=50)
+
+
+def test_scan_keeps_raises_not_valuations_and_one_stage_spelling(db_session: Session) -> None:
+    seed_corpus(db_session, FINANCE)
+
+    def chat(system: str, user: str, schema: dict[str, Any]) -> dict[str, Any]:
+        assert (
+            "valuation"
+            in schema["properties"]["results"]["items"]["properties"]["deals"]["items"]["required"]
+        )
+        import json
+
+        out = []
+        for row in json.loads(user):
+            deals = []
+            if "invests" in row["title"]:
+                deals.append(
+                    {
+                        "kind": "investment",
+                        "actor": "Qualcomm Inc.",
+                        "counterparty": "EdgeCo",
+                        "amount": 5e10,  # 50억 달러 read as 500억
+                        "valuation": None,
+                        "currency": "USD",
+                        "stage": "Series B",
+                        "date": "2026-10-03",
+                        "summary": "퀄컴이 EdgeCo에 50억 달러를 투자했다.",
+                    }
+                )
+            if "EdgeCo raises" in row["title"]:
+                deals.append(
+                    {
+                        "kind": "investment",
+                        "actor": "미공개",
+                        "counterparty": "EdgeCo",
+                        "amount": 2e10,
+                        "valuation": 2e10,
+                        "currency": "USD",
+                        "stage": "시리즈 B (추정)",
+                        "date": "2026-10-03",
+                        "summary": "EdgeCo가 투자를 유치했다.",
+                    }
+                )
+            out.append({"id": row["id"], "deals": deals})
+        return {"results": out}
+
+    scan(db_session, chat, model="qwen", now=NOW, limit=50)
+    named = db_session.scalars(select(Deal).where(Deal.actor != "미공개")).one()
+    assert named.actor_key == "qualcomm"  # "Inc." does not hide the registry name
+    assert (named.amount, named.amount_usd, named.stage) == (5e9, 5e9, "시리즈 B")
+    unnamed = db_session.scalars(select(Deal).where(Deal.actor == "미공개")).one()
+    assert (unnamed.amount, unnamed.amount_usd, unnamed.stage) == (None, None, None)
+
+
+def test_repair_previews_then_cleans_stored_deals(db_session: Session) -> None:
+    from typer.testing import CliRunner
+
+    from news_insight import cli
+    from news_insight.deals.extract import repair
+
+    ids = seed_corpus(db_session, FINANCE)
+    item_id = next(iter(ids.values()))
+    common = {"item_id": item_id, "model": "qwen", "extracted_at": NOW, "summary": "x"}
+    rows = [
+        Deal(kind="ipo", actor="Anthropic", amount=2e12, currency="USD", amount_usd=2e12,
+             stage="IPO", **common | {"summary": "기업가치 2조 달러로 IPO를 추진한다."}),
+        Deal(kind="investment", actor="Lockheed Martin Canada", counterparty="Qualcomm Inc.",
+             amount=11.7e6, currency="CAD", stage="Series A", **common),
+    ]  # fmt: skip
+    db_session.add_all(rows)
+    db_session.flush()
+
+    @contextmanager
+    def scope() -> Iterator[Session]:
+        with db_session.begin_nested():
+            yield db_session
+
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setattr(cli, "session_scope", scope)
+        preview = CliRunner().invoke(cli.app, ["cards", "deals-repair"])
+        assert preview.exit_code == 0, preview.output
+        assert "amounts=2" in preview.output and "preview" in preview.output
+        db_session.expire_all()
+        assert db_session.get(Deal, rows[0].id).amount == 2e12  # type: ignore[union-attr]
+        applied = CliRunner().invoke(cli.app, ["cards", "deals-repair", "--apply"])
+        assert applied.exit_code == 0, applied.output
+    db_session.expire_all()
+    ipo, cad = (db_session.get(Deal, r.id) for r in rows)
+    assert ipo is not None and (ipo.amount, ipo.amount_usd) == (None, None)
+    assert cad is not None and cad.amount_usd == round(11.7e6 * 0.73)
+    assert cad.stage == "시리즈 A" and cad.counterparty_key == "qualcomm"
+    again = repair(db_session)
+    assert (again.keys, again.stages, again.amounts) == (0, 0, 0)
+
+
+def test_deals_command_fails_when_no_batch_succeeds(
+    db_session: Session, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """2026-10-17 to 10-27 every night printed failed_batches=6 and exited 0."""
+    from typer.testing import CliRunner
+
+    from news_insight import cli
+    from news_insight.config import Settings
+    from news_insight.deals import extract
+
+    seed_corpus(db_session, FINANCE)
+
+    @contextmanager
+    def scope() -> Iterator[Session]:
+        with db_session.begin_nested():
+            yield db_session
+
+    def down(system: str, user: str, schema: dict[str, Any]) -> dict[str, Any]:
+        raise ConnectionError("[Errno 61] Connection refused")
+
+    monkeypatch.setattr(cli, "session_scope", scope)
+    monkeypatch.setattr(cli, "get_settings", lambda: Settings(_env_file=None))
+    monkeypatch.setattr(extract, "lm_studio_chat", lambda url, model: down)
+    result = CliRunner().invoke(cli.app, ["cards", "deals"])
+    assert result.exit_code == 1
+    assert "Connection refused" in result.output
+
+
+def test_a_dry_run_shows_deals_and_writes_nothing(
+    db_session: Session, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from typer.testing import CliRunner
+
+    from news_insight import cli
+    from news_insight.config import Settings
+    from news_insight.deals import extract
+
+    seed_corpus(db_session, FINANCE)
+
+    @contextmanager
+    def scope() -> Iterator[Session]:
+        with db_session.begin_nested():
+            yield db_session
+
+    monkeypatch.setattr(cli, "session_scope", scope)
+    monkeypatch.setattr(cli, "get_settings", lambda: Settings(_env_file=None))
+    monkeypatch.setattr(extract, "lm_studio_chat", lambda url, model: fake_chat([]))
+    result = CliRunner().invoke(cli.app, ["cards", "deals", "--dry-run"])
+    assert result.exit_code == 0, result.output
+    assert "investment Qualcomm → EdgeCo [qualcomm/]" in result.output
+    assert db_session.scalars(select(Deal)).all() == []
+    assert db_session.scalars(select(DealScan)).all() == []

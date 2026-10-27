@@ -6,7 +6,7 @@ is recorded so it is read once."""
 import json
 import re
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
 from typing import Any
 
@@ -17,8 +17,8 @@ from sqlalchemy.orm import Session
 from news_insight.cards.models import CardStatus, ItemCard
 from news_insight.companies.service import alias_map
 from news_insight.content.models import Item
+from news_insight.deals.clean import USD, checked_amount, key_for, stage
 from news_insight.deals.models import Deal, DealScan
-from news_insight.technologies.catalog import normalize
 
 KINDS = ("investment", "acquisition", "partnership", "ipo", "joint_venture", "licensing")
 SCAN_DAYS = 60
@@ -28,22 +28,6 @@ HINT = (
     "투자|인수|합병|제휴|파트너십|협력|협약|펀딩|시리즈|유치|상장|IPO|합작|MOU|라이선스|"
     "acqui|invest|partner|funding|raise|merger|joint venture|stake|licens"
 )
-# rough conversion for comparing sizes only (the page says "약")
-USD = {
-    "USD": 1.0,
-    "KRW": 1 / 1380,
-    "EUR": 1.08,
-    "CNY": 0.14,
-    "RMB": 0.14,
-    "JPY": 0.0067,
-    "GBP": 1.27,
-    "TWD": 0.031,
-    "HKD": 0.128,
-    "INR": 0.012,
-    "SGD": 0.74,
-    "CHF": 1.13,
-}
-
 Chat = Callable[[str, str, dict[str, Any]], dict[str, Any]]
 
 SYSTEM = "\n".join(
@@ -56,8 +40,15 @@ SYSTEM = "\n".join(
         "counterparty: 투자받은 회사·인수된 회사·제휴 상대. 둘 다 회사의 공식 이름으로 쓴다.",
         "투자·인수에서 투자자나 인수자가 기사에 없으면 actor를 '미공개'로 쓰고,",
         "  투자받은·인수된 회사는 반드시 counterparty에 둔다.",
-        "amount: 숫자만(1.5억 달러 → 150000000, 3조원 → 3000000000000), 모르면 null.",
-        "currency: ISO 코드(USD, KRW, CNY, EUR…). stage: 시드·시리즈 A·전략적 투자 등.",
+        "amount: 이 거래로 실제로 오가는 돈(투자 유치액·인수 대금·공모 금액·계약 금액)만,",
+        "  숫자로(1.5억 달러 → 150000000, 337억 유로 → 33700000000, 3조원 → 3000000000000).",
+        "  모르면 null. 1억 = 100000000, 1조 = 1000000000000: 자릿수를 다시 확인한다.",
+        "valuation: 기사가 말한 기업가치·시가총액·몸값(투자 후 가치, 상장 목표 가치), 없으면 null.",
+        '  기업가치는 amount에 넣지 않는다("기업가치 2조 달러로 상장 추진" → amount null).',
+        "회사 자체의 설비·데이터센터·지역 투자 계획(capex)이나 누적 투자액은 거래가 아니다.",
+        "currency: ISO 코드(USD, KRW, CNY, EUR, CAD, MYR…).",
+        "stage: 기사에 적힌 라운드만 한국어로(시드, 프리시드, 시리즈 A, 시리즈 B,",
+        "  전략적 투자, MOU…). 기사에 없으면 null로 두고 추측하지 않는다.",
         "date: 발표일 YYYY-MM-DD, 모르면 null. summary: 한국어 한 문장.",
         "추측·전망·소문이거나 거래가 없는 기사는 deals를 빈 배열로 둔다.",
         "기사가 배경으로만 언급한 과거 거래(몇 년 전 인수 등)는 넣지 않는다.",
@@ -76,6 +67,7 @@ def schema() -> dict[str, Any]:
             "actor",
             "counterparty",
             "amount",
+            "valuation",
             "currency",
             "stage",
             "date",
@@ -86,6 +78,7 @@ def schema() -> dict[str, Any]:
             "actor": {"type": "string"},
             "counterparty": nullable,
             "amount": {"type": ["number", "null"]},
+            "valuation": {"type": ["number", "null"]},
             "currency": nullable,
             "stage": nullable,
             "date": nullable,
@@ -118,6 +111,7 @@ class ScanStats:
     read: int = 0
     deals: int = 0
     failed_batches: int = 0
+    error: str | None = None  # the last failed batch's error (LM Studio down, model missing)
 
 
 def candidates(
@@ -186,15 +180,18 @@ def _party(value: Any) -> str | None:
     return text
 
 
-def _key(name: str | None, aliases: dict[str, str]) -> str | None:
-    if name == UNDISCLOSED:
-        return None
-    return aliases.get(normalize(name)) if name else None
-
-
 def _clean(value: Any, limit: int) -> str | None:
     text = " ".join(str(value).split()) if value not in (None, "") else ""
     return text[:limit] or None
+
+
+def _number(value: Any) -> float | None:
+    return float(value) if isinstance(value, int | float) and not isinstance(value, bool) else None
+
+
+def _usd(amount: float | None, currency: str | None) -> float | None:
+    rate = USD.get(currency or "")
+    return round(amount * rate, 0) if amount and rate else None
 
 
 def scan(session: Session, chat: Chat, *, model: str, now: datetime, limit: int) -> ScanStats:
@@ -208,8 +205,9 @@ def scan(session: Session, chat: Chat, *, model: str, now: datetime, limit: int)
         )
         try:
             answer = chat(SYSTEM, payload, schema())
-        except Exception:  # noqa: BLE001 - LM Studio busy or down: these cards wait for the next run
+        except Exception as exc:  # noqa: BLE001 - LM Studio busy or down: these cards wait
             stats.failed_batches += 1
+            stats.error = f"{type(exc).__name__}: {exc}"[:300]
             continue
         by_id = {int(r.get("id", -1)): r.get("deals") or [] for r in answer.get("results") or []}
         for item_id, _, _, seen in batch:
@@ -227,25 +225,29 @@ def scan(session: Session, chat: Chat, *, model: str, now: datetime, limit: int)
                     counterparty = None
                 if actor == UNDISCLOSED and not counterparty:
                     continue  # nobody named: nothing to track
-                amount = raw.get("amount") if isinstance(raw.get("amount"), int | float) else None
                 currency = (_clean(raw.get("currency"), 8) or "").upper() or None
-                rate = USD.get(currency or "")
+                summary = _clean(raw.get("summary"), 400) or actor
+                amount = checked_amount(
+                    _number(raw.get("amount")),
+                    kind=kind,
+                    currency=currency,
+                    summary=summary,
+                    valuation=_number(raw.get("valuation")),
+                )
                 session.add(
                     Deal(
                         item_id=item_id,
                         kind=kind,
                         actor=actor,
-                        actor_key=_key(actor, aliases),
+                        actor_key=None if actor == UNDISCLOSED else key_for(actor, aliases),
                         counterparty=counterparty,
-                        counterparty_key=_key(counterparty, aliases),
-                        amount=float(amount) if amount and amount > 0 else None,
+                        counterparty_key=key_for(counterparty, aliases),
+                        amount=amount,
                         currency=currency,
-                        amount_usd=round(float(amount) * rate, 0)
-                        if amount and amount > 0 and rate
-                        else None,
-                        stage=_clean(raw.get("stage"), 40),
+                        amount_usd=_usd(amount, currency),
+                        stage=stage(_clean(raw.get("stage"), 80)),
                         announced_on=announced,
-                        summary=_clean(raw.get("summary"), 400) or actor,
+                        summary=summary,
                         model=model,
                         extracted_at=now,
                     )
@@ -259,6 +261,51 @@ def scan(session: Session, chat: Chat, *, model: str, now: datetime, limit: int)
             stats.read += 1
             stats.deals += found
         session.flush()
+    return stats
+
+
+@dataclass
+class RepairStats:
+    rows: int = 0
+    keys: int = 0
+    stages: int = 0
+    amounts: int = 0
+    examples: list[str] = field(default_factory=list)
+
+
+def repair(session: Session) -> RepairStats:
+    """Re-clean stored deals with today's rules (audit 2026-10-27): registry keys from the
+    current aliases (a key found earlier is kept), one spelling per stage, amounts checked
+    against their summary and kind, dollar sizes from today's rate table. Running it twice
+    changes nothing the second time; the caller commits or rolls back."""
+    stats = RepairStats()
+    aliases = alias_map(session)
+    for deal in session.scalars(select(Deal).order_by(Deal.id)):
+        stats.rows += 1
+        actor_key = deal.actor_key or (
+            None if deal.actor == UNDISCLOSED else key_for(deal.actor, aliases)
+        )
+        counterparty_key = deal.counterparty_key or key_for(deal.counterparty, aliases)
+        if (actor_key, counterparty_key) != (deal.actor_key, deal.counterparty_key):
+            stats.keys += 1
+            deal.actor_key, deal.counterparty_key = actor_key, counterparty_key
+        cleaned = stage(deal.stage)
+        if cleaned != deal.stage:
+            stats.stages += 1
+            deal.stage = cleaned
+        amount = checked_amount(
+            deal.amount, kind=deal.kind, currency=deal.currency, summary=deal.summary
+        )
+        usd = _usd(amount, deal.currency)
+        if (amount, usd) != (deal.amount, deal.amount_usd):
+            stats.amounts += 1
+            if len(stats.examples) < 20:
+                stats.examples.append(
+                    f"#{deal.id} {deal.kind} {deal.actor} → {deal.counterparty or '-'}: "
+                    f"{deal.amount} {deal.currency or ''} → {amount} (USD {usd})"
+                )
+            deal.amount, deal.amount_usd = amount, usd
+    session.flush()
     return stats
 
 

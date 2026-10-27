@@ -33,6 +33,7 @@
 | `redis_unreachable` | 긴급 | Redis 연결 실패 | `docker compose up -d redis` |
 | `host_disk` | 주의(5% 미만이면 긴급) | Mac 데이터 볼륨 여유 10% 미만(카드 작업이 10분마다 `ops host-snapshot`으로 기록) | Docker Desktop의 VM 디스크 `~/Library/Containers/com.docker.docker/Data/vms/0/data/Docker.raw`가 이 디스크에 있어, 바닥나면 Docker VM과 Postgres가 함께 멈춥니다. `df -h ~`로 확인 → `docker builder prune -f`, `docker image prune -f`(볼륨은 지우지 않습니다. 비운 공간은 Docker.raw가 줄어들며 Mac에 돌아옵니다: `du -h` 위 경로), `NEWS_INSIGHT-live/ops/logs`의 오래된 로그, `~/Library/Developer/Xcode/DerivedData`, `uv cache prune`, LM Studio에서 안 쓰는 모델, `tmutil listlocalsnapshots /`의 로컬 스냅샷. 2026-10-17 VM 디스크 정리 뒤에도 여유는 926GB 중 46GB(5%)였습니다 |
 | `cards_stalled` | 주의 | 카드 생성 40분 이상 멈춤 | §3 |
+| `deals_stalled` | 주의(콘솔만) | 딜 스캔이 36시간 동안 없음(야간 00:00–06:00에만 실행) | §3의 6 |
 | `cards_backlog` | 참고 | 카드 대기 5,000건 초과 | 05:00 후보는 카드가 있는 기사만 들어갑니다. 한도 상향 또는 Qwen 대기 |
 | `disk_low` | 주의(5% 미만이면 긴급) | Docker Desktop VM 디스크 여유 15% 미만 | `docker system df`로 확인 → `docker image prune -f`, `docker builder prune -f --keep-storage 8GB`. 볼륨은 지우지 않습니다. 2026-10-17에 빌드 캐시와 태그 없는 이미지가 58GB 디스크를 채워 Postgres가 DiskFull로 멈췄고, 탐색 탭은 "기사를 불러오지 못했습니다"를 띄웠습니다. `scripts/deploy.sh`는 배포가 끝날 때마다 이 둘을 정리합니다 |
 
@@ -45,6 +46,7 @@
 3. agy 로그인 만료: 터미널에서 `agy`를 한 번 실행해 로그인합니다.
 4. launchd 상태: `launchctl print gui/$(id -u)/com.newsinsight.cards | grep -E "state|last exit"`. 재등록은 `scripts/install-card-schedule.sh`.
 5. 잠금 파일이 남아 실행을 막으면(비정상 종료 후) 다음 실행이 잠금을 다시 잡습니다. 수동 실행: `scripts/dev.sh cards`.
+6. 투자·제휴(딜) 추출은 같은 카드 작업 안에서 00:00–06:00 KST에만 로컬 Qwen으로 돕니다. LM Studio는 Mac 재시작 뒤 저절로 뜨지 않아(2026-10-17–27 열흘간 `deals: read=0 … failed_batches=6`), 카드 작업이 서버가 꺼져 있으면 `lms server start`로 깨우고, 밤에 Qwen이 없으면 `~/.local/share/news-insight/qwen_context.py`로 불러옵니다. 모든 배치가 실패하면 `deals: no batch succeeded: …`를 남기고 실패로 끝납니다. 확인: `grep "^deals" ops/logs/cards.log | tail`. 쓰지 않고 시험: `news-insight cards deals --limit 6 --dry-run`. 저장된 딜 재정리(별칭 키·단계 표기·기업가치 금액·환율): `news-insight cards deals-repair`(미리보기) → `--apply`.
 
 ## 4. DLQ 처리
 
