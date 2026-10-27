@@ -52,7 +52,8 @@ def _now() -> datetime:
 def waits_for_root() -> Any:
     """The item repeats an earlier one (content/duplicates.py) that will get a card: it takes
     a copy of that card instead of an engine call. A root in a paused or retired source, or one
-    whose card gave up, does not hold its repeats back."""
+    whose card gave up, does not hold its repeats back; nor does a root whose card has no
+    summary when the repeat has text to summarise (a title-only post, then the article)."""
     root, root_source, root_card = aliased(Item), aliased(Source), aliased(ItemCard)
     return exists(
         select(ItemDedup.item_id)
@@ -66,6 +67,11 @@ def waits_for_root() -> Any:
                 root_card.id.is_(None),
                 root_card.status != CardStatus.FAILED,
                 root_card.attempts < MAX_ATTEMPTS,
+            ),
+            or_(
+                root_card.id.is_(None),
+                func.jsonb_array_length(root_card.summary_ko) > 0,
+                and_(Item.summary.is_(None), Item.body.is_(None)),
             ),
         )
     )
@@ -329,6 +335,8 @@ _DONORS = text(
     join items di on di.id = donor.item_id
     join item_cards dc on dc.item_id = donor.item_id
     where dc.status = 'ready' and dc.input_hash = di.content_hash
+      -- a card without a summary is no copy for an item that has text (2026-10-27: 7,352 such)
+      and (jsonb_array_length(dc.summary_ko) > 0 or coalesce(i.summary, i.body) is null)
       and (i.published_at is null or i.published_at >= i.first_seen_at - interval '30 days')
       and (own.id is null or own.input_hash <> i.content_hash or own.status = 'failed')
     order by t.item_id, (donor.item_id = t.root) desc, donor.item_id
