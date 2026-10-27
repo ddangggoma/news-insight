@@ -10,11 +10,21 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 DEFAULT_TECHNOLOGIES_PATH = Path(__file__).resolve().parents[3] / "catalog" / "technologies.yaml"
 STRIP = re.compile(r"[\s\-_·]")
+# Normalised keywords that name no technology: bare numbers and versions ("2026", "3.1",
+# "v3.1"), vulnerability ids ("cve2026109618") and CVSS scores ("cvssv3.1", "cvss9.8").
+# EUVD/CVE bot toots put them on ~18k cards (2026-10-27 audit). Twin of the regex in the
+# `canonical_keyword_keys` SQL function (migration 0042); "v8", "5g" and "cve" stay.
+NOT_A_TECHNOLOGY = r"^([0-9]+(\.[0-9]+)*|v[0-9]+(\.[0-9]+)+|(cve|euvd)[0-9]{8,}|cvss.*[0-9].*)$"
+_NOT_A_TECHNOLOGY = re.compile(NOT_A_TECHNOLOGY)
 
 
 def normalize(text: str) -> str:
     """Keyword key: lower case without spaces, hyphens, underscores or middle dots."""
     return STRIP.sub("", text.strip().lower().lstrip("#"))
+
+
+def is_technology_key(key: str) -> bool:
+    return bool(key) and _NOT_A_TECHNOLOGY.match(key) is None
 
 
 class TechKind(StrEnum):

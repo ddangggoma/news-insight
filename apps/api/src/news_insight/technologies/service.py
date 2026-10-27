@@ -16,7 +16,12 @@ from sqlalchemy.orm import Session
 
 from news_insight.cards.models import CardStatus, ItemCard
 from news_insight.content.models import Item
-from news_insight.technologies.catalog import TechCatalog, TechStatus, normalize
+from news_insight.technologies.catalog import (
+    TechCatalog,
+    TechStatus,
+    is_technology_key,
+    normalize,
+)
 from news_insight.technologies.models import KeywordLabel, Technology, TechnologyAlias
 
 log = logging.getLogger(__name__)
@@ -27,7 +32,7 @@ def canonical_keys(keywords: Iterable[str], aliases: dict[str, str]) -> list[str
     keys: list[str] = []
     for word in keywords:
         key = normalize(word)
-        if not key:
+        if not is_technology_key(key):
             continue
         key = aliases.get(key, key)
         if key not in keys:
@@ -69,7 +74,7 @@ def refresh_labels(session: Session, *, now: datetime, days: int = 180) -> int:
     for keywords in rows:
         for word in keywords or []:
             key = normalize(word)
-            if key:
+            if is_technology_key(key):
                 spellings[aliases.get(key, key)][word.strip().lstrip("#")[:120]] += 1
     session.execute(delete(KeywordLabel))
     session.add_all(

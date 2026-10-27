@@ -12,11 +12,12 @@ from news_insight.content.ingest import ingest_items
 from news_insight.content.models import Item
 from news_insight.technologies.catalog import (
     TechCatalog,
+    is_technology_key,
     load_technologies,
     normalize,
 )
 from news_insight.technologies.models import Technology
-from news_insight.technologies.service import canonical_keys, seed_registry
+from news_insight.technologies.service import alias_map, canonical_keys, seed_registry
 from tests.factories import build_source
 
 
@@ -45,6 +46,17 @@ def test_python_twin_matches_normalisation() -> None:
     assert canonical_keys(
         ["On-device AI", "온디바이스 AI", " "], {"ondeviceai": "온디바이스ai"}
     ) == ["온디바이스ai"]
+
+
+NOISE = ["CVSS v3.1", "v3.1", "3.1", "2026", "CVE-2026-109618", "EUVD-2026-12345", "cvss 9.8"]
+KEPT = ["v8", "5G", "Wi-Fi 7", "iOS 27.2", "Matter 1.5", "CVE", "CVSS", "802.11ax", "v3"]
+
+
+def test_versions_and_vulnerability_ids_are_not_technologies() -> None:
+    assert [w for w in NOISE if is_technology_key(normalize(w))] == []
+    assert [w for w in KEPT if not is_technology_key(normalize(w))] == []
+    assert canonical_keys(["CVSS v3.1", "Linux", "v3.1", "CVE-2026-109618"], {}) == ["linux"]
+    assert all(is_technology_key(entry.key) for entry in load_technologies().technologies)
 
 
 _serial = iter(range(10_000))
@@ -94,6 +106,14 @@ def test_trigger_derives_keys_on_insert_and_bulk_update(db_session: Session) -> 
     )
     db_session.refresh(card)
     assert card.technology_keys == ["llm"]
+
+
+@pytest.mark.db
+def test_sql_twin_drops_versions_and_vulnerability_ids(db_session: Session) -> None:
+    card = card_for(db_session, [*NOISE, *KEPT])
+
+    assert card.technology_keys == canonical_keys([*NOISE, *KEPT], alias_map(db_session))
+    assert "v3.1" not in card.technology_keys and "v8" in card.technology_keys
 
 
 @pytest.mark.db

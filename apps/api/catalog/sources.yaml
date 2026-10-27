@@ -2878,7 +2878,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/android?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: 안드로이드 화제의 오픈 소셜 반응
@@ -2893,7 +2893,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/ai?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: AI 화제의 오픈 소셜 반응
@@ -2908,7 +2908,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/opensource?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: 오픈소스 화제의 오픈 소셜 반응
@@ -2923,7 +2923,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/smarthome?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: 스마트홈 화제의 오픈 소셜 반응
@@ -2983,7 +2983,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/wearables?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: 웨어러블 화제의 오픈 소셜 반응
@@ -9495,7 +9495,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/llm?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#llm 화제의 오픈 소셜 반응'
@@ -9510,7 +9510,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/machinelearning?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#machinelearning 화제의 오픈 소셜 반응'
@@ -9525,7 +9525,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/smartphone?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#smartphone 화제의 오픈 소셜 반응'
@@ -9540,7 +9540,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/linux?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#linux 화제의 오픈 소셜 반응'
@@ -9555,7 +9555,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/homeassistant?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#homeassistant 화제의 오픈 소셜 반응'
@@ -9570,7 +9570,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/robotics?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#robotics 화제의 오픈 소셜 반응'
@@ -9585,7 +9585,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/iot?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#iot 화제의 오픈 소셜 반응'
@@ -9600,7 +9600,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/raspberrypi?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#raspberrypi 화제의 오픈 소셜 반응'
@@ -9615,7 +9615,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/esp32?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#esp32 화제의 오픈 소셜 반응'
@@ -9630,7 +9630,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/ev?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#ev 화제의 오픈 소셜 반응'
@@ -9645,7 +9645,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/rustlang?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#rustlang 화제의 오픈 소셜 반응'
@@ -9660,7 +9660,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/kotlin?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#kotlin 화제의 오픈 소셜 반응'
@@ -9675,7 +9675,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/swift?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#swift 화제의 오픈 소셜 반응'
@@ -9690,7 +9690,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/privacy?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#privacy 화제의 오픈 소셜 반응'
@@ -9705,7 +9705,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/infosec?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#infosec 화제의 오픈 소셜 반응'
@@ -9720,7 +9720,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/oled?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#oled 화제의 오픈 소셜 반응'
@@ -9735,7 +9735,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/foss?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#foss 화제의 오픈 소셜 반응'
@@ -9750,7 +9750,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/selfhosted?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#selfhosted 화제의 오픈 소셜 반응'
@@ -9765,7 +9765,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/5g?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#5g 화제의 오픈 소셜 반응'
@@ -9780,7 +9780,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/apple?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#apple 화제의 오픈 소셜 반응'
@@ -9795,7 +9795,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/ios?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#ios 화제의 오픈 소셜 반응'
@@ -9810,7 +9810,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/pixel?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#pixel 화제의 오픈 소셜 반응'
@@ -9825,7 +9825,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/samsung?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#samsung 화제의 오픈 소셜 반응'
@@ -9840,7 +9840,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/righttorepair?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#righttorepair 화제의 오픈 소셜 반응'
@@ -9855,7 +9855,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/accessibility?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#accessibility 화제의 오픈 소셜 반응'
@@ -9870,7 +9870,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/hardware?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#hardware 화제의 오픈 소셜 반응'
@@ -9885,7 +9885,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/embedded?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#embedded 화제의 오픈 소셜 반응'
@@ -9900,7 +9900,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/localllm?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#localllm 화제의 오픈 소셜 반응'
@@ -9915,7 +9915,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/matter?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#matter 화제의 오픈 소셜 반응'
@@ -10267,7 +10267,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/androiddev?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#androiddev 화제의 오픈 소셜 반응'
@@ -10282,7 +10282,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/iosdev?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#iosdev 화제의 오픈 소셜 반응'
@@ -10297,7 +10297,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/flutter?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#flutter 화제의 오픈 소셜 반응'
@@ -10312,7 +10312,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/deeplearning?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#deeplearning 화제의 오픈 소셜 반응'
@@ -10327,7 +10327,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/computervision?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#computervision 화제의 오픈 소셜 반응'
@@ -10342,7 +10342,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/nlp?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#nlp 화제의 오픈 소셜 반응'
@@ -10357,7 +10357,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/drones?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#drones 화제의 오픈 소셜 반응'
@@ -10372,7 +10372,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/electricvehicles?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#electricvehicles 화제의 오픈 소셜 반응'
@@ -10387,7 +10387,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/solar?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#solar 화제의 오픈 소셜 반응'
@@ -10402,7 +10402,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/battery?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#battery 화제의 오픈 소셜 반응'
@@ -10417,7 +10417,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/semiconductors?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#semiconductors 화제의 오픈 소셜 반응'
@@ -10432,7 +10432,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/gadgets?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#gadgets 화제의 오픈 소셜 반응'
@@ -10447,7 +10447,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/technology?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#technology 화제의 오픈 소셜 반응'
@@ -10462,7 +10462,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/cybersecurity?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#cybersecurity 화제의 오픈 소셜 반응'
@@ -10477,7 +10477,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/homelab?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#homelab 화제의 오픈 소셜 반응'
@@ -10492,7 +10492,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/smartglasses?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#smartglasses 화제의 오픈 소셜 반응'
@@ -10507,7 +10507,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/vr?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#vr 화제의 오픈 소셜 반응'
@@ -10522,7 +10522,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/xr?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#xr 화제의 오픈 소셜 반응'
@@ -10537,7 +10537,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/python?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#python 화제의 오픈 소셜 반응'
@@ -10552,7 +10552,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/golang?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#golang 화제의 오픈 소셜 반응'
@@ -10567,7 +10567,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/webdev?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#webdev 화제의 오픈 소셜 반응'
@@ -10582,7 +10582,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/fediverse?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#fediverse 화제의 오픈 소셜 반응'
@@ -10597,7 +10597,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/mobile?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#mobile 화제의 오픈 소셜 반응'
@@ -10612,7 +10612,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/wearable?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#wearable 화제의 오픈 소셜 반응'
@@ -10627,7 +10627,7 @@ sources:
     endpoint_url: https://mastodon.social/api/v1/timelines/tag/smartwatch?limit=40
     official_domain: mastodon.social
     operator: Mastodon gGmbH
-    region: eu_other
+    region: global_en
     language: en
     poll_class: community
     dx_relevance: '#smartwatch 화제의 오픈 소셜 반응'
@@ -15519,6 +15519,7 @@ sources:
     dx_relevance: 'Boston Dynamics Blog: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
     storage_right: excerpt_allowed
     config:
+      quiet_days: 60  # posts every few weeks: not drift after the default 7 quiet days
       timezone: UTC
       enrich_limit: 15
   - key: brookings-tech-web
@@ -16731,6 +16732,7 @@ sources:
     dx_relevance: 'Debian News: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
     storage_right: excerpt_allowed
     config:
+      quiet_days: 60  # posts every few weeks: not drift after the default 7 quiet days
       mode: auto
       timezone: UTC
       enrich_limit: 12
@@ -16785,6 +16787,7 @@ sources:
     dx_relevance: 'Mastodon Blog: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
     storage_right: excerpt_allowed
     config:
+      quiet_days: 60  # posts every few weeks: not drift after the default 7 quiet days
       timezone: UTC
       enrich_limit: 15
   - key: mobile-dev-memo-web
@@ -16836,6 +16839,7 @@ sources:
     dx_relevance: 'openHAB Blog: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
     storage_right: excerpt_allowed
     config:
+      quiet_days: 60  # posts every few weeks: not drift after the default 7 quiet days
       mode: auto
       timezone: UTC
       enrich_limit: 12

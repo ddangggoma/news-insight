@@ -11,7 +11,7 @@ from news_insight.collect.models import DeadLetter, FetchOutcome, FetchRun, Sour
 from news_insight.collect.service import collect_source
 from news_insight.content.models import Item, ItemRevision
 from news_insight.net.safe_fetch import SafeFetcher
-from news_insight.sources.enums import SourceStatus, ValidationStage
+from news_insight.sources.enums import AccessMethod, SourceStatus, ValidationStage
 from news_insight.sources.models import Source
 from tests.factories import build_source
 
@@ -388,3 +388,87 @@ def test_a_spent_provider_budget_waits_for_the_next_token(
 
     assert run.error_code == "provider_budget"
     assert runtime_of(db_session, source).next_due_at == NOW + timedelta(seconds=960)
+
+
+def page_source(session: Session, **config: Any) -> Source:
+    return collectable(
+        session,
+        access_method=AccessMethod.SITEMAP,
+        endpoint_url="https://www.example.com/sitemap.xml",
+        validation_stage=ValidationStage.V6,
+        status=SourceStatus.ACTIVE,
+        config=config,
+    )
+
+
+def past_runs(session: Session, source: Source, *days_ago: float, seen: int = 0) -> None:
+    session.add_all(
+        FetchRun(
+            source_id=source.id,
+            started_at=NOW - timedelta(days=days),
+            outcome=FetchOutcome.SUCCESS,
+            items_seen=seen,
+        )
+        for days in days_ago
+    )
+    session.flush()
+
+
+WEEK_OF_EMPTY_RUNS = [8 - n * 0.8 for n in range(10)]  # 8 days ago … yesterday
+
+
+def test_a_page_source_silent_for_a_week_counts_as_drift(
+    db_session: Session, fetcher: SafeFetcher
+) -> None:
+    source = page_source(db_session)
+    past_runs(db_session, source, 30, seen=5)
+    past_runs(db_session, source, *WEEK_OF_EMPTY_RUNS)
+
+    run = collect(db_session, source, StubCollector(ok()), fetcher)
+
+    assert run.outcome is FetchOutcome.DEAD_LETTERED and run.error_code == "selector_drift"
+    assert source.status is SourceStatus.PAUSED
+    assert source.paused_reason == "selector_drift: no unseen items in 11 runs since 2026-09-25"
+
+
+@pytest.mark.parametrize(
+    ("history", "config"),
+    [
+        ("recent_streak", {}),  # empty for three days only
+        ("productive_yesterday", {}),
+        ("rare_publisher", {"quiet_days": 60}),
+    ],
+)
+def test_quiet_spells_short_of_drift_stay_successful(
+    db_session: Session, fetcher: SafeFetcher, history: str, config: dict[str, Any]
+) -> None:
+    source = page_source(db_session, **config)
+    if history == "recent_streak":
+        past_runs(db_session, source, *[3 - n * 0.2 for n in range(12)])
+    else:
+        past_runs(db_session, source, *WEEK_OF_EMPTY_RUNS)
+    if history == "productive_yesterday":
+        past_runs(db_session, source, 0.5, seen=2)
+
+    run = collect(db_session, source, StubCollector(ok()), fetcher)
+
+    assert run.outcome is FetchOutcome.SUCCESS
+    assert source.status is SourceStatus.ACTIVE
+
+
+def test_feeds_and_canary_runs_never_count_as_quiet(
+    db_session: Session, fetcher: SafeFetcher
+) -> None:
+    feed = collectable(db_session, validation_stage=ValidationStage.V6, status=SourceStatus.ACTIVE)
+    candidate = collectable(
+        db_session,
+        key="example-sitemap",
+        access_method=AccessMethod.SITEMAP,
+        endpoint_url="https://www.example.com/sitemap.xml",
+    )
+    for source in (feed, candidate):
+        past_runs(db_session, source, *WEEK_OF_EMPTY_RUNS)
+
+        run = collect(db_session, source, StubCollector(ok()), fetcher)
+
+        assert run.outcome is FetchOutcome.SUCCESS
