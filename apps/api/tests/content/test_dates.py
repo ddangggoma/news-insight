@@ -63,3 +63,9 @@ def test_datelines_must_be_plausible_and_labelled() -> None:
     assert stated_date("입력 2026.12.01 10:00", seen=SEEN, tz=SEOUL) is None  # future
     assert stated_date("입력 2026.02.30", seen=SEEN, tz=SEOUL) is None  # no such day
     assert stated_date(None, seen=SEEN, tz=SEOUL) is None
+
+
+def test_a_bare_date_may_name_a_day_that_has_not_begun_in_utc() -> None:
+    today = datetime(2026, 10, 27, tzinfo=UTC)  # "2026-10-27" from OpenAlex, seen 03:30 KST
+    assert plausible(today, seen=SEEN, tz=ZoneInfo("UTC")) == today
+    assert plausible(today + timedelta(days=2), seen=SEEN, tz=ZoneInfo("UTC")) is None

@@ -24,6 +24,9 @@ REGION_TIMEZONES = {
 }
 # clocks and feeds disagree by a few minutes; anything later than this is not a real date
 FUTURE_SLACK = timedelta(minutes=15)
+# a date without a time ("2026-10-27", papers and patents) names a day, which may not have begun
+# everywhere when we see it
+DAY_SLACK = timedelta(days=1)
 # a date before this is a parse error (epoch zero, two-digit years), never an article date
 EARLIEST = datetime(1990, 1, 1, tzinfo=UTC)
 
@@ -47,10 +50,19 @@ def plausible(published: datetime | None, *, seen: datetime, tz: tzinfo) -> date
         return None
     if published <= seen + FUTURE_SLACK:
         return published
+    if _midnight(published, tz) and published <= seen + DAY_SLACK:
+        return published
     offset = tz.utcoffset(published.replace(tzinfo=None)) or timedelta(0)
     if offset > timedelta(0) and published - offset <= seen + FUTURE_SLACK:
         return published - offset
     return None
+
+
+def _midnight(moment: datetime, tz: tzinfo) -> bool:
+    return any(
+        (local.hour, local.minute, local.second, local.microsecond) == (0, 0, 0, 0)
+        for local in (moment.astimezone(UTC), moment.astimezone(tz))
+    )
 
 
 def earliest(stored: datetime | None, incoming: datetime | None) -> datetime | None:
