@@ -74,3 +74,12 @@ def test_for_day_keeps_one_card_per_topic_this_week_first(db_session: Session) -
         ("2026-W40", "surge"),
         ("2026-W40", "cool"),
     ]
+
+
+def test_company_tones_fit_the_column() -> None:
+    from news_insight.public.companies import COMPANY_TONES
+    from news_insight.public.signals import TONES
+    from news_insight.signals.models import RadarSignalSnapshot
+
+    width = RadarSignalSnapshot.__table__.c.tone.type.length
+    assert max(len(tone) for tone in (*TONES, *COMPANY_TONES)) <= width

@@ -1,5 +1,6 @@
 """Celery entry points. They wire sessions, locks and fetchers; logic lives in services."""
 
+import logging
 from dataclasses import asdict
 from datetime import UTC, datetime
 from typing import Any
@@ -19,6 +20,8 @@ from news_insight.sources.canary import run_canaries
 from news_insight.sources.models import Source
 from news_insight.sources.quality import run_quality
 from news_insight.stories.service import cluster
+
+logger = logging.getLogger(__name__)
 
 
 @celery_app.task(name="collect.dispatch_due")
@@ -99,7 +102,13 @@ def briefing_freeze_task() -> int:
     with session_scope() as session:
         today = now.astimezone(ZoneInfo(get_settings().timezone)).date()
         frozen = freeze(session, briefing_date=today, now=now)
-        snapshot(session, day=today, now=now)  # PRD-1: the radar cards the 05:00 roles will read
+        # PRD-1: the radar cards the 05:00 roles will read. A failed snapshot must not take the
+        # freeze with it (2026-10-26/27: a too-long tone rolled back both, no briefing).
+        try:
+            with session.begin_nested():
+                snapshot(session, day=today, now=now)
+        except Exception:  # noqa: BLE001 - the briefing still publishes without radar evidence
+            logger.exception("radar signal snapshot failed; freeze kept")
         return len(frozen.candidate_ids)
 
 
