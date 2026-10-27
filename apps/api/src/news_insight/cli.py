@@ -736,21 +736,62 @@ def cards_embed(
 def cards_deals(
     limit: Annotated[int, typer.Option(help="Cards to read this run")] = 36,
     night: Annotated[bool, typer.Option(help="Only between 00:00 and 06:00 KST")] = False,
+    dry_run: Annotated[
+        bool, typer.Option(help="Show what the cards yield; write nothing, mark nothing read")
+    ] = False,
 ) -> None:
     """Extract investments, acquisitions and partnerships with the local Qwen (plan 16 #8)."""
     from news_insight.deals.extract import lm_studio_chat, scan
+    from news_insight.deals.models import Deal
     from news_insight.public.periods import KST
 
     now = datetime.now(UTC)
     if night and not 0 <= now.astimezone(KST).hour < 6:
-        typer.echo("deals: daytime, skipped (the local Qwen writes cards by day)")
+        typer.echo("deals: daytime, skipped (Qwen runs at night only)")
         return
     settings = get_settings()
     chat = lm_studio_chat(settings.lm_studio_url, settings.lm_studio_model)
     with session_scope() as session:
+        savepoint = session.begin_nested()
         stats = scan(session, chat, model=settings.lm_studio_model, now=now, limit=limit)
+        if dry_run:
+            for deal in session.scalars(select(Deal).where(Deal.extracted_at == now)):
+                typer.echo(
+                    f"  {deal.kind} {deal.actor} → {deal.counterparty or '-'} "
+                    f"[{deal.actor_key or ''}/{deal.counterparty_key or ''}] "
+                    f"{deal.amount} {deal.currency or ''} {deal.stage or ''}: {deal.summary}"
+                )
+            savepoint.rollback()
+        else:
+            savepoint.commit()
     typer.echo(
         f"deals: read={stats.read} found={stats.deals} failed_batches={stats.failed_batches}"
+    )
+    if stats.failed_batches and not stats.read:
+        # every batch failed (2026-10-17 to 10-27: LM Studio down after a restart, unnoticed)
+        typer.echo(f"deals: no batch succeeded: {stats.error}", err=True)
+        raise typer.Exit(1)
+
+
+@cards_app.command("deals-repair")
+def cards_deals_repair(
+    apply: Annotated[bool, typer.Option(help="Write the changes (default: show them)")] = False,
+) -> None:
+    """Re-clean stored deals: registry keys, stage spellings, implausible amounts, USD sizes."""
+    from news_insight.deals.extract import repair
+
+    with session_scope() as session:
+        savepoint = session.begin_nested()
+        stats = repair(session)
+        if apply:
+            savepoint.commit()
+        else:
+            savepoint.rollback()
+    for line in stats.examples:
+        typer.echo(line)
+    typer.echo(
+        f"deals repair: rows={stats.rows} keys={stats.keys} stages={stats.stages} "
+        f"amounts={stats.amounts}{'' if apply else ' (preview: nothing written)'}"
     )
 
 

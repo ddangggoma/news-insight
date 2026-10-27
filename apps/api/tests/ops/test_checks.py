@@ -3,6 +3,7 @@ from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from news_insight.briefing.models import Briefing, BriefingFreeze, BriefingStatus
@@ -178,3 +179,25 @@ def test_alert_mail_is_off_by_default(db_session: Session, monkeypatch: pytest.M
         is False
     )
     assert sent == [] and result.opened and all(a.notified_at is None for a in result.opened)
+
+
+def test_deals_stalled_after_a_night_without_a_scan(db_session: Session) -> None:
+    from news_insight.collect.contracts import RawItem
+    from news_insight.content.ingest import ingest_items
+    from news_insight.content.models import Item
+    from news_insight.deals.models import DealScan
+    from news_insight.ops.checks import check_deals
+
+    assert check_deals(db_session, now=AT_0530) == []  # never ran: nothing to miss
+    source = build_source()
+    db_session.add(source)
+    db_session.flush()
+    raw = RawItem(stable_id="d", url="https://www.example.com/d", title="D")
+    ingest_items(db_session, source, [raw], fetch_run=None, now=AT_0530, canary=True)
+    item_id = db_session.scalars(select(Item.id)).first()
+    db_session.add(DealScan(item_id=item_id, found=0, model="qwen", scanned_at=AT_0530))
+    db_session.flush()
+    assert check_deals(db_session, now=AT_0530 + timedelta(hours=30)) == []
+    late = check_deals(db_session, now=AT_0530 + timedelta(days=3))
+    assert keys(late) == {"deals_stalled"} and "3일째" in late[0].title
+    assert "deals_stalled" in service.CONSOLE_ONLY

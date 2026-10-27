@@ -18,6 +18,7 @@ from news_insight.briefing.service import failing
 from news_insight.cards.models import CardRun
 from news_insight.cards.service import pending_count
 from news_insight.collect.models import DeadLetter, FetchOutcome, FetchRun
+from news_insight.deals.models import DealScan
 from news_insight.ops.models import Severity
 from news_insight.strategy.models import StrategyRun, StrategyStatus
 
@@ -33,6 +34,7 @@ CARD_BACKLOG = 5000
 CARD_FAILURE_RATE = 0.3
 SLOW_WINDOW = timedelta(hours=1)
 SLOW_LIMIT = 5  # responses over 5 s in the last hour
+DEALS_STALL = timedelta(hours=36)  # one night (00:00-06:00 KST) without a deal scan is a miss
 
 
 @dataclass(frozen=True)
@@ -209,6 +211,24 @@ def check_cards(session: Session, *, now: datetime) -> list[Finding]:
     return findings
 
 
+def check_deals(session: Session, *, now: datetime) -> list[Finding]:
+    """The nightly deal extraction read nothing for a night and a half (2026-10-17 to 10-27 it
+    failed every batch while LM Studio was down after a restart, and nobody saw it)."""
+    last = session.scalar(select(func.max(DealScan.scanned_at)))
+    if last is None or now - last <= DEALS_STALL:
+        return []
+    return [
+        Finding(
+            "deals_stalled",
+            Severity.WARNING,
+            f"야간 딜 추출이 {(now - last).days}일째 멈췄습니다",
+            f"마지막 스캔 {last.astimezone(KST):%m-%d %H:%M}. LM Studio(`curl -s "
+            "localhost:1234/v1/models`)와 Qwen 로드, ops/logs/cards.log의 `deals:` 줄을 "
+            "확인하세요.",
+        )
+    ]
+
+
 def check_slow_requests(slow: list[str] | None) -> list[Finding]:
     """`slow` holds 'stamp path seconds' entries from the last hour (observability)."""
     if not slow or len(slow) < SLOW_LIMIT:
@@ -371,6 +391,7 @@ def run_checks(
         *check_collection(session, now=now),
         *check_queue(queue_length),
         *check_cards(session, now=now),
+        *check_deals(session, now=now),
         *check_slow_requests(slow_requests),
         *check_accounts(session),
     ]
