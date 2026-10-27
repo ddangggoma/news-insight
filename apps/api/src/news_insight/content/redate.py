@@ -10,20 +10,26 @@ Three passes over the items first seen in a window:
    item without a date takes the dateline in its text.
 3. verification (optional): a few changed items per source, their article page's meta/JSON-LD
    publication date compared with the stored and the repaired date.
+
+`plan_page_dates` is the full-page pass for sources a page audit found wrong: every item's
+article page is read and its own publication date taken where the stored one is provably a
+later stand-in (a sitemap's lastmod, the time we crawled it, a feed's local time read as UTC).
 """
 
 import random
 from collections import Counter, defaultdict
 from collections.abc import Callable
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta, tzinfo
+from datetime import UTC, datetime, time, timedelta, tzinfo
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session, defer
 
 from news_insight.collect.context import collect_context
 from news_insight.collect.contracts import RawItem
-from news_insight.collect.page_meta import extract_meta
+from news_insight.collect.page_meta import extract_meta, publication_dates
+from news_insight.collect.pages import RobotsGate
 from news_insight.content.dates import earliest, plausible, source_timezone, stated_date
 from news_insight.content.models import Item
 from news_insight.content.normalize import stable_key
@@ -40,6 +46,7 @@ TOLERANCE = timedelta(minutes=10)
 
 FeedReader = Callable[[Source, datetime], list[RawItem]]
 PageReader = Callable[[str, tzinfo], datetime | None]
+PageDatesReader = Callable[[str, tzinfo], list[datetime] | None]  # None: page not read
 
 
 @dataclass
@@ -86,6 +93,20 @@ def read_page(fetcher: SafeFetcher) -> PageReader:
             return None
         html = response.content.decode("utf-8", errors="replace")
         return extract_meta(html, assume_tz=tz).published_at
+
+    return read
+
+
+def read_page_dates(fetcher: SafeFetcher) -> PageDatesReader:
+    robots = RobotsGate(fetcher)
+
+    def read(url: str, tz: tzinfo) -> list[datetime] | None:
+        if not robots.allows(url):
+            return None
+        response = fetcher.fetch(url, allowed_mime=HTML_MIME)
+        if response.status_code != 200:
+            return None
+        return publication_dates(response.content.decode("utf-8", errors="replace"), assume_tz=tz)
 
     return read
 
@@ -199,6 +220,100 @@ def _verify(
         before, after = item.published_at or item.first_seen_at, new[item.id] or item.first_seen_at
         repair.right_before += abs(before - truth) <= TOLERANCE
         repair.right_after += abs(after - truth) <= TOLERANCE
+
+
+def page_date(
+    stored: datetime | None,
+    dates: list[datetime],
+    *,
+    seen: datetime,
+    tz: tzinfo,
+    offset_only: bool,
+) -> datetime | None:
+    """The page's own date when it replaces the stored one, else None.
+
+    Only an earlier date counts: a lastmod, a crawl time or a feed's local wall clock read as
+    UTC are all later than the publication, while pages that relabel local time as UTC or show
+    their last edit are later too and must not move a right date. `offset_only` (feeds) takes
+    the page only when it is exactly the source's UTC offset earlier."""
+    if not dates or dates[-1] - dates[0] > TOLERANCE:
+        return None  # no date, or the page contradicts itself
+    truth = dates[0]
+    if plausible(truth, seen=seen, tz=tz) != truth:
+        return None
+    if stored is None:
+        return None if offset_only else truth
+    if truth >= stored - TOLERANCE:
+        return None
+    if offset_only:
+        offset = stored.astimezone(tz).utcoffset()
+        return truth if offset and abs(stored - truth - offset) <= timedelta(minutes=1) else None
+    return None if _same_day(truth, stored, tz) else truth
+
+
+def _same_day(truth: datetime, stored: datetime, tz: tzinfo) -> bool:
+    """A page that gives only a day (midnight in its zone or in UTC) on the stored date: the
+    stored time is no worse than a midnight."""
+    for zone in (tz, UTC):
+        local = truth.astimezone(zone)
+        if local.time() == time() and stored.astimezone(zone).date() == local.date():
+            return True
+    return False
+
+
+def plan_page_dates(
+    session: Session,
+    *,
+    sources: list[str],
+    pages: PageDatesReader,
+    workers: int = 8,
+) -> RedatePlan:
+    """Read every item's page for these sources (one source at a time per worker, so a site
+    sees one request after another) and plan the dates `page_date` accepts."""
+    plan = RedatePlan(since=datetime.min)
+    rows = session.execute(
+        select(Item.id, Item.url, Item.published_at, Item.first_seen_at, Source.id, Source.key)
+        .join(Source, Source.id == Item.source_id)
+        .where(Source.key.in_(sources), Item.url.like("http%"))
+        .order_by(Source.key, Item.id)
+    ).tuples()
+    by_source: dict[int, list[tuple[int, str, datetime | None, datetime]]] = defaultdict(list)
+    for item_id, url, published, seen, source_id, _key in rows:
+        by_source[source_id].append((item_id, url, published, seen))
+    loaded = {
+        source.id: source
+        for source in session.scalars(select(Source).where(Source.id.in_(by_source)))
+    }
+
+    def one(source_id: int) -> tuple[SourceRepair, dict[int, datetime]]:
+        source, items = loaded[source_id], by_source[source_id]
+        repair = SourceRepair(key=source.key, name=source.name, items=len(items))
+        tz = source_timezone(str(source.region), source.config)
+        offset_only = source.access_method == AccessMethod.FEED
+        changes: dict[int, datetime] = {}
+        for item_id, url, published, seen in items:
+            try:
+                dates = pages(url, tz)
+            except Exception:  # noqa: BLE001 - blocked or gone pages are skipped, not counted
+                continue
+            if dates is None:
+                continue
+            repair.checked += 1
+            date = page_date(published, dates, seen=seen, tz=tz, offset_only=offset_only)
+            if date is None:
+                shown = published or seen
+                repair.right_before += bool(dates) and abs(shown - dates[0]) <= TOLERANCE
+                continue
+            changes[item_id] = date
+            repair.changed += 1
+        repair.right_after = repair.right_before + repair.changed
+        return repair, changes
+
+    with ThreadPoolExecutor(max(1, workers)) as pool:
+        for repair, changes in pool.map(one, list(by_source)):
+            plan.sources.append(repair)
+            plan.changes.update(changes)
+    return plan
 
 
 def apply_redate(session: Session, plan: RedatePlan) -> int:

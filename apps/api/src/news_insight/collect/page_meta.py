@@ -82,6 +82,18 @@ def _ld_article(tree: HTMLParser) -> dict[str, Any] | None:
     return None
 
 
+def publication_dates(html: str, *, assume_tz: tzinfo) -> list[datetime]:
+    """Every publication date the page declares (meta tags, JSON-LD datePublished): pages that
+    disagree with themselves are no evidence (2026-10-27: a meta tag 9 h off its JSON-LD)."""
+    tree = HTMLParser(html)
+    raws: list[Any] = [
+        node.attributes.get("content") for selector in DATE_META for node in tree.css(selector)
+    ]
+    raws.append((_ld_article(tree) or {}).get("datePublished"))
+    dates = (parse_datetime(str(raw).strip(), assume_tz=assume_tz) for raw in raws if raw)
+    return sorted({date for date in dates if date is not None})
+
+
 def extract_meta(html: str, *, assume_tz: tzinfo) -> PageMeta:
     tree = HTMLParser(html)
     article = _ld_article(tree) or {}
