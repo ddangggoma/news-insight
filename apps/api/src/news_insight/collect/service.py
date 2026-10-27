@@ -5,7 +5,7 @@ from collections.abc import Callable
 from datetime import datetime, timedelta
 from urllib.parse import urlsplit
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from news_insight.collect.context import collect_context
@@ -68,6 +68,12 @@ def ensure_runtime(session: Session, source: Source, now: datetime) -> SourceRun
 
 PAGE_METHODS = frozenset({AccessMethod.CRAWLER, AccessMethod.SITEMAP})
 KNOWN_ID_LIMIT = 2000
+# A page source whose listing yields nothing unseen run after run has drifted: the endpoint
+# froze (an archive sitemap) or new articles no longer parse. Until 2026-10-27 such runs
+# counted as success (12 sources answered 0 items on every run for a week). Sources that
+# publish rarely set `config.quiet_days`.
+EMPTY_RUN_LIMIT = 10
+QUIET_DAYS = 7
 
 
 def known_stable_ids(session: Session, source: Source) -> frozenset[str]:
@@ -81,6 +87,26 @@ def known_stable_ids(session: Session, source: Source) -> frozenset[str]:
         .limit(KNOWN_ID_LIMIT)
     )
     return frozenset(session.scalars(statement))
+
+
+def went_quiet(session: Session, source: Source, now: datetime) -> str | None:
+    """Why an active page source counts as drifted, after an empty successful run."""
+    if source.access_method not in PAGE_METHODS:
+        return None
+    succeeded = (FetchRun.source_id == source.id, FetchRun.outcome == FetchOutcome.SUCCESS)
+    productive = session.scalar(
+        select(func.max(FetchRun.started_at)).where(*succeeded, FetchRun.items_seen > 0)
+    )
+    empty = select(func.count(), func.min(FetchRun.started_at)).where(
+        *succeeded, FetchRun.items_seen == 0
+    )
+    if productive is not None:
+        empty = empty.where(FetchRun.started_at > productive)
+    runs, since = session.execute(empty).one()
+    days = float(source.config.get("quiet_days", QUIET_DAYS))
+    if runs < EMPTY_RUN_LIMIT or since is None or since > now - timedelta(days=days):
+        return None
+    return f"no unseen items in {runs} runs since {since:%Y-%m-%d}"
 
 
 def collect_source(
@@ -157,6 +183,11 @@ def collect_source(
     run.items_unchanged = stats.unchanged
     run.items_incomplete = result.incomplete + stats.rejected
     run.duplicate_urls = stats.duplicate_urls
+    if run.outcome is FetchOutcome.SUCCESS and not stats.seen and not run.canary:
+        quiet = went_quiet(session, source, now)
+        if quiet is not None:
+            error = CollectorError("selector_drift", quiet, retryable=False)
+            return _handle_failure(session, source, runtime, run, error, now)
 
     idle = is_idle(
         not_modified=result.not_modified, new_items=stats.new, updated_items=stats.updated
