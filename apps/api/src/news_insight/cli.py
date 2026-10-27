@@ -594,6 +594,38 @@ def items_redate(
     typer.echo("applied" if apply else "dry run: nothing written (--apply to write)")
 
 
+@items_app.command("page-dates")
+def items_page_dates(
+    source: Annotated[list[str], typer.Option(help="Source key (repeat for several)")],
+    workers: Annotated[int, typer.Option(help="Sources read at the same time")] = 8,
+    apply: Annotated[bool, typer.Option(help="Write the page dates (default: report)")] = False,
+    report: Annotated[Path | None, typer.Option(help="Write the per-source report as JSON")] = None,
+) -> None:
+    """Take every item's publication date from its article page where the stored one is a
+    later stand-in (sitemap lastmod, crawl time, a feed's local time read as UTC)."""
+    from dataclasses import asdict
+
+    from news_insight.content.redate import apply_redate, plan_page_dates, read_page_dates
+
+    with _fetcher() as fetcher, session_scope() as session:
+        plan = plan_page_dates(
+            session, sources=source, pages=read_page_dates(fetcher), workers=workers
+        )
+        if apply:
+            apply_redate(session, plan)
+    for repair in sorted(plan.sources, key=lambda r: -r.changed):
+        typer.echo(
+            f"{repair.changed:6d}/{repair.checked:<6d}/{repair.items:<6d} {repair.key}"
+            f" (already right {repair.right_before})"
+        )
+    typer.echo(f"changed {plan.changed}")
+    if report is not None:
+        rows = [asdict(r) for r in plan.sources]
+        changes = {str(k): v.isoformat() if v else None for k, v in plan.changes.items()}
+        report.write_text(json.dumps({"sources": rows, "changes": changes}, ensure_ascii=False))
+    typer.echo("applied" if apply else "dry run: nothing written (--apply to write)")
+
+
 @trends_app.command("movers")
 def movers(
     metric: Annotated[str, typer.Option(help="Metric key, e.g. stars, points, likes")] = "stars",

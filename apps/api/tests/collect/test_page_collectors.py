@@ -241,3 +241,33 @@ def test_openalex_requests_carry_the_contact_address(monkeypatch: object) -> Non
         assert ctx.polite_url("https://example.com/feed") == "https://example.com/feed"
     finally:
         object.__setattr__(settings, "openalex_mailto", original)
+
+
+def test_sitemap_lastmod_gives_way_to_the_page_publication_date() -> None:
+    # 2026-10-27: corporate sitemaps list every page with its last edit, years-old articles
+    # then looked new; a news sitemap's publication_date stays the publisher's word
+    sitemap = b"""<?xml version="1.0"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<url><loc>https://www.example.co.kr/edited</loc><lastmod>2026-10-03T20:00:00Z</lastmod></url>
+<url><loc>https://www.example.co.kr/fresh</loc><lastmod>2026-10-03T12:00:00Z</lastmod></url>
+</urlset>"""
+    edited = ARTICLE.replace("2026-10-04T09:30:00+09:00", "2026-09-30T09:00:00+09:00")
+    fresh = ARTICLE.replace("2026-10-04T09:30:00+09:00", "2026-10-03T23:00:00+09:00")
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        url = str(request.url)
+        if url.endswith("robots.txt"):
+            return httpx.Response(404)
+        if url.endswith("sitemap.xml"):
+            return httpx.Response(200, content=sitemap, headers={"content-type": "application/xml"})
+        body = edited if "edited" in url else fresh
+        return httpx.Response(200, text=body, headers={"content-type": "text/html"})
+
+    result = SitemapCollector(mock_fetcher(handler)).collect(
+        context("https://www.example.co.kr/sitemap.xml")
+    )
+
+    dates = {item.url.rsplit("/", 1)[1]: item.published_at for item in result.items}
+    assert dates["edited"] == datetime(2026, 9, 30, 0, tzinfo=UTC)  # the page's own date
+    # a page date later than the listing (a mislabelled zone) does not move it forward
+    assert dates["fresh"] == datetime(2026, 10, 3, 12, tzinfo=UTC)

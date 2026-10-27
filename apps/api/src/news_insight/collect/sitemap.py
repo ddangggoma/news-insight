@@ -66,9 +66,8 @@ def _candidates(
             continue
         news = node.find(f"{NEWS}news")
         title = _child_text(news, f"{NEWS}title") if news is not None else None
-        raw_date = (
-            _child_text(news, f"{NEWS}publication_date") if news is not None else None
-        ) or _child_text(node, f"{SM}lastmod")
+        declared = _child_text(news, f"{NEWS}publication_date") if news is not None else None
+        raw_date = declared or _child_text(node, f"{SM}lastmod")
         published = parse_datetime(raw_date, assume_tz=tz) if raw_date else None
         rows.append(
             (
@@ -78,6 +77,7 @@ def _candidates(
                     title=clean_text(title),
                     published_at=published,
                     trusted_title=bool(title),
+                    modified_date=not declared,
                 ),
             )
         )
