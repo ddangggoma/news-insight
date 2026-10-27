@@ -21,8 +21,8 @@ export function StoryRow({ item, now }: { item: ReaderItem; now?: Date }) {
         <SignalTag signal={item.signal_type} />
         <TrackBadge track={item.track} />
         <span className="truncate">{item.source_name}</span>
-        <time className="ml-auto shrink-0" dateTime={item.first_seen_at}>
-          {formatRelative(item.first_seen_at, now)}
+        <time className="ml-auto shrink-0" dateTime={item.occurred_at}>
+          {formatRelative(item.occurred_at, now)}
         </time>
       </div>
       <h3 className="text-base leading-snug font-semibold">

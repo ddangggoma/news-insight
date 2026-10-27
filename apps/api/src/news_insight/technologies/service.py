@@ -62,9 +62,7 @@ def refresh_labels(session: Session, *, now: datetime, days: int = 180) -> int:
     rows = session.execute(
         select(ItemCard.keywords)
         .join(Item, Item.id == ItemCard.item_id)
-        .where(
-            ItemCard.status == CardStatus.READY, Item.first_seen_at >= now - timedelta(days=days)
-        )
+        .where(ItemCard.status == CardStatus.READY, Item.occurred_at >= now - timedelta(days=days))
     ).scalars()
     for keywords in rows:
         for word in keywords or []:
@@ -181,7 +179,7 @@ def candidates(
         .where(
             ItemCard.status == CardStatus.READY,
             ItemCard.scope.in_(["dx", "dx_dependency"]),
-            Item.first_seen_at >= now - timedelta(days=days),
+            Item.occurred_at >= now - timedelta(days=days),
             key.not_in(known),
         )
         .group_by(key)

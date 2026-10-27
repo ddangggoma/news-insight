@@ -339,7 +339,7 @@ def matched_ids(
     return list(
         session.scalars(
             joined(select(Item.id)).where(
-                *_base(dossier), Item.first_seen_at >= since, Item.first_seen_at < until
+                *_base(dossier), Item.occurred_at >= since, Item.occurred_at < until
             )
         )
     )
@@ -370,9 +370,9 @@ def summaries(session: Session, *, now: datetime) -> list[DossierSummary]:
             joined(
                 select(
                     func.count(),
-                    func.count().filter(Item.first_seen_at >= now - timedelta(days=7)),
+                    func.count().filter(Item.occurred_at >= now - timedelta(days=7)),
                 )
-            ).where(*_base(dossier), Item.first_seen_at >= now - timedelta(days=WINDOW_DAYS))
+            ).where(*_base(dossier), Item.occurred_at >= now - timedelta(days=WINDOW_DAYS))
         ).one()
         out.append(
             DossierSummary(
@@ -443,7 +443,7 @@ def hypotheses_of(session: Session, dossier_id: int) -> list[HypothesisOut]:
                 func.coalesce(ItemCard.title_ko, Item.title),
                 Source.name,
                 Item.url,
-                Item.first_seen_at,
+                Item.occurred_at,
             )
             .join(Item, Item.id == DossierEvidence.item_id)
             .join(Source, Source.id == Item.source_id)
@@ -491,7 +491,7 @@ def detail(session: Session, dossier: Dossier, *, now: datetime) -> DossierDetai
             select(
                 Item.id,
                 func.coalesce(ItemCard.title_ko, Item.title).label("title"),
-                Item.first_seen_at.label("seen"),
+                Item.occurred_at.label("seen"),
                 StoryItem.story_id,
                 Story.source_count,
                 ItemCard.relevance,
@@ -502,7 +502,7 @@ def detail(session: Session, dossier: Dossier, *, now: datetime) -> DossierDetai
             )
         )
         .where(among(matched_ids(session, dossier, since=start, until=now)))
-        .order_by(Item.first_seen_at.desc())
+        .order_by(Item.occurred_at.desc())
         .limit(ROW_CAP)
     ).all()
     by_week: dict[date, list[Any]] = {}
@@ -636,7 +636,7 @@ def suggestions(
                 func.coalesce(ItemCard.title_ko, Item.title),
                 Source.name,
                 Item.url,
-                Item.first_seen_at,
+                Item.occurred_at,
                 (1 - distance).label("similarity"),
             )
         )

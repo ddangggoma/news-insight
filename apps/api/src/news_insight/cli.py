@@ -1,6 +1,7 @@
 """Operator CLI: `news-insight sources seed|validate|promote|report`."""
 
 import fcntl
+import json
 import sys
 import tempfile
 from collections import Counter
@@ -88,6 +89,8 @@ app.add_typer(collect_app, name="collect")
 app.add_typer(dlq_app, name="dlq")
 trends_app = typer.Typer(help="Signal trends from metric snapshots", no_args_is_help=True)
 app.add_typer(trends_app, name="trends")
+items_app = typer.Typer(help="Stored items: article dates", no_args_is_help=True)
+app.add_typer(items_app, name="items")
 daily_app = typer.Typer(
     help="Daily briefing: 04:40 freeze, 05:00 gated immutable publication", no_args_is_help=True
 )
@@ -537,6 +540,51 @@ def probe_catalog(
     )
     if sum(ready_tracks.values()) < len(entries):
         raise typer.Exit(code=1)
+
+
+@items_app.command("redate")
+def items_redate(
+    days: Annotated[int, typer.Option(help="Items first seen in the last N days")] = 3,
+    verify: Annotated[int, typer.Option(help="Article pages checked per source (0: none)")] = 0,
+    refetch: Annotated[bool, typer.Option(help="Fetch each feed again for fresh dates")] = True,
+    apply: Annotated[bool, typer.Option(help="Write the repaired dates (default: report)")] = False,
+    report: Annotated[Path | None, typer.Option(help="Write the per-source report as JSON")] = None,
+) -> None:
+    """Repair stored article dates (zone-less feeds, future dates, missing dates)."""
+    from dataclasses import asdict
+
+    from news_insight.content.redate import (
+        apply_redate,
+        plan_redate,
+        read_feed,
+        read_page,
+        summary,
+    )
+
+    now = datetime.now(UTC)
+    with _fetcher() as fetcher, session_scope() as session:
+        plan = plan_redate(
+            session,
+            since=now - timedelta(days=days),
+            now=now,
+            feeds=read_feed(fetcher) if refetch else None,
+            pages=read_page(fetcher) if verify else None,
+            verify=verify,
+        )
+        if apply:
+            apply_redate(session, plan)
+    totals = summary(plan)
+    typer.echo(" · ".join(f"{name} {value}" for name, value in totals.items()))
+    for repair in sorted(plan.sources, key=lambda r: -r.changed)[:30]:
+        if repair.changed or repair.error:
+            shift = f" shift {repair.shift}" if repair.shift else ""
+            check = f" pages {repair.right_after}/{repair.checked}" if repair.checked else ""
+            error = f" error {repair.error}" if repair.error else ""
+            typer.echo(f"{repair.changed:6d}/{repair.items:<6d} {repair.key}{shift}{check}{error}")
+    if report is not None:
+        rows = [{**asdict(r), "shift": str(r.shift) if r.shift else None} for r in plan.sources]
+        report.write_text(json.dumps({"totals": totals, "sources": rows}, ensure_ascii=False))
+    typer.echo("applied" if apply else "dry run: nothing written (--apply to write)")
 
 
 @trends_app.command("movers")

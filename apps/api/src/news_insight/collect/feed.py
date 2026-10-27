@@ -1,5 +1,6 @@
 """RSS/Atom collector with conditional GET (ETag / Last-Modified)."""
 
+from datetime import UTC, datetime, tzinfo
 from typing import Any
 
 import feedparser
@@ -11,8 +12,10 @@ from news_insight.collect.contracts import (
     RawItem,
     majority_incomplete,
 )
+from news_insight.collect.fields import parse_datetime
 from news_insight.collect.http import fetch_checked, request_headers
 from news_insight.collect.macros import expand_macros
+from news_insight.collect.pages import timezone_of
 from news_insight.net.mime import FEED_MIME
 from news_insight.net.safe_fetch import SafeFetcher
 from news_insight.parsers.feed_probe import struct_to_datetime
@@ -41,7 +44,8 @@ class FeedCollector:
             detail = parsed.get("bozo_exception")
             raise CollectorError("parse_error", f"unparseable feed: {detail}", retryable=False)
         window = parsed.entries[: context.item_limit]
-        items = [raw for entry in window if (raw := _to_item(entry)) is not None]
+        tz = timezone_of(context.config)
+        items = [raw for entry in window if (raw := _to_item(entry, tz)) is not None]
         incomplete = len(window) - len(items)
         if majority_incomplete(incomplete, len(window)):
             raise CollectorError(
@@ -59,7 +63,17 @@ class FeedCollector:
         )
 
 
-def _to_item(entry: Any) -> RawItem | None:
+def entry_date(entry: Any, tz: tzinfo) -> datetime | None:
+    """The entry's date in the source's zone when the feed writes none: feedparser reads
+    "2026-10-27 08:09:31" (Korean and Chinese CMSs) as UTC, nine hours late for Seoul."""
+    for key in ("published", "updated"):
+        raw = entry.get(key)
+        if raw and (parsed := parse_datetime(raw, assume_tz=tz)) is not None:
+            return parsed
+    return struct_to_datetime(entry.get("published_parsed") or entry.get("updated_parsed"))
+
+
+def _to_item(entry: Any, tz: tzinfo = UTC) -> RawItem | None:
     url = str(entry.get("link") or "").strip()
     stable_id = str(entry.get("id") or url).strip()
     title = str(entry.get("title") or "").strip()
@@ -71,9 +85,7 @@ def _to_item(entry: Any) -> RawItem | None:
         stable_id=stable_id,
         url=url,
         title=title,
-        published_at=struct_to_datetime(
-            entry.get("published_parsed") or entry.get("updated_parsed")
-        ),
+        published_at=entry_date(entry, tz),
         author=str(entry.get("author") or "") or None,
         summary=str(entry.get("summary") or "") or None,
         body=body or None,

@@ -17,7 +17,7 @@ export interface BoardRow {
   label: string;
   field_label: string;
   counts: Record<Impact, number>;
-  evidence: Record<Impact, { item_id: number; title: string; first_seen_at: string }[]>;
+  evidence: Record<Impact, { item_id: number; title: string; occurred_at: string }[]>;
   horizons: Record<Horizon, BoardClaim[]>;
   claims: BoardClaim[];
   persona: { stances: Partial<Record<Impact, number>>; headlines: string[] } | null;

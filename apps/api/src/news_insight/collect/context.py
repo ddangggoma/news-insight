@@ -5,6 +5,7 @@ from urllib.parse import quote, urlsplit
 
 from news_insight.collect.contracts import CollectContext
 from news_insight.collect.presets import effective_config
+from news_insight.content.dates import REGION_TIMEZONES
 from news_insight.secrets import resolve_auth_headers
 from news_insight.sources.models import Source
 
@@ -19,9 +20,13 @@ def collect_context(
     known_ids: frozenset[str] = frozenset(),
 ) -> CollectContext:
     """Raises SecretError (credential) or ValueError (unknown preset)."""
+    config = effective_config(source.config)
+    # zone-less dates are the source's local time, not UTC (Korean and Chinese feeds)
+    if not config.get("timezone") and (zone := REGION_TIMEZONES.get(str(source.region))):
+        config["timezone"] = zone
     return CollectContext(
         endpoint_url=polite_url(source.endpoint_url),
-        config=effective_config(source.config),
+        config=config,
         now=now,
         etag=etag,
         last_modified=last_modified,

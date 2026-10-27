@@ -55,7 +55,7 @@ def embed_cards(session: Session, embed: Embed, *, model: str, now: datetime, li
             .join(ItemCard, ItemCard.item_id == Item.id)
             .outerjoin(CardEmbedding, CardEmbedding.item_id == Item.id)
             .where(ItemCard.status == CardStatus.READY, CardEmbedding.item_id.is_(None))
-            .order_by(Item.first_seen_at.desc())
+            .order_by(Item.occurred_at.desc())
             .limit(limit)
         )
         .tuples()
@@ -126,12 +126,14 @@ def retrieve(
         params.update(scheme=ref[0], node=ref[1])
     rows = session.execute(
         text(
-            "SELECT e.item_id, coalesce(c.title_ko, i.title), src.name, i.url, i.first_seen_at,"
+            "SELECT e.item_id, coalesce(c.title_ko, i.title), src.name, i.url,"
+            " coalesce(i.published_at, i.first_seen_at),"
             " 1 - (e.embedding <=> CAST(:q AS vector)), si.story_id"
             " FROM card_embeddings e JOIN items i ON i.id = e.item_id"
             " JOIN item_cards c ON c.item_id = e.item_id JOIN sources src ON src.id = i.source_id"
             " LEFT JOIN story_items si ON si.item_id = e.item_id"
-            " WHERE i.first_seen_at >= :since AND coalesce(c.scope, '') <> 'irrelevant'"
+            " WHERE coalesce(i.published_at, i.first_seen_at) >= :since"
+            " AND coalesce(c.scope, '') <> 'irrelevant'"
             f"{node_clause}"
             " ORDER BY e.embedding <=> CAST(:q AS vector) LIMIT :pool"
         ),
