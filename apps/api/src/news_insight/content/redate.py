@@ -21,7 +21,7 @@ from collections import Counter, defaultdict
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta, tzinfo
+from datetime import UTC, datetime, time, timedelta, tzinfo
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session, defer
@@ -248,7 +248,17 @@ def page_date(
     if offset_only:
         offset = stored.astimezone(tz).utcoffset()
         return truth if offset and abs(stored - truth - offset) <= timedelta(minutes=1) else None
-    return truth
+    return None if _same_day(truth, stored, tz) else truth
+
+
+def _same_day(truth: datetime, stored: datetime, tz: tzinfo) -> bool:
+    """A page that gives only a day (midnight in its zone or in UTC) on the stored date: the
+    stored time is no worse than a midnight."""
+    for zone in (tz, UTC):
+        local = truth.astimezone(zone)
+        if local.time() == time() and stored.astimezone(zone).date() == local.date():
+            return True
+    return False
 
 
 def plan_page_dates(

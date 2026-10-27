@@ -200,3 +200,24 @@ def test_a_feed_takes_the_page_only_when_it_is_the_zone_offset_earlier() -> None
     other = read_as_utc - timedelta(hours=3)
     assert page_date(read_as_utc, [other], seen=seen, tz=seoul, offset_only=True) is None
     assert page_date(read_as_utc, [other], seen=seen, tz=seoul, offset_only=False) == other
+
+
+def test_a_page_that_gives_only_the_day_keeps_a_stored_time_on_that_day() -> None:
+    from zoneinfo import ZoneInfo
+
+    berlin = ZoneInfo("Europe/Berlin")
+    stored_at = datetime(2026, 9, 22, 8, 1, tzinfo=UTC)  # a lastmod on the release day
+    midnight = datetime(2026, 9, 21, 22, tzinfo=UTC)  # 2026-09-22 00:00 in Berlin
+
+    assert page_date(stored_at, [midnight], seen=NOW, tz=berlin, offset_only=False) is None
+    assert (
+        page_date(
+            stored_at, [datetime(2026, 9, 22, tzinfo=UTC)], seen=NOW, tz=berlin, offset_only=False
+        )
+        is None
+    )
+    a_day_earlier = midnight - timedelta(days=1)
+    assert (
+        page_date(stored_at, [a_day_earlier], seen=NOW, tz=berlin, offset_only=False)
+        == a_day_earlier
+    )
