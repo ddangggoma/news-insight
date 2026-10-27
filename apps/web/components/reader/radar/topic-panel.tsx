@@ -7,6 +7,7 @@ import { Change, KeywordBadge, Legend, StateBadge } from "@/components/reader/ra
 import { COMPANY_KIND_LABEL, COMPANY_REGION_LABEL, RELATION_META } from "@/lib/companies";
 import { formatDateTime, formatDay, formatRelative, REGION_LABEL, TRACK_LABEL } from "@/lib/format";
 import {
+  baselineOf,
   BASELINE_UNIT,
   type Focus,
   focusParam,
@@ -39,10 +40,11 @@ const TRACK_FILL: Record<Track, string> = {
   news: "var(--viz-news)",
 };
 
-function Trend({ counts, periods, forecast }: { counts: number[]; periods: string[]; forecast: number | null }) {
+/** Bars per window; the line is the mean of the baseline windows from `from` (none without `baseline`). */
+function Trend({ counts, periods, forecast, from, baseline }: { counts: number[]; periods: string[]; forecast: number | null; from: number; baseline: boolean }) {
   const W = 320, H = 120, B = 18, T = 14;
   const max = Math.max(...counts, forecast ?? 0, 1);
-  const base = mean(counts.slice(0, -1));
+  const base = mean(counts.slice(from, -1));
   const slot = W / counts.length;
   const bar = Math.min(24, slot * 0.6);
   const y = (v: number) => T + (1 - v / max) * (H - T - B);
@@ -77,10 +79,14 @@ function Trend({ counts, periods, forecast }: { counts: number[]; periods: strin
           </g>
         );
       })}
-      <line x1={0} x2={W} y1={y(base)} y2={y(base)} stroke="var(--state-hot)" strokeWidth={1.5} strokeOpacity={0.8} />
-      <text x={2} y={y(base) - 4} fontSize={10} fill="var(--ink-2)" paintOrder="stroke" stroke="var(--card)" strokeWidth={3}>
-        직전 평균 {base.toFixed(1)}
-      </text>
+      {baseline ? (
+        <>
+          <line x1={0} x2={W} y1={y(base)} y2={y(base)} stroke="var(--state-hot)" strokeWidth={1.5} strokeOpacity={0.8} />
+          <text x={2} y={y(base) - 4} fontSize={10} fill="var(--ink-2)" paintOrder="stroke" stroke="var(--card)" strokeWidth={3}>
+            직전 평균 {base.toFixed(1)}
+          </text>
+        </>
+      ) : null}
     </svg>
   );
 }
@@ -140,6 +146,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 export function TopicPanel({ detail, radar, view }: { detail: TopicDetail; radar: Radar; view: RadarView }) {
   const { topic, kind } = detail;
   const current = last(topic.counts);
+  const baseline = detail.baseline ?? baselineOf(radar);
   const share = researchShare(topic.tracks);
   const before = researchShare(topic.baseline_tracks);
   const stage = stageOf(share);
@@ -206,14 +213,16 @@ export function TopicPanel({ detail, radar, view }: { detail: TopicDetail; radar
           </dl>
         </header>
 
-        <Section title={`최근 ${topic.counts.length}개 기간 (선 = 직전 ${topic.counts.length - 1}${BASELINE_UNIT[radar.window.kind]} 평균)`}>
-          <Trend counts={topic.counts} periods={radar.periods} forecast={projected(current, radar.window.elapsed)} />
+        <Section
+          title={`최근 ${topic.counts.length}개 기간 (${baseline.enough ? `선 = 직전 ${baseline.windows}${BASELINE_UNIT[radar.window.kind]} 평균` : "기준선 부족: 평균선 없음"})`}
+        >
+          <Trend counts={topic.counts} periods={radar.periods} forecast={projected(current, radar.window.elapsed)} from={baseline.start} baseline={baseline.enough} />
         </Section>
 
         <Section title="신호 단계 · 트랙 구성">
           <div className="space-y-1.5">
             <Mix label="이번" mix={topic.tracks} />
-            <Mix label="평소" mix={averageMix(topic.baseline_tracks, topic.counts.length - 1)} />
+            <Mix label="평소" mix={averageMix(topic.baseline_tracks, baseline.windows)} />
           </div>
           <p className="mt-2 text-xs text-ink-2">
             {stage ? <b className="text-foreground">{STAGE_META[stage].label}</b> : null}

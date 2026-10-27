@@ -3,6 +3,9 @@
 Every dimension is counted per window for the last TREND_WINDOWS windows in one query, then scored
 against the earlier windows: change vs the previous window, z-score vs the baseline, a lifecycle
 state, and the track mix (research + open source vs news + community) as a maturity proxy.
+The baseline is only the windows that started after collection did (RadarBaseline): before that
+there is nothing to compare, and the first window holds the backfill, so with fewer than
+BASELINE_MIN_WINDOWS left z and states are None rather than "everything is surging".
 Signal types (research, launch, regulation, …) are a filter here, not an axis.
 Counted live; R3 rollups will replace the queries.
 """
@@ -39,7 +42,9 @@ from news_insight.public.schemas import (
     Flows,
     KeywordCount,
     KeywordPair,
+    PacedKpis,
     Radar,
+    RadarBaseline,
     RadarKpis,
     RadarWindow,
     ThemeEngagement,
@@ -55,6 +60,7 @@ from news_insight.taxonomy.catalog import TAXONOMY_REVISED_ON
 from news_insight.technologies.service import labels_for
 
 TREND_WINDOWS = 8
+BASELINE_MIN_WINDOWS = 2  # earlier windows after collection started that a z or a state needs
 MIN_SOURCES = 2  # new / surging needs more than one outlet
 SURGE_Z = 2.0
 SURGE_MOVE = 1.5  # and at least this many times the baseline mean
@@ -79,6 +85,7 @@ ANOMALY_BASELINE = 28
 ANOMALY_Z = 3.0
 ANOMALY_RATIO = 2.5  # and at least this many times the usual level
 ANOMALY_MIN = 8  # a handful of reports in a quiet category is noise, not an event
+ANOMALY_MIN_DAYS = 2  # same weekdays after collection started that a usual level needs
 DEBUT_WINDOWS = 3
 ANOMALY_TOP = 8
 
@@ -116,6 +123,33 @@ def _paced(windows: list[Window], cutoffs: list[datetime] | None) -> ColumnEleme
     bucket = _bucket(windows)
     return Item.first_seen_at < case(
         *((bucket == i, literal(c)) for i, c in enumerate(cutoffs[:-1])), else_=literal(cutoffs[-1])
+    )
+
+
+def collection_start(session: Session) -> datetime | None:
+    """First item ever collected, without the reader filters. By collection time, not article
+    date: articles older than that were only caught by the first backfill."""
+    return session.scalar(select(func.min(Item.first_seen_at)))
+
+
+def baseline(windows: list[Window], since: datetime | None) -> RadarBaseline:
+    """The earlier windows to compare against: those that started once collection was running.
+    The window collection started in is out too: it is partial and holds the backfill."""
+    last = len(windows) - 1
+    start = next(
+        (
+            i
+            for i, w in enumerate(windows[:-1])
+            if since is not None and w.start is not None and w.start >= since
+        ),
+        last,
+    )
+    return RadarBaseline(
+        start=start,
+        windows=last - start,
+        required=BASELINE_MIN_WINDOWS,
+        enough=last - start >= BASELINE_MIN_WINDOWS,
+        collected_since=since,
     )
 
 
@@ -165,11 +199,13 @@ def _series(
     only: str | None = None,
     min_total: int = 1,
     cutoffs: list[datetime] | None = None,
+    baseline_from: int = 0,
 ) -> dict[str, Series]:
     """Per-window item counts for every key of one dimension, plus current-window breakdowns.
 
     With `cutoffs` (a window in progress) the earlier windows' track breakdowns and a second set
-    of counts stop at the same elapsed share, so they compare like with like.
+    of counts stop at the same elapsed share, so they compare like with like. The baseline track
+    mix sums the windows from `baseline_from` on (RadarBaseline.start).
     """
     last = len(windows) - 1
     bucket = _bucket(windows)
@@ -190,7 +226,10 @@ def _series(
         func.count(distinct(Item.source_id)).filter(bucket == last),
         *(items.filter(bucket == last, Item.track == t) for t in Track),
         *(items.filter(bucket == last - 1, Item.track == t, paced) for t in Track),
-        *(items.filter(bucket < last, Item.track == t, paced) for t in Track),
+        *(
+            items.filter(bucket < last, bucket >= baseline_from, Item.track == t, paced)
+            for t in Track
+        ),
         *(items.filter(bucket == last, ItemCard.impact == impact) for impact in IMPACTS),
         *(items.filter(bucket == last, Source.region == r) for r in Region),
         items.filter(bucket == last, Source.category == OFFICIAL),
@@ -310,45 +349,62 @@ def change(count: int, previous: int) -> float | None:
     return round((count - previous) / previous * 100, 1) if previous else None
 
 
-def z_score(counts: list[int]) -> float:
-    """Current window against the earlier ones (overdispersed Poisson z, public/stats.py)."""
+def z_score(counts: list[int], start: int = 0) -> float | None:
+    """Current window against the earlier ones from `start` (overdispersed Poisson z,
+    public/stats.py); None with fewer than BASELINE_MIN_WINDOWS of them."""
     *history, current = counts
-    return round(count_z(current, history), 2)
+    if len(history) - start < BASELINE_MIN_WINDOWS:
+        return None
+    return round(count_z(current, history[start:]), 2)
 
 
-def lifecycle(counts: list[int], sources: int, *, seen_before: bool | None = None) -> str | None:
-    """new → surging → rising → steady → falling, or None when too quiet to call.
+def lifecycle(
+    counts: list[int], sources: int, *, start: int = 0, seen_before: bool | None = None
+) -> str | None:
+    """new → surging → rising → steady → falling, or None when too quiet to call or without
+    enough baseline windows from `start`.
 
     `seen_before` overrides "any earlier count" for paced counts, where a report late in an
     earlier window is cut off but still means the topic is not new."""
+    z = z_score(counts, start)
+    if z is None:
+        return None
     *history, current = counts
-    mean = fmean(history)
+    mean = fmean(history[start:])
     if current >= KEYWORD_MIN_COUNT:
         if not (sum(history) > 0 if seen_before is None else seen_before):
             return "new" if sources >= MIN_SOURCES else "steady"
-        z = z_score(counts)
         if z >= SURGE_Z and current >= mean * SURGE_MOVE and sources >= MIN_SOURCES:
             return "surging"
         if z >= RISE_Z:
             return "rising"
-    if mean >= KEYWORD_MIN_COUNT and z_score(counts) <= FALL_Z:
+    if mean >= KEYWORD_MIN_COUNT and z <= FALL_Z:
         return "falling"
     return "steady" if current >= KEYWORD_MIN_COUNT else None
 
 
 def _topic(
-    key: str, series: Series, mix: SourceMix | None = None, totals: dict[str, int] | None = None
+    key: str,
+    series: Series,
+    mix: SourceMix | None = None,
+    totals: dict[str, int] | None = None,
+    start: int = 0,
 ) -> Topic:
+    """Scored against the windows from `start` (RadarBaseline.start); the change is None when
+    the previous window is before it."""
     scored = series.paced or series.counts
+    comparable = len(scored) - 2 >= start
     return Topic(
         key=key,
         label=series.label,
         field=series.field,
         counts=series.counts,
         paced=series.paced,
-        change=change(scored[-1], scored[-2]),
-        z=z_score(scored),
-        state=lifecycle(scored, series.sources, seen_before=sum(series.counts[:-1]) > 0),
+        change=change(scored[-1], scored[-2]) if comparable else None,
+        z=z_score(scored, start),
+        state=lifecycle(
+            scored, series.sources, start=start, seen_before=sum(series.counts[:-1]) > 0
+        ),
         sources=series.sources,
         tracks=series.tracks,
         previous_tracks=series.previous_tracks,
@@ -383,9 +439,13 @@ def window_out(window: Window, current_key: str, now: datetime) -> RadarWindow:
 
 
 def _kpis(
-    session: Session, conditions: list[ColumnElement[bool]], windows: list[Window]
+    session: Session,
+    conditions: list[ColumnElement[bool]],
+    windows: list[Window],
+    cutoffs: list[datetime] | None = None,
 ) -> RadarKpis:
     bucket = _bucket(windows).label("bucket")
+    paced = _paced(windows, cutoffs)
     rows = session.execute(
         joined(
             select(
@@ -394,13 +454,16 @@ def _kpis(
                 func.count(distinct(func.coalesce(StoryItem.story_id, -Item.id))),
                 func.count(distinct(Item.source_id)),
                 func.count(distinct(Item.id)).filter(Item.track.in_(RESEARCH)),
+                func.count(distinct(Item.id)).filter(paced),
+                func.count(distinct(Item.source_id)).filter(paced),
+                func.count(distinct(Item.id)).filter(Item.track.in_(RESEARCH), paced),
             )
         )
         .where(*conditions, *_span(windows))
         .group_by(bucket)
     ).tuples()
-    by_bucket = {int(b): (int(i), int(s), int(src), int(r)) for b, i, s, src, r in rows}
-    empty = (0, 0, 0, 0)
+    by_bucket = {int(b): tuple(int(v) for v in values) for b, *values in rows}
+    empty = (0,) * 7
     values = [by_bucket.get(i, empty) for i in range(len(windows))]
     current = windows[-1]
     assert current.start is not None
@@ -424,6 +487,13 @@ def _kpis(
         research=[v[3] for v in values],
         new_stories=len(stories),
         cross_track_stories=sum(1 for _, tracks in stories if tracks >= 2),
+        paced=PacedKpis(
+            items=[v[4] for v in values],
+            sources=[v[5] for v in values],
+            research=[v[6] for v in values],
+        )
+        if cutoffs is not None
+        else None,
     )
 
 
@@ -649,10 +719,17 @@ def _kst_day(column: Any) -> Any:
 
 
 def _calendar(
-    session: Session, conditions: list[ColumnElement[bool]], windows: list[Window]
+    session: Session,
+    conditions: list[ColumnElement[bool]],
+    windows: list[Window],
+    collected: datetime | None = None,
 ) -> Calendar:
     """Daily report counts ending with the window, and days when one category ran far above
-    its usual level for that weekday (an announcement, a launch event, an incident)."""
+    its usual level for that weekday (an announcement, a launch event, an incident).
+
+    The usual level uses only days after collection started (`collected`; that day itself holds
+    the backfill) and needs ANOMALY_MIN_DAYS of them; a category with no reports on those days
+    has no usual level to be far above."""
     end = windows[-1].end.astimezone(KST).date()
     first = windows[0].start
     assert first is not None
@@ -672,11 +749,17 @@ def _calendar(
         days[(d - start).days] += int(count)
         if field:
             by_field[str(field)][(d - start).days] = int(count)
+    covered = 0 if collected is None else (collected.astimezone(KST).date() - start).days + 1
     found: list[tuple[int, str, float, float]] = []
     for field, series in by_field.items():
-        for i in range(ANOMALY_BASELINE, length):
-            same_day = [series[j] for j in range(i - ANOMALY_BASELINE, i) if (i - j) % 7 == 0]
+        for i in range(max(covered, 0), length):
+            begin = max(i - ANOMALY_BASELINE, covered, 0)
+            same_day = [series[j] for j in range(begin, i) if (i - j) % 7 == 0]
+            if len(same_day) < ANOMALY_MIN_DAYS:
+                continue
             expected = fmean(same_day)
+            if expected <= 0:
+                continue
             z = rate_z(series[i], expected)
             if z >= ANOMALY_Z and series[i] >= max(expected * ANOMALY_RATIO, ANOMALY_MIN):
                 found.append((i, field, round(expected, 1), round(z, 2)))
@@ -751,10 +834,16 @@ def _field_links(
     return links
 
 
-def _pick_keywords(topics: list[Topic]) -> list[Topic]:
+def _pick_keywords(topics: list[Topic], enough: bool = True) -> list[Topic]:
+    """Called keywords, live ones by volume and the falling ones by their earlier level; without
+    a baseline (no states) the busiest ones."""
+    if not enough:
+        busy = (t for t in topics if t.counts[-1] >= KEYWORD_MIN_COUNT)
+        return sorted(busy, key=lambda t: (-t.counts[-1], t.key))[:KEYWORD_TOP]
     called = [t for t in topics if t.state is not None]
     live = sorted(
-        (t for t in called if t.state != "falling"), key=lambda t: (-t.counts[-1], -t.z, t.key)
+        (t for t in called if t.state != "falling"),
+        key=lambda t: (-t.counts[-1], -(t.z or 0.0), t.key),
     )
     falling = sorted(
         (t for t in called if t.state == "falling"), key=lambda t: (-fmean(t.counts[:-1]), t.key)
@@ -768,20 +857,34 @@ def radar(
     base = filters.conditions()
     windows = trailing_windows(window, TREND_WINDOWS)
     cutoffs = paced_cutoffs(windows, now)
-    kpis = _kpis(session, base, windows)
+    since = collection_start(session)
+    span = baseline(windows, since)
+    kpis = _kpis(session, base, windows, cutoffs)
 
     totals = _track_totals(session, base, window)
 
     def topics(dimension: str, min_total: int = 1) -> list[Topic]:
-        series = _series(session, base, windows, dimension, min_total=min_total, cutoffs=cutoffs)
+        series = _series(
+            session,
+            base,
+            windows,
+            dimension,
+            min_total=min_total,
+            cutoffs=cutoffs,
+            baseline_from=span.start,
+        )
         mixes = _source_mix(session, base, window, dimension)
         return sorted(
-            (_topic(key, s, mixes.get(key), totals) for key, s in series.items()),
+            (_topic(key, s, mixes.get(key), totals, span.start) for key, s in series.items()),
             key=lambda t: (-t.counts[-1], -sum(t.counts), t.key),
         )
 
     keywords = _with_history(
-        session, base, windows, _pick_keywords(topics("keyword", min_total=KEYWORD_MIN_COUNT))
+        session,
+        base,
+        windows,
+        _pick_keywords(topics("keyword", min_total=KEYWORD_MIN_COUNT), span.enough),
+        span,
     )
     themes = topics("theme")
     body = Radar(
@@ -795,8 +898,9 @@ def radar(
         pairs=_pairs(session, base, windows, keywords, kpis.items[-1]),
         flows=_flows(session, base, window),
         engagement=_engagement(session, base, window, themes),
-        calendar=_calendar(session, base, windows),
+        calendar=_calendar(session, base, windows, since),
         field_links=_field_links(session, base, windows),
+        baseline=span,
     )
     body.signals = radar_signals(body, now=now)
     return body
@@ -807,18 +911,21 @@ def _with_history(
     conditions: list[ColumnElement[bool]],
     windows: list[Window],
     keywords: list[Topic],
+    span: RadarBaseline,
 ) -> list[Topic]:
     """Add each keyword's first report ever: a "new" keyword seen before the span is returning;
-    one first reported in the last DEBUT_WINDOWS windows is a debut."""
+    one first reported in the last DEBUT_WINDOWS windows is a debut, unless collection started
+    inside them (then every keyword's first report is recent)."""
     first = _first_ever(session, conditions, [k.key for k in keywords])
     start, recent = windows[0].start, windows[-DEBUT_WINDOWS:][0].start
     assert start is not None and recent is not None
+    debuts = span.start <= len(windows) - DEBUT_WINDOWS
     return [
         k.model_copy(
             update={
                 "first_ever": first.get(k.key),
                 "returning": k.state == "new" and k.key in first and first[k.key] < start,
-                "debut": k.key in first and first[k.key] >= recent,
+                "debut": debuts and k.key in first and first[k.key] >= recent,
             }
         )
         for k in keywords
@@ -865,13 +972,16 @@ def topic_detail(
     base = [*filters.conditions(), condition]
     windows = trailing_windows(window, TREND_WINDOWS)
     cutoffs = paced_cutoffs(windows, now) if now is not None else None
-    series = _series(session, base, windows, kind, only=value, cutoffs=cutoffs).get(value)
+    span = baseline(windows, collection_start(session))
+    series = _series(
+        session, base, windows, kind, only=value, cutoffs=cutoffs, baseline_from=span.start
+    ).get(value)
     counts = series.counts if series else [0] * TREND_WINDOWS
     empty = dict.fromkeys((t.value for t in Track), 0)
     mix = _source_mix(session, base, window, kind).get(value)
     totals = _track_totals(session, filters.conditions(), window)
     topic = (
-        _topic(value, series, mix, totals)
+        _topic(value, series, mix, totals, span.start)
         if series
         else Topic(
             key=value,
@@ -879,7 +989,7 @@ def topic_detail(
             field=None,
             counts=counts,
             change=None,
-            z=0.0,
+            z=0.0 if span.enough else None,
             state=None,
             sources=0,
             tracks=empty,
@@ -893,7 +1003,7 @@ def topic_detail(
         )
     )
     if kind == "keyword":
-        topic = _with_history(session, filters.conditions(), windows, [topic])[0]
+        topic = _with_history(session, filters.conditions(), windows, [topic], span)[0]
     current = [*base, *_span([window])]
     related = _series(session, base, [window], "keyword")
     related.pop(value, None)
@@ -933,4 +1043,5 @@ def topic_detail(
         )
         if info
         else None,
+        baseline=span,
     )

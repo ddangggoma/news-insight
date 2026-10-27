@@ -49,6 +49,7 @@ testpaths = ["tests"]
 markers = [
   "db: requires the PostgreSQL test database",
   "redis: requires the Redis test database (db 15)",
+  "collection_start: reads when collection started from the data (radar baseline tests)",
 ]
 
 [tool.ruff]

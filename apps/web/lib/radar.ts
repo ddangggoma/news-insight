@@ -1,6 +1,7 @@
+import { formatDay } from "@/lib/format";
 import { withQuery } from "@/lib/query";
 import type { Scope } from "@/lib/reader-filters";
-import type { Radar, RadarKind, Topic, TopicKind, TopicState, TrackMix } from "@/lib/reader-types";
+import type { Radar, RadarBaseline, RadarKind, Topic, TopicKind, TopicState, TrackMix } from "@/lib/reader-types";
 import type { Region } from "@/lib/types";
 import { FIELD_LABEL, SIGNAL_LABEL, THEME_LABEL } from "@/lib/taxonomy";
 
@@ -12,6 +13,33 @@ export function isRadarKind(value: string): value is RadarKind {
 
 /** "the previous N periods" in the reader's words: 7주, 7개월 … */
 export const BASELINE_UNIT: Record<RadarKind, string> = { day: "일", week: "주", month: "개월", quarter: "분기" };
+
+/** Baseline windows a z or a state needs (public/radar.py BASELINE_MIN_WINDOWS). */
+export const BASELINE_MIN_WINDOWS = 2;
+
+/** The radar's baseline; a response from before the field compares against every earlier window. */
+export function baselineOf(radar: { periods: string[]; baseline?: RadarBaseline | null }): RadarBaseline {
+  if (radar.baseline) return radar.baseline;
+  const windows = Math.max(radar.periods.length - 1, 0);
+  return { start: 0, windows, required: BASELINE_MIN_WINDOWS, enough: windows >= BASELINE_MIN_WINDOWS, collected_since: null };
+}
+
+/** "직전 3주" for the windows actually compared against. */
+export function baselineSpan(radar: { periods: string[]; window: { kind: RadarKind }; baseline?: RadarBaseline | null }): string {
+  return `직전 ${baselineOf(radar).windows}${BASELINE_UNIT[radar.window.kind]}`;
+}
+
+/** Why momentum, states and signals are missing; null when the baseline is enough. */
+export function baselineNote(radar: { periods: string[]; window: { kind: RadarKind }; baseline?: RadarBaseline | null }): string | null {
+  const baseline = baselineOf(radar);
+  if (baseline.enough) return null;
+  const unit = BASELINE_UNIT[radar.window.kind];
+  const since = baseline.collected_since ? `수집을 시작한 ${formatDay(baseline.collected_since)} 이후` : "수집 시작 이후";
+  return (
+    `기준선 부족: ${since} 비교할 수 있는 직전 기간이 ${baseline.windows}${unit}뿐입니다(최소 ${baseline.required}${unit}). ` +
+    "모멘텀(z)·상태·신호는 계산하지 않고 언급량만 보여 줍니다."
+  );
+}
 
 export const STATE_META: Record<TopicState, { label: string; hint: string }> = {
   new: { label: "신규", hint: "직전 기간들에 없다가 2곳 이상 출처에서 처음 등장" },
@@ -107,7 +135,8 @@ export function formatChange(change: number | null): string {
   return `${rounded > 0 ? "▲" : "▼"}${Math.abs(rounded)}%`;
 }
 
-export function formatZ(z: number): string {
+export function formatZ(z: number | null): string {
+  if (z === null) return "–";
   return `${z > 0 ? "+" : z < 0 ? "−" : "±"}${Math.abs(z).toFixed(1)}σ`;
 }
 
@@ -164,12 +193,13 @@ export function volumeSplit(topics: Topic[]): number {
 
 export function quadrantOf(topic: Topic, split: number): Quadrant {
   const big = last(topic.counts) >= split;
-  const up = topic.z >= MOMENTUM_Z;
+  const up = topic.z !== null && topic.z >= MOMENTUM_Z;
   return big ? (up ? "leading" : "mainstream") : up ? "emerging" : "niche";
 }
 
 /** Fill strength for a z-score on the diverging heat/cool scale (0–80 %). */
-export function zLevel(z: number): number {
+export function zLevel(z: number | null): number {
+  if (z === null) return 0;
   return Math.round(Math.min(Math.abs(z) / 3, 1) * 80);
 }
 
@@ -349,7 +379,7 @@ export function initialFocus(radar: Radar, requested: Focus | null): Focus | nul
   if (requested) return requested;
   const ranked = [...radar.themes]
     .filter((t) => last(t.counts) > 0)
-    .sort((a, b) => b.z - a.z || last(b.counts) - last(a.counts));
+    .sort((a, b) => (b.z ?? 0) - (a.z ?? 0) || last(b.counts) - last(a.counts));
   if (ranked.length) return { kind: "theme", key: ranked[0].key };
   return radar.fields.length ? { kind: "field", key: radar.fields[0].key } : null;
 }
@@ -396,7 +426,7 @@ export function koreaLagDays(topic: Topic): number | null {
 export function koreaGaps(radar: Radar, limit = 6): Topic[] {
   return radar.keywords
     .filter((k) => k.state !== "falling" && k.regions.kr === 0 && last(k.counts) >= 4)
-    .sort((a, b) => last(b.counts) - last(a.counts) || b.z - a.z)
+    .sort((a, b) => last(b.counts) - last(a.counts) || (b.z ?? 0) - (a.z ?? 0))
     .slice(0, limit);
 }
 
@@ -418,6 +448,18 @@ export function rankSeries(topics: Topic[], top = 10): { topic: Topic; ranks: (n
     .sort((a, b) => last(b.counts) - last(a.counts) || a.key.localeCompare(b.key))
     .slice(0, top)
     .map((topic) => ({ topic, ranks: ranksByWindow.map((ranks) => ranks.get(topic.key) ?? null) }));
+}
+
+/**
+ * Places climbed from the first window the topic ranked in (within the span) to the last; a rank
+ * outside the top counts as `lanes`. Null when it ranked in no earlier window: a newcomer, not a
+ * climb from the floor.
+ */
+export function rankMove(ranks: (number | null)[], lanes: number): number | null {
+  const first = ranks.slice(0, -1).find((rank) => rank !== null);
+  const now = last(ranks);
+  if (first == null || now == null) return null;
+  return Math.min(first, lanes) - Math.min(now, lanes);
 }
 
 /** Net opportunity: (opportunity − risk) ÷ all classified reports, −1…1. */

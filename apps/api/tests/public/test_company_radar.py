@@ -11,7 +11,9 @@ from news_insight.cards.models import CardStatus, ItemCard
 from news_insight.collect.contracts import RawItem
 from news_insight.content.ingest import ingest_items
 from news_insight.content.models import Item
-from news_insight.public.companies import activity_shift, has_history, theme_leaders
+from news_insight.public.companies import activity_shift, theme_leaders
+from news_insight.public.periods import calendar_window, trailing_windows
+from news_insight.public.radar import baseline
 from news_insight.sources.enums import Region
 from news_insight.taxonomy.catalog import TAXONOMY_REVISION
 from tests.factories import build_source
@@ -28,10 +30,12 @@ def test_activity_shift_needs_a_significant_and_large_move() -> None:
     assert activity_shift(Counter(launch=6, research=5), Counter(launch=5, research=5)) is None
 
 
-def test_new_and_first_need_earlier_windows_with_reports() -> None:
+def test_new_and_first_need_earlier_windows_after_collection_started() -> None:
     # 2026-10-05: the corpus started two days earlier, so every company looked "new"
-    assert not has_history([0, 0, 0, 0, 0, 0, 4649, 2102])
-    assert has_history([0, 0, 0, 3, 5, 4, 6, 9])
+    windows = trailing_windows(calendar_window("week", "2026-W41"), 8)
+    assert not baseline(windows, NOW).enough  # collection started in W40 (its backfill)
+    windows = trailing_windows(calendar_window("week", "2026-W43"), 8)
+    assert baseline(windows, NOW).enough  # W41 and W42
 
 
 def test_theme_leaders_flag_a_new_leader() -> None:
