@@ -549,6 +549,10 @@ def items_redate(
     refetch: Annotated[bool, typer.Option(help="Fetch each feed again for fresh dates")] = True,
     apply: Annotated[bool, typer.Option(help="Write the repaired dates (default: report)")] = False,
     report: Annotated[Path | None, typer.Option(help="Write the per-source report as JSON")] = None,
+    shift_before: Annotated[
+        datetime | None,
+        typer.Option(help="UTC: only items first seen before it take an inferred offset"),
+    ] = None,
 ) -> None:
     """Repair stored article dates (zone-less feeds, future dates, missing dates)."""
     from dataclasses import asdict
@@ -570,6 +574,9 @@ def items_redate(
             feeds=read_feed(fetcher) if refetch else None,
             pages=read_page(fetcher) if verify else None,
             verify=verify,
+            shift_before=shift_before.replace(tzinfo=shift_before.tzinfo or UTC)
+            if shift_before
+            else None,
         )
         if apply:
             apply_redate(session, plan)

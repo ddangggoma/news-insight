@@ -90,14 +90,16 @@ def read_page(fetcher: SafeFetcher) -> PageReader:
     return read
 
 
-def _modal_shift(deltas: list[timedelta]) -> timedelta | None:
-    rounded = Counter(round(delta.total_seconds() / 60) for delta in deltas)
-    if len(deltas) < MIN_MATCHED or not rounded:
+def _modal_shift(deltas: list[timedelta], offset: timedelta) -> timedelta | None:
+    """The source's UTC offset when the fresh entries that moved mostly moved by it. Entries
+    that did not move were stored after the fix (2026-10-27: a feed held both kinds)."""
+    moved = Counter(m for delta in deltas if (m := round(delta.total_seconds() / 60)))
+    total = sum(moved.values())
+    if total < MIN_MATCHED:
         return None
-    minutes, count = rounded.most_common(1)[0]
-    if minutes == 0 or count < AGREEMENT * len(deltas):
-        return None
-    return timedelta(minutes=minutes)
+    minutes, count = moved.most_common(1)[0]
+    shift = timedelta(minutes=minutes)
+    return shift if shift == offset and count >= AGREEMENT * total else None
 
 
 def plan_redate(
@@ -109,7 +111,10 @@ def plan_redate(
     pages: PageReader | None = None,
     verify: int = 0,
     seed: int = 0,
+    shift_before: datetime | None = None,
 ) -> RedatePlan:
+    """`shift_before`: only items first seen before it take an inferred offset (items stored
+    after the collection fix already carry the right date)."""
     plan = RedatePlan(since=since)
     rows = session.execute(
         select(Item, Source)
@@ -146,11 +151,16 @@ def plan_redate(
                 new[item.id] = earliest(
                     plausible(item.published_at, seen=item.first_seen_at, tz=tz), date
                 )
-        repair.shift = _modal_shift(deltas)
+        offset = tz.utcoffset(now.replace(tzinfo=None)) or timedelta(0)
+        repair.shift = _modal_shift(deltas, offset)
         for item in items:
             if item.id in new:
                 date = new[item.id]
-            elif repair.shift is not None and item.published_at is not None:
+            elif (
+                repair.shift is not None
+                and item.published_at is not None
+                and (shift_before is None or item.first_seen_at < shift_before)
+            ):
                 date = item.published_at - repair.shift
             else:
                 date = item.published_at

@@ -105,3 +105,60 @@ def test_a_later_edited_date_in_the_feed_does_not_replace_the_first(db_session: 
     )
 
     assert plan.changes == {}
+
+
+def test_a_feed_holding_fixed_and_misread_entries_still_shows_its_offset(
+    db_session: Session,
+) -> None:
+    source = build_source(region=Region.KR, access_method=AccessMethod.FEED)
+    db_session.add(source)
+    db_session.flush()
+    truth = {n: NOW - timedelta(hours=n, minutes=30) for n in range(1, 9)}
+    fixed_at = NOW - timedelta(hours=3)
+    for n, moment in truth.items():  # items 1-2 were stored after the fix, the rest before
+        stored(db_session, source, n, moment if n <= 2 else moment + NINE)
+    in_feed = [
+        RawItem(
+            stable_id=f"id-{n}",
+            url=f"https://www.example.com/{n}",
+            title="t",
+            published_at=truth[n],
+        )
+        for n in (1, 2, 3, 4, 5)
+    ]
+
+    plan = plan_redate(
+        db_session,
+        since=NOW - timedelta(days=3),
+        now=NOW,
+        feeds=lambda _s, _n: in_feed,
+        shift_before=fixed_at,
+    )
+
+    assert plan.sources[0].shift == NINE
+    apply_redate(db_session, plan)
+    dates = dict(db_session.execute(select(Item.stable_id, Item.published_at)).tuples().all())
+    assert dates == {f"id-{n}": moment for n, moment in truth.items()}
+
+
+def test_an_offset_other_than_the_source_zone_is_not_applied(db_session: Session) -> None:
+    source = build_source(region=Region.KR, access_method=AccessMethod.FEED)
+    db_session.add(source)
+    db_session.flush()
+    for n in range(1, 5):
+        stored(db_session, source, n, NOW - timedelta(hours=n + 3))
+    in_feed = [
+        RawItem(
+            stable_id=f"id-{n}",
+            url=f"https://www.example.com/{n}",
+            title="t",
+            published_at=NOW - timedelta(hours=n + 5),
+        )
+        for n in range(1, 4)
+    ]
+
+    plan = plan_redate(
+        db_session, since=NOW - timedelta(days=3), now=NOW, feeds=lambda _s, _n: in_feed
+    )
+
+    assert plan.sources[0].shift is None
