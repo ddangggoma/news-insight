@@ -223,8 +223,13 @@ def radar_warm_task() -> int:
     client = cache_client()
     if client is None:
         return 0
-    with session_scope() as session:
-        return warm(session, now=datetime.now(UTC), client=client)
+    # one warm-up at a time: on 2026-10-29 a run took 25 minutes on average against a 10 minute
+    # schedule, and overlapping runs held 2.4 of the 4 worker slots, so collection stalled
+    with SourceLock(get_redis(), ttl_seconds=3600, prefix="lock:").hold("radar-warm") as acquired:
+        if not acquired:
+            return 0
+        with session_scope() as session:
+            return warm(session, now=datetime.now(UTC), client=client)
 
 
 @celery_app.task(name="cards.triage_train")
