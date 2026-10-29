@@ -1,14 +1,19 @@
 """Dead-letter operations: inspect, dismiss, or send a source back for an immediate retry."""
 
-from datetime import datetime
+import logging
+import re
+from datetime import datetime, timedelta
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from news_insight.collect.models import DeadLetter
+from news_insight.collect.models import DeadLetter, SourceRuntime
 from news_insight.collect.service import ensure_runtime
 from news_insight.sources.enums import SourceStatus
+from news_insight.sources.ladder import resume_source
 from news_insight.sources.models import Source
+
+log = logging.getLogger(__name__)
 
 
 class DeadLetterError(Exception):
@@ -58,3 +63,59 @@ def retry(session: Session, dead_letter_id: int, *, now: datetime) -> DeadLetter
     runtime.lease_until = None
     runtime.consecutive_failures = 0
     return _resolve(session, letter, "retried", now)
+
+
+# Failures that say nothing about the source itself: its server, the network or a rate limit.
+# A source paused by one of them is tried again after a cool-down (2026-10-29: a Europe PMC
+# outage on 10-24 paused 80 searches and arXiv throttling 38 categories; none came back).
+TRANSIENT_CODES = frozenset({"server_error", "timeout", "transport", "dns", "rate_limited"})
+PAUSE_CODE = re.compile(r"(?:repeated )?([a-z0-9_]+): ")
+PROBE_COOLDOWN = timedelta(hours=6)
+SLOW_PROBE_COOLDOWN = timedelta(hours=24)  # once the source has been failing for two days
+SLOW_AFTER = timedelta(days=2)
+GIVE_UP_AFTER = timedelta(days=30)  # a month without a success is a person's call
+
+
+def transient_pause_code(source: Source) -> str | None:
+    """The failure code of an automatic pause that a later attempt may clear, else None."""
+    if source.status is not SourceStatus.PAUSED or not source.paused_reason:
+        return None
+    match = PAUSE_CODE.match(source.paused_reason)
+    code = match.group(1) if match else None
+    return code if code in TRANSIENT_CODES else None
+
+
+def resume_transient(session: Session, *, now: datetime) -> list[Source]:
+    """Resume the sources paused by a transient failure whose cool-down has passed.
+
+    The open letter stays: if the failure is still there, the source pauses again after its
+    retries ("repeated"), and its next probe waits another cool-down. A success closes the
+    letter (collect/service.py). Sources without a success in GIVE_UP_AFTER stay paused."""
+    rows = session.execute(
+        select(Source, SourceRuntime)
+        .join(SourceRuntime, SourceRuntime.source_id == Source.id)
+        .where(Source.status == SourceStatus.PAUSED, Source.paused_reason.is_not(None))
+        .order_by(Source.key)
+    ).tuples()
+    resumed: list[Source] = []
+    for source, runtime in rows:
+        if transient_pause_code(source) is None or runtime.last_success_at is None:
+            continue
+        failing_for = now - runtime.last_success_at
+        if failing_for > GIVE_UP_AFTER:
+            continue
+        cooldown = SLOW_PROBE_COOLDOWN if failing_for > SLOW_AFTER else PROBE_COOLDOWN
+        last_attempt = runtime.last_attempt_at or runtime.last_success_at
+        if now - last_attempt < cooldown:
+            continue
+        reason = source.paused_reason
+        resume_source(session, source)
+        runtime.next_due_at = now
+        runtime.lease_until = None
+        runtime.consecutive_failures = 0
+        log.info(
+            "source resumed after a transient pause", extra={"source": source.key, "reason": reason}
+        )
+        resumed.append(source)
+    session.flush()
+    return resumed

@@ -13,6 +13,7 @@ BEAT_SCHEDULE: dict[str, dict[str, Any]] = {
     },
     "collect-dispatch-due": {"task": "collect.dispatch_due", "schedule": 60.0},
     "sources-run-canaries": {"task": "sources.run_canaries", "schedule": 3600.0},
+    "sources-resume-transient": {"task": "sources.resume_transient", "schedule": 1800.0},
     "sources-auto-validate": {"task": "sources.auto_validate", "schedule": 600.0},
     "stories-cluster": {"task": "stories.cluster", "schedule": 300.0},
     "ops-check": {"task": "ops.check", "schedule": 300.0},

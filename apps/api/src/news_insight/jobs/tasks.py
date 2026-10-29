@@ -6,6 +6,7 @@ from datetime import UTC, datetime
 from typing import Any
 from zoneinfo import ZoneInfo
 
+from news_insight.collect.dead_letters import resume_transient
 from news_insight.collect.dispatch import claim_due_sources
 from news_insight.collect.service import collect_source
 from news_insight.config import get_settings
@@ -53,6 +54,12 @@ def collect_source_task(source_id: int) -> str:
                 gate=ProviderGate(client),
             )
             return run.outcome.value
+
+
+@celery_app.task(name="sources.resume_transient")
+def resume_transient_task() -> list[str]:
+    with session_scope() as session:
+        return [source.key for source in resume_transient(session, now=datetime.now(UTC))]
 
 
 @celery_app.task(name="sources.run_canaries")
