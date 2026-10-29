@@ -154,8 +154,8 @@ def _claude() -> ClaudeClient:
 
 
 def _card_engines(qwen_only: bool) -> tuple[list[MeteredEngine], QwenEngine]:
-    """Metered engines in order of use (Antigravity; Codex first when enabled) and the local
-    Qwen for `--qwen-only`."""
+    """Metered engines in order of use (Antigravity's Gemini, then its Claude Sonnet; Codex first
+    when enabled) and the local Qwen for `--qwen-only`."""
     settings = get_settings()
     metered: list[MeteredEngine] = []
     if not qwen_only and settings.card_codex_enabled:
@@ -174,6 +174,16 @@ def _card_engines(qwen_only: bool) -> tuple[list[MeteredEngine], QwenEngine]:
                 executable=settings.agy_cli,
                 model=settings.card_agy_model,
                 timeout_seconds=settings.card_timeout_seconds,
+            )
+        )
+    if not qwen_only and settings.card_agy_claude:
+        metered.append(
+            AgyEngine(
+                executable=settings.agy_cli,
+                model=settings.card_agy_claude_model,
+                timeout_seconds=settings.card_timeout_seconds,
+                name="agy-claude",
+                quota_group="Claude and GPT models",
             )
         )
     qwen = QwenEngine(
@@ -720,6 +730,8 @@ def cards_run(
         policy = CardPolicy(
             agy_batch=settings.card_agy_batch,
             agy_parallel=settings.card_agy_parallel,
+            agy_claude_batch=settings.card_agy_claude_batch,
+            agy_claude_parallel=settings.card_agy_claude_parallel,
             codex_batch=settings.card_codex_batch,
             codex_parallel=settings.card_codex_parallel,
             claude_batch=settings.card_claude_batch,

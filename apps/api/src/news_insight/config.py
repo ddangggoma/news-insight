@@ -58,6 +58,14 @@ class Settings(BaseSettings):
     card_agy_min_five_hour: int = 2
     card_agy_batch: int = 100
     card_agy_parallel: int = 3
+    # Antigravity's Claude Sonnet after its Gemini models, down to the same 10 % weekly reserve
+    # of its own "Claude and GPT models" limit (2026-10-29, user request). Measured that day:
+    # 80 items in 102 s cost 5 % of the week and 10 % of five hours, 25 items 3 % and 6 % (the
+    # instructions dominate small batches), so batches are large and the five-hour limit paces it
+    card_agy_claude: bool = True
+    card_agy_claude_model: str = "claude-sonnet-5-5-medium"
+    card_agy_claude_batch: int = 100
+    card_agy_claude_parallel: int = 2
     # Cards use Antigravity and Claude Haiku only (2026-10-13, user request): Codex and the local
     # Qwen are off by default. Codex stays available with CARD_CODEX_ENABLED, Qwen with
     # `cards run --qwen-only` or CARD_QWEN_FALLBACK.

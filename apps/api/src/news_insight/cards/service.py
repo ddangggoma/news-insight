@@ -459,6 +459,8 @@ class CardRunStats:
 class CardPolicy:
     agy_batch: int = 100
     agy_parallel: int = 3  # independent agy processes per round (quota is the real cap)
+    agy_claude_batch: int = 100  # Antigravity's Claude Sonnet: about 130 s for 100 items
+    agy_claude_parallel: int = 2
     codex_batch: int = 40
     codex_parallel: int = 2
     claude_batch: int = 12
@@ -500,7 +502,8 @@ def run_cards(
     """Generate cards and reclassify stale ones until nothing is pending or time runs out.
 
     Metered engines are used in order while each keeps its reserve (D18: `min_weekly` percent of
-    the weekly limit is never spent): Antigravity since 2026-10-13 (Codex before it until then).
+    the weekly limit is never spent): Antigravity since 2026-10-13 (Codex before it until then),
+    its Gemini models and then its Claude Sonnet, each on its own limit (2026-10-29).
     When the last one is spent the run continues on the `partner` engine if one was passed in
     (Claude Haiku since 2026-10-13, user request; local Qwen with `--qwen-only`), otherwise
     items wait for the next run. With `alongside` the partner also runs its lanes next to the
@@ -650,6 +653,9 @@ def _plan_round(
     elif engine == "claude":
         lanes, batch = max(1, policy.claude_parallel), policy.claude_batch
         classify_batch = policy.claude_batch * 3
+    elif engine == "agy-claude":
+        lanes, batch = max(1, policy.agy_claude_parallel), policy.agy_claude_batch
+        classify_batch = policy.agy_claude_batch * 2
     elif engine not in (None, "qwen"):
         lanes, batch, classify_batch = (
             max(1, policy.agy_parallel),
