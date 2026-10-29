@@ -88,6 +88,7 @@ class Settings(BaseSettings):
     card_claude_parallel: int = 8
     card_claude_quiet_hours: str = ""
     card_claude_daily_cap: int = 0
+    card_claude_judge: bool = True  # story-merge judge when Antigravity is at its reserve
     card_qwen_batch: int = 5
     # Qwen for cards when Claude is not in the run (quiet hours, daily cap): off since
     # 2026-10-13; `card_qwen_alongside` also runs its lanes next to Antigravity
