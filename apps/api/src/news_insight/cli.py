@@ -186,7 +186,7 @@ def _card_engines(qwen_only: bool) -> tuple[list[MeteredEngine], QwenEngine]:
 
 def _scheduled_claude(settings: Settings) -> bool:
     """Claude joins a scheduled run while enabled (or before `card_claude_until`), outside the
-    quiet hours and below the daily card cap."""
+    quiet hours and below the daily card cap (0: no cap)."""
     from news_insight.cards.service import claude_cards_today, in_quiet_hours
 
     now = datetime.now(UTC)
@@ -201,6 +201,8 @@ def _scheduled_claude(settings: Settings) -> bool:
     enabled = settings.card_claude or (until is not None and now < until)
     if not enabled or in_quiet_hours(settings.card_claude_quiet_hours, now):
         return False
+    if settings.card_claude_daily_cap <= 0:
+        return True
     with session_scope() as session:
         return claude_cards_today(session, now) < settings.card_claude_daily_cap
 
