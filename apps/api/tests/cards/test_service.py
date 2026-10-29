@@ -491,6 +491,24 @@ def test_codex_first_then_agy_when_codex_reaches_its_reserve(db_session: Session
     )
 
 
+def test_antigravity_claude_follows_gemini_down_to_its_own_reserve(db_session: Session) -> None:
+    seed(db_session, ["a", "b", "c", "d", "e"])
+    gemini = FakeAgy([SPENT])
+    sonnet = FakeAgy([FULL, FULL, SPENT])
+    sonnet.name = "agy-claude"
+    policy = CardPolicy(
+        agy_batch=5, agy_claude_batch=2, agy_claude_parallel=1, time_budget_seconds=1000
+    )
+
+    stats = run_cards(scope_for(db_session), metered=[gemini, sonnet], partner=None, policy=policy)
+
+    # 2026-10-29: Sonnet writes after Gemini reaches its reserve, two items a call, and stops at
+    # its own reserve
+    assert stats.batches == {"agy-claude": 2} and stats.ready == 4
+    assert [len(batch) for batch in sonnet.batches] == [2, 2]
+    assert any("agy quota reserved" in n and "switching to agy-claude" in n for n in stats.notes)
+
+
 def test_codex_quota_error_moves_on_and_qwen_comes_last(db_session: Session) -> None:
     seed(db_session, ["a", "b"])
     codex = FakeCodex([FULL], fail=QuotaExhausted("usage limit"))
