@@ -1,4 +1,5 @@
 from collections.abc import Iterator
+from datetime import datetime, timedelta
 
 import pytest
 from fastapi.testclient import TestClient
@@ -7,11 +8,29 @@ from sqlalchemy.orm import Session
 from news_insight.config import Settings, get_settings
 from news_insight.db import get_db
 from news_insight.main import create_app
+from news_insight.public import companies, radar
 from news_insight.public.routes import get_now
 from tests.public.seed import NOW
 
 PUBLIC_KEY = "public-test-key"
 CONSOLE_KEY = "console-test-key"
+
+
+@pytest.fixture(autouse=True)
+def _collecting_long_before(
+    request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The corpora plant only the reports a test needs, so the radar would take the first one
+    for the start of collection and leave its window out of the baseline. Collection started
+    long before unless a test reads the start from the data (`collection_start` marker)."""
+    if request.node.get_closest_marker("collection_start"):
+        return
+
+    def since(_session: Session) -> datetime:
+        return NOW - timedelta(days=400)
+
+    monkeypatch.setattr(radar, "collection_start", since)
+    monkeypatch.setattr(companies, "collection_start", since)
 
 
 @pytest.fixture

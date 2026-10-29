@@ -3,6 +3,8 @@ import { AppLink as Link } from "@/components/app-link";
 import { ChartTips } from "@/components/reader/radar/chart-tips";
 import { Legend, StateBadge } from "@/components/reader/radar/parts";
 import {
+  baselineNote,
+  baselineOf,
   type Focus,
   formatChange,
   formatZ,
@@ -45,8 +47,9 @@ function topicTip(kind: "field" | "theme", topic: Topic, radar: Radar): string {
     .join("\n");
 }
 
-/** Diverging momentum fill: heat for z > 0, cool for z < 0, the muted surface at 0. */
-export function momentumFill(z: number): string {
+/** Diverging momentum fill: heat for z > 0, cool for z < 0, the muted surface at 0 or without z. */
+export function momentumFill(z: number | null): string {
+  if (z === null) return "var(--muted)";
   const level = zLevel(z);
   return `color-mix(in oklab, var(${z >= 0 ? "--heat" : "--cool"}) ${level}%, var(--muted))`;
 }
@@ -141,14 +144,20 @@ export function CategoryTreemap({ radar, view }: { radar: Radar; view: RadarView
       <TreemapLayer radar={radar} view={view} width={1000} height={500} className="hidden md:block" />
       <TreemapLayer radar={radar} view={view} width={400} height={560} className="md:hidden" />
       <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-        <span>면적 = 이번 기간 언급량 · 색 = 직전 기간 평균 대비 모멘텀(z)</span>
-        <span className="ml-auto flex items-center gap-1.5" aria-hidden>
-          <span>하락</span>
-          {[-3, -1.5, 0, 1.5, 3].map((z) => (
-            <span key={z} className="h-3 w-6 rounded-sm" style={{ background: momentumFill(z) }} />
-          ))}
-          <span>급상승</span>
-        </span>
+        {baselineOf(radar).enough ? (
+          <>
+            <span>면적 = 이번 기간 언급량 · 색 = 직전 기간 평균 대비 모멘텀(z)</span>
+            <span className="ml-auto flex items-center gap-1.5" aria-hidden>
+              <span>하락</span>
+              {[-3, -1.5, 0, 1.5, 3].map((z) => (
+                <span key={z} className="h-3 w-6 rounded-sm" style={{ background: momentumFill(z) }} />
+              ))}
+              <span>급상승</span>
+            </span>
+          </>
+        ) : (
+          <span>면적 = 이번 기간 언급량 · 기준선 부족으로 모멘텀 색은 칠하지 않습니다.</span>
+        )}
       </div>
     </ChartTips>
   );
@@ -160,7 +169,12 @@ const STAGE_FILL = { research: "var(--stage-research)", diffusion: "var(--stage-
 
 /** Themes by attention (x, log) and momentum (y, z-score); quadrants say what to do now. */
 export function PositioningMatrix({ radar, view }: { radar: Radar; view: RadarView }) {
-  if (radar.themes.filter((t) => last(t.counts) > 0).length < 2) {
+  const shortBaseline = baselineNote(radar);
+  if (shortBaseline) {
+    // without z every point would sit on one line (or, before this note, pinned to the +8 ceiling)
+    return <p className="mx-auto max-w-xl py-16 text-center text-sm text-muted-foreground">{shortBaseline}</p>;
+  }
+  if (radar.themes.filter((t) => last(t.counts) > 0 && t.z !== null).length < 2) {
     return <p className="py-16 text-center text-sm text-muted-foreground">비교할 테마가 부족합니다.</p>;
   }
   return (
@@ -176,7 +190,7 @@ export function PositioningMatrix({ radar, view }: { radar: Radar; view: RadarVi
 }
 
 function MatrixChart({ radar, view, W, H, labelCount, className }: { radar: Radar; view: RadarView; W: number; H: number; labelCount: number; className: string }) {
-  const points = radar.themes.filter((t) => last(t.counts) > 0);
+  const points = radar.themes.filter((t): t is Topic & { z: number } => last(t.counts) > 0 && t.z !== null);
   const L = 40, R = 14, T = 14, B = 34;
   const split = volumeSplit(points);
   const maxCount = Math.max(...points.map((p) => last(p.counts)), split * 2);
@@ -264,9 +278,10 @@ function MatrixChart({ radar, view, W, H, labelCount, className }: { radar: Rada
 export function TimingHeatmap({ radar, view, limit = 16 }: { radar: Radar; view: RadarView; limit?: number }) {
   const rows = radar.themes
     .filter((t) => t.counts.some((c) => c > 0))
-    .sort((a, b) => b.z - a.z || last(b.counts) - last(a.counts))
+    .sort((a, b) => (b.z ?? 0) - (a.z ?? 0) || last(b.counts) - last(a.counts))
     .slice(0, limit);
   if (!rows.length) return <p className="py-16 text-center text-sm text-muted-foreground">표시할 테마가 없습니다.</p>;
+  const baseline = baselineOf(radar);
   return (
     <ChartTips>
       <div className="overflow-x-auto">
@@ -276,7 +291,12 @@ export function TimingHeatmap({ radar, view, limit = 16 }: { radar: Radar; view:
             <tr className="text-muted-foreground">
               <th scope="col" className="pb-1 text-left font-medium">테마</th>
               {radar.periods.map((period, i) => (
-                <th key={period} scope="col" className={cn("pb-1 font-medium tabular-nums", i === radar.periods.length - 1 && "text-foreground")}>
+                <th
+                  key={period}
+                  scope="col"
+                  title={i < baseline.start ? "수집 시작 전이거나 시작 직후(백필)라 기준선에서 뺀 기간" : undefined}
+                  className={cn("pb-1 font-medium tabular-nums", i === radar.periods.length - 1 && "text-foreground", i < baseline.start && "opacity-50")}
+                >
                   {periodLabel(period)}
                 </th>
               ))}
