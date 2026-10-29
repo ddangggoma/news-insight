@@ -115,3 +115,32 @@ def test_scheduled_claude_has_no_cap_or_quiet_hours_by_default(
 
     monkeypatch.setattr(cli, "session_scope", no_count)
     assert cli._scheduled_claude(settings) is True
+
+
+class Spent(Agy):
+    def usage(self) -> Quota:
+        return Quota(weekly=10, five_hour=100)
+
+
+@pytest.mark.parametrize("judge", [True, False])
+def test_story_judge_falls_back_to_claude_haiku(
+    monkeypatch: pytest.MonkeyPatch, judge: bool
+) -> None:
+    """With every Antigravity limit at its reserve the merge judge was skipped (2026-10-30)."""
+    monkeypatch.setattr(cli, "_card_engines", lambda qwen_only: ([Spent(), Spent()], None))
+    monkeypatch.setattr(engines, "ClaudeEngine", Claude)
+    settings = Settings(_env_file=None, card_claude_judge=judge)
+    monkeypatch.setattr(cli, "get_settings", lambda: settings)
+    Claude.models.clear()
+
+    engine = cli._judge_engine()
+
+    assert (engine.name if engine else None) == ("claude" if judge else None)
+    assert Claude.models == (["claude-haiku-5-5"] if judge else [])
+
+
+def test_story_judge_prefers_antigravity_above_its_reserve(monkeypatch: pytest.MonkeyPatch) -> None:
+    agy = Agy()
+    monkeypatch.setattr(cli, "_card_engines", lambda qwen_only: ([Spent(), agy], None))
+
+    assert cli._judge_engine() is agy

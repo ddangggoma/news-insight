@@ -218,7 +218,8 @@ def _scheduled_claude(settings: Settings) -> bool:
 
 
 def _judge_engine() -> MeteredEngine | None:
-    """First metered engine above its reserve (story-merge judge, evaluations)."""
+    """First metered engine above its reserve (story-merge judge, evaluations), else Claude Haiku:
+    with both Antigravity limits at their reserve every merge was skipped (2026-10-30)."""
     settings = get_settings()
     metered, _ = _card_engines(False)
     for engine in metered:
@@ -230,7 +231,12 @@ def _judge_engine() -> MeteredEngine | None:
             min_weekly=settings.card_agy_min_weekly, min_five_hour=settings.card_agy_min_five_hour
         ):
             return engine
-    return None
+    if not settings.card_claude_judge:
+        return None
+    from news_insight.cards.engines import ClaudeEngine
+
+    cli = ClaudeCli(executable=settings.claude_cli, timeout_seconds=settings.card_timeout_seconds)
+    return ClaudeEngine(cli=cli, model=settings.card_claude_model)
 
 
 def _kst(moment: datetime | None) -> str:
