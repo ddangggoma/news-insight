@@ -91,3 +91,28 @@ def test_a_waiter_computes_itself_when_the_fill_outlives_the_wait(
         '{"value":3}',
         False,
     )
+
+
+def test_warm_keeps_closed_windows_and_recomputes_open_ones(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from datetime import UTC, datetime
+
+    from news_insight.public import radar
+
+    computed: list[tuple[str, str]] = []
+
+    def fake_radar(session: object, filters: object, window: object, key: str, now: object) -> Body:
+        computed.append((window.kind, window.key))  # type: ignore[attr-defined]
+        return Body(value=len(computed))
+
+    monkeypatch.setattr(radar, "radar", fake_radar)
+    client = FakeRedis()
+    now = datetime(2026, 10, 29, 14, tzinfo=UTC)
+
+    assert radar_cache.warm(None, now=now, client=client) == 12
+    computed.clear()
+    # 2026-10-29: 12 views every run took 25 minutes; the six closed ones stay cached
+    assert radar_cache.warm(None, now=now, client=client) == 6
+    current = {kind: key for kind, key in computed}
+    assert len(computed) == 6 and set(current) == {"week", "month", "quarter"}

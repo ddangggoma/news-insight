@@ -12,6 +12,10 @@ def test_shared_api_hosts_are_recognised() -> None:
     assert provider_host("https://www.example.com/feed") is None
     assert min_interval("https://api.openalex.org/works") == 86_400
     assert min_interval("https://www.example.com/feed") == 0
+    assert provider_host("https://export.arxiv.org/api/query?search_query=cat:cs.LG") == (
+        "export.arxiv.org"
+    )
+    assert min_interval("https://export.arxiv.org/api/query") == 6 * 3600
 
 
 def test_one_budget_for_every_source_on_a_provider(redis_client: redis.Redis) -> None:

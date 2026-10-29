@@ -101,3 +101,17 @@ def test_scheduled_run_pairs_antigravity_with_claude_haiku(
     assert "ready=3" in run.output and "qwen=" not in run.output
     assert ("claude=" in run.output) is scheduled
     assert Claude.models == (["claude-haiku-5-5"] if scheduled else [])
+
+
+def test_scheduled_claude_has_no_cap_or_quiet_hours_by_default(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # 2026-10-29 (user request): every collected item gets a card, at any hour
+    settings = Settings()
+    assert (settings.card_claude_quiet_hours, settings.card_claude_daily_cap) == ("", 0)
+
+    def no_count() -> None:
+        raise AssertionError("an uncapped run needs no daily count")
+
+    monkeypatch.setattr(cli, "session_scope", no_count)
+    assert cli._scheduled_claude(settings) is True

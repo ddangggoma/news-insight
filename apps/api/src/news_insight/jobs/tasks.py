@@ -6,6 +6,7 @@ from datetime import UTC, datetime
 from typing import Any
 from zoneinfo import ZoneInfo
 
+from news_insight.collect.dead_letters import resume_transient
 from news_insight.collect.dispatch import claim_due_sources
 from news_insight.collect.service import collect_source
 from news_insight.config import get_settings
@@ -53,6 +54,12 @@ def collect_source_task(source_id: int) -> str:
                 gate=ProviderGate(client),
             )
             return run.outcome.value
+
+
+@celery_app.task(name="sources.resume_transient")
+def resume_transient_task() -> list[str]:
+    with session_scope() as session:
+        return [source.key for source in resume_transient(session, now=datetime.now(UTC))]
 
 
 @celery_app.task(name="sources.run_canaries")
@@ -216,8 +223,13 @@ def radar_warm_task() -> int:
     client = cache_client()
     if client is None:
         return 0
-    with session_scope() as session:
-        return warm(session, now=datetime.now(UTC), client=client)
+    # one warm-up at a time: on 2026-10-29 a run took 25 minutes on average against a 10 minute
+    # schedule, and overlapping runs held 2.4 of the 4 worker slots, so collection stalled
+    with SourceLock(get_redis(), ttl_seconds=3600, prefix="lock:").hold("radar-warm") as acquired:
+        if not acquired:
+            return 0
+        with session_scope() as session:
+            return warm(session, now=datetime.now(UTC), client=client)
 
 
 @celery_app.task(name="cards.triage_train")

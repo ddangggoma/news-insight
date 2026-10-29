@@ -334,6 +334,10 @@ def embed_titles(session: Session, embed: Embed, *, model: str, now: datetime, l
     return len(rows)
 
 
+# rows per upsert statement (eight parameters each, Postgres allows 65,535)
+UPSERT_CHUNK = 2000
+
+
 def score_pending(session: Session, *, now: datetime, limit: int) -> int:
     """Score embedded, uncarded items not yet scored by the active model."""
     from news_insight.cards.service import waits_for_root
@@ -407,24 +411,27 @@ def score_pending(session: Session, *, now: datetime, limit: int) -> int:
                 "scored_at": now,
             }
         )
-    statement = insert(ItemTriage).values(values)
-    session.execute(
-        statement.on_conflict_do_update(
-            index_elements=[ItemTriage.item_id],
-            set_={
-                c: statement.excluded[c]
-                for c in (
-                    "model_id",
-                    "dx_probability",
-                    "weight",
-                    "score",
-                    "themes",
-                    "matched",
-                    "scored_at",
-                )
-            },
+    # eight parameters a row: one statement passed Postgres's 65,535 limit once more than 8,191
+    # items waited, and every triage run failed while the card queue was long (2026-10-29)
+    for start in range(0, len(values), UPSERT_CHUNK):
+        statement = insert(ItemTriage).values(values[start : start + UPSERT_CHUNK])
+        session.execute(
+            statement.on_conflict_do_update(
+                index_elements=[ItemTriage.item_id],
+                set_={
+                    c: statement.excluded[c]
+                    for c in (
+                        "model_id",
+                        "dx_probability",
+                        "weight",
+                        "score",
+                        "themes",
+                        "matched",
+                        "scored_at",
+                    )
+                },
+            )
         )
-    )
     session.flush()
     return len(values)
 

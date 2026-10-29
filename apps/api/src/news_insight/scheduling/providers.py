@@ -32,6 +32,12 @@ PROVIDERS: dict[str, Provider] = {
     ),
     # public pool 1 request/s (polite pool with mailto is more); stay well under it
     "api.crossref.org": Provider(per_day=30 * 60 * 24, burst=1, validate_per_batch=5),
+    # arXiv asks for one request every 3 s on one connection; 41 category searches polled
+    # back to back drew 429s and timeouts until 38 of them paused (2026-10-29). New listings
+    # appear once a day, so each category polls every 6 hours, one request a minute at most.
+    "export.arxiv.org": Provider(
+        per_day=24 * 60, burst=1, validate_per_batch=3, min_interval_seconds=6 * 3600
+    ),
 }
 # with a free OpenAlex key ($1 a day, 10x): about 900 searches, so sources poll every 6 hours
 OPENALEX_WITH_KEY = Provider(

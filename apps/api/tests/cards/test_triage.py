@@ -157,3 +157,18 @@ def test_named_technologies_and_the_newest_share(db_session: Session, model: int
     assert "llm" in title_keys("Cheap LLM serving") and "llmserving" in title_keys(
         "Cheap LLM serving"
     )
+
+
+def test_a_long_queue_is_scored_in_several_statements(
+    db_session: Session, model: int, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from news_insight.cards import triage
+
+    monkeypatch.setattr(triage, "UPSERT_CHUNK", 2)  # 20,000 rows once passed 65,535 parameters
+    src = source(db_session, "good")
+    items = [item(db_session, src, f"AI agent release {n}") for n in range(5)]
+    embed_titles(db_session, fake_embed, model="m", now=NOW, limit=100)
+
+    assert score_pending(db_session, now=NOW, limit=100) == 5
+    scored = set(db_session.scalars(select(ItemTriage.item_id)))
+    assert {it.id for it in items} <= scored

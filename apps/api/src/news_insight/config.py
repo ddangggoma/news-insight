@@ -70,15 +70,16 @@ class Settings(BaseSettings):
     # Claude Code for cards: Haiku runs lanes next to Antigravity in every scheduled run and
     # carries on alone once Antigravity is down to its reserve (2026-10-13, user request).
     # Scheduled runs use it while `card_claude` is on (or before `card_claude_until`, ISO time),
-    # outside the quiet hours (KST, the briefing's Claude budget) and below a daily card cap;
-    # `cards run --claude` ignores all three.
+    # outside the quiet hours (KST) and below a daily card cap (0: none); `cards run --claude`
+    # ignores all three. Since 2026-10-29 (user request) there are no quiet hours and no cap:
+    # every collected item gets a card, and Haiku stops only when Claude reports its limit.
     card_claude: bool = True
     card_claude_until: str = ""
     card_claude_model: str = "claude-haiku-5-5"
     card_claude_batch: int = 12
-    card_claude_parallel: int = 3
-    card_claude_quiet_hours: str = "3-11"
-    card_claude_daily_cap: int = 1500
+    card_claude_parallel: int = 8
+    card_claude_quiet_hours: str = ""
+    card_claude_daily_cap: int = 0
     card_qwen_batch: int = 5
     # Qwen for cards when Claude is not in the run (quiet hours, daily cap): off since
     # 2026-10-13; `card_qwen_alongside` also runs its lanes next to Antigravity
