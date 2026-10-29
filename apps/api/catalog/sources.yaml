@@ -653,6 +653,8 @@ sources:
     poll_class: news
     dx_relevance: IoT·디바이스 취약점 권고
     storage_right: excerpt_allowed
+    config:
+      max_bytes: 12582912  # the full feed is 6 MB (2026-10-29), over the 5 MB default
   - key: eu-digital-strategy
     name: EU Digital Strategy News
     track: news

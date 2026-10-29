@@ -118,9 +118,11 @@ class SafeFetcher:
         allowed_mime: frozenset[str] | None = None,
         headers: Mapping[str, str] | None = None,
         form: Mapping[str, str] | None = None,
+        max_bytes: int | None = None,
     ) -> FetchResponse:
         """GET, or a form POST when `form` is given (an OAuth token request); a POST never
-        follows a redirect."""
+        follows a redirect. `max_bytes` raises the size limit for one request (a source whose
+        complete feed is larger, such as CISA's 6 MB advisories)."""
         started = time.monotonic()
         method = "GET" if form is None else "POST"
         request_headers = {"User-Agent": self._user_agent, **(headers or {})}
@@ -156,7 +158,7 @@ class SafeFetcher:
                         and content_type not in allowed_mime
                     ):
                         raise FetchBlocked("mime", f"unexpected content type '{content_type}'")
-                    body = self._read_limited(response)
+                    body = self._read_limited(response, max(max_bytes or 0, self._max_bytes))
                     return FetchResponse(
                         url=current,
                         status_code=response.status_code,
@@ -204,13 +206,13 @@ class SafeFetcher:
             raise FetchBlocked("peer_address", "cannot confirm the connected peer address")
         assert_public_ip(str(server_addr[0]))
 
-    def _read_limited(self, response: httpx.Response) -> bytes:
+    def _read_limited(self, response: httpx.Response, limit: int) -> bytes:
         declared = response.headers.get("content-length")
-        if declared is not None and declared.isdigit() and int(declared) > self._max_bytes:
-            raise FetchBlocked("too_large", f"declared size {declared} exceeds {self._max_bytes}")
+        if declared is not None and declared.isdigit() and int(declared) > limit:
+            raise FetchBlocked("too_large", f"declared size {declared} exceeds {limit}")
         body = bytearray()
         for chunk in response.iter_bytes():
             body.extend(chunk)
-            if len(body) > self._max_bytes:
-                raise FetchBlocked("too_large", f"response exceeds {self._max_bytes} bytes")
+            if len(body) > limit:
+                raise FetchBlocked("too_large", f"response exceeds {limit} bytes")
         return bytes(body)

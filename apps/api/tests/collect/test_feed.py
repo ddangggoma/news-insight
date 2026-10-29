@@ -153,3 +153,16 @@ def test_an_html_page_is_still_a_wrong_content_type(page: bytes) -> None:
         FeedCollector(serving(page, content_type="text/html")).collect(context())
 
     assert (error.value.code, error.value.retryable) == ("blocked_mime", False)
+
+
+def test_a_source_may_raise_the_size_limit() -> None:
+    big = RICH.replace(b"<title>t</title>", b"<title>t</title>" + b"<!--" + b"x" * 6000 + b"-->")
+    limited = serving(big)
+    limited._max_bytes = 4096  # the default limit, scaled down
+
+    with pytest.raises(CollectorError) as error:
+        FeedCollector(limited).collect(context())
+    assert error.value.code == "blocked_too_large"
+
+    raised = FeedCollector(limited).collect(context(config={"max_bytes": 1_000_000}))
+    assert [raw.title for raw in raised.items] == ["Galaxy S30"]

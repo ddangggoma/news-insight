@@ -34,6 +34,18 @@ def looks_like_feed(content: bytes) -> bool:
     return head.startswith(b"<?xml") and any(root in head for root in FEED_ROOTS)
 
 
+MAX_FEED_BYTES = 20 * 1024 * 1024
+
+
+def _max_bytes(config: dict[str, Any]) -> int | None:
+    """A source's own size limit (`max_bytes`), up to 20 MB; None keeps the fetcher's."""
+    try:
+        value = int(config.get("max_bytes") or 0)
+    except (TypeError, ValueError):
+        return None
+    return min(value, MAX_FEED_BYTES) if value > 0 else None
+
+
 class FeedCollector:
     def __init__(self, fetcher: SafeFetcher) -> None:
         self._fetcher = fetcher
@@ -41,7 +53,11 @@ class FeedCollector:
     def collect(self, context: CollectContext) -> CollectResult:
         url = expand_macros(context.endpoint_url, now=context.now)
         response = fetch_checked(
-            self._fetcher, url, allowed_mime=SNIFFED_MIME, headers=request_headers(context)
+            self._fetcher,
+            url,
+            allowed_mime=SNIFFED_MIME,
+            headers=request_headers(context),
+            max_bytes=_max_bytes(context.config),
         )
         if (
             response.status_code == 200
