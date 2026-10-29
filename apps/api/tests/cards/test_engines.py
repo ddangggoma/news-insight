@@ -48,6 +48,44 @@ def test_usage_parses_gemini_limits_only() -> None:
     assert not parse_usage("nothing").usable(min_weekly=0, min_five_hour=0)
 
 
+def usage_envelope(weekly: float, five_hour: float) -> dict[str, Any]:
+    """`agy -p /usage --output-format json`: the text rounds, the buckets carry the fraction."""
+    gemini = [
+        {"window": "weekly", "remaining_fraction": weekly},
+        {"window": "5h", "remaining_fraction": five_hour},
+    ]
+    others = [
+        {"window": "weekly", "remaining_fraction": 1},
+        {"window": "5h", "remaining_fraction": 1},
+    ]
+    return {
+        "status": "SUCCESS",
+        "response": f"Gemini Models\tWeekly Limit Remaining\t{round(weekly * 100)}%\t-\n",
+        "command": {
+            "data": {
+                "groups": [
+                    {"name": "Gemini Models", "buckets": gemini},
+                    {"name": "Claude and GPT models", "buckets": others},
+                ]
+            }
+        },
+    }
+
+
+def test_agy_usage_floors_the_exact_fraction() -> None:
+    """2026-10-08: 9.65 % left read as "10%" and looked like an idle Antigravity."""
+    spent = agy(FakeRunner(json.dumps(usage_envelope(0.0965, 0.999)))).usage()
+    assert (spent.weekly, spent.five_hour) == (9, 99)
+    assert not spent.usable(min_weekly=10, min_five_hour=2)
+
+
+def test_agy_is_usable_while_ten_percent_is_left() -> None:
+    """Cards may use 90 % of the weekly limit: 10 % left still counts (D18)."""
+    quota = agy(FakeRunner(json.dumps(usage_envelope(0.1, 0.5)))).usage()
+    assert (quota.weekly, quota.five_hour) == (10, 50)
+    assert quota.usable(min_weekly=10, min_five_hour=2)
+
+
 def test_agy_generates_with_schema_without_slash_commands_and_secrets() -> None:
     envelope = {"status": "SUCCESS", "structured_output": json.dumps({"cards": []})}
     runner = FakeRunner(json.dumps(envelope))

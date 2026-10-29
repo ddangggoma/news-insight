@@ -5,6 +5,7 @@ All run without tools and only see public item metadata plus the stored excerpt 
 """
 
 import json
+import math
 import os
 import re
 import subprocess
@@ -49,17 +50,18 @@ class QuotaExhausted(EngineError):
 
 @dataclass(frozen=True)
 class Quota:
-    """Remaining percentage of the Antigravity Gemini limits (None when unknown)."""
+    """Remaining whole percentage of a metered engine's limits, floored (None when unknown)."""
 
     weekly: int | None
     five_hour: int | None
 
     def usable(self, *, min_weekly: int, min_five_hour: int) -> bool:
+        """At least the reserve is left: with `min_weekly=10` cards use 90 % of the week (D18)."""
         return (
             self.weekly is not None
             and self.five_hour is not None
-            and self.weekly > min_weekly
-            and self.five_hour > min_five_hour
+            and self.weekly >= min_weekly
+            and self.five_hour >= min_five_hour
         )
 
     def as_dict(self) -> dict[str, int | None]:
@@ -69,6 +71,23 @@ class Quota:
 def parse_usage(text: str) -> Quota:
     found = {kind: int(value) for kind, value in USAGE_LINE.findall(text)}
     return Quota(weekly=found.get("Weekly"), five_hour=found.get("Five Hour"))
+
+
+def usage_buckets(envelope: dict[str, Any], group: str = "Gemini Models") -> Quota | None:
+    """The exact remaining fractions of `group`, floored to whole percent. The text lines round
+    (2026-10-08: 9.65 % read as "10%"), so they are only the fallback."""
+    data = envelope.get("command", {}).get("data", {}) if isinstance(envelope, dict) else {}
+    for entry in data.get("groups", []) if isinstance(data, dict) else []:
+        if not isinstance(entry, dict) or entry.get("name") != group:
+            continue
+        found: dict[str, int] = {}
+        for bucket in entry.get("buckets", []):
+            fraction = bucket.get("remaining_fraction") if isinstance(bucket, dict) else None
+            if isinstance(fraction, int | float):
+                found[str(bucket.get("window"))] = math.floor(float(fraction) * 100 + 1e-9)
+        if "weekly" in found and "5h" in found:
+            return Quota(weekly=found["weekly"], five_hour=found["5h"])
+    return None
 
 
 @dataclass(frozen=True)
@@ -149,7 +168,7 @@ class AgyEngine:
 
     def usage(self) -> Quota:
         envelope = self._run(["-p", "/usage", "--output-format", "json"])
-        return parse_usage(str(envelope.get("response", "")))
+        return usage_buckets(envelope) or parse_usage(str(envelope.get("response", "")))
 
     def generate(self, inputs: list[CardInput]) -> EngineOutput:
         prompt = f"{card_instructions()}\n입력:\n{_payload(inputs)}"
