@@ -132,3 +132,24 @@ def test_zoneless_dates_stay_utc_without_a_zone() -> None:
     zoneless, _ = FeedCollector(serving(ZONELESS)).collect(context()).items
 
     assert zoneless.published_at == datetime(2026, 10, 2, 8, 9, 31, tzinfo=UTC)
+
+
+def test_a_feed_labelled_html_is_read_by_its_body() -> None:
+    # krebsonsecurity.com/feed/ serves valid RSS as text/html (2026-10-29)
+    result = FeedCollector(serving(RICH, content_type="text/html")).collect(context())
+
+    assert [raw.title for raw in result.items] == ["Galaxy S30"]
+
+
+@pytest.mark.parametrize(
+    "page",
+    [
+        b"<!doctype html><html><body>Please accept cookies</body></html>",
+        b'<?xml version="1.0"?><html xmlns="http://www.w3.org/1999/xhtml"><body/></html>',
+    ],
+)
+def test_an_html_page_is_still_a_wrong_content_type(page: bytes) -> None:
+    with pytest.raises(CollectorError) as error:
+        FeedCollector(serving(page, content_type="text/html")).collect(context())
+
+    assert (error.value.code, error.value.retryable) == ("blocked_mime", False)

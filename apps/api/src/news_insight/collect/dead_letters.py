@@ -69,6 +69,9 @@ def retry(session: Session, dead_letter_id: int, *, now: datetime) -> DeadLetter
 # A source paused by one of them is tried again after a cool-down (2026-10-29: a Europe PMC
 # outage on 10-24 paused 80 searches and arXiv throttling 38 categories; none came back).
 TRANSIENT_CODES = frozenset({"server_error", "timeout", "transport", "dns", "rate_limited"})
+# a 403 or an HTML page in place of the feed is often a short bot wall or a maintenance page:
+# 20 of 21 such pauses and 21 of 22 collected again on 2026-10-29. They wait a day each time.
+SLOW_CODES = frozenset({"http_403", "blocked_mime"})
 PAUSE_CODE = re.compile(r"(?:repeated )?([a-z0-9_]+): ")
 PROBE_COOLDOWN = timedelta(hours=6)
 SLOW_PROBE_COOLDOWN = timedelta(hours=24)  # once the source has been failing for two days
@@ -82,7 +85,7 @@ def transient_pause_code(source: Source) -> str | None:
         return None
     match = PAUSE_CODE.match(source.paused_reason)
     code = match.group(1) if match else None
-    return code if code in TRANSIENT_CODES else None
+    return code if code in TRANSIENT_CODES | SLOW_CODES else None
 
 
 def resume_transient(session: Session, *, now: datetime) -> list[Source]:
@@ -99,12 +102,14 @@ def resume_transient(session: Session, *, now: datetime) -> list[Source]:
     ).tuples()
     resumed: list[Source] = []
     for source, runtime in rows:
-        if transient_pause_code(source) is None or runtime.last_success_at is None:
+        code = transient_pause_code(source)
+        if code is None or runtime.last_success_at is None:
             continue
         failing_for = now - runtime.last_success_at
         if failing_for > GIVE_UP_AFTER:
             continue
-        cooldown = SLOW_PROBE_COOLDOWN if failing_for > SLOW_AFTER else PROBE_COOLDOWN
+        slow = code in SLOW_CODES or failing_for > SLOW_AFTER
+        cooldown = SLOW_PROBE_COOLDOWN if slow else PROBE_COOLDOWN
         last_attempt = runtime.last_attempt_at or runtime.last_success_at
         if now - last_attempt < cooldown:
             continue

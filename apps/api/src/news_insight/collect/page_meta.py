@@ -5,6 +5,7 @@ Used to complete items found by the auto crawler and by sitemaps without news ti
 """
 
 import json
+import re
 from dataclasses import dataclass
 from datetime import datetime, tzinfo
 from typing import Any
@@ -104,13 +105,47 @@ def extract_meta(html: str, *, assume_tz: tzinfo) -> PageMeta:
         title = (h1.text() if h1 is not None else None) or (
             title_node.text() if title_node is not None else None
         )
-    description = _first_meta(tree, DESCRIPTION_META) or str(article.get("description") or "")
+    description = (_first_meta(tree, DESCRIPTION_META) or "").strip() or str(
+        article.get("description") or ""
+    ).strip()
     raw_date: Any = _first_meta(tree, DATE_META) or article.get("datePublished")
     if not raw_date:
         time_node = tree.css_first("time[datetime]")
         raw_date = time_node.attributes.get("datetime") if time_node is not None else None
+    if not description:
+        description = _lead(tree) or ""  # last: it strips navigation from the tree
     return PageMeta(
         title=clean_text(title, limit=300) if title else None,
         description=clean_text(description) if description else None,
         published_at=parse_datetime(raw_date, assume_tz=assume_tz) if raw_date else None,
     )
+
+
+LEAD_CONTAINERS = ("article", "main", "[role=main]", "#content", ".content", "body")
+LEAD_SKIP = ("nav", "header", "footer", "aside", "form", "script", "style", "noscript")
+BOILERPLATE = re.compile(
+    r"cookie|subscribe|sign up|newsletter|javascript|all rights reserved", re.I
+)
+
+
+def _lead(tree: HTMLParser, *, want: int = 300) -> str | None:
+    """First substantial paragraphs of the page, for pages whose description meta is empty
+    (2026-10-11: FreeBSD, ICO, JEDEC and ZOL pages gave cards nothing but a title)."""
+    for selector in LEAD_CONTAINERS:
+        container = tree.css_first(selector)
+        if container is None:
+            continue
+        for tag in LEAD_SKIP:
+            for node in container.css(tag):
+                node.decompose()
+        parts: list[str] = []
+        for paragraph in container.css("p"):
+            text = " ".join(paragraph.text(separator=" ").split())
+            if len(text) < 60 or BOILERPLATE.search(text):
+                continue
+            parts.append(text)
+            if sum(len(part) for part in parts) >= want or len(parts) == 3:
+                break
+        if parts:
+            return " ".join(parts)
+    return None

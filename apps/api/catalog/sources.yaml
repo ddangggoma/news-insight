@@ -599,6 +599,8 @@ sources:
     poll_class: news
     dx_relevance: 오디오 스트리밍·추천 ML 엔지니어링
     storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 180
   - key: nist-news
     name: NIST News
     track: news
@@ -6805,6 +6807,8 @@ sources:
     poll_class: community
     dx_relevance: 'Apache 재단: 주요 오픈소스 프로젝트 졸업·릴리스·거버넌스 소식'
     storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 180
   - key: google-open-source-blog
     name: Google Open Source Blog
     track: community
@@ -9138,7 +9142,7 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: stackexchange_questions
-      probe_max_age_days: 60
+      probe_max_age_days: 180
   - key: stackoverflow-esp32
     name: Stack Overflow [esp32]
     track: community
@@ -11340,6 +11344,8 @@ sources:
     poll_class: community
     dx_relevance: 'Arch Linux News: 오픈 거버넌스·플랫폼 커뮤니티 공지'
     storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 180
   - key: devto-homeassistant
     name: 'DEV Community #homeassistant'
     track: community
@@ -11988,6 +11994,8 @@ sources:
     poll_class: research
     dx_relevance: 'The Lancet Digital Health: 학술지 신규 논문'
     storage_right: excerpt_allowed
+    config:
+      probe_max_age_days: 180
   - key: frontiers-robotics-ai
     name: Frontiers in Robotics and AI
     track: research_ip
@@ -15312,6 +15320,7 @@ sources:
     config:
       timezone: Europe/Berlin
       enrich_limit: 15
+      link_pattern: 'ico\.org\.uk/about-the-ico/media-centre/news-and-blogs/'
   - key: imec-news-web
     name: imec News
     track: news
@@ -15333,7 +15342,9 @@ sources:
     track: news
     category: official_vendor
     access_method: sitemap
-    endpoint_url: https://www.infineon.com/sitemap-index.xml
+    # press releases and technology news (2026-10-29): the index has no news sitemap, and the
+    # gated product sitemaps it led to passed the 5 MB limit
+    endpoint_url: https://www.infineon.com/en.sitemap.row-sitemap.xml
     official_domain: infineon.com
     operator: Infineon Press
     region: eu_other
@@ -15344,6 +15355,7 @@ sources:
     config:
       timezone: Europe/Berlin
       enrich_limit: 15
+      link_pattern: '^https://www\.infineon\.com/(press-release|technology-news)/20(2[6-9]|[3-9]\d)/[^/?]+$'
   - key: mistral-news-web
     name: Mistral AI News
     track: news
@@ -15743,6 +15755,7 @@ sources:
     config:
       timezone: UTC
       enrich_limit: 15
+      link_pattern: 'jedec\.org/news/'
   - key: massdevice-web
     name: MassDevice
     track: news
@@ -15775,6 +15788,7 @@ sources:
     config:
       timezone: UTC
       enrich_limit: 15
+      link_pattern: 'mila\.quebec/en/article/'
   - key: mipi-news-web
     name: MIPI Alliance
     track: news
@@ -15808,6 +15822,10 @@ sources:
       mode: auto
       timezone: UTC
       enrich_limit: 12
+      link_pattern: 'csail\.mit\.edu/news/[a-z0-9-]{20,}'
+      article_date_selector: 'time[datetime]'
+      article_date_attribute: 'datetime'
+      probe_max_age_days: 120
   - key: mobileye-news-web
     name: Mobileye News
     track: news
@@ -15998,6 +16016,7 @@ sources:
     config:
       timezone: UTC
       enrich_limit: 15
+      link_pattern: 'waymo\.com/blog/'
   - key: ctee-tech-web
     name: 工商時報
     track: news
@@ -16493,6 +16512,8 @@ sources:
       mode: auto
       timezone: Asia/Seoul
       enrich_limit: 12
+      list_url: 'https://www.kist.re.kr/ko/news/latest-research-results.do'
+      link_pattern: 'latest-research-results\.do\?mode=view&articleNo=\d+'
   - key: lg-ai-research-web
     name: LG AI Research
     track: news
@@ -16752,6 +16773,7 @@ sources:
     config:
       timezone: UTC
       enrich_limit: 15
+      link_pattern: 'freebsd\.org/news/'
   - key: gentoo-news-web
     name: Gentoo News
     track: community
@@ -16807,8 +16829,9 @@ sources:
     name: Mozilla Hacks
     track: community
     category: open_governance
-    access_method: crawler
-    endpoint_url: https://hacks.mozilla.org/
+    # the site's own feed (2026-10-29): crawling stamped every article with the collection day
+    access_method: feed
+    endpoint_url: https://hacks.mozilla.org/feed/
     official_domain: mozilla.org
     operator: Mozilla Hacks
     region: global_en
@@ -16817,11 +16840,7 @@ sources:
     dx_relevance: 'Mozilla Hacks: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
     storage_right: excerpt_allowed
     config:
-      mode: auto
       timezone: UTC
-      enrich_limit: 12
-      date_fallback: now
-      drop_query: false
   - key: openhab-blog-web
     name: openHAB Blog
     track: community
@@ -18823,7 +18842,8 @@ sources:
     track: news
     category: independent_media
     access_method: feed
-    endpoint_url: https://krebsonsecurity.com/feed/atom/
+    # /feed/atom/ redirects to http://; /feed/ is RSS labelled text/html (read by its body)
+    endpoint_url: https://krebsonsecurity.com/feed/
     official_domain: krebsonsecurity.com
     operator: Brian Krebs
     region: global_en
@@ -18939,7 +18959,7 @@ sources:
       themes:
       - ai
       publisher_group: Andrej Karpathy Bear Blog
-      probe_max_age_days: 30
+      probe_max_age_days: 365
       max_age_days: 30
   - key: chip-huyen
     name: Chip Huyen
@@ -18959,7 +18979,7 @@ sources:
       themes:
       - ai
       publisher_group: Chip Huyen
-      probe_max_age_days: 30
+      probe_max_age_days: 365
       max_age_days: 30
   - key: sam-altman
     name: Sam Altman Blog
@@ -18999,7 +19019,7 @@ sources:
       themes:
       - ai
       publisher_group: Lilian Weng
-      probe_max_age_days: 30
+      probe_max_age_days: 365
       max_age_days: 30
   - key: brendan-gregg
     name: Brendan Gregg
@@ -19019,7 +19039,7 @@ sources:
       themes:
       - cloud_data
       publisher_group: Brendan Gregg
-      probe_max_age_days: 30
+      probe_max_age_days: 365
       max_age_days: 30
   - key: dan-luu
     name: Dan Luu
@@ -19080,7 +19100,7 @@ sources:
       themes:
       - platform_sw
       publisher_group: Dave Cheney
-      probe_max_age_days: 30
+      probe_max_age_days: 365
       max_age_days: 30
   - key: huggingface-forum
     name: Hugging Face Forums
@@ -19243,7 +19263,7 @@ sources:
       - platform_sw
       - cloud_data
       publisher_group: Martin Fowler
-      probe_max_age_days: 30
+      probe_max_age_days: 365
       max_age_days: 30
   - key: hashnode-engineering
     name: Hashnode Engineering

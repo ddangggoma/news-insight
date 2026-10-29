@@ -131,14 +131,15 @@ def test_a_transient_pause_resumes_after_its_cooldown(db_session: Session) -> No
 @pytest.mark.parametrize(
     "reason",
     [
-        "repeated http_403: HTTP 403 from https://www.example.com/feed",
         "selector_drift: 12/17 feed entries lack id, link or title",
-        "repeated blocked_mime: unexpected content type 'text/html'",
+        "blocked_private_address: resolves to 10.0.0.1",
         "low DX relevance 4% (7d, n=26)",
         "timeout spotted by hand, checking the site",
     ],
 )
-def test_blocks_drift_and_manual_pauses_stay_paused(db_session: Session, reason: str) -> None:
+def test_drift_unsafe_targets_and_manual_pauses_stay_paused(
+    db_session: Session, reason: str
+) -> None:
     source = paused_by(db_session, reason)
 
     assert resume_transient(db_session, now=NOW) == []
@@ -186,3 +187,18 @@ def test_a_candidate_resumes_as_a_candidate(db_session: Session) -> None:
     resume_transient(db_session, now=NOW)
 
     assert source.status is SourceStatus.CANDIDATE
+
+
+@pytest.mark.parametrize(
+    "reason",
+    [
+        "repeated http_403: HTTP 403 from https://www.example.com/feed",
+        "repeated blocked_mime: unexpected content type 'text/html'",
+    ],
+)
+def test_a_bot_wall_is_tried_again_once_a_day(db_session: Session, reason: str) -> None:
+    waiting = paused_by(db_session, reason, key="a", last_attempt=timedelta(hours=7))
+    due = paused_by(db_session, reason, key="b", last_attempt=timedelta(hours=25))
+
+    assert resume_transient(db_session, now=NOW) == [due]
+    assert waiting.status is SourceStatus.PAUSED
