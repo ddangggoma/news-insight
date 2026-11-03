@@ -214,3 +214,13 @@ def test_platform_stats_empty_window(db_session: Session):
     per_platform, overall = platform_stats(db_session, at=AT)
     assert per_platform == {}
     assert overall == PlatformStats(mean=0.0, std=0.0, n=0)
+
+
+@pytest.mark.db
+def test_platform_stats_gives_hf_daily_papers_a_distribution_outside_the_pool(db_session: Session):
+    _item(db_session, "hn-p", "Algolia (HN Search)", Track.COMMUNITY, {"points": 30})
+    _item(db_session, "hfp-1", "Hugging Face Daily Papers", Track.RESEARCH_IP, {"upvotes": 20})
+    _item(db_session, "hfp-2", "Hugging Face Daily Papers", Track.RESEARCH_IP, {"upvotes": 40})
+    per_platform, overall = platform_stats(db_session, at=AT)
+    assert per_platform["Hugging Face Daily Papers"].n == 2
+    assert overall.n == 1  # the pool stays community and open source

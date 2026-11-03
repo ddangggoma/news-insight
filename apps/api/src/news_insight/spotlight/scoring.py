@@ -102,7 +102,9 @@ def platform_stats(
     session: Session, *, at: datetime, days: int = 7
 ) -> tuple[dict[str, PlatformStats], PlatformStats]:
     """Velocity distribution per operator and pooled over community·oss items first seen in the
-    last `days` days, each item at its latest metrics snapshot taken by `at`."""
+    last `days` days, each item at its latest metrics snapshot taken by `at`. Papers of Hugging
+    Face Daily Papers (a research track) have a distribution of their own but stay out of the
+    pool."""
     latest = (
         select(ItemMetricSnapshot.item_id, ItemMetricSnapshot.metrics)
         .where(ItemMetricSnapshot.captured_at <= at)
@@ -111,19 +113,22 @@ def platform_stats(
         .subquery()
     )
     rows = session.execute(
-        select(Source.operator, Item.published_at, Item.first_seen_at, latest.c.metrics)
+        select(Source.operator, Item.track, Item.published_at, Item.first_seen_at, latest.c.metrics)
         .join(Item, Item.source_id == Source.id)
         .join(latest, latest.c.item_id == Item.id)
         .where(
-            Item.track.in_((Track.COMMUNITY, Track.OSS)),
+            Item.track.in_((Track.COMMUNITY, Track.OSS, Track.RESEARCH_IP)),
             Item.first_seen_at >= at - timedelta(days=days),
             Item.first_seen_at <= at,
         )
     ).all()
     by_operator: dict[str, list[float]] = defaultdict(list)
-    for operator, published, first_seen, metrics in rows:
+    pooled: list[float] = []
+    for operator, track, published, first_seen, metrics in rows:
         value = engagement(operator, metrics)
         if value is not None:
-            by_operator[operator].append(velocity(value, published, first_seen, at))
-    pooled = [v for values in by_operator.values() for v in values]
+            v = velocity(value, published, first_seen, at)
+            by_operator[operator].append(v)
+            if track is not Track.RESEARCH_IP:
+                pooled.append(v)
     return {op: _stats(values) for op, values in by_operator.items()}, _stats(pooled)

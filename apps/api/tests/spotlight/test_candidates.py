@@ -2,7 +2,7 @@ import json
 from datetime import UTC, date, datetime, timedelta
 
 import pytest
-from sqlalchemy import select, update
+from sqlalchemy import inspect, select, update
 from sqlalchemy.orm import Session
 
 from news_insight.cards.models import CardStatus, ItemCard
@@ -11,12 +11,13 @@ from news_insight.content.ingest import ingest_items
 from news_insight.content.models import Item, ItemDedup
 from news_insight.sources.enums import Region, Track, ValidationStage
 from news_insight.sources.models import Source
+from news_insight.spotlight import candidates as candidates_module
 from news_insight.spotlight.candidates import (
     SECTIONS,
     collect_candidates,
     window,
 )
-from news_insight.stories.models import Relation, Story, StoryItem
+from news_insight.stories.models import ItemRef, Relation, Story, StoryItem
 from tests.factories import build_source
 
 pytestmark = pytest.mark.db
@@ -26,7 +27,20 @@ SEEN = END - timedelta(hours=10)
 NOW = END
 
 
-def source(session: Session, key: str, track: Track, operator: str | None = None) -> Source:
+CATEGORY = {
+    Track.COMMUNITY: "dev_forum",
+    Track.OSS: "github_trending",
+    Track.RESEARCH_IP: "academic_paper",
+}
+
+
+def source(
+    session: Session,
+    key: str,
+    track: Track,
+    operator: str | None = None,
+    category: str | None = None,
+) -> Source:
     row = session.scalars(select(Source).where(Source.key == key)).one_or_none()
     if row is None:
         row = build_source(
@@ -34,7 +48,7 @@ def source(session: Session, key: str, track: Track, operator: str | None = None
             name=key,
             operator=operator or f"{key} Inc.",
             track=track,
-            category="dev_forum" if track is Track.COMMUNITY else "independent_media",
+            category=category or CATEGORY.get(track, "independent_media"),
             region=Region.GLOBAL_EN,
             official_domain=f"{key}.com",
             validation_stage=ValidationStage.V4,
@@ -52,6 +66,7 @@ def item(
     seen: datetime = SEEN,
     metrics: dict[str, int] | None = None,
     canary: bool = False,
+    title: str | None = None,
 ) -> Item:
     url = f"https://{src.key}.com/{slug}"
     ingest_items(
@@ -61,7 +76,7 @@ def item(
             RawItem(
                 stable_id=url,
                 url=url,
-                title=f"{slug} headline",
+                title=title or f"{slug} headline",
                 published_at=seen,
                 metrics=metrics or {},
             )
@@ -328,3 +343,342 @@ def test_to_json_round_trips_plain_data(db_session: Session):
         "stat_rank",
     }
     assert json.loads(json.dumps(data)) == data
+
+
+def test_link_sharing_post_is_community_candidate(db_session: Session):
+    article = news_story(db_session, "shared", 2)
+    posts = hn_posts(db_session, [5] * 10 + [400])
+    viral, other = posts[-1], posts[0]
+    article_id = article.representative_item_id
+    key = db_session.get(ItemDedup, article_id)
+    assert key is not None
+    # a post sharing a known article is stored as a repeat of it, matched by its link
+    db_session.execute(
+        update(ItemDedup)
+        .where(ItemDedup.item_id == viral.id)
+        .values(link_key=key.url_key, duplicate_of=article_id, matched_by="link")
+    )
+    # any other kind of repeat stays out
+    db_session.execute(
+        update(ItemDedup)
+        .where(ItemDedup.item_id == other.id)
+        .values(duplicate_of=posts[1].id, matched_by="title")
+    )
+    db_session.flush()
+    result = collect_candidates(db_session, day=DAY, now=NOW)
+    assert [c.item_ids for c in result["community"]] == [[viral.id]]
+    # it still counts as a mention of the article's event
+    assert result["news"][0].metrics["community_mentions"] == 1
+
+
+def test_rows_do_not_load_body_or_summary(db_session: Session):
+    news_story(db_session, "light", 2)
+    db_session.flush()
+    db_session.expunge_all()
+    rows = candidates_module._eligible_items(db_session, START, END)
+    assert rows
+    unloaded = inspect(rows[0].item).unloaded
+    assert {"body", "summary", "canonical_url"} <= unloaded
+    assert "title" not in unloaded
+
+
+def test_only_rows_a_section_needs_are_scored(db_session: Session, monkeypatch):
+    news_story(db_session, "plain", 3)
+    hn_posts(db_session, [5, 6])
+    scored: list[Track] = []
+    original = candidates_module.Scorer.add
+
+    def spy(self, rows):
+        scored.extend(row.item.track for row in rows)
+        return original(self, rows)
+
+    monkeypatch.setattr(candidates_module.Scorer, "add", spy)
+    collect_candidates(db_session, day=DAY, now=NOW)
+    assert scored
+    assert Track.NEWS not in scored
+
+
+def card(session: Session, target: Item, signal: str | None) -> ItemCard:
+    row = ItemCard(
+        item_id=target.id,
+        status=CardStatus.READY,
+        title_ko=f"카드 {target.id}",
+        summary_ko=["요약"],
+        keywords=[],
+        signal_type=signal,
+        engine="agy",
+        model="m",
+        input_hash="h",
+        attempts=0,
+        generated_at=SEEN,
+    )
+    session.add(row)
+    session.flush()
+    return row
+
+
+def launch_story(session: Session, name: str, count: int = 2, signal: str = "launch") -> Story:
+    row = news_story(session, name, count)
+    card(session, session.get(Item, row.representative_item_id), signal)  # type: ignore[arg-type]
+    return row
+
+
+def share(session: Session, post: Item, target: Item) -> None:
+    """`post` shares `target`'s article (as ingest stores it: a link repeat of that item)."""
+    key = session.get(ItemDedup, target.id)
+    assert key is not None
+    session.execute(
+        update(ItemDedup)
+        .where(ItemDedup.item_id == post.id)
+        .values(link_key=key.url_key, duplicate_of=target.id, matched_by="link")
+    )
+    session.flush()
+
+
+def ref(session: Session, target: Item, kind: str, value: str) -> None:
+    session.add(ItemRef(item_id=target.id, kind=kind, value=value, meta={}))
+    session.flush()
+
+
+def test_product_limit_is_forty(db_session: Session):
+    for n in range(45):
+        launch_story(db_session, f"launch{n}")
+    result = collect_candidates(db_session, day=DAY, now=NOW)
+    assert len(result["product"]) == 40
+    assert result["product"][0].cid == "p1"
+    assert result["product"][-1].cid == "p40"
+
+
+def test_product_only_launch_cards_with_two_sources_or_community_z(db_session: Session):
+    big = launch_story(db_session, "big", 4)
+    pair = launch_story(db_session, "pair", 2)
+    launch_story(db_session, "other", 3, signal="research")
+    # a lone launch item: one source, nobody talks about it
+    lone = item(db_session, source(db_session, "lone", Track.NEWS), "lone")
+    card(db_session, lone, "launch")
+    # a lone launch item that a viral post shares
+    hot = item(db_session, source(db_session, "hot", Track.NEWS), "hot")
+    card(db_session, hot, "launch")
+    posts = hn_posts(db_session, [5] * 10 + [400])
+    share(db_session, posts[-1], hot)
+    result = collect_candidates(db_session, day=DAY, now=NOW)
+    keys = [c.key for c in result["product"]]
+    assert keys[:2] == [f"story:{big.id}", f"story:{pair.id}"]
+    assert keys[2] == f"item:{hot.id}"
+    assert f"item:{lone.id}" not in keys
+    assert len(keys) == 3
+    top = result["product"][0]
+    assert top.score == pytest.approx(400.0)
+    assert top.metrics == {"source_count": 4, "community_mentions": 0, "community_z": 0.0}
+    assert top.title_ko == f"카드 {big.representative_item_id}"
+    hot_candidate = result["product"][2]
+    assert 101.0 < hot_candidate.score < 110.0  # one source (100) plus the post's z
+    assert hot_candidate.metrics["community_mentions"] == 1
+
+
+def test_oss_mentions_raise_rank(db_session: Session):
+    gh = source(db_session, "gh", Track.OSS, "GitHub")
+    quiet = item(db_session, gh, "quiet", metrics={"trending_stars_daily": 500})
+    loud = item(db_session, gh, "loud", metrics={"trending_stars_daily": 500})
+    for n in range(32):
+        item(db_session, gh, f"filler{n}", metrics={"trending_stars_daily": 5})
+    ref(db_session, quiet, "github", "acme/quiet")
+    ref(db_session, loud, "github", "acme/loud")
+    posts = hn_posts(db_session, [5, 5, 5])
+    for post in posts:
+        ref(db_session, post, "github", "acme/loud")
+    result = collect_candidates(db_session, day=DAY, now=NOW)
+    assert [c.item_ids for c in result["oss"]] == [[loud.id], [quiet.id]]
+    first, second = result["oss"]
+    assert first.metrics["mentions"] == 3
+    assert second.metrics["mentions"] == 0
+    assert first.metrics["trending_stars_daily"] == 500
+    assert first.score - second.score == pytest.approx(1.5)
+    assert first.cid == "o1"
+
+
+def test_oss_floor_is_z_or_two_mentions(db_session: Session):
+    gh = source(db_session, "gh", Track.OSS, "GitHub")
+    for n in range(32):
+        item(db_session, gh, f"filler{n}", metrics={"trending_stars_daily": 5})
+    spike = item(db_session, gh, "spike", metrics={"trending_stars_daily": 500})
+    one = item(db_session, gh, "one", metrics={"trending_stars_daily": 5})
+    two = item(db_session, gh, "two", metrics={"trending_stars_daily": 5})
+    bare = item(db_session, gh, "bare")  # no metrics: no z, but two mentions are enough
+    ref(db_session, one, "github", "acme/one")
+    ref(db_session, two, "github", "acme/two")
+    ref(db_session, bare, "hf", "acme/bare")
+    posts = hn_posts(db_session, [5, 5, 5, 5, 5])
+    ref(db_session, posts[0], "github", "acme/one")
+    for post in posts[1:3]:
+        ref(db_session, post, "github", "acme/two")
+    for post in posts[3:]:
+        ref(db_session, post, "hf", "acme/bare")
+    result = collect_candidates(db_session, day=DAY, now=NOW)
+    assert {c.item_ids[0] for c in result["oss"]} == {spike.id, two.id, bare.id}
+    assert one.id not in {c.item_ids[0] for c in result["oss"]}
+
+
+def test_oss_mention_ignores_the_item_itself_and_repeats(db_session: Session):
+    gh = source(db_session, "gh", Track.OSS, "GitHub")
+    target = item(db_session, gh, "target", metrics={"trending_stars_daily": 5})
+    ref(db_session, target, "github", "acme/target")
+    posts = hn_posts(db_session, [5, 5, 5])
+    for post in posts:
+        ref(db_session, post, "github", "acme/target")
+    # a url repeat and a post outside the window do not count; a link-sharing post does
+    db_session.execute(
+        update(ItemDedup)
+        .where(ItemDedup.item_id == posts[0].id)
+        .values(duplicate_of=posts[1].id, matched_by="url")
+    )
+    old = item(
+        db_session, source(db_session, "hn", Track.COMMUNITY, HN), "old", seen=START - timedelta(1)
+    )
+    ref(db_session, old, "github", "acme/target")
+    share(db_session, posts[2], target)
+    db_session.flush()
+    result = collect_candidates(db_session, day=DAY, now=NOW)
+    # posts[1] and posts[2] count: two mentions, enough for the floor
+    assert [c.metrics["mentions"] for c in result["oss"]] == [2]
+
+
+def test_interview_includes_video_and_title_pattern(db_session: Session):
+    yt = source(
+        db_session,
+        "yt",
+        Track.COMMUNITY,
+        "Google LLC (YouTube Data API)",
+        category="video_channel",
+    )
+    video = item(db_session, yt, "talk", metrics={"views": 12000})
+    news = source(db_session, "wire", Track.NEWS)
+    ceo = item(db_session, news, "ceo", title="Nvidia CEO interview on the next chip")
+    item(db_session, news, "plain", title="Chip maker posts earnings")
+    result = collect_candidates(db_session, day=DAY, now=NOW)
+    assert {c.item_ids[0] for c in result["interview"]} == {video.id, ceo.id}
+    assert all(c.cid.startswith("i") for c in result["interview"])
+
+
+def test_interview_podcast_category_and_korean_pattern(db_session: Session):
+    pod = source(db_session, "pod", Track.NEWS, category="podcast_newsletter")
+    episode = item(db_session, pod, "ep1", title="Weekly notes")
+    wire = source(db_session, "wire", Track.NEWS)
+    korean = item(db_session, wire, "kr", title="삼성전자 사장 인터뷰")
+    item(db_session, wire, "no", title="Casey interviewed nobody")  # not the word itself
+    result = collect_candidates(db_session, day=DAY, now=NOW)
+    assert {c.item_ids[0] for c in result["interview"]} == {episode.id, korean.id}
+
+
+def test_interview_score_adds_reports_and_video_views_z(db_session: Session):
+    yt = source(
+        db_session,
+        "yt",
+        Track.COMMUNITY,
+        "Google LLC (YouTube Data API)",
+        category="video_channel",
+    )
+    for n in range(32):
+        item(db_session, yt, f"f{n}", metrics={"views": 10})
+    hit = item(db_session, yt, "hit", metrics={"views": 90000})
+    wire = [item(db_session, source(db_session, f"w{n}", Track.NEWS), f"w{n}") for n in range(3)]
+    covered = item(
+        db_session,
+        source(db_session, "talk", Track.NEWS),
+        "talk",
+        title="Founder keynote highlights",
+    )
+    story(db_session, [covered, *wire], source_count=4)
+    result = collect_candidates(db_session, day=DAY, now=NOW)
+    by_id = {c.item_ids[0]: c for c in result["interview"]}
+    # the story folds to one entry: the covered keynote with its 4 sources
+    assert by_id[covered.id].score == pytest.approx(4.0)
+    assert by_id[covered.id].key.startswith("story:")
+    assert by_id[covered.id].item_ids == [covered.id]
+    assert by_id[hit.id].score > 1.0  # views z, no reports
+    assert result["interview"][0].item_ids == [hit.id]
+
+
+def test_interview_has_no_floor_but_caps_at_thirty(db_session: Session):
+    wire = source(db_session, "wire", Track.NEWS)
+    for n in range(35):
+        item(db_session, wire, f"q{n}", title=f"Founder podcast {n}")
+    result = collect_candidates(db_session, day=DAY, now=NOW)
+    assert len(result["interview"]) == 30
+
+
+def paper(session: Session, slug: str, *, operator: str | None = None, metrics=None) -> Item:
+    src = source(session, f"paper-{slug}", Track.RESEARCH_IP, operator)
+    return item(session, src, slug, metrics=metrics)
+
+
+def test_research_counts_arxiv_mentions(db_session: Session):
+    target = paper(db_session, "p1")
+    ref(db_session, target, "arxiv", "2610.00001")
+    posts = hn_posts(db_session, [5, 5])
+    for post in posts:
+        ref(db_session, post, "arxiv", "2610.00001")
+    result = collect_candidates(db_session, day=DAY, now=NOW)
+    assert [c.item_ids for c in result["research"]] == [[target.id]]
+    candidate = result["research"][0]
+    assert candidate.metrics["mentions"] == 2
+    assert candidate.metrics["upvotes"] == 0
+    assert candidate.score == pytest.approx(20.0)
+    assert candidate.cid == "r1"
+
+
+def test_research_without_mentions_or_upvotes_excluded(db_session: Session):
+    paper(db_session, "silent")
+    ref_only = paper(db_session, "ref-only")
+    ref(db_session, ref_only, "doi", "10.1000/abc")
+    paper(db_session, "few", operator="Hugging Face Daily Papers", metrics={"upvotes": 9})
+    result = collect_candidates(db_session, day=DAY, now=NOW)
+    assert result["research"] == []
+
+
+def test_research_hf_upvotes_floor_and_z(db_session: Session):
+    op = "Hugging Face Daily Papers"
+    for n in range(32):
+        paper(db_session, f"low{n}", operator=op, metrics={"upvotes": 1, "comments": 0})
+    ten = paper(db_session, "ten", operator=op, metrics={"upvotes": 10, "comments": 0})
+    top = paper(db_session, "top", operator=op, metrics={"upvotes": 300, "comments": 20})
+    result = collect_candidates(db_session, day=DAY, now=NOW)
+    assert [c.item_ids[0] for c in result["research"]] == [top.id, ten.id]
+    assert result["research"][0].metrics["upvotes"] == 300
+    assert result["research"][0].score > result["research"][1].score > 0
+
+
+def test_research_mentions_may_come_from_any_track_but_the_paper_itself(db_session: Session):
+    target = paper(db_session, "p1")
+    ref(db_session, target, "doi", "10.1000/xyz")
+    news = item(db_session, source(db_session, "wire", Track.NEWS), "about")
+    ref(db_session, news, "doi", "10.1000/xyz")
+    ref(db_session, news, "arxiv", "2610.00009")  # unrelated second ref
+    result = collect_candidates(db_session, day=DAY, now=NOW)
+    assert result["research"][0].metrics["mentions"] == 1
+
+
+def test_patent_ip_story_included(db_session: Session):
+    ip = launch_story(db_session, "ip", 3, signal="ip")
+    launch_story(db_session, "plain", 3, signal="launch")
+    result = collect_candidates(db_session, day=DAY, now=NOW)
+    assert [c.key for c in result["patent"]] == [f"story:{ip.id}"]
+    assert result["patent"][0].cid == "t1"
+    assert result["patent"][0].score == pytest.approx(3.0)
+
+
+def test_patent_office_item_needs_a_mention(db_session: Session):
+    office = source(db_session, "epo", Track.RESEARCH_IP, category="patent_office")
+    silent = item(db_session, office, "silent")
+    talked = item(db_session, office, "talked")
+    posts = hn_posts(db_session, [5])
+    share(db_session, posts[0], talked)
+    ip = launch_story(db_session, "ip", 2, signal="ip")
+    result = collect_candidates(db_session, day=DAY, now=NOW)
+    by_key = {c.key: c for c in result["patent"]}
+    assert set(by_key) == {f"item:{talked.id}", f"story:{ip.id}"}
+    assert f"item:{silent.id}" not in by_key
+    # one report (itself) plus one mention vs two reports
+    assert by_key[f"item:{talked.id}"].score == pytest.approx(2.0)
+    assert by_key[f"item:{talked.id}"].metrics["mentions"] == 1
+    assert by_key[f"story:{ip.id}"].score == pytest.approx(2.0)
