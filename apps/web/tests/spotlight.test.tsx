@@ -2,6 +2,7 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { DateSelect } from "@/components/reader/spotlight/date-select";
+import { GeneratingBand } from "@/components/reader/spotlight/generating-band";
 import { EntryRow } from "@/components/reader/spotlight/entry-row";
 import { Overview } from "@/components/reader/spotlight/overview";
 import { SectionList } from "@/components/reader/spotlight/section-list";
@@ -157,6 +158,13 @@ describe("Overview links", () => {
     expect(screen.getByRole("link", { name: SECTION_LABEL.news })).toHaveAttribute("href", "/spotlight?tab=news");
     rerender(<Overview view={viewOf()} date="2026-11-02" />);
     expect(screen.getByRole("link", { name: SECTION_LABEL.news })).toHaveAttribute("href", "/spotlight?tab=news&date=2026-11-02");
+  });
+});
+
+describe("GeneratingBand", () => {
+  it("says only that today's list is being generated, as a status", () => {
+    render(<GeneratingBand />);
+    expect(screen.getByRole("status")).toHaveTextContent(/^오늘 목록 생성 중$/);
   });
 });
 

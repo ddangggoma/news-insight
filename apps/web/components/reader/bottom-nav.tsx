@@ -20,13 +20,14 @@ export function BottomNav() {
             key={item.href}
             href={item.href}
             aria-current={active ? "page" : undefined}
+            aria-label={item.short ? item.label : undefined}
             className={cn(
               "flex flex-col items-center gap-0.5 px-0.5 py-2 text-center text-[10px] leading-tight text-muted-foreground",
               active && "font-semibold text-primary",
             )}
           >
             <item.icon className="size-5" aria-hidden />
-            {item.label}
+            {item.short ?? item.label}
           </Link>
         );
       })}

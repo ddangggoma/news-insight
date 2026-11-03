@@ -14,7 +14,8 @@ test.describe("spotlight", () => {
     // the four sections without a hot item say so
     await expect(page.getByText("오늘은 기준을 넘는 화제가 없습니다")).toHaveCount(4);
     // the overview keeps the address date-free so the page rolls forward with the days
-    await expect(page.getByRole("link", { name: "뉴스", exact: true }).first()).toHaveAttribute("href", "/spotlight?tab=news");
+    const newsBlock = page.getByRole("main").locator("section", { has: page.getByRole("heading", { level: 2, name: "뉴스" }) });
+    await expect(newsBlock.getByRole("link", { name: "뉴스", exact: true })).toHaveAttribute("href", "/spotlight?tab=news");
   });
 
   test("the news tab shows Opus's ranking, change badges and the fallback mark", async ({ page, isMobile }) => {

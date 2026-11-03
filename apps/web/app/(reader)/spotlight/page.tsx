@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { DateSelect } from "@/components/reader/spotlight/date-select";
+import { GeneratingBand } from "@/components/reader/spotlight/generating-band";
 import { Overview } from "@/components/reader/spotlight/overview";
 import { SectionList } from "@/components/reader/spotlight/section-list";
 import { SpotlightTabs } from "@/components/reader/spotlight/spotlight-tabs";
@@ -43,11 +44,7 @@ export default async function SpotlightPage({ searchParams }: { searchParams: Pr
         <DateSelect dates={view.available_dates} current={view.date} tab={tab} />
       </div>
 
-      {view.generating && (
-        <p role="status" className="rounded-lg border border-primary/30 bg-primary/5 px-4 py-2 text-sm">
-          오늘 목록 생성 중
-        </p>
-      )}
+      {view.generating && <GeneratingBand />}
 
       <SpotlightTabs active={tab} date={requested ?? null} />
 

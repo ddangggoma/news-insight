@@ -39,10 +39,15 @@ describe("reader menu", () => {
     expect(isReaderActive("/reports/12", item("동향 보고서 작성"))).toBe(true);
   });
 
-  it("shows the same entries at the bottom on phones", () => {
+  it("shows the same entries at the bottom on phones, with short labels where the full ones would wrap", () => {
     render(<BottomNav />);
     const links = within(screen.getByRole("navigation", { name: "하단 메뉴" })).getAllByRole("link");
-    expect(links.map((link) => link.textContent)).toEqual(READER_NAV.map((entry) => entry.label));
+    expect(links.map((link) => link.textContent)).toEqual(["브리핑", "주목", "탐색", "레이더", "투자·제휴", "특허", "로드맵", "보고서"]);
+    expect(links.map((link) => link.textContent)).toEqual(READER_NAV.map((entry) => entry.short ?? entry.label));
+    // the full label stays the accessible name
+    expect(links.map((link) => link.getAttribute("href"))).toEqual(READER_NAV.map((entry) => entry.href));
+    expect(screen.getByRole("link", { name: "데일리 브리핑" })).toHaveTextContent("브리핑");
+    expect(screen.getByRole("link", { name: "동향 보고서 작성" })).toHaveTextContent("보고서");
     expect(screen.getByRole("link", { name: "로드맵" })).toHaveAttribute("aria-current", "page");
   });
 });
