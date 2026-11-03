@@ -5,44 +5,19 @@ import { useMemo, useState } from "react";
 
 import { DataTable } from "@/components/reader/benchmarks/data-table";
 import { ChangeMark, ProviderDot, ToggleChip } from "@/components/reader/benchmarks/parts";
-import { providerKey, providerLabel } from "@/components/reader/benchmarks/provider-colors";
+import { type ProviderKey, providerKey, providerLabel } from "@/components/reader/benchmarks/provider-colors";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { type BenchmarkRow, type BenchmarkSite, boardLabel, extraNumber, extraString } from "@/lib/benchmark-types";
+import { boardLabel, colourOrg, isOpenLicense } from "@/lib/benchmark-types";
+import type { ArenaRow as Projected, ArenaView } from "@/lib/benchmark-view";
 import { formatNumber } from "@/lib/format";
-
-interface ArenaRow {
-  id: string;
-  row: BenchmarkRow;
-  rank: number | null;
-  model: string;
-  org: string | null;
-  score: number;
-  low: number | null;
-  high: number | null;
-  votes: number | null;
-  license: string | null;
-}
 
 /** The agent board scores a share of tasks (0-1); the others are Elo-style ratings. */
 const isShare = (board: string) => board === "agent";
+const TABLE_ROWS = 25;
 
-function toArena(row: BenchmarkRow, index: number): ArenaRow {
-  return {
-    id: `${row.model}|${index}`,
-    row,
-    rank: extraNumber(row, "rank") ?? row.rank,
-    model: row.model,
-    org: row.org,
-    score: row.value,
-    low: row.ci_low,
-    high: row.ci_high,
-    votes: extraNumber(row, "vote_count") ?? extraNumber(row, "session_count"),
-    license: extraString(row, "license"),
-  };
-}
-
-const isOpenLicense = (license: string | null) => license !== null && !/proprietary/i.test(license);
+/** A projected row plus what the client derives from it (kept out of the page payload). */
+type ArenaRow = Projected & { provider: ProviderKey; open: boolean };
 
 function orgName(org: string | null): string {
   if (!org) return "—";
@@ -88,11 +63,12 @@ function buildColumns(board: string, min: number, max: number) {
       cell: ({ row: { original: r } }) => (
         <span className="flex items-center gap-1.5">
           <span className="w-6 text-right font-semibold tabular-nums">{r.rank ?? "—"}</span>
-          <ProviderDot org={r.org} />
+          <ProviderDot provider={r.provider} />
           <span className="max-w-56 truncate font-medium" title={r.model}>
             {r.model}
           </span>
-          <ChangeMark change={r.row.change} by={r.row.change_by} />
+          {r.open && <span className="rounded border border-emerald-600/40 px-1 text-[10px] text-emerald-700 dark:text-emerald-400">open</span>}
+          <ChangeMark change={r.change ?? null} by={r.changeBy ?? 0} />
         </span>
       ),
     }),
@@ -123,28 +99,32 @@ function buildColumns(board: string, min: number, max: number) {
  * board's own range so overlapping intervals read as ties) · votes · organisation · licence,
  * with an open-licence filter and a name search.
  */
-export function LmArenaTable({ site }: { site: BenchmarkSite }) {
-  const boards = site.boards.filter((b) => site.rows.some((r) => r.board === b));
-  const [board, setBoard] = useState(boards[0] ?? "");
+export function LmArenaTable({ view }: { view: ArenaView }) {
+  // opens on 텍스트 like the site; boards arrive in the site's tab order
+  const [board, setBoard] = useState(view[0]?.key ?? "");
   const [openOnly, setOpenOnly] = useState(false);
   const [query, setQuery] = useState("");
 
-  const rows = useMemo(() => site.rows.filter((r) => r.board === board).map(toArena), [site.rows, board]);
+  const current = view.find((b) => b.key === board);
+  const rows = useMemo(
+    () => (current?.rows ?? []).map((r): ArenaRow => ({ ...r, provider: providerKey(colourOrg(r.org, r.model)), open: isOpenLicense(r.license) })),
+    [current],
+  );
   const min = Math.min(...rows.map((r) => r.low ?? r.score));
   const max = Math.max(...rows.map((r) => r.high ?? r.score));
   const columns = useMemo(() => buildColumns(board, min, max), [board, min, max]);
   const needle = query.trim().toLowerCase();
-  const shown = rows.filter((r) => (!openOnly || isOpenLicense(r.license)) && (!needle || r.model.toLowerCase().includes(needle)));
-  const published = rows.map((r) => extraString(r.row, "leaderboard_publish_date")).find(Boolean);
+  const shown = rows.filter((r) => (!openOnly || r.open) && (!needle || r.model.toLowerCase().includes(needle)));
+  const published = current?.published;
 
   return (
     <div className="space-y-3">
       <Tabs value={board} onValueChange={setBoard}>
         <div className="overflow-x-auto">
           <TabsList>
-            {boards.map((b) => (
-              <TabsTrigger key={b} value={b} className="px-3">
-                {boardLabel("lmarena", b)}
+            {view.map(({ key }) => (
+              <TabsTrigger key={key} value={key} className="px-3">
+                {boardLabel("lmarena", key)}
               </TabsTrigger>
             ))}
           </TabsList>
@@ -155,8 +135,9 @@ export function LmArenaTable({ site }: { site: BenchmarkSite }) {
         label={`LMArena ${boardLabel("lmarena", board)} 순위표`}
         columns={columns}
         data={shown}
-        getRowId={(r) => r.id}
+        getRowId={(r) => r.model}
         initialSorting={[{ id: "model", desc: false }]}
+        initialLimit={TABLE_ROWS}
         toolbar={
           <>
             <Input type="search" aria-label="모델 검색" placeholder="모델 검색" value={query} onChange={(event) => setQuery(event.target.value)} className="h-7 w-40 text-xs" />

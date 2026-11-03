@@ -24,7 +24,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 
 declare module "@tanstack/react-table" {
@@ -42,7 +42,18 @@ declare module "@tanstack/react-table" {
 // Sticky first column: an opaque background so scrolled cells pass under it, and a hairline
 // at its right edge. The hover colour is the row's own hover (muted at 50%) mixed opaque.
 const STICKY = "sticky left-0 z-10 bg-card shadow-[inset_-1px_0_0_var(--border)]";
-const STICKY_HOVER = "group-hover:bg-[color-mix(in_oklab,var(--muted)_50%,var(--card))]";
+
+// Body rows and cells are styled once here rather than per cell: a 400-row board would
+// otherwise repeat the same class strings in every cell of the server-rendered page. Same
+// look as the shadcn TableRow/TableCell.
+const BODY = cn(
+  "text-[13px]",
+  "[&_tbody_tr]:border-b [&_tbody_tr:last-child]:border-0 [&_tbody_tr]:transition-colors [&_tbody_tr:hover]:bg-muted/50 [&_tbody_tr[data-state=selected]]:bg-muted",
+  "[&_tbody_td]:px-2 [&_tbody_td]:py-1.5 [&_tbody_td]:align-middle [&_tbody_td]:whitespace-nowrap",
+  "[&_tbody_tr:not([data-sub])>td:first-child]:sticky [&_tbody_tr:not([data-sub])>td:first-child]:left-0 [&_tbody_tr:not([data-sub])>td:first-child]:z-10",
+  "[&_tbody_tr:not([data-sub])>td:first-child]:bg-card [&_tbody_tr:not([data-sub])>td:first-child]:shadow-[inset_-1px_0_0_var(--border)]",
+  "[&_tbody_tr:hover>td:first-child]:bg-[color-mix(in_oklab,var(--muted)_50%,var(--card))] [&_tbody_tr[data-state=selected]>td:first-child]:bg-muted",
+);
 
 export interface DataTableProps<T> {
   // TanStack's accessor columns carry their value type; a mixed list needs `any` here.
@@ -71,6 +82,8 @@ export interface DataTableProps<T> {
   rowName?: (row: T) => string;
   initialSorting?: SortingState;
   initialVisibility?: VisibilityState;
+  /** Rows drawn before "모두 보기" (keeps a 400-row board out of the first page load). */
+  initialLimit?: number;
   /** Filters and toggles that sit left of the column menu. */
   toolbar?: ReactNode;
   emptyText?: string;
@@ -101,6 +114,7 @@ export function DataTable<T>({
   rowName,
   initialSorting = [],
   initialVisibility = {},
+  initialLimit,
   toolbar,
   emptyText = "표시할 모델이 없습니다",
   className,
@@ -108,6 +122,7 @@ export function DataTable<T>({
   const [sorting, setSorting] = useState<SortingState>(initialSorting);
   const [visibility, setVisibility] = useState<VisibilityState>(initialVisibility);
   const [expanded, setExpanded] = useState<ExpandedState>({});
+  const [limit, setLimit] = useState(initialLimit);
   const full = maxSelected !== undefined && selected.length >= maxSelected;
 
   const table = useReactTable({
@@ -128,9 +143,14 @@ export function DataTable<T>({
     getExpandedRowModel: getExpandedRowModel(),
   });
 
-  const toggle = (id: string) => onSelectedChange?.(selected.includes(id) ? selected.filter((s) => s !== id) : [...selected, id]);
+  const toggle = (id: string) => {
+    if (selected.includes(id)) onSelectedChange?.(selected.filter((s) => s !== id));
+    else if (!full) onSelectedChange?.([...selected, id]);
+  };
   const hideable = table.getAllLeafColumns().filter((column, index) => index > 0 && column.getCanHide());
   const visible = table.getVisibleLeafColumns().length;
+  const all = table.getRowModel().rows;
+  const rows = limit !== undefined ? all.slice(0, limit) : all;
 
   return (
     <div className={cn("space-y-2", className)}>
@@ -163,7 +183,7 @@ export function DataTable<T>({
         </div>
       )}
       <div className="rounded-lg border">
-        <Table aria-label={label} className="text-[13px]">
+        <Table aria-label={label} className={BODY}>
           <TableHeader>
             {table.getHeaderGroups().map((group) => (
               <TableRow key={group.id} className="hover:bg-transparent">
@@ -206,32 +226,24 @@ export function DataTable<T>({
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={visible} className="h-20 text-center text-muted-foreground">
+            {rows.length === 0 ? (
+              <tr data-sub="">
+                <td colSpan={visible} className="h-20 text-center text-muted-foreground">
                   {emptyText}
-                </TableCell>
-              </TableRow>
+                </td>
+              </tr>
             ) : (
-              table.getRowModel().rows.map((row) => {
+              rows.map((row) => {
                 const name = rowName ? rowName(row.original) : row.id;
                 const isSelected = row.getIsSelected();
                 return (
                   <Fragment key={row.id}>
-                    <TableRow data-state={isSelected ? "selected" : undefined} className="group">
+                    <tr data-state={isSelected ? "selected" : undefined}>
                       {row.getVisibleCells().map((cell, index) => {
                         const meta = cell.column.columnDef.meta;
                         const body = flexRender(cell.column.columnDef.cell, cell.getContext());
                         return (
-                          <TableCell
-                            key={cell.id}
-                            className={cn(
-                              "py-1.5",
-                              meta?.numeric && "text-right tabular-nums",
-                              meta?.cellClassName?.(row.original),
-                              index === 0 && [STICKY, STICKY_HOVER, isSelected && "bg-muted"],
-                            )}
-                          >
+                          <td key={cell.id} className={cn(meta?.numeric && "text-right tabular-nums", meta?.cellClassName?.(row.original)) || undefined}>
                             {index === 0 && (enableRowSelection || enableExpanding) ? (
                               <div className="flex items-center gap-1.5">
                                 {enableRowSelection && (
@@ -264,16 +276,16 @@ export function DataTable<T>({
                             ) : (
                               body
                             )}
-                          </TableCell>
+                          </td>
                         );
                       })}
-                    </TableRow>
+                    </tr>
                     {row.getIsExpanded() && renderSubRow && (
-                      <TableRow className="bg-muted/30 hover:bg-muted/30">
-                        <TableCell colSpan={visible} className="p-0 whitespace-normal">
+                      <tr data-sub="" className="bg-muted/30 hover:bg-muted/30">
+                        <td colSpan={visible} className="p-0! whitespace-normal!">
                           <div className="sticky left-0 max-w-[calc(100vw-4rem)] px-3 py-2.5 md:max-w-3xl">{renderSubRow(row.original)}</div>
-                        </TableCell>
-                      </TableRow>
+                        </td>
+                      </tr>
                     )}
                   </Fragment>
                 );
@@ -282,6 +294,11 @@ export function DataTable<T>({
           </TableBody>
         </Table>
       </div>
+      {rows.length < all.length && (
+        <Button variant="ghost" size="sm" className="w-full text-muted-foreground" onClick={() => setLimit(undefined)}>
+          {`${all.length}개 모두 보기`}
+        </Button>
+      )}
     </div>
   );
 }

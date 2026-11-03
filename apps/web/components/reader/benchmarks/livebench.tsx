@@ -11,90 +11,13 @@ import { slotColor } from "@/components/reader/benchmarks/provider-colors";
 import { Button } from "@/components/ui/button";
 import { type ChartConfig, ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Input } from "@/components/ui/input";
-import {
-  type BenchmarkChange,
-  type BenchmarkSite,
-  LIVEBENCH_CATEGORIES,
-  extraNumber,
-  formatUsd,
-  isOpenWeights,
-  rowOrg,
-} from "@/lib/benchmark-types";
+import { LIVEBENCH_CATEGORIES, formatUsd } from "@/lib/benchmark-types";
+import type { LiveModel } from "@/lib/benchmark-view";
 import { cn } from "@/lib/utils";
 
 type Category = (typeof LIVEBENCH_CATEGORIES)[number]["key"];
 const COMPARE_MAX = 4;
 const SHADED = 5;
-
-export interface LiveModel {
-  model: string;
-  org: string | null;
-  open: boolean;
-  /** Our mean of the categories (the site weights a few; see the footnote). */
-  overall: number | null;
-  /** Null when the model covers under 75% of the categories. */
-  rank: number | null;
-  coverage: number | null;
-  change: BenchmarkChange | null;
-  changeBy: number;
-  scores: Partial<Record<Category, number>>;
-  parts: Partial<Record<Category, Record<string, number>>>;
-  /** The site's "cost per successful task": (Σ cost ÷ Σ tasks) ÷ overall × 100. */
-  costPerSuccess: number | null;
-}
-
-/** One record per model from the stored rows: categories, derived overall, cost. */
-export function liveBenchModels(site: BenchmarkSite, openIndex: Set<string>): LiveModel[] {
-  const byModel = new Map<string, LiveModel & { cost: number; tasks: number; model_id: number | null }>();
-  for (const row of site.rows) {
-    let entry = byModel.get(row.model);
-    if (!entry) {
-      entry = {
-        model: row.model,
-        model_id: row.model_id,
-        org: rowOrg(row),
-        open: isOpenWeights(row, openIndex),
-        overall: null,
-        rank: null,
-        coverage: null,
-        change: null,
-        changeBy: 0,
-        scores: {},
-        parts: {},
-        costPerSuccess: null,
-        cost: 0,
-        tasks: 0,
-      };
-      byModel.set(row.model, entry);
-    }
-    if (row.metric === "overall") {
-      entry.overall = row.value;
-      entry.rank = row.rank;
-      entry.coverage = extraNumber(row, "coverage");
-      entry.change = row.change;
-      entry.changeBy = row.change_by;
-    } else if (row.metric === "cost_per_success") {
-      const tasks = extraNumber(row, "questions");
-      if (tasks !== null && tasks > 0) {
-        entry.cost += row.value;
-        entry.tasks += tasks;
-      }
-    } else if (LIVEBENCH_CATEGORIES.some((c) => c.key === row.metric)) {
-      const key = row.metric as Category;
-      entry.scores[key] = row.value;
-      const parts = row.extra.parts;
-      if (parts && typeof parts === "object") entry.parts[key] = parts as Record<string, number>;
-    }
-  }
-  return [...byModel.values()].map(({ cost, tasks, model_id: _id, ...model }) => {
-    if (model.overall === null) {
-      const values = Object.values(model.scores);
-      model.overall = values.length ? values.reduce((a, b) => a + b, 0) / values.length : null;
-    }
-    model.costPerSuccess = tasks > 0 && model.overall ? (cost / tasks / model.overall) * 100 : null;
-    return model;
-  });
-}
 
 function topValues(models: LiveModel[], read: (m: LiveModel) => number | null | undefined): Set<number> {
   const values = models.map(read).filter((v): v is number => typeof v === "number");
@@ -113,8 +36,10 @@ function buildColumns(top: Record<string, Set<number>>) {
       cell: ({ row: { original: m } }) => (
         <span className="flex items-center gap-1.5">
           <span className="w-5 text-right text-[11px] text-muted-foreground tabular-nums">{m.rank ?? ""}</span>
-          <ProviderDot org={m.org} />
-          <span className="font-medium">{m.model}</span>
+          <ProviderDot provider={m.provider} />
+          <span className="font-medium" title={m.name !== m.model ? m.model : undefined}>
+            {m.name}
+          </span>
           {m.open && <span className="rounded border border-emerald-600/40 px-1 text-[10px] text-emerald-700 dark:text-emerald-400">open</span>}
           {m.rank === null && m.coverage !== null && (
             <span className="rounded bg-muted px-1 text-[10px] text-muted-foreground" title="영역의 75% 이상을 치른 모델만 순위를 매깁니다">
@@ -150,6 +75,8 @@ function buildColumns(top: Record<string, Set<number>>) {
       id: "cost",
       header: "성공 작업당 비용",
       meta: { label: "성공 작업당 비용", numeric: true },
+      // cheapest first, as a cost should
+      sortDescFirst: false,
       cell: ({ row }) => formatUsd(row.original.costPerSuccess),
     }),
   ];
@@ -182,7 +109,7 @@ function SubScores({ model }: { model: LiveModel }) {
 /** Up to four picked models side by side, one group of bars per category. */
 function Compare({ models, onClear }: { models: LiveModel[]; onClear: () => void }) {
   const config = Object.fromEntries(
-    models.map((m, index) => [`m${index}`, { label: m.model, theme: { light: slotColor(index, "light"), dark: slotColor(index, "dark") } }]),
+    models.map((m, index) => [`m${index}`, { label: m.name, theme: { light: slotColor(index, "light"), dark: slotColor(index, "dark") } }]),
   ) satisfies ChartConfig;
   const data = [{ key: "overall", label: "종합" }, ...LIVEBENCH_CATEGORIES].map((c) => ({
     label: c.label,
@@ -219,8 +146,7 @@ function Compare({ models, onClear }: { models: LiveModel[]; onClear: () => void
  * a column menu, rows that open into the category's sub-scores, and a pick-up-to-four
  * comparison.
  */
-export function LiveBenchTable({ site, openIndex }: { site: BenchmarkSite; openIndex: Set<string> }) {
-  const models = useMemo(() => liveBenchModels(site, openIndex), [site, openIndex]);
+export function LiveBenchTable({ models }: { models: LiveModel[] }) {
   const [openOnly, setOpenOnly] = useState(false);
   const [org, setOrg] = useState("");
   const [query, setQuery] = useState("");
@@ -228,7 +154,7 @@ export function LiveBenchTable({ site, openIndex }: { site: BenchmarkSite; openI
 
   const orgs = useMemo(() => [...new Set(models.map((m) => m.org).filter((o): o is string => !!o))].sort(), [models]);
   const shown = models.filter(
-    (m) => (!openOnly || m.open) && (!org || m.org === org) && (!query || m.model.toLowerCase().includes(query.trim().toLowerCase())),
+    (m) => (!openOnly || m.open) && (!org || m.org === org) && (!query || `${m.name} ${m.model}`.toLowerCase().includes(query.trim().toLowerCase())),
   );
   const top: Record<string, Set<number>> = {
     overall: topValues(shown, (m) => (m.rank === null ? null : m.overall)),
@@ -244,7 +170,7 @@ export function LiveBenchTable({ site, openIndex }: { site: BenchmarkSite; openI
         columns={columns}
         data={shown}
         getRowId={(m) => m.model}
-        rowName={(m) => m.model}
+        rowName={(m) => m.name}
         initialSorting={[{ id: "overall", desc: true }]}
         initialVisibility={{ org: false }}
         enableColumnVisibility
@@ -284,8 +210,8 @@ export function LiveBenchTable({ site, openIndex }: { site: BenchmarkSite; openI
       />
       {compared.length >= 2 && <Compare models={compared} onClear={() => setPicked([])} />}
       <p className="text-[11px] text-muted-foreground">
-        종합은 영역 점수의 단순 평균입니다(사이트는 에이전틱·코딩·디자인에 가중치를 둡니다). 영역의 75% 미만을 치른 모델은 순위 없이 뒤에
-        둡니다. 진한 칸은 각 열의 상위 {SHADED}개, 조직·open 표시는 모델 이름과 다른 사이트의 라이선스 정보로 추정했습니다.
+        종합은 사이트의 가중 평균(에이전틱·코딩·디자인 가중)입니다. 영역의 75% 미만을 치른 모델은 순위 없이 뒤에 둡니다. 진한 칸은 각 열의
+        상위 {SHADED}개, 조직과 open 표시는 사이트가 밝힌 정보 그대로입니다.
       </p>
     </div>
   );

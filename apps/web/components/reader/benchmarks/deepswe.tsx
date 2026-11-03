@@ -7,50 +7,20 @@ import { CartesianGrid, ErrorBar, LabelList, Scatter, ScatterChart, XAxis, YAxis
 import { DataTable } from "@/components/reader/benchmarks/data-table";
 import { paretoFrontier } from "@/components/reader/benchmarks/frontier";
 import { ChangeMark, ProviderDot, ProviderLegend, Segmented, TipBox } from "@/components/reader/benchmarks/parts";
-import { PROVIDER_CHART_CONFIG, providerVar } from "@/components/reader/benchmarks/provider-colors";
+import { PROVIDER_CHART_CONFIG, providerPaint } from "@/components/reader/benchmarks/provider-colors";
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
-import { type BenchmarkRow, type BenchmarkSite, extraNumber, extraString, formatCompact, formatUsd, rowOrg } from "@/lib/benchmark-types";
+import { formatCompact, formatUsd } from "@/lib/benchmark-types";
+import type { DeepSweView, DsPoint as Point } from "@/lib/benchmark-view";
 
 type Axis = "cost" | "tokens" | "steps";
 type Effort = "best" | "all";
+const TABLE_ROWS = 20;
 
-const AXES: Record<Axis, { label: string; title: string; key: string; tick: (v: number) => string }> = {
-  cost: { label: "비용", title: "작업당 평균 비용", key: "mean_cost_usd", tick: (v) => `$${v}` },
-  tokens: { label: "출력 토큰", title: "작업당 평균 출력 토큰", key: "mean_output_tokens", tick: (v) => formatCompact(v) },
-  steps: { label: "에이전트 단계", title: "작업당 평균 에이전트 단계", key: "mean_agent_steps", tick: (v) => `${v}` },
+const AXES: Record<Axis, { label: string; title: string; tick: (v: number) => string }> = {
+  cost: { label: "비용", title: "작업당 평균 비용", tick: (v) => `$${v}` },
+  tokens: { label: "출력 토큰", title: "작업당 평균 출력 토큰", tick: (v) => formatCompact(v) },
+  steps: { label: "에이전트 단계", title: "작업당 평균 에이전트 단계", tick: (v) => `${v}` },
 };
-
-interface Point {
-  id: string;
-  row: BenchmarkRow;
-  model: string;
-  effort: string | null;
-  org: string | null;
-  /** pass@1 in percent, and its 95% interval. */
-  score: number;
-  low: number | null;
-  high: number | null;
-  cost: number | null;
-  tokens: number | null;
-  steps: number | null;
-}
-
-function toPoint(row: BenchmarkRow, index: number): Point {
-  const pct = (v: number | null) => (v === null ? null : v * 100);
-  return {
-    id: `${row.model}|${row.config ?? ""}|${extraString(row, "harness") ?? ""}|${index}`,
-    row,
-    model: row.model,
-    effort: row.config,
-    org: rowOrg(row),
-    score: row.value * 100,
-    low: pct(row.ci_low),
-    high: pct(row.ci_high),
-    cost: extraNumber(row, "mean_cost_usd"),
-    tokens: extraNumber(row, "mean_output_tokens"),
-    steps: extraNumber(row, "mean_agent_steps"),
-  };
-}
 
 const xOf = (point: Point, axis: Axis) => (axis === "cost" ? point.cost : axis === "tokens" ? point.tokens : point.steps);
 const name = (point: Point) => (point.effort ? `${point.model} [${point.effort}]` : point.model);
@@ -64,10 +34,10 @@ const columns = [
     enableHiding: false,
     cell: ({ row: { original: p } }) => (
       <span className="flex items-center gap-1.5">
-        <ProviderDot org={p.org} />
+        <ProviderDot provider={p.provider} />
         <span className="font-medium">{p.model}</span>
         {p.effort && <span className="rounded border px-1 text-[10px] text-muted-foreground">{p.effort}</span>}
-        <ChangeMark change={p.row.change} by={p.row.change_by} />
+        <ChangeMark change={p.change} by={p.changeBy} />
       </span>
     ),
   }),
@@ -98,13 +68,13 @@ function Tip({ active, payload }: { active?: boolean; payload?: { payload: Point
   return (
     <TipBox
       title={name(point)}
-      org={point.org}
+      provider={point.provider}
       lines={[
         ["pass@1", `${point.score.toFixed(1)}%${ci !== null ? ` ±${ci.toFixed(1)}` : ""}`],
         [AXES.cost.label, formatUsd(point.cost)],
         [AXES.tokens.label, formatCompact(point.tokens)],
         [AXES.steps.label, point.steps === null ? "—" : point.steps.toFixed(0)],
-        ...(extraString(point.row, "harness") ? [["하네스", extraString(point.row, "harness")!] as [string, string]] : []),
+        ...(point.harness ? [["하네스", point.harness] as [string, string]] : []),
       ]}
     />
   );
@@ -116,22 +86,13 @@ function Tip({ active, payload }: { active?: boolean; payload?: { payload: Point
  * efficient corner is top right; the dashed efficiency frontier joins the points no cheaper
  * point beats. Below it, the site's table.
  */
-export function DeepSweChart({ site }: { site: BenchmarkSite }) {
-  const [board, setBoard] = useState(site.boards[0] ?? "");
+export function DeepSweChart({ view }: { view: DeepSweView }) {
+  // the newest version first, as the site opens on it
+  const [board, setBoard] = useState(view.boards[0] ?? "");
   const [axis, setAxis] = useState<Axis>("cost");
   const [effort, setEffort] = useState<Effort>("best");
 
-  const points = useMemo(() => {
-    const rows = site.rows.filter((row) => row.board === board && row.metric === "pass_at_1");
-    const all = rows.map(toPoint);
-    if (effort === "all") return all;
-    const ranked = all.filter((p) => p.row.rank !== null);
-    if (ranked.length > 0) return ranked;
-    // no ranking on this board: keep each model's best configuration
-    const best = new Map<string, Point>();
-    for (const p of all) if ((best.get(p.model)?.score ?? -1) < p.score) best.set(p.model, p);
-    return [...best.values()];
-  }, [site.rows, board, effort]);
+  const points = useMemo(() => view.points.filter((p) => p.board === board && (effort === "all" || p.best)), [view.points, board, effort]);
 
   const plotted = points
     .map((p) => ({ ...p, x: xOf(p, axis), err: p.low !== null && p.high !== null ? [p.score - p.low, p.high - p.score] : [0, 0] }))
@@ -146,8 +107,8 @@ export function DeepSweChart({ site }: { site: BenchmarkSite }) {
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center gap-2">
-        {site.boards.length > 1 && (
-          <Segmented label="버전" options={site.boards.map((b) => ({ key: b, label: b }))} value={board} onChange={setBoard} />
+        {view.boards.length > 1 && (
+          <Segmented label="버전" options={view.boards.map((b) => ({ key: b, label: b }))} value={board} onChange={setBoard} />
         )}
         <Segmented
           label="추론 강도"
@@ -192,7 +153,7 @@ export function DeepSweChart({ site }: { site: BenchmarkSite }) {
                 data={data}
                 isAnimationActive={false}
                 shape={(props: { cx?: number; cy?: number; payload?: Point }) => (
-                  <circle cx={props.cx} cy={props.cy} r={5} fill={providerVar(props.payload?.org)} stroke="var(--card)" strokeWidth={2} />
+                  <circle cx={props.cx} cy={props.cy} r={5} strokeWidth={2} {...providerPaint(props.payload?.provider ?? "other")} />
                 )}
               >
                 <ErrorBar dataKey="err" direction="y" width={0} stroke="var(--muted-foreground)" strokeOpacity={0.6} strokeWidth={1.5} />
@@ -203,7 +164,7 @@ export function DeepSweChart({ site }: { site: BenchmarkSite }) {
         </div>
         <p className="text-center text-xs text-muted-foreground">{`${AXES[axis].title} (오른쪽일수록 적음)`}</p>
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <ProviderLegend orgs={plotted.map((p) => p.org)} />
+          <ProviderLegend providers={plotted.map((p) => p.provider)} />
           <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <svg width="20" height="6" aria-hidden>
               <line x1="0" y1="3" x2="20" y2="3" stroke="currentColor" strokeWidth="1.5" strokeDasharray="5 4" />
@@ -219,6 +180,7 @@ export function DeepSweChart({ site }: { site: BenchmarkSite }) {
         data={points}
         getRowId={(p) => p.id}
         initialSorting={[{ id: "score", desc: true }]}
+        initialLimit={TABLE_ROWS}
       />
     </div>
   );

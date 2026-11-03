@@ -8,7 +8,7 @@ import { Overview } from "@/components/reader/spotlight/overview";
 import { SectionList } from "@/components/reader/spotlight/section-list";
 import { SpotlightTabs } from "@/components/reader/spotlight/spotlight-tabs";
 import { ApiError } from "@/lib/api";
-import { BENCHMARK_SITES, type BenchmarkSite, type BenchmarkSiteKey, forClient } from "@/lib/benchmark-types";
+import { BENCHMARK_SITES, type BenchmarkSite, type BenchmarkSiteKey } from "@/lib/benchmark-types";
 import { formatDateTime } from "@/lib/format";
 import { param, type SearchParams } from "@/lib/params";
 import { REVALIDATE, readerGet } from "@/lib/reader-api";
@@ -17,12 +17,13 @@ import { SECTION_LABEL, type SpotlightView, isCalendarDay, parseTab } from "@/li
 
 /**
  * The AI 모델 tab's data: the all-sites summary (freshness, today's arrivals) and each site's
- * full rows, fetched side by side so every cached response stays small. A site whose full
- * request fails falls back to its summary rows (top 10 per board).
+ * full rows, fetched side by side so every cached response stays small. A failed summary only
+ * hides the arrivals; a site whose full request fails falls back to its summary rows (top 10
+ * per board). The rows stay on the server: ModelsTab projects them before any client card.
  */
-async function loadBenchmarks(): Promise<{ summary: BenchmarkSite[]; sites: Partial<Record<BenchmarkSiteKey, BenchmarkSite>> }> {
+async function loadBenchmarks(): Promise<{ summary: BenchmarkSite[] | null; sites: Partial<Record<BenchmarkSiteKey, BenchmarkSite>> }> {
   const [summary, ...full] = await Promise.all([
-    readerGet<BenchmarkSite[]>("/benchmarks", {}, REVALIDATE.benchmarks),
+    readerGet<BenchmarkSite[]>("/benchmarks", {}, REVALIDATE.benchmarks).catch(() => null),
     ...BENCHMARK_SITES.map((site) =>
       readerGet<BenchmarkSite[]>("/benchmarks", { site }, REVALIDATE.benchmarks).then(
         (rows) => rows[0] ?? null,
@@ -32,8 +33,8 @@ async function loadBenchmarks(): Promise<{ summary: BenchmarkSite[]; sites: Part
   ]);
   const sites: Partial<Record<BenchmarkSiteKey, BenchmarkSite>> = {};
   BENCHMARK_SITES.forEach((key, index) => {
-    const site = full[index] ?? summary.find((s) => s.site === key);
-    if (site) sites[key] = forClient(site);
+    const site = full[index] ?? summary?.find((s) => s.site === key);
+    if (site) sites[key] = site;
   });
   return { summary, sites };
 }
@@ -79,7 +80,7 @@ export default async function SpotlightPage({ searchParams }: { searchParams: Pr
         <Overview view={view} date={requested ?? null} />
       ) : tab === "models" ? (
         <section aria-label="AI 모델">
-          {benchmarks && <ModelsTab summary={benchmarks.summary} sites={benchmarks.sites} note={view.benchmark_note} />}
+          {benchmarks && <ModelsTab summary={benchmarks.summary} sites={benchmarks.sites} note={view.benchmark_note} noteDate={requested && requested !== view.available_dates[0] ? requested : null} />}
         </section>
       ) : (
         <section aria-label={SECTION_LABEL[tab]}>

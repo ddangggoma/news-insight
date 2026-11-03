@@ -1,34 +1,13 @@
 "use client";
 
-import { useMemo } from "react";
 import { Bar, BarChart, CartesianGrid, Cell, LabelList, Scatter, ScatterChart, XAxis, YAxis } from "recharts";
 
 import { ProviderLegend, TipBox } from "@/components/reader/benchmarks/parts";
-import { PROVIDER_CHART_CONFIG, providerVar } from "@/components/reader/benchmarks/provider-colors";
+import { PROVIDER_CHART_CONFIG, providerPaint } from "@/components/reader/benchmarks/provider-colors";
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
-import { AA_METRICS, type BenchmarkSite } from "@/lib/benchmark-types";
+import type { AaModel } from "@/lib/benchmark-view";
 
 const TOP = 20;
-
-interface AaModel {
-  model: string;
-  org: string | null;
-  intelligence: number | null;
-  price: number | null;
-  speed: number | null;
-}
-
-function aaModels(site: BenchmarkSite): AaModel[] {
-  const byModel = new Map<string, AaModel>();
-  for (const row of site.rows) {
-    const entry = byModel.get(row.model) ?? { model: row.model, org: row.org, intelligence: null, price: null, speed: null };
-    if (row.metric === AA_METRICS.intelligence) entry.intelligence = row.value;
-    else if (row.metric === AA_METRICS.price) entry.price = row.value;
-    else if (row.metric === AA_METRICS.speed) entry.speed = row.value;
-    byModel.set(row.model, entry);
-  }
-  return [...byModel.values()];
-}
 
 function Tip({ active, payload }: { active?: boolean; payload?: { payload: AaModel }[] }) {
   const m = payload?.[0]?.payload;
@@ -36,6 +15,7 @@ function Tip({ active, payload }: { active?: boolean; payload?: { payload: AaMod
   return (
     <TipBox
       title={m.model}
+      provider={m.provider}
       org={m.org}
       lines={[
         ["지능 지수", m.intelligence === null ? "—" : m.intelligence.toFixed(1)],
@@ -67,9 +47,11 @@ function RankedBars({ data, dataKey, format, label }: { data: AaModel[]; dataKey
           />
           <ChartTooltip cursor={{ fillOpacity: 0.08 }} content={<Tip />} />
           <Bar dataKey={dataKey} radius={[0, 4, 4, 0]} isAnimationActive={false}>
-            {data.map((m) => (
-              <Cell key={m.model} fill={providerVar(m.org)} />
-            ))}
+            {data.map((m) => {
+              // solid bars need no outline; hollow providers get a tinted bar with a coloured edge
+              const paint = providerPaint(m.provider);
+              return <Cell key={m.model} fill={paint.fill} fillOpacity={paint.fillOpacity} stroke={paint.fillOpacity < 1 ? paint.stroke : "none"} strokeWidth={1.5} />;
+            })}
             <LabelList dataKey={dataKey} position="right" offset={6} className="fill-foreground text-[11px]" formatter={(v: unknown) => (typeof v === "number" ? format(v) : "")} />
           </Bar>
         </BarChart>
@@ -83,8 +65,7 @@ function RankedBars({ data, dataKey, format, label }: { data: AaModel[]; dataKey
  * provider), intelligence against blended price, and output speed of the same models. Every
  * tier of their API requires the credit line, so it is part of the component.
  */
-export function ArtificialAnalysisCharts({ site }: { site: BenchmarkSite }) {
-  const models = useMemo(() => aaModels(site), [site]);
+export function ArtificialAnalysisCharts({ models, sourceUrl, attribution }: { models: AaModel[]; sourceUrl: string; attribution: string }) {
   const top = models
     .filter((m) => m.intelligence !== null)
     .sort((a, b) => (b.intelligence ?? 0) - (a.intelligence ?? 0))
@@ -110,7 +91,7 @@ export function ArtificialAnalysisCharts({ site }: { site: BenchmarkSite }) {
                 data={priced.map((m) => ({ ...m, tag: labelled.has(m.model) ? m.model : "" }))}
                 isAnimationActive={false}
                 shape={(props: { cx?: number; cy?: number; payload?: AaModel }) => (
-                  <circle cx={props.cx} cy={props.cy} r={5} fill={providerVar(props.payload?.org)} stroke="var(--card)" strokeWidth={2} />
+                  <circle cx={props.cx} cy={props.cy} r={5} strokeWidth={2} {...providerPaint(props.payload?.provider ?? "other")} />
                 )}
               >
                 <LabelList dataKey="tag" position="top" offset={8} className="fill-foreground text-[10px]" />
@@ -123,9 +104,9 @@ export function ArtificialAnalysisCharts({ site }: { site: BenchmarkSite }) {
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <ProviderLegend orgs={top.map((m) => m.org)} />
-        <a href={site.source_url} target="_blank" rel="noopener noreferrer" className="text-xs font-medium text-muted-foreground underline-offset-2 hover:text-foreground hover:underline">
-          {site.attribution || "Data: Artificial Analysis"}
+        <ProviderLegend providers={top.map((m) => m.provider)} />
+        <a href={sourceUrl} target="_blank" rel="noopener noreferrer" className="text-xs font-medium text-muted-foreground underline-offset-2 hover:text-foreground hover:underline">
+          {attribution || "Data: Artificial Analysis"}
         </a>
       </div>
     </div>

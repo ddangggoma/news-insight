@@ -1,24 +1,34 @@
 import type { CSSProperties, ReactNode } from "react";
 
-import { PROVIDERS, type ProviderKey, providerColor, providerKey, providerLabel } from "@/components/reader/benchmarks/provider-colors";
+import { PROVIDER_ORDER, type ProviderKey, isHollow, providerColor, providerLabel } from "@/components/reader/benchmarks/provider-colors";
 import type { BenchmarkChange } from "@/lib/benchmark-types";
 import { cn } from "@/lib/utils";
 
-/** A provider's colour swatch in plain HTML (tables, legends), switching with the theme. */
-export function ProviderDot({ org, className }: { org: string | null | undefined; className?: string }) {
+/** A provider's mark in plain HTML (tables, legends), switching with the theme; hollow for the outline providers. */
+export function ProviderDot({ provider, className }: { provider: ProviderKey; className?: string }) {
+  const org = provider === "other" ? null : provider;
   const style = { "--dot-l": providerColor(org, "light"), "--dot-d": providerColor(org, "dark") } as CSSProperties;
-  return <span aria-hidden style={style} className={cn("inline-block size-2.5 shrink-0 rounded-full bg-(--dot-l) dark:bg-(--dot-d)", className)} />;
+  return (
+    <span
+      aria-hidden
+      style={style}
+      className={cn(
+        "inline-block size-2.5 shrink-0 rounded-full",
+        isHollow(provider) ? "border-2 border-(--dot-l) dark:border-(--dot-d)" : "bg-(--dot-l) dark:bg-(--dot-d)",
+        className,
+      )}
+    />
+  );
 }
 
 /** Legend of the providers present, in palette order, gray "기타" last. */
-export function ProviderLegend({ orgs }: { orgs: (string | null | undefined)[] }) {
-  const present = new Set<ProviderKey>(orgs.map(providerKey));
-  const keys: ProviderKey[] = [...PROVIDERS.map((p) => p.key).filter((key) => present.has(key)), ...(present.has("other") ? (["other"] as const) : [])];
+export function ProviderLegend({ providers }: { providers: ProviderKey[] }) {
+  const present = new Set(providers);
   return (
     <ul aria-label="제공사 색" className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
-      {keys.map((key) => (
+      {PROVIDER_ORDER.filter((key) => present.has(key)).map((key) => (
         <li key={key} className="flex items-center gap-1.5">
-          <ProviderDot org={key === "other" ? null : key} className="size-2 rounded-[2px]" />
+          <ProviderDot provider={key} className="size-2.5" />
           {providerLabel(key)}
         </li>
       ))}
@@ -100,11 +110,11 @@ export function Segmented<K extends string>({
 }
 
 /** Tooltip box shared by the scatter and bar charts. */
-export function TipBox({ title, org, lines }: { title: string; org?: string | null; lines: [string, string][] }) {
+export function TipBox({ title, provider, org, lines }: { title: string; provider: ProviderKey; org?: string | null; lines: [string, string][] }) {
   return (
     <div className="grid min-w-40 gap-1 rounded-lg border bg-popover/95 px-2.5 py-1.5 text-xs shadow-lg backdrop-blur">
       <div className="flex items-center gap-1.5 font-medium">
-        {org !== undefined && <ProviderDot org={org} className="size-2" />}
+        <ProviderDot provider={provider} className="size-2" />
         {title}
       </div>
       {org && <div className="text-muted-foreground">{org}</div>}

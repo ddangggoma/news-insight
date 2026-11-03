@@ -102,7 +102,7 @@ export function extraString(row: Pick<BenchmarkRow, "extra">, key: string): stri
   return typeof value === "string" && value ? value : null;
 }
 
-/** Name prefixes that tell the maker when a site leaves the organisation out (LiveBench, DeepSWE). */
+/** Name prefixes that tell the maker; used only to colour a mark when a site gives no organisation. */
 const ORG_BY_PREFIX: [RegExp, string][] = [
   [/^(claude|anthropic)/i, "Anthropic"],
   [/^(gpt|o\d|chatgpt|openai|codex)/i, "OpenAI"],
@@ -117,43 +117,32 @@ const ORG_BY_PREFIX: [RegExp, string][] = [
   [/^minimax/i, "MiniMax"],
 ];
 
-/** The row's organisation, or one read off the model name; null when neither tells. */
-export function rowOrg(row: Pick<BenchmarkRow, "org" | "model">): string | null {
-  if (row.org) return row.org;
-  const name = row.model.trim();
+/** The row's organisation, else a guess from the model name (colour only, never shown as data). */
+export function colourOrg(org: string | null, model: string): string | null {
+  if (org) return org;
+  const name = model.trim();
   return ORG_BY_PREFIX.find(([pattern]) => pattern.test(name))?.[1] ?? null;
 }
 
-/** Model families published with open weights, for sites that do not say (LiveBench, DeepSWE). */
-const OPEN_FAMILIES = /^(deepseek|qwen|qwq|llama|gemma|glm|kimi|gpt-oss|minimax|olmo|phi-|nemotron|mistral-small|devstral|smaug|beam)/i;
+/** Licences that say nothing about openness. */
+const CLOSED_OR_UNKNOWN = new Set(["", "proprietary", "unknown", "n/a", "na", "none", "-"]);
 
-/** Lower-case alphanumerics: "Claude Opus 5.5 (Max)" and "claude-opus-5.5-max" meet. */
-export function modelKey(name: string): string {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, "");
+/** LMArena: open only when the licence column names an actual licence. */
+export function isOpenLicense(license: string | null | undefined): boolean {
+  return typeof license === "string" && !CLOSED_OR_UNKNOWN.has(license.trim().toLowerCase());
 }
 
-/**
- * Models known to have open weights: LMArena's licence column and Artificial Analysis's
- * is_open_weights, keyed by model id and by spelling, so LiveBench rows can borrow them.
- */
-export function openWeightsIndex(sites: (BenchmarkSite | null | undefined)[]): Set<string> {
-  const open = new Set<string>();
-  for (const site of sites) {
-    for (const row of site?.rows ?? []) {
-      const license = extraString(row, "license");
-      const known = row.extra.is_open_weights === true || (license !== null && !/proprietary/i.test(license));
-      if (!known) continue;
-      if (row.model_id !== null) open.add(`id:${row.model_id}`);
-      open.add(`name:${modelKey(row.model.replace(/\s*\([^)]*\)\s*$/, ""))}`);
+/** Newest version first: "v1.1" before "v1" (boards are named by benchmark version). */
+export function newestBoardFirst(boards: string[]): string[] {
+  const parts = (b: string) => (b.match(/\d+/g) ?? []).map(Number);
+  return [...boards].sort((a, b) => {
+    const [x, y] = [parts(a), parts(b)];
+    for (let i = 0; i < Math.max(x.length, y.length); i++) {
+      const diff = (y[i] ?? -1) - (x[i] ?? -1);
+      if (diff !== 0) return diff;
     }
-  }
-  return open;
-}
-
-export function isOpenWeights(row: Pick<BenchmarkRow, "model" | "model_id">, index: Set<string>): boolean {
-  if (row.model_id !== null && index.has(`id:${row.model_id}`)) return true;
-  if (index.has(`name:${modelKey(row.model)}`)) return true;
-  return OPEN_FAMILIES.test(row.model.trim());
+    return 0;
+  });
 }
 
 /** Models that entered a board today, from the summary (top 10 per board). */
@@ -163,13 +152,6 @@ export function newModels(sites: BenchmarkSite[]): { site: string; title: string
       .filter((row) => row.change === "new" && row.rank !== null)
       .map((row) => ({ site: site.site, title: site.title, board: row.board, model: row.model, rank: row.rank as number })),
   );
-}
-
-/** Only what the charts read, so a page does not ship every stored metric to the browser. */
-export function forClient(site: BenchmarkSite): BenchmarkSite {
-  if (site.site !== "artificial_analysis") return site;
-  const keep = new Set<string>(Object.values(AA_METRICS));
-  return { ...site, rows: site.rows.filter((row) => keep.has(row.metric)) };
 }
 
 export function formatUsd(value: number | null): string {
