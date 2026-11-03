@@ -43,6 +43,10 @@ class Settings(BaseSettings):
     claude_cli: str = "claude"
     digest_model: str = "opus"
     digest_timeout_seconds: int = 900
+    # the daily spotlight Top 10s (plan 18): Opus writes them on the host after the briefing; the
+    # id is pinned so a moved `opus` alias cannot change the picks
+    spotlight_model: str = "claude-opus-5-5"
+    spotlight_timeout_seconds: int = 900
     # trend reports on request (plan 17 R1): written on the host with the Claude CLI
     report_model: str = "opus"
     report_timeout_seconds: int = 1500

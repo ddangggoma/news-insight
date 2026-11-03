@@ -104,6 +104,7 @@ def source_quality_task() -> dict[str, Any]:
 def briefing_freeze_task() -> int:
     from news_insight.briefing.service import freeze
     from news_insight.signals.service import snapshot
+    from news_insight.spotlight.service import freeze as freeze_spotlight
 
     now = datetime.now(UTC)
     with session_scope() as session:
@@ -116,6 +117,13 @@ def briefing_freeze_task() -> int:
                 snapshot(session, day=today, now=now)
         except Exception:  # noqa: BLE001 - the briefing still publishes without radar evidence
             logger.exception("radar signal snapshot failed; freeze kept")
+        # plan 18: the candidates the 05:00 spotlight writer chooses from; the writer freezes on
+        # the spot if this fails
+        try:
+            with session.begin_nested():
+                freeze_spotlight(session, day=today, now=now)
+        except Exception:  # noqa: BLE001 - the briefing does not depend on the spotlight
+            logger.exception("spotlight freeze failed; briefing freeze kept")
         return len(frozen.candidate_ids)
 
 
