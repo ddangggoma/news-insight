@@ -36,7 +36,7 @@ def _client(db_session: Session, settings: Settings) -> Iterator[TestClient]:
     async def refresh_facts(request: Request, call_next: Any) -> Any:
         # the scheduler refreshes the explore view in production; a test reads what it just wrote
         if request.url.path.startswith("/api/public/"):
-            facts.refresh(db_session, concurrently=False)
+            facts.refresh(db_session)
         return await call_next(request)
 
     with TestClient(app) as client:
