@@ -272,6 +272,23 @@ CASES: list[tuple[str, dict[str, Any], tuple[str, str, str, datetime, dict[str, 
         ),
     ),
     (
+        "hf_daily_papers",
+        {
+            "paper": {"id": "2610.39278", "upvotes": 5, "title": "Tiny Reasoners"},
+            "publishedAt": "2026-10-01T09:00:00Z",
+            "title": "Tiny Reasoners",
+            "summary": "Small models reason.",
+            "numComments": 1,
+        },
+        (
+            "2610.39278",
+            "https://huggingface.co/papers/2610.39278",
+            "Tiny Reasoners",
+            OCT_1_0900,
+            {"upvotes": 5, "comments": 1},
+        ),
+    ),
+    (
         "huggingface_hub",
         {
             "id": "Qwen/Qwen3.8-27B",
