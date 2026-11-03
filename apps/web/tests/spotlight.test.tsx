@@ -11,6 +11,7 @@ import {
   SECTION_LABEL,
   type SpotlightEntry,
   type SpotlightView,
+  isCalendarDay,
   metricChips,
   spotlightHref,
 } from "@/lib/spotlight-types";
@@ -66,10 +67,13 @@ describe("EntryRow", () => {
   it("shows NEW and arrows", () => {
     const { rerender } = render(<EntryRow entry={{ ...base, change: "new" }} />);
     expect(screen.getByText("NEW")).toBeInTheDocument();
+    expect(screen.getByLabelText("새로 진입")).toBeInTheDocument();
     rerender(<EntryRow entry={{ ...base, change: "up", change_by: 2 }} />);
     expect(screen.getByText("▲2")).toBeInTheDocument();
+    expect(screen.getByLabelText("2계단 상승")).toHaveTextContent("▲2");
     rerender(<EntryRow entry={{ ...base, change: "down", change_by: 1 }} />);
     expect(screen.getByText("▼1")).toBeInTheDocument();
+    expect(screen.getByLabelText("1계단 하락")).toHaveTextContent("▼1");
     rerender(<EntryRow entry={{ ...base, change: "same" }} />);
     expect(screen.queryByText(/NEW|▲|▼/)).not.toBeInTheDocument();
   });
@@ -131,7 +135,7 @@ describe("Overview", () => {
   it("shows the headline and the top three of each section with a link to its tab", () => {
     const sections = emptySections();
     sections.news = [1, 2, 3, 4].map((n) => ({ ...base, rank: n, stat_rank: n, key: `n${n}`, title_ko: `뉴스 ${n}` }));
-    render(<Overview view={viewOf({ sections })} />);
+    render(<Overview view={viewOf({ sections })} date="2026-11-03" />);
     expect(screen.getByText("오늘은 가속기 소식이 많았습니다")).toBeInTheDocument();
     expect(screen.getByText("뉴스 3")).toBeInTheDocument();
     expect(screen.queryByText("뉴스 4")).not.toBeInTheDocument();
@@ -141,9 +145,30 @@ describe("Overview", () => {
   });
 
   it("renders the empty state for every section when nothing is published yet", () => {
-    render(<Overview view={viewOf({ date: null, headline: "", available_dates: [], generated_at: null })} />);
+    render(<Overview view={viewOf({ date: null, headline: "", available_dates: [], generated_at: null })} date={null} />);
     expect(screen.getAllByText("오늘은 기준을 넘는 화제가 없습니다")).toHaveLength(SECTION_KEYS.length);
     expect(screen.getByRole("link", { name: SECTION_LABEL.patent })).toHaveAttribute("href", "/spotlight?tab=patent");
+  });
+});
+
+describe("Overview links", () => {
+  it("keep the day the reader asked for, and none for a plain /spotlight so it keeps rolling forward", () => {
+    const { rerender } = render(<Overview view={viewOf()} date={null} />);
+    expect(screen.getByRole("link", { name: SECTION_LABEL.news })).toHaveAttribute("href", "/spotlight?tab=news");
+    rerender(<Overview view={viewOf()} date="2026-11-02" />);
+    expect(screen.getByRole("link", { name: SECTION_LABEL.news })).toHaveAttribute("href", "/spotlight?tab=news&date=2026-11-02");
+  });
+});
+
+describe("isCalendarDay", () => {
+  it("accepts real days and refuses well-formed impossible ones", () => {
+    expect(isCalendarDay("2026-11-03")).toBe(true);
+    expect(isCalendarDay("2028-02-29")).toBe(true);
+    expect(isCalendarDay("2026-02-29")).toBe(false);
+    expect(isCalendarDay("2026-13-45")).toBe(false);
+    expect(isCalendarDay("2026-00-10")).toBe(false);
+    expect(isCalendarDay("2026-1-3")).toBe(false);
+    expect(isCalendarDay("not-a-date")).toBe(false);
   });
 });
 

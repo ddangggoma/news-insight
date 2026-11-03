@@ -7,7 +7,8 @@ import { SECTION_KEYS, SECTION_LABEL, type SpotlightView, spotlightHref } from "
 const TOP = 3;
 
 /** The 전체 tab: Opus's one-line headline and the top three of every section. */
-export function Overview({ view }: { view: SpotlightView }) {
+/** `date` is the day the reader asked for (none for a plain /spotlight, which keeps rolling forward). */
+export function Overview({ view, date }: { view: SpotlightView; date: string | null }) {
   return (
     <div className="space-y-5">
       {view.headline ? (
@@ -21,7 +22,7 @@ export function Overview({ view }: { view: SpotlightView }) {
           return (
             <section key={key} className="rounded-lg border p-4">
               <h2 className="mb-2 text-sm font-semibold">
-                <Link href={spotlightHref(key, view.date)} className="inline-flex items-center gap-0.5 hover:text-primary">
+                <Link href={spotlightHref(key, date)} className="inline-flex items-center gap-0.5 hover:text-primary">
                   {SECTION_LABEL[key]}
                   <ChevronRight className="size-4" aria-hidden />
                 </Link>

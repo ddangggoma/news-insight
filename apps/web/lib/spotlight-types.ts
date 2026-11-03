@@ -56,6 +56,15 @@ export function parseTab(raw: string | undefined): SpotlightTab {
   return SPOTLIGHT_TABS.find((tab) => tab.key === raw)?.key ?? "overview";
 }
 
+/** True for a real calendar day written YYYY-MM-DD (2026-13-45 is well formed but not a day). */
+export function isCalendarDay(raw: string): boolean {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(raw);
+  if (!match) return false;
+  const [year, month, day] = [Number(match[1]), Number(match[2]), Number(match[3])];
+  const date = new Date(Date.UTC(year, month - 1, day));
+  return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
+}
+
 /** The page's address for a tab and day; the default tab and an unset day stay out of it. */
 export function spotlightHref(tab: SpotlightTab, date: string | null): string {
   const query = [tab === "overview" ? null : `tab=${tab}`, date ? `date=${date}` : null].filter(Boolean).join("&");

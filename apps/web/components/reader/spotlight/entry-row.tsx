@@ -4,9 +4,24 @@ import { cn } from "@/lib/utils";
 
 /** Change against the previous day's list: NEW, ▲n or ▼n (nothing when unchanged). */
 function ChangeBadge({ entry }: { entry: Pick<SpotlightEntry, "change" | "change_by"> }) {
-  if (entry.change === "new") return <span className="text-[11px] font-bold text-primary">NEW</span>;
-  if (entry.change === "up") return <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">{`▲${entry.change_by}`}</span>;
-  if (entry.change === "down") return <span className="text-[11px] font-semibold text-rose-600 dark:text-rose-400">{`▼${entry.change_by}`}</span>;
+  if (entry.change === "new")
+    return (
+      <span role="img" aria-label="새로 진입" className="text-[11px] font-bold text-primary">
+        NEW
+      </span>
+    );
+  if (entry.change === "up")
+    return (
+      <span role="img" aria-label={`${entry.change_by}계단 상승`} className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+        {`▲${entry.change_by}`}
+      </span>
+    );
+  if (entry.change === "down")
+    return (
+      <span role="img" aria-label={`${entry.change_by}계단 하락`} className="text-[11px] font-semibold text-rose-600 dark:text-rose-400">
+        {`▼${entry.change_by}`}
+      </span>
+    );
   return null;
 }
 
