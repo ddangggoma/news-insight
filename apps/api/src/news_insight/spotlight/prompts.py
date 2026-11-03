@@ -13,6 +13,7 @@ MAX_SUMMARY = 260
 MAX_WHY_HOT = 140
 MAX_TITLE = 120
 MAX_RANK_NOTE = 140
+MAX_PRODUCT_NAME = 80
 MAX_HEADLINE = 200
 
 SYSTEM_PROMPT = "\n".join(
@@ -29,11 +30,12 @@ SYSTEM_PROMPT = "\n".join(
         " 기본은 stat_rank 순서를 따른다. 같은 사건의 중복, 지표가 부풀려진 것(봇·이벤트성),"
         " 광고·스팸은 내리거나 뺀다. 지표에 비해 파급이 큰 것은 올릴 수 있다."
         " 순서가 stat_rank와 다르면 rank_note에 이유를 한 줄로 쓴다."
-        " 같으면 rank_note는 null이다.",
+        ' 같으면 rank_note는 빈 문자열("")이다.',
         "2. 후보 안에서만 고른다. cids에는 입력에 있는 같은 분야의 cid만 쓴다."
         " 같은 cid를 두 번 쓰지 않는다. 고를 만한 후보가 없으면 그 분야는 빈 목록으로 둔다.",
         "3. product 분야: 같은 제품을 다룬 후보는 하나의 항목으로 묶어 cids에 모두 쓰고"
-        " product_name에 제품명을 원어 표기로 쓴다(예: 'Galaxy S30', 'Gemini 3.8')."
+        " product_name에 제품명을 원어 표기로 80자 이하로 쓴다(예: 'Galaxy S30', 'Gemini 3.8')."
+        " product 분야가 아니면 product_name은 빈 문자열이다."
         " 묶음이 아닌 항목의 cids는 1개다. 제품이 아닌 후보(투자·인사·실적 등)는 고르지 않는다.",
         "4. interview 분야: 실제 인터뷰·대담·기조연설·공개 발언만 고른다."
         " 그 사람의 발언이 아니라 발언을 인용한 해설·논평은 고르지 않는다.",
@@ -59,10 +61,10 @@ ENTRY_SCHEMA: dict[str, Any] = {
         "cids": {"type": "array", "items": {"type": "string"}, "minItems": 1},
         "rank": {"type": "integer", "minimum": 1},
         "title_ko": {"type": "string"},
-        "product_name": {"type": ["string", "null"]},
+        "product_name": {"type": "string"},
         "summary": {"type": "string"},
         "why_hot": {"type": "string"},
-        "rank_note": {"type": ["string", "null"]},
+        "rank_note": {"type": "string"},
     },
     "required": ["cids", "rank", "title_ko", "summary", "why_hot"],
 }

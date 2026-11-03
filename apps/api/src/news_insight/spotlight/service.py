@@ -24,6 +24,7 @@ from news_insight.spotlight.prompts import (
     INSTRUCTION,
     MAX_HEADLINE,
     MAX_PER_SECTION,
+    MAX_PRODUCT_NAME,
     MAX_RANK_NOTE,
     MAX_SUMMARY,
     MAX_TITLE,
@@ -161,12 +162,13 @@ def _checked(
         # an unknown or other-section cid makes the whole entry untrustworthy
         if not isinstance(cid, str) or cid not in by_cid:
             return None
-        members.append(by_cid[cid])
+        if by_cid[cid] not in members:  # a cid repeated inside one entry counts once
+            members.append(by_cid[cid])
     if not members:
         return None
     summary, why_hot = _text(raw.get("summary")), _text(raw.get("why_hot"))
     title = _text(raw.get("title_ko")) or members[0]["title_ko"]
-    note = raw.get("rank_note")
+    note = raw.get("rank_note")  # "" (or an absent field) means the order follows stat_rank
     if note is not None and not isinstance(note, str):
         return None
     note = (note or "").strip() or None
@@ -184,6 +186,8 @@ def _checked(
     product_name = None
     if section == "product":
         product_name = _text(raw.get("product_name")) or None
+        if product_name is not None and len(product_name) > MAX_PRODUCT_NAME:
+            return None  # the key built from it must fit its column
     else:
         members = members[:1]  # only a product can be a group
     fields = {

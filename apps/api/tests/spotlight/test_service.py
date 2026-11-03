@@ -55,10 +55,10 @@ def entry(cids: list[str], rank: int, **fields: Any) -> dict[str, Any]:
         "cids": cids,
         "rank": rank,
         "title_ko": f"다듬은 제목 {cids[0]}",
-        "product_name": None,
+        "product_name": "",
         "summary": "첫째 문장이다. 둘째 문장이다.",
         "why_hot": "여러 매체가 다뤘다.",
-        "rank_note": None,
+        "rank_note": "",
     } | fields
 
 
@@ -412,3 +412,49 @@ def test_build_payload_benchmarks_pass_through(db_session: Session) -> None:
     freeze_row = seed_freeze(db_session)
     bench = {"changes": [{"site": "LiveBench", "model": "X", "from": 3, "to": 2}], "new_models": []}
     assert build_payload(freeze_row, {}, bench)["benchmarks"] == bench
+
+
+def test_schema_has_no_type_unions() -> None:
+    def types(node: Any) -> list[Any]:
+        if isinstance(node, dict):
+            own = [node["type"]] if "type" in node else []
+            return own + [kind for value in node.values() for kind in types(value)]
+        if isinstance(node, list):
+            return [kind for value in node for kind in types(value)]
+        return []
+
+    assert all(isinstance(kind, str) for kind in types(OUTPUT_SCHEMA))
+
+
+def test_blank_product_name_and_rank_note_become_none(db_session: Session) -> None:
+    seed_freeze(db_session)
+    client = FakeClaude(output({"product": [entry(["p1"], 1, product_name="", rank_note="")]}))
+    (row,) = entries(db_session, run(db_session, client), "product")
+    assert row.product_name is None
+    assert row.rank_note is None
+    assert row.key == "item:101"
+
+
+def test_long_product_name_dropped_and_day_still_publishes(db_session: Session) -> None:
+    seed_freeze(db_session)
+    client = FakeClaude(
+        output(
+            {
+                "product": [
+                    entry(["p1"], 1, product_name="가" * 200),
+                    entry(["p2"], 2, product_name="나" * 80),
+                ]
+            }
+        )
+    )
+    result = run(db_session, client)
+    assert result.status is SpotlightStatus.PUBLISHED
+    assert [row.product_name for row in entries(db_session, result, "product")] == ["나" * 80]
+
+
+def test_cid_repeated_inside_one_entry_counts_once(db_session: Session) -> None:
+    seed_freeze(db_session)
+    client = FakeClaude(output({"product": [entry(["p1", "p1"], 1, product_name="Galaxy S30")]}))
+    (row,) = entries(db_session, run(db_session, client), "product")
+    assert row.metrics == {"source_count": 3}
+    assert row.item_ids == [101]
