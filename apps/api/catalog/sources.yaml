@@ -17103,7 +17103,7 @@ sources:
     region: global_en
     language: en
     poll_class: research
-    dx_relevance: 'Hugging Face Daily Papers: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    dx_relevance: 'Hugging Face Daily Papers 공식 API: 오늘의 논문과 추천 수'
     storage_right: excerpt_allowed
     config:
       preset: hf_daily_papers

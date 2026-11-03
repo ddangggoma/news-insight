@@ -112,6 +112,10 @@ describe("metricChips", () => {
     expect(metricChips({ forks: 7, community_z: 3.2, platform: "hackernews", note: "x", empty: 0 })).toEqual(["forks 7", "hackernews"]);
   });
 
+  it("labels the product group size and the Hugging Face trending rank in Korean", () => {
+    expect(metricChips({ group_size: 3, trending: 12 })).toEqual(["묶음 3건", "트렌딩 12"]);
+  });
+
   it("rounds fractions and tolerates no metrics", () => {
     expect(metricChips({ score: 12.6 })).toEqual(["점수 13"]);
     expect(metricChips({})).toEqual([]);

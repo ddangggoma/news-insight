@@ -91,6 +91,8 @@ const METRIC_LABEL: Record<string, (n: string) => string> = {
   reposts: (n) => `재공유 ${n}`,
   reblogs: (n) => `재공유 ${n}`,
   downloads: (n) => `다운로드 ${n}`,
+  trending: (n) => `트렌딩 ${n}`,
+  group_size: (n) => `묶음 ${n}건`,
 };
 
 /** Internal ranking inputs: they mean nothing to a reader. */

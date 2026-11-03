@@ -117,6 +117,9 @@ def briefing_freeze_task() -> int:
                 snapshot(session, day=today, now=now)
         except Exception:  # noqa: BLE001 - the briefing still publishes without radar evidence
             logger.exception("radar signal snapshot failed; freeze kept")
+        count = len(frozen.candidate_ids)
+        # the briefing must not wait on, or be lost with, the spotlight step below
+        session.commit()
         # plan 18: the candidates the 05:00 spotlight writer chooses from; the writer freezes on
         # the spot if this fails
         try:
@@ -124,7 +127,7 @@ def briefing_freeze_task() -> int:
                 freeze_spotlight(session, day=today, now=now)
         except Exception:  # noqa: BLE001 - the briefing does not depend on the spotlight
             logger.exception("spotlight freeze failed; briefing freeze kept")
-        return len(frozen.candidate_ids)
+        return count
 
 
 @celery_app.task(name="auth.purge")
