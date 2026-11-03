@@ -106,7 +106,7 @@ stories_app = typer.Typer(
 )
 app.add_typer(stories_app, name="stories")
 cards_app = typer.Typer(
-    help="Korean cards: Antigravity CLI with Claude Haiku alongside",
+    help="Korean cards: Antigravity CLI with Claude Sonnet alongside",
     no_args_is_help=True,
 )
 app.add_typer(cards_app, name="cards")
@@ -236,7 +236,7 @@ def _scheduled_claude(settings: Settings) -> bool:
 
 
 def _judge_engine() -> MeteredEngine | None:
-    """First metered engine above its reserve (story-merge judge, evaluations), else Claude Haiku:
+    """First metered engine above its reserve (story-merge judge, evaluations), else Claude Code:
     with both Antigravity limits at their reserve every merge was skipped (2026-10-30)."""
     settings = get_settings()
     metered, _ = _card_engines(False)
