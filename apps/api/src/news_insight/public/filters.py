@@ -100,15 +100,18 @@ class ReaderFilters:
             if axis != skip:
                 conditions.append(_axis_condition(axis, chosen))
         if self.q:
-            pattern = _like(self.q)
-            conditions.append(
-                or_(
-                    ItemCard.title_ko.ilike(pattern, escape="\\"),
-                    Item.title.ilike(pattern, escape="\\"),
-                    cast(ItemCard.keywords, Text).ilike(pattern, escape="\\"),
-                )
-            )
+            conditions.append(search_condition(self.q))
         return conditions
+
+
+def search_condition(
+    q: str, columns: tuple[ColumnElement[Any], ...] | None = None
+) -> ColumnElement[bool]:
+    """Korean title, original title or keywords (as JSON text) contain `q`, ignoring case;
+    `columns` are those three elsewhere (the reader facts view)."""
+    pattern = _like(q)
+    searched = columns or (ItemCard.title_ko, Item.title, cast(ItemCard.keywords, Text))
+    return or_(*(column.ilike(pattern, escape="\\") for column in searched))
 
 
 def _axis_condition(axis: str, chosen: tuple[str, ...]) -> ColumnElement[bool]:

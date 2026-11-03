@@ -148,7 +148,7 @@ def list_items(
     page: Annotated[int, Query(ge=1)] = 1,
     size: Annotated[int, Query(ge=1, le=50)] = 30,
 ) -> FeedPage:
-    return feed_queries.feed(session, filters, window, sort=sort, page=page, size=size)
+    return feed_queries.reader_feed(session, filters, window, sort=sort, page=page, size=size)
 
 
 @router.get("/items/{item_id}")

@@ -1,12 +1,15 @@
 from collections.abc import Iterator
+from typing import Any
 
 import pytest
+from fastapi import Request
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
 from news_insight.config import Settings, get_settings
 from news_insight.db import get_db
 from news_insight.main import create_app
+from news_insight.public import facts
 from news_insight.public.routes import get_now
 from tests.public.seed import NOW
 
@@ -28,6 +31,14 @@ def _client(db_session: Session, settings: Settings) -> Iterator[TestClient]:
     app.dependency_overrides[get_db] = session_override
     app.dependency_overrides[get_settings] = lambda: settings
     app.dependency_overrides[get_now] = lambda: NOW
+
+    @app.middleware("http")
+    async def refresh_facts(request: Request, call_next: Any) -> Any:
+        # the scheduler refreshes the explore view in production; a test reads what it just wrote
+        if request.url.path.startswith("/api/public/"):
+            facts.refresh(db_session, concurrently=False)
+        return await call_next(request)
+
     with TestClient(app) as client:
         yield client
 

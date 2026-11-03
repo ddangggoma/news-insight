@@ -243,6 +243,19 @@ def radar_warm_task() -> int:
             return warm(session, now=datetime.now(UTC), client=client)
 
 
+@celery_app.task(name="reader.refresh_facts")
+def refresh_reader_facts_task() -> bool:
+    from news_insight.public.facts import refresh
+
+    # one refresh at a time: a slow one must not pile up behind the next schedule
+    with SourceLock(get_redis(), ttl_seconds=900, prefix="lock:").hold("reader-facts") as acquired:
+        if not acquired:
+            return False
+        with session_scope() as session:
+            refresh(session)
+        return True
+
+
 @celery_app.task(name="cards.triage_train")
 def triage_train_task() -> dict[str, Any]:
     """Nightly carding-priority model (plan 16 #3); the host job scores with the new one."""

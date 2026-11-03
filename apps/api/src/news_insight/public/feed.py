@@ -10,6 +10,8 @@ from news_insight.cards.models import CardStatus, ItemCard
 from news_insight.companies.service import info_for
 from news_insight.console.queries import latest_metrics
 from news_insight.content.models import Item
+from news_insight.public import facts
+from news_insight.public.facts import F
 from news_insight.public.filters import ReaderFilters, in_current_tree, in_window, joined
 from news_insight.public.periods import Window
 from news_insight.public.schemas import (
@@ -129,6 +131,78 @@ def feed(
             .limit(size)
         ).tuples()
     )
+    metrics = latest_metrics(session, [item.id for item, *_ in rows])
+    names = company_refs(session, [card for _, _, card, _ in rows])
+    return FeedPage(
+        items=[
+            _reader_item(item, source, card, story, metrics.get(item.id, {}), names)
+            for item, source, card, story in rows
+        ],
+        total=total,
+        items_total=items_total,
+        page=page,
+        size=size,
+    )
+
+
+def reader_feed(
+    session: Session, filters: ReaderFilters, window: Window, *, sort: Sort, page: int, size: int
+) -> FeedPage:
+    """`feed()` for the explore page, ranked on the reader facts view (public/facts.py):
+    the same rows, without joining every item in the window to its card and story."""
+    ranked = (
+        select(
+            F.item_id,
+            F.occurred_at,
+            F.relevance,
+            F.source_count,
+            func.row_number()
+            .over(
+                partition_by=func.coalesce(F.story_id, -F.item_id),
+                # the id breaks ties, so a story's row stays the same between requests and pages
+                order_by=(
+                    F.is_representative.desc().nulls_last(),
+                    F.occurred_at.desc(),
+                    F.item_id.desc(),
+                ),
+            )
+            .label("rank"),
+        )
+        .where(*facts.conditions(filters), *facts.in_window(window))
+        .subquery()
+    )
+    total, items_total = session.execute(
+        select(func.count().filter(ranked.c.rank == 1), func.count()).select_from(ranked)
+    ).one()
+    order = {
+        "recent": (ranked.c.occurred_at.desc(), ranked.c.item_id.desc()),
+        "relevance": (
+            ranked.c.relevance.desc().nulls_last(),
+            ranked.c.occurred_at.desc(),
+            ranked.c.item_id.desc(),
+        ),
+        "coverage": (
+            func.coalesce(ranked.c.source_count, 1).desc(),
+            ranked.c.occurred_at.desc(),
+            ranked.c.item_id.desc(),
+        ),
+    }[sort]
+    ids = list(
+        session.scalars(
+            select(ranked.c.item_id)
+            .where(ranked.c.rank == 1)
+            .order_by(*order)
+            .offset((page - 1) * size)
+            .limit(size)
+        )
+    )
+    loaded = {
+        item.id: (item, source, card, story)
+        for item, source, card, story in session.execute(
+            joined(select(Item, Source, ItemCard, Story)).where(Item.id.in_(ids))
+        ).tuples()
+    }
+    rows = [loaded[item_id] for item_id in ids if item_id in loaded]
     metrics = latest_metrics(session, [item.id for item, *_ in rows])
     names = company_refs(session, [card for _, _, card, _ in rows])
     return FeedPage(
