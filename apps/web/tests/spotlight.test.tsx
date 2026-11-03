@@ -187,7 +187,9 @@ describe("SpotlightTabs", () => {
     expect(screen.getByRole("link", { name: "전체" })).not.toHaveAttribute("aria-current");
     expect(screen.getByRole("link", { name: "전체" })).toHaveAttribute("href", "/spotlight?date=2026-11-02");
     expect(screen.getByRole("link", { name: "뉴스" })).toHaveAttribute("href", "/spotlight?tab=news&date=2026-11-02");
-    expect(within(screen.getByRole("navigation", { name: "주목 받는 보기" })).getAllByRole("link")).toHaveLength(1 + SECTION_KEYS.length);
+    expect(screen.getByRole("link", { name: "AI 모델" })).toHaveAttribute("href", "/spotlight?tab=models&date=2026-11-02");
+    // 전체, one per section, AI 모델
+    expect(within(screen.getByRole("navigation", { name: "주목 받는 보기" })).getAllByRole("link")).toHaveLength(2 + SECTION_KEYS.length);
   });
 
   it("defaults to the overview", () => {

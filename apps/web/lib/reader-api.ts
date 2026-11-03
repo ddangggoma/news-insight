@@ -7,7 +7,7 @@ import { singleFlight } from "@/lib/single-flight";
 const BASE_URL = process.env.API_INTERNAL_URL ?? "http://127.0.0.1:8711";
 
 /** Seconds a reader response may be served from the Next.js data cache. */
-export const REVALIDATE = { feed: 300, digest: 600, radarOpen: 600, radarClosed: 86400, taxonomy: 3600, spotlight: 600 } as const;
+export const REVALIDATE = { feed: 300, digest: 600, radarOpen: 600, radarClosed: 86400, taxonomy: 3600, spotlight: 600, benchmarks: 1800 } as const;
 
 /**
  * Reader API client. Uses PUBLIC_API_KEY, never the console key, and lets Next.js cache

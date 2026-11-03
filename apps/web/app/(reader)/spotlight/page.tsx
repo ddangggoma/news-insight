@@ -1,17 +1,42 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import { ModelsTab } from "@/components/reader/benchmarks/models-tab";
 import { DateSelect } from "@/components/reader/spotlight/date-select";
 import { GeneratingBand } from "@/components/reader/spotlight/generating-band";
 import { Overview } from "@/components/reader/spotlight/overview";
 import { SectionList } from "@/components/reader/spotlight/section-list";
 import { SpotlightTabs } from "@/components/reader/spotlight/spotlight-tabs";
 import { ApiError } from "@/lib/api";
+import { BENCHMARK_SITES, type BenchmarkSite, type BenchmarkSiteKey, forClient } from "@/lib/benchmark-types";
 import { formatDateTime } from "@/lib/format";
 import { param, type SearchParams } from "@/lib/params";
 import { REVALIDATE, readerGet } from "@/lib/reader-api";
 import { requireUser } from "@/lib/session";
 import { SECTION_LABEL, type SpotlightView, isCalendarDay, parseTab } from "@/lib/spotlight-types";
+
+/**
+ * The AI 모델 tab's data: the all-sites summary (freshness, today's arrivals) and each site's
+ * full rows, fetched side by side so every cached response stays small. A site whose full
+ * request fails falls back to its summary rows (top 10 per board).
+ */
+async function loadBenchmarks(): Promise<{ summary: BenchmarkSite[]; sites: Partial<Record<BenchmarkSiteKey, BenchmarkSite>> }> {
+  const [summary, ...full] = await Promise.all([
+    readerGet<BenchmarkSite[]>("/benchmarks", {}, REVALIDATE.benchmarks),
+    ...BENCHMARK_SITES.map((site) =>
+      readerGet<BenchmarkSite[]>("/benchmarks", { site }, REVALIDATE.benchmarks).then(
+        (rows) => rows[0] ?? null,
+        () => null,
+      ),
+    ),
+  ]);
+  const sites: Partial<Record<BenchmarkSiteKey, BenchmarkSite>> = {};
+  BENCHMARK_SITES.forEach((key, index) => {
+    const site = full[index] ?? summary.find((s) => s.site === key);
+    if (site) sites[key] = forClient(site);
+  });
+  return { summary, sites };
+}
 
 export const metadata: Metadata = { title: "주목 받는", robots: { index: false } };
 
@@ -30,6 +55,8 @@ export default async function SpotlightPage({ searchParams }: { searchParams: Pr
     if (requested && error instanceof ApiError && [400, 404, 422].includes(error.status)) notFound();
     throw error;
   }
+
+  const benchmarks = tab === "models" ? await loadBenchmarks() : null;
 
   return (
     <main className="mx-auto max-w-6xl space-y-5 px-4 py-6 md:px-6">
@@ -50,6 +77,10 @@ export default async function SpotlightPage({ searchParams }: { searchParams: Pr
 
       {tab === "overview" ? (
         <Overview view={view} date={requested ?? null} />
+      ) : tab === "models" ? (
+        <section aria-label="AI 모델">
+          {benchmarks && <ModelsTab summary={benchmarks.summary} sites={benchmarks.sites} note={view.benchmark_note} />}
+        </section>
       ) : (
         <section aria-label={SECTION_LABEL[tab]}>
           <SectionList entries={view.sections[tab]} />

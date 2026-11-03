@@ -45,10 +45,11 @@ export interface SpotlightView {
   generated_at: string | null;
 }
 
-/** The page's tabs. The AI model tab (part 2) joins this list. */
+/** The page's tabs: the overview, one per section, and the AI model leaderboards. */
 export const SPOTLIGHT_TABS = [
   { key: "overview", label: "전체" },
   ...SECTION_KEYS.map((key) => ({ key, label: SECTION_LABEL[key] })),
+  { key: "models", label: "AI 모델" },
 ] as const;
 export type SpotlightTab = (typeof SPOTLIGHT_TABS)[number]["key"];
 
