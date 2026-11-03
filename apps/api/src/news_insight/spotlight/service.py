@@ -22,6 +22,7 @@ from news_insight.spotlight.models import (
 )
 from news_insight.spotlight.prompts import (
     INSTRUCTION,
+    MAX_BENCHMARK_NOTE,
     MAX_HEADLINE,
     MAX_PER_SECTION,
     MAX_PRODUCT_NAME,
@@ -103,7 +104,8 @@ def _text(value: Any) -> str | None:
 
 
 def _product_key(name: str) -> str:
-    return "product:" + "-".join(name.casefold().split())
+    # casefold can expand a name; the column holds 200 characters
+    return ("product:" + "-".join(name.casefold().split()))[:200]
 
 
 def _merged_metrics(members: list[dict[str, Any]]) -> dict[str, Any]:
@@ -198,6 +200,17 @@ def _checked(
         "rank_note": note,
     }
     return order, members, fields
+
+
+def listed_counts(output: dict[str, Any]) -> dict[str, int | None]:
+    """How many entries the writer listed per section; None when the key is missing or is not a
+    list. An empty list is the writer's decision that nothing qualifies, which `write` respects."""
+    sections = output.get("sections")
+    sections = sections if isinstance(sections, dict) else {}
+    return {
+        section: len(listed) if isinstance(listed := sections.get(section), list) else None
+        for section in SECTIONS
+    }
 
 
 def validate(
@@ -387,8 +400,11 @@ def write(
             now=now,
         )
     chosen = validate(result.structured, snapshot.candidates)
+    listed = listed_counts(result.structured)
     for section in SECTIONS:
-        if not chosen[section]:
+        # an empty list is the writer's "nothing qualifies" (real interviews only, products only);
+        # the statistical list fills in only for a missing section or one validation emptied
+        if not chosen[section] and listed[section] != 0:
             chosen[section] = fallback_entries(section, snapshot.candidates.get(section, []))
     structured = result.structured
     return _publish(
@@ -399,7 +415,7 @@ def write(
         model=result.model,
         cost_usd=result.cost_usd,
         headline=(_text(structured.get("headline")) or "")[:MAX_HEADLINE],
-        benchmark_note=_text(structured.get("benchmark_note")) or "",
+        benchmark_note=(_text(structured.get("benchmark_note")) or "")[:MAX_BENCHMARK_NOTE],
         error=None,
         now=now,
     )

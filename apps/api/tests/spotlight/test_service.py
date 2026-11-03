@@ -15,7 +15,7 @@ from news_insight.spotlight.models import (
     SpotlightStatus,
 )
 from news_insight.spotlight.prompts import OUTPUT_SCHEMA, SYSTEM_PROMPT
-from news_insight.spotlight.service import build_payload, freeze, validate, write
+from news_insight.spotlight.service import build_payload, freeze, listed_counts, validate, write
 
 pytestmark = pytest.mark.db
 DAY = date(2026, 11, 4)
@@ -304,9 +304,9 @@ def test_missing_title_uses_candidate_title() -> None:
     assert kept["news"][0]["title_ko"] == "제목 n1"
 
 
-def test_empty_section_falls_back(db_session: Session) -> None:
+def test_missing_section_key_falls_back(db_session: Session) -> None:
     seed_freeze(db_session)
-    client = FakeClaude(output({"news": [entry(["n1"], 1)], "community": []}))
+    client = FakeClaude(output({"news": [entry(["n1"], 1)]}))
     result = run(db_session, client)
     rows = entries(db_session, result, "community")
     assert [(r.rank, r.stat_rank, r.fallback) for r in rows] == [
@@ -319,6 +319,54 @@ def test_empty_section_falls_back(db_session: Session) -> None:
     assert rows[0].title_ko == "제목 c1"
     assert entries(db_session, result, "news")[0].fallback is False
     assert entries(db_session, result, "patent") == []
+
+
+def test_non_list_section_falls_back(db_session: Session) -> None:
+    seed_freeze(db_session)
+    client = FakeClaude(output({"news": [entry(["n1"], 1)], "community": "none"}))  # type: ignore[dict-item]
+    result = run(db_session, client)
+    assert len(entries(db_session, result, "community")) == 3
+
+
+def test_empty_section_list_is_respected(db_session: Session) -> None:
+    seed_freeze(db_session)
+    client = FakeClaude(output({"news": [entry(["n1"], 1)], "community": []}))
+    result = run(db_session, client)
+    assert result.status is SpotlightStatus.PUBLISHED
+    assert entries(db_session, result, "community") == []
+    assert entries(db_session, result, "news")[0].fallback is False
+
+
+def test_all_invalid_items_fall_back(db_session: Session) -> None:
+    seed_freeze(db_session)
+    client = FakeClaude(output({"community": [entry(["zz9"], 1), entry(["n1"], 2)]}))
+    result = run(db_session, client)
+    rows = entries(db_session, result, "community")
+    assert [(r.stat_rank, r.fallback) for r in rows] == [(1, True), (2, True), (3, True)]
+
+
+def test_listed_counts_tell_missing_from_empty() -> None:
+    counts = listed_counts(output({"news": [entry(["n1"], 1)], "oss": [], "product": "x"}))  # type: ignore[dict-item]
+    assert counts["news"] == 1
+    assert counts["oss"] == 0
+    assert counts["product"] is None
+    assert counts["patent"] is None
+
+
+def test_benchmark_note_capped(db_session: Session) -> None:
+    seed_freeze(db_session)
+    out = output({"news": [entry(["n1"], 1)]}) | {"benchmark_note": "가" * 500}
+    result = run(db_session, FakeClaude(out))
+    assert len(result.benchmark_note) == 200
+
+
+def test_product_key_capped_to_column() -> None:
+    kept = validate(
+        output({"product": [entry(["p1"], 1, product_name="İ" * 80)]}),
+        candidates(),
+    )
+    assert len(kept["product"][0]["key"]) <= 200
+    assert len(service._product_key("İ" * 120)) == 200
 
 
 def test_fallback_takes_top_ten_by_stat_rank(db_session: Session) -> None:
