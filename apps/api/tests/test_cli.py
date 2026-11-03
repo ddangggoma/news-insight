@@ -278,3 +278,25 @@ def test_spotlight_freeze_is_idempotent() -> None:
 
     assert first.exit_code == second.exit_code == 0, first.output + second.output
     assert first.output == second.output and "2026-11-03 frozen" in first.output
+
+
+def test_benchmarks_collect_prints_each_site_and_exits_0(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    seen: dict[str, Any] = {}
+
+    def fake_collect_all(session: Session, fetcher: SafeFetcher, now: datetime) -> dict[str, str]:
+        seen["now"] = now
+        return {"lmarena": "saved", "livebench": "selector_drift", "hf-trending": "unchanged"}
+
+    monkeypatch.setattr(cli, "collect_all", fake_collect_all)
+
+    result = runner.invoke(cli.app, ["benchmarks", "collect"])
+
+    assert result.exit_code == 0, result.output
+    assert result.output.splitlines() == [
+        "lmarena: saved",
+        "livebench: selector_drift",
+        "hf-trending: unchanged",
+    ]
+    assert seen["now"].tzinfo is not None

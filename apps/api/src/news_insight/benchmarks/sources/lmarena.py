@@ -73,9 +73,17 @@ def _overall_rows(fetcher: SafeFetcher, board: str) -> list[dict[str, Any]]:
     return [_finite(row) for row in rows if row.get("category") == OVERALL]
 
 
+def _json_safe(value: Any) -> Any:
+    if isinstance(value, float) and not math.isfinite(value):
+        return None
+    if isinstance(value, date):  # a datetime too: parquet date columns come back as objects
+        return value.isoformat()
+    return value
+
+
 def _finite(row: dict[str, Any]) -> dict[str, Any]:
-    """The row with NaN and infinity as null: the snapshot's JSON cannot hold them."""
-    return {k: None if isinstance(v, float) and not math.isfinite(v) else v for k, v in row.items()}
+    """The row as the snapshot's JSON can hold it: NaN and infinity as null, dates as ISO text."""
+    return {k: _json_safe(v) for k, v in row.items()}
 
 
 def fetch(fetcher: SafeFetcher, now: datetime) -> SiteSnapshot:
@@ -109,7 +117,7 @@ def _day(value: Any) -> str:
     """The publish date as YYYY-MM-DD, whether the file stores a string or a date."""
     if isinstance(value, date):  # datetime is a date
         return value.isoformat()[:10]
-    return value if isinstance(value, str) else ""
+    return value[:10] if isinstance(value, str) else ""
 
 
 def _score(board: str, row: dict[str, Any]) -> ScoreRow | None:

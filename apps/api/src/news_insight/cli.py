@@ -15,6 +15,7 @@ import typer
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from news_insight.benchmarks.service import collect_all
 from news_insight.cards.engines import (
     AgyEngine,
     CardEngine,
@@ -136,6 +137,11 @@ spotlight_app = typer.Typer(
     help="Daily Top 10s per section chosen by Claude Opus (plan 18)", no_args_is_help=True
 )
 app.add_typer(spotlight_app, name="spotlight")
+benchmarks_app = typer.Typer(
+    help="AI model benchmark snapshots from the public leaderboards (plan 18)",
+    no_args_is_help=True,
+)
+app.add_typer(benchmarks_app, name="benchmarks")
 
 KST = ZoneInfo("Asia/Seoul")
 FAILED_OUTCOMES = (FetchOutcome.FAILED, FetchOutcome.DEAD_LETTERED)
@@ -1712,3 +1718,12 @@ def main() -> None:
             "command failed", extra={"argv": sys.argv[1:]}
         )
         raise SystemExit(1) from None
+
+
+@benchmarks_app.command("collect")
+def benchmarks_collect() -> None:
+    """Collect every leaderboard now. One line per site; a failing site is printed, not fatal."""
+    with session_scope() as session, _fetcher() as fetcher:
+        results = collect_all(session, fetcher, datetime.now(UTC))
+    for site, result in results.items():
+        typer.echo(f"{site}: {result}")

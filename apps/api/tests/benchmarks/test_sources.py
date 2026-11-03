@@ -1,7 +1,7 @@
 import copy
 import io
 import json
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 
 import httpx
 import pyarrow as pa
@@ -381,6 +381,19 @@ def test_lmarena_nan_is_not_a_value() -> None:
     scored = [r for r in snapshot.rows if r.board == "webdev"]
     assert len(scored) == 4 and "variance" not in scored[0].extra
     json.dumps(snapshot.raw, allow_nan=False)  # the snapshot is storable
+
+
+def test_lmarena_date_values_are_stored_as_iso_text() -> None:
+    rows = board_rows("webdev")
+    for row in rows:  # a parquet date column comes back as datetime.date objects
+        row["leaderboard_publish_date"] = date(2026, 11, 2)
+    router = lmarena_routes(Router())
+    serve(router, "webdev", parquet_bytes(rows))
+    snapshot = lmarena.fetch(router.fetcher(), NOW)
+    stored = snapshot.raw["boards"]["webdev"]
+    assert {r["leaderboard_publish_date"] for r in stored} == {"2026-11-02"}
+    assert snapshot.release == "2026-11-02"
+    json.dumps(snapshot.raw, allow_nan=False)  # dates would not serialize
 
 
 def test_lmarena_board_with_unknown_columns_is_drift() -> None:
