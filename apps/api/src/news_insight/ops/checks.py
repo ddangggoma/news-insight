@@ -19,11 +19,13 @@ from news_insight.cards.models import CardRun
 from news_insight.cards.service import pending_count
 from news_insight.collect.models import DeadLetter, FetchOutcome, FetchRun
 from news_insight.ops.models import Severity
+from news_insight.spotlight.models import Spotlight, SpotlightStatus
 from news_insight.strategy.models import StrategyRun, StrategyStatus
 
 KST = ZoneInfo("Asia/Seoul")
 FREEZE_DEADLINE = time(4, 55)
 PUBLISH_DEADLINE = time(5, 20)
+SPOTLIGHT_DEADLINE = time(10, 30)  # the writer's last attempt is 10:00; 30 minutes to finish
 COLLECTION_WINDOW = timedelta(hours=1)
 MIN_SUCCESS_RATE = 0.5
 DLQ_LIMIT = 50
@@ -101,6 +103,31 @@ def check_publication(session: Session, *, now: datetime) -> list[Finding]:
                 )
             )
     return findings
+
+
+def check_spotlight(session: Session, *, now: datetime) -> list[Finding]:
+    """The daily Top 10s are written after the briefing; the day is covered once a list is
+    published (the 10:00 attempt publishes the statistical fallback, so a miss here means the job
+    itself did not run)."""
+    local = now.astimezone(KST)
+    if local.time() < SPOTLIGHT_DEADLINE:
+        return []
+    today = local.date()
+    published = session.scalar(
+        select(func.count())
+        .select_from(Spotlight)
+        .where(Spotlight.spotlight_date == today, Spotlight.status == SpotlightStatus.PUBLISHED)
+    )
+    if published:
+        return []
+    return [
+        Finding(
+            "spotlight_missing",
+            Severity.WARNING,
+            f"{today} 주목 받는 목록이 발행되지 않았습니다",
+            "Claude 로그인·한도와 ops/logs/digest.log를 확인하세요.",
+        )
+    ]
 
 
 def check_collection(session: Session, *, now: datetime) -> list[Finding]:
@@ -368,6 +395,7 @@ def run_checks(
         *check_host(host),
         *check_card_output(session),
         *check_publication(session, now=now),
+        *check_spotlight(session, now=now),
         *check_collection(session, now=now),
         *check_queue(queue_length),
         *check_cards(session, now=now),

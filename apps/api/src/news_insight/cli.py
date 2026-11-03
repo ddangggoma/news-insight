@@ -5,7 +5,7 @@ import json
 import sys
 import tempfile
 from collections import Counter
-from datetime import UTC, date, datetime, timedelta
+from datetime import UTC, date, datetime, time, timedelta
 from pathlib import Path
 from typing import Annotated
 from zoneinfo import ZoneInfo
@@ -131,6 +131,10 @@ reports_app = typer.Typer(
     no_args_is_help=True,
 )
 app.add_typer(reports_app, name="reports")
+spotlight_app = typer.Typer(
+    help="Daily Top 10s per section chosen by Claude Opus (plan 18)", no_args_is_help=True
+)
+app.add_typer(spotlight_app, name="spotlight")
 
 KST = ZoneInfo("Asia/Seoul")
 FAILED_OUTCOMES = (FetchOutcome.FAILED, FetchOutcome.DEAD_LETTERED)
@@ -150,6 +154,13 @@ def _claude() -> ClaudeClient:
     settings = get_settings()
     return ClaudeCli(
         executable=settings.claude_cli, timeout_seconds=settings.digest_timeout_seconds
+    )
+
+
+def _spotlight_claude() -> ClaudeClient:
+    settings = get_settings()
+    return ClaudeCli(
+        executable=settings.claude_cli, timeout_seconds=settings.spotlight_timeout_seconds
     )
 
 
@@ -1092,6 +1103,81 @@ def daily_publish(
         )
         blocked = failing(briefing.gates)
     typer.echo(line + (f" failed gates: {', '.join(blocked)}" if blocked else ""))
+
+
+# the writer retries at the 05:00 job's later runs; from 10:00 KST the attempt is the day's last
+SPOTLIGHT_LAST_ATTEMPT = time(10, 0)
+
+
+@spotlight_app.command("freeze")
+def spotlight_freeze(
+    on: Annotated[
+        str | None, typer.Option("--date", help="Spotlight date YYYY-MM-DD (KST)")
+    ] = None,
+) -> None:
+    """Snapshot today's spotlight candidates (idempotent; Celery runs it at 04:40 KST)."""
+    from news_insight.spotlight.candidates import SECTIONS
+    from news_insight.spotlight.service import freeze
+
+    now = datetime.now(UTC)
+    with session_scope() as session:
+        snapshot = freeze(session, day=_briefing_date(on, now), now=now)
+        typer.echo(
+            f"{snapshot.spotlight_date} frozen at {_kst(snapshot.frozen_at)}: "
+            + ", ".join(f"{name} {len(snapshot.candidates.get(name, []))}" for name in SECTIONS)
+        )
+
+
+@spotlight_app.command("write")
+def spotlight_write(
+    on: Annotated[
+        str | None, typer.Option("--date", help="Spotlight date YYYY-MM-DD (KST)")
+    ] = None,
+    model: Annotated[str | None, typer.Option(help="Claude model alias")] = None,
+) -> None:
+    """Have Claude Opus pick each section's Top 10 and publish it (05:00 KST digest job, after the
+    briefing; later runs act only while the date has no published list). From 10:00 KST a failure
+    publishes the statistical lists instead of raising."""
+    from news_insight.digest.claude import ClaudeError
+    from news_insight.spotlight.models import Spotlight, SpotlightStatus
+    from news_insight.spotlight.service import write
+
+    now = datetime.now(UTC)
+    day = _briefing_date(on, now)
+    final_attempt = now.astimezone(KST).time() >= SPOTLIGHT_LAST_ATTEMPT
+    error: ClaudeError | None = None
+    with session_scope() as session:
+        done = session.scalars(
+            select(Spotlight).where(
+                Spotlight.spotlight_date == day, Spotlight.status == SpotlightStatus.PUBLISHED
+            )
+        ).one_or_none()
+        if done is not None:
+            typer.echo(f"{day} spotlight already published; nothing to do")
+            return
+        # a ClaudeError is caught inside the scope: the scope rolls back anything that propagates,
+        # and the FAILED row (and the freeze made on the spot) must be committed
+        try:
+            row = write(
+                session,
+                day=day,
+                now=now,
+                client=_spotlight_claude(),
+                model=model or get_settings().spotlight_model,
+                final_attempt=final_attempt,
+            )
+        except ClaudeError as exc:
+            error = exc
+        else:
+            line = f"{day} spotlight {row.status.value} model={row.model}"
+            if row.cost_usd is not None:
+                line += f" cost=${row.cost_usd:.3f}"
+            if row.error:
+                line += f" fallback: {row.error}"
+            typer.echo(line)
+    if error is not None:
+        typer.echo(f"{day} spotlight not written: {error}", err=True)
+        raise typer.Exit(1)
 
 
 @periodic_app.command("publish")
