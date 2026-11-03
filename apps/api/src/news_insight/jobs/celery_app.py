@@ -18,6 +18,12 @@ BEAT_SCHEDULE: dict[str, dict[str, Any]] = {
     "stories-cluster": {"task": "stories.cluster", "schedule": 300.0},
     "ops-check": {"task": "ops.check", "schedule": 300.0},
     "radar-warm": {"task": "radar.warm", "schedule": 900.0},  # the open window's cache TTL
+    # the explore page's view (public/facts.py): new cards show within about three minutes
+    "reader-refresh-facts": {
+        "task": "reader.refresh_facts",
+        "schedule": 180.0,
+        "options": {"expires": 170},
+    },
     "briefing-freeze": {
         "task": "briefing.freeze",
         "schedule": crontab(hour=4, minute=40),  # D15 freeze, 20 min before publication
