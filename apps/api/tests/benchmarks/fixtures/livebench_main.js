@@ -1,0 +1,3 @@
+/* excerpt of https://livebench.ai/static/js/main.1e1ce12d.js (2026-11-03): release dates as the bundle spells them */
+const Yt=["20261014","20261025"],Xt=e=>`${e.slice(0,4)}-${e.slice(4,6)}-${e.slice(6,8)}`,Zt="25 October 2026",en=[...["2024-06-24","2024-07-26","2024-08-31","2024-11-25","2025-04-02","2025-04-25","2025-05-30","2025-11-25","2025-12-23","2026-01-08","2026-06-25"].map(e=>({id:e,label:e,gen:"v1"})),...Yt.map(e=>({id:e,label:Xt(e),gen:"v2"}))];
+const models={"deepseek-v4.1-flash":{url:"https://api-docs.deepseek.com/updates",organization:"DeepSeek",displayName:"DeepSeek V4.1 Flash Max Effort",version:"2026-09-10",openweight:!0,reasoner:!0}};

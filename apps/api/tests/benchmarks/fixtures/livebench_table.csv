@@ -1,0 +1,6 @@
+model,long_agentic,reasoning,coding,browser,data_analysis,research,design
+claude-fable-5.1,77.9,91.7,97.7,89.8,80.3,82.0,83.4
+claude-haiku-5.5,40.0,82.4,91.4,69.5,53.1,81.9,83.1
+claude-opus-5.5,72.8,92.2,96.3,88.4,80.3,85.0,86.9
+claude-sonnet-5.5,63.4,91.6,94.7,89.3,59.5,83.6,85.0
+deepseek-v4.1-flash-1017,35.7,89.1,96.0,67.2,79.5,79.5,83.4

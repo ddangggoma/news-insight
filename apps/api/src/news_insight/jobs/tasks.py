@@ -252,3 +252,12 @@ def triage_train_task() -> dict[str, Any]:
             if result is None
             else {"model": result.model_id, "auc": result.auc, "samples": result.samples}
         )
+
+
+@celery_app.task(name="benchmarks.collect")
+def benchmarks_collect_task() -> dict[str, str]:
+    """Plan 18: the four AI leaderboards, once a day. A site that fails keeps its last snapshot."""
+    from news_insight.benchmarks.service import collect_all
+
+    with session_scope() as session, SafeFetcher.from_settings(get_settings()) as fetcher:
+        return collect_all(session, fetcher, datetime.now(UTC))

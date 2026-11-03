@@ -1,0 +1,182 @@
+{
+ "features": [
+  {
+   "feature_idx": 0,
+   "name": "model_name",
+   "type": {
+    "dtype": "string",
+    "_type": "Value"
+   }
+  },
+  {
+   "feature_idx": 1,
+   "name": "organization",
+   "type": {
+    "dtype": "string",
+    "_type": "Value"
+   }
+  },
+  {
+   "feature_idx": 2,
+   "name": "license",
+   "type": {
+    "dtype": "string",
+    "_type": "Value"
+   }
+  },
+  {
+   "feature_idx": 3,
+   "name": "rating",
+   "type": {
+    "dtype": "float64",
+    "_type": "Value"
+   }
+  },
+  {
+   "feature_idx": 4,
+   "name": "rating_lower",
+   "type": {
+    "dtype": "float64",
+    "_type": "Value"
+   }
+  },
+  {
+   "feature_idx": 5,
+   "name": "rating_upper",
+   "type": {
+    "dtype": "float64",
+    "_type": "Value"
+   }
+  },
+  {
+   "feature_idx": 6,
+   "name": "variance",
+   "type": {
+    "dtype": "float64",
+    "_type": "Value"
+   }
+  },
+  {
+   "feature_idx": 7,
+   "name": "vote_count",
+   "type": {
+    "dtype": "float64",
+    "_type": "Value"
+   }
+  },
+  {
+   "feature_idx": 8,
+   "name": "rank",
+   "type": {
+    "dtype": "int64",
+    "_type": "Value"
+   }
+  },
+  {
+   "feature_idx": 9,
+   "name": "category",
+   "type": {
+    "dtype": "string",
+    "_type": "Value"
+   }
+  },
+  {
+   "feature_idx": 10,
+   "name": "leaderboard_publish_date",
+   "type": {
+    "dtype": "string",
+    "_type": "Value"
+   }
+  }
+ ],
+ "rows": [
+  {
+   "row_idx": 0,
+   "row": {
+    "model_name": "Gemini 4 Carbon (High)",
+    "organization": "google",
+    "license": "Proprietary",
+    "rating": 1527.5065447464403,
+    "rating_lower": 1518.0976265288389,
+    "rating_upper": 1536.9154629640418,
+    "variance": 23.045344531252034,
+    "vote_count": 4403.0,
+    "rank": 1,
+    "category": "overall",
+    "leaderboard_publish_date": "2026-10-28"
+   },
+   "truncated_cells": []
+  },
+  {
+   "row_idx": 1,
+   "row": {
+    "model_name": "Gemini 4 Argon (High)",
+    "organization": "google",
+    "license": "Proprietary",
+    "rating": 1520.254646597456,
+    "rating_lower": 1513.9807620604795,
+    "rating_upper": 1526.5285311344326,
+    "variance": 10.246531075973087,
+    "vote_count": 11889.0,
+    "rank": 2,
+    "category": "overall",
+    "leaderboard_publish_date": "2026-10-28"
+   },
+   "truncated_cells": []
+  },
+  {
+   "row_idx": 2,
+   "row": {
+    "model_name": "Claude Opus 5.5 (High)",
+    "organization": "anthropic",
+    "license": "Proprietary",
+    "rating": 1508.697590625909,
+    "rating_lower": 1502.0905562675373,
+    "rating_upper": 1515.304624984281,
+    "variance": 11.363626437317109,
+    "vote_count": 11415.0,
+    "rank": 3,
+    "category": "overall",
+    "leaderboard_publish_date": "2026-10-28"
+   },
+   "truncated_cells": []
+  },
+  {
+   "row_idx": 3,
+   "row": {
+    "model_name": "Muse Wonder (Max)",
+    "organization": "meta",
+    "license": "Proprietary",
+    "rating": 1507.0976650433042,
+    "rating_lower": 1499.7594852426907,
+    "rating_upper": 1514.4358448439177,
+    "variance": 14.017821171489775,
+    "vote_count": 7749.0,
+    "rank": 4,
+    "category": "overall",
+    "leaderboard_publish_date": "2026-10-28"
+   },
+   "truncated_cells": []
+  },
+  {
+   "row_idx": 4,
+   "row": {
+    "model_name": "Claude Fable 5.1 (Max)",
+    "organization": "anthropic",
+    "license": "Proprietary",
+    "rating": 1504.3663236556554,
+    "rating_lower": 1498.5536609399205,
+    "rating_upper": 1510.1789863713905,
+    "variance": 8.795369005358891,
+    "vote_count": 17178.0,
+    "rank": 5,
+    "category": "overall",
+    "leaderboard_publish_date": "2026-10-28"
+   },
+   "truncated_cells": []
+  }
+ ],
+ "num_rows_total": 419,
+ "num_rows_per_page": 100,
+ "partial": false
+}
