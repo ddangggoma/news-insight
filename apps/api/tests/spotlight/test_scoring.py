@@ -71,6 +71,13 @@ def test_velocity_uses_published_hours_and_falls_back_to_first_seen():
     assert velocity(100, None, AT - timedelta(hours=5), AT) == pytest.approx(math.log1p(20))
 
 
+def test_negative_score_is_clamped_to_zero():
+    assert engagement("Stack Exchange Inc.", {"score": -3, "answers": 1}) == 0
+    assert engagement("V2EX", {"score": -9}) == 0
+    # Without the clamp log1p(-3 / 10 ... -5) would raise for values <= -2 * hours.
+    assert velocity(-50, AT - timedelta(hours=10), AT, AT) == 0.0
+
+
 def test_small_platform_uses_fallback():
     fb = PlatformStats(mean=1.0, std=1.0, n=500)
     assert zscore(3.0, PlatformStats(mean=0.0, std=1.0, n=10), fb) == pytest.approx(2.0)
@@ -189,6 +196,17 @@ def test_platform_stats_groups_by_operator_and_scopes_overall(db_session: Sessio
     mean = sum(values) / 3
     assert overall.mean == pytest.approx(mean)
     assert overall.std == pytest.approx(math.sqrt(sum((v - mean) ** 2 for v in values) / 3))
+
+
+@pytest.mark.db
+def test_platform_stats_survives_negative_score(db_session: Session):
+    _item(db_session, "se-neg", "Stack Exchange Inc.", Track.COMMUNITY, {"score": -30})
+    _item(db_session, "se-pos", "Stack Exchange Inc.", Track.COMMUNITY, {"score": 20})
+    per_platform, overall = platform_stats(db_session, at=AT)
+    stack = per_platform["Stack Exchange Inc."]
+    assert stack.n == 2
+    assert stack.mean == pytest.approx(math.log1p(20 / 10) / 2)
+    assert overall.n == 2
 
 
 @pytest.mark.db

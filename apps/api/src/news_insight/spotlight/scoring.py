@@ -74,12 +74,13 @@ def engagement(operator: str, metrics: dict[str, int]) -> int | None:
         return None
     if operator in _FIRST_KEY_ONLY:
         present = present[:1]
-    return sum(metrics[key] for key in present)
+    # Stack Exchange / V2EX scores can be negative; engagement is never below zero.
+    return max(sum(metrics[key] for key in present), 0)
 
 
 def velocity(value: int, published: datetime | None, first_seen: datetime, at: datetime) -> float:
     hours = (at - (published or first_seen)).total_seconds() / 3600
-    return math.log1p(value / max(hours, _MIN_HOURS))
+    return math.log1p(max(value, 0) / max(hours, _MIN_HOURS))
 
 
 def zscore(v: float, stats: PlatformStats | None, fallback: PlatformStats) -> float:
