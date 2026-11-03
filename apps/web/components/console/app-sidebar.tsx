@@ -1,6 +1,6 @@
 "use client";
 
-import { Activity, BarChart3, BellRing, ChevronDown, Network, ClipboardCheck, Cpu, Gauge, GitMerge, History, Inbox, Layers, LayoutDashboard, LayoutGrid, Library, Lightbulb, Newspaper, Radar, Rss, ScrollText, Star, TrendingUp, Users } from "lucide-react";
+import { Activity, BarChart3, BellRing, ChevronDown, Network, ClipboardCheck, Cpu, Gauge, GitMerge, History, Inbox, Layers, LayoutDashboard, LayoutGrid, Library, Lightbulb, Link2, Newspaper, Radar, Rss, ScrollText, Star, TrendingUp, Users } from "lucide-react";
 import { AppLink as Link } from "@/components/app-link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -38,6 +38,7 @@ const NAV: { label: string; folded?: boolean; items: { href: string; title: stri
     { href: "/console/signals", title: "교차 신호", icon: GitMerge },
     { href: "/console/trends", title: "지표 상승", icon: TrendingUp },
     { href: "/console/items", title: "수집 항목", icon: Library },
+    { href: "/console/benchmarks", title: "모델 이름 연결", icon: Link2 },
   ] },
   { label: "수집", items: [
     { href: "/console/sources", title: "소스", icon: Rss },

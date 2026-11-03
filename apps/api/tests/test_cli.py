@@ -1,6 +1,6 @@
 from collections.abc import Iterator
 from contextlib import contextmanager
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 from typer.testing import CliRunner
 
 from news_insight import cli
+from news_insight.benchmarks.models import BenchmarkScore, BenchmarkSnapshot
 from news_insight.digest.claude import ClaudeError, ClaudeResult
 from news_insight.net.safe_fetch import SafeFetcher
 from news_insight.spotlight.models import Spotlight, SpotlightFreeze, SpotlightStatus
@@ -182,6 +183,77 @@ def test_spotlight_write_commits_the_failed_row_before_exiting_1(
     assert row.status is SpotlightStatus.FAILED and row.error == "claude login expired"
     # the on-the-spot freeze survived with it
     assert db_session.scalars(select(SpotlightFreeze)).one().spotlight_date == SPOTLIGHT_DAY
+
+
+class CapturingClaude:
+    def __init__(self) -> None:
+        self.payloads: list[dict[str, Any]] = []
+
+    def generate(self, payload: dict[str, Any], **kwargs: Any) -> ClaudeResult:
+        self.payloads.append(payload)
+        return ClaudeResult(
+            structured={"headline": "", "benchmark_note": "", "sections": {}},
+            model="claude-opus-5-5",
+            cost_usd=0.1,
+        )
+
+
+def _leaderboard(db_session: Session, hours_ago: int, order: tuple[str, str]) -> None:
+    snapshot = BenchmarkSnapshot(
+        site="lmarena",
+        release=str(hours_ago),
+        fetched_at=SPOTLIGHT_AT - timedelta(hours=hours_ago),
+        sha256=str(hours_ago),
+        raw={},
+    )
+    db_session.add(snapshot)
+    db_session.flush()
+    for value, model in zip((1500.0, 1400.0), order, strict=True):
+        db_session.add(
+            BenchmarkScore(
+                snapshot_id=snapshot.id,
+                site="lmarena",
+                board="text",
+                model_raw=model,
+                metric="rating",
+                value=value,
+                extra={},
+            )
+        )
+    db_session.flush()
+
+
+def test_spotlight_write_gives_opus_the_benchmark_moves(
+    db_session: Session, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _leaderboard(db_session, 28, ("alpha", "beta"))
+    _leaderboard(db_session, 2, ("beta", "alpha"))
+    claude = CapturingClaude()
+    monkeypatch.setattr(cli, "_spotlight_claude", lambda: claude)
+    clock_at(monkeypatch, SPOTLIGHT_AT)
+
+    result = runner.invoke(cli.app, ["spotlight", "write", "--date", "2026-11-03"])
+
+    assert result.exit_code == 0, result.output
+    changes = claude.payloads[0]["benchmarks"]["changes"]
+    assert {(c["model"], c["from"], c["to"]) for c in changes} == {("beta", 2, 1), ("alpha", 1, 2)}
+
+
+def test_spotlight_write_goes_on_when_the_benchmark_view_breaks(
+    db_session: Session, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def broken(session: Session, *, now: datetime) -> dict[str, Any]:
+        raise RuntimeError("bad benchmark data")
+
+    claude = CapturingClaude()
+    monkeypatch.setattr(cli, "_spotlight_claude", lambda: claude)
+    monkeypatch.setattr("news_insight.public.benchmarks.benchmark_changes", broken)
+    clock_at(monkeypatch, SPOTLIGHT_AT)
+
+    result = runner.invoke(cli.app, ["spotlight", "write", "--date", "2026-11-03"])
+
+    assert result.exit_code == 0, result.output
+    assert claude.payloads[0]["benchmarks"] == {"changes": [], "new_models": []}
 
 
 def test_spotlight_write_from_ten_publishes_the_fallback(

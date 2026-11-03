@@ -13,6 +13,7 @@ from news_insight.auth.account_routes import Admin
 from news_insight.collect.dead_letters import DeadLetterError, dismiss, retry
 from news_insight.collect.models import DeadLetter, FetchOutcome
 from news_insight.config import get_settings
+from news_insight.console import benchmarks as benchmark_console
 from news_insight.console import briefings as briefing_queries
 from news_insight.console import cards as card_queries
 from news_insight.console import queries
@@ -652,6 +653,23 @@ def list_alerts(session: DB, limit: Annotated[int, Query(ge=1, le=200)] = 50) ->
         )
         for a in rows
     ]
+
+
+@router.get("/benchmarks/unmatched")
+def get_unmatched_models(session: DB) -> list[benchmark_console.UnmatchedOut]:
+    return benchmark_console.unmatched(session)
+
+
+@router.post("/benchmarks/aliases", status_code=status.HTTP_201_CREATED)
+def post_model_alias(session: DB, body: benchmark_console.AliasIn) -> benchmark_console.AliasOut:
+    try:
+        linked = benchmark_console.link_alias(session, body)
+    except benchmark_console.InvalidName as exc:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, str(exc)) from exc
+    except benchmark_console.AliasTaken as exc:
+        raise HTTPException(status.HTTP_409_CONFLICT, str(exc)) from exc
+    session.commit()
+    return linked
 
 
 @router.get("/technologies")

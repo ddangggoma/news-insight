@@ -414,6 +414,14 @@ export interface TechnologyCandidate {
   count: number;
 }
 
+/** A model name a leaderboard uses that no registered model owns yet (plan 18). */
+export interface UnmatchedModel {
+  model_raw: string;
+  org: string | null;
+  sites: string[];
+  last_seen: string;
+}
+
 /** The reader's watch list (plan 13 A5), managed in the console. */
 export interface WatchItem {
   id: number;

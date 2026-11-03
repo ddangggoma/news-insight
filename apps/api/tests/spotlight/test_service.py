@@ -414,6 +414,25 @@ def test_build_payload_benchmarks_pass_through(db_session: Session) -> None:
     assert build_payload(freeze_row, {}, bench)["benchmarks"] == bench
 
 
+def test_write_passes_benchmark_changes_to_payload(db_session: Session) -> None:
+    seed_freeze(db_session)
+    bench = {
+        "changes": [{"site": "LMArena", "model": "X", "from": 3, "to": 2}],
+        "new_models": [{"site": "LMArena", "model": "Y", "rank": 5}],
+    }
+    client = FakeClaude(output({"news": [entry(["n1"], 1)]}))
+    write(
+        db_session,
+        day=DAY,
+        now=NOW,
+        client=client,
+        model=MODEL,
+        final_attempt=False,
+        benchmarks=bench,
+    )
+    assert client.calls[0]["payload"]["benchmarks"] == bench
+
+
 def test_schema_has_no_type_unions() -> None:
     def types(node: Any) -> list[Any]:
         if isinstance(node, dict):

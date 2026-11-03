@@ -18,6 +18,7 @@ from news_insight.digest.models import Digest
 from news_insight.digest.schemas import DigestSummary
 from news_insight.periodic import service as periodic_service
 from news_insight.public import aggregates, radar_cache
+from news_insight.public import benchmarks as benchmark_queries
 from news_insight.public import board as board_queries
 from news_insight.public import briefings as briefing_queries
 from news_insight.public import companies as company_queries
@@ -435,6 +436,12 @@ def get_spotlight(
         raise HTTPException(
             status.HTTP_404_NOT_FOUND, "no published spotlight on that date"
         ) from error
+
+
+@router.get("/benchmarks")
+def get_benchmarks(session: DB, now: Now) -> list[benchmark_queries.BenchmarkSiteOut]:
+    """AI model leaderboards: each site's latest snapshot with ranks and moves (plan 18)."""
+    return benchmark_queries.benchmarks_view(session, now=now)
 
 
 class AskIn(BaseModel):

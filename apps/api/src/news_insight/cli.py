@@ -2,12 +2,13 @@
 
 import fcntl
 import json
+import logging
 import sys
 import tempfile
 from collections import Counter
 from datetime import UTC, date, datetime, time, timedelta
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Any
 from zoneinfo import ZoneInfo
 
 import typer
@@ -1139,6 +1140,7 @@ def spotlight_write(
     briefing; later runs act only while the date has no published list). From 10:00 KST a failure
     publishes the statistical lists instead of raising."""
     from news_insight.digest.claude import ClaudeError
+    from news_insight.public.benchmarks import benchmark_changes
     from news_insight.spotlight.models import Spotlight, SpotlightStatus
     from news_insight.spotlight.service import write
 
@@ -1155,6 +1157,12 @@ def spotlight_write(
         if done is not None:
             typer.echo(f"{day} spotlight already published; nothing to do")
             return
+        benchmarks: dict[str, Any] | None = None
+        try:  # the day's leaderboard moves are context only; the list is written without them
+            with session.begin_nested():
+                benchmarks = benchmark_changes(session, now=now)
+        except Exception:  # noqa: BLE001
+            logging.getLogger(__name__).exception("spotlight: benchmark changes unavailable")
         # a ClaudeError is caught inside the scope: the scope rolls back anything that propagates,
         # and the FAILED row (and the freeze made on the spot) must be committed
         try:
@@ -1165,6 +1173,7 @@ def spotlight_write(
                 client=_spotlight_claude(),
                 model=model or get_settings().spotlight_model,
                 final_attempt=final_attempt,
+                benchmarks=benchmarks,
             )
         except ClaudeError as exc:
             error = exc
