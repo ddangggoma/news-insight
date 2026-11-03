@@ -3,12 +3,14 @@ with a rank per board and the move against the snapshot before. The all-sites vi
 (top ten per board); one site's full rows come from its own request.
 
 The rank follows one representative metric per site (higher is better for all four):
-DeepSWE `pass_at_1`, LiveBench the mean of its distinct category metrics (a derived `overall`
-row: the site's table has no overall column; a model covering under 75% of the board's
-categories keeps the row unranked), LMArena `rating` (the agent board: `score`), Artificial
+DeepSWE `pass_at_1`, LiveBench the site's weighted mean of its distinct category metrics (a
+derived `overall` row: the table has no overall column and the site weighs Long Agentic, Coding
+and Design above the rest; a model covering under 75% of the board's categories keeps the row
+unranked), LMArena `rating` (the agent board: `score`), Artificial
 Analysis its intelligence index. A model is one entry per board (its id when linked, else its
 normalized name) and ranks by its best row, so only that row carries a rank."""
 
+import math
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from types import ModuleType
@@ -30,6 +32,7 @@ TOP = 20  # the ranks whose moves the spotlight writer is told about
 SUMMARY_ROWS = 10  # ranked rows per board in the all-sites summary
 MIN_COVERAGE = 0.75  # share of a LiveBench board's categories a model needs to be ranked
 OVERALL = "overall"
+_MODEL_INFO = ("display_name", "organization", "open_weights")  # LiveBench's model metadata
 INTELLIGENCE_INDEX = "artificial_analysis_intelligence_index"
 AGENT_BOARD = "agent"
 
@@ -117,14 +120,37 @@ def _scores(session: Session, site: str, snapshot_id: int) -> list[_Score]:
         for row_id, board, model_id, raw, metric, value in found
     ]
     if site == livebench.SITE:
-        scores += _livebench_overall(scores)
+        scores += _livebench_overall(scores, _livebench_weights(session, snapshot_id))
     return scores
 
 
-def _livebench_overall(scores: list[_Score]) -> list[_Score]:
-    """One derived row per model: the mean over the distinct categories it has (a category
-    stored under several spellings of the model counts once; the cost is not a category). Only a
-    model covering MIN_COVERAGE of the board's categories may rank."""
+def _livebench_weights(session: Session, snapshot_id: int) -> dict[str, float]:
+    """The site's category weights ({"coding": 1.5, ...}) from the snapshot's categories.json:
+    `_overall_weights` names categories by label ("Long Agentic"), the same file maps a label to
+    its metric names. Only that one key of the raw JSON is read; a missing or odd entry is a
+    weight of 1."""
+    categories = session.scalar(
+        select(BenchmarkSnapshot.raw["categories"]).where(BenchmarkSnapshot.id == snapshot_id)
+    )
+    weights = categories.get("_overall_weights") if isinstance(categories, dict) else None
+    if not isinstance(categories, dict) or not isinstance(weights, dict):
+        return {}
+    found: dict[str, float] = {}
+    for label, weight in weights.items():
+        columns = categories.get(label)
+        if isinstance(weight, bool) or not isinstance(weight, int | float):
+            continue
+        if not math.isfinite(weight) or weight <= 0 or not isinstance(columns, list):
+            continue
+        found.update({c.casefold(): float(weight) for c in columns if isinstance(c, str)})
+    return found
+
+
+def _livebench_overall(scores: list[_Score], weights: dict[str, float]) -> list[_Score]:
+    """One derived row per model: the site's overall, the weighted mean over the distinct
+    categories the model has (unlisted categories weigh 1; a category stored under several
+    spellings of the model counts once; the cost is not a category). Only a model covering
+    MIN_COVERAGE of the board's categories may rank."""
     board_categories: dict[str, set[str]] = {}
     models: dict[tuple[str, str], dict[str, list[float]]] = {}
     first: dict[tuple[str, str], _Score] = {}
@@ -137,7 +163,11 @@ def _livebench_overall(scores: list[_Score]) -> list[_Score]:
         first.setdefault((score.board, score.key), score)
     derived = []
     for (board, key), by_category in models.items():
-        means = [sum(values) / len(values) for values in by_category.values()]
+        weighted = [
+            (weights.get(category, 1.0), sum(values) / len(values))
+            for category, values in by_category.items()
+        ]
+        total = sum(weight for weight, _ in weighted)
         coverage = len(by_category) / len(board_categories[board])
         source = first[(board, key)]
         derived.append(
@@ -147,7 +177,7 @@ def _livebench_overall(scores: list[_Score]) -> list[_Score]:
                 key,
                 source.model,
                 OVERALL,
-                sum(means) / len(means),
+                sum(weight * mean for weight, mean in weighted) / total,
                 derived=True,
                 categories=tuple(sorted(by_category)),
                 coverage=coverage,
@@ -211,6 +241,8 @@ def _rows(session: Session, ids: list[int] | None, snapshot_id: int) -> dict[int
 
 
 def _derived_row(score: _Score, source: BenchmarkRowOut) -> BenchmarkRowOut:
+    # who the model is travels with it, as the table rows carry it
+    named = {k: v for k, v in source.extra.items() if k in _MODEL_INFO}
     return source.model_copy(
         update={
             "config": None,
@@ -219,6 +251,7 @@ def _derived_row(score: _Score, source: BenchmarkRowOut) -> BenchmarkRowOut:
             "ci_low": None,
             "ci_high": None,
             "extra": {
+                **named,
                 "derived": True,
                 "categories": list(score.categories),
                 "coverage": round(score.coverage, 3),

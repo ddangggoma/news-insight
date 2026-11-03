@@ -30,6 +30,7 @@ def snapshot(
     hours_ago: float = 3,
     release: str = "r1",
     metric: str = "rating",
+    raw: dict[str, Any] | None = None,
 ) -> BenchmarkSnapshot:
     """rows are (board, model, value[, metric[, config[, model_id]]])."""
     count = session.query(BenchmarkSnapshot).count()
@@ -38,7 +39,7 @@ def snapshot(
         release=release,
         fetched_at=NOW - timedelta(hours=hours_ago),
         sha256=f"{site}-{count}",
-        raw={},
+        raw=raw or {},
     )
     session.add(snap)
     session.flush()
@@ -262,6 +263,107 @@ def test_livebench_duplicate_spellings_count_a_category_once(db_session: Session
     assert row.value == pytest.approx(55.0)  # mean(mean(80, 60), 40), not mean(80, 60, 40)
     assert row.extra["categories"] == ["coding", "reasoning"]
     assert row.extra["coverage"] == 1.0
+
+
+LIVEBENCH_CATEGORIES = {
+    "Long Agentic": ["long_agentic"],
+    "Reasoning": ["reasoning"],
+    "Coding": ["coding"],
+    "Browser": ["browser"],
+    "Data Analysis": ["data_analysis"],
+    "Research": ["research"],
+    "Design": ["design"],
+    "_overall_weights": {"Long Agentic": 2.0, "Coding": 1.5, "Design": 1.5},
+}
+FABLE = {  # the LiveBench table of 2026-10-25, claude-fable-5.1
+    "long_agentic": 77.9,
+    "reasoning": 91.7,
+    "coding": 97.7,
+    "browser": 89.8,
+    "data_analysis": 80.3,
+    "research": 82.0,
+    "design": 83.4,
+}
+
+
+def weighted_snapshot(session: Session, models: dict[str, dict[str, float]], **kw: Any) -> None:
+    rows = [("main", model, v, c) for model, by in models.items() for c, v in by.items()]
+    raw = {"categories": LIVEBENCH_CATEGORIES}
+    snapshot(session, livebench.SITE, rows, raw=raw, **kw)
+
+
+def test_livebench_overall_uses_the_sites_weights(db_session: Session) -> None:
+    weighted_snapshot(db_session, {"claude-fable-5.1": FABLE})
+    row = next(r for r in full(db_session, livebench.SITE).rows if r.metric == "overall")
+    # the site shows 85.7: (2*77.9 + 91.7 + 1.5*97.7 + 89.8 + 80.3 + 82.0 + 1.5*83.4) / 9.0
+    assert row.value == pytest.approx(85.69, abs=0.005)
+    assert round(row.value, 1) == 85.7
+    assert row.extra["coverage"] == 1.0 and len(row.extra["categories"]) == 7
+
+
+def test_livebench_weights_change_the_ranking(db_session: Session) -> None:
+    # "agentic" is better in long_agentic (weight 2), "plain" in reasoning (weight 1)
+    weighted_snapshot(
+        db_session,
+        {
+            "agentic": {"long_agentic": 90.0, "reasoning": 60.0},
+            "plain": {"long_agentic": 70.0, "reasoning": 85.0},
+        },
+    )
+    overall = {r.model: r for r in full(db_session, livebench.SITE).rows if r.metric == "overall"}
+    assert overall["agentic"].value == pytest.approx(80.0)  # (2*90 + 60) / 3
+    assert overall["plain"].value == pytest.approx(75.0)
+    assert overall["agentic"].rank == 1 and overall["plain"].rank == 2
+
+
+def test_livebench_weights_only_count_the_categories_a_model_has(db_session: Session) -> None:
+    weighted_snapshot(db_session, {"m": {"coding": 100.0, "browser": 70.0, "research": 70.0}})
+    row = next(r for r in full(db_session, livebench.SITE).rows if r.metric == "overall")
+    assert row.value == pytest.approx((1.5 * 100 + 70 + 70) / 3.5)  # unlisted ones weigh 1
+
+
+def test_livebench_weights_that_do_not_make_sense_are_ignored(db_session: Session) -> None:
+    bad = {
+        **LIVEBENCH_CATEGORIES,
+        "_overall_weights": {"Coding": "heavy", "Nowhere": 5, "Design": 0},
+    }
+    rows = [("main", "m", 100.0, "coding"), ("main", "m", 50.0, "design")]
+    snapshot(db_session, livebench.SITE, rows, raw={"categories": bad})
+    row = next(r for r in full(db_session, livebench.SITE).rows if r.metric == "overall")
+    assert row.value == pytest.approx(75.0)  # plain mean
+
+
+def test_livebench_changes_follow_the_weighted_overall(db_session: Session) -> None:
+    models = {
+        "a": {"long_agentic": 90.0, "reasoning": 60.0},
+        "b": {"long_agentic": 70.0, "reasoning": 85.0},
+    }
+    weighted_snapshot(db_session, models, hours_ago=30)
+    models = {
+        "a": {"long_agentic": 60.0, "reasoning": 90.0},
+        "b": {"long_agentic": 70.0, "reasoning": 85.0},
+    }
+    weighted_snapshot(db_session, models, hours_ago=3)
+    moves = benchmark_changes(db_session, now=NOW)["changes"]
+    # a: (2*90+60)/3 = 80 -> (2*60+90)/3 = 70, so b (75) passes it
+    assert {(m["model"], m["from"], m["to"]) for m in moves} == {("a", 1, 2), ("b", 2, 1)}
+
+
+def test_livebench_derived_row_keeps_the_models_metadata(db_session: Session) -> None:
+    snap = snapshot(db_session, livebench.SITE, [("main", "m", 80.0, "coding")])
+    score = db_session.query(BenchmarkScore).filter_by(snapshot_id=snap.id).one()
+    score.extra = {
+        "category": "Coding",
+        "display_name": "Model M",
+        "organization": "Lab",
+        "open_weights": True,
+    }
+    db_session.flush()
+    row = next(r for r in full(db_session, livebench.SITE).rows if r.metric == "overall")
+    assert row.extra["derived"] is True
+    assert (row.extra["display_name"], row.extra["organization"]) == ("Model M", "Lab")
+    assert row.extra["open_weights"] is True
+    assert "category" not in row.extra
 
 
 def test_artificial_analysis_ranks_the_intelligence_index(db_session: Session) -> None:

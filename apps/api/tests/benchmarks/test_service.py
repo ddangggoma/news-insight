@@ -10,6 +10,7 @@ from news_insight.benchmarks.sources import artificial_analysis, deepswe, lmaren
 from news_insight.ops.checks import check_benchmarks, run_checks
 from news_insight.ops.models import Severity
 from tests.benchmarks.fakes import (
+    HTML_BODY,
     FakeClock,
     Router,
     all_sites,
@@ -30,7 +31,6 @@ KEY = "SOURCE_SECRET_ARTIFICIAL_ANALYSIS_KEY"
 def _key(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv(KEY, "test-key")
     clock = FakeClock()
-    monkeypatch.setattr(lmarena, "_clock", clock.monotonic)
     monkeypatch.setattr(lmarena, "_sleep", clock.sleep)
 
 
@@ -77,7 +77,7 @@ def test_collect_all_saves_every_site_and_links_names(db_session: Session) -> No
     assert linked and {s.model_id for s in linked} == {carbon.id}
     assert {s.config for s in linked} == {"High"}
     unmatched = db_session.scalars(
-        select(BenchmarkScore).where(BenchmarkScore.model_raw == "gpt-5-5")
+        select(BenchmarkScore).where(BenchmarkScore.model_raw == "claude-opus-5")
     ).first()
     assert unmatched is not None and unmatched.model_id is None
     assert (
@@ -124,7 +124,7 @@ def test_html_response_is_drift_and_keeps_last_good(db_session: Session) -> None
         select(BenchmarkScore.id).where(BenchmarkScore.site == "deepswe")
     ).all()
     router = Router()
-    deepswe_routes(router, html=True)
+    deepswe_routes(router, html=HTML_BODY)
     livebench_routes(router, table="model,coding\nclaude-fable-5.1,50.0\n")
     lmarena_routes(router)
     artificial_analysis_routes(router)

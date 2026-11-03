@@ -1,21 +1,28 @@
-"""LMArena: human-preference Elo ratings, read from its Hugging Face dataset (CC-BY-4.0)."""
+"""LMArena: human-preference Elo ratings, read from its Hugging Face dataset (CC-BY-4.0).
 
+Each board's `latest` split is one small parquet file in the dataset repo (the Hub answers 302
+to a CDN host); the datasets-server /filter API that used to serve the same rows fails on a
+share of its pages, so it is not used.
+"""
+
+import io
+import math
 import time
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any
-from urllib.parse import urlencode
+
+import pyarrow.parquet as pq
+from pyarrow import ArrowException
 
 from news_insight.benchmarks.sources import (
-    HTTP_ERROR,
     SELECTOR_DRIFT,
     BenchmarkError,
     ScoreRow,
     SiteSnapshot,
     config_from_name,
-    get_json,
+    get,
     number,
 )
-from news_insight.net.mime import JSON_MIME
 from news_insight.net.safe_fetch import SafeFetcher
 
 SITE = "lmarena"
@@ -25,16 +32,10 @@ LICENSE = "CC-BY-4.0 (Hugging Face 데이터셋 lmarena-ai/leaderboard-dataset)"
 ATTRIBUTION = "LMArena"
 DATASET = "lmarena-ai/leaderboard-dataset"
 BOARDS = ("text_style_control", "webdev", "vision_style_control", "search_style_control", "agent")
-PAGE = 100
-MAX_PAGES = 50
-# The datasets server builds the /filter index of a config on first use: requests time out or
-# answer 500 "index is loading" for up to a few minutes, then the board is fast again. Retries
-# share one budget per site run, so a server that stays down costs a worker ~4 minutes, not more.
-RETRY_BUDGET_SECONDS = 240.0
-RETRY_DELAY_SECONDS = 15.0
-_clock = time.monotonic  # replaced in tests
-_sleep = time.sleep
-_FILTER = "https://datasets-server.huggingface.co/filter"
+MAX_BYTES = 20 * 1024 * 1024  # a board is ~0.6 MB at most today
+PARQUET_MIME = frozenset({"application/octet-stream", "application/vnd.apache.parquet"})
+RETRY_DELAY_SECONDS = 5.0  # one retry of a transient HTTP error (the CDN or the Hub hiccups)
+_sleep = time.sleep  # replaced in tests
 # Most boards rate models by Elo (rating, rating_lower, rating_upper); the agent board reports a
 # task score with its own interval (score, score_ci_lower, score_ci_upper).
 _VALUE_FIELDS = (
@@ -42,60 +43,47 @@ _VALUE_FIELDS = (
     ("score", "score_ci_lower", "score_ci_upper"),
 )
 _NOT_EXTRA = {"model_name", "organization", "category"}
+OVERALL = "overall"
 
 
-def _page_url(board: str, offset: int) -> str:
-    query = urlencode(
-        {
-            "dataset": DATASET,
-            "config": board,
-            "split": "latest",
-            "where": "\"category\"='overall'",
-            "offset": offset,
-            "length": PAGE,
-        }
-    )
-    return f"{_FILTER}?{query}"
+def parquet_url(board: str) -> str:
+    return f"https://huggingface.co/datasets/{DATASET}/resolve/main/{board}/latest-00000-of-00001.parquet"
 
 
-def _page(fetcher: SafeFetcher, board: str, offset: int, deadline: float) -> list[dict[str, Any]]:
-    url = _page_url(board, offset)
-    while True:
-        try:
-            data = get_json(fetcher, url, JSON_MIME)
-            break
-        except BenchmarkError as exc:
-            if not exc.retryable:
-                raise
-            if _clock() + RETRY_DELAY_SECONDS > deadline:
-                raise BenchmarkError(
-                    HTTP_ERROR,
-                    f"{url}: still failing after the {RETRY_BUDGET_SECONDS:.0f} s retry budget",
-                    status=exc.status,
-                    retryable=True,
-                ) from exc
-            _sleep(RETRY_DELAY_SECONDS)
-    entries = data.get("rows") if isinstance(data, dict) else None
-    if not isinstance(entries, list):
-        raise BenchmarkError(SELECTOR_DRIFT, f"{url}: no rows list")
-    rows = [e["row"] for e in entries if isinstance(e, dict) and isinstance(e.get("row"), dict)]
-    if len(rows) != len(entries):
-        raise BenchmarkError(SELECTOR_DRIFT, f"{url}: rows without a row object")
-    return rows
+def _download(fetcher: SafeFetcher, url: str) -> bytes:
+    try:
+        return get(fetcher, url, PARQUET_MIME, max_bytes=MAX_BYTES).content
+    except BenchmarkError as exc:
+        if not exc.retryable:
+            raise
+    _sleep(RETRY_DELAY_SECONDS)
+    return get(fetcher, url, PARQUET_MIME, max_bytes=MAX_BYTES).content
+
+
+def _overall_rows(fetcher: SafeFetcher, board: str) -> list[dict[str, Any]]:
+    url = parquet_url(board)
+    content = _download(fetcher, url)
+    try:
+        table = pq.read_table(io.BytesIO(content))
+        if "category" not in table.column_names:
+            raise BenchmarkError(SELECTOR_DRIFT, f"{url}: no category column")
+        rows: list[dict[str, Any]] = table.to_pylist()
+    except (ArrowException, OSError) as exc:
+        raise BenchmarkError(SELECTOR_DRIFT, f"{url}: not a parquet file ({exc})") from exc
+    return [_finite(row) for row in rows if row.get("category") == OVERALL]
+
+
+def _finite(row: dict[str, Any]) -> dict[str, Any]:
+    """The row with NaN and infinity as null: the snapshot's JSON cannot hold them."""
+    return {k: None if isinstance(v, float) and not math.isfinite(v) else v for k, v in row.items()}
 
 
 def fetch(fetcher: SafeFetcher, now: datetime) -> SiteSnapshot:
     raw: dict[str, list[dict[str, Any]]] = {}
     scores: list[ScoreRow] = []
     published = ""
-    deadline = _clock() + RETRY_BUDGET_SECONDS
     for board in BOARDS:
-        rows: list[dict[str, Any]] = []
-        for page in range(MAX_PAGES):
-            batch = _page(fetcher, board, page * PAGE, deadline)
-            rows.extend(batch)
-            if len(batch) < PAGE:
-                break
+        rows = _overall_rows(fetcher, board)
         if not rows:
             raise BenchmarkError(SELECTOR_DRIFT, f"lmarena {board}: no 'overall' rows")
         raw[board] = rows
@@ -104,19 +92,24 @@ def fetch(fetcher: SafeFetcher, now: datetime) -> SiteSnapshot:
             score = _score(board, row)
             if score is not None:
                 scores.append(score)
-                date = row.get("leaderboard_publish_date")
-                if isinstance(date, str) and date > published:
-                    published = date
+                day = _day(row.get("leaderboard_publish_date"))
+                if day > published:
+                    published = day
         if len(scores) == before:
             raise BenchmarkError(SELECTOR_DRIFT, f"lmarena {board}: no rating or score column")
-    if not scores:
-        raise BenchmarkError(SELECTOR_DRIFT, "lmarena: no usable rows")
     return SiteSnapshot(
         site=SITE,
         release=published or now.date().isoformat(),
         raw={"boards": raw},
         rows=scores,
     )
+
+
+def _day(value: Any) -> str:
+    """The publish date as YYYY-MM-DD, whether the file stores a string or a date."""
+    if isinstance(value, date):  # datetime is a date
+        return value.isoformat()[:10]
+    return value if isinstance(value, str) else ""
 
 
 def _score(board: str, row: dict[str, Any]) -> ScoreRow | None:

@@ -1,8 +1,13 @@
 import copy
+import io
 import json
+import re
+from collections.abc import Callable
 from datetime import UTC, datetime
 
 import httpx
+import pyarrow as pa
+import pyarrow.parquet as pq
 import pytest
 
 from news_insight.benchmarks.sources import (
@@ -13,9 +18,11 @@ from news_insight.benchmarks.sources import (
     lmarena,
 )
 from tests.benchmarks.fakes import (
+    FIXTURES,
     HOME_HTML,
     HTML_BODY,
     FakeClock,
+    Responder,
     Router,
     artificial_analysis_routes,
     deepswe_routes,
@@ -23,6 +30,7 @@ from tests.benchmarks.fakes import (
     fixture_text,
     livebench_routes,
     lmarena_routes,
+    parquet_url,
     reply,
 )
 
@@ -33,30 +41,97 @@ NOW = datetime(2026, 11, 3, 3, 30, tzinfo=UTC)
 def clock(monkeypatch: pytest.MonkeyPatch) -> FakeClock:
     monkeypatch.delenv("SOURCE_SECRET_ARTIFICIAL_ANALYSIS_KEY", raising=False)
     fake = FakeClock()
-    monkeypatch.setattr(lmarena, "_clock", fake.monotonic)
     monkeypatch.setattr(lmarena, "_sleep", fake.sleep)
     return fake
 
 
-def test_deepswe_rows() -> None:
+def test_deepswe_reads_the_leaderboard_embedded_in_the_homepage() -> None:
     snapshot = deepswe.fetch(deepswe_routes(Router()).fetcher(), NOW)
     assert snapshot.site == deepswe.SITE
-    assert snapshot.release == "2026-06-20"
-    assert snapshot.raw["n_tasks_in_set"] == 113
+    # the v1.1 board of 2026-09-22, not the stale all-rollouts artifact of 2026-06-20
+    assert snapshot.release == "2026-09-22"
+    board = snapshot.raw["boards"]["v1.1"]
+    assert board["n_tasks_in_set"] == 113 and len(board["rows"]) == 3
+    assert board["latest_job"]["name"] == "20260901-deep-swe-1-1-gpt-6-astra"
     first = snapshot.rows[0]
-    assert (first.board, first.model_raw, first.metric) == ("v1.1", "gpt-5-5", "pass_at_1")
-    assert first.config == "xhigh"
+    assert (first.board, first.model_raw, first.metric) == ("v1.1", "gpt-6-astra", "pass_at_1")
+    assert first.config == "xhigh" and first.org == "openai"
+    assert first.value == pytest.approx(0.7411504)
     assert first.ci_low is not None and first.ci_high is not None
     assert first.ci_low < first.value < first.ci_high
-    # the chart axes: cost, output tokens, steps stay on the row
-    assert first.extra["mean_cost_usd"] == pytest.approx(6.6058613)
+    # the chart axes: cost, output tokens, steps stay on the row; the provider too
+    assert first.extra["mean_cost_usd"] == pytest.approx(4.4291172)
     assert first.extra["mean_agent_steps"] > 0
-    assert first.extra["harness"] == "mini-swe-agent"
+    assert first.extra["harness"] == "mini-swe-agent" and first.extra["provider"] == "openai"
+    assert first.extra["cost_basis"].startswith("Current pricing")
     assert "pass_at_1" not in first.extra and "model" not in first.extra
+    # most rows carry no provider
+    assert snapshot.rows[1].model_raw == "claude-opus-5" and snapshot.rows[1].org is None
     # a model run without a reasoning effort has no config (and no null fields in extra)
     default = snapshot.rows[-1]
-    assert default.model_raw == "kimi-k2-6" and default.config is None
+    assert default.model_raw == "kimi-k2-7-code" and default.config is None
     assert None not in default.extra.values() and "reasoning_effort" not in default.extra
+
+
+def test_deepswe_strings_keep_marker_like_text_and_commas() -> None:
+    html = fixture_text("deepswe_home.html")
+    start = html.index('cost_basis:"') + len("cost_basis:")
+    end = html.index('",', start) + 1
+    tricky = r'"Pricing, $R[1]={a:!0} and $10/M, key:value, \"quoted\" \x3Cb>"'
+    html = html[:start] + tricky + html[end:]
+    snapshot = deepswe.fetch(deepswe_routes(Router(), html=html).fetcher(), NOW)
+    assert snapshot.rows[0].extra["cost_basis"] == (
+        'Pricing, $R[1]={a:!0} and $10/M, key:value, "quoted" <b>'
+    )
+    assert snapshot.rows[0].value == pytest.approx(0.7411504)  # the row around it is intact
+
+
+def test_deepswe_literal_conversion() -> None:
+    text = (
+        '$R[7]={a:$R[8]=[1,2.5e-3,!0,!1],b:void 0,c:undefined,d:null,e:"x,y:$R[1]=!0",f_g:{h$:-1}}'
+    )
+    assert deepswe.literal_to_json(text) == {
+        "a": [1, 0.0025, True, False],
+        "b": None,
+        "c": None,
+        "d": None,
+        "e": "x,y:$R[1]=!0",
+        "f_g": {"h$": -1},
+    }
+
+
+def test_deepswe_stores_each_leaderboard_block_as_its_own_board() -> None:
+    html = fixture_text("deepswe_home.html")
+    script = re.findall(r"<script[^>]*data-tsr-stream-part[^>]*>(.*?)</script>", html, re.S)[1]
+    v1 = (
+        script.replace("20260901-deep-swe-1-1-gpt-6-astra", "20260618-deep-swe-glm-5-2")
+        .replace("2026-09-22T06:27:15.860279", "2026-06-20T17:27:24.307648")
+        .replace('model:"gpt-6-astra"', 'model:"gpt-5-5"')
+    )
+    html = html.replace("</body>", f'<script data-tsr-stream-part="">{v1}</script></body>')
+    snapshot = deepswe.fetch(deepswe_routes(Router(), html=html).fetcher(), NOW)
+    assert set(snapshot.raw["boards"]) == {"v1", "v1.1"}
+    assert {r.board for r in snapshot.rows} == {"v1", "v1.1"}
+    assert [r.model_raw for r in snapshot.rows if r.board == "v1"][0] == "gpt-5-5"
+    assert snapshot.release == "2026-09-22"  # the newest block
+
+
+@pytest.mark.parametrize(
+    "mutate",
+    [
+        lambda h: re.sub(
+            r"<script[^>]*data-tsr-stream-part[^>]*>", "<script>", h
+        ),  # no stream parts
+        lambda h: h.replace("rows:$R[241]=[", "rows:$R[241]=[?"),  # broken literal
+        lambda h: h.replace("rows:$R[241]=[", "rows_moved:$R[241]=["),  # no rows list
+        lambda h: re.sub(r"pass_at_1:[\d.]+", "pass_at_1:null", h),  # no usable score
+    ],
+)
+def test_deepswe_unreadable_homepage_is_drift(mutate: Callable[[str], str]) -> None:
+    html = mutate(fixture_text("deepswe_home.html"))
+    with pytest.raises(BenchmarkError) as err:
+        deepswe.fetch(deepswe_routes(Router(), html=html).fetcher(), NOW)
+    assert err.value.code == "selector_drift"
 
 
 def test_livebench_picks_newest_available_release() -> None:
@@ -117,6 +192,78 @@ def test_livebench_cost_rows() -> None:
     assert coding.extra["output_price_per_million"] == 50
 
 
+def test_livebench_rows_carry_the_models_metadata() -> None:
+    snapshot = livebench.fetch(livebench_routes(Router()).fetcher(), NOW)
+    scores = [r for r in snapshot.rows if r.metric == "coding"]
+    by_model = {r.model_raw: r for r in scores}
+    closed = by_model["claude-fable-5.1"]
+    assert closed.org == "Anthropic"
+    assert closed.extra["display_name"] == "Claude Fable 5.1"
+    assert closed.extra["organization"] == "Anthropic"
+    assert closed.extra["open_weights"] is False
+    open_model = by_model["deepseek-v4.1-flash-1017"]
+    assert open_model.org == "DeepSeek" and open_model.extra["open_weights"] is True
+    # absent from the bundle: unknown, neither closed nor open
+    missing = by_model["claude-sonnet-5.5"]
+    assert missing.org is None
+    assert not {"display_name", "organization", "open_weights"} & set(missing.extra)
+    # the cost rows of a model name its maker too
+    cost = next(
+        r
+        for r in snapshot.rows
+        if r.metric == "cost_per_success" and r.model_raw == "claude-opus-5.5"
+    )
+    assert cost.org == "Anthropic"
+
+
+def test_livebench_metadata_from_the_bundle() -> None:
+    bundle = fixture_text("livebench_main.js")
+    found = livebench.model_metadata(bundle)
+    assert found["claude-opus-5.5"] == {
+        "display_name": "Claude Opus 5.5",
+        "organization": "Anthropic",
+        "open_weights": False,
+    }
+    assert found["deepseek-v4.1-flash-1017"]["open_weights"] is True
+    assert "claude-sonnet-5.5" not in found
+    # a base entry's variants are models of their own that inherit its maker and licence
+    assert found["gpt-5-high"] == {
+        "display_name": "GPT-5 High",
+        "organization": "OpenAI",
+        "open_weights": False,
+    }
+    assert found["gpt-5"]["display_name"] == "GPT-5"
+
+
+def test_livebench_metadata_variant_may_override_and_strings_may_hold_braces() -> None:
+    bundle = (
+        'const gn={"a":{displayName:"A {beta} \\"x\\"",organization:"Lab",openweight:!1,'
+        'variants:[{rawName:"a-open",openweight:!0},{rawName:"a-named",displayName:"Named",'
+        'organization:"Other"}]},b:{organization:"NoName"}};'
+    )
+    found = livebench.model_metadata(bundle)
+    assert found["a"]["display_name"] == 'A {beta} "x"'
+    assert found["a-open"] == {**found["a"], "open_weights": True}
+    assert found["a-named"] == {
+        "display_name": "Named",
+        "organization": "Other",
+        "open_weights": False,
+    }
+    assert "b" not in found  # an object without a displayName is not a model entry
+
+
+def test_livebench_without_metadata_still_works() -> None:
+    router = Router()
+    router.add(
+        "livebench.ai/static/js/main",
+        lambda _r: reply(200, 'x=["20261025"]', "application/javascript"),
+    )
+    livebench_routes(router)
+    snapshot = livebench.fetch(router.fetcher(), NOW)
+    assert snapshot.rows and all(r.org is None for r in snapshot.rows)
+    assert not any("open_weights" in r.extra for r in snapshot.rows)
+
+
 def test_livebench_without_cost_still_works() -> None:
     router = Router().add("data/20261025/cost.csv", reply(404, "nope", "text/html"))
     livebench_routes(router)
@@ -167,45 +314,44 @@ def test_livebench_without_any_release_date_is_drift() -> None:
     assert err.value.code == "selector_drift"
 
 
-def paged_lmarena(pages: dict[int, list[dict]]) -> Router:
-    def respond(request: httpx.Request) -> httpx.Response:
-        offset = int(request.url.params["offset"])
-        assert request.url.params["length"] == "100"
-        assert request.url.params["where"] == "\"category\"='overall'"
-        rows = pages.get(offset, [])
-        return reply(
-            200,
-            json.dumps({"rows": [{"row_idx": offset + i, "row": r} for i, r in enumerate(rows)]}),
-            "application/json",
-        )
-
-    return Router().add("datasets-server.huggingface.co/filter", respond)
+def parquet_bytes(rows: list[dict]) -> bytes:
+    sink = io.BytesIO()
+    pq.write_table(pa.Table.from_pylist(rows), sink)
+    return sink.getvalue()
 
 
-def test_lmarena_pages_until_empty() -> None:
-    template = fixture_json("lmarena_text_style_control.json")["rows"][0]["row"]
-    page1 = [{**template, "model_name": f"Model {i} (High)", "rank": i} for i in range(100)]
-    page2 = [{**template, "model_name": f"Model {i}", "rank": i} for i in range(100, 105)]
-    router = paged_lmarena({0: page1, 100: page2})
+def board_rows(board: str) -> list[dict]:
+    return pq.read_table(FIXTURES / f"lmarena_{board}.parquet").to_pylist()
+
+
+def serve(router: Router, board: str, body: bytes | Responder | httpx.Response) -> None:
+    """Replace one board's parquet (added first, so it wins over lmarena_routes)."""
+    if isinstance(body, bytes):
+        body = reply(200, body, "application/octet-stream")
+    responder = body if callable(body) else (lambda _r, _x=body: _x)
+    router.routes.insert(0, (f"={parquet_url(board)}", responder))
+
+
+def test_lmarena_reads_each_boards_latest_parquet() -> None:
+    router = lmarena_routes(Router())
     snapshot = lmarena.fetch(router.fetcher(), NOW)
-    boards = {r.board for r in snapshot.rows}
-    assert boards == {
+    assert {r.board for r in snapshot.rows} == {
         "text_style_control",
         "webdev",
         "vision_style_control",
         "search_style_control",
         "agent",
     }
-    assert len([r for r in snapshot.rows if r.board == "webdev"]) == 105
-    first = snapshot.rows[0]
-    assert first.metric == "rating" and first.extra["vote_count"] == 4403.0
-    assert first.extra["rank"] == 0 and first.extra["license"] == "Proprietary"
-    assert first.extra["variance"] == pytest.approx(23.0453445)
-    assert first.extra["leaderboard_publish_date"] == "2026-10-28"
-    assert snapshot.release == "2026-10-28"
-    # a full page asks for the next one; the short one ends the board
-    offsets = [int(r.url.params["offset"]) for r in router.requests if "config=agent" in str(r.url)]
-    assert offsets == [0, 100]
+    # five 'overall' rows per board; the text fixture also holds two other categories
+    for board in lmarena.BOARDS:
+        assert len([r for r in snapshot.rows if r.board == board]) == 5
+    assert snapshot.release == "2026-11-02"  # the newest publish date, the agent board's
+    assert set(snapshot.raw["boards"]) == set(lmarena.BOARDS)
+    assert all(row["category"] == "overall" for row in snapshot.raw["boards"]["text_style_control"])
+    # the Hub answers 302 to a CDN host, which is followed; nothing else is asked for
+    urls = [str(r.url) for r in router.requests]
+    assert len(urls) == 10 and all("datasets-server" not in u for u in urls)
+    assert urls[0] == parquet_url("text_style_control")
 
 
 def test_lmarena_row_fields() -> None:
@@ -216,66 +362,127 @@ def test_lmarena_row_fields() -> None:
         "google",
         "High",
     )
+    assert first.metric == "rating" and first.value == pytest.approx(1527.5065447)
     assert first.ci_low < first.value < first.ci_high
-    assert first.value == pytest.approx(1527.5065447)
+    assert first.extra["vote_count"] == 4403.0 and first.extra["rank"] == 1
+    assert first.extra["license"] == "Proprietary"
+    assert first.extra["variance"] == pytest.approx(23.0453445)
+    assert first.extra["leaderboard_publish_date"] == "2026-10-28"
+    assert "category" not in first.extra and "model_name" not in first.extra
     assert {r.config for r in snapshot.rows if r.board == "text_style_control"} >= {"High"}
     assert all(r.org and r.extra["rank"] for r in snapshot.rows)
 
 
 def test_lmarena_agent_board_reports_a_score() -> None:
-    agent = fixture_text("lmarena_agent.json")
-    router = Router().add("config=agent", reply(200, agent, "application/json"))
-    lmarena_routes(router)
-    snapshot = lmarena.fetch(router.fetcher(), NOW)
+    snapshot = lmarena.fetch(lmarena_routes(Router()).fetcher(), NOW)
     rows = [r for r in snapshot.rows if r.board == "agent"]
-    assert len(rows) == 3 and {r.metric for r in rows} == {"score"}
+    assert {r.metric for r in rows} == {"score"}
     top = rows[0]
     assert top.value == pytest.approx(0.2003566) and top.ci_low < top.value < top.ci_high
     assert top.extra["cost_per_task_p50"] > 0 and top.extra["session_count"] > 0
+    assert top.extra["observation_count"] > 0
     assert top.extra["rank"] == 1 and top.config == "Max"
 
 
+def test_lmarena_nulls_in_a_row_are_not_stored() -> None:
+    rows = board_rows("webdev")
+    rows[0]["rating_lower"] = None
+    rows[0]["vote_count"] = None
+    router = lmarena_routes(Router())
+    serve(router, "webdev", parquet_bytes(rows))
+    snapshot = lmarena.fetch(router.fetcher(), NOW)
+    first = next(r for r in snapshot.rows if r.board == "webdev")
+    assert first.ci_low is None and "vote_count" not in first.extra
+
+
+def test_lmarena_nan_is_not_a_value() -> None:
+    rows = board_rows("webdev")
+    rows[0]["rating"] = float("nan")
+    rows[1]["variance"] = float("inf")
+    router = lmarena_routes(Router())
+    serve(router, "webdev", parquet_bytes(rows))
+    snapshot = lmarena.fetch(router.fetcher(), NOW)
+    scored = [r for r in snapshot.rows if r.board == "webdev"]
+    assert len(scored) == 4 and "variance" not in scored[0].extra
+    json.dumps(snapshot.raw, allow_nan=False)  # the snapshot is storable
+
+
 def test_lmarena_board_with_unknown_columns_is_drift() -> None:
-    body = json.dumps({"rows": [{"row": {"model_name": "A", "points": 1.0}}]})
-    router = Router().add("config=agent", reply(200, body, "application/json"))
-    lmarena_routes(router)
-    with pytest.raises(BenchmarkError) as err:
-        lmarena.fetch(router.fetcher(), NOW)
-    assert err.value.code == "selector_drift"
-
-
-def test_lmarena_empty_board_is_drift() -> None:
-    with pytest.raises(BenchmarkError) as err:
-        lmarena.fetch(paged_lmarena({}).fetcher(), NOW)
-    assert err.value.code == "selector_drift"
-
-
-def test_lmarena_retry_budget_stops_retries(clock: FakeClock) -> None:
-    router = Router().add(
-        "datasets-server",
-        reply(500, '{"error":"the dataset index is loading"}', "application/json"),
+    router = lmarena_routes(Router())
+    serve(
+        router, "agent", parquet_bytes([{"model_name": "A", "points": 1.0, "category": "overall"}])
     )
     with pytest.raises(BenchmarkError) as err:
         lmarena.fetch(router.fetcher(), NOW)
+    assert err.value.code == "selector_drift"
+
+
+def test_lmarena_board_without_overall_rows_is_drift() -> None:
+    rows = [{**row, "category": "coding"} for row in board_rows("webdev")]
+    router = lmarena_routes(Router())
+    serve(router, "webdev", parquet_bytes(rows))
+    with pytest.raises(BenchmarkError) as err:
+        lmarena.fetch(router.fetcher(), NOW)
+    assert err.value.code == "selector_drift"
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        pytest.param(HTML_BODY.encode(), id="login-wall"),
+        pytest.param(b"PAR1 but not really a parquet file", id="garbage"),
+        pytest.param(parquet_bytes([{"model_name": "A", "rating": 1.0}]), id="no-category-column"),
+    ],
+)
+def test_lmarena_unreadable_file_is_drift(body: bytes) -> None:
+    router = lmarena_routes(Router())
+    serve(router, "search_style_control", body)
+    with pytest.raises(BenchmarkError) as err:
+        lmarena.fetch(router.fetcher(), NOW)
+    assert err.value.code == "selector_drift"
+
+
+def test_lmarena_html_answer_is_drift() -> None:
+    router = lmarena_routes(Router())
+    serve(router, "webdev", reply(200, HTML_BODY, "text/html"))
+    with pytest.raises(BenchmarkError) as err:
+        lmarena.fetch(router.fetcher(), NOW)
+    assert err.value.code == "selector_drift"
+
+
+def test_lmarena_retries_a_transient_error_once(clock: FakeClock) -> None:
+    calls = {"n": 0}
+
+    def flaky(_r: httpx.Request) -> httpx.Response:
+        calls["n"] += 1
+        if calls["n"] == 1:
+            return reply(503, "busy", "text/plain")
+        return reply(
+            200, (FIXTURES / "lmarena_webdev.parquet").read_bytes(), "application/octet-stream"
+        )
+
+    router = lmarena_routes(Router())
+    serve(router, "webdev", flaky)
+    snapshot = lmarena.fetch(router.fetcher(), NOW)
+    assert calls["n"] == 2 and clock.sleeps == [lmarena.RETRY_DELAY_SECONDS]
+    assert len([r for r in snapshot.rows if r.board == "webdev"]) == 5
+
+
+def test_lmarena_gives_up_after_the_retry(clock: FakeClock) -> None:
+    router = lmarena_routes(Router())
+    serve(router, "webdev", reply(503, "busy", "text/plain"))
+    with pytest.raises(BenchmarkError) as err:
+        lmarena.fetch(router.fetcher(), NOW)
     assert err.value.code == "http_error" and err.value.retryable
-    # one more sleep would pass the deadline: the budget, not an attempt count, ends it
-    assert sum(clock.sleeps) <= lmarena.RETRY_BUDGET_SECONDS
-    assert sum(clock.sleeps) + lmarena.RETRY_DELAY_SECONDS > lmarena.RETRY_BUDGET_SECONDS
-    assert len(router.requests) == len(clock.sleeps) + 1
+    assert len(clock.sleeps) == 1
 
 
-def test_lmarena_recovers_when_the_index_finishes_loading(clock: FakeClock) -> None:
-    page = fixture_text("lmarena_text_style_control.json")
-    calls: list[int] = []
-
-    def respond(_r: httpx.Request) -> httpx.Response:
-        calls.append(1)
-        if len(calls) <= 3:
-            return reply(500, '{"error":"the dataset index is loading"}', "application/json")
-        return reply(200, page, "application/json")
-
-    snapshot = lmarena.fetch(Router().add("datasets-server", respond).fetcher(), NOW)
-    assert snapshot.rows and clock.sleeps == [lmarena.RETRY_DELAY_SECONDS] * 3
+def test_lmarena_missing_file_is_not_retried(clock: FakeClock) -> None:
+    router = lmarena_routes(Router())
+    serve(router, "webdev", reply(404, "Not found", "text/plain"))
+    with pytest.raises(BenchmarkError) as err:
+        lmarena.fetch(router.fetcher(), NOW)
+    assert err.value.code == "http_error" and not clock.sleeps
 
 
 def test_artificial_analysis_without_key_is_config_error() -> None:
@@ -335,13 +542,6 @@ def test_html_instead_of_json_is_drift(site: str, monkeypatch: pytest.MonkeyPatc
     assert err.value.code == "selector_drift"
 
 
-def test_json_without_rows_is_drift() -> None:
-    router = Router().add("deepswe", reply(200, '{"scope": "moved"}', "application/json"))
-    with pytest.raises(BenchmarkError) as err:
-        deepswe.fetch(router.fetcher(), NOW)
-    assert err.value.code == "selector_drift"
-
-
 def test_http_failure_is_http_error() -> None:
     router = Router().add("deepswe", reply(503, "down", "text/plain"))
     with pytest.raises(BenchmarkError) as err:
@@ -354,7 +554,7 @@ def test_every_site_names_itself() -> None:
         assert module.SITE and module.TITLE and module.SOURCE_URL.startswith("https://")
         assert module.LICENSE and module.ATTRIBUTION
     assert artificial_analysis.ATTRIBUTION == "Data: Artificial Analysis"
-    assert fixture_text("deepswe.json")
+    assert fixture_text("deepswe_home.html")
 
 
 def test_daily_job_is_scheduled_at_0330() -> None:

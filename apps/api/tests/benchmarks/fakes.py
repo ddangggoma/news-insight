@@ -7,6 +7,7 @@ from typing import Any
 
 import httpx
 
+from news_insight.benchmarks.sources.lmarena import BOARDS
 from news_insight.net.safe_fetch import SafeFetcher
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -62,11 +63,11 @@ class Router:
         )
 
 
-def deepswe_routes(router: Router, *, html: bool = False) -> Router:
-    body = fixture_text("deepswe.json")
-    if html:
-        return router.add("deepswe.datacurve.ai", reply(200, HTML_BODY, "text/html"))
-    return router.add("deepswe.datacurve.ai", reply(200, body, "application/json"))
+def deepswe_routes(router: Router, *, html: str | None = None) -> Router:
+    body = fixture_text("deepswe_home.html") if html is None else html
+    return router.add(
+        "=https://deepswe.datacurve.ai/", reply(200, body, "text/html; charset=utf-8")
+    )
 
 
 def livebench_routes(router: Router, *, table: str | None = None) -> Router:
@@ -96,9 +97,24 @@ def livebench_routes(router: Router, *, table: str | None = None) -> Router:
     )
 
 
+PARQUET_MIME = "application/octet-stream"
+CDN = "https://us.aws.cdn.hf.co/xet-bridge-us"
+
+
+def parquet_url(board: str) -> str:
+    return f"https://huggingface.co/datasets/lmarena-ai/leaderboard-dataset/resolve/main/{board}/latest-00000-of-00001.parquet"
+
+
 def lmarena_routes(router: Router) -> Router:
-    page = fixture_text("lmarena_text_style_control.json")
-    return router.add("datasets-server.huggingface.co/filter", reply(200, page, "application/json"))
+    """Each board's latest parquet: a 302 from the Hub to a CDN host, as the real one answers."""
+    for board in BOARDS:
+        body = (FIXTURES / f"lmarena_{board}.parquet").read_bytes()
+        router.add(
+            f"={parquet_url(board)}",
+            httpx.Response(302, headers={"location": f"{CDN}/{board}?user_id=public"}),
+        )
+        router.add(f"={CDN}/{board}?user_id=public", reply(200, body, PARQUET_MIME))
+    return router
 
 
 def artificial_analysis_routes(router: Router, *, key: str = "test-key") -> Router:

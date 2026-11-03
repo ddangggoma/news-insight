@@ -7,6 +7,7 @@ the last good snapshot stays in place.
 """
 
 import json
+import math
 import re
 from dataclasses import dataclass, field
 from typing import Any
@@ -66,10 +67,13 @@ def get(
     allowed_mime: frozenset[str],
     *,
     headers: dict[str, str] | None = None,
+    max_bytes: int | None = None,
 ) -> FetchResponse:
     """A 200 response of one of `allowed_mime`; anything else is a BenchmarkError."""
     try:
-        response = fetch_checked(fetcher, url, allowed_mime=allowed_mime, headers=headers)
+        response = fetch_checked(
+            fetcher, url, allowed_mime=allowed_mime, headers=headers, max_bytes=max_bytes
+        )
     except CollectorError as exc:
         if exc.code == "blocked_mime":
             raise BenchmarkError(SELECTOR_DRIFT, f"{url}: {exc}") from exc
@@ -96,10 +100,10 @@ def get_json(
 
 
 def number(value: Any) -> float | None:
-    """A JSON/CSV value as a float; booleans, nulls and text are not scores."""
+    """A JSON/CSV value as a float; booleans, nulls, text and NaN/infinity are not scores."""
     if isinstance(value, bool) or not isinstance(value, int | float):
         return None
-    return float(value)
+    return float(value) if math.isfinite(value) else None
 
 
 def config_from_name(name: str) -> str | None:
