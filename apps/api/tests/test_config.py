@@ -31,9 +31,9 @@ def test_collection_defaults() -> None:
     assert Settings(_env_file=None).domain_rate_per_minute == 30
 
 
-def test_cards_use_antigravity_and_claude_haiku_only() -> None:
+def test_cards_use_antigravity_and_claude_sonnet_only() -> None:
     settings = Settings(_env_file=None)
 
-    assert settings.card_claude and settings.card_claude_model == "claude-haiku-5-5"
+    assert settings.card_claude and settings.card_claude_model == "claude-sonnet-5-5"
     assert not settings.card_codex_enabled
     assert not settings.card_qwen_fallback and not settings.card_qwen_alongside

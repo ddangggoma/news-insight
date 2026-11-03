@@ -1,5 +1,6 @@
-"""Card engines: Antigravity CLI (metered) with Claude Code (Haiku) alongside, the scheduled pair
-since 2026-10-13; Codex CLI and local Qwen via LM Studio stay available when switched on.
+"""Card engines: Antigravity CLI (metered) with Claude Code alongside (Haiku from 2026-10-13,
+Sonnet since 2026-11-03), the scheduled pair; Codex CLI and local Qwen via LM Studio stay
+available when switched on.
 
 All run without tools and only see public item metadata plus the stored excerpt (D18).
 """

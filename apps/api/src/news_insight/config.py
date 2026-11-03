@@ -84,10 +84,12 @@ class Settings(BaseSettings):
     # Scheduled runs use it while `card_claude` is on (or before `card_claude_until`, ISO time),
     # outside the quiet hours (KST) and below a daily card cap (0: none); `cards run --claude`
     # ignores all three. Since 2026-10-29 (user request) there are no quiet hours and no cap:
-    # every collected item gets a card, and Haiku stops only when Claude reports its limit.
+    # every collected item gets a card, and Claude stops only when it reports its limit.
+    # Sonnet replaced Haiku on 2026-11-03 (user request); it shares the Claude login and limit
+    # with the 05:00 digest (Opus).
     card_claude: bool = True
     card_claude_until: str = ""
-    card_claude_model: str = "claude-haiku-5-5"
+    card_claude_model: str = "claude-sonnet-5-5"
     card_claude_batch: int = 12
     card_claude_parallel: int = 8
     card_claude_quiet_hours: str = ""
