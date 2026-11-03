@@ -13,6 +13,7 @@ from news_insight.sources.enums import Region, Track, ValidationStage
 from news_insight.sources.models import Source
 from news_insight.spotlight import candidates as candidates_module
 from news_insight.spotlight.candidates import (
+    INTERVIEW_PATTERN,
     SECTIONS,
     collect_candidates,
     window,
@@ -648,7 +649,7 @@ def test_research_hf_upvotes_floor_and_z(db_session: Session):
     assert result["research"][0].score > result["research"][1].score > 0
 
 
-def test_research_mentions_may_come_from_any_track_but_the_paper_itself(db_session: Session):
+def test_research_mentions_come_from_news_and_community_only(db_session: Session):
     target = paper(db_session, "p1")
     ref(db_session, target, "doi", "10.1000/xyz")
     news = item(db_session, source(db_session, "wire", Track.NEWS), "about")
@@ -682,3 +683,111 @@ def test_patent_office_item_needs_a_mention(db_session: Session):
     assert by_key[f"item:{talked.id}"].score == pytest.approx(2.0)
     assert by_key[f"item:{talked.id}"].metrics["mentions"] == 1
     assert by_key[f"story:{ip.id}"].score == pytest.approx(2.0)
+
+
+@pytest.mark.parametrize(
+    "title",
+    [
+        "Energy sector outlook",
+        "Director named",
+        "Doctor visits rise at the factory",
+        "Fed official says rates",
+        "Ceo-less startup raises funds",
+        "Interviewing the interns",
+    ],
+)
+def test_interview_pattern_rejects_ordinary_headlines(title: str):
+    assert INTERVIEW_PATTERN.search(title) is None
+
+
+@pytest.mark.parametrize(
+    "title",
+    [
+        "CEO interview",
+        "Keynote at CES",
+        "삼성 대표 인터뷰",
+        "Acme CTO on agents",
+        "Fireside chat with Jensen",
+        "Podcast: chips",
+        "AMA and Q&A session",
+        "기조연설 요약",
+        "AI 대담",
+    ],
+)
+def test_interview_pattern_matches_interviews(title: str):
+    assert INTERVIEW_PATTERN.search(title) is not None
+
+
+def test_research_twins_fold_into_one_candidate(db_session: Session):
+    arxiv = paper(db_session, "arx")
+    hf = paper(db_session, "hf", operator="Hugging Face Daily Papers", metrics={"upvotes": 40})
+    ref(db_session, arxiv, "arxiv", "2610.00007")
+    ref(db_session, hf, "arxiv", "2610.00007")
+    posts = hn_posts(db_session, [5])
+    ref(db_session, posts[0], "arxiv", "2610.00007")
+    result = collect_candidates(db_session, day=DAY, now=NOW)
+    assert len(result["research"]) == 1
+    candidate = result["research"][0]
+    assert set(candidate.item_ids) == {arxiv.id, hf.id}
+    assert candidate.metrics["mentions"] == 1  # the twin is not a mention
+    assert candidate.metrics["upvotes"] == 40
+    assert candidate.score == pytest.approx(10.0)  # one mention; z is 0 without a pool
+
+
+def test_research_twins_without_outside_mentions_or_upvotes_are_dropped(db_session: Session):
+    arxiv = paper(db_session, "arx")
+    hf = paper(db_session, "hf", operator="Hugging Face Daily Papers", metrics={"upvotes": 9})
+    ref(db_session, arxiv, "arxiv", "2610.00008")
+    ref(db_session, hf, "arxiv", "2610.00008")
+    result = collect_candidates(db_session, day=DAY, now=NOW)
+    assert result["research"] == []
+
+
+def test_research_fold_chains_through_shared_refs_and_keeps_best_lead(db_session: Session):
+    a = paper(db_session, "a")
+    b = paper(db_session, "b")
+    c = paper(db_session, "c")
+    ref(db_session, a, "doi", "10.1000/one")
+    ref(db_session, b, "doi", "10.1000/one")
+    ref(db_session, b, "arxiv", "2610.00010")
+    ref(db_session, c, "arxiv", "2610.00010")
+    other = paper(db_session, "other")
+    ref(db_session, other, "arxiv", "2610.99999")
+    posts = hn_posts(db_session, [5, 5, 5])
+    ref(db_session, posts[0], "doi", "10.1000/one")
+    ref(db_session, posts[1], "arxiv", "2610.00010")
+    ref(db_session, posts[2], "arxiv", "2610.00010")
+    result = collect_candidates(db_session, day=DAY, now=NOW)
+    assert len(result["research"]) == 1
+    candidate = result["research"][0]
+    assert set(candidate.item_ids) == {a.id, b.id, c.id}
+    assert candidate.item_ids[0] == b.id  # b alone sees all three posts
+    assert candidate.metrics["mentions"] == 3
+
+
+def test_oss_items_of_one_repo_fold_into_one_candidate(db_session: Session):
+    gh = source(db_session, "gh", Track.OSS, "GitHub")
+    first = item(db_session, gh, "trend", metrics={"trending_stars_daily": 500})
+    second = item(db_session, gh, "release", metrics={"trending_stars_daily": 400})
+    for n in range(32):
+        item(db_session, gh, f"filler{n}", metrics={"trending_stars_daily": 5})
+    ref(db_session, first, "github", "acme/tool")
+    ref(db_session, second, "github", "acme/tool")
+    posts = hn_posts(db_session, [5])
+    ref(db_session, posts[0], "github", "acme/tool")
+    result = collect_candidates(db_session, day=DAY, now=NOW)
+    assert len(result["oss"]) == 1
+    candidate = result["oss"][0]
+    assert candidate.item_ids == [first.id, second.id]  # the stronger one leads
+    assert candidate.metrics["mentions"] == 1
+    assert candidate.metrics["trending_stars_daily"] == 500
+
+
+def test_oss_twin_does_not_count_as_a_mention(db_session: Session):
+    gh = source(db_session, "gh", Track.OSS, "GitHub")
+    first = item(db_session, gh, "trend", metrics={"trending_stars_daily": 5})
+    second = item(db_session, gh, "release", metrics={"trending_stars_daily": 5})
+    ref(db_session, first, "github", "acme/tool")
+    ref(db_session, second, "github", "acme/tool")
+    result = collect_candidates(db_session, day=DAY, now=NOW)
+    assert result["oss"] == []

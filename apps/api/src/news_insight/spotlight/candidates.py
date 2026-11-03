@@ -57,8 +57,11 @@ MIN_HF_UPVOTES = 10
 HF_PAPERS = "Hugging Face Daily Papers"
 YOUTUBE = "Google LLC (YouTube Data API)"
 INTERVIEW_CATEGORIES = ("podcast_newsletter", "video_channel")
+# CEO and CTO are matched as capitalised words only: "sector", "director" or "factory" are not
+# interviews, and "says" appears in ordinary headlines.
 INTERVIEW_PATTERN = re.compile(
-    r"\b(interview|keynote|podcast|fireside|says|Q&A)\b|인터뷰|대담|기조연설|CEO|CTO", re.I
+    r"\b(?:interview|keynote|podcast|fireside|Q&A)\b|인터뷰|대담|기조연설|(?-i:\bCEO\b|\bCTO\b)",
+    re.I,
 )
 PATENT_OFFICE = "patent_office"
 
@@ -353,47 +356,84 @@ def _signal_items(session: Session, start: datetime, end: datetime, signal: str)
     )
 
 
-def _ref_mentions(
+@dataclass
+class RefGroup:
+    """Rows that carry a reference in common (chained), and the news and community items that
+    carry any of the group's references."""
+
+    rows: list[Row]
+    mentions: set[int]
+    own_mentions: dict[int, int]  # per row, the mentions of its references alone
+
+
+def _ref_groups(
     session: Session,
     start: datetime,
     end: datetime,
-    item_ids: Sequence[int],
+    rows: Sequence[Row],
     kinds: tuple[str, ...],
-) -> dict[int, set[int]]:
-    """Other items in the window, of any track, that carry one of the same references (`kinds`)
-    as each given item. Repeats of an earlier item do not count, except a post sharing a known
-    article."""
-    if not item_ids:
-        return {}
+) -> list[RefGroup]:
+    """Fold rows that share a reference of one of `kinds` (the same work listed twice, e.g. on
+    arXiv and Hugging Face) and count what points at each group: other news and community items
+    of the window carrying one of its references. Repeats of an earlier item do not count, except
+    a post sharing a known article."""
     own: dict[int, set[tuple[str, str]]] = defaultdict(set)
-    for item_id, kind, value in session.execute(
-        select(ItemRef.item_id, ItemRef.kind, ItemRef.value).where(
-            ItemRef.item_id.in_(item_ids), ItemRef.kind.in_(kinds)
-        )
-    ):
-        own[item_id].add((kind, value))
-    values = {value for refs in own.values() for _, value in refs}
-    if not values:
-        return {}
+    if rows:
+        for item_id, kind, value in session.execute(
+            select(ItemRef.item_id, ItemRef.kind, ItemRef.value).where(
+                ItemRef.item_id.in_([row.item.id for row in rows]), ItemRef.kind.in_(kinds)
+            )
+        ):
+            own[item_id].add((kind, value))
     carriers: dict[tuple[str, str], set[int]] = defaultdict(set)
-    for item_id, kind, value in session.execute(
-        select(ItemRef.item_id, ItemRef.kind, ItemRef.value)
-        .join(Item, Item.id == ItemRef.item_id)
-        .outerjoin(ItemDedup, ItemDedup.item_id == Item.id)
-        .where(
-            Item.first_seen_at >= start,
-            Item.first_seen_at < end,
-            Item.canary.is_(False),
-            ELIGIBLE,
-            ItemRef.kind.in_(kinds),
-            ItemRef.value.in_(values),
+    values = {value for refs in own.values() for _, value in refs}
+    if values:
+        for item_id, kind, value in session.execute(
+            select(ItemRef.item_id, ItemRef.kind, ItemRef.value)
+            .join(Item, Item.id == ItemRef.item_id)
+            .outerjoin(ItemDedup, ItemDedup.item_id == Item.id)
+            .where(
+                Item.first_seen_at >= start,
+                Item.first_seen_at < end,
+                Item.canary.is_(False),
+                Item.track.in_((Track.NEWS, Track.COMMUNITY)),
+                ELIGIBLE,
+                ItemRef.kind.in_(kinds),
+                ItemRef.value.in_(values),
+            )
+        ):
+            carriers[(kind, value)].add(item_id)
+
+    parent = list(range(len(rows)))
+
+    def find(i: int) -> int:
+        while parent[i] != i:
+            parent[i] = parent[parent[i]]
+            i = parent[i]
+        return i
+
+    first_with: dict[tuple[str, str], int] = {}
+    for n, row in enumerate(rows):
+        for pair in own.get(row.item.id, ()):
+            parent[find(n)] = find(first_with.setdefault(pair, n))
+    members: dict[int, list[int]] = defaultdict(list)
+    for n in range(len(rows)):
+        members[find(n)].append(n)
+    groups: list[RefGroup] = []
+    for indexes in sorted(members.values(), key=lambda m: m[0]):
+        group_rows = [rows[n] for n in indexes]
+        pairs = [own.get(row.item.id, set()) for row in group_rows]
+        groups.append(
+            RefGroup(
+                rows=group_rows,
+                mentions=set().union(*(carriers[pair] for refs in pairs for pair in refs)),
+                own_mentions={
+                    row.item.id: len(set().union(*(carriers[pair] for pair in refs)))
+                    for row, refs in zip(group_rows, pairs, strict=True)
+                },
+            )
         )
-    ):
-        carriers[(kind, value)].add(item_id)
-    return {
-        item_id: set().union(*(carriers[pair] for pair in refs)) - {item_id}
-        for item_id, refs in own.items()
-    }
+    return groups
 
 
 def _news(
@@ -479,29 +519,35 @@ def _oss(
     eligible: list[Row],
     scorer: Scorer,
 ) -> list[Candidate]:
-    """Repositories (and Hugging Face models) by their star velocity, lifted by how many other
-    posts of the window point at the same one."""
+    """Repositories (and Hugging Face models) by their star velocity, lifted by how many news
+    and community items of the window point at the same one. Listings of one repository fold."""
     rows = [row for row in eligible if row.item.track is Track.OSS]
     scorer.add(rows)
-    mentioned = _ref_mentions(session, start, end, [row.item.id for row in rows], OSS_REF_KINDS)
+    groups = _ref_groups(session, start, end, rows, OSS_REF_KINDS)
     cards = _cards(session, [row.item.id for row in rows])
     drafts: list[Candidate] = []
-    for row in rows:
-        count = len(mentioned.get(row.item.id, ()))
-        z = scorer.z.get(row.item.id)
+    for group in groups:
+        lead = max(
+            group.rows,
+            key=lambda r: (
+                scorer.z.get(r.item.id, 0.0) + group.own_mentions[r.item.id] * OSS_MENTION_WEIGHT
+            ),
+        )
+        count = len(group.mentions)
+        z = max((scorer.z[r.item.id] for r in group.rows if r.item.id in scorer.z), default=None)
         if (z is None or z < MIN_OSS_Z) and count < MIN_OSS_MENTIONS:
             continue
-        card = cards.get(row.item.id)
+        card = cards.get(lead.item.id)
         drafts.append(
             Candidate(
                 cid="",
                 section="oss",
-                key=f"item:{row.item.id}",
-                item_ids=[row.item.id],
-                title_ko=(card.title_ko if card is not None else None) or row.item.title,
+                key=f"item:{lead.item.id}",
+                item_ids=[lead.item.id, *(r.item.id for r in group.rows if r is not lead)],
+                title_ko=(card.title_ko if card is not None else None) or lead.item.title,
                 summary_ko=_summary(card),
-                url=row.item.url,
-                metrics={**scorer.metrics[row.item.id], "mentions": count},
+                url=lead.item.url,
+                metrics={**scorer.metrics[lead.item.id], "mentions": count},
                 score=(z or 0.0) + count * OSS_MENTION_WEIGHT,
                 stat_rank=0,
             )
@@ -556,33 +602,48 @@ def _research(
     scorer: Scorer,
 ) -> list[Candidate]:
     """Papers that news or the community pointed at (by DOI or arXiv id), or that Hugging Face's
-    daily papers readers voted up."""
+    daily papers readers voted up. Listings of one work (arXiv and Hugging Face) fold."""
     rows = [row for row in eligible if row.item.track is Track.RESEARCH_IP]
     scorer.add([row for row in rows if row.operator == HF_PAPERS])
-    mentioned = _ref_mentions(
-        session, start, end, [row.item.id for row in rows], RESEARCH_REF_KINDS
-    )
+    groups = _ref_groups(session, start, end, rows, RESEARCH_REF_KINDS)
     cards = _cards(session, [row.item.id for row in rows])
     drafts: list[Candidate] = []
-    for row in rows:
-        count = len(mentioned.get(row.item.id, ()))
-        metrics = scorer.metrics.get(row.item.id, {})
-        upvotes = metrics.get("upvotes")
-        upvotes = upvotes if isinstance(upvotes, int) else 0
+    for group in groups:
+        lead = max(
+            group.rows,
+            key=lambda r: (
+                scorer.z.get(r.item.id, 0.0)
+                + group.own_mentions[r.item.id] * RESEARCH_MENTION_WEIGHT
+            ),
+        )
+        count = len(group.mentions)
+        upvotes = max(
+            (
+                v
+                for r in group.rows
+                if isinstance(v := scorer.metrics.get(r.item.id, {}).get("upvotes"), int)
+            ),
+            default=0,
+        )
         if count < 1 and upvotes < MIN_HF_UPVOTES:
             continue
-        card = cards.get(row.item.id)
+        z = max((scorer.z[r.item.id] for r in group.rows if r.item.id in scorer.z), default=0.0)
+        card = cards.get(lead.item.id)
         drafts.append(
             Candidate(
                 cid="",
                 section="research",
-                key=f"item:{row.item.id}",
-                item_ids=[row.item.id],
-                title_ko=(card.title_ko if card is not None else None) or row.item.title,
+                key=f"item:{lead.item.id}",
+                item_ids=[lead.item.id, *(r.item.id for r in group.rows if r is not lead)],
+                title_ko=(card.title_ko if card is not None else None) or lead.item.title,
                 summary_ko=_summary(card),
-                url=row.item.url,
-                metrics={**metrics, "mentions": count, "upvotes": upvotes},
-                score=count * RESEARCH_MENTION_WEIGHT + scorer.z.get(row.item.id, 0.0),
+                url=lead.item.url,
+                metrics={
+                    **scorer.metrics.get(lead.item.id, {}),
+                    "mentions": count,
+                    "upvotes": upvotes,
+                },
+                score=count * RESEARCH_MENTION_WEIGHT + z,
                 stat_rank=0,
             )
         )
