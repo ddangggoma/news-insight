@@ -173,7 +173,11 @@ class EdgeProxy:
         try:
             sock = client_writer.get_extra_info("socket")
             if sock is not None:
-                sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+                try:
+                    sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+                except OSError:
+                    # macOS refuses (EINVAL) once the visitor has already reset: nothing to relay
+                    return
             peer = client_writer.get_extra_info("peername")
             local = client_writer.get_extra_info("sockname")
             try:

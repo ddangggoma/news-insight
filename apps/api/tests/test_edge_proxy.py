@@ -176,6 +176,36 @@ def test_closes_the_visitor_when_caddy_is_down() -> None:
     asyncio.run(run())
 
 
+def test_a_visitor_that_resets_at_once_is_dropped_quietly(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    async def run() -> None:
+        upstream = Upstream()
+        server = await asyncio.start_server(upstream.handle, "127.0.0.1", 0)
+        up_port = server.sockets[0].getsockname()[1]
+        stop = asyncio.Event()
+        proxy = edge.EdgeProxy([(0, ("127.0.0.1", up_port))], "127.0.0.1", limit=10)
+        task, port = await started(proxy, stop)
+
+        # connect and reset before the loop accepts, like a port scanner
+        with socket.socket() as visitor:
+            visitor.connect(("127.0.0.1", port))
+            visitor.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, struct.pack("ii", 1, 0))
+        for _ in range(100):
+            if proxy.stats.served and proxy.stats.active == 0:
+                break
+            await asyncio.sleep(0.01)
+
+        assert (proxy.stats.served, proxy.stats.active) == (1, 0)
+        stop.set()
+        await task
+        server.close()
+
+    with caplog.at_level("ERROR", logger="edge"):
+        asyncio.run(run())
+    assert [r.getMessage() for r in caplog.records if r.levelname == "ERROR"] == []
+
+
 def test_refuses_connections_over_the_limit() -> None:
     async def run() -> None:
         hold = asyncio.Event()
