@@ -439,9 +439,15 @@ def get_spotlight(
 
 
 @router.get("/benchmarks")
-def get_benchmarks(session: DB, now: Now) -> list[benchmark_queries.BenchmarkSiteOut]:
-    """AI model leaderboards: each site's latest snapshot with ranks and moves (plan 18)."""
-    return benchmark_queries.benchmarks_view(session, now=now)
+def get_benchmarks(
+    session: DB, now: Now, site: Annotated[str | None, Query(max_length=40)] = None
+) -> list[benchmark_queries.BenchmarkSiteOut]:
+    """AI model leaderboards (plan 18): every site's summary (top ten per board with ranks and
+    moves), or with `site` that site's full rows."""
+    try:
+        return benchmark_queries.benchmarks_view(session, now=now, site=site)
+    except benchmark_queries.UnknownSite as error:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "unknown benchmark site") from error
 
 
 class AskIn(BaseModel):
