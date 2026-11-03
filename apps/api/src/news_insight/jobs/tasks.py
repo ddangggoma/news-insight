@@ -104,6 +104,7 @@ def source_quality_task() -> dict[str, Any]:
 def briefing_freeze_task() -> int:
     from news_insight.briefing.service import freeze
     from news_insight.signals.service import snapshot
+    from news_insight.spotlight.service import freeze as freeze_spotlight
 
     now = datetime.now(UTC)
     with session_scope() as session:
@@ -116,7 +117,17 @@ def briefing_freeze_task() -> int:
                 snapshot(session, day=today, now=now)
         except Exception:  # noqa: BLE001 - the briefing still publishes without radar evidence
             logger.exception("radar signal snapshot failed; freeze kept")
-        return len(frozen.candidate_ids)
+        count = len(frozen.candidate_ids)
+        # the briefing must not wait on, or be lost with, the spotlight step below
+        session.commit()
+        # plan 18: the candidates the 05:00 spotlight writer chooses from; the writer freezes on
+        # the spot if this fails
+        try:
+            with session.begin_nested():
+                freeze_spotlight(session, day=today, now=now)
+        except Exception:  # noqa: BLE001 - the briefing does not depend on the spotlight
+            logger.exception("spotlight freeze failed; briefing freeze kept")
+        return count
 
 
 @celery_app.task(name="auth.purge")
@@ -244,3 +255,12 @@ def triage_train_task() -> dict[str, Any]:
             if result is None
             else {"model": result.model_id, "auc": result.auc, "samples": result.samples}
         )
+
+
+@celery_app.task(name="benchmarks.collect")
+def benchmarks_collect_task() -> dict[str, str]:
+    """Plan 18: the four AI leaderboards, once a day. A site that fails keeps its last snapshot."""
+    from news_insight.benchmarks.service import collect_all
+
+    with session_scope() as session, SafeFetcher.from_settings(get_settings()) as fetcher:
+        return collect_all(session, fetcher, datetime.now(UTC))

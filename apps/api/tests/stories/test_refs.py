@@ -38,3 +38,7 @@ def test_security_standard_patent_and_model_identifiers() -> None:
         ("patent", "KR10-2025-0012345"),
     }
     assert {r for r in refs if r[0] == "hf"} == {("hf", "qwen/qwen3-8b")}
+
+
+def test_hf_papers_url_yields_arxiv_ref() -> None:
+    assert ("arxiv", "2610.39278") in extract_refs("https://huggingface.co/papers/2610.39278")

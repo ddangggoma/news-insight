@@ -16,9 +16,11 @@ from news_insight.ops.checks import (
     check_collection,
     check_publication,
     check_queue,
+    check_spotlight,
     run_checks,
 )
 from news_insight.ops.models import Severity
+from news_insight.spotlight.models import Spotlight, SpotlightFreeze, SpotlightStatus
 from tests.factories import build_source
 
 pytestmark = pytest.mark.db
@@ -178,3 +180,45 @@ def test_alert_mail_is_off_by_default(db_session: Session, monkeypatch: pytest.M
         is False
     )
     assert sent == [] and result.opened and all(a.notified_at is None for a in result.opened)
+
+
+AT_1029 = datetime(2026, 10, 5, 1, 29, tzinfo=UTC)  # 10:29 KST on DAY
+AT_1031 = datetime(2026, 10, 5, 1, 31, tzinfo=UTC)  # 10:31 KST
+
+
+def test_check_spotlight_before_deadline_quiet(db_session: Session) -> None:
+    assert check_spotlight(db_session, now=AT_1029) == []
+
+
+def test_check_spotlight_after_deadline_warns(db_session: Session) -> None:
+    findings = check_spotlight(db_session, now=AT_1031)
+
+    assert keys(findings) == {"spotlight_missing"}
+    assert findings[0].severity is Severity.WARNING
+    assert findings[0].title == f"{DAY} 주목 받는 목록이 발행되지 않았습니다"
+    assert "digest.log" in findings[0].detail
+    assert "spotlight_missing" in keys(run_checks(db_session, now=AT_1031, queue_length=0))
+
+
+def test_check_spotlight_published_quiet(db_session: Session) -> None:
+    freeze = SpotlightFreeze(spotlight_date=DAY, frozen_at=AT_0450, candidates={})
+    db_session.add(freeze)
+    db_session.flush()
+    row = Spotlight(
+        spotlight_date=DAY,
+        status=SpotlightStatus.FAILED,
+        model="claude-opus-5-5",
+        headline="",
+        benchmark_note="",
+        freeze_id=freeze.id,
+        generated_at=AT_0450,
+    )
+    db_session.add(row)
+    db_session.flush()
+    assert keys(check_spotlight(db_session, now=AT_1031)) == {
+        "spotlight_missing"
+    }  # failed != published
+
+    row.status = SpotlightStatus.PUBLISHED
+    db_session.flush()
+    assert check_spotlight(db_session, now=AT_1031) == []

@@ -7,7 +7,8 @@ import pytest
 
 from news_insight.collect.contracts import CollectContext, CollectorError
 from news_insight.collect.json_api import JsonApiCollector
-from tests.helpers import serving
+from news_insight.collect.presets import effective_config
+from tests.helpers import mock_fetcher, serving
 
 NOW = datetime(2026, 10, 3, tzinfo=UTC)
 OCT_1_0900 = datetime(2026, 10, 1, 9, 0, tzinfo=UTC)
@@ -177,3 +178,144 @@ def test_credential_headers_are_sent() -> None:
     )
 
     assert seen[0].headers["authorization"] == "Bearer t0k"
+
+
+PLAYLIST = {
+    "items": [
+        {
+            "snippet": {
+                "title": f"Video {video_id}",
+                "publishedAt": "2026-10-01T09:00:00Z",
+                "resourceId": {"videoId": video_id},
+            }
+        }
+        for video_id in ("a", "b")
+    ]
+}
+STATS = {
+    "items": [
+        {
+            "id": "a",
+            "statistics": {"viewCount": "480000", "likeCount": "9000", "commentCount": "300"},
+        }
+    ]
+}
+
+
+def collect_youtube(
+    videos: httpx.Response | None = None,
+    seen: list[httpx.Request] | None = None,
+    **validators: str,
+) -> Any:
+    def handler(request: httpx.Request) -> httpx.Response:
+        if seen is not None:
+            seen.append(request)
+        if request.url.path.endswith("/videos"):
+            return videos or httpx.Response(
+                200, headers={"content-type": "application/json"}, json=STATS
+            )
+        return httpx.Response(200, headers={"content-type": "application/json"}, json=PLAYLIST)
+
+    context = CollectContext(
+        endpoint_url="https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=UU1",
+        config=effective_config({"preset": "youtube_playlist"}),
+        now=NOW,
+        headers={"X-Goog-Api-Key": "k"},
+        **validators,
+    )
+    return JsonApiCollector(mock_fetcher(handler)).collect(context)
+
+
+def test_youtube_statistics_merged() -> None:
+    seen: list[httpx.Request] = []
+
+    first, second = collect_youtube(seen=seen).items
+
+    assert first.metrics == {"views": 480000, "likes": 9000, "comments": 300}
+    assert second.metrics == {}
+    [stats_call] = [r for r in seen if r.url.path.endswith("/videos")]
+    assert stats_call.url.params["part"] == "statistics"
+    assert stats_call.url.params["id"] == "a,b"
+    assert stats_call.headers["x-goog-api-key"] == "k"
+
+
+def test_youtube_statistics_failure_keeps_items() -> None:
+    result = collect_youtube(httpx.Response(500, headers={"content-type": "application/json"}))
+
+    assert [item.stable_id for item in result.items] == ["a", "b"]
+    assert [item.metrics for item in result.items] == [{}, {}]
+
+
+def test_youtube_statistics_batches_of_fifty() -> None:
+    from news_insight.collect.json_api import _youtube_stats
+
+    seen: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(request)
+        return httpx.Response(200, headers={"content-type": "application/json"}, json={})
+
+    _youtube_stats(mock_fetcher(handler), [f"v{n}" for n in range(120)], {})
+
+    assert [len(r.url.params["id"].split(",")) for r in seen] == [50, 50, 20]
+
+
+def test_hf_daily_papers_preset() -> None:
+    entry = {
+        "paper": {
+            "id": "2610.39278",
+            "upvotes": 5,
+            "title": "Tiny Reasoners",
+            "publishedAt": "2026-10-01T09:00:00Z",
+        },
+        "publishedAt": "2026-10-01T09:00:00Z",
+        "title": "Tiny Reasoners",
+        "summary": "Small models reason.",
+        "numComments": 1,
+    }
+    context = CollectContext(
+        endpoint_url="https://huggingface.co/api/daily_papers?limit=100",
+        config=effective_config({"preset": "hf_daily_papers"}),
+        now=NOW,
+    )
+
+    [item] = (
+        JsonApiCollector(serving(json.dumps([entry]).encode(), content_type="application/json"))
+        .collect(context)
+        .items
+    )
+
+    assert item.url == "https://huggingface.co/papers/2610.39278"
+    assert item.metrics == {"upvotes": 5, "comments": 1}
+
+
+def test_video_stats_source_sends_no_conditional_validators() -> None:
+    seen: list[httpx.Request] = []
+
+    first, _ = collect_youtube(
+        seen=seen, etag='"abc"', last_modified="Mon, 02 Nov 2026 00:00:00 GMT"
+    ).items
+
+    playlist = next(r for r in seen if not r.url.path.endswith("/videos"))
+    assert "if-none-match" not in playlist.headers
+    assert "if-modified-since" not in playlist.headers
+    assert playlist.headers["x-goog-api-key"] == "k"
+    assert first.metrics["views"] == 480000
+
+
+def test_other_json_api_sources_still_send_conditional_validators() -> None:
+    seen: list[httpx.Request] = []
+    context = CollectContext(
+        endpoint_url="https://www.example.com/api/repos",
+        config=CONFIG,
+        now=NOW,
+        etag='"abc"',
+        last_modified="Mon, 02 Nov 2026 00:00:00 GMT",
+    )
+
+    JsonApiCollector(serving(payload(RECORDS), content_type="application/json", seen=seen)).collect(
+        context
+    )
+
+    assert seen[0].headers["if-none-match"] == '"abc"'
+    assert seen[0].headers["if-modified-since"] == "Mon, 02 Nov 2026 00:00:00 GMT"

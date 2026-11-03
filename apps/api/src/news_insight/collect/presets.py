@@ -205,6 +205,21 @@ PRESETS: dict[str, dict[str, Any]] = {
             "author": "snippet.videoOwnerChannelTitle",
         },
         "url_template": "https://www.youtube.com/watch?v={snippet.resourceId.videoId}",
+        # view counts come from a second call, videos?part=statistics
+        "video_stats": True,
+    },
+    # Hugging Face daily papers (curated, with upvotes); the sitemap source only saw Spaces.
+    "hf_daily_papers": {
+        "list_path": "",
+        "fields": {
+            "id": "paper.id",
+            "url": [],
+            "title": "title",
+            "summary": "summary",
+            "published_at": "publishedAt",
+        },
+        "url_template": "https://huggingface.co/papers/{paper.id}",
+        "metrics": {"upvotes": "paper.upvotes", "comments": "numComments"},
     },
 }
 

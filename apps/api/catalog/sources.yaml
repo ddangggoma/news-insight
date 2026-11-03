@@ -17092,6 +17092,21 @@ sources:
     config:
       timezone: UTC
       enrich_limit: 15
+  - key: hf-daily-papers-api
+    name: Hugging Face Daily Papers (API)
+    track: research_ip
+    category: academic_paper
+    access_method: json_api
+    endpoint_url: https://huggingface.co/api/daily_papers?limit=100
+    official_domain: huggingface.co
+    operator: Hugging Face Daily Papers
+    region: global_en
+    language: en
+    poll_class: research
+    dx_relevance: 'Hugging Face Daily Papers 공식 API: 오늘의 논문과 추천 수'
+    storage_right: excerpt_allowed
+    config:
+      preset: hf_daily_papers
   - key: ipwatchdog-web
     name: IPWatchdog
     track: research_ip
