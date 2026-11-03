@@ -2,6 +2,7 @@
 
 import news_insight.ask.models  # noqa: F401
 import news_insight.auth.models  # noqa: F401
+import news_insight.benchmarks.models  # noqa: F401
 import news_insight.briefing.models  # noqa: F401
 import news_insight.cards.models  # noqa: F401
 import news_insight.collect.models  # noqa: F401
