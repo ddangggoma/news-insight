@@ -57,9 +57,10 @@ class JsonApiCollector:
             return collect_ops(self._fetcher, context)
         url = expand_macros(str(context.config.get("url") or context.endpoint_url), now=context.now)
         url = with_query(url, context.config.get("query_overrides") or {})
-        response = fetch_checked(
-            self._fetcher, url, allowed_mime=JSON_MIME, headers=request_headers(context)
-        )
+        # A source with video_stats must always get a 200: on a 304 the statistics call would
+        # not run, and the view counts of known videos would freeze at their first value.
+        headers = context.headers if context.config.get("video_stats") else request_headers(context)
+        response = fetch_checked(self._fetcher, url, allowed_mime=JSON_MIME, headers=headers)
         if response.status_code == 304:
             return CollectResult(
                 items=[],

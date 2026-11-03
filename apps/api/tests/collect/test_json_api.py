@@ -203,7 +203,9 @@ STATS = {
 
 
 def collect_youtube(
-    videos: httpx.Response | None = None, seen: list[httpx.Request] | None = None
+    videos: httpx.Response | None = None,
+    seen: list[httpx.Request] | None = None,
+    **validators: str,
 ) -> Any:
     def handler(request: httpx.Request) -> httpx.Response:
         if seen is not None:
@@ -219,6 +221,7 @@ def collect_youtube(
         config=effective_config({"preset": "youtube_playlist"}),
         now=NOW,
         headers={"X-Goog-Api-Key": "k"},
+        **validators,
     )
     return JsonApiCollector(mock_fetcher(handler)).collect(context)
 
@@ -284,3 +287,35 @@ def test_hf_daily_papers_preset() -> None:
 
     assert item.url == "https://huggingface.co/papers/2610.39278"
     assert item.metrics == {"upvotes": 5, "comments": 1}
+
+
+def test_video_stats_source_sends_no_conditional_validators() -> None:
+    seen: list[httpx.Request] = []
+
+    first, _ = collect_youtube(
+        seen=seen, etag='"abc"', last_modified="Mon, 02 Nov 2026 00:00:00 GMT"
+    ).items
+
+    playlist = next(r for r in seen if not r.url.path.endswith("/videos"))
+    assert "if-none-match" not in playlist.headers
+    assert "if-modified-since" not in playlist.headers
+    assert playlist.headers["x-goog-api-key"] == "k"
+    assert first.metrics["views"] == 480000
+
+
+def test_other_json_api_sources_still_send_conditional_validators() -> None:
+    seen: list[httpx.Request] = []
+    context = CollectContext(
+        endpoint_url="https://www.example.com/api/repos",
+        config=CONFIG,
+        now=NOW,
+        etag='"abc"',
+        last_modified="Mon, 02 Nov 2026 00:00:00 GMT",
+    )
+
+    JsonApiCollector(serving(payload(RECORDS), content_type="application/json", seen=seen)).collect(
+        context
+    )
+
+    assert seen[0].headers["if-none-match"] == '"abc"'
+    assert seen[0].headers["if-modified-since"] == "Mon, 02 Nov 2026 00:00:00 GMT"
