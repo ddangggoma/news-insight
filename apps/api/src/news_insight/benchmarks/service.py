@@ -38,7 +38,8 @@ def raw_digest(raw: dict[str, object]) -> str:
 def collect_all(session: Session, fetcher: SafeFetcher, now: datetime) -> dict[str, str]:
     """Per site: "saved", "unchanged", or the error code (selector_drift, http_error,
     config_error, error). A site that fails keeps its last good snapshot and never blocks the
-    others."""
+    others. Each site is fetched with no transaction open and committed on its own, so a slow
+    site holds nothing idle and a restart keeps the sites already saved."""
     results: dict[str, str] = {}
     for module in SOURCES:
         site: str = module.SITE
@@ -46,11 +47,13 @@ def collect_all(session: Session, fetcher: SafeFetcher, now: datetime) -> dict[s
             snapshot = module.fetch(fetcher, now)
             with session.begin_nested():
                 results[site] = save(session, snapshot, now)
+            session.commit()
         except BenchmarkError as exc:
             logger.warning("benchmark %s: %s (%s)", site, exc.code, exc)
             results[site] = exc.code
         except Exception:  # noqa: BLE001 - one site's bug must not stop the others
             logger.exception("benchmark %s failed", site)
+            session.rollback()
             results[site] = UNEXPECTED
     return results
 

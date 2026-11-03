@@ -6,6 +6,7 @@ from typing import Any
 from urllib.parse import urlencode
 
 from news_insight.benchmarks.sources import (
+    HTTP_ERROR,
     SELECTOR_DRIFT,
     BenchmarkError,
     ScoreRow,
@@ -27,9 +28,12 @@ BOARDS = ("text_style_control", "webdev", "vision_style_control", "search_style_
 PAGE = 100
 MAX_PAGES = 50
 # The datasets server builds the /filter index of a config on first use: requests time out or
-# answer 500 "index is loading" for up to a few minutes, then the board is fast again.
-ATTEMPTS = 12
+# answer 500 "index is loading" for up to a few minutes, then the board is fast again. Retries
+# share one budget per site run, so a server that stays down costs a worker ~4 minutes, not more.
+RETRY_BUDGET_SECONDS = 240.0
 RETRY_DELAY_SECONDS = 15.0
+_clock = time.monotonic  # replaced in tests
+_sleep = time.sleep
 _FILTER = "https://datasets-server.huggingface.co/filter"
 # Most boards rate models by Elo (rating, rating_lower, rating_upper); the agent board reports a
 # task score with its own interval (score, score_ci_lower, score_ci_upper).
@@ -54,16 +58,23 @@ def _page_url(board: str, offset: int) -> str:
     return f"{_FILTER}?{query}"
 
 
-def _page(fetcher: SafeFetcher, board: str, offset: int) -> list[dict[str, Any]]:
+def _page(fetcher: SafeFetcher, board: str, offset: int, deadline: float) -> list[dict[str, Any]]:
     url = _page_url(board, offset)
-    for attempt in range(1, ATTEMPTS + 1):
+    while True:
         try:
             data = get_json(fetcher, url, JSON_MIME)
             break
         except BenchmarkError as exc:
-            if not exc.retryable or attempt == ATTEMPTS:
+            if not exc.retryable:
                 raise
-            time.sleep(RETRY_DELAY_SECONDS)
+            if _clock() + RETRY_DELAY_SECONDS > deadline:
+                raise BenchmarkError(
+                    HTTP_ERROR,
+                    f"{url}: still failing after the {RETRY_BUDGET_SECONDS:.0f} s retry budget",
+                    status=exc.status,
+                    retryable=True,
+                ) from exc
+            _sleep(RETRY_DELAY_SECONDS)
     entries = data.get("rows") if isinstance(data, dict) else None
     if not isinstance(entries, list):
         raise BenchmarkError(SELECTOR_DRIFT, f"{url}: no rows list")
@@ -77,10 +88,11 @@ def fetch(fetcher: SafeFetcher, now: datetime) -> SiteSnapshot:
     raw: dict[str, list[dict[str, Any]]] = {}
     scores: list[ScoreRow] = []
     published = ""
+    deadline = _clock() + RETRY_BUDGET_SECONDS
     for board in BOARDS:
         rows: list[dict[str, Any]] = []
         for page in range(MAX_PAGES):
-            batch = _page(fetcher, board, page * PAGE)
+            batch = _page(fetcher, board, page * PAGE, deadline)
             rows.extend(batch)
             if len(batch) < PAGE:
                 break

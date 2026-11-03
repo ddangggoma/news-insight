@@ -10,6 +10,7 @@ from news_insight.benchmarks.sources import artificial_analysis, deepswe, lmaren
 from news_insight.ops.checks import check_benchmarks, run_checks
 from news_insight.ops.models import Severity
 from tests.benchmarks.fakes import (
+    FakeClock,
     Router,
     all_sites,
     artificial_analysis_routes,
@@ -28,7 +29,9 @@ KEY = "SOURCE_SECRET_ARTIFICIAL_ANALYSIS_KEY"
 @pytest.fixture(autouse=True)
 def _key(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv(KEY, "test-key")
-    monkeypatch.setattr(lmarena, "RETRY_DELAY_SECONDS", 0.0)
+    clock = FakeClock()
+    monkeypatch.setattr(lmarena, "_clock", clock.monotonic)
+    monkeypatch.setattr(lmarena, "_sleep", clock.sleep)
 
 
 def snapshots(session: Session) -> dict[str, int]:
@@ -149,6 +152,28 @@ def test_one_site_failing_does_not_block_the_others(
     assert result["deepswe"] == "error"
     assert result["livebench"] == result["lmarena"] == "saved"
     assert set(snapshots(db_session)) == {"livebench", "lmarena"}
+
+
+def test_each_site_is_committed_on_its_own(
+    db_session: Session, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    commits: list[set[str]] = []
+    real_commit = db_session.commit
+
+    def spy() -> None:
+        commits.append(set(db_session.scalars(select(BenchmarkSnapshot.site)).all()))
+        real_commit()
+
+    monkeypatch.setattr(db_session, "commit", spy)
+    monkeypatch.setattr(
+        artificial_analysis, "fetch", lambda *_a, **_k: (_ for _ in ()).throw(RuntimeError("x"))
+    )
+    result = collect_all(db_session, all_sites().fetcher(), NOW)
+    assert result["artificial_analysis"] == "error"
+    # one commit per saved site, each right after that site's save
+    assert [len(c) for c in commits] == [1, 2, 3]
+    # the failure afterwards rolls back nothing that was committed
+    assert set(snapshots(db_session)) == {"deepswe", "livebench", "lmarena"}
 
 
 def make_snapshot(session: Session, site: str, fetched_at: datetime) -> None:

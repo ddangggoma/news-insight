@@ -69,13 +69,24 @@ def _newest_release(fetcher: SafeFetcher, today: date) -> tuple[date, str]:
     dates = _candidate_dates(bundle, today)
     if not dates:
         raise BenchmarkError(SELECTOR_DRIFT, "livebench.ai: no release dates in the script")
+    drifted = False
     for candidate in dates[:MAX_PROBES]:
         try:
             return candidate, _text(fetcher, _data_url(candidate, "table.csv"), CSV_MIME)
         except BenchmarkError as exc:
-            if exc.status != 404:
+            if not _absent(exc):
                 raise
-    raise BenchmarkError(HTTP_ERROR, f"livebench.ai: no table.csv for {dates[:MAX_PROBES]}")
+            drifted = drifted or exc.code == SELECTOR_DRIFT
+    # every candidate answered 404 (nothing published) or HTML instead of the CSV (drift)
+    raise BenchmarkError(
+        SELECTOR_DRIFT if drifted else HTTP_ERROR,
+        f"livebench.ai: no table.csv for {dates[:MAX_PROBES]}",
+    )
+
+
+def _absent(exc: BenchmarkError) -> bool:
+    """A file that is not there: 404, or the site's HTML fallback page answering for it."""
+    return exc.status == 404 or exc.code == SELECTOR_DRIFT
 
 
 def _data_url(release: date, name: str) -> str:
@@ -93,7 +104,7 @@ def _optional_text(fetcher: SafeFetcher, url: str, mime: frozenset[str]) -> str 
     try:
         return _text(fetcher, url, mime)
     except BenchmarkError as exc:
-        if exc.status == 404:
+        if _absent(exc):
             return None
         raise
 
@@ -107,7 +118,7 @@ def fetch(fetcher: SafeFetcher, now: datetime) -> SiteSnapshot:
     try:
         breakdown = get_json(fetcher, _data_url(release, "breakdown.json"), JSON_MIME)
     except BenchmarkError as exc:
-        if exc.status != 404:
+        if not _absent(exc):
             raise
         breakdown = {}
     breakdown = breakdown if isinstance(breakdown, dict) else {}

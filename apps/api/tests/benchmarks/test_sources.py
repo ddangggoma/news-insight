@@ -15,6 +15,7 @@ from news_insight.benchmarks.sources import (
 from tests.benchmarks.fakes import (
     HOME_HTML,
     HTML_BODY,
+    FakeClock,
     Router,
     artificial_analysis_routes,
     deepswe_routes,
@@ -29,9 +30,12 @@ NOW = datetime(2026, 11, 3, 3, 30, tzinfo=UTC)
 
 
 @pytest.fixture(autouse=True)
-def _no_key(monkeypatch: pytest.MonkeyPatch) -> None:
+def clock(monkeypatch: pytest.MonkeyPatch) -> FakeClock:
     monkeypatch.delenv("SOURCE_SECRET_ARTIFICIAL_ANALYSIS_KEY", raising=False)
-    monkeypatch.setattr(lmarena, "RETRY_DELAY_SECONDS", 0.0)
+    fake = FakeClock()
+    monkeypatch.setattr(lmarena, "_clock", fake.monotonic)
+    monkeypatch.setattr(lmarena, "_sleep", fake.sleep)
+    return fake
 
 
 def test_deepswe_rows() -> None:
@@ -130,6 +134,31 @@ def test_livebench_html_table_is_drift() -> None:
     assert err.value.code == "selector_drift"
 
 
+def test_livebench_html_fallback_candidate_is_skipped() -> None:
+    router = Router()
+    # the newest date is answered by the SPA fallback page, the next one has data
+    router.add("data/20261030/table.csv", reply(200, HTML_BODY, "text/html"))
+    router.routes.insert(
+        0,
+        (
+            "livebench.ai/static/js/main",
+            lambda _r: reply(200, 'x=["20261030","20261025","20261014"]', "application/javascript"),
+        ),
+    )
+    livebench_routes(router)
+    assert livebench.fetch(router.fetcher(), NOW).release == "2026-10-25"
+
+
+def test_livebench_html_fallback_for_optional_files_is_ignored() -> None:
+    router = Router()
+    router.add("data/20261025/cost.csv", reply(200, HTML_BODY, "text/html"))
+    router.add("data/20261025/breakdown.json", reply(200, HTML_BODY, "text/html"))
+    livebench_routes(router)
+    snapshot = livebench.fetch(router.fetcher(), NOW)
+    assert snapshot.rows and snapshot.raw["cost"] == [] and snapshot.raw["breakdown"] == {}
+    assert not [r for r in snapshot.rows if r.metric == "cost_per_success"]
+
+
 def test_livebench_without_any_release_date_is_drift() -> None:
     router = Router().add("static/js/main", reply(200, "var a=1", "application/javascript"))
     router.add("=https://livebench.ai/", reply(200, HOME_HTML, "text/html"))
@@ -189,7 +218,8 @@ def test_lmarena_row_fields() -> None:
     )
     assert first.ci_low < first.value < first.ci_high
     assert first.value == pytest.approx(1527.5065447)
-    assert snapshot.rows[-1].config is not None or snapshot.rows[-1].model_raw
+    assert {r.config for r in snapshot.rows if r.board == "text_style_control"} >= {"High"}
+    assert all(r.org and r.extra["rank"] for r in snapshot.rows)
 
 
 def test_lmarena_agent_board_reports_a_score() -> None:
@@ -220,15 +250,32 @@ def test_lmarena_empty_board_is_drift() -> None:
     assert err.value.code == "selector_drift"
 
 
-def test_lmarena_server_error_is_http_error_after_retries() -> None:
+def test_lmarena_retry_budget_stops_retries(clock: FakeClock) -> None:
     router = Router().add(
         "datasets-server",
         reply(500, '{"error":"the dataset index is loading"}', "application/json"),
     )
     with pytest.raises(BenchmarkError) as err:
         lmarena.fetch(router.fetcher(), NOW)
-    assert err.value.code == "http_error"
-    assert len(router.requests) == lmarena.ATTEMPTS
+    assert err.value.code == "http_error" and err.value.retryable
+    # one more sleep would pass the deadline: the budget, not an attempt count, ends it
+    assert sum(clock.sleeps) <= lmarena.RETRY_BUDGET_SECONDS
+    assert sum(clock.sleeps) + lmarena.RETRY_DELAY_SECONDS > lmarena.RETRY_BUDGET_SECONDS
+    assert len(router.requests) == len(clock.sleeps) + 1
+
+
+def test_lmarena_recovers_when_the_index_finishes_loading(clock: FakeClock) -> None:
+    page = fixture_text("lmarena_text_style_control.json")
+    calls: list[int] = []
+
+    def respond(_r: httpx.Request) -> httpx.Response:
+        calls.append(1)
+        if len(calls) <= 3:
+            return reply(500, '{"error":"the dataset index is loading"}', "application/json")
+        return reply(200, page, "application/json")
+
+    snapshot = lmarena.fetch(Router().add("datasets-server", respond).fetcher(), NOW)
+    assert snapshot.rows and clock.sleeps == [lmarena.RETRY_DELAY_SECONDS] * 3
 
 
 def test_artificial_analysis_without_key_is_config_error() -> None:
@@ -306,6 +353,7 @@ def test_every_site_names_itself() -> None:
     for module in (deepswe, livebench, lmarena, artificial_analysis):
         assert module.SITE and module.TITLE and module.SOURCE_URL.startswith("https://")
         assert module.LICENSE and module.ATTRIBUTION
+    assert artificial_analysis.ATTRIBUTION == "Data: Artificial Analysis"
     assert fixture_text("deepswe.json")
 
 

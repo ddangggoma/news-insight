@@ -117,3 +117,18 @@ def all_sites() -> Router:
     lmarena_routes(router)
     artificial_analysis_routes(router)
     return router
+
+
+class FakeClock:
+    """Replaces lmarena's clock and sleep: sleeping advances time, nothing really waits."""
+
+    def __init__(self) -> None:
+        self.now = 0.0
+        self.sleeps: list[float] = []
+
+    def monotonic(self) -> float:
+        return self.now
+
+    def sleep(self, seconds: float) -> None:
+        self.sleeps.append(seconds)
+        self.now += seconds
