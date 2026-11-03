@@ -124,7 +124,7 @@ def test_html_response_is_drift_and_keeps_last_good(db_session: Session) -> None
         select(BenchmarkScore.id).where(BenchmarkScore.site == "deepswe")
     ).all()
     router = Router()
-    deepswe_routes(router, html=HTML_BODY)
+    deepswe_routes(router, body=HTML_BODY)
     livebench_routes(router, table="model,coding\nclaude-fable-5.1,50.0\n")
     lmarena_routes(router)
     artificial_analysis_routes(router)

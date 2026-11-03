@@ -63,11 +63,17 @@ class Router:
         )
 
 
-def deepswe_routes(router: Router, *, html: str | None = None) -> Router:
-    body = fixture_text("deepswe_home.html") if html is None else html
-    return router.add(
-        "=https://deepswe.datacurve.ai/", reply(200, body, "text/html; charset=utf-8")
-    )
+def deepswe_routes(router: Router, *, body: str | None = None) -> Router:
+    """Both boards' JSON; `body` replaces what each answers (e.g. a page of HTML)."""
+    for url, name in (
+        ("deepswe.datacurve.ai/artifacts/v1.1/", "deepswe_v1_1.json"),
+        ("deepswe.datacurve.ai/artifacts/v1/", "deepswe_v1.json"),
+    ):
+        if body is None:
+            router.add(url, reply(200, fixture_text(name), "application/json"))
+        else:
+            router.add(url, reply(200, body, "text/html"))
+    return router
 
 
 def livebench_routes(router: Router, *, table: str | None = None) -> Router:

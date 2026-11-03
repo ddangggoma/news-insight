@@ -1,8 +1,6 @@
 import copy
 import io
 import json
-import re
-from collections.abc import Callable
 from datetime import UTC, datetime
 
 import httpx
@@ -45,16 +43,20 @@ def clock(monkeypatch: pytest.MonkeyPatch) -> FakeClock:
     return fake
 
 
-def test_deepswe_reads_the_leaderboard_embedded_in_the_homepage() -> None:
-    snapshot = deepswe.fetch(deepswe_routes(Router()).fetcher(), NOW)
+def test_deepswe_stores_both_boards() -> None:
+    router = deepswe_routes(Router())
+    snapshot = deepswe.fetch(router.fetcher(), NOW)
     assert snapshot.site == deepswe.SITE
-    # the v1.1 board of 2026-09-22, not the stale all-rollouts artifact of 2026-06-20
-    assert snapshot.release == "2026-09-22"
-    board = snapshot.raw["boards"]["v1.1"]
-    assert board["n_tasks_in_set"] == 113 and len(board["rows"]) == 3
-    assert board["latest_job"]["name"] == "20260901-deep-swe-1-1-gpt-6-astra"
+    assert [str(r.url) for r in router.requests] == [
+        "https://deepswe.datacurve.ai/artifacts/v1.1/leaderboard-live.json",
+        "https://deepswe.datacurve.ai/artifacts/v1/leaderboard-live.json",
+    ]
+    assert snapshot.release == "2026-09-22"  # the newest file
+    assert set(snapshot.raw["boards"]) == {"v1.1", "v1"}
+    assert snapshot.raw["boards"]["v1.1"]["n_tasks_in_set"] == 113
+    assert [r.board for r in snapshot.rows] == ["v1.1"] * 3 + ["v1"] * 3
     first = snapshot.rows[0]
-    assert (first.board, first.model_raw, first.metric) == ("v1.1", "gpt-6-astra", "pass_at_1")
+    assert (first.model_raw, first.metric) == ("gpt-6-astra", "pass_at_1")
     assert first.config == "xhigh" and first.org == "openai"
     assert first.value == pytest.approx(0.7411504)
     assert first.ci_low is not None and first.ci_high is not None
@@ -65,72 +67,46 @@ def test_deepswe_reads_the_leaderboard_embedded_in_the_homepage() -> None:
     assert first.extra["harness"] == "mini-swe-agent" and first.extra["provider"] == "openai"
     assert first.extra["cost_basis"].startswith("Current pricing")
     assert "pass_at_1" not in first.extra and "model" not in first.extra
-    # most rows carry no provider
-    assert snapshot.rows[1].model_raw == "claude-opus-5" and snapshot.rows[1].org is None
+    # the cost the site's table shows for claude-opus-5 max
+    opus = snapshot.rows[1]
+    assert opus.model_raw == "claude-opus-5" and opus.org is None
+    assert opus.extra["mean_cost_usd"] == pytest.approx(11.8375833)
     # a model run without a reasoning effort has no config (and no null fields in extra)
-    default = snapshot.rows[-1]
+    default = snapshot.rows[2]
     assert default.model_raw == "kimi-k2-7-code" and default.config is None
     assert None not in default.extra.values() and "reasoning_effort" not in default.extra
+    v1 = [r for r in snapshot.rows if r.board == "v1"]
+    assert v1[0].model_raw == "gpt-5-5" and v1[0].config == "xhigh"
+    assert v1[0].extra["mean_cost_usd"] == pytest.approx(6.6058613)
 
 
-def test_deepswe_strings_keep_marker_like_text_and_commas() -> None:
-    html = fixture_text("deepswe_home.html")
-    start = html.index('cost_basis:"') + len("cost_basis:")
-    end = html.index('",', start) + 1
-    tricky = r'"Pricing, $R[1]={a:!0} and $10/M, key:value, \"quoted\" \x3Cb>"'
-    html = html[:start] + tricky + html[end:]
-    snapshot = deepswe.fetch(deepswe_routes(Router(), html=html).fetcher(), NOW)
-    assert snapshot.rows[0].extra["cost_basis"] == (
-        'Pricing, $R[1]={a:!0} and $10/M, key:value, "quoted" <b>'
-    )
-    assert snapshot.rows[0].value == pytest.approx(0.7411504)  # the row around it is intact
+@pytest.mark.parametrize("board", ["v1.1", "v1"])
+def test_deepswe_either_board_failing_fails_the_site(board: str) -> None:
+    router = Router()
+    path = "artifacts/v1.1/" if board == "v1.1" else "artifacts/v1/"
+    router.add(path, reply(503, "down", "text/plain"))
+    deepswe_routes(router)
+    with pytest.raises(BenchmarkError) as err:
+        deepswe.fetch(router.fetcher(), NOW)
+    assert err.value.code == "http_error"
 
 
-def test_deepswe_literal_conversion() -> None:
-    text = (
-        '$R[7]={a:$R[8]=[1,2.5e-3,!0,!1],b:void 0,c:undefined,d:null,e:"x,y:$R[1]=!0",f_g:{h$:-1}}'
-    )
-    assert deepswe.literal_to_json(text) == {
-        "a": [1, 0.0025, True, False],
-        "b": None,
-        "c": None,
-        "d": None,
-        "e": "x,y:$R[1]=!0",
-        "f_g": {"h$": -1},
-    }
-
-
-def test_deepswe_stores_each_leaderboard_block_as_its_own_board() -> None:
-    html = fixture_text("deepswe_home.html")
-    script = re.findall(r"<script[^>]*data-tsr-stream-part[^>]*>(.*?)</script>", html, re.S)[1]
-    v1 = (
-        script.replace("20260901-deep-swe-1-1-gpt-6-astra", "20260618-deep-swe-glm-5-2")
-        .replace("2026-09-22T06:27:15.860279", "2026-06-20T17:27:24.307648")
-        .replace('model:"gpt-6-astra"', 'model:"gpt-5-5"')
-    )
-    html = html.replace("</body>", f'<script data-tsr-stream-part="">{v1}</script></body>')
-    snapshot = deepswe.fetch(deepswe_routes(Router(), html=html).fetcher(), NOW)
-    assert set(snapshot.raw["boards"]) == {"v1", "v1.1"}
-    assert {r.board for r in snapshot.rows} == {"v1", "v1.1"}
-    assert [r.model_raw for r in snapshot.rows if r.board == "v1"][0] == "gpt-5-5"
-    assert snapshot.release == "2026-09-22"  # the newest block
-
-
+@pytest.mark.parametrize("board", ["v1.1", "v1"])
 @pytest.mark.parametrize(
-    "mutate",
+    "body",
     [
-        lambda h: re.sub(
-            r"<script[^>]*data-tsr-stream-part[^>]*>", "<script>", h
-        ),  # no stream parts
-        lambda h: h.replace("rows:$R[241]=[", "rows:$R[241]=[?"),  # broken literal
-        lambda h: h.replace("rows:$R[241]=[", "rows_moved:$R[241]=["),  # no rows list
-        lambda h: re.sub(r"pass_at_1:[\d.]+", "pass_at_1:null", h),  # no usable score
+        pytest.param('{"scope": "moved"}', id="no-rows"),
+        pytest.param('{"rows": [{"model": "m", "pass_at_1": null}]}', id="no-usable-rows"),
+        pytest.param("not json", id="not-json"),
     ],
 )
-def test_deepswe_unreadable_homepage_is_drift(mutate: Callable[[str], str]) -> None:
-    html = mutate(fixture_text("deepswe_home.html"))
+def test_deepswe_unreadable_board_is_drift(board: str, body: str) -> None:
+    router = Router()
+    path = "artifacts/v1.1/" if board == "v1.1" else "artifacts/v1/"
+    router.add(path, reply(200, body, "application/json"))
+    deepswe_routes(router)
     with pytest.raises(BenchmarkError) as err:
-        deepswe.fetch(deepswe_routes(Router(), html=html).fetcher(), NOW)
+        deepswe.fetch(router.fetcher(), NOW)
     assert err.value.code == "selector_drift"
 
 
@@ -554,7 +530,7 @@ def test_every_site_names_itself() -> None:
         assert module.SITE and module.TITLE and module.SOURCE_URL.startswith("https://")
         assert module.LICENSE and module.ATTRIBUTION
     assert artificial_analysis.ATTRIBUTION == "Data: Artificial Analysis"
-    assert fixture_text("deepswe_home.html")
+    assert fixture_text("deepswe_v1_1.json")
 
 
 def test_daily_job_is_scheduled_at_0330() -> None:
