@@ -1,6 +1,6 @@
 "use client";
 
-import { Compass, FileSearch, FileText, Handshake, Map as MapIcon, Radar, ScrollText, Search } from "lucide-react";
+import { Compass, FileSearch, FileText, Flame, Handshake, Map as MapIcon, Radar, ScrollText, Search } from "lucide-react";
 import { AppLink as Link } from "@/components/app-link";
 import { usePathname, useSearchParams } from "next/navigation";
 
@@ -11,9 +11,10 @@ import { cn } from "@/lib/utils";
 // Reader menu (2026-10-12): the daily briefing first; the opportunity/threat board and the
 // roadmap share one entry with tabs (components/reader/roadmap-tabs.tsx). Dossiers, collections
 // and questions left the menu; their pages still open from a direct link. Trend reports on request
-// (plan 17 R1) joined it on 2026-10-13.
+// (plan 17 R1) joined it on 2026-10-13; 주목 받는 (plan 18, daily Top 10s) took the second place on 2026-11-03.
 export const READER_NAV = [
   { href: "/briefings", label: "데일리 브리핑", icon: FileText, match: ["/briefings"] },
+  { href: "/spotlight", label: "주목 받는", icon: Flame, match: ["/spotlight"] },
   { href: "/", label: "탐색", icon: Compass, match: ["/items"] },
   { href: "/radar", label: "레이더", icon: Radar, match: ["/radar"] },
   { href: "/deals", label: "투자·제휴", icon: Handshake, match: ["/deals"] },
