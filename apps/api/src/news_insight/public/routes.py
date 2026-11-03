@@ -26,6 +26,7 @@ from news_insight.public import maturity as maturity_queries
 from news_insight.public import patents as patent_queries
 from news_insight.public import periodic as periodic_queries
 from news_insight.public import radar as radar_queries
+from news_insight.public import spotlight as spotlight_queries
 from news_insight.public.auth import require_public_key
 from news_insight.public.distribution import Distribution, DistributionError, distribution
 from news_insight.public.filters import FilterError, ReaderFilters
@@ -421,6 +422,19 @@ def get_patents(
 ) -> patent_queries.PatentView:
     """Patent signals by period, technology area and company (plan 16 #5)."""
     return patent_queries.patent_view(session, kind=kind, now=now, page=page)
+
+
+@router.get("/spotlight")
+def get_spotlight(
+    session: DB, now: Now, day: Annotated[date | None, Query(alias="date")] = None
+) -> spotlight_queries.SpotlightView:
+    """Daily Top 10s per section with the change since the day before (plan 18)."""
+    try:
+        return spotlight_queries.spotlight_view(session, day=day, now=now)
+    except spotlight_queries.SpotlightNotFound as error:
+        raise HTTPException(
+            status.HTTP_404_NOT_FOUND, "no published spotlight on that date"
+        ) from error
 
 
 class AskIn(BaseModel):
