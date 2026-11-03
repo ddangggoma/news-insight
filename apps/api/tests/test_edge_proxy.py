@@ -206,6 +206,76 @@ def test_a_visitor_that_resets_at_once_is_dropped_quietly(
     assert [r.getMessage() for r in caplog.records if r.levelname == "ERROR"] == []
 
 
+class RefusedSocket:
+    """What the macOS firewall leaves the proxy: setsockopt fails with EINVAL."""
+
+    def __init__(self, refuse: bool) -> None:
+        self.refuse = refuse
+
+    def setsockopt(self, *args: object) -> None:
+        if self.refuse:
+            raise OSError(22, "Invalid argument")
+
+
+class Visitor:
+    """A client_writer stand-in for _relay; Caddy (upstream) is down, so it stops there."""
+
+    def __init__(self, host: str, refuse: bool) -> None:
+        self.extra = {
+            "socket": RefusedSocket(refuse),
+            "peername": (host, 40000),
+            "sockname": ("192.0.2.1", 8700),
+        }
+
+    def get_extra_info(self, name: str) -> object:
+        return self.extra[name]
+
+    def close(self) -> None:
+        pass
+
+
+def test_exits_for_a_restart_when_every_outside_visitor_is_refused(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(edge, "CONNECT_TIMEOUT", 0.5)
+
+    async def run() -> None:
+        with socket.socket() as probe:
+            probe.bind(("127.0.0.1", 0))
+            dead = ("127.0.0.1", probe.getsockname()[1])
+        stop = asyncio.Event()
+        proxy = edge.EdgeProxy([(0, dead)], "127.0.0.1", limit=10)
+        task, _ = await started(proxy, stop)
+
+        async def visit(host: str, refuse: bool) -> None:
+            await proxy._relay(None, Visitor(host, refuse), dead)
+
+        for _ in range(edge.REFUSED_RESTART - 1):
+            await visit("203.0.113.7", refuse=True)
+        await visit("127.0.0.1", refuse=True)  # loopback says nothing about the firewall
+        assert (proxy.refused_in_a_row, stop.is_set()) == (edge.REFUSED_RESTART - 1, False)
+
+        await visit("198.51.100.2", refuse=False)  # one outside visitor got through
+        assert proxy.refused_in_a_row == 0
+
+        for _ in range(edge.REFUSED_RESTART):
+            await visit("2001:db8::1", refuse=True)
+        assert proxy.restart and stop.is_set()
+        await asyncio.wait_for(task, 5)
+
+    asyncio.run(run())
+
+
+def test_main_exits_non_zero_for_a_restart(monkeypatch: pytest.MonkeyPatch) -> None:
+    async def refused(self, stop: asyncio.Event) -> None:
+        self.restart = True
+
+    monkeypatch.setattr(edge.EdgeProxy, "serve", refused)
+    monkeypatch.setattr(edge, "raise_file_limit", lambda: 1024)
+
+    assert edge.main(["0=127.0.0.1:9"]) == 1
+
+
 def test_refuses_connections_over_the_limit() -> None:
     async def run() -> None:
         hold = asyncio.Event()

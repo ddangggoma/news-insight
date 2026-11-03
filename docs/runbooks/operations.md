@@ -201,6 +201,7 @@ tail ops/logs/edge.log
 | 증상 | 원인과 조치 |
 |---|---|
 | 사이트 무응답, deploy 스모크 `000` | 엣지 프록시가 안 떠 있음. `tail ops/logs/edge.log`, 다시 띄우기 `launchctl kickstart -k gui/$(id -u)/com.newsinsight.edge`, 작업이 없으면 `scripts/install-edge-proxy.sh` |
+| 이 Mac(`https://localhost:8700`)에서는 열리는데 다른 기기·공인 IP로는 안 열림, 로그에 `outside visitors refused in a row` 또는 `Errno 22` | macOS 방화벽이 프록시의 외부 연결을 막음. Xcode 업데이트가 실행 중인 프록시 아래의 Python을 바꾼 뒤 생김(2026-11-02, 약 하루 반 외부 접속 불가). 외부 방문자 5명이 연달아 거부되면 프록시가 스스로 종료하고 launchd가 다시 띄움(`exiting for launchd to restart`). 재시작 뒤에도 계속되면 `/usr/libexec/ApplicationFirewall/socketfilterfw --listapps`에서 Python 허용을 확인. 확인은 루프백이 아닌 `curl -sk https://<PUBLIC_HOST>:8700/api/health`로 |
 | 로그에 `cannot reach Caddy at 127.0.0.1:8702` | Caddy 컨테이너가 내려감. `docker compose ps caddy`, `docker compose logs caddy` |
 | 로그에 `cannot listen on 8700` 반복 | 다른 프로세스가 8700을 잡음. `lsof -nP -iTCP:8700 -sTCP:LISTEN`. 옛 Caddy(0.0.0.0 공개)라면 `WITH_CADDY=1 scripts/deploy.sh` |
 | 주소가 다시 모두 `172.19.0.1`이나 `192.168.65.1` | Caddy가 헤더를 믿지 않는 상태. Docker Desktop 업데이트로 루프백 공개 포트의 출발지가 바뀌었을 수 있음. 임시 컨테이너를 `news-insight_default`에 붙여 `-p 127.0.0.1:<빈 포트>:<포트>`로 띄우고 `{remote_host}`를 돌려주게 해 실제 출발지를 잰 뒤, `.env`의 `CADDY_PROXY_FROM=<주소>/32`로 지정하고 `WITH_CADDY=1 scripts/deploy.sh` |

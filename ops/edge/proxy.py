@@ -36,6 +36,10 @@ CLOSE_GRACE = 60.0
 BIND_RETRY = 2.0
 REPORT_EVERY = 3600.0
 FAILURE_LOG_EVERY = 60.0
+# Outside visitors refused in a row before the proxy exits for launchd to restart it. After an
+# Xcode update replaced the Python under the running proxy, the macOS firewall dropped every
+# non-loopback connection (setsockopt: EINVAL) until a restart (2026-11-02, a day and a half).
+REFUSED_RESTART = 5
 
 log = logging.getLogger("edge")
 Address = tuple[str, int]  # builtin generics work at runtime from 3.9
@@ -111,8 +115,12 @@ class EdgeProxy:
         self.limit = limit
         self.stats = Stats()
         self.servers: list[asyncio.base_events.Server] = []
+        self.refused_in_a_row = 0
+        self.restart = False
+        self._stop: asyncio.Event | None = None
 
     async def serve(self, stop: asyncio.Event) -> None:
+        self._stop = stop
         binders = [
             asyncio.ensure_future(self._bind(port, upstream)) for port, upstream in self.routes
         ]
@@ -171,15 +179,19 @@ class EdgeProxy:
         self.stats.served += 1
         writers = [client_writer]
         try:
+            peer = client_writer.get_extra_info("peername")
+            local = client_writer.get_extra_info("sockname")
             sock = client_writer.get_extra_info("socket")
             if sock is not None:
                 try:
                     sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
-                except OSError:
-                    # macOS refuses (EINVAL) once the visitor has already reset: nothing to relay
+                except OSError as error:
+                    # macOS refuses (EINVAL) a socket the visitor already reset, or every
+                    # outside one the firewall blocks: nothing to relay either way
+                    self._refused(peer, error)
                     return
-            peer = client_writer.get_extra_info("peername")
-            local = client_writer.get_extra_info("sockname")
+                if not _loopback(peer):
+                    self.refused_in_a_row = 0
             try:
                 up_reader, up_writer = await asyncio.wait_for(
                     asyncio.open_connection(*upstream), CONNECT_TIMEOUT
@@ -197,6 +209,30 @@ class EdgeProxy:
             self.stats.active -= 1
             for writer in writers:
                 writer.close()
+
+    def _refused(self, peer: Address | None, error: OSError) -> None:
+        # the firewall never blocks loopback, so only outside visitors tell us anything
+        if _loopback(peer):
+            return
+        self.refused_in_a_row += 1
+        log.warning(
+            "cannot use the connection from %s (%s); %d outside visitors refused in a row",
+            peer[0] if peer else "?",
+            error.strerror or error,
+            self.refused_in_a_row,
+        )
+        if self.refused_in_a_row >= REFUSED_RESTART and not self.restart:
+            log.error(
+                "every outside visitor is refused (the macOS firewall, after a Python update?): "
+                "exiting for launchd to restart the proxy"
+            )
+            self.restart = True
+            if self._stop is not None:
+                self._stop.set()
+
+
+def _loopback(peer: Address | None) -> bool:
+    return peer is not None and _plain(peer[0]).is_loopback
 
 
 async def _pipe(reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
@@ -252,15 +288,17 @@ def main(argv: list[str] | None = None) -> int:
     limit = max(64, (min(raise_file_limit(), 8192) - 64) // 2)
     log.info("starting: up to %d connections at once", limit)
 
+    proxy = EdgeProxy(args.routes, args.host, limit)
+
     async def run() -> None:
         stop = asyncio.Event()
         loop = asyncio.get_running_loop()
         for sig in (signal.SIGTERM, signal.SIGINT):
             loop.add_signal_handler(sig, stop.set)
-        await EdgeProxy(args.routes, args.host, limit).serve(stop)
+        await proxy.serve(stop)
 
     asyncio.run(run())
-    return 0
+    return 1 if proxy.restart else 0  # launchd's KeepAlive starts it again either way
 
 
 if __name__ == "__main__":
