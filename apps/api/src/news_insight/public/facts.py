@@ -66,10 +66,61 @@ AXIS_COLUMNS = {
 }
 
 
-def refresh(session: Session, *, concurrently: bool = True) -> None:
-    """Rebuild the view; CONCURRENTLY keeps it readable meanwhile (a few seconds)."""
-    mode = " CONCURRENTLY" if concurrently else ""
-    session.execute(text(f"REFRESH MATERIALIZED VIEW{mode} reader_facts"))
+# migration 0046's definition; a change here reaches live with the next rebuild
+SELECT = """
+SELECT i.id AS item_id,
+       coalesce(i.published_at, i.first_seen_at) AS occurred_at,
+       c.taxonomy_revision,
+       c.scope,
+       c.field,
+       c.signal_type,
+       c.impact,
+       c.relevance,
+       i.track,
+       s.region,
+       c.themes,
+       c.technology_keys,
+       c.company_keys,
+       si.story_id,
+       st.representative_item_id = i.id AS is_representative,
+       st.source_count,
+       c.title_ko,
+       i.title,
+       c.keywords::text AS keywords_text
+FROM items i
+JOIN sources s ON s.id = i.source_id
+JOIN item_cards c ON c.item_id = i.id
+LEFT JOIN story_items si ON si.item_id = i.id
+LEFT JOIN stories st ON st.id = si.story_id
+WHERE c.status = 'ready'
+  AND (i.published_at IS NULL OR i.published_at >= i.first_seen_at - interval '720 hours')
+  AND NOT EXISTS (
+      SELECT 1 FROM item_dedup d WHERE d.item_id = i.id AND d.duplicate_of IS NOT NULL
+  )
+"""
+
+
+def refresh(session: Session) -> None:
+    """Build the next view beside the live one, then swap it in, in the caller's transaction.
+
+    REFRESH ... CONCURRENTLY compared all 0.5 M rows with the old ones: 34-97 s every three
+    minutes (2026-11-04). Building anew takes seconds and readers wait only for the swap; one
+    that waits longer than the lock timeout fails this rebuild (LockNotAvailable), and the
+    next one tries again.
+    """
+    for statement in (
+        "DROP MATERIALIZED VIEW IF EXISTS reader_facts_next",
+        f"CREATE MATERIALIZED VIEW reader_facts_next AS {SELECT}",
+        "CREATE UNIQUE INDEX uq_reader_facts_next_item_id ON reader_facts_next (item_id)",
+        "CREATE INDEX ix_reader_facts_next_occurred_at ON reader_facts_next (occurred_at)",
+        "ANALYZE reader_facts_next",  # a new view has no statistics for the planner
+        "SET LOCAL lock_timeout = '3s'",
+        "DROP MATERIALIZED VIEW reader_facts",
+        "ALTER MATERIALIZED VIEW reader_facts_next RENAME TO reader_facts",
+        "ALTER INDEX uq_reader_facts_next_item_id RENAME TO uq_reader_facts_item_id",
+        "ALTER INDEX ix_reader_facts_next_occurred_at RENAME TO ix_reader_facts_occurred_at",
+    ):
+        session.execute(text(statement))
 
 
 def in_window(window: Window) -> list[ColumnElement[bool]]:

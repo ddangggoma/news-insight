@@ -245,14 +245,23 @@ def radar_warm_task() -> int:
 
 @celery_app.task(name="reader.refresh_facts")
 def refresh_reader_facts_task() -> bool:
+    from psycopg.errors import LockNotAvailable
+    from sqlalchemy.exc import OperationalError
+
     from news_insight.public.facts import refresh
 
     # one refresh at a time: a slow one must not pile up behind the next schedule
     with SourceLock(get_redis(), ttl_seconds=900, prefix="lock:").hold("reader-facts") as acquired:
         if not acquired:
             return False
-        with session_scope() as session:
-            refresh(session)
+        try:
+            with session_scope() as session:
+                refresh(session)
+        except OperationalError as error:
+            if not isinstance(error.orig, LockNotAvailable):
+                raise
+            logger.warning("reader facts: a long read held the view, next run tries again")
+            return False
         return True
 
 

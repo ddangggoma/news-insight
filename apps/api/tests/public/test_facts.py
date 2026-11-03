@@ -1,5 +1,5 @@
 import pytest
-from sqlalchemy import func, select
+from sqlalchemy import func, select, text
 from sqlalchemy.orm import Session
 
 from news_insight.cards.models import CardStatus, ItemCard
@@ -17,7 +17,7 @@ def test_the_view_holds_ready_cards_and_changes_only_on_refresh(db_session: Sess
     ids = seed_corpus(db_session)
     assert visible(db_session) == set()  # created empty-handed by the migration in tests
 
-    facts.refresh(db_session, concurrently=False)
+    facts.refresh(db_session)
     shown = visible(db_session)
     assert ids["Galaxy agent OS"] in shown
     assert ids["Failed card"] not in shown  # not ready
@@ -33,8 +33,15 @@ def test_the_view_holds_ready_cards_and_changes_only_on_refresh(db_session: Sess
     db_session.flush()
     assert ids["Galaxy agent OS"] in visible(db_session)  # until the next refresh
 
-    facts.refresh(db_session, concurrently=False)
+    facts.refresh(db_session)
     assert ids["Galaxy agent OS"] not in visible(db_session)
+    # the swapped-in view keeps the migration's index names, and no spare view is left
+    indexes = set(
+        db_session.scalars(
+            text("SELECT indexname FROM pg_indexes WHERE tablename LIKE 'reader_facts%'")
+        )
+    )
+    assert indexes == {"uq_reader_facts_item_id", "ix_reader_facts_occurred_at"}
 
 
 def test_the_scheduler_refreshes_the_view_every_three_minutes() -> None:
