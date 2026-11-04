@@ -208,3 +208,51 @@ def test_available_dates_capped_at_sixty(
 
 def test_requires_public_key(public_client: TestClient) -> None:
     assert public_client.get("/api/public/spotlight").status_code in (401, 403)
+
+
+def test_groups_tags_signals_and_field(
+    public_client: TestClient, public_headers: dict[str, str], db_session: Session
+) -> None:
+    spotlight = _spotlight(db_session, YESTERDAY, (("news", 1, "kept"),))
+    today = _spotlight(db_session, TODAY, (("news", 2, "b"), ("news", 1, "a")))
+    for rank, key in ((2, "late"), (1, "kept")):
+        db_session.add(
+            SpotlightEntry(
+                spotlight_id=today.id,
+                section="news",
+                rank=rank,
+                stat_rank=rank,
+                key=key,
+                item_ids=[],
+                title_ko=f"title {key}",
+                summary="s",
+                why_hot="w",
+                metrics={"days_active": 4},
+                group="sustained",
+                tags=["장기 화제"],
+                signals=["7일 중 4일"],
+                field="ai",
+            )
+        )
+    db_session.flush()
+    assert spotlight.id != today.id
+    news = _get(public_client, public_headers)["sections"]["news"]
+    # the 24 h entries by rank, then the sustained ones by rank
+    assert [(e["group"], e["rank"], e["key"]) for e in news] == [
+        ("now", 1, "a"),
+        ("now", 2, "b"),
+        ("sustained", 1, "kept"),
+        ("sustained", 2, "late"),
+    ]
+    kept = news[2]
+    assert kept["tags"] == ["장기 화제"] and kept["signals"] == ["7일 중 4일"]
+    assert kept["field"] == "ai" and kept["field_label"] == "AI 모델·에이전트"
+    # the change is by section and key, whatever the group
+    assert (kept["change"], news[3]["change"]) == ("same", "new")
+    # entries published before the groups: 24 h, no tags, signals or field
+    assert (news[0]["tags"], news[0]["signals"], news[0]["field"], news[0]["field_label"]) == (
+        [],
+        [],
+        None,
+        None,
+    )

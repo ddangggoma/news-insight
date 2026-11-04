@@ -221,3 +221,51 @@ def test_a_page_that_gives_only_the_day_keeps_a_stored_time_on_that_day() -> Non
         page_date(stored_at, [a_day_earlier], seen=NOW, tz=berlin, offset_only=False)
         == a_day_earlier
     )
+
+
+def test_a_named_feed_takes_any_earlier_page_date_and_an_aggregator_is_refused(
+    db_session: Session,
+) -> None:
+    evergreen = build_source(key="coupons", access_method=AccessMethod.FEED)
+    other = build_source(key="plain-feed", access_method=AccessMethod.FEED)
+    forum = build_source(key="forum", access_method=AccessMethod.FEED, category="dev_forum")
+    db_session.add_all([evergreen, other, forum])
+    db_session.flush()
+    relisted = stored(db_session, evergreen, 1, NOW - timedelta(hours=2))  # re-listed in 2026
+    unlisted = stored(db_session, other, 2, NOW - timedelta(hours=2))
+    submitted = stored(db_session, forum, 3, NOW - timedelta(hours=2))
+    original = datetime(2025, 3, 1, 9, tzinfo=UTC)
+    pages = {relisted.url: [original], unlisted.url: [original], submitted.url: [original]}
+
+    plan = plan_page_dates(
+        db_session,
+        sources=["coupons", "plain-feed"],
+        pages=lambda url, tz: pages.get(url),
+        workers=1,
+        any_earlier=["coupons"],
+    )
+
+    assert plan.changes == {relisted.id: original}  # plain-feed still moves by its offset only
+    with pytest.raises(ValueError, match="aggregator"):
+        plan_page_dates(
+            db_session, sources=["forum"], pages=lambda url, tz: None, any_earlier=["forum"]
+        )
+    with pytest.raises(ValueError, match="not among"):
+        plan_page_dates(
+            db_session, sources=["coupons"], pages=lambda url, tz: None, any_earlier=["plain-feed"]
+        )
+
+
+def test_redate_can_be_limited_to_named_sources(db_session: Session) -> None:
+    named = build_source(key="named", region=Region.KR, access_method=AccessMethod.FEED)
+    other = build_source(key="other", region=Region.KR, access_method=AccessMethod.FEED)
+    db_session.add_all([named, other])
+    db_session.flush()
+    for n, source in enumerate((named, other), start=1):
+        stored(db_session, source, n, NOW + NINE)  # in the future: dropped
+
+    plan = plan_redate(
+        db_session, since=NOW - timedelta(days=3), now=NOW, feeds=None, only=["named"]
+    )
+
+    assert [repair.key for repair in plan.sources] == ["named"]

@@ -1,8 +1,10 @@
 import { expect, test } from "@playwright/test";
 
 // Fixtures: apps/api/scripts/e2e_seed.py (a published spotlight for today and yesterday, KST).
-// Today: news has three entries (one moved by Opus with a note, one fallback), product has one
-// with a product name, oss has one; interview, community, research and patent are empty.
+// Today: news has three 최근 24시간 entries (one moved by Opus with a note, one fallback) and
+// one 지속 주목 entry, product has one with a product name, ai and oss have one each; interview,
+// community, research and patent are empty. Entries carry their lead card's field; two have
+// insight tags and signals.
 test.describe("spotlight", () => {
   test("opens from the menu with the day's headline and every section", async ({ page, isMobile }) => {
     test.skip(isMobile, "desktop flow");
@@ -32,7 +34,7 @@ test.describe("spotlight", () => {
     // against yesterday's list
     await expect(page.getByLabel("1계단 상승")).toHaveText("▲1");
     await expect(page.getByLabel("1계단 하락")).toHaveText("▼1");
-    await expect(page.getByLabel("새로 진입")).toHaveText("NEW");
+    await expect(page.getByRole("region", { name: /최근 24시간/ }).getByLabel("새로 진입")).toHaveText("NEW");
     // the lead item's link resolves from the item ids
     await expect(page.getByRole("link", { name: "온디바이스 칩 소식이 가장 크게 번졌다" })).toHaveAttribute("href", /^https:\/\/etnews\.example\//);
   });
@@ -45,6 +47,46 @@ test.describe("spotlight", () => {
 
     await page.goto("/spotlight?tab=patent");
     await expect(page.getByText("오늘은 기준을 넘는 화제가 없습니다")).toBeVisible();
+  });
+
+  test("the news tab splits 최근 24시간 from 지속 주목, with tags, and the field filter narrows it", async ({ page, isMobile }) => {
+    test.skip(isMobile, "desktop flow");
+    await page.goto("/spotlight?tab=news");
+    const main = page.getByRole("main");
+    await expect(main.getByRole("heading", { level: 2, name: /최근 24시간/ })).toContainText("3건");
+    const lasting = main.getByRole("region", { name: /지속 주목/ });
+    await expect(lasting.getByRole("heading", { level: 2 })).toContainText("1건");
+    await expect(lasting.getByRole("link", { name: "마이크로 RGB 패널 경쟁이 일주일째 이어졌다" })).toBeVisible();
+    await expect(lasting.getByText("장기 화제")).toBeVisible();
+    await expect(lasting.getByText("7일 중 5일")).toBeVisible();
+    await expect(main.getByText("NPU 2배")).toBeVisible();
+
+    const fields = page.getByRole("group", { name: "분야 필터" });
+    await fields.getByRole("button", { name: /무선·네트워크/ }).click();
+    await expect(fields.getByRole("button", { name: /무선·네트워크/ })).toHaveAttribute("aria-pressed", "true");
+    await expect(page).toHaveURL(/field=connectivity/);
+    await expect(main.getByRole("link", { name: "스마트홈 표준 갱신 소식" })).toBeVisible();
+    await expect(main.getByRole("link", { name: "온디바이스 칩 소식이 가장 크게 번졌다" })).toHaveCount(0);
+    await expect(main.getByRole("link", { name: "마이크로 RGB 패널 경쟁이 일주일째 이어졌다" })).toHaveCount(0);
+
+    // the address keeps the filter: a reload opens the same narrowed list
+    await page.reload();
+    await expect(page.getByRole("group", { name: "분야 필터" }).getByRole("button", { name: /무선·네트워크/ })).toHaveAttribute("aria-pressed", "true");
+    await expect(main.getByRole("link", { name: "온디바이스 칩 소식이 가장 크게 번졌다" })).toHaveCount(0);
+
+    await page.getByRole("group", { name: "묶음 필터" }).getByRole("button", { name: "지속 주목" }).click();
+    await expect(page).toHaveURL(/group=sustained/);
+    await expect(main.getByText("조건에 맞는 항목이 없습니다")).toBeVisible();
+  });
+
+  test("AI 모델·서비스 has its own tab beside the leaderboards", async ({ page, isMobile }) => {
+    test.skip(isMobile, "desktop flow");
+    await page.goto("/spotlight");
+    const tabs = page.getByRole("navigation", { name: "주목 받는 보기" });
+    await expect(tabs.getByRole("link", { name: "AI 모델", exact: true })).toHaveAttribute("href", "/spotlight?tab=models");
+    await tabs.getByRole("link", { name: "AI 모델·서비스", exact: true }).click();
+    await expect(page).toHaveURL(/tab=ai/);
+    await expect(page.getByRole("link", { name: "스마트폰용 4비트 LLM이 주목받았다" })).toBeVisible();
   });
 
   test("an earlier day opens by date; an impossible or unpublished date shows the not-found page", async ({ page, isMobile }) => {

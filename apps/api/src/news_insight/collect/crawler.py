@@ -21,6 +21,7 @@ from news_insight.collect.fields import parse_datetime
 from news_insight.collect.github_trending import collect_trending
 from news_insight.collect.http import fetch_checked, request_headers
 from news_insight.collect.macros import expand_macros
+from news_insight.collect.pages import exclusion
 from news_insight.collect.velog import collect_velog
 from news_insight.content.normalize import canonical_url, clean_text
 from news_insight.net.mime import HTML_MIME
@@ -69,6 +70,7 @@ class CrawlerCollector:
                 retryable=False,
             )
         tz = ZoneInfo(str(context.config.get("timezone", "UTC")))
+        excluded = exclusion(context.config)
         items = [
             raw
             for node in nodes
@@ -80,6 +82,8 @@ class CrawlerCollector:
             is not None
         ]
         incomplete = len(nodes) - len(items)
+        if excluded is not None:
+            items = [item for item in items if not excluded.search(item.url)]
         if majority_incomplete(incomplete, len(nodes)):
             raise CollectorError(
                 "selector_drift",

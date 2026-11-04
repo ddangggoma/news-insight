@@ -167,7 +167,7 @@ export function TopicPanel({ detail, radar, view }: { detail: TopicDetail; radar
 
   return (
     <ViewTransition key={`${focusParam({ kind, key: topic.key })}`} name="radar-topic" share="auto" enter="auto" default="none">
-      <ChartTips className="space-y-4">
+      <ChartTips className="@container space-y-5">
         <header>
           <p className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
             <span className="rounded bg-muted px-1.5 py-px font-semibold text-ink-2">{KIND_LABEL[kind]}</span>
@@ -196,7 +196,7 @@ export function TopicPanel({ detail, radar, view }: { detail: TopicDetail; radar
           {topic.first_ever ? (
             <p className="mt-1 text-xs text-muted-foreground">첫 보도 {formatDay(topic.first_ever)} · 지금 필터로 전체 기간을 본 기준</p>
           ) : null}
-          <dl className="mt-3 grid grid-cols-3 gap-2 text-center">
+          <dl className="mt-3 grid grid-cols-3 gap-2 text-center @2xl:grid-cols-6">
             {[
               ["언급", `${current}건`],
               ["직전 대비", <Change key="c" value={topic.change} />],
@@ -207,174 +207,180 @@ export function TopicPanel({ detail, radar, view }: { detail: TopicDetail; radar
             ].map(([label, value]) => (
               <div key={String(label)} className="rounded-xl bg-muted/70 px-1 py-2">
                 <dt className="text-[11px] text-muted-foreground">{label}</dt>
-                <dd className="text-sm font-bold">{value}</dd>
+                <dd className="text-sm font-bold tabular-nums @2xl:text-base">{value}</dd>
               </div>
             ))}
           </dl>
         </header>
 
-        <Section
-          title={`최근 ${topic.counts.length}개 기간 (${baseline.enough ? `선 = 직전 ${baseline.windows}${BASELINE_UNIT[radar.window.kind]} 평균` : "기준선 부족: 평균선 없음"})`}
-        >
-          <Trend counts={topic.counts} periods={radar.periods} forecast={projected(current, radar.window.elapsed)} from={baseline.start} baseline={baseline.enough} />
-        </Section>
+        <div className="grid gap-x-8 gap-y-5 @3xl:grid-cols-2">
+          <div className="min-w-0 space-y-5">
+            <Section
+              title={`최근 ${topic.counts.length}개 기간 (${baseline.enough ? `선 = 직전 ${baseline.windows}${BASELINE_UNIT[radar.window.kind]} 평균` : "기준선 부족: 평균선 없음"})`}
+            >
+              <Trend counts={topic.counts} periods={radar.periods} forecast={projected(current, radar.window.elapsed)} from={baseline.start} baseline={baseline.enough} />
+            </Section>
 
-        <Section title="신호 단계 · 트랙 구성">
-          <div className="space-y-1.5">
-            <Mix label="이번" mix={topic.tracks} />
-            <Mix label="평소" mix={averageMix(topic.baseline_tracks, baseline.windows)} />
-          </div>
-          <p className="mt-2 text-xs text-ink-2">
-            {stage ? <b className="text-foreground">{STAGE_META[stage].label}</b> : null}
-            {share !== null ? ` · 논문·오픈소스 ${Math.round(share * 100)}%` : ""}
-            {share !== null && before !== null ? ` (평소 ${Math.round(before * 100)}%)` : ""}
-            {stage ? ` · ${STAGE_META[stage].hint}` : ""}
-          </p>
-          <Legend className="mt-2" items={TRACK_ORDER.map((track) => ({ label: TRACK_LABEL[track], swatch: TRACK_FILL[track] }))} />
-        </Section>
+            <Section title="신호 단계 · 트랙 구성">
+              <div className="space-y-1.5">
+                <Mix label="이번" mix={topic.tracks} />
+                <Mix label="평소" mix={averageMix(topic.baseline_tracks, baseline.windows)} />
+              </div>
+              <p className="mt-2 text-xs text-ink-2">
+                {stage ? <b className="text-foreground">{STAGE_META[stage].label}</b> : null}
+                {share !== null ? ` · 논문·오픈소스 ${Math.round(share * 100)}%` : ""}
+                {share !== null && before !== null ? ` (평소 ${Math.round(before * 100)}%)` : ""}
+                {stage ? ` · ${STAGE_META[stage].hint}` : ""}
+              </p>
+              <Legend className="mt-2" items={TRACK_ORDER.map((track) => ({ label: TRACK_LABEL[track], swatch: TRACK_FILL[track] }))} />
+            </Section>
 
-        {impactTotal ? (
-          <Section title="영향 분류">
-            <div className="flex h-3 gap-0.5 overflow-hidden rounded-[3px]">
-              {(["opportunity", "risk", "watch"] as const).map((impact) =>
-                topic.impacts[impact] ? (
-                  <span key={impact} data-tip={`${IMPACT_LABEL[impact]}\n${topic.impacts[impact]}건`} style={{ flex: topic.impacts[impact], background: `var(--impact-${impact})` }} />
-                ) : null,
-              )}
-            </div>
-            <p className="mt-1.5 flex gap-3 text-xs text-muted-foreground">
-              {(["opportunity", "risk", "watch"] as const).map((impact) => (
-                <span key={impact}>
-                  {IMPACT_LABEL[impact]} <b className="text-foreground tabular-nums">{Math.round((topic.impacts[impact] / impactTotal) * 100)}%</b>
-                </span>
-              ))}
-            </p>
-          </Section>
-        ) : null}
-
-        {detail.themes.length ? (
-          <Section title={kind === "field" ? "테마" : "걸쳐 있는 테마"}>
-            <Bars rows={detail.themes.slice(0, 6)} label={(key) => THEME_LABEL[key] ?? key} total={current} />
-            <div className="mt-1.5 flex flex-wrap gap-1.5">
-              {detail.themes.slice(0, 6).map((theme) => (
-                <Link key={theme.key} href={at({ kind: "theme", key: theme.key })} scroll={false} className="text-xs text-primary hover:underline">
-                  {THEME_LABEL[theme.key] ?? theme.key} →
-                </Link>
-              ))}
-            </div>
-          </Section>
-        ) : null}
-
-        {detail.keywords.length ? (
-          <Section title={kind === "keyword" ? "함께 언급된 기술" : "많이 언급된 기술"}>
-            <div className="flex flex-wrap gap-1.5">
-              {detail.keywords.map((keyword) => (
-                <Link
-                  key={keyword.key}
-                  href={at({ kind: "keyword", key: keyword.key })}
-                  scroll={false}
-                  className="rounded-full border bg-background px-2.5 py-0.5 text-xs text-ink-2 transition hover:border-primary hover:text-primary"
-                >
-                  {keyword.label} <span className="text-muted-foreground tabular-nums">{keyword.count}</span>
-                </Link>
-              ))}
-            </div>
-          </Section>
-        ) : null}
-
-        {detail.companies?.length ? (
-          <Section title={kind === "company" ? "함께 언급된 기업" : "많이 언급된 기업"}>
-            <div className="flex flex-wrap gap-1.5">
-              {detail.companies.map((company) => (
-                <Link
-                  key={company.key}
-                  href={at({ kind: "company", key: company.key })}
-                  scroll={false}
-                  className="rounded-full border bg-background px-2.5 py-0.5 text-xs text-ink-2 transition hover:border-primary hover:text-primary"
-                >
-                  {company.label} <span className="text-muted-foreground tabular-nums">{company.count}</span>
-                </Link>
-              ))}
-            </div>
-          </Section>
-        ) : null}
-
-        {detail.profile?.themes.length ? (
-          <Section title="주력 테마 (레지스트리)">
-            <div className="flex flex-wrap gap-1.5">
-              {detail.profile.themes.map((theme) => (
-                <Link key={theme} href={at({ kind: "theme", key: theme })} scroll={false} className="text-xs text-primary hover:underline">
-                  {THEME_LABEL[theme] ?? theme} →
-                </Link>
-              ))}
-            </div>
-          </Section>
-        ) : null}
-
-        {detail.major_companies?.length ? (
-          <Section title="이 테마의 주요 기업 (레지스트리)">
-            <div className="flex flex-wrap gap-x-2.5 gap-y-1">
-              {detail.major_companies.map((company) => (
-                <Link key={company.key} href={at({ kind: "company", key: company.key })} scroll={false} className="inline-flex items-center gap-1 text-xs text-ink-2 hover:text-primary">
-                  <span aria-hidden className="size-1.5 rounded-full" style={{ background: RELATION_META[company.relation].color }} />
-                  {company.label}
-                </Link>
-              ))}
-            </div>
-          </Section>
-        ) : null}
-
-        {detail.signal_types.length ? (
-          <Section title="신호 유형">
-            <Bars rows={detail.signal_types} label={(key) => SIGNAL_LABEL[key] ?? key} total={current} />
-          </Section>
-        ) : null}
-
-        {current ? (
-          <Section title="지역 · 처음 보도된 순서">
-            <Bars
-              rows={REGIONS.filter((r) => topic.regions[r]).map((r) => ({ key: r, count: topic.regions[r] }))}
-              label={(key) => REGION_LABEL[key as Region] ?? key}
-              total={current}
-            />
-            {firstSeen.length > 1 ? (
-              <ol className="mt-2 flex flex-wrap items-center gap-x-1 gap-y-1 text-xs text-ink-2">
-                {firstSeen.map(([region, at], i) => (
-                  <li key={region} className="flex items-center gap-1">
-                    {i ? <span className="text-muted-foreground">→</span> : null}
-                    <span className={cn("rounded-full px-1.5 py-px", region === "kr" ? "bg-primary/12 font-semibold text-primary" : "bg-muted")}>
-                      {REGION_LABEL[region]} {i ? `+${((Date.parse(at) - Date.parse(firstSeen[0][1])) / 86_400_000).toFixed(1)}일` : formatDateTime(at).split(" ")[0]}
+            {impactTotal ? (
+              <Section title="영향 분류">
+                <div className="flex h-3 gap-0.5 overflow-hidden rounded-[3px]">
+                  {(["opportunity", "risk", "watch"] as const).map((impact) =>
+                    topic.impacts[impact] ? (
+                      <span key={impact} data-tip={`${IMPACT_LABEL[impact]}\n${topic.impacts[impact]}건`} style={{ flex: topic.impacts[impact], background: `var(--impact-${impact})` }} />
+                    ) : null,
+                  )}
+                </div>
+                <p className="mt-1.5 flex gap-3 text-xs text-muted-foreground">
+                  {(["opportunity", "risk", "watch"] as const).map((impact) => (
+                    <span key={impact}>
+                      {IMPACT_LABEL[impact]} <b className="text-foreground tabular-nums">{Math.round((topic.impacts[impact] / impactTotal) * 100)}%</b>
                     </span>
-                  </li>
-                ))}
-              </ol>
+                  ))}
+                </p>
+              </Section>
             ) : null}
-          </Section>
-        ) : null}
 
-        <Section title="대표 이슈">
-          {detail.stories.length ? (
-            <ul className="space-y-1.5">
-              {detail.stories.map((story) => (
-                <li key={story.id}>
-                  <Link href={`/items/${story.id}`} className="block rounded-xl border px-3 py-2 text-sm leading-snug transition hover:border-primary/50 hover:bg-muted/40">
-                    {story.title_ko ?? story.title}
-                    <span className="mt-0.5 block text-xs text-muted-foreground">
-                      {TRACK_LABEL[story.track]} · {story.source_name} · {formatRelative(story.occurred_at)}
-                      {story.story && story.story.item_count > 1 ? ` · 보도 ${story.story.item_count}건` : ""}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-sm text-muted-foreground">이 기간에 해당하는 기사가 없습니다.</p>
-          )}
-        </Section>
+            {detail.signal_types.length ? (
+              <Section title="신호 유형">
+                <Bars rows={detail.signal_types} label={(key) => SIGNAL_LABEL[key] ?? key} total={current} />
+              </Section>
+            ) : null}
 
-        <Link href={explore} className={cn("inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline")}>
-          탐색에서 기사 모두 보기 →
-        </Link>
+            {current ? (
+              <Section title="지역 · 처음 보도된 순서">
+                <Bars
+                  rows={REGIONS.filter((r) => topic.regions[r]).map((r) => ({ key: r, count: topic.regions[r] }))}
+                  label={(key) => REGION_LABEL[key as Region] ?? key}
+                  total={current}
+                />
+                {firstSeen.length > 1 ? (
+                  <ol className="mt-2 flex flex-wrap items-center gap-x-1 gap-y-1 text-xs text-ink-2">
+                    {firstSeen.map(([region, at], i) => (
+                      <li key={region} className="flex items-center gap-1">
+                        {i ? <span className="text-muted-foreground">→</span> : null}
+                        <span className={cn("rounded-full px-1.5 py-px", region === "kr" ? "bg-primary/12 font-semibold text-primary" : "bg-muted")}>
+                          {REGION_LABEL[region]} {i ? `+${((Date.parse(at) - Date.parse(firstSeen[0][1])) / 86_400_000).toFixed(1)}일` : formatDateTime(at).split(" ")[0]}
+                        </span>
+                      </li>
+                    ))}
+                  </ol>
+                ) : null}
+              </Section>
+            ) : null}
+
+          </div>
+          <div className="min-w-0 space-y-5">
+            {detail.themes.length ? (
+              <Section title={kind === "field" ? "테마" : "걸쳐 있는 테마"}>
+                <Bars rows={detail.themes.slice(0, 6)} label={(key) => THEME_LABEL[key] ?? key} total={current} />
+                <div className="mt-1.5 flex flex-wrap gap-1.5">
+                  {detail.themes.slice(0, 6).map((theme) => (
+                    <Link key={theme.key} href={at({ kind: "theme", key: theme.key })} scroll={false} className="text-xs text-primary hover:underline">
+                      {THEME_LABEL[theme.key] ?? theme.key} →
+                    </Link>
+                  ))}
+                </div>
+              </Section>
+            ) : null}
+
+            {detail.keywords.length ? (
+              <Section title={kind === "keyword" ? "함께 언급된 기술" : "많이 언급된 기술"}>
+                <div className="flex flex-wrap gap-1.5">
+                  {detail.keywords.map((keyword) => (
+                    <Link
+                      key={keyword.key}
+                      href={at({ kind: "keyword", key: keyword.key })}
+                      scroll={false}
+                      className="rounded-full border bg-background px-2.5 py-0.5 text-xs text-ink-2 transition hover:border-primary hover:text-primary"
+                    >
+                      {keyword.label} <span className="text-muted-foreground tabular-nums">{keyword.count}</span>
+                    </Link>
+                  ))}
+                </div>
+              </Section>
+            ) : null}
+
+            {detail.companies?.length ? (
+              <Section title={kind === "company" ? "함께 언급된 기업" : "많이 언급된 기업"}>
+                <div className="flex flex-wrap gap-1.5">
+                  {detail.companies.map((company) => (
+                    <Link
+                      key={company.key}
+                      href={at({ kind: "company", key: company.key })}
+                      scroll={false}
+                      className="rounded-full border bg-background px-2.5 py-0.5 text-xs text-ink-2 transition hover:border-primary hover:text-primary"
+                    >
+                      {company.label} <span className="text-muted-foreground tabular-nums">{company.count}</span>
+                    </Link>
+                  ))}
+                </div>
+              </Section>
+            ) : null}
+
+            {detail.profile?.themes.length ? (
+              <Section title="주력 테마 (레지스트리)">
+                <div className="flex flex-wrap gap-1.5">
+                  {detail.profile.themes.map((theme) => (
+                    <Link key={theme} href={at({ kind: "theme", key: theme })} scroll={false} className="text-xs text-primary hover:underline">
+                      {THEME_LABEL[theme] ?? theme} →
+                    </Link>
+                  ))}
+                </div>
+              </Section>
+            ) : null}
+
+            {detail.major_companies?.length ? (
+              <Section title="이 테마의 주요 기업 (레지스트리)">
+                <div className="flex flex-wrap gap-x-2.5 gap-y-1">
+                  {detail.major_companies.map((company) => (
+                    <Link key={company.key} href={at({ kind: "company", key: company.key })} scroll={false} className="inline-flex items-center gap-1 text-xs text-ink-2 hover:text-primary">
+                      <span aria-hidden className="size-1.5 rounded-full" style={{ background: RELATION_META[company.relation].color }} />
+                      {company.label}
+                    </Link>
+                  ))}
+                </div>
+              </Section>
+            ) : null}
+
+            <Section title="대표 이슈">
+              {detail.stories.length ? (
+                <ul className="space-y-1.5">
+                  {detail.stories.map((story) => (
+                    <li key={story.id}>
+                      <Link href={`/items/${story.id}`} className="block rounded-xl border px-3 py-2 text-sm leading-snug transition hover:border-primary/50 hover:bg-muted/40">
+                        {story.title_ko ?? story.title}
+                        <span className="mt-0.5 block text-xs text-muted-foreground">
+                          {TRACK_LABEL[story.track]} · {story.source_name} · {formatRelative(story.occurred_at)}
+                          {story.story && story.story.item_count > 1 ? ` · 보도 ${story.story.item_count}건` : ""}
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-muted-foreground">이 기간에 해당하는 기사가 없습니다.</p>
+              )}
+            </Section>
+
+            <Link href={explore} className={cn("inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline")}>
+              탐색에서 기사 모두 보기 →
+            </Link>
+          </div>
+        </div>
       </ChartTips>
     </ViewTransition>
   );

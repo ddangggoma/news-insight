@@ -3,7 +3,8 @@
 A link counts as an article when it stays on the site, is not navigation (tag, category,
 author, login, media files…), carries a headline-length anchor text and looks like an
 article URL (an id or date in the path/query, or a long slug path). `config.link_pattern`
-(regex) narrows it further for noisy sites.
+(regex) narrows it further for noisy sites, and `config.exclude_pattern` (regex or list) drops
+URLs that are not articles.
 """
 
 import re
@@ -14,7 +15,14 @@ from selectolax.parser import HTMLParser
 from news_insight.collect.contracts import CollectContext, CollectorError, CollectResult
 from news_insight.collect.http import fetch_checked
 from news_insight.collect.macros import expand_macros
-from news_insight.collect.pages import Candidate, RobotsGate, complete, decode
+from news_insight.collect.pages import (
+    Candidate,
+    RobotsGate,
+    UrlExclusion,
+    complete,
+    decode,
+    exclusion,
+)
 from news_insight.content.normalize import clean_text
 from news_insight.net.mime import HTML_MIME
 from news_insight.net.safe_fetch import SafeFetcher
@@ -48,6 +56,7 @@ def article_links(
     pattern: str | None,
     drop_query: bool = False,
     selector: str = "a[href]",
+    exclude: UrlExclusion | None = None,
 ) -> list[Candidate]:
     regex = re.compile(pattern) if pattern else None
     best: dict[str, str] = {}
@@ -66,6 +75,8 @@ def article_links(
             (parts.scheme, parts.netloc, parts.path, "" if drop_query else parts.query, "")
         )
         path_query = f"{parts.path}?{parts.query}"
+        if exclude is not None and exclude.search(url):
+            continue
         if parts.path in ("", "/") or MEDIA.search(parts.path) or NAVIGATION.search(path_query):
             continue
         text = clean_text(anchor.text(separator=" ")) or ""
@@ -102,6 +113,7 @@ def collect_auto(fetcher: SafeFetcher, context: CollectContext) -> CollectResult
                 pattern=str(pattern) if pattern else None,
                 drop_query=bool(context.config.get("drop_query")),
                 selector=str(context.config.get("link_selector") or "a[href]"),
+                exclude=exclusion(context.config),
             )
         )
     if not candidates:

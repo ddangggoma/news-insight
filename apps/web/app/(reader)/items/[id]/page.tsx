@@ -10,7 +10,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 export default async function ItemPage({ params }: { params: Promise<{ id: string }> }) {
   const detail = await loadItem((await params).id);
   return (
-    <main className="mx-auto max-w-2xl px-4 py-8 md:px-6">
+    <main className="mx-auto max-w-5xl px-4 py-8 md:px-6">
       <ItemDetailView detail={detail} />
     </main>
   );

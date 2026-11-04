@@ -5,6 +5,7 @@ at most `enrich_limit` per run and only where robots.txt allows the path.
 """
 
 import re
+from collections.abc import Mapping
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
 from typing import Any
@@ -43,6 +44,29 @@ class Candidate:
     # publication date is earlier for anything edited since (2026-10-27: corporate sitemaps
     # showed years-old articles as new)
     modified_date: bool = False
+
+
+class UrlExclusion:
+    """URLs `config.exclude_pattern` rules out: one regex or a list, each searched on its own
+    (so `(?i)` works per pattern)."""
+
+    def __init__(self, patterns: list[re.Pattern[str]]) -> None:
+        self._patterns = patterns
+
+    def search(self, url: str) -> bool:
+        return any(pattern.search(url) for pattern in self._patterns)
+
+
+def exclusion(config: Mapping[str, Any]) -> UrlExclusion | None:
+    """`config.exclude_pattern`: a regex (or a list of them) for URLs that are not articles.
+
+    Sitemaps and crawlers list everything a site publishes: rule and notice pages, CMS demo
+    pages, a copy of every post per language, forum threads. `link_pattern` keeps what
+    matches; this drops what matches, before a page is fetched (2026-11-04 audit)."""
+    raw = config.get("exclude_pattern")
+    texts = [raw] if isinstance(raw, str) else [str(p) for p in raw or []]
+    patterns = [re.compile(text) for text in texts if text]
+    return UrlExclusion(patterns) if patterns else None
 
 
 def decode(response: FetchResponse) -> str:

@@ -119,7 +119,7 @@ export function DealsView({ view, days, kind, company }: { view: DealView; days:
           {view.total ? (
             <>
               <DealTimeline buckets={buckets} unit={unit} series={present} />
-              <Legend className="mt-2" items={present.map((s) => ({ label: DEAL_SERIES_LABEL[s], swatch: DEAL_SERIES_COLOR[s] }))} />
+              <Legend className="mt-2" items={present.map((s) => ({ key: s, label: DEAL_SERIES_LABEL[s], swatch: DEAL_SERIES_COLOR[s] }))} />
             </>
           ) : (
             <p className="py-16 text-center text-sm text-muted-foreground">이 기간에 집계할 거래가 없습니다.</p>
