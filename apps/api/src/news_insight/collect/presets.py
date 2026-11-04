@@ -124,6 +124,7 @@ PRESETS: dict[str, dict[str, Any]] = {
             "id": "id",
             "url": ["primary_location.landing_page_url", "doi", "id"],
             "title": "display_name",
+            "summary_index": "abstract_inverted_index",
             "published_at": "publication_date",
             "author": "authorships.0.author.display_name",
         },
@@ -135,6 +136,7 @@ PRESETS: dict[str, dict[str, Any]] = {
             "id": "DOI",
             "url": "URL",
             "title": "title.0",
+            "summary": "abstract",
             "published_at": "created.date-time",
             "author": "author.0.family",
         },
@@ -146,9 +148,12 @@ PRESETS: dict[str, dict[str, Any]] = {
             "id": "id",
             "url": [],
             "title": "title",
+            "summary": "abstractText",
             "published_at": "firstPublicationDate",
             "author": "authorString",
         },
+        # abstracts come only with resultType=core (2026-10-11: 22 of 25 results had one)
+        "query_overrides": {"resultType": "core"},
         "url_template": "https://europepmc.org/article/{source}/{id}",
         "metrics": {"citations": "citedByCount"},
     },
@@ -200,6 +205,21 @@ PRESETS: dict[str, dict[str, Any]] = {
             "author": "snippet.videoOwnerChannelTitle",
         },
         "url_template": "https://www.youtube.com/watch?v={snippet.resourceId.videoId}",
+        # view counts come from a second call, videos?part=statistics
+        "video_stats": True,
+    },
+    # Hugging Face daily papers (curated, with upvotes); the sitemap source only saw Spaces.
+    "hf_daily_papers": {
+        "list_path": "",
+        "fields": {
+            "id": "paper.id",
+            "url": [],
+            "title": "title",
+            "summary": "summary",
+            "published_at": "publishedAt",
+        },
+        "url_template": "https://huggingface.co/papers/{paper.id}",
+        "metrics": {"upvotes": "paper.upvotes", "comments": "numComments"},
     },
 }
 

@@ -108,3 +108,61 @@ def test_rate_limit_is_retryable() -> None:
         FeedCollector(serving(b"", status=429)).collect(context())
 
     assert (error.value.code, error.value.retryable) == ("rate_limited", True)
+
+
+ZONELESS = b"""<?xml version="1.0"?>
+<rss version="2.0"><channel><title>t</title><link>https://www.example.com</link>
+<description>d</description>
+<item><guid>g-1</guid><link>https://www.example.com/a</link><title>a</title>
+<pubDate>2026-10-02 08:09:31</pubDate></item>
+<item><guid>g-2</guid><link>https://www.example.com/b</link><title>b</title>
+<pubDate>Fri, 02 Oct 2026 08:00:00 +0900</pubDate></item>
+</channel></rss>"""
+
+
+def test_zoneless_dates_are_the_source_local_time() -> None:
+    result = FeedCollector(serving(ZONELESS)).collect(context(config={"timezone": "Asia/Seoul"}))
+
+    zoneless, zoned = result.items
+    assert zoneless.published_at == datetime(2026, 10, 1, 23, 9, 31, tzinfo=UTC)
+    assert zoned.published_at == datetime(2026, 10, 1, 23, 0, tzinfo=UTC)
+
+
+def test_zoneless_dates_stay_utc_without_a_zone() -> None:
+    zoneless, _ = FeedCollector(serving(ZONELESS)).collect(context()).items
+
+    assert zoneless.published_at == datetime(2026, 10, 2, 8, 9, 31, tzinfo=UTC)
+
+
+def test_a_feed_labelled_html_is_read_by_its_body() -> None:
+    # krebsonsecurity.com/feed/ serves valid RSS as text/html (2026-10-29)
+    result = FeedCollector(serving(RICH, content_type="text/html")).collect(context())
+
+    assert [raw.title for raw in result.items] == ["Galaxy S30"]
+
+
+@pytest.mark.parametrize(
+    "page",
+    [
+        b"<!doctype html><html><body>Please accept cookies</body></html>",
+        b'<?xml version="1.0"?><html xmlns="http://www.w3.org/1999/xhtml"><body/></html>',
+    ],
+)
+def test_an_html_page_is_still_a_wrong_content_type(page: bytes) -> None:
+    with pytest.raises(CollectorError) as error:
+        FeedCollector(serving(page, content_type="text/html")).collect(context())
+
+    assert (error.value.code, error.value.retryable) == ("blocked_mime", False)
+
+
+def test_a_source_may_raise_the_size_limit() -> None:
+    big = RICH.replace(b"<title>t</title>", b"<title>t</title>" + b"<!--" + b"x" * 6000 + b"-->")
+    limited = serving(big)
+    limited._max_bytes = 4096  # the default limit, scaled down
+
+    with pytest.raises(CollectorError) as error:
+        FeedCollector(limited).collect(context())
+    assert error.value.code == "blocked_too_large"
+
+    raised = FeedCollector(limited).collect(context(config={"max_bytes": 1_000_000}))
+    assert [raw.title for raw in raised.items] == ["Galaxy S30"]

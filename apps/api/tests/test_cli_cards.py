@@ -85,11 +85,11 @@ def test_cards_run_and_status() -> None:
 
 
 @pytest.mark.parametrize("scheduled", [True, False])
-def test_scheduled_run_pairs_antigravity_with_claude_haiku(
+def test_scheduled_run_pairs_antigravity_with_claude(
     monkeypatch: pytest.MonkeyPatch, scheduled: bool
 ) -> None:
-    """Cards use Antigravity and Claude Haiku only (2026-10-13): Qwen stays out of a scheduled
-    run, also when Claude sits out (quiet hours or the daily cap)."""
+    """Cards use Antigravity and Claude only (2026-10-13; Sonnet since 2026-11-03): Qwen stays
+    out of a scheduled run, also when Claude sits out (quiet hours or the daily cap)."""
     monkeypatch.setattr(cli, "_card_engines", lambda qwen_only: ([Agy()], Qwen()))
     monkeypatch.setattr(cli, "_scheduled_claude", lambda settings: scheduled)
     monkeypatch.setattr(engines, "ClaudeEngine", Claude)
@@ -100,4 +100,45 @@ def test_scheduled_run_pairs_antigravity_with_claude_haiku(
     assert run.exit_code == 0, run.output
     assert "ready=3" in run.output and "qwen=" not in run.output
     assert ("claude=" in run.output) is scheduled
-    assert Claude.models == (["claude-haiku-5-5"] if scheduled else [])
+    assert Claude.models == (["claude-sonnet-5-5"] if scheduled else [])
+
+
+def test_scheduled_claude_has_no_cap_or_quiet_hours_by_default(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # 2026-10-29 (user request): every collected item gets a card, at any hour
+    settings = Settings()
+    assert (settings.card_claude_quiet_hours, settings.card_claude_daily_cap) == ("", 0)
+
+    def no_count() -> None:
+        raise AssertionError("an uncapped run needs no daily count")
+
+    monkeypatch.setattr(cli, "session_scope", no_count)
+    assert cli._scheduled_claude(settings) is True
+
+
+class Spent(Agy):
+    def usage(self) -> Quota:
+        return Quota(weekly=10, five_hour=100)
+
+
+@pytest.mark.parametrize("judge", [True, False])
+def test_story_judge_falls_back_to_claude(monkeypatch: pytest.MonkeyPatch, judge: bool) -> None:
+    """With every Antigravity limit at its reserve the merge judge was skipped (2026-10-30)."""
+    monkeypatch.setattr(cli, "_card_engines", lambda qwen_only: ([Spent(), Spent()], None))
+    monkeypatch.setattr(engines, "ClaudeEngine", Claude)
+    settings = Settings(_env_file=None, card_claude_judge=judge)
+    monkeypatch.setattr(cli, "get_settings", lambda: settings)
+    Claude.models.clear()
+
+    engine = cli._judge_engine()
+
+    assert (engine.name if engine else None) == ("claude" if judge else None)
+    assert Claude.models == (["claude-sonnet-5-5"] if judge else [])
+
+
+def test_story_judge_prefers_antigravity_above_its_reserve(monkeypatch: pytest.MonkeyPatch) -> None:
+    agy = Agy()
+    monkeypatch.setattr(cli, "_card_engines", lambda qwen_only: ([Spent(), agy], None))
+
+    assert cli._judge_engine() is agy

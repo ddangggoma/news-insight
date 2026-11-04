@@ -2,6 +2,7 @@
 
 import news_insight.ask.models  # noqa: F401
 import news_insight.auth.models  # noqa: F401
+import news_insight.benchmarks.models  # noqa: F401
 import news_insight.briefing.models  # noqa: F401
 import news_insight.cards.models  # noqa: F401
 import news_insight.collect.models  # noqa: F401
@@ -16,6 +17,7 @@ import news_insight.reports.models  # noqa: F401
 import news_insight.review.models  # noqa: F401
 import news_insight.signals.models  # noqa: F401
 import news_insight.sources.models  # noqa: F401
+import news_insight.spotlight.models  # noqa: F401
 import news_insight.stories.models  # noqa: F401
 import news_insight.strategy.models  # noqa: F401
 import news_insight.taxonomy.models  # noqa: F401

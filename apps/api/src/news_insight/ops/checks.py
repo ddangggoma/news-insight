@@ -13,17 +13,20 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from news_insight.auth.models import Role, User, UserStatus
+from news_insight.benchmarks.models import BenchmarkSnapshot
 from news_insight.briefing.models import Briefing, BriefingFreeze, BriefingStatus
 from news_insight.briefing.service import failing
 from news_insight.cards.models import CardRun
 from news_insight.cards.service import pending_count
 from news_insight.collect.models import DeadLetter, FetchOutcome, FetchRun
 from news_insight.ops.models import Severity
+from news_insight.spotlight.models import Spotlight, SpotlightStatus
 from news_insight.strategy.models import StrategyRun, StrategyStatus
 
 KST = ZoneInfo("Asia/Seoul")
 FREEZE_DEADLINE = time(4, 55)
 PUBLISH_DEADLINE = time(5, 20)
+SPOTLIGHT_DEADLINE = time(10, 30)  # the writer's last attempt is 10:00; 30 minutes to finish
 COLLECTION_WINDOW = timedelta(hours=1)
 MIN_SUCCESS_RATE = 0.5
 DLQ_LIMIT = 50
@@ -33,6 +36,7 @@ CARD_BACKLOG = 5000
 CARD_FAILURE_RATE = 0.3
 SLOW_WINDOW = timedelta(hours=1)
 SLOW_LIMIT = 5  # responses over 5 s in the last hour
+BENCHMARK_STALE = timedelta(hours=48)  # the collector runs daily at 03:30
 
 
 @dataclass(frozen=True)
@@ -100,6 +104,66 @@ def check_publication(session: Session, *, now: datetime) -> list[Finding]:
                     (run.error or "")[:300],
                 )
             )
+    return findings
+
+
+def check_spotlight(session: Session, *, now: datetime) -> list[Finding]:
+    """The daily Top 10s are written after the briefing; the day is covered once a list is
+    published (the 10:00 attempt publishes the statistical fallback, so a miss here means the job
+    itself did not run)."""
+    local = now.astimezone(KST)
+    if local.time() < SPOTLIGHT_DEADLINE:
+        return []
+    today = local.date()
+    published = session.scalar(
+        select(func.count())
+        .select_from(Spotlight)
+        .where(Spotlight.spotlight_date == today, Spotlight.status == SpotlightStatus.PUBLISHED)
+    )
+    if published:
+        return []
+    return [
+        Finding(
+            "spotlight_missing",
+            Severity.WARNING,
+            f"{today} 주목 받는 목록이 발행되지 않았습니다",
+            "Claude 로그인·한도와 ops/logs/digest.log를 확인하세요.",
+        )
+    ]
+
+
+def check_benchmarks(session: Session, *, now: datetime) -> list[Finding]:
+    """A leaderboard whose newest snapshot is over 48 hours old: the site changed (the
+    collector logs which code) or the job stopped. Artificial Analysis needs a key and is left
+    out without one; a site never collected stays quiet until its first snapshot."""
+    from news_insight.benchmarks.service import SOURCES
+
+    last = dict(
+        session.execute(
+            select(BenchmarkSnapshot.site, func.max(BenchmarkSnapshot.fetched_at)).group_by(
+                BenchmarkSnapshot.site
+            )
+        )
+        .tuples()
+        .all()
+    )
+    findings: list[Finding] = []
+    for module in SOURCES:
+        if module.SITE == "artificial_analysis" and not module.has_key():
+            continue
+        fetched = last.get(module.SITE)
+        if fetched is None or now - fetched <= BENCHMARK_STALE:
+            continue
+        findings.append(
+            Finding(
+                f"benchmark_stale:{module.SITE}",
+                Severity.WARNING,
+                f"{module.TITLE} 벤치마크가 48시간째 갱신되지 않았습니다",
+                f"마지막 수집 {fetched.astimezone(KST):%m-%d %H:%M}. 사이트 구조가 바뀌었거나"
+                "(selector_drift) 접근이 막혔는지 worker 로그의 benchmark 줄을 확인하세요."
+                " 기존 순위는 마지막 정상본 그대로 보입니다.",
+            )
+        )
     return findings
 
 
@@ -368,6 +432,8 @@ def run_checks(
         *check_host(host),
         *check_card_output(session),
         *check_publication(session, now=now),
+        *check_spotlight(session, now=now),
+        *check_benchmarks(session, now=now),
         *check_collection(session, now=now),
         *check_queue(queue_length),
         *check_cards(session, now=now),

@@ -472,3 +472,21 @@ def test_feeds_and_canary_runs_never_count_as_quiet(
         run = collect(db_session, source, StubCollector(ok()), fetcher)
 
         assert run.outcome is FetchOutcome.SUCCESS
+
+
+def test_a_success_closes_open_letters_so_a_later_failure_starts_afresh(
+    db_session: Session, fetcher: SafeFetcher
+) -> None:
+    source = collectable(db_session)
+    forbidden = CollectorError("http_403", "HTTP 403", retryable=False, status_code=403)
+
+    collect(db_session, source, StubCollector(forbidden), fetcher)
+    collect(db_session, source, StubCollector(ok(raw(1))), fetcher, now=NOW + timedelta(hours=1))
+    collect(db_session, source, StubCollector(forbidden), fetcher, now=NOW + timedelta(days=9))
+
+    letters = list(db_session.scalars(select(DeadLetter).order_by(DeadLetter.id)))
+    assert [(letter.resolution, letter.resolved_at) for letter in letters] == [
+        ("recovered", NOW + timedelta(hours=1)),
+        (None, None),
+    ]
+    assert source.status is SourceStatus.CANDIDATE

@@ -182,8 +182,8 @@ def _keyword_ids(
             joined(select(Item.id))
             .where(
                 *ReaderFilters().conditions(),
-                Item.first_seen_at >= since,
-                Item.first_seen_at < until,
+                Item.occurred_at >= since,
+                Item.occurred_at < until,
                 mentions,
             )
             .limit(MATCH_CAP)
@@ -215,8 +215,8 @@ def _company_ids(
             joined(select(Item.id))
             .where(
                 *ReaderFilters().conditions(),
-                Item.first_seen_at >= since,
-                Item.first_seen_at < until,
+                Item.occurred_at >= since,
+                Item.occurred_at < until,
                 or_(*(ItemCard.company_keys.contains([key]) for key in keys)),
             )
             .limit(MATCH_CAP)
@@ -248,7 +248,8 @@ def _semantic(
             text(
                 "SELECT e.item_id, 1 - (e.embedding <=> CAST(:q AS vector))"
                 " FROM card_embeddings e JOIN items i ON i.id = e.item_id"
-                " WHERE i.first_seen_at >= :since AND i.first_seen_at < :until"
+                " WHERE coalesce(i.published_at, i.first_seen_at) >= :since"
+                " AND coalesce(i.published_at, i.first_seen_at) < :until"
                 " ORDER BY e.embedding <=> CAST(:q AS vector) LIMIT :pool"
             ),
             {"q": _literal(vector), "since": since, "until": until, "pool": SEMANTIC_POOL},
@@ -272,7 +273,7 @@ def _cards(session: Session, ids: set[int]) -> list[Card]:
                 Source.name,
                 Source.region,
                 Item.track,
-                Item.first_seen_at,
+                Item.occurred_at,
                 StoryItem.story_id,
                 Story.source_count,
                 ItemCard.relevance,

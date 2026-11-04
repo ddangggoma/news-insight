@@ -158,15 +158,15 @@ def candidates(
     start = now - timedelta(days=days)
     element = func.jsonb_array_elements_text(ItemCard.companies).table_valued("value").alias("c")
     rows = session.execute(
-        select(element.c.value, Item.source_id, Item.first_seen_at)
+        select(element.c.value, Item.source_id, Item.occurred_at)
         .select_from(ItemCard)
         .join(Item, Item.id == ItemCard.item_id)
         .join(element, text("true"))
         .where(
             ItemCard.status == CardStatus.READY,
             ItemCard.scope.in_(RELEVANT_SCOPES),
-            Item.first_seen_at >= start - timedelta(days=lookback_days),
-            Item.first_seen_at < now,
+            Item.occurred_at >= start - timedelta(days=lookback_days),
+            Item.occurred_at < now,
         )
     ).tuples()
     known = set(alias_map(session))
@@ -214,7 +214,7 @@ def mark_backfill(session: Session, *, now: datetime, days: int, apply: bool = T
             ItemCard.scope.in_(RELEVANT_SCOPES),
             func.jsonb_array_length(ItemCard.companies) == 0,
             ItemCard.taxonomy_revision == TAXONOMY_REVISION,
-            Item.first_seen_at >= now - timedelta(days=days),
+            Item.occurred_at >= now - timedelta(days=days),
             fresh_condition(),
         )
     )

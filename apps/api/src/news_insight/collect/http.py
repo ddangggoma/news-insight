@@ -27,10 +27,13 @@ def fetch_checked(
     *,
     allowed_mime: frozenset[str],
     headers: dict[str, str] | None = None,
+    max_bytes: int | None = None,
 ) -> FetchResponse:
     """Return 200/304 responses; raise CollectorError for everything else."""
     try:
-        response = fetcher.fetch(url, allowed_mime=allowed_mime, headers=headers)
+        response = fetcher.fetch(
+            url, allowed_mime=allowed_mime, headers=headers, max_bytes=max_bytes
+        )
     except FetchFailed as exc:
         raise CollectorError(exc.code, str(exc), retryable=True) from exc
     except FetchBlocked as exc:

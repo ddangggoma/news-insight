@@ -13,7 +13,7 @@ STRIP = re.compile(r"[\s\-_·]")
 # Normalised keywords that name no technology: bare numbers and versions ("2026", "3.1",
 # "v3.1"), vulnerability ids ("cve2026109618") and CVSS scores ("cvssv3.1", "cvss9.8").
 # EUVD/CVE bot toots put them on ~18k cards (2026-10-27 audit). Twin of the regex in the
-# `canonical_keyword_keys` SQL function (migration 0042); "v8", "5g" and "cve" stay.
+# `canonical_keyword_keys` SQL function (migration 0047); "v8", "5g" and "cve" stay.
 NOT_A_TECHNOLOGY = r"^([0-9]+(\.[0-9]+)*|v[0-9]+(\.[0-9]+)+|(cve|euvd)[0-9]{8,}|cvss.*[0-9].*)$"
 _NOT_A_TECHNOLOGY = re.compile(NOT_A_TECHNOLOGY)
 

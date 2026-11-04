@@ -1,4 +1,4 @@
-"""Seed a throwaway E2E database with two published briefings (fixtures, not real news).
+"""Seed a throwaway E2E database with published briefings and spotlights (fixtures, not news).
 
 Usage: DATABASE_URL=...news_insight_e2e uv run python scripts/e2e_seed.py
 Refuses to touch a database whose name does not end in `_e2e`.
@@ -31,6 +31,12 @@ from news_insight.sources.enums import (
     ValidationStage,
 )
 from news_insight.sources.models import Source
+from news_insight.spotlight.models import (
+    Spotlight,
+    SpotlightEntry,
+    SpotlightFreeze,
+    SpotlightStatus,
+)
 from news_insight.strategy.models import StrategyRun, StrategyStatus
 from news_insight.strategy.personas import PERSONAS
 from news_insight.taxonomy.catalog import TAXONOMY_REVISION
@@ -283,6 +289,74 @@ def _strategy(day: date, items: list[Item], now: datetime) -> StrategyRun:
     )
 
 
+# (section, rank, stat_rank, key, card index, title, product_name, rank_note, fallback)
+# Yesterday's list shares keys with today's so the page shows NEW, up and down badges.
+SPOTLIGHT_TODAY: list[tuple[str, int, int, str, int, str, str | None, str | None, bool]] = [
+    (
+        "news",
+        1,
+        2,
+        "n-chip",
+        0,
+        "온디바이스 칩 소식이 가장 크게 번졌다",
+        None,
+        "파급력이 커서 통계보다 올림",
+        False,
+    ),
+    ("news", 2, 1, "n-fold", 2, "폴더블 양산 소식이 뒤를 이었다", None, None, False),
+    ("news", 3, 3, "n-matter", 3, "스마트홈 표준 갱신 소식", None, None, True),
+    ("product", 1, 1, "p-tv", 1, "마이크로 RGB TV 공개", "Micro RGB TV", None, False),
+    ("oss", 1, 1, "o-llama", 6, "llama.cpp 모바일 NPU 백엔드 추가", None, None, False),
+]
+SPOTLIGHT_YESTERDAY: list[tuple[str, int, int, str, int, str, str | None, str | None, bool]] = [
+    ("news", 1, 1, "n-fold", 2, "폴더블 양산 소식", None, None, False),
+    ("news", 2, 2, "n-chip", 0, "온디바이스 칩 소식", None, None, False),
+    ("product", 1, 1, "p-tv-old", 1, "전일 제품", "Micro RGB TV", None, False),
+]
+
+
+def _spotlight(
+    day: date,
+    rows: list[tuple[str, int, int, str, int, str, str | None, str | None, bool]],
+    items: list[Item],
+    now: datetime,
+    freeze_id: int,
+) -> tuple[Spotlight, list[SpotlightEntry]]:
+    spotlight = Spotlight(
+        spotlight_date=day,
+        status=SpotlightStatus.PUBLISHED,
+        model="fixture",
+        cost_usd=None,
+        headline=(
+            "오늘은 온디바이스 AI 칩과 폴더블 소식이 화제를 주도했다"
+            if day == TODAY
+            else "전일에는 폴더블 양산 소식이 화제였다"
+        ),
+        benchmark_note="",
+        freeze_id=freeze_id,
+        error=None,
+        generated_at=now,
+    )
+    entries = [
+        SpotlightEntry(
+            section=section,
+            rank=rank,
+            stat_rank=stat_rank,
+            key=key,
+            item_ids=[items[card].id],
+            title_ko=title,
+            product_name=product,
+            summary=f"{title} 요약",
+            why_hot="" if fallback else f"{title}: 여러 매체가 동시에 보도",
+            rank_note=note,
+            metrics={"source_count": 5 - rank},
+            fallback=fallback,
+        )
+        for section, rank, stat_rank, key, card, title, product, note, fallback in rows
+    ]
+    return spotlight, entries
+
+
 def seed(session: Session) -> None:
     sources = {
         key: _source(key, name, track, category, region)
@@ -372,6 +446,22 @@ def seed(session: Session) -> None:
                 published_at=now,
             )
         )
+        # the 주목 받는 page (plan 18): a published list per day, built on the day's items
+        spotlight_freeze = SpotlightFreeze(spotlight_date=day, frozen_at=now, candidates={})
+        session.add(spotlight_freeze)
+        session.flush()
+        spotlight, entries = _spotlight(
+            day,
+            SPOTLIGHT_TODAY if day == TODAY else SPOTLIGHT_YESTERDAY,
+            items,
+            now,
+            spotlight_freeze.id,
+        )
+        session.add(spotlight)
+        session.flush()
+        for entry in entries:
+            entry.spotlight_id = spotlight.id
+        session.add_all(entries)
     session.commit()
 
 

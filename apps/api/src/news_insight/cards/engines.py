@@ -1,5 +1,6 @@
-"""Card engines: Antigravity CLI (metered) with Claude Code (Haiku) alongside, the scheduled pair
-since 2026-10-13; Codex CLI and local Qwen via LM Studio stay available when switched on.
+"""Card engines: Antigravity CLI (metered) with Claude Code alongside (Haiku from 2026-10-13,
+Sonnet since 2026-11-03), the scheduled pair; Codex CLI and local Qwen via LM Studio stay
+available when switched on.
 
 All run without tools and only see public item metadata plus the stored excerpt (D18).
 """
@@ -36,7 +37,9 @@ QUOTA_MARKERS = (
     "exhausted",
     "429",
 )
-USAGE_LINE = re.compile(r"^Gemini Models\t(Weekly|Five Hour) Limit Remaining\t(\d+)%", re.M)
+# `agy /usage` reports one limit per model group: "Gemini Models", "Claude and GPT models", ...
+USAGE_LINE = re.compile(r"^([^\t\n]+)\t(Weekly|Five Hour) Limit Remaining\t(\d+)%", re.M)
+GEMINI_GROUP = "Gemini Models"
 
 
 class EngineError(Exception):
@@ -66,8 +69,13 @@ class Quota:
         return {"weekly": self.weekly, "five_hour": self.five_hour}
 
 
-def parse_usage(text: str) -> Quota:
-    found = {kind: int(value) for kind, value in USAGE_LINE.findall(text)}
+def parse_usage(text: str, group: str = GEMINI_GROUP) -> Quota:
+    """The weekly and five-hour limits left for one model group of `agy /usage`."""
+    found = {
+        kind: int(value)
+        for name, kind, value in USAGE_LINE.findall(text)
+        if name.strip().casefold() == group.casefold()
+    }
     return Quota(weekly=found.get("Weekly"), five_hour=found.get("Five Hour"))
 
 
@@ -100,9 +108,10 @@ def _payload(inputs: list[CardInput] | list[ClassifyInput]) -> str:
 
 
 class AgyEngine:
-    """`agy -p` in an empty directory. Headless mode auto-denies every tool permission."""
+    """`agy -p` in an empty directory. Headless mode auto-denies every tool permission.
 
-    name = "agy"
+    Each Antigravity model group has a limit of its own: "agy" writes with Gemini, "agy-claude"
+    with Claude Sonnet from the "Claude and GPT models" group (2026-10-29, user request)."""
 
     def __init__(
         self,
@@ -111,11 +120,15 @@ class AgyEngine:
         model: str,
         timeout_seconds: int,
         runner: Runner = subprocess.run,
+        name: str = "agy",
+        quota_group: str = GEMINI_GROUP,
     ) -> None:
+        self.name = name
         self._executable = executable
         self._model = model
         self._timeout = timeout_seconds
         self._runner = runner
+        self._quota_group = quota_group
 
     def _run(self, args: list[str]) -> dict[str, Any]:
         with tempfile.TemporaryDirectory(prefix="cards-") as workdir:
@@ -149,7 +162,7 @@ class AgyEngine:
 
     def usage(self) -> Quota:
         envelope = self._run(["-p", "/usage", "--output-format", "json"])
-        return parse_usage(str(envelope.get("response", "")))
+        return parse_usage(str(envelope.get("response", "")), self._quota_group)
 
     def generate(self, inputs: list[CardInput]) -> EngineOutput:
         prompt = f"{card_instructions()}\n입력:\n{_payload(inputs)}"

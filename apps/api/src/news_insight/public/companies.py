@@ -96,7 +96,7 @@ def _activity(
     key = element.c.value
     current = windows[-1]
     assert current.start is not None
-    now_flag = Item.first_seen_at >= current.start
+    now_flag = Item.occurred_at >= current.start
     rows = session.execute(
         joined(
             select(
@@ -300,7 +300,7 @@ def _first_ever(
         return {}
     element = company_element("first")
     rows = session.execute(
-        joined(select(element.c.value, func.min(Item.first_seen_at)))
+        joined(select(element.c.value, func.min(Item.occurred_at)))
         .join(element, true())
         .where(*conditions, element.c.value.in_(keys))
         .group_by(element.c.value)

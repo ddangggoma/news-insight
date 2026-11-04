@@ -16,7 +16,8 @@ What counts as a fact (2026-10-05 audit: 4,638 cards had failed, almost all on f
   1천", "100 million" = "1억", "800K" = "80만";
 - Korean renderings keep the number: "8-bit" → "8비트", "3rd" → "3주년", "7B-Class" → "7B급",
   "COVID-19" → "코로나19", "1H26" → "2026년 상반기";
-- dates and times ("_20240711", "2026 - 07 - 27", "Jul. 30, 2026", "19h00") are not checked.
+- dates and times ("_20240711", "2026 - 07 - 27", "Jul. 30, 2026", "19h00") are not checked,
+  nor the scale of a score ("8.7/10") or a version's "v" ("CVSS v3.1" = "CVSS 3.1").
 """
 
 import re
@@ -74,6 +75,9 @@ EQUIVALENTS = (
     (re.compile(r"^(\d+(?:\.\d+)?)x$", re.IGNORECASE), r"\1배"),
     (re.compile(r"^1H(\d{2})$", re.IGNORECASE), r"\1년상반기"),
     (re.compile(r"^2H(\d{2})$", re.IGNORECASE), r"\1년하반기"),
+    # "CVSS v3.1" → "CVSS 3.1": the version number is the fact (2026-10-29: 40 security
+    # advisories failed and 120 more were kept with a loss on the "v" alone)
+    (re.compile(r"^v(\d+(?:\.\d+)+)$", re.IGNORECASE), r"\1"),
 )
 
 
@@ -81,8 +85,12 @@ def _compact(text: str) -> str:
     return re.sub(r"[\s\-_.,·:/]", "", text).casefold()
 
 
+# the scale of a score ("8.7/10", "4/5"): a Korean card writes "8.7점"
+SCORE_SCALE = re.compile(r"(?<=\d)\s?/\s?(?:5|10|100)(?![\d.,])")
+
+
 def _clean(title: str) -> str:
-    return DATES.sub(" ", REPO.sub("", URL.sub(" ", title)))
+    return SCORE_SCALE.sub(" ", DATES.sub(" ", REPO.sub("", URL.sub(" ", title))))
 
 
 def _random_id(token: str) -> bool:

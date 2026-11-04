@@ -14,7 +14,7 @@ const item = (label: string) => READER_NAV.find((entry) => entry.label === label
 
 describe("reader menu", () => {
   it("starts with the daily briefing and leaves dossiers, collections and questions out", () => {
-    expect(READER_NAV.map((entry) => entry.label)).toEqual(["데일리 브리핑", "탐색", "레이더", "투자·제휴", "특허", "로드맵", "동향 보고서 작성"]);
+    expect(READER_NAV.map((entry) => entry.label)).toEqual(["데일리 브리핑", "주목 받는", "탐색", "레이더", "투자·제휴", "특허", "로드맵", "동향 보고서 작성"]);
     expect(READER_NAV.some((entry) => ["/dossiers", "/collections", "/ask"].includes(entry.href))).toBe(false);
   });
 
@@ -28,15 +28,26 @@ describe("reader menu", () => {
     expect(isReaderActive("/", item("데일리 브리핑"))).toBe(false);
   });
 
+  it("lights 주목 받는 for the page and its tabs", () => {
+    expect(isReaderActive("/spotlight", item("주목 받는"))).toBe(true);
+    expect(isReaderActive("/spotlight/x", item("주목 받는"))).toBe(true);
+    expect(isReaderActive("/spotlights", item("주목 받는"))).toBe(false);
+  });
+
   it("lights 동향 보고서 작성 for the list and a report", () => {
     expect(isReaderActive("/reports", item("동향 보고서 작성"))).toBe(true);
     expect(isReaderActive("/reports/12", item("동향 보고서 작성"))).toBe(true);
   });
 
-  it("shows the same seven entries at the bottom on phones", () => {
+  it("shows the same entries at the bottom on phones, with short labels where the full ones would wrap", () => {
     render(<BottomNav />);
     const links = within(screen.getByRole("navigation", { name: "하단 메뉴" })).getAllByRole("link");
-    expect(links.map((link) => link.textContent)).toEqual(READER_NAV.map((entry) => entry.label));
+    expect(links.map((link) => link.textContent)).toEqual(["브리핑", "주목", "탐색", "레이더", "투자·제휴", "특허", "로드맵", "보고서"]);
+    expect(links.map((link) => link.textContent)).toEqual(READER_NAV.map((entry) => entry.short ?? entry.label));
+    // the full label stays the accessible name
+    expect(links.map((link) => link.getAttribute("href"))).toEqual(READER_NAV.map((entry) => entry.href));
+    expect(screen.getByRole("link", { name: "데일리 브리핑" })).toHaveTextContent("브리핑");
+    expect(screen.getByRole("link", { name: "동향 보고서 작성" })).toHaveTextContent("보고서");
     expect(screen.getByRole("link", { name: "로드맵" })).toHaveAttribute("aria-current", "page");
   });
 });

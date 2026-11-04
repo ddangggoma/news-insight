@@ -37,6 +37,8 @@ export interface ReaderItem {
   region: Region;
   published_at: string | null;
   first_seen_at: string;
+  /** the article's date: published_at when plausible, else first_seen_at */
+  occurred_at: string;
   metrics: Record<string, number>;
   story: StoryBrief | null;
   companies?: CompanyRef[];
@@ -58,6 +60,7 @@ export interface LinkedItem {
   track: Track;
   source_name: string;
   first_seen_at: string;
+  occurred_at: string;
   ref: string | null;
 }
 

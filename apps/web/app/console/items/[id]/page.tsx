@@ -11,6 +11,15 @@ import { api, ApiError } from "@/lib/api";
 import { CATEGORY_LABEL, formatDateTime, formatNumber, REGION_LABEL } from "@/lib/format";
 import type { ItemDetail } from "@/lib/types";
 
+const ENGINE_LABEL: Record<string, string> = {
+  agy: "Antigravity",
+  "agy-claude": "Antigravity Claude",
+  claude: "Claude",
+  codex: "Codex",
+  qwen: "로컬 Qwen",
+  reuse: "재사용",
+};
+
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   return { title: `항목 #${id}` };
@@ -63,7 +72,7 @@ export default async function ItemPage({ params }: { params: Promise<{ id: strin
                 <Badge key={keyword} variant="secondary">#{keyword}</Badge>
               ))}
               <span className="ml-auto text-xs text-muted-foreground">
-                {detail.card.engine === "agy" ? "Antigravity" : "로컬 Qwen"} · {formatDateTime(detail.card.generated_at)}
+                {ENGINE_LABEL[detail.card.engine ?? ""] ?? detail.card.engine ?? "—"} · {formatDateTime(detail.card.generated_at)}
               </span>
             </div>
           </CardContent>

@@ -1,13 +1,17 @@
-"""Deal views (plan 16 #8): counts and rough sizes by kind and month, the most active
-parties, the pairs that deal with each other, and the list with its evidence cards."""
+"""Deal views (plan 16 #8): counts and rough sizes by kind, week and month, the most active
+parties, the pairs that deal with each other, and the list with its evidence cards.
+
+A deal is dated by the day it was announced; one without that date falls back to its
+evidence article's date (published, or first seen when the publisher's date is missing or
+later than that)."""
 
 import math
-from collections import Counter, defaultdict
+from collections import Counter
 from datetime import date, datetime, timedelta
 from typing import Any
 
 from pydantic import BaseModel
-from sqlalchemy import func, or_, select
+from sqlalchemy import and_, func, or_, select
 from sqlalchemy.orm import Session
 
 from news_insight.cards.models import ItemCard
@@ -17,6 +21,10 @@ from news_insight.deals.extract import UNDISCLOSED
 from news_insight.deals.models import Deal
 from news_insight.public.periods import KST
 from news_insight.sources.models import Source
+
+# A dollar size this large is almost always a misread (a valuation or market cap taken for the
+# amount raised): such deals are listed and flagged but left out of every sum and average.
+OUTLIER_USD = 50e9
 
 
 class KindCount(BaseModel):
@@ -29,6 +37,23 @@ class KindCount(BaseModel):
 class MonthCount(BaseModel):
     month: str
     counts: dict[str, int]
+
+
+class WeekCount(BaseModel):
+    week: str  # the Monday that starts it, YYYY-MM-DD
+    counts: dict[str, int]
+    usd: float  # rough sum of the deals with a known amount
+
+
+class DealStats(BaseModel):
+    sized: int  # deals with a known amount
+    usd: float  # their rough sum
+    median_usd: float | None
+    mean_usd: float | None
+    max_usd: float | None
+    companies: int  # distinct named parties (uncapped, unlike `parties`)
+    pairs: int  # distinct actor -> counterparty pairs
+    outliers: int = 0  # amounts >= OUTLIER_USD, left out of the sums above
 
 
 class Party(BaseModel):
@@ -66,6 +91,8 @@ class DealOut(BaseModel):
     source: str
     url: str
     reports: int = 1  # cards reporting the same deal
+    outlier: bool = False  # amount_usd >= OUTLIER_USD: likely a misread, not summed
+    occurred_on: date | None = None  # announced_on, or the evidence article's date
 
 
 class DealView(BaseModel):
@@ -76,6 +103,9 @@ class DealView(BaseModel):
     parties: list[Party]
     pairs: list[Pair]
     deals: list[DealOut]
+    weeks: list[WeekCount] = []
+    stats: DealStats | None = None
+    top_usd: list[Party] = []  # the parties with the largest disclosed sums
 
 
 def _ident(name: str | None, key: str | None) -> str:
@@ -93,8 +123,11 @@ def same_deal_key(deal: Deal) -> tuple[Any, ...]:
     return (deal.kind, target, size, month)
 
 
-def dedupe(rows: list[tuple[Deal, str, str, str]]) -> list[tuple[Deal, str, str, str, int]]:
-    groups: dict[tuple[Any, ...], list[tuple[Deal, str, str, str]]] = {}
+Row = tuple[Any, ...]  # (Deal, title, source, url, ...) with the deal first
+
+
+def dedupe(rows: list[Row]) -> list[Row]:
+    groups: dict[tuple[Any, ...], list[Row]] = {}
     for row in rows:
         groups.setdefault(same_deal_key(row[0]), []).append(row)
     out = []
@@ -104,6 +137,48 @@ def dedupe(rows: list[tuple[Deal, str, str, str]]) -> list[tuple[Deal, str, str,
         out.append((*lead, len(members)))
     out.sort(key=lambda r: (r[0].announced_on or date.min, r[0].id), reverse=True)
     return out
+
+
+def item_day(published_at: datetime | None, first_seen_at: datetime | None) -> date | None:
+    """An evidence article's KST date: when it was published, unless that is missing or
+    later than when it was first seen (a bad publisher date)."""
+    moment = published_at
+    if moment is None or (first_seen_at is not None and moment > first_seen_at):
+        moment = first_seen_at
+    return moment.astimezone(KST).date() if moment is not None else None
+
+
+def deal_day(
+    deal: Deal, published_at: datetime | None, first_seen_at: datetime | None
+) -> date | None:
+    return deal.announced_on or item_day(published_at, first_seen_at)
+
+
+def week_start(day: date) -> date:
+    return day - timedelta(days=day.weekday())
+
+
+def _month_keys(since: date, today: date) -> list[str]:
+    keys, year, month = [], since.year, since.month
+    while (year, month) <= (today.year, today.month):
+        keys.append(f"{year:04d}-{month:02d}")
+        year, month = (year + 1, 1) if month == 12 else (year, month + 1)
+    return keys
+
+
+def counted_usd(deal: Deal) -> float:
+    """The dollar size that enters sums: 0 when unknown or an outlier."""
+    if not deal.amount_usd or deal.amount_usd >= OUTLIER_USD:
+        return 0
+    return deal.amount_usd
+
+
+def _median(values: list[float]) -> float | None:
+    if not values:
+        return None
+    ordered = sorted(values)
+    mid = len(ordered) // 2
+    return ordered[mid] if len(ordered) % 2 else (ordered[mid - 1] + ordered[mid]) / 2
 
 
 def _label(name: str | None, key: str | None, infos: dict[str, Any]) -> str:
@@ -120,15 +195,29 @@ def deal_view(
     kind: str | None = None,
     company: str | None = None,
 ) -> DealView:
-    since = (now.astimezone(KST) - timedelta(days=days)).date()
-    conditions = [Deal.announced_on >= since]
+    today = now.astimezone(KST).date()
+    since = today - timedelta(days=days)
+    since_at = datetime.combine(since, datetime.min.time(), tzinfo=KST)
+    conditions = [
+        or_(
+            Deal.announced_on >= since,
+            and_(Deal.announced_on.is_(None), Item.first_seen_at >= since_at),
+        )
+    ]
     if kind:
         conditions.append(Deal.kind == kind)
     if company:
         conditions.append(or_(Deal.actor_key == company, Deal.counterparty_key == company))
     rows = (
         session.execute(
-            select(Deal, func.coalesce(ItemCard.title_ko, Item.title), Source.name, Item.url)
+            select(
+                Deal,
+                func.coalesce(ItemCard.title_ko, Item.title),
+                Source.name,
+                Item.url,
+                Item.published_at,
+                Item.first_seen_at,
+            )
             .join(Item, Item.id == Deal.item_id)
             .join(Source, Source.id == Item.source_id)
             .outerjoin(ItemCard, ItemCard.item_id == Item.id)
@@ -143,17 +232,36 @@ def deal_view(
     infos = info_for(session, keys)
 
     kinds: dict[str, KindCount] = {}
-    months: dict[str, Counter[str]] = defaultdict(Counter)
+    months: dict[str, Counter[str]] = {key: Counter() for key in _month_keys(since, today)}
+    weeks: dict[date, WeekCount] = {}
+    monday = week_start(since)
+    while monday <= today:
+        weeks[monday] = WeekCount(week=monday.isoformat(), counts={}, usd=0)
+        monday += timedelta(days=7)
+    amounts: list[float] = []
+    outliers = 0
     parties: dict[str, Party] = {}
     pairs: dict[tuple[str, str], Pair] = {}
+    days_of = {
+        deal.id: deal_day(deal, published, seen) for deal, _, _, _, published, seen, _ in merged
+    }
     for deal, *_ in merged:
         k = kinds.setdefault(deal.kind, KindCount(kind=deal.kind, count=0, usd=0, sized=0))
         k.count += 1
-        if deal.amount_usd:
-            k.usd += deal.amount_usd
+        size = counted_usd(deal)
+        if size:
+            k.usd += size
             k.sized += 1
-        if deal.announced_on:
-            months[deal.announced_on.strftime("%Y-%m")][deal.kind] += 1
+            amounts.append(size)
+        elif deal.amount_usd:
+            outliers += 1
+        day = days_of[deal.id]
+        if day:
+            months.setdefault(day.strftime("%Y-%m"), Counter())[deal.kind] += 1
+            week = weeks.get(week_start(day))
+            if week is not None:
+                week.counts[deal.kind] = week.counts.get(deal.kind, 0) + 1
+                week.usd += size
         sides = [] if deal.actor == UNDISCLOSED else [(deal.actor, deal.actor_key)]
         if deal.counterparty:
             sides.append((deal.counterparty, deal.counterparty_key))
@@ -163,7 +271,7 @@ def deal_view(
                 key or label.lower(), Party(name=label, key=key, count=0, usd=0, kinds={})
             )
             party.count += 1
-            party.usd += deal.amount_usd or 0
+            party.usd += size
             party.kinds[deal.kind] = party.kinds.get(deal.kind, 0) + 1
         if deal.counterparty and deal.actor != UNDISCLOSED:
             a = _label(deal.actor, deal.actor_key, infos)
@@ -183,12 +291,13 @@ def deal_view(
             pair.count += 1
             if deal.kind not in pair.kinds:
                 pair.kinds.append(deal.kind)
+    ranked = sorted(parties.values(), key=lambda p: (p.count, p.usd), reverse=True)
     return DealView(
         days=days,
         total=len(merged),
         kinds=sorted(kinds.values(), key=lambda k: k.count, reverse=True),
         months=[MonthCount(month=m, counts=dict(c)) for m, c in sorted(months.items())],
-        parties=sorted(parties.values(), key=lambda p: (p.count, p.usd), reverse=True)[:15],
+        parties=ranked[:15],
         pairs=sorted(pairs.values(), key=lambda p: p.count, reverse=True)[:15],
         deals=[
             DealOut(
@@ -209,7 +318,21 @@ def deal_view(
                 source=source,
                 url=url,
                 reports=reports,
+                occurred_on=days_of[deal.id],
+                outlier=bool(deal.amount_usd and deal.amount_usd >= OUTLIER_USD),
             )
-            for deal, title, source, url, reports in merged[:100]
+            for deal, title, source, url, _, _, reports in merged[:100]
         ],
+        weeks=list(weeks.values()),
+        stats=DealStats(
+            sized=len(amounts),
+            usd=sum(amounts),
+            median_usd=_median(amounts),
+            mean_usd=sum(amounts) / len(amounts) if amounts else None,
+            max_usd=max(amounts) if amounts else None,
+            companies=len(parties),
+            pairs=len(pairs),
+            outliers=outliers,
+        ),
+        top_usd=sorted((p for p in ranked if p.usd > 0), key=lambda p: p.usd, reverse=True)[:8],
     )

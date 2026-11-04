@@ -13,6 +13,10 @@ FEED_MIME = frozenset(
 )
 JSON_MIME = frozenset({"application/json", "application/activity+json", "application/ld+json"})
 HTML_MIME = frozenset({"text/html", "application/xhtml+xml"})
+CSV_MIME = frozenset({"text/csv", "application/csv", "text/plain"})
+JAVASCRIPT_MIME = frozenset(
+    {"text/javascript", "application/javascript", "application/x-javascript"}
+)
 EXPECTED_MIME: dict[AccessMethod, frozenset[str]] = {
     AccessMethod.FEED: FEED_MIME,
     AccessMethod.JSON_API: JSON_MIME,

@@ -55,6 +55,11 @@
     --color-viz-oss: var(--viz-oss);
     --color-state-hot: var(--state-hot);
     --color-state-cool: var(--state-cool);
+    --color-cat-1: var(--cat-1);
+    --color-cat-2: var(--cat-2);
+    --color-cat-3: var(--cat-3);
+    --color-cat-4: var(--cat-4);
+    --color-cat-other: var(--cat-other);
     --color-stage-research: var(--stage-research);
     --color-stage-diffusion: var(--stage-diffusion);
     --color-stage-market: var(--stage-market);
@@ -113,6 +118,14 @@
     --stage-research: oklch(0.72 0.1 300);
     --stage-diffusion: oklch(0.58 0.14 300);
     --stage-market: oklch(0.45 0.17 300);
+    /* categorical slots 1-4 of the dataviz reference palette (deal kinds, patent sources),
+       validated in this order: adjacent CVD ΔE >= 9.1 light / 8.4 dark. Slots 3-4 sit below
+       3:1 on the light card, so every chart using them labels its marks in text too. */
+    --cat-1: #2a78d6;
+    --cat-2: #eb6834;
+    --cat-3: #1baf7a;
+    --cat-4: #eda100;
+    --cat-other: #9aa3b0;
     --chart-1: oklch(0.585 0.233 277.12);
     --chart-2: oklch(0.696 0.17 162.48);
     --chart-3: oklch(0.746 0.16 232.66);
@@ -172,6 +185,11 @@
     --stage-research: oklch(0.52 0.15 300);
     --stage-diffusion: oklch(0.66 0.14 300);
     --stage-market: oklch(0.8 0.1 300);
+    --cat-1: #3987e5;
+    --cat-2: #d95926;
+    --cat-3: #199e70;
+    --cat-4: #c98500;
+    --cat-other: #6b7380;
     --chart-1: oklch(0.673 0.182 276.94);
     --chart-2: oklch(0.765 0.177 163.22);
     --chart-3: oklch(0.789 0.154 211.53);

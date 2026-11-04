@@ -43,6 +43,10 @@ class Settings(BaseSettings):
     claude_cli: str = "claude"
     digest_model: str = "opus"
     digest_timeout_seconds: int = 900
+    # the daily spotlight Top 10s (plan 18): Opus writes them on the host after the briefing; the
+    # id is pinned so a moved `opus` alias cannot change the picks
+    spotlight_model: str = "claude-opus-5-5"
+    spotlight_timeout_seconds: int = 900
     # trend reports on request (plan 17 R1): written on the host with the Claude CLI
     report_model: str = "opus"
     report_timeout_seconds: int = 1500
@@ -58,6 +62,14 @@ class Settings(BaseSettings):
     card_agy_min_five_hour: int = 2
     card_agy_batch: int = 100
     card_agy_parallel: int = 3
+    # Antigravity's Claude Sonnet after its Gemini models, down to the same 10 % weekly reserve
+    # of its own "Claude and GPT models" limit (2026-10-29, user request). Measured that day:
+    # 80 items in 102 s cost 5 % of the week and 10 % of five hours, 25 items 3 % and 6 % (the
+    # instructions dominate small batches), so batches are large and the five-hour limit paces it
+    card_agy_claude: bool = True
+    card_agy_claude_model: str = "claude-sonnet-5-5-medium"
+    card_agy_claude_batch: int = 100
+    card_agy_claude_parallel: int = 2
     # Cards use Antigravity and Claude Haiku only (2026-10-13, user request): Codex and the local
     # Qwen are off by default. Codex stays available with CARD_CODEX_ENABLED, Qwen with
     # `cards run --qwen-only` or CARD_QWEN_FALLBACK.
@@ -70,15 +82,19 @@ class Settings(BaseSettings):
     # Claude Code for cards: Haiku runs lanes next to Antigravity in every scheduled run and
     # carries on alone once Antigravity is down to its reserve (2026-10-13, user request).
     # Scheduled runs use it while `card_claude` is on (or before `card_claude_until`, ISO time),
-    # outside the quiet hours (KST, the briefing's Claude budget) and below a daily card cap;
-    # `cards run --claude` ignores all three.
+    # outside the quiet hours (KST) and below a daily card cap (0: none); `cards run --claude`
+    # ignores all three. Since 2026-10-29 (user request) there are no quiet hours and no cap:
+    # every collected item gets a card, and Claude stops only when it reports its limit.
+    # Sonnet replaced Haiku on 2026-11-03 (user request); it shares the Claude login and limit
+    # with the 05:00 digest (Opus).
     card_claude: bool = True
     card_claude_until: str = ""
-    card_claude_model: str = "claude-haiku-5-5"
+    card_claude_model: str = "claude-sonnet-5-5"
     card_claude_batch: int = 12
-    card_claude_parallel: int = 3
-    card_claude_quiet_hours: str = "3-11"
-    card_claude_daily_cap: int = 1500
+    card_claude_parallel: int = 8
+    card_claude_quiet_hours: str = ""
+    card_claude_daily_cap: int = 0
+    card_claude_judge: bool = True  # story-merge judge when Antigravity is at its reserve
     card_qwen_batch: int = 5
     # Qwen for cards when Claude is not in the run (quiet hours, daily cap): off since
     # 2026-10-13; `card_qwen_alongside` also runs its lanes next to Antigravity

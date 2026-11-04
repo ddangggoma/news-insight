@@ -78,6 +78,17 @@ export async function updateTechnology(
   return { ok: true };
 }
 
+export async function linkModelAlias(alias: string, modelName: string, org: string): Promise<{ ok: boolean; error?: string }> {
+  await requireAdmin();
+  try {
+    await api.post("/api/admin/benchmarks/aliases", { alias, model_name: modelName, org: org || null });
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : String(error) };
+  }
+  revalidatePath("/console/benchmarks");
+  return { ok: true };
+}
+
 export async function addWatch(kind: string, value: string): Promise<{ ok: boolean; error?: string }> {
   await requireAdmin();
   try {

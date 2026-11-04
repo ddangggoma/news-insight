@@ -88,7 +88,7 @@ def _bucket(windows: list[Window]) -> Any:
     if len(windows) == 1:
         return literal(0)
     return case(
-        *((Item.first_seen_at < w.end, i) for i, w in enumerate(windows[:-1])),
+        *((Item.occurred_at < w.end, i) for i, w in enumerate(windows[:-1])),
         else_=len(windows) - 1,
     )
 
@@ -114,14 +114,14 @@ def _paced(windows: list[Window], cutoffs: list[datetime] | None) -> ColumnEleme
     if cutoffs is None:
         return true()
     bucket = _bucket(windows)
-    return Item.first_seen_at < case(
+    return Item.occurred_at < case(
         *((bucket == i, literal(c)) for i, c in enumerate(cutoffs[:-1])), else_=literal(cutoffs[-1])
     )
 
 
 def _span(windows: list[Window]) -> list[ColumnElement[bool]]:
     assert windows[0].start is not None
-    return [Item.first_seen_at >= windows[0].start, Item.first_seen_at < windows[-1].end]
+    return [Item.occurred_at >= windows[0].start, Item.occurred_at < windows[-1].end]
 
 
 def _dimension(dimension: str) -> tuple[Any, Any, Any]:
@@ -194,7 +194,7 @@ def _series(
         *(items.filter(bucket == last, ItemCard.impact == impact) for impact in IMPACTS),
         *(items.filter(bucket == last, Source.region == r) for r in Region),
         items.filter(bucket == last, Source.category == OFFICIAL),
-        *(func.min(Item.first_seen_at).filter(Source.region == r) for r in Region),
+        *(func.min(Item.occurred_at).filter(Source.region == r) for r in Region),
     ]
     statement = joined(select(*columns))
     if join is not None:
@@ -252,7 +252,7 @@ def _capped_rows(
     session: Session, conditions: list[ColumnElement[bool]], window: Window, dimension: str | None
 ) -> list[tuple[str | None, int, str, int]]:
     """(key, source, track, reports) per source and KST day in the window."""
-    day = _kst_day(Item.first_seen_at)
+    day = _kst_day(Item.occurred_at)
     if dimension is None:
         statement = joined(
             select(null(), Item.source_id, Item.track, func.count(distinct(Item.id)))
@@ -487,11 +487,11 @@ def _arrivals(
     refs: bool = False,
 ) -> dict[str, dict[str, datetime]]:
     """chain key → track → first time that track reported on it (up to the window end)."""
-    statement = joined(select(chain, Item.track, func.min(Item.first_seen_at)))
+    statement = joined(select(chain, Item.track, func.min(Item.occurred_at)))
     if refs:
         statement = statement.join(ItemRef, ItemRef.item_id == Item.id)
     rows = session.execute(
-        statement.where(*conditions, chain.is_not(None), Item.first_seen_at < window.end).group_by(
+        statement.where(*conditions, chain.is_not(None), Item.occurred_at < window.end).group_by(
             chain, Item.track
         )
     ).tuples()
@@ -548,7 +548,7 @@ def _first_ever(
     element = keyword_element("kw")
     key = element.c.value
     rows = session.execute(
-        joined(select(key, func.min(Item.first_seen_at)))
+        joined(select(key, func.min(Item.occurred_at)))
         .join(element, true())
         .where(*conditions, key.in_(keys))
         .group_by(key)
@@ -659,10 +659,10 @@ def _calendar(
     span = (end - first.astimezone(KST).date()).days
     start = end - timedelta(days=min(max(span, CALENDAR_DAYS[0]), CALENDAR_DAYS[1]))
     since = datetime.combine(start, datetime.min.time(), tzinfo=KST)
-    day = _kst_day(Item.first_seen_at)
+    day = _kst_day(Item.occurred_at)
     rows = session.execute(
         joined(select(day, ItemCard.field, func.count(distinct(Item.id))))
-        .where(*conditions, Item.first_seen_at >= since, Item.first_seen_at < windows[-1].end)
+        .where(*conditions, Item.occurred_at >= since, Item.occurred_at < windows[-1].end)
         .group_by(day, ItemCard.field)
     ).tuples()
     length = (end - start).days
@@ -703,7 +703,7 @@ def _spike_keywords(
     """Keywords most above their average day over the previous four weeks."""
     element = keyword_element("kw")
     key = element.c.value
-    on = _kst_day(Item.first_seen_at)
+    on = _kst_day(Item.occurred_at)
     begin = datetime.combine(day - timedelta(days=ANOMALY_BASELINE), datetime.min.time(), KST)
     finish = datetime.combine(day + timedelta(days=1), datetime.min.time(), KST)
     rows = session.execute(
@@ -715,7 +715,7 @@ def _spike_keywords(
             )
         )
         .join(element, true())
-        .where(*conditions, Item.first_seen_at >= begin, Item.first_seen_at < finish)
+        .where(*conditions, Item.occurred_at >= begin, Item.occurred_at < finish)
         .group_by(key)
     ).tuples()
     lifted = [

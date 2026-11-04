@@ -1,18 +1,21 @@
 """Operator CLI: `news-insight sources seed|validate|promote|report`."""
 
 import fcntl
+import json
+import logging
 import sys
 import tempfile
 from collections import Counter
-from datetime import UTC, date, datetime, timedelta
+from datetime import UTC, date, datetime, time, timedelta
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Any
 from zoneinfo import ZoneInfo
 
 import typer
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from news_insight.benchmarks.service import collect_all
 from news_insight.cards.engines import (
     AgyEngine,
     CardEngine,
@@ -88,6 +91,8 @@ app.add_typer(collect_app, name="collect")
 app.add_typer(dlq_app, name="dlq")
 trends_app = typer.Typer(help="Signal trends from metric snapshots", no_args_is_help=True)
 app.add_typer(trends_app, name="trends")
+items_app = typer.Typer(help="Stored items: article dates", no_args_is_help=True)
+app.add_typer(items_app, name="items")
 daily_app = typer.Typer(
     help="Daily briefing: 04:40 freeze, 05:00 gated immutable publication", no_args_is_help=True
 )
@@ -101,7 +106,7 @@ stories_app = typer.Typer(
 )
 app.add_typer(stories_app, name="stories")
 cards_app = typer.Typer(
-    help="Korean cards: Antigravity CLI with Claude Haiku alongside",
+    help="Korean cards: Antigravity CLI with Claude Sonnet alongside",
     no_args_is_help=True,
 )
 app.add_typer(cards_app, name="cards")
@@ -128,6 +133,15 @@ reports_app = typer.Typer(
     no_args_is_help=True,
 )
 app.add_typer(reports_app, name="reports")
+spotlight_app = typer.Typer(
+    help="Daily Top 10s per section chosen by Claude Opus (plan 18)", no_args_is_help=True
+)
+app.add_typer(spotlight_app, name="spotlight")
+benchmarks_app = typer.Typer(
+    help="AI model benchmark snapshots from the public leaderboards (plan 18)",
+    no_args_is_help=True,
+)
+app.add_typer(benchmarks_app, name="benchmarks")
 
 KST = ZoneInfo("Asia/Seoul")
 FAILED_OUTCOMES = (FetchOutcome.FAILED, FetchOutcome.DEAD_LETTERED)
@@ -150,9 +164,16 @@ def _claude() -> ClaudeClient:
     )
 
 
+def _spotlight_claude() -> ClaudeClient:
+    settings = get_settings()
+    return ClaudeCli(
+        executable=settings.claude_cli, timeout_seconds=settings.spotlight_timeout_seconds
+    )
+
+
 def _card_engines(qwen_only: bool) -> tuple[list[MeteredEngine], QwenEngine]:
-    """Metered engines in order of use (Antigravity; Codex first when enabled) and the local
-    Qwen for `--qwen-only`."""
+    """Metered engines in order of use (Antigravity's Gemini, then its Claude Sonnet; Codex first
+    when enabled) and the local Qwen for `--qwen-only`."""
     settings = get_settings()
     metered: list[MeteredEngine] = []
     if not qwen_only and settings.card_codex_enabled:
@@ -173,6 +194,16 @@ def _card_engines(qwen_only: bool) -> tuple[list[MeteredEngine], QwenEngine]:
                 timeout_seconds=settings.card_timeout_seconds,
             )
         )
+    if not qwen_only and settings.card_agy_claude:
+        metered.append(
+            AgyEngine(
+                executable=settings.agy_cli,
+                model=settings.card_agy_claude_model,
+                timeout_seconds=settings.card_timeout_seconds,
+                name="agy-claude",
+                quota_group="Claude and GPT models",
+            )
+        )
     qwen = QwenEngine(
         base_url=settings.lm_studio_url,
         model=settings.lm_studio_model,
@@ -183,7 +214,7 @@ def _card_engines(qwen_only: bool) -> tuple[list[MeteredEngine], QwenEngine]:
 
 def _scheduled_claude(settings: Settings) -> bool:
     """Claude joins a scheduled run while enabled (or before `card_claude_until`), outside the
-    quiet hours and below the daily card cap."""
+    quiet hours and below the daily card cap (0: no cap)."""
     from news_insight.cards.service import claude_cards_today, in_quiet_hours
 
     now = datetime.now(UTC)
@@ -198,12 +229,15 @@ def _scheduled_claude(settings: Settings) -> bool:
     enabled = settings.card_claude or (until is not None and now < until)
     if not enabled or in_quiet_hours(settings.card_claude_quiet_hours, now):
         return False
+    if settings.card_claude_daily_cap <= 0:
+        return True
     with session_scope() as session:
         return claude_cards_today(session, now) < settings.card_claude_daily_cap
 
 
 def _judge_engine() -> MeteredEngine | None:
-    """First metered engine above its reserve (story-merge judge, evaluations)."""
+    """First metered engine above its reserve (story-merge judge, evaluations), else Claude Code:
+    with both Antigravity limits at their reserve every merge was skipped (2026-10-30)."""
     settings = get_settings()
     metered, _ = _card_engines(False)
     for engine in metered:
@@ -215,7 +249,12 @@ def _judge_engine() -> MeteredEngine | None:
             min_weekly=settings.card_agy_min_weekly, min_five_hour=settings.card_agy_min_five_hour
         ):
             return engine
-    return None
+    if not settings.card_claude_judge:
+        return None
+    from news_insight.cards.engines import ClaudeEngine
+
+    cli = ClaudeCli(executable=settings.claude_cli, timeout_seconds=settings.card_timeout_seconds)
+    return ClaudeEngine(cli=cli, model=settings.card_claude_model)
 
 
 def _kst(moment: datetime | None) -> str:
@@ -539,6 +578,90 @@ def probe_catalog(
         raise typer.Exit(code=1)
 
 
+@items_app.command("redate")
+def items_redate(
+    days: Annotated[int, typer.Option(help="Items first seen in the last N days")] = 3,
+    verify: Annotated[int, typer.Option(help="Article pages checked per source (0: none)")] = 0,
+    refetch: Annotated[bool, typer.Option(help="Fetch each feed again for fresh dates")] = True,
+    apply: Annotated[bool, typer.Option(help="Write the repaired dates (default: report)")] = False,
+    report: Annotated[Path | None, typer.Option(help="Write the per-source report as JSON")] = None,
+    shift_before: Annotated[
+        datetime | None,
+        typer.Option(help="UTC: only items first seen before it take an inferred offset"),
+    ] = None,
+) -> None:
+    """Repair stored article dates (zone-less feeds, future dates, missing dates)."""
+    from dataclasses import asdict
+
+    from news_insight.content.redate import (
+        apply_redate,
+        plan_redate,
+        read_feed,
+        read_page,
+        summary,
+    )
+
+    now = datetime.now(UTC)
+    with _fetcher() as fetcher, session_scope() as session:
+        plan = plan_redate(
+            session,
+            since=now - timedelta(days=days),
+            now=now,
+            feeds=read_feed(fetcher) if refetch else None,
+            pages=read_page(fetcher) if verify else None,
+            verify=verify,
+            shift_before=shift_before.replace(tzinfo=shift_before.tzinfo or UTC)
+            if shift_before
+            else None,
+        )
+        if apply:
+            apply_redate(session, plan)
+    totals = summary(plan)
+    typer.echo(" · ".join(f"{name} {value}" for name, value in totals.items()))
+    for repair in sorted(plan.sources, key=lambda r: -r.changed)[:30]:
+        if repair.changed or repair.error:
+            shift = f" shift {repair.shift}" if repair.shift else ""
+            check = f" pages {repair.right_after}/{repair.checked}" if repair.checked else ""
+            error = f" error {repair.error}" if repair.error else ""
+            typer.echo(f"{repair.changed:6d}/{repair.items:<6d} {repair.key}{shift}{check}{error}")
+    if report is not None:
+        rows = [{**asdict(r), "shift": str(r.shift) if r.shift else None} for r in plan.sources]
+        report.write_text(json.dumps({"totals": totals, "sources": rows}, ensure_ascii=False))
+    typer.echo("applied" if apply else "dry run: nothing written (--apply to write)")
+
+
+@items_app.command("page-dates")
+def items_page_dates(
+    source: Annotated[list[str], typer.Option(help="Source key (repeat for several)")],
+    workers: Annotated[int, typer.Option(help="Sources read at the same time")] = 8,
+    apply: Annotated[bool, typer.Option(help="Write the page dates (default: report)")] = False,
+    report: Annotated[Path | None, typer.Option(help="Write the per-source report as JSON")] = None,
+) -> None:
+    """Take every item's publication date from its article page where the stored one is a
+    later stand-in (sitemap lastmod, crawl time, a feed's local time read as UTC)."""
+    from dataclasses import asdict
+
+    from news_insight.content.redate import apply_redate, plan_page_dates, read_page_dates
+
+    with _fetcher() as fetcher, session_scope() as session:
+        plan = plan_page_dates(
+            session, sources=source, pages=read_page_dates(fetcher), workers=workers
+        )
+        if apply:
+            apply_redate(session, plan)
+    for repair in sorted(plan.sources, key=lambda r: -r.changed):
+        typer.echo(
+            f"{repair.changed:6d}/{repair.checked:<6d}/{repair.items:<6d} {repair.key}"
+            f" (already right {repair.right_before})"
+        )
+    typer.echo(f"changed {plan.changed}")
+    if report is not None:
+        rows = [asdict(r) for r in plan.sources]
+        changes = {str(k): v.isoformat() if v else None for k, v in plan.changes.items()}
+        report.write_text(json.dumps({"sources": rows, "changes": changes}, ensure_ascii=False))
+    typer.echo("applied" if apply else "dry run: nothing written (--apply to write)")
+
+
 @trends_app.command("movers")
 def movers(
     metric: Annotated[str, typer.Option(help="Metric key, e.g. stars, points, likes")] = "stars",
@@ -631,6 +754,8 @@ def cards_run(
         policy = CardPolicy(
             agy_batch=settings.card_agy_batch,
             agy_parallel=settings.card_agy_parallel,
+            agy_claude_batch=settings.card_agy_claude_batch,
+            agy_claude_parallel=settings.card_agy_claude_parallel,
             codex_batch=settings.card_codex_batch,
             codex_parallel=settings.card_codex_parallel,
             claude_batch=settings.card_claude_batch,
@@ -985,6 +1110,89 @@ def daily_publish(
         )
         blocked = failing(briefing.gates)
     typer.echo(line + (f" failed gates: {', '.join(blocked)}" if blocked else ""))
+
+
+# the writer retries at the 05:00 job's later runs; from 10:00 KST the attempt is the day's last
+SPOTLIGHT_LAST_ATTEMPT = time(10, 0)
+
+
+@spotlight_app.command("freeze")
+def spotlight_freeze(
+    on: Annotated[
+        str | None, typer.Option("--date", help="Spotlight date YYYY-MM-DD (KST)")
+    ] = None,
+) -> None:
+    """Snapshot today's spotlight candidates (idempotent; Celery runs it at 04:40 KST)."""
+    from news_insight.spotlight.candidates import SECTIONS
+    from news_insight.spotlight.service import freeze
+
+    now = datetime.now(UTC)
+    with session_scope() as session:
+        snapshot = freeze(session, day=_briefing_date(on, now), now=now)
+        typer.echo(
+            f"{snapshot.spotlight_date} frozen at {_kst(snapshot.frozen_at)}: "
+            + ", ".join(f"{name} {len(snapshot.candidates.get(name, []))}" for name in SECTIONS)
+        )
+
+
+@spotlight_app.command("write")
+def spotlight_write(
+    on: Annotated[
+        str | None, typer.Option("--date", help="Spotlight date YYYY-MM-DD (KST)")
+    ] = None,
+    model: Annotated[str | None, typer.Option(help="Claude model alias")] = None,
+) -> None:
+    """Have Claude Opus pick each section's Top 10 and publish it (05:00 KST digest job, after the
+    briefing; later runs act only while the date has no published list). From 10:00 KST a failure
+    publishes the statistical lists instead of raising."""
+    from news_insight.digest.claude import ClaudeError
+    from news_insight.public.benchmarks import benchmark_changes
+    from news_insight.spotlight.models import Spotlight, SpotlightStatus
+    from news_insight.spotlight.service import write
+
+    now = datetime.now(UTC)
+    day = _briefing_date(on, now)
+    final_attempt = now.astimezone(KST).time() >= SPOTLIGHT_LAST_ATTEMPT
+    error: ClaudeError | None = None
+    with session_scope() as session:
+        done = session.scalars(
+            select(Spotlight).where(
+                Spotlight.spotlight_date == day, Spotlight.status == SpotlightStatus.PUBLISHED
+            )
+        ).one_or_none()
+        if done is not None:
+            typer.echo(f"{day} spotlight already published; nothing to do")
+            return
+        benchmarks: dict[str, Any] | None = None
+        try:  # the day's leaderboard moves are context only; the list is written without them
+            with session.begin_nested():
+                benchmarks = benchmark_changes(session, now=now)
+        except Exception:  # noqa: BLE001
+            logging.getLogger(__name__).exception("spotlight: benchmark changes unavailable")
+        # a ClaudeError is caught inside the scope: the scope rolls back anything that propagates,
+        # and the FAILED row (and the freeze made on the spot) must be committed
+        try:
+            row = write(
+                session,
+                day=day,
+                now=now,
+                client=_spotlight_claude(),
+                model=model or get_settings().spotlight_model,
+                final_attempt=final_attempt,
+                benchmarks=benchmarks,
+            )
+        except ClaudeError as exc:
+            error = exc
+        else:
+            line = f"{day} spotlight {row.status.value} model={row.model}"
+            if row.cost_usd is not None:
+                line += f" cost=${row.cost_usd:.3f}"
+            if row.error:
+                line += f" fallback: {row.error}"
+            typer.echo(line)
+    if error is not None:
+        typer.echo(f"{day} spotlight not written: {error}", err=True)
+        raise typer.Exit(1)
 
 
 @periodic_app.command("publish")
@@ -1510,3 +1718,12 @@ def main() -> None:
             "command failed", extra={"argv": sys.argv[1:]}
         )
         raise SystemExit(1) from None
+
+
+@benchmarks_app.command("collect")
+def benchmarks_collect() -> None:
+    """Collect every leaderboard now. One line per site; a failing site is printed, not fatal."""
+    with session_scope() as session, _fetcher() as fetcher:
+        results = collect_all(session, fetcher, datetime.now(UTC))
+    for site, result in results.items():
+        typer.echo(f"{site}: {result}")

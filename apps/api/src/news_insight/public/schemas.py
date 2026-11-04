@@ -57,6 +57,8 @@ class ReaderItem(BaseModel):
     region: str
     published_at: datetime | None
     first_seen_at: datetime
+    # the article's date: published_at when the source gives a plausible one, else first_seen_at
+    occurred_at: datetime
     metrics: dict[str, int]
     story: StoryBrief | None
     companies: list[CompanyRef] = []
@@ -80,6 +82,7 @@ class LinkedItem(BaseModel):
     track: str
     source_name: str
     first_seen_at: datetime
+    occurred_at: datetime
     ref: str | None = None
 
 

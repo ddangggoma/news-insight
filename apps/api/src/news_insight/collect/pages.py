@@ -17,6 +17,7 @@ from selectolax.parser import HTMLParser
 from news_insight.collect.contracts import CollectContext, RawItem
 from news_insight.collect.fields import parse_datetime
 from news_insight.collect.page_meta import extract_meta
+from news_insight.content.dates import earliest
 from news_insight.content.normalize import canonical_url, stable_key
 from news_insight.net.mime import HTML_MIME
 from news_insight.net.safe_fetch import DEFAULT_USER_AGENT, FetchError, FetchResponse, SafeFetcher
@@ -38,6 +39,10 @@ class Candidate:
     summary: str | None = None
     # a publisher-declared title (news sitemap) beats the page's og:title; anchor text does not
     trusted_title: bool = False
+    # the listed date is when the page last changed (sitemap lastmod): the page's own
+    # publication date is earlier for anything edited since (2026-10-27: corporate sitemaps
+    # showed years-old articles as new)
+    modified_date: bool = False
 
 
 def decode(response: FetchResponse) -> str:
@@ -143,7 +148,11 @@ def complete(
                 page_title = meta.title
                 if page_title:
                     page_titles[page_title] = page_titles.get(page_title, 0) + 1
-                published = published or meta.published_at
+                published = (
+                    earliest(published, meta.published_at)
+                    if candidate.modified_date
+                    else published or meta.published_at
+                )
                 if published is None and context.config.get("article_date_selector"):
                     for node in HTMLParser(html).css(str(context.config["article_date_selector"])):
                         attribute = context.config.get("article_date_attribute")
