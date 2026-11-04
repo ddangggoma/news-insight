@@ -74,9 +74,12 @@ def test_falling_and_reactionless_themes_are_not_read_as_rising(view: str) -> No
     assert "display_av__xr_spatial" not in found.get("pull", [])  # XR barely gets stars
 
 
-def test_no_cards_without_a_baseline() -> None:
-    # the corpus spans about three quarters: two of the seven earlier quarters have reports
-    assert radar_signals(read("quarter-2026-Q3")) == []
+def test_the_quarter_collection_started_in_is_not_baseline() -> None:
+    # the corpus starts in late December 2025: Q4 2025 holds the start, so the quarter view
+    # compares against Q1–Q2 2026 only instead of five empty quarters and a partial one
+    baseline = read("quarter-2026-Q3").baseline
+    assert baseline is not None and (baseline.start, baseline.windows) == (5, 2)
+    assert read("month-2026-09").baseline == baseline.model_copy(update={"start": 0, "windows": 7})
 
 
 @pytest.mark.parametrize("view", VIEWS[:3])

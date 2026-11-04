@@ -111,7 +111,7 @@ export function EmergingTable({ radar, view, limit = 14 }: { radar: Radar; view:
   const rank = (k: Topic) => (k.returning ? 0 : k.debut ? 1 : 2 + WATCH.indexOf(k.state ?? "rising"));
   const rows = radar.keywords
     .filter((k) => k.state !== "falling" && ((k.state && WATCH.includes(k.state)) || k.debut || k.returning))
-    .sort((a, b) => rank(a) - rank(b) || b.z - a.z || last(b.counts) - last(a.counts))
+    .sort((a, b) => rank(a) - rank(b) || (b.z ?? 0) - (a.z ?? 0) || last(b.counts) - last(a.counts))
     .slice(0, limit);
   if (!rows.length) return <p className="py-10 text-center text-sm text-muted-foreground">새로 뜨거나 늘어난 기술이 없습니다.</p>;
   return (

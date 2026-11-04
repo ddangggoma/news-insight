@@ -147,6 +147,10 @@ def test_radar_calendar_flags_a_category_spike(
 ) -> None:
     for n in range(9):
         add_report(db_session, f"quantum launch {n}", 1 + n * 0.1, "frontier", ["양자"])
+    # a category with no reports on the same weekdays has no usual level to be far above
+    assert radar(public_client, public_headers)["calendar"]["anomalies"] == []
+    for week in (1, 2, 3):
+        add_report(db_session, f"quantum note {week}", 1 + week * 7 * 24, "frontier", ["큐비트"])
     calendar = radar(public_client, public_headers)["calendar"]
     assert len(calendar["days"]) == 84
     today = (NOW - timedelta(hours=1)).astimezone(KST).date().isoformat()

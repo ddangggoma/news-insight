@@ -4,7 +4,8 @@ Each rule yields at most one card and each theme appears on one card at most. Ev
 with the shared tests in `public.stats` (checklist STAT-3) and ranks with them, so small samples
 are handled the same way everywhere; the cards are stored daily and given to the digest and the
 strategy prompts as evidence (PRD-1). Track comparisons use the mean of the baseline windows (the
-same elapsed share while a window is in progress), not the single previous window.
+same elapsed share while a window is in progress), not the single previous window. The baseline
+is the windows after collection started (RadarBaseline); without enough of them there are no cards.
 """
 
 from collections.abc import Callable, Sequence
@@ -13,7 +14,7 @@ from math import floor
 from statistics import fmean
 from typing import TypeVar
 
-from news_insight.public.schemas import Radar, RadarSignal, SignalFocus, Topic
+from news_insight.public.schemas import CompanyRadar, Radar, RadarSignal, SignalFocus, Topic
 from news_insight.public.stats import (
     CARD_MIN,
     SIGNIFICANT_Z,
@@ -89,6 +90,19 @@ def scored(topic: Topic) -> list[int]:
     return topic.paced or topic.counts
 
 
+def zv(topic: Topic) -> float:
+    """z for ranking and tests; None (no baseline) counts as no move."""
+    return topic.z if topic.z is not None else 0.0
+
+
+def baseline_span(radar: Radar | CompanyRadar) -> tuple[int, int]:
+    """(index of the first baseline window, number of baseline windows). A radar built without a
+    RadarBaseline compares against every earlier window."""
+    if radar.baseline is not None:
+        return radar.baseline.start, radar.baseline.windows
+    return 0, len(radar.periods) - 1
+
+
 def label(kind: str, topic: Topic) -> str:
     if kind in ("field", "theme"):
         return LABELS.get(topic.key, topic.key)
@@ -108,12 +122,15 @@ def korea_gaps(radar: Radar) -> list[Topic]:
         and k.regions.get("kr", 0) == 0
         and zero_chance(_last(k.counts), rate) <= GAP_CHANCE
     ]
-    return sorted(rows, key=lambda k: (-_last(k.counts), -k.z, k.key))
+    return sorted(rows, key=lambda k: (-_last(k.counts), -zv(k), k.key))
 
 
 def has_baseline(radar: Radar) -> bool:
-    """Enough earlier windows with reports to compare against: right after collection starts
-    (or a backfill stamps everything this week) every topic would read as a huge surge."""
+    """Enough earlier windows to compare against: right after collection starts (or a backfill
+    stamps everything this week) every topic would read as a huge surge. Without a
+    RadarBaseline, enough earlier windows with reports."""
+    if radar.baseline is not None:
+        return radar.baseline.enough
     history = radar.kpis.items[:-1]
     return bool(history) and sum(1 for c in history if c > 0) >= len(history) * BASELINE_MIN
 
@@ -146,10 +163,14 @@ def radar_signals(
         return []
     window = radar.window
     until = min(window.end, now or window.end).astimezone(UTC)
-    history = len(radar.periods) - 1
+    start, history = baseline_span(radar)
     span = f"직전 {history}{BASELINE_UNIT.get(window.kind, '기간')}"
     baseline = f"{span} 같은 시점" if window.is_current else span
-    themes = [t for t in radar.themes if _last(scored(t)) > 0 or _mean(scored(t)[:-1]) > 0]
+
+    def earlier(t: Topic) -> list[int]:
+        return scored(t)[start:-1]
+
+    themes = [t for t in radar.themes if _last(scored(t)) > 0 or _mean(earlier(t)) > 0]
     signals: list[RadarSignal] = []
     used: set[str] = set()
 
@@ -184,17 +205,16 @@ def radar_signals(
         return t.key
 
     # ── surge: the lifecycle state already tests the rise (count z, effect size, sources)
-    surge = pick("surge", [t for t in themes if t.state == "surging"], lambda t: t.z, topic_key)
+    surge = pick("surge", [t for t in themes if t.state == "surging"], zv, topic_key)
     if surge:
-        counts = scored(surge)
         push(
             "surge",
             label("theme", surge),
-            f"{_last(counts)}건, {baseline} 평균 {_mean(counts[:-1]):.1f}건 대비 {_z(surge.z)}"
-            f" · 출처 {surge.sources}곳",
+            f"{_last(scored(surge))}건, {baseline} 평균 {_mean(earlier(surge)):.1f}건 대비 "
+            f"{_z(zv(surge))} · 출처 {surge.sources}곳",
             "theme",
             surge.key,
-            surge.z,
+            zv(surge),
         )
 
     # ── event: the busiest anomaly day inside the window (a launch, an announcement, an incident)
@@ -230,7 +250,7 @@ def radar_signals(
             and k.sources >= MIN_SOURCES
             and (k.state == "new" or (k.debut and k.state != "falling"))
         ),
-        key=lambda k: (-_last(k.counts), -k.z, k.key),
+        key=lambda k: (-_last(k.counts), -zv(k), k.key),
     )
     if candidates is not None:
         candidates["new"] = [k.key for k in fresh]
@@ -276,12 +296,12 @@ def radar_signals(
 
     def research_led(t: Topic) -> bool:
         total = sum(t.tracks.values())
-        return total >= CARD_MIN and t.z >= 1 and _research(t.tracks) / total >= 0.5
+        return total >= CARD_MIN and zv(t) >= 1 and _research(t.tracks) / total >= 0.5
 
     early = pick(
         "early",
         [t for t in themes if research_led(t)],
-        lambda t: t.z * research_share(t),
+        lambda t: zv(t) * research_share(t),
         topic_key,
         fresh=True,
     )
@@ -290,11 +310,11 @@ def radar_signals(
         push(
             "early",
             label("theme", early),
-            f"논문·오픈소스 비중 {_pct(share)}, {_z(early.z)}: "
+            f"논문·오픈소스 비중 {_pct(share)}, {_z(zv(early))}: "
             "시장 보도보다 연구·구현이 앞서는 초기 단계",
             "theme",
             early.key,
-            early.z * research_share(early),
+            zv(early) * research_share(early),
         )
 
     # ── pull: more items gaining reactions (stars, points) than the theme's share of mentions
@@ -386,9 +406,9 @@ def radar_signals(
         narrow = t.effective_sources is not None and t.effective_sources < NARROW_SOURCES
         news = t.tracks.get("news", 0)
         vendor = news >= CARD_MIN - 1 and t.official / news >= 0.5
-        return _last(scored(t)) >= CARD_MIN and t.z >= 1 and (narrow or vendor)
+        return _last(scored(t)) >= CARD_MIN and zv(t) >= 1 and (narrow or vendor)
 
-    thin = pick("thin", [t for t in themes if thin_rise(t)], lambda t: t.z, topic_key, fresh=True)
+    thin = pick("thin", [t for t in themes if thin_rise(t)], zv, topic_key, fresh=True)
     if thin:
         parts = []
         if thin.effective_sources is not None:
@@ -398,11 +418,11 @@ def radar_signals(
         push(
             "thin",
             label("theme", thin),
-            f"{_last(scored(thin))}건, {_z(thin.z)} 상승이지만 {' · '.join(parts)}: "
+            f"{_last(scored(thin))}건, {_z(zv(thin))} 상승이지만 {' · '.join(parts)}: "
             "독립 보도로 확인 필요",
             "theme",
             thin.key,
-            thin.z,
+            zv(thin),
         )
 
     # ── gap: reported abroad, no Korean source although one would usually be there
@@ -474,18 +494,18 @@ def radar_signals(
     cool = pick(
         "cool",
         [t for t in themes if t.state == "falling"],
-        lambda t: -t.z,
+        lambda t: -zv(t),
         topic_key,
         fresh=True,
     )
     if cool:
-        counts = scored(cool)
         push(
             "cool",
             label("theme", cool),
-            f"{_last(counts)}건, {baseline} 평균 {_mean(counts[:-1]):.1f}건 대비 {_z(cool.z)}",
+            f"{_last(scored(cool))}건, {baseline} 평균 {_mean(earlier(cool)):.1f}건 대비 "
+            f"{_z(zv(cool))}",
             "theme",
             cool.key,
-            -cool.z,
+            -zv(cool),
         )
     return signals

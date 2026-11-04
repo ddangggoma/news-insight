@@ -37,6 +37,8 @@ from news_insight.public.radar import (
     _span,
     _topic,
     _track_totals,
+    baseline,
+    collection_start,
     paced_cutoffs,
     window_out,
 )
@@ -53,7 +55,7 @@ from news_insight.public.schemas import (
     ThemeEntry,
     ThemeLeaders,
 )
-from news_insight.public.signals import BASELINE_MIN, STATE_LABEL
+from news_insight.public.signals import STATE_LABEL, baseline_span, zv
 from news_insight.public.stats import CARD_MIN, SIGNIFICANT_Z, two_proportion_z
 from news_insight.sources.models import Source
 from news_insight.taxonomy.catalog import LABELS
@@ -423,11 +425,13 @@ def company_radar(
     base = filters.conditions()
     windows = trailing_windows(window, TREND_WINDOWS)
     cutoffs = paced_cutoffs(windows, now)
+    span = baseline(windows, collection_start(session))
     registry = info_for(session)
-    series = _series(session, base, windows, "company", cutoffs=cutoffs)
+    series = _series(session, base, windows, "company", cutoffs=cutoffs, baseline_from=span.start)
     mixes = _source_mix(session, base, window, "company")
     totals = _track_totals(session, base, window)
-    own, mix_now, mix_before = _activity(session, base, windows, registry)
+    # the activity mix compares against the baseline windows only
+    own, mix_now, mix_before = _activity(session, base, windows[span.start :], registry)
     pairs_by_theme, voice, theme_totals = _themes(session, base, windows, registry)
     top_themes: dict[str, list[Count]] = defaultdict(list)
     for (company, theme, b), (count, _) in sorted(pairs_by_theme.items(), key=lambda kv: -kv[1][0]):
@@ -438,7 +442,7 @@ def company_radar(
         info = registry.get(key)
         if info is None:
             continue
-        base_topic = _topic(key, s, mixes.get(key), totals)
+        base_topic = _topic(key, s, mixes.get(key), totals, span.start)
         topics.append(
             CompanyTopic(
                 **base_topic.model_dump(),
@@ -455,15 +459,15 @@ def company_radar(
             )
         )
     # ranked by reports from other outlets: a busy newsroom is not news
-    topics.sort(key=lambda t: (-(t.counts[-1] - t.self_reports), -t.z, t.key))
+    topics.sort(key=lambda t: (-(t.counts[-1] - t.self_reports), -zv(t), t.key))
     # a company quiet this window is not news unless it is falling
     shown = [t for t in topics if t.counts[-1] > 0 or t.state == "falling"]
     companies = [t for t in shown if CompanyKind(t.kind) not in ORGANIZATIONS]
     organizations = [t for t in shown if CompanyKind(t.kind) in ORGANIZATIONS]
     labels = {t.key: t.label or t.name for t in topics}
     tagged = _tagged(session, base, windows)
-    # "first", "new" and "entered" need earlier windows with reports (the radar's own gate)
-    history = has_history(tagged)
+    # "first", "new" and "entered" need enough baseline windows (the radar's own gate)
+    history = span.enough
     pairs = company_pairs(session, base, windows, topics, tagged[-1])
     body = CompanyRadar(
         window=window_out(window, current_key, now),
@@ -480,14 +484,10 @@ def company_radar(
         entries=theme_entries(pairs_by_theme, registry, labels) if history else [],
         entrants=entrants(session, base, windows, companies, now) if history else [],
         pairs=pairs if history else [p.model_copy(update={"is_new": False}) for p in pairs],
+        baseline=span,
     )
     body.signals = company_signals(body) if history else []
     return body
-
-
-def has_history(tagged: list[int]) -> bool:
-    earlier = tagged[:-1]
-    return bool(earlier) and sum(1 for c in earlier if c > 0) >= BASELINE_MIN * len(earlier)
 
 
 def _scored(topic: CompanyTopic) -> list[int]:
@@ -498,6 +498,7 @@ def company_signals(radar: CompanyRadar) -> list[RadarSignal]:
     """One card per tone at most, each company on one card at most (same rules as the radar)."""
     signals: list[RadarSignal] = []
     used: set[str] = set()
+    start, _ = baseline_span(radar)
 
     def push(tone: str, title: str, detail: str, kind: str, key: str, score: float) -> None:
         signals.append(
@@ -519,18 +520,18 @@ def company_signals(radar: CompanyRadar) -> list[RadarSignal]:
         and t.self_reports <= SELF_MAX * t.counts[-1]
     ]
     if surging:
-        top = max(surging, key=lambda t: t.z)
+        top = max(surging, key=zv)
         counts = _scored(top)
         main = max(top.signal_mix.items(), key=lambda kv: kv[1])[0] if top.signal_mix else None
         push(
             "company_surge",
             top.label or top.name,
-            f"{counts[-1]}건, 직전 평균 {fmean(counts[:-1]):.1f}건 대비 z {top.z:+.1f}"
+            f"{counts[-1]}건, 직전 평균 {fmean(counts[start:-1]):.1f}건 대비 z {zv(top):+.1f}"
             f" · 출처 {top.sources}곳 · 주 유형 {signal_label(main)}"
             f" · {STATE_LABEL.get(top.state or '', '')}",
             "company",
             top.key,
-            top.z,
+            zv(top),
         )
     shifted = [t for t in radar.companies if t.shift is not None and t.key not in used]
     if shifted:

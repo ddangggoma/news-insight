@@ -128,6 +128,24 @@ class RadarWindow(BaseModel):
     elapsed: float | None  # share of the current window already past (None when closed)
 
 
+class PacedKpis(BaseModel):
+    items: list[int]
+    sources: list[int]
+    research: list[int]
+
+
+class RadarBaseline(BaseModel):
+    """Which earlier windows a comparison may use. Windows that started before collection did
+    (or the one it started in, stamped with the first backfill) count nothing comparable, so they
+    are left out; with fewer than `required` windows left, z and states are None."""
+
+    start: int  # index into `periods` of the first window compared against
+    windows: int  # windows from `start` up to (not including) the current one
+    required: int
+    enough: bool
+    collected_since: datetime | None  # first item ever collected
+
+
 class RadarKpis(BaseModel):
     """Per window, oldest first. `research` = research + open source items."""
 
@@ -137,6 +155,9 @@ class RadarKpis(BaseModel):
     research: list[int]
     new_stories: int
     cross_track_stories: int
+    # window in progress: items, sources and research up to the same elapsed share in every
+    # window, so deltas compare like with like (STAT-2). None for a closed window
+    paced: PacedKpis | None = None
 
 
 class Topic(BaseModel):
@@ -150,12 +171,12 @@ class Topic(BaseModel):
     # are scored on these (STAT-2). None for a closed window
     paced: list[int] | None = None
     change: float | None
-    z: float
+    z: float | None  # None without enough baseline windows (RadarBaseline)
     state: str | None  # new · surging · rising · steady · falling
     sources: int
     tracks: dict[str, int]
     previous_tracks: dict[str, int]
-    baseline_tracks: dict[str, int]  # summed over the windows before the current one
+    baseline_tracks: dict[str, int]  # summed over the baseline windows (RadarBaseline)
     impacts: dict[str, int]
     regions: dict[str, int]  # current window, by source region
     first_seen: dict[str, datetime]  # earliest report per region over the trend span
@@ -279,6 +300,7 @@ class Radar(BaseModel):
     # first day of the current taxonomy tree: comparisons across it are indicative only
     taxonomy_revised_on: date | None = None
     signals: list[RadarSignal] = []
+    baseline: RadarBaseline | None = None  # None: built without one (every window compared)
 
 
 class CompanyProfile(BaseModel):
@@ -306,6 +328,7 @@ class TopicDetail(BaseModel):
     # kind=theme: the registry's major companies of the theme; kind=company: none
     major_companies: list[CompanyRef] = []
     profile: CompanyProfile | None = None  # kind=company
+    baseline: RadarBaseline | None = None
 
 
 class ActivityShift(BaseModel):
@@ -388,6 +411,7 @@ class CompanyRadar(BaseModel):
     entrants: list[Entrant]
     pairs: list[CompanyPair]
     signals: list[RadarSignal] = []
+    baseline: RadarBaseline | None = None
 
 
 class PublicDigest(BaseModel):

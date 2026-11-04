@@ -3,7 +3,7 @@ import { AppLink as Link } from "@/components/app-link";
 import { ChartTips } from "@/components/reader/radar/chart-tips";
 import { Legend } from "@/components/reader/radar/parts";
 import { TRACK_LABEL } from "@/lib/format";
-import { last, netOpportunity, periodLabel, radarHref, type RadarView, rankSeries, sameFocus, topicLabel } from "@/lib/radar";
+import { last, netOpportunity, periodLabel, radarHref, type RadarView, rankMove, rankSeries, sameFocus, topicLabel } from "@/lib/radar";
 import type { Radar } from "@/lib/reader-types";
 import type { Track } from "@/lib/types";
 import { IMPACT_LABEL } from "@/lib/taxonomy";
@@ -28,7 +28,7 @@ export function RankBump({ radar, view, top = 10 }: { radar: Radar; view: RadarV
   const x = (i: number) => L + (i / (n - 1)) * (W - L - R);
   const lanes = top + 1; // a theme outside the top counts as one place below it
   const y = (rank: number) => T + ((rank - 1) / (top - 1)) * (H - T - B);
-  const move = (ranks: (number | null)[]) => Math.min(ranks[0] ?? lanes, lanes) - Math.min(last(ranks) ?? lanes, lanes);
+  const move = (ranks: (number | null)[]) => rankMove(ranks, lanes) ?? 0;
   const tone = (delta: number) => (delta >= 3 ? "var(--state-hot)" : delta <= -3 ? "var(--state-cool)" : "var(--muted-foreground)");
   return (
     <ChartTips>
@@ -46,6 +46,7 @@ export function RankBump({ radar, view, top = 10 }: { radar: Radar; view: RadarV
             .sort((a, b) => Math.abs(move(a.ranks)) - Math.abs(move(b.ranks)))
             .map(({ topic, ranks }) => {
               const delta = move(ranks);
+              const entered = rankMove(ranks, lanes) === null;
               const color = tone(delta);
               const focus = { kind: "theme" as const, key: topic.key };
               const selected = sameFocus(view.focus, focus);
@@ -65,7 +66,7 @@ export function RankBump({ radar, view, top = 10 }: { radar: Radar; view: RadarV
               return (
                 <Link key={topic.key} href={radarHref(radar.window.kind, radar.window.key, { ...view, focus })} scroll={false} aria-label={`${label} 현재 ${last(ranks)}위`}>
                   <g
-                    data-tip={`${label}\n현재 ${last(ranks)}위 (${delta > 0 ? `▲${delta}` : delta < 0 ? `▼${-delta}` : "변동 없음"})\n${ranks.map((r, i) => `${periodLabel(radar.periods[i])} ${r ?? "-"}`).join(" · ")}`}
+                    data-tip={`${label}\n현재 ${last(ranks)}위 (${entered ? "새로 등장" : delta > 0 ? `▲${delta}` : delta < 0 ? `▼${-delta}` : "변동 없음"})\n${ranks.map((r, i) => `${periodLabel(radar.periods[i])} ${r ?? "-"}`).join(" · ")}`}
                     className="cursor-pointer [&:hover_polyline.line]:stroke-[3.5] [&:hover_polyline.line]:stroke-opacity-100"
                   >
                     {segments.map((points) => (

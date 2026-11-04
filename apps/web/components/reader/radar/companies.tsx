@@ -7,7 +7,7 @@ import { ChartTips } from "@/components/reader/radar/chart-tips";
 import { Change, Legend, StateBadge } from "@/components/reader/radar/parts";
 import { COMPANY_SIGNAL_LABEL, RELATION_META } from "@/lib/companies";
 import { withQuery } from "@/lib/query";
-import { formatPoints, formatZ, last, radarFilters, radarHref, type Focus, type RadarView, signalLabel } from "@/lib/radar";
+import { baselineNote, formatPoints, formatZ, last, radarFilters, radarHref, type Focus, type RadarView, signalLabel } from "@/lib/radar";
 import type { CompanyRadar, CompanyRelation, CompanyTopic, Radar } from "@/lib/reader-types";
 import { THEME_LABEL } from "@/lib/taxonomy";
 import { cn } from "@/lib/utils";
@@ -300,7 +300,8 @@ export function CompanyBoard({ radar, view }: { radar: Radar; view: RadarView })
   if (!data) return <div className="h-[520px] animate-pulse rounded-xl bg-muted/40" aria-busy />;
 
   const at = (focus: Focus) => radarHref(radar.window.kind, radar.window.key, { ...view, focus });
-  const history = data.tagged.slice(0, -1).filter((n) => n > 0).length >= (data.tagged.length - 1) / 2;
+  // "first", "new" and "entered" need enough windows after collection started (the API's gate)
+  const shortBaseline = baselineNote(data);
   const rows = tab === "companies" ? data.companies : data.organizations;
 
   return (
@@ -323,9 +324,9 @@ export function CompanyBoard({ radar, view }: { radar: Radar; view: RadarView })
         </ol>
       ) : (
         <p role="note" className="rounded-xl border border-dashed px-3 py-2 text-xs text-muted-foreground">
-          {history
-            ? "이번 기간에는 기준을 넘는 기업 신호가 없습니다."
-            : `기업 태그가 붙은 보도가 아직 ${data.tagged.filter((n) => n > 0).length}개 기간뿐입니다. 이전 기간이 쌓이면 급부상·활동 전환·새 테마 진입·신흥 업체 신호가 켜집니다.`}
+          {shortBaseline
+            ? `${shortBaseline} 이전 기간이 쌓이면 급부상·활동 전환·새 테마 진입·신흥 업체 신호가 켜집니다.`
+            : "이번 기간에는 기준을 넘는 기업 신호가 없습니다."}
         </p>
       )}
 

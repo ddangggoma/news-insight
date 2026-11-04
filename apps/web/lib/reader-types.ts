@@ -112,6 +112,22 @@ export interface RadarWindow {
 }
 
 export type TopicKind = "field" | "theme" | "keyword" | "company";
+
+/**
+ * Earlier windows the radar compares against: only those that started once collection was
+ * running (the window it started in holds the backfill). With fewer than `required`, z and
+ * states are null.
+ */
+export interface RadarBaseline {
+  /** Index into `periods` of the first window compared against. */
+  start: number;
+  /** Windows from `start` up to the current one. */
+  windows: number;
+  required: number;
+  enough: boolean;
+  /** First item ever collected (ISO time). */
+  collected_since: string | null;
+}
 export type TopicState = "new" | "surging" | "rising" | "steady" | "falling";
 export type TrackMix = Record<Track, number>;
 
@@ -124,12 +140,13 @@ export interface Topic {
   /** Window in progress: every window counted up to the same elapsed share; change, z and state use these. */
   paced?: number[] | null;
   change: number | null;
-  z: number;
+  /** Null without enough baseline windows (RadarBaseline). */
+  z: number | null;
   state: TopicState | null;
   sources: number;
   tracks: TrackMix;
   previous_tracks: TrackMix;
-  /** Summed over the windows before the current one. */
+  /** Summed over the baseline windows (RadarBaseline). */
   baseline_tracks: TrackMix;
   impacts: Record<"opportunity" | "risk" | "watch", number>;
   /** Current window by source region. */
@@ -174,6 +191,8 @@ export interface Radar {
     research: number[];
     new_stories: number;
     cross_track_stories: number;
+    /** Window in progress: every window counted up to the same elapsed share; null when closed. */
+    paced?: { items: number[]; sources: number[]; research: number[] } | null;
   };
   fields: Topic[];
   themes: Topic[];
@@ -186,6 +205,7 @@ export interface Radar {
   field_links: FieldLink[];
   /** Rule-based cards computed by the API (public/signals.py), at most one per tone. */
   signals?: RadarSignal[];
+  baseline?: RadarBaseline | null;
 }
 
 export interface EngagedItem {
@@ -241,6 +261,7 @@ export interface TopicDetail {
   major_companies?: CompanyRef[];
   /** kind=company: the registry entry. */
   profile?: CompanyProfile | null;
+  baseline?: RadarBaseline | null;
 }
 
 export interface CompanyProfile {
@@ -288,6 +309,7 @@ export interface CompanyRadar {
   entrants: { key: string; name: string; registered: boolean; cards: number; sources: number; first_seen: string | null }[];
   pairs: { a: string; b: string; count: number; lift: number; is_new: boolean; signal_type: string | null }[];
   signals: RadarSignal[];
+  baseline?: RadarBaseline | null;
 }
 
 export type PublicDigest = Omit<DigestOut, "model" | "cost_usd" | "error">;
