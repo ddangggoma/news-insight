@@ -15,7 +15,8 @@ function topMetric(metrics: Record<string, number>): string | null {
 export function StoryRow({ item, now }: { item: ReaderItem; now?: Date }) {
   const metric = topMetric(item.metrics);
   return (
-    <article className="grid gap-1.5 border-b py-4 [content-visibility:auto] [contain-intrinsic-size:auto_140px]">
+    // the whole row opens the article dialog (the title link stretches over it); company chips stay their own links
+    <article className="group/row relative -mx-3 grid gap-1.5 border-b px-3 py-4 transition-colors [content-visibility:auto] [contain-intrinsic-size:auto_140px] hover:bg-muted/50">
       <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
         <FieldTag field={item.field} />
         <SignalTag signal={item.signal_type} />
@@ -26,7 +27,7 @@ export function StoryRow({ item, now }: { item: ReaderItem; now?: Date }) {
         </time>
       </div>
       <h3 className="text-base leading-snug font-semibold">
-        <Link href={`/items/${item.id}`} scroll={false} className="hover:text-primary hover:underline">
+        <Link href={`/items/${item.id}`} scroll={false} className="after:absolute after:inset-0 group-hover/row:text-primary">
           {item.title_ko ?? item.title}
         </Link>
       </h3>
@@ -43,7 +44,9 @@ export function StoryRow({ item, now }: { item: ReaderItem; now?: Date }) {
         <span>{REGION_LABEL[item.region]}</span>
         {item.keywords.length ? <span className="text-primary">{item.keywords.slice(0, 4).map((k) => `#${k}`).join(" ")}</span> : null}
       </div>
-      <CompanyChips companies={item.companies} />
+      <div className="relative z-10 w-fit">
+        <CompanyChips companies={item.companies} />
+      </div>
     </article>
   );
 }
