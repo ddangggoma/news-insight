@@ -33,7 +33,9 @@ class ResearchMeta(Base):
     item_id: Mapped[int] = mapped_column(
         ForeignKey("items.id", ondelete="CASCADE"), primary_key=True
     )
-    doi: Mapped[str] = mapped_column(String(300))  # the DOI looked up (arXiv: 10.48550/arxiv.*)
+    # the paper's DOI (arXiv: 10.48550/arxiv.*); none for a work looked up by OpenAlex id that
+    # has no DOI
+    doi: Mapped[str | None] = mapped_column(String(300))
     openalex_id: Mapped[str | None] = mapped_column(String(40))
     venue: Mapped[str | None] = mapped_column(String(300))
     oa_field: Mapped[str | None] = mapped_column(String(120))

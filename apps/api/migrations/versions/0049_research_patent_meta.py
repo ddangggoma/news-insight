@@ -8,16 +8,16 @@ company, organisation, country and office, rebuilt daily for the 연구 and 특�
 
 Additive: four new tables. Code from before this revision never reads them.
 
-Revision ID: 0048
-Revises: 0047
+Revision ID: 0049
+Revises: 0048
 """
 
 import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.dialects import postgresql
 
-revision = "0048"
-down_revision = "0047"
+revision = "0049"
+down_revision = "0048"
 branch_labels = None
 depends_on = None
 
@@ -32,7 +32,7 @@ def upgrade() -> None:
     op.create_table(
         "research_meta",
         sa.Column("item_id", sa.Integer(), nullable=False),
-        sa.Column("doi", sa.String(length=300), nullable=False),
+        sa.Column("doi", sa.String(length=300), nullable=True),
         sa.Column("openalex_id", sa.String(length=40), nullable=True),
         sa.Column("venue", sa.String(length=300), nullable=True),
         sa.Column("oa_field", sa.String(length=120), nullable=True),
