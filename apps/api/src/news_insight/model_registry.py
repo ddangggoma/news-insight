@@ -12,8 +12,10 @@ import news_insight.deals.models  # noqa: F401
 import news_insight.digest.models  # noqa: F401
 import news_insight.dossiers.models  # noqa: F401
 import news_insight.ops.models  # noqa: F401
+import news_insight.patents.models  # noqa: F401
 import news_insight.periodic.models  # noqa: F401
 import news_insight.reports.models  # noqa: F401
+import news_insight.research.models  # noqa: F401
 import news_insight.review.models  # noqa: F401
 import news_insight.signals.models  # noqa: F401
 import news_insight.sources.models  # noqa: F401

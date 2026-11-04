@@ -1,0 +1,201 @@
+"""Research and patent metadata, and their daily counts (plan 19 P1).
+
+`research_meta`: OpenAlex venue, topic, institutions (linked to registry companies) and
+citations per paper. `patent_meta`: publication number, office, CPC/IPC codes, applicants,
+company keys and technology field per patent document or patent news item.
+`research_daily_stats` and `patent_daily_stats`: documents per KST day by field, theme,
+company, organisation, country and office, rebuilt daily for the 연구 and 특허 menus.
+
+Additive: four new tables. Code from before this revision never reads them.
+
+Revision ID: 0048
+Revises: 0047
+"""
+
+import sqlalchemy as sa
+from alembic import op
+from sqlalchemy.dialects import postgresql
+
+revision = "0048"
+down_revision = "0047"
+branch_labels = None
+depends_on = None
+
+EMPTY_ARRAY = sa.text("'{}'")
+
+
+def _status(*values: str, name: str) -> sa.Enum:
+    return sa.Enum(*values, name=name, native_enum=False, length=32)
+
+
+def upgrade() -> None:
+    op.create_table(
+        "research_meta",
+        sa.Column("item_id", sa.Integer(), nullable=False),
+        sa.Column("doi", sa.String(length=300), nullable=False),
+        sa.Column("openalex_id", sa.String(length=40), nullable=True),
+        sa.Column("venue", sa.String(length=300), nullable=True),
+        sa.Column("oa_field", sa.String(length=120), nullable=True),
+        sa.Column("oa_subfield", sa.String(length=120), nullable=True),
+        sa.Column("oa_topic", sa.String(length=300), nullable=True),
+        sa.Column(
+            "institutions",
+            postgresql.JSONB(astext_type=sa.Text()),
+            server_default=sa.text("'[]'::jsonb"),
+            nullable=False,
+        ),
+        sa.Column(
+            "countries",
+            postgresql.ARRAY(sa.String(length=2)),
+            server_default=EMPTY_ARRAY,
+            nullable=False,
+        ),
+        sa.Column("has_company", sa.Boolean(), server_default=sa.text("false"), nullable=False),
+        sa.Column(
+            "company_keys",
+            postgresql.ARRAY(sa.String(length=80)),
+            server_default=EMPTY_ARRAY,
+            nullable=False,
+        ),
+        sa.Column("cited_by", sa.Integer(), nullable=True),
+        sa.Column("fwci", sa.Float(), nullable=True),
+        sa.Column(
+            "counts_by_year",
+            postgresql.JSONB(astext_type=sa.Text()),
+            server_default=sa.text("'[]'::jsonb"),
+            nullable=False,
+        ),
+        sa.Column(
+            "status", _status("ok", "not_found", "error", name="enrichstatus"), nullable=False
+        ),
+        sa.Column("error", sa.Text(), nullable=True),
+        sa.Column("enriched_at", sa.DateTime(timezone=True), nullable=False),
+        sa.ForeignKeyConstraint(
+            ["item_id"],
+            ["items.id"],
+            name=op.f("fk_research_meta_item_id_items"),
+            ondelete="CASCADE",
+        ),
+        sa.PrimaryKeyConstraint("item_id", name=op.f("pk_research_meta")),
+    )
+    op.create_index(
+        "ix_research_meta_company_keys",
+        "research_meta",
+        ["company_keys"],
+        unique=False,
+        postgresql_using="gin",
+    )
+    op.create_index("ix_research_meta_doi", "research_meta", ["doi"], unique=False)
+    op.create_index(
+        "ix_research_meta_status_enriched_at",
+        "research_meta",
+        ["status", "enriched_at"],
+        unique=False,
+    )
+    op.create_table(
+        "patent_meta",
+        sa.Column("item_id", sa.Integer(), nullable=False),
+        sa.Column("publication_number", sa.String(length=40), nullable=True),
+        sa.Column("kind", sa.String(length=4), nullable=True),
+        sa.Column("office", sa.String(length=4), nullable=True),
+        sa.Column("priority_date", sa.Date(), nullable=True),
+        sa.Column(
+            "cpc", postgresql.ARRAY(sa.String(length=40)), server_default="{}", nullable=False
+        ),
+        sa.Column(
+            "ipc", postgresql.ARRAY(sa.String(length=40)), server_default="{}", nullable=False
+        ),
+        sa.Column(
+            "applicants",
+            postgresql.ARRAY(sa.String(length=300)),
+            server_default="{}",
+            nullable=False,
+        ),
+        sa.Column(
+            "company_keys",
+            postgresql.ARRAY(sa.String(length=80)),
+            server_default="{}",
+            nullable=False,
+        ),
+        sa.Column("field", sa.String(length=40), nullable=False),
+        sa.Column(
+            "fields", postgresql.ARRAY(sa.String(length=40)), server_default="{}", nullable=False
+        ),
+        sa.Column("source", _status("ops", "eps", "news", name="patentsource"), nullable=False),
+        sa.Column(
+            "indexed_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=False,
+        ),
+        sa.ForeignKeyConstraint(
+            ["item_id"],
+            ["items.id"],
+            name=op.f("fk_patent_meta_item_id_items"),
+            ondelete="CASCADE",
+        ),
+        sa.PrimaryKeyConstraint("item_id", name=op.f("pk_patent_meta")),
+    )
+    op.create_index(
+        "ix_patent_meta_company_keys",
+        "patent_meta",
+        ["company_keys"],
+        unique=False,
+        postgresql_using="gin",
+    )
+    op.create_index("ix_patent_meta_field", "patent_meta", ["field"], unique=False)
+    op.create_table(
+        "research_daily_stats",
+        sa.Column("day", sa.Date(), nullable=False),
+        sa.Column("dim", sa.String(length=10), nullable=False),
+        sa.Column("field", sa.String(length=40), nullable=False),
+        sa.Column("theme", sa.String(length=80), nullable=False),
+        sa.Column("company_key", sa.String(length=80), nullable=False),
+        sa.Column("org_name", sa.String(length=200), nullable=False),
+        sa.Column("country", sa.String(length=2), nullable=False),
+        sa.Column("org_type", sa.String(length=20), nullable=False),
+        sa.Column("n", sa.Integer(), nullable=False),
+        sa.Column("n_company", sa.Integer(), nullable=False),
+        sa.PrimaryKeyConstraint(
+            "day",
+            "dim",
+            "field",
+            "theme",
+            "company_key",
+            "org_name",
+            "country",
+            name=op.f("pk_research_daily_stats"),
+        ),
+    )
+    op.create_index(
+        "ix_research_daily_stats_dim_day", "research_daily_stats", ["dim", "day"], unique=False
+    )
+    op.create_table(
+        "patent_daily_stats",
+        sa.Column("day", sa.Date(), nullable=False),
+        sa.Column("dim", sa.String(length=10), nullable=False),
+        sa.Column("field", sa.String(length=40), nullable=False),
+        sa.Column("source", sa.String(length=8), nullable=False),
+        sa.Column("company_key", sa.String(length=80), nullable=False),
+        sa.Column("office", sa.String(length=4), nullable=False),
+        sa.Column("n", sa.Integer(), nullable=False),
+        sa.PrimaryKeyConstraint(
+            "day",
+            "dim",
+            "field",
+            "source",
+            "company_key",
+            "office",
+            name=op.f("pk_patent_daily_stats"),
+        ),
+    )
+    op.create_index(
+        "ix_patent_daily_stats_dim_day", "patent_daily_stats", ["dim", "day"], unique=False
+    )
+
+
+def downgrade() -> None:
+    op.drop_table("patent_daily_stats")
+    op.drop_table("research_daily_stats")
+    op.drop_table("patent_meta")
+    op.drop_table("research_meta")
