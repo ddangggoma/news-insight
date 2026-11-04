@@ -65,7 +65,7 @@ export function defaultConfigs(points: DsPoint[]): Set<string> {
 
 // ---- colour --------------------------------------------------------------------------
 
-/** The site's maker by model name, on our palette's keys (Xiaomi and Cursor have no slot). */
+/** The site's maker by model name, on our palette's keys. */
 export function family(model: string): ProviderKey {
   const lower = model.toLowerCase();
   const n = `${lower.includes("/") ? lower.slice(lower.lastIndexOf("/") + 1) : lower} ${displayName(model).toLowerCase()}`;
@@ -79,8 +79,10 @@ export function family(model: string): ProviderKey {
   if (has("kimi-")) return "moonshot";
   if (has("deepseek-")) return "deepseek";
   if (has("mistral-")) return "mistral";
+  if (has("mimo-")) return "xiaomi";
   if (has("minimax")) return "minimax";
   if (has("qwen")) return "alibaba";
+  if (has("composer-")) return "cursor";
   return "other";
 }
 
@@ -91,9 +93,32 @@ export interface Shade {
 
 const familyShade = (key: ProviderKey): Shade => ({ light: providerColor(key, "light"), dark: providerColor(key, "dark") });
 
-function hexToHsl(hex: string): [number, number, number] {
-  const n = Number.parseInt(hex.slice(1), 16);
-  const [r, g, b] = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v) => v / 255);
+/** sRGB channels (0–1) of a `#rrggbb` or `oklch(L% C H)` colour, clipped to the gamut. */
+function toRgb(color: string): [number, number, number] {
+  if (color.startsWith("#")) {
+    const n = Number.parseInt(color.slice(1), 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v) => v / 255) as [number, number, number];
+  }
+  const match = /oklch\(\s*([\d.]+)%\s+([\d.]+)\s+([\d.]+)\s*\)/.exec(color);
+  if (!match) throw new Error(`unsupported colour ${color}`);
+  const [L, C, H] = [Number(match[1]) / 100, Number(match[2]), (Number(match[3]) * Math.PI) / 180];
+  const [a, b] = [C * Math.cos(H), C * Math.sin(H)];
+  const l = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3;
+  const m = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3;
+  const s = (L - 0.0894841775 * a - 1.291485548 * b) ** 3;
+  const linear = [
+    4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
+    -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
+    -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s,
+  ];
+  return linear.map((v) => Math.min(1, Math.max(0, v <= 0.0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - 0.055))) as [number, number, number];
+}
+
+/** HSL of a `#rrggbb`, `oklch(…)` or `hsl(h s% l%)` colour: hue in degrees, saturation and lightness in percent. */
+export function toHsl(color: string): [number, number, number] {
+  const hsl = /^hsl\(\s*([\d.]+)\s+([\d.]+)%\s+([\d.]+)%\s*\)$/.exec(color);
+  if (hsl) return [Number(hsl[1]), Number(hsl[2]), Number(hsl[3])];
+  const [r, g, b] = toRgb(color);
   const max = Math.max(r, g, b);
   const min = Math.min(r, g, b);
   const l = (max + min) / 2;
@@ -105,12 +130,16 @@ function hexToHsl(hex: string): [number, number, number] {
 }
 
 /** The colour with its HSL lightness moved by `delta` points, kept within 25–82 like the site. */
-export function shiftLightness(hex: string, delta: number): string {
-  if (delta === 0) return hex;
-  const [h, s, l] = hexToHsl(hex);
+export function shiftLightness(color: string, delta: number): string {
+  if (delta === 0) return color;
+  const [h, s, l] = toHsl(color);
   const next = Math.min(82, Math.max(25, l + delta));
   return `hsl(${h.toFixed(1)} ${s.toFixed(1)}% ${next.toFixed(1)}%)`;
 }
+
+// Each next model of a maker steps lighter in both themes: on the dark card a darker step
+// would sink the low-ranked models into the background.
+const SHADE_DIRECTION = { light: 1, dark: 1 } as const;
 
 /** A model's label colour: its maker's. */
 export function labelShade(model: string): Shade {
@@ -118,8 +147,8 @@ export function labelShade(model: string): Shade {
 }
 
 /**
- * A model's mark colour: its maker's hue, each next-best model of the maker a step lighter
- * (darker in the dark theme), 8 points a step for OpenAI's many models, 11 for the rest.
+ * A model's mark colour: its maker's hue, each next-best model of the maker a step lighter,
+ * 8 points a step for OpenAI's many models, 11 for the rest.
  */
 export function modelShades(points: Pick<DsPoint, "model" | "score">[]): Map<string, Shade> {
   const byFamily = new Map<ProviderKey, string[]>();
@@ -131,7 +160,10 @@ export function modelShades(points: Pick<DsPoint, "model" | "score">[]): Map<str
   for (const [key, models] of byFamily) {
     const step = key === "openai" ? 8 : 11;
     const base = familyShade(key);
-    models.forEach((model, index) => shades.set(model, { light: shiftLightness(base.light, step * index), dark: shiftLightness(base.dark, -step * index) }));
+    models.forEach((model, index) => shades.set(model, {
+        light: shiftLightness(base.light, SHADE_DIRECTION.light * step * index),
+        dark: shiftLightness(base.dark, SHADE_DIRECTION.dark * step * index),
+      }));
   }
   return shades;
 }
@@ -231,6 +263,8 @@ export interface PlotLabel {
   leader: boolean;
   px: number;
   py: number;
+  /** The space the label takes (estimated from its text). */
+  box: { x: number; y: number; w: number; h: number };
 }
 
 export interface Plot {
@@ -366,6 +400,7 @@ export function buildPlot(rows: DsPoint[], axis: Axis, width: number | null): Pl
       leader: Math.hypot(gapX, gapY) > 12,
       px: p.px,
       py: p.py,
+      box: pick.box,
     });
   }
 

@@ -1,10 +1,10 @@
 import type { CSSProperties, ReactNode } from "react";
 
-import { PROVIDER_ORDER, type ProviderKey, isHollow, providerColor, providerLabel } from "@/components/reader/benchmarks/provider-colors";
+import { PROVIDER_ORDER, type ProviderKey, providerColor, providerLabel } from "@/components/reader/benchmarks/provider-colors";
 import type { BenchmarkChange } from "@/lib/benchmark-types";
 import { cn } from "@/lib/utils";
 
-/** A provider's mark in plain HTML (tables, legends), switching with the theme; hollow for the outline providers. */
+/** A provider's mark in plain HTML (tables, legends), switching with the theme. */
 export function ProviderDot({ provider, className }: { provider: ProviderKey; className?: string }) {
   const org = provider === "other" ? null : provider;
   const style = { "--dot-l": providerColor(org, "light"), "--dot-d": providerColor(org, "dark") } as CSSProperties;
@@ -12,11 +12,7 @@ export function ProviderDot({ provider, className }: { provider: ProviderKey; cl
     <span
       aria-hidden
       style={style}
-      className={cn(
-        "inline-block size-2.5 shrink-0 rounded-full",
-        isHollow(provider) ? "border-2 border-(--dot-l) dark:border-(--dot-d)" : "bg-(--dot-l) dark:bg-(--dot-d)",
-        className,
-      )}
+      className={cn("inline-block size-2.5 shrink-0 rounded-full bg-(--dot-l) dark:bg-(--dot-d)", className)}
     />
   );
 }

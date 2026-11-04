@@ -3,7 +3,7 @@
 import { createColumnHelper } from "@tanstack/react-table";
 import { ChevronDown } from "lucide-react";
 import { Popover } from "radix-ui";
-import { type CSSProperties, type MouseEvent as ReactMouseEvent, useEffect, useMemo, useRef, useState } from "react";
+import { type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, type MouseEvent as ReactMouseEvent, useEffect, useId, useMemo, useRef, useState } from "react";
 
 import { DataTable } from "@/components/reader/benchmarks/data-table";
 import {
@@ -246,6 +246,8 @@ function ScorePlot({ rows, axis, shades }: { rows: Point[]; axis: Axis; shades: 
   const [ref, width] = useWidth();
   const [hovered, setHovered] = useState<string | null>(null);
   const [pinned, setPinned] = useState<{ id: string; model: string } | null>(null);
+  const titleId = useId();
+  const descId = useId();
   const plot: Plot | null = useMemo(() => (width === undefined ? null : buildPlot(rows, axis, width)), [rows, axis, width]);
   const order = useMemo(() => [...shades.keys()], [shades]);
   const css = useMemo(() => colourCss(order, shades), [order, shades]);
@@ -313,14 +315,33 @@ function ScorePlot({ rows, axis, shades }: { rows: Point[]; axis: Axis; shades: 
     },
   });
   const fade = "transition-[opacity,filter] duration-150";
+  // the labelled point of each model takes focus: focus reads like hover, Enter/Space pins
+  const keys = (p: (typeof points)[number]) => ({
+    tabIndex: 0,
+    role: "button",
+    "aria-pressed": pinned?.id === p.id,
+    "aria-label": `${displayName(p.model)}${p.effort ? ` ${p.effort}` : ""}: pass@1 ${(p.y * 100).toFixed(1)}%, ${metric.title} ${metric.format(p.x)}`,
+    onFocus: () => setHovered(p.id),
+    onBlur: () => setHovered(null),
+    onKeyDown: (e: ReactKeyboardEvent) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        pin(p.id);
+      } else if (e.key === "Escape") {
+        setPinned(null);
+        setHovered(null);
+      }
+    },
+  });
 
   return (
     <div ref={ref} className="w-full">
       <svg
         viewBox={`0 0 ${d.W} ${d.H}`}
         width="100%"
-        role="img"
-        aria-label={`DeepSWE 점수와 ${metric.title}`}
+        role="group"
+        aria-labelledby={titleId}
+        aria-describedby={descId}
         className="block"
         onMouseLeave={() => setHovered(null)}
         onClick={() => {
@@ -328,6 +349,10 @@ function ScorePlot({ rows, axis, shades }: { rows: Point[]; axis: Axis; shades: 
           setHovered(null);
         }}
       >
+        <title id={titleId}>{`DeepSWE 점수와 ${metric.title}`}</title>
+        <desc id={descId}>
+          {`모델 구성마다 pass@1(세로축)과 ${metric.title}(가로축, 오른쪽일수록 적음)을 점으로 찍고, 한 모델의 추론 강도들을 선으로 이었습니다. 같은 자료가 아래 DeepSWE 순위표에 있습니다.`}
+        </desc>
         <style>{css}</style>
         <text x={M.left} y={M.top - 16} fontSize={font.title} fontWeight={600} className="fill-foreground">
           DeepSWE 점수
@@ -389,12 +414,29 @@ function ScorePlot({ rows, axis, shades }: { rows: Point[]; axis: Axis; shades: 
           </g>
         )}
 
-        {last(points).map((p) => (
-          <g key={p.id} data-point={p.model} className={cn(cls(p.model), fade, "cursor-pointer")} style={dim(p.model)} {...handlers(p.id)}>
+        {/* points keep their order (a moved node would lose keyboard focus); the picked model's dots are redrawn on top */}
+        {points.map((p) => (
+          <g
+            key={p.id}
+            data-point={p.model}
+            className={cn(cls(p.model), fade, "cursor-pointer focus:outline-none focus-visible:[&>circle:last-child]:stroke-foreground focus-visible:[&>circle:last-child]:stroke-2")}
+            style={dim(p.model)}
+            {...handlers(p.id)}
+            {...(p.labeled ? keys(p) : {})}
+          >
             <circle cx={p.px} cy={p.py} r={14} fill="transparent" />
             <circle cx={p.px} cy={p.py} r={active?.id === p.id ? 6 : 4} fill={p.labeled ? "var(--c)" : "var(--c2)"} />
           </g>
         ))}
+        {focus !== null && (
+          <g aria-hidden pointerEvents="none" className={cls(focus)}>
+            {points
+              .filter((p) => p.model === focus)
+              .map((p) => (
+                <circle key={p.id} cx={p.px} cy={p.py} r={active?.id === p.id ? 6 : 4} fill={p.labeled ? "var(--c)" : "var(--c2)"} />
+              ))}
+          </g>
+        )}
 
         {active && !active.labeled && active.effort && (
           <text

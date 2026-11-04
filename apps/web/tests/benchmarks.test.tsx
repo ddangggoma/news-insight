@@ -4,7 +4,7 @@ import { beforeAll, describe, expect, it, vi } from "vitest";
 
 import { ArtificialAnalysisCharts } from "@/components/reader/benchmarks/artificial-analysis";
 import { DeepSweChart } from "@/components/reader/benchmarks/deepswe";
-import { buildPlot, defaultConfigs, displayName, family, formatCost, modelShades, niceTicks } from "@/components/reader/benchmarks/deepswe-plot";
+import { buildPlot, defaultConfigs, displayName, family, formatCost, modelShades, niceTicks, toHsl } from "@/components/reader/benchmarks/deepswe-plot";
 import { LiveBenchTable } from "@/components/reader/benchmarks/livebench";
 import { LmArenaTable } from "@/components/reader/benchmarks/lmarena";
 import { ModelsTab } from "@/components/reader/benchmarks/models-tab";
@@ -91,6 +91,18 @@ describe("provider colours", () => {
     expect(providerColor("Anthropic", "light")).toBe(providerColor("anthropic", "light"));
     expect(providerColor("Google DeepMind", "dark")).toBe(providerColor("google", "dark"));
     expect(providerColor("Anthropic", "light")).not.toBe(providerColor("OpenAI", "light"));
+  });
+
+  it("uses DeepSWE's family hues, one per provider", () => {
+    expect(providerColor("Anthropic", "light")).toBe("oklch(62% 0.15 50)");
+    expect(providerColor("OpenAI", "dark")).toBe("oklch(75% 0.14 155)");
+    expect(providerColor("google", "light")).toBe("oklch(58% 0.17 255)");
+    expect(providerColor("Xiaomi", "light")).toBe("oklch(65% 0.13 95)");
+    // the providers that used to share a slot as outlines now have hues of their own
+    const hues = ["openai", "anthropic", "google", "moonshot", "minimax", "mistral", "zai", "deepseek"].map((p) => providerColor(p, "light"));
+    expect(new Set(hues).size).toBe(hues.length);
+    expect(toHsl(providerColor("anthropic", "light"))[0]).toBeGreaterThan(15);
+    expect(toHsl(providerColor("anthropic", "light"))[0]).toBeLessThan(45);
   });
 
   it("paints an unknown maker neutral gray", () => {
@@ -392,11 +404,42 @@ describe("DeepSWE chart rules", () => {
     expect(family("gpt-6-astra")).toBe("openai");
     expect(family("muse-spark-1-1")).toBe("meta");
     expect(family("glm-5-3")).toBe("zai");
-    expect(family("mimo-v2-5-pro")).toBe("other");
+    expect(family("mimo-v2-5-pro")).toBe("xiaomi");
+    expect(family("frob-1")).toBe("other");
     const shades = modelShades(v11);
     expect(shades.get("claude-opus-5")!.light).toBe(providerColor("anthropic", "light"));
     expect(shades.get("claude-fable-5")!.light).not.toBe(shades.get("claude-opus-5")!.light);
     expect(shades.get("claude-fable-5")!.dark).not.toBe(shades.get("claude-opus-5")!.dark);
+  });
+
+  it("steps lower-ranked models lighter in the dark theme too, so they stay visible on the dark card", () => {
+    const many = ["gpt-a", "gpt-b", "gpt-c", "gpt-d", "gpt-e", "gpt-f"].map((model, i) => ({ model, score: 70 - i }));
+    const shades = modelShades(many);
+    const base = toHsl(providerColor("openai", "dark"))[2];
+    const lightness = many.map((m) => toHsl(shades.get(m.model)!.dark)[2]);
+    for (const l of lightness.slice(1)) expect(l).toBeGreaterThan(base);
+    expect(Math.max(...lightness)).toBeLessThanOrEqual(82.05);
+    expect(toHsl(shades.get("gpt-b")!.light)[2]).toBeGreaterThan(toHsl(providerColor("openai", "light"))[2]);
+  });
+
+  it("keeps two close labels apart and draws a leader to a far one", () => {
+    const crowd = ["aaa-1", "bbb-1", "ccc-1", "ddd-1", "eee-1", "fff-1", "ggg-1"].map((model, i) => dsRow({ model, config: "high", value: 0.5 + i * 0.001, extra: { mean_cost_usd: 3 + i * 0.01, harness: "h" } }));
+    const plot = buildPlot(deepSweView(siteOf({ site: "deepswe", boards: ["v1.1"], rows: crowd })).points, "cost", null)!;
+    const [a, b] = plot.labels;
+    const overlapX = Math.min(a.box.x + a.box.w, b.box.x + b.box.w) - Math.max(a.box.x, b.box.x);
+    const overlapY = Math.min(a.box.y + a.box.h, b.box.y + b.box.h) - Math.max(a.box.y, b.box.y);
+    expect(overlapX <= 0 || overlapY <= 0).toBe(true);
+    expect(plot.labels.some((l) => l.leader)).toBe(true);
+    expect(plot.labels[0].leader).toBe(false);
+  });
+
+  it("uses the narrow frame under 640 px", () => {
+    const plot = buildPlot(v11, "cost", 400)!;
+    expect(plot.dims).toMatchObject({ mobile: true, W: 440, H: 500 });
+    expect(plot.yTicks).toEqual([0, 0.2, 0.4, 0.6, 0.8]);
+    // about four ticks instead of six
+    expect(plot.xTicks).toEqual([0, 10, 20]);
+    expect(buildPlot(v11, "cost", 1000)!.dims).toMatchObject({ mobile: false, W: 1000, H: 625 });
   });
 
   it("joins a model's configurations in effort order, one line per swept model", () => {
@@ -447,7 +490,7 @@ describe("DeepSWE chart rules", () => {
 });
 
 describe("DeepSWE chart", () => {
-  const svg = () => screen.getByRole("img", { name: /DeepSWE 점수와/ });
+  const svg = () => screen.getByRole("group", { name: /DeepSWE 점수와/ });
 
   it("draws dots, effort lines and labels without error bars or a frontier", () => {
     render(<DeepSweChart view={boardView} />);
@@ -492,6 +535,26 @@ describe("DeepSWE chart", () => {
     expect(point("claude-opus-5").style.opacity).toBe("0.55");
     fireEvent.keyDown(window, { key: "Escape" });
     expect(point("claude-opus-5").style.opacity).toBe("");
+  });
+
+  it("tells screen readers the table has the same data and lets the keyboard pick a model", () => {
+    render(<DeepSweChart view={boardView} />);
+    const chart = svg();
+    expect(chart).toHaveAccessibleDescription(/아래 DeepSWE 순위표/);
+    const point = within(chart).getByRole("button", { name: /^gpt-5\.5 medium: pass@1 54\.0%/ });
+    expect(point).toHaveAttribute("tabindex", "0");
+    // one focusable point per model, the labelled one
+    expect(within(chart).getAllByRole("button")).toHaveLength(4);
+    const other = () => chart.querySelector<SVGGElement>('[data-point="claude-opus-5"]')!;
+    fireEvent.focus(point);
+    expect(other().style.opacity).toBe("0.55");
+    fireEvent.keyDown(point, { key: "Enter" });
+    expect(point).toHaveAttribute("aria-pressed", "true");
+    fireEvent.blur(point);
+    expect(other().style.opacity).toBe("0.55");
+    fireEvent.keyDown(point, { key: "Escape" });
+    expect(point).toHaveAttribute("aria-pressed", "false");
+    expect(other().style.opacity).toBe("");
   });
 
   it("puts a pass@1 bar with its interval on every table row", () => {
