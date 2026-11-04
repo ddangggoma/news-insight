@@ -51,6 +51,7 @@ def test_research_enrich_looks_up_due_papers_and_prints_the_tally(db_session: Se
         "attention",
         refs=(("arxiv", "1706.03762"),),
         url="https://arxiv.org/abs/1706.03762",
+        published=datetime.now(UTC) - timedelta(days=4),  # past the OpenAlex index lag
     )
 
     result = runner.invoke(cli.app, ["research", "enrich", "--limit", "5"])
