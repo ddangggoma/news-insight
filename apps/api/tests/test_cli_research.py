@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 from typer.testing import CliRunner
 
 from news_insight import cli
+from news_insight.patents.models import PatentMeta
 from news_insight.research.models import EnrichStatus, ResearchMeta
 from tests.documents import document, source
 from tests.helpers import mock_fetcher
@@ -48,3 +49,23 @@ def test_research_enrich_looks_up_due_papers_and_prints_the_tally(db_session: Se
     assert result.output.splitlines()[-1] == "attempted=1 ok=1 not_found=0 errors=0 stopped=-"
     row = db_session.get(ResearchMeta, paper.id)
     assert row is not None and row.status == EnrichStatus.OK
+
+
+def test_patents_index_prints_the_tally(db_session: Session) -> None:
+    office = source(
+        db_session, "epo", category="patent_office", config={"mode": "epo_publications"}
+    )
+    item = document(
+        db_session,
+        office,
+        "p",
+        stable_id="epo:EP4815724NWA1",
+        summary="EP4815724NWA1; IPC: G06N 3/08",
+    )
+
+    result = runner.invoke(cli.app, ["patents", "index"])
+
+    assert result.exit_code == 0, result.output
+    assert result.output.splitlines()[-1] == "indexed=1 removed=0"
+    row = db_session.get(PatentMeta, item.id)
+    assert row is not None and row.field == "ai"

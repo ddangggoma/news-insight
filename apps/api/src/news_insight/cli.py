@@ -147,6 +147,11 @@ research_app = typer.Typer(
     no_args_is_help=True,
 )
 app.add_typer(research_app, name="research")
+patents_app = typer.Typer(
+    help="Patent documents: publication numbers, CPC/IPC fields and applicants (plan 19)",
+    no_args_is_help=True,
+)
+app.add_typer(patents_app, name="patents")
 
 KST = ZoneInfo("Asia/Seoul")
 FAILED_OUTCOMES = (FetchOutcome.FAILED, FetchOutcome.DEAD_LETTERED)
@@ -1856,3 +1861,15 @@ def research_enrich(
         f"attempted={result.attempted} ok={result.ok} not_found={result.not_found} "
         f"errors={result.errors} stopped={result.stopped or '-'}"
     )
+
+
+@patents_app.command("index")
+def patents_index(
+    limit: Annotated[int, typer.Option(help="Items to index at most")] = 5000,
+) -> None:
+    """Index new or re-carded patent documents now (the hourly :25 job)."""
+    from news_insight.patents.service import index_patents
+
+    with session_scope() as session:
+        result = index_patents(session, now=datetime.now(UTC), limit=limit)
+    typer.echo(f"indexed={result.indexed} removed={result.removed}")

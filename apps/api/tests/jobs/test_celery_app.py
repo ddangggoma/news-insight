@@ -55,3 +55,10 @@ def test_beat_enriches_papers_hourly_at_twenty_past() -> None:
     assert entry["task"] == "research.enrich"
     assert entry["schedule"].minute == {20} and len(entry["schedule"].hour) == 24
     assert entry["options"]["expires"] < 3600
+
+
+def test_beat_indexes_patents_hourly_at_twenty_five_past() -> None:
+    entry = celery_app.conf.beat_schedule["patents-index"]
+
+    assert entry["task"] == "patents.index"
+    assert entry["schedule"].minute == {25} and len(entry["schedule"].hour) == 24

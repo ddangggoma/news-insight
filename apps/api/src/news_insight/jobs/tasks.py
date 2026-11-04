@@ -300,3 +300,12 @@ def research_enrich_task() -> dict[str, Any]:
         with session_scope() as session, SafeFetcher.from_settings(get_settings()) as fetcher:
             result = enrich(session, fetcher, now=datetime.now(UTC), gate=ProviderGate(client))
             return asdict(result)
+
+
+@celery_app.task(name="patents.index")
+def patents_index_task() -> dict[str, int]:
+    """Plan 19: patent_meta for office publications and ip cards (hourly at :25)."""
+    from news_insight.patents.service import index_patents
+
+    with session_scope() as session:
+        return asdict(index_patents(session, now=datetime.now(UTC)))

@@ -50,6 +50,11 @@ BEAT_SCHEDULE: dict[str, dict[str, Any]] = {
         "schedule": crontab(minute=20),
         "options": {"expires": 3000},
     },
+    "patents-index": {
+        "task": "patents.index",
+        "schedule": crontab(minute=25),  # plan 19: patent_meta for new and re-carded items
+        "options": {"expires": 3000},
+    },
     "content-purge-expired": {
         "task": "content.purge_expired",
         "schedule": crontab(hour=3, minute=15),  # Asia/Seoul (celery timezone)
