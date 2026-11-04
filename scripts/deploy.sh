@@ -51,6 +51,14 @@ if ! launchctl print "gui/$(id -u)/com.newsinsight.edge" >/dev/null 2>&1 \
   log "installing the edge proxy"
   scripts/install-edge-proxy.sh
 fi
+# The host watchdog (operations.md §14) checks the stack from outside Docker and pushes alerts.
+# It reads ops/watchdog/watchdog.py on every run, so only a new job definition needs a reinstall.
+WATCHDOG=(ops/launchd/com.newsinsight.watchdog.plist.template scripts/install-watchdog.sh)
+if ! launchctl print "gui/$(id -u)/com.newsinsight.watchdog" >/dev/null 2>&1 \
+  || ! git diff --quiet "$PREVIOUS" "$TAG" -- "${WATCHDOG[@]}"; then
+  log "installing the host watchdog"
+  scripts/install-watchdog.sh || log "watchdog install failed: run scripts/install-watchdog.sh"
+fi
 
 log "replacing ${APP[*]}"
 # a removed container takes its log with it: keep it for `news-insight ops logs` (7 days)
