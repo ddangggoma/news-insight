@@ -2,6 +2,7 @@
 
 import { Bar, type BarShapeProps, BarChart, CartesianGrid, Rectangle, XAxis, YAxis } from "recharts";
 
+import { useHiddenSeries } from "@/components/chart-frame";
 import { type ChartConfig, ChartContainer, ChartTooltip } from "@/components/ui/chart";
 import { periodLabel } from "@/lib/patent-types";
 
@@ -42,6 +43,8 @@ function RunningBar(props: BarShapeProps) {
 
 /** Patent signals per period, office publications under news about patents. */
 export function PatentPeriods({ periods }: { periods: { key: string; total: number; office: number }[] }) {
+  const hidden = useHiddenSeries();
+  const shown = (["office", "article"] as const).filter((k) => !hidden.has(k));
   const data: Row[] = periods.map((p, i) => ({
     key: p.key,
     label: periodLabel(p.key),
@@ -57,8 +60,8 @@ export function PatentPeriods({ periods }: { periods: { key: string; total: numb
         <XAxis dataKey="label" tickLine={false} axisLine={false} minTickGap={6} interval="preserveStartEnd" />
         <YAxis allowDecimals={false} tickLine={false} axisLine={false} width={32} />
         <ChartTooltip cursor={{ fillOpacity: 0.08 }} content={<Tip />} />
-        {(["office", "article"] as const).map((k) => (
-          <Bar key={k} dataKey={k} stackId="p" fill={`var(--color-${k})`} stroke="var(--card)" strokeWidth={1.5} isAnimationActive={false} maxBarSize={40} radius={k === "article" ? [4, 4, 0, 0] : 0} shape={RunningBar} />
+        {shown.map((k, index) => (
+          <Bar key={k} dataKey={k} stackId="p" fill={`var(--color-${k})`} stroke="var(--card)" strokeWidth={1.5} isAnimationActive={false} maxBarSize={40} radius={index === shown.length - 1 ? [4, 4, 0, 0] : 0} shape={RunningBar} />
         ))}
       </BarChart>
     </ChartContainer>

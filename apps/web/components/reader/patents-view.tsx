@@ -94,8 +94,8 @@ export function PatentsView({ view, kind, page }: { view: PatentView; kind: "mon
             <Legend
               className="mt-2"
               items={[
-                { label: "특허청 공보", swatch: "var(--cat-1)" },
-                { label: "지식재산 기사", swatch: "var(--cat-2)" },
+                { key: "office", label: "특허청 공보", swatch: "var(--cat-1)" },
+                { key: "article", label: "지식재산 기사", swatch: "var(--cat-2)" },
               ]}
             />
           </>

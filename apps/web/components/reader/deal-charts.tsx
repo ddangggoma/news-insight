@@ -2,6 +2,7 @@
 
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
+import { useHiddenSeries } from "@/components/chart-frame";
 import { type ChartConfig, ChartContainer, ChartTooltip } from "@/components/ui/chart";
 import { DEAL_SERIES, DEAL_SERIES_COLOR, DEAL_SERIES_LABEL, type DealBucket, type DealSeries, formatUsd } from "@/lib/deal-types";
 
@@ -32,6 +33,8 @@ function Tip({ active, payload, unit }: { active?: boolean; payload?: { payload:
 
 /** Deals per week or month, stacked by kind; a 1.5px card-coloured stroke separates segments. */
 export function DealTimeline({ buckets, unit, series }: { buckets: DealBucket[]; unit: "week" | "month"; series: DealSeries[] }) {
+  const hidden = useHiddenSeries();
+  const shown = series.filter((s) => !hidden.has(s));
   const data: Row[] = buckets.map((b) => ({ key: b.key, label: b.label, total: b.total, usd: b.usd, ...b.counts }));
   return (
     <ChartContainer config={config} className="aspect-auto h-56 w-full md:h-64">
@@ -40,7 +43,7 @@ export function DealTimeline({ buckets, unit, series }: { buckets: DealBucket[];
         <XAxis dataKey="label" tickLine={false} axisLine={false} minTickGap={8} interval="preserveStartEnd" />
         <YAxis allowDecimals={false} tickLine={false} axisLine={false} width={28} />
         <ChartTooltip cursor={{ fillOpacity: 0.08 }} content={<Tip unit={unit} />} />
-        {series.map((s, index) => (
+        {shown.map((s, index) => (
           <Bar
             key={s}
             dataKey={s}
@@ -50,7 +53,7 @@ export function DealTimeline({ buckets, unit, series }: { buckets: DealBucket[];
             strokeWidth={1.5}
             isAnimationActive={false}
             maxBarSize={36}
-            radius={index === series.length - 1 ? [4, 4, 0, 0] : 0}
+            radius={index === shown.length - 1 ? [4, 4, 0, 0] : 0}
           />
         ))}
       </BarChart>
