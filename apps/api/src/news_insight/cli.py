@@ -142,6 +142,11 @@ benchmarks_app = typer.Typer(
     no_args_is_help=True,
 )
 app.add_typer(benchmarks_app, name="benchmarks")
+research_app = typer.Typer(
+    help="Research papers: OpenAlex metadata, institutions and companies (plan 19)",
+    no_args_is_help=True,
+)
+app.add_typer(research_app, name="research")
 
 KST = ZoneInfo("Asia/Seoul")
 FAILED_OUTCOMES = (FetchOutcome.FAILED, FetchOutcome.DEAD_LETTERED)
@@ -1833,3 +1838,21 @@ def benchmarks_collect() -> None:
         results = collect_all(session, fetcher, datetime.now(UTC))
     for site, result in results.items():
         typer.echo(f"{site}: {result}")
+
+
+@research_app.command("enrich")
+def research_enrich(
+    limit: Annotated[int, typer.Option(help="Papers to look up at most")] = 2000,
+) -> None:
+    """Look up due papers on OpenAlex now (the hourly :20 job), within the shared budget."""
+    from news_insight.research.service import enrich
+    from news_insight.scheduling.providers import ProviderGate
+
+    with session_scope() as session, _fetcher() as fetcher:
+        result = enrich(
+            session, fetcher, now=datetime.now(UTC), limit=limit, gate=ProviderGate(get_redis())
+        )
+    typer.echo(
+        f"attempted={result.attempted} ok={result.ok} not_found={result.not_found} "
+        f"errors={result.errors} stopped={result.stopped or '-'}"
+    )

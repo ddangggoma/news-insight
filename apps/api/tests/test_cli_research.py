@@ -1,0 +1,50 @@
+"""Plan 19 CLI: research enrich, patents index, insights backfill-stats."""
+
+from collections.abc import Iterator
+from contextlib import contextmanager
+from pathlib import Path
+
+import httpx
+import pytest
+import redis
+from sqlalchemy.orm import Session
+from typer.testing import CliRunner
+
+from news_insight import cli
+from news_insight.research.models import EnrichStatus, ResearchMeta
+from tests.documents import document, source
+from tests.helpers import mock_fetcher
+
+pytestmark = pytest.mark.db
+runner = CliRunner()
+ATTENTION = (Path(__file__).parent / "research/fixtures/openalex_attention.json").read_bytes()
+
+
+@pytest.fixture(autouse=True)
+def wire_cli(
+    db_session: Session, redis_client: redis.Redis, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    @contextmanager
+    def scope() -> Iterator[Session]:
+        yield db_session
+        db_session.flush()
+
+    def openalex(request: httpx.Request) -> httpx.Response:
+        assert request.url.host == "api.openalex.org", "CLI tests must not reach the network"
+        return httpx.Response(200, headers={"content-type": "application/json"}, content=ATTENTION)
+
+    monkeypatch.setattr(cli, "session_scope", scope)
+    monkeypatch.setattr(cli, "get_redis", lambda: redis_client)
+    monkeypatch.setattr(cli, "_fetcher", lambda: mock_fetcher(openalex))
+
+
+def test_research_enrich_looks_up_due_papers_and_prints_the_tally(db_session: Session) -> None:
+    src = source(db_session, "arxiv-cs")
+    paper = document(db_session, src, "attention", refs=(("arxiv", "1706.03762"),))
+
+    result = runner.invoke(cli.app, ["research", "enrich", "--limit", "5"])
+
+    assert result.exit_code == 0, result.output
+    assert result.output.splitlines()[-1] == "attempted=1 ok=1 not_found=0 errors=0 stopped=-"
+    row = db_session.get(ResearchMeta, paper.id)
+    assert row is not None and row.status == EnrichStatus.OK

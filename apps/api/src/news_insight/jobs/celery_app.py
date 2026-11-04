@@ -44,6 +44,12 @@ BEAT_SCHEDULE: dict[str, dict[str, Any]] = {
         "task": "auth.purge",
         "schedule": crontab(hour=3, minute=20),  # sessions, sign-ups, audit 180 d, access 30 d
     },
+    # plan 19: OpenAlex metadata for papers (a run takes minutes; the next hour's run waits)
+    "research-enrich": {
+        "task": "research.enrich",
+        "schedule": crontab(minute=20),
+        "options": {"expires": 3000},
+    },
     "content-purge-expired": {
         "task": "content.purge_expired",
         "schedule": crontab(hour=3, minute=15),  # Asia/Seoul (celery timezone)
