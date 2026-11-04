@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from news_insight.config import Settings, get_settings
 from news_insight.db import get_db
 from news_insight.main import create_app
-from news_insight.public import facts
+from news_insight.public import domain_cache, facts
 from news_insight.public.routes import get_now
 from tests.public.seed import NOW
 
@@ -31,6 +31,8 @@ def _client(db_session: Session, settings: Settings) -> Iterator[TestClient]:
     app.dependency_overrides[get_db] = session_override
     app.dependency_overrides[get_settings] = lambda: settings
     app.dependency_overrides[get_now] = lambda: NOW
+    # the research/patent views cache in Redis whatever the settings say; tests opt in
+    app.dependency_overrides[domain_cache.cache_client] = lambda: None
 
     @app.middleware("http")
     async def refresh_facts(request: Request, call_next: Any) -> Any:

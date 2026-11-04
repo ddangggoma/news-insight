@@ -1,14 +1,18 @@
 """The 연구 and 특허 menus (plan 19 §1, §4): one response per tab, built the same way for papers
 and patents from their daily stats tables, with what the tables cannot answer read live.
 
-Windows are rolling and end yesterday (KST): the daily stats leave today out until the next
-night's run, so `as_of` is yesterday and a month is the 30 days up to it. The previous window is
-the same length just before it; trends use a row of such windows (12 weeks, 12 months of 30
-days, 9 quarters of 90 days) and flag a series whose last window is two standard deviations
-above (rise) or below (fall) the eight before.
+Windows are rolling and end on `as_of`: the last KST day the daily counts were built
+(stats_days), never later than yesterday — the counts leave today out until the next night's
+run. A month is the 30 days up to as_of; the previous window is the same length just before it;
+trends use a row of such windows (12 weeks, 12 months of 30 days, 9 quarters of 90 days) and flag
+a series whose last window is two standard deviations above (rise) or below (fall) the eight
+before. No z and no flag when a compared window starts before the first day counted, nor for
+the enrichment-derived axes (country) while OpenAlex coverage of a past window is well below the
+current one's: a backlog being filled is not a trend.
 
-A domain (research.py, patents.py) supplies its stats model and the live parts: theme bars,
-the company share, watched-company documents, the documents page and the coverage note."""
+A domain (research.py, patents.py) supplies its stats model and the parts read elsewhere: theme
+bars, the company share, watched-company documents, the documents page and the coverage note.
+Live reads end on as_of too."""
 
 import math
 from collections import defaultdict
@@ -24,6 +28,7 @@ from sqlalchemy.orm import Session
 from news_insight.companies.catalog import CompanyStatus, Relation
 from news_insight.companies.models import Company
 from news_insight.companies.service import info_for
+from news_insight.insights.models import StatsDay
 from news_insight.insights.stats import day_bounds
 from news_insight.public.periods import KST
 from news_insight.taxonomy.catalog import FIELD_KEYS, FIELDS, LABELS
@@ -47,11 +52,13 @@ TOP_DETAIL = 10
 TOP_FIELDS = 3
 WATCH_MAX = 20
 PAGE_SIZE = 20
-CACHE_TTL = 30 * 60
 OTHER = "other"  # documents without a classified field
 REST = "rest"  # the lines beyond the top 8, summed
 REST_LABEL = "기타"
 WATCHED = (Relation.SELF, Relation.COMPETITOR)
+ENRICHMENT_RATIO = 0.8
+NOTE_SHORT = "비교할 과거 집계가 부족해 급증·급감을 표시하지 않음"
+NOTE_ENRICHMENT = "과거 기간의 기관·국가 정보 보강률이 낮아 국가별 급증·급감을 표시하지 않음"
 
 
 class UnknownField(ValueError):
@@ -130,7 +137,8 @@ class Heatmap(BaseModel):
 class OverviewTab(BaseModel):
     kpis: Kpis
     heatmap: Heatmap
-    risers: list[Riser]
+    risers: list[Riser]  # empty when the history does not reach back far enough
+    coverage_note: str | None = None
     insight: DomainInsight | None = None
 
 
@@ -167,7 +175,8 @@ class Doc(BaseModel):
     venue: str | None = None
     orgs: list[str] = []  # institutions not linked to a registry company, author order
     cited_by: int | None = None
-    mentions: int = 0  # news and community items citing its DOI or arXiv id
+    cited_growth: int | None = None  # citations of as_of's year minus the year before
+    mentions: int = 0  # news and community items citing its DOI or arXiv id, up to as_of
     upvotes: int | None = None  # Hugging Face daily papers
     # patents
     publication_number: str | None = None
@@ -240,7 +249,8 @@ class CompanyDetail(BaseModel):
     change: float | None
     fields: list[WindowCount]
     series: list[int]  # per trend window (WatchBlock.buckets)
-    documents: list[Doc]
+    documents: list[Doc]  # 최근 문헌: the 10 most recent of the window
+    top_documents: list[Doc]  # the 10 best scored of the window
 
 
 class CompaniesTab(BaseModel):
@@ -257,7 +267,7 @@ class Series(BaseModel):
     counts: list[int]  # per trend window, oldest first
     current: int
     mean: float  # of the previous windows (up to 8)
-    z: float
+    z: float | None  # null when the history is too short or too thinly enriched
     flag: Flag | None
 
 
@@ -278,6 +288,7 @@ class TrendsTab(BaseModel):
     regions_axis: Literal["country", "office"]
     regions: list[Series]  # top 8 and 기타
     flags: list[FlagOut]  # every field and region flagged, strongest first
+    coverage_note: str | None = None  # why some flags are off
 
 
 class DocumentsTab(BaseModel):
@@ -300,7 +311,8 @@ class DomainView(BaseModel):
     kind: Literal["research", "patent"]
     tab: Tab
     period: Period
-    as_of: date  # the last day counted (yesterday, KST)
+    as_of: date  # the last day counted: the last built, at most yesterday (KST)
+    stats_from: date | None  # the first day counted
     window: Span
     previous: Span
     field: str | None
@@ -318,8 +330,22 @@ class DomainView(BaseModel):
 # ---------------------------------------------------------------- windows and numbers
 
 
-def as_of(now: datetime) -> date:
-    return now.astimezone(KST).date() - timedelta(days=1)
+@dataclass(frozen=True)
+class StatsRange:
+    first: date | None
+    last: date | None
+
+
+def stats_range(session: Session) -> StatsRange:
+    first, last = session.execute(select(func.min(StatsDay.day), func.max(StatsDay.day))).one()
+    return StatsRange(first=first, last=last)
+
+
+def as_of(now: datetime, built: StatsRange) -> date:
+    """The last day counted: yesterday (KST), or the last day built if the night's run has not
+    happened yet."""
+    yesterday = now.astimezone(KST).date() - timedelta(days=1)
+    return min(yesterday, built.last) if built.last is not None else yesterday
 
 
 def spans(end: date, days: int, count: int) -> list[Span]:
@@ -368,7 +394,8 @@ def field_label(key: str) -> str:
 
 
 def check_field(field: str | None) -> None:
-    if field is not None and field not in FIELD_KEYS and field != OTHER:
+    """One of the 12 fields (the chips); unclassified documents are counted, not selectable."""
+    if field is not None and field not in FIELD_KEYS:
         raise UnknownField(field)
 
 
@@ -485,6 +512,9 @@ class Domain(Protocol):
     @property
     def has_orgs(self) -> bool: ...
 
+    @property
+    def enrichment_regions(self) -> bool: ...  # regions come from OpenAlex enrichment
+
     def region_column(self) -> Any: ...
 
     def region_label(self, key: str) -> str: ...
@@ -508,6 +538,7 @@ class Domain(Protocol):
         watched: list[str],
         page: int,
         size: int,
+        recent: bool = False,
     ) -> tuple[int, list[Doc]]: ...
 
     def coverage(self, session: Session, window: Span) -> Coverage | None: ...
@@ -524,6 +555,8 @@ class Context:
     previous: Span
     trend: list[Span]
     watched: list[str]
+    built: StatsRange
+    _days: list[tuple[date, int, int]] | None = None
 
     def docs(
         self,
@@ -533,6 +566,7 @@ class Context:
         field: str | None = None,
         company: str | None = None,
         org: str | None = None,
+        recent: bool = False,
     ) -> tuple[int, list[Doc]]:
         return self.domain.documents(
             self.session,
@@ -543,14 +577,46 @@ class Context:
             watched=self.watched,
             page=page,
             size=size,
+            recent=recent,
         )
 
+    def history_ok(self, windows: Sequence[Span]) -> bool:
+        """Every window lies within the days counted."""
+        return self.built.first is not None and windows[0].start >= self.built.first
 
-def build_view(session: Session, domain: Domain, query: Query, *, now: datetime) -> DomainView:
+    def enrichment_ok(self, windows: Sequence[Span]) -> bool:
+        """OpenAlex coverage of every earlier window is at least 80 % of the last window's."""
+        if self._days is None:
+            self._days = list(
+                self.session.execute(
+                    select(StatsDay.day, StatsDay.research_docs, StatsDay.research_enriched).where(
+                        StatsDay.day >= windows[0].start, StatsDay.day <= windows[-1].end
+                    )
+                ).tuples()
+            )
+
+        def share(span: Span) -> float:
+            rows = [r for r in self._days or [] if span.start <= r[0] <= span.end]
+            docs = sum(r[1] for r in rows)
+            return sum(r[2] for r in rows) / docs if docs else 0.0
+
+        current = share(windows[-1])
+        return all(share(span) >= ENRICHMENT_RATIO * current for span in windows[:-1])
+
+
+def build_view(
+    session: Session,
+    domain: Domain,
+    query: Query,
+    *,
+    now: datetime,
+    built: StatsRange | None = None,
+) -> DomainView:
     check_field(query.field)
     if query.company is not None and not info_for(session, [query.company]):
         raise UnknownCompany(query.company)
-    end = as_of(now)
+    built = built or stats_range(session)
+    end = as_of(now, built)
     days = PERIOD_DAYS[query.period]
     trend = spans(end, days, TREND_WINDOWS[query.period])
     ctx = Context(
@@ -563,12 +629,14 @@ def build_view(session: Session, domain: Domain, query: Query, *, now: datetime)
         previous=trend[-2],
         trend=trend,
         watched=watched_keys(session),
+        built=built,
     )
     view = DomainView(
         kind=domain.name,
         tab=query.tab,
         period=query.period,
         as_of=end,
+        stats_from=built.first,
         window=ctx.window,
         previous=ctx.previous,
         field=query.field,
@@ -616,7 +684,8 @@ def _overview(ctx: Context) -> OverviewTab:
     current = sum(c[-1] for c in by_field.values())
     previous = sum(c[-2] for c in by_field.values())
     risers = []
-    for f in FIELDS:
+    history_ok = ctx.history_ok(history)
+    for f in FIELDS if history_ok else ():
         counts = by_field.get(f.key, [0] * len(history))
         z, mean = zscore(counts, RISER_HISTORY)
         if counts[-1] > mean:
@@ -643,7 +712,7 @@ def _overview(ctx: Context) -> OverviewTab:
             count=current,
             previous=previous,
             change=change(current, previous),
-            rising_field=risers[0] if risers else None,
+            rising_field=risers[0] if risers and risers[0].z >= FLAG_Z else None,
             company_share=share,
             company_docs=company_docs,
             watched_count=domain.watched_count(session, ctx.window, ctx.watched),
@@ -651,6 +720,7 @@ def _overview(ctx: Context) -> OverviewTab:
         ),
         heatmap=Heatmap(weeks=weeks, rows=rows, max=max((max(r.counts) for r in rows), default=0)),
         risers=risers[:RISERS],
+        coverage_note=None if history_ok else NOTE_SHORT,
     )
 
 
@@ -727,11 +797,7 @@ def _sum(per_field: dict[str, list[int]], width: int) -> list[int]:
 
 
 def _field_where(model: Any, field: str | None) -> list[ColumnElement[bool]]:
-    if field is None:
-        return []
-    if field == OTHER:
-        return [model.field.not_in(sorted(FIELD_KEYS))]
-    return [model.field == field]
+    return [] if field is None else [model.field == field]
 
 
 def _field_filter(ctx: Context) -> list[ColumnElement[bool]]:
@@ -864,7 +930,7 @@ def _companies(ctx: Context) -> CompaniesTab:
         is_company = model.org_type == "company"
         org_where = [*where, is_company if kind == "company" else ~is_company]
         names = top_keys(session, model, "org", ctx.window, model.org_name, RANKING, *org_where)
-        per_org, types = _org_counts(ctx, pair, names, *where)
+        per_org, types = _org_counts(ctx, pair, names, *org_where)
         ranking.extend(
             _ranked_org(name, types.get(name, ""), per_org.get(name, {}), 2) for name in names
         )
@@ -921,10 +987,9 @@ def _detail(
     org_type: str | None = None,
 ) -> CompanyDetail:
     series = _sum(per_field, len(ctx.trend))
-    if entity == "company":
-        _, documents = ctx.docs(size=TOP_DETAIL, company=key)
-    else:
-        _, documents = ctx.docs(size=TOP_DETAIL, org=key)
+    company_key, org = (key, None) if entity == "company" else (None, key)
+    _, recent = ctx.docs(size=TOP_DETAIL, company=company_key, org=org, recent=True)
+    _, top = ctx.docs(size=TOP_DETAIL, company=company_key, org=org)
     return CompanyDetail(
         key=key,
         label=label,
@@ -937,19 +1002,30 @@ def _detail(
         change=change(series[-1], series[-2]),
         fields=_top_fields({k: v[-2:] for k, v in per_field.items()}, limit=None),
         series=series,
-        documents=documents,
+        documents=recent,
+        top_documents=top,
     )
 
 
-def _series(key: str, label: str, counts: list[int]) -> Series:
+def _series(key: str, label: str, counts: list[int], flagged: bool) -> Series:
     flag, z, mean = flag_of(counts)
     return Series(
-        key=key, label=label, counts=counts, current=counts[-1], mean=mean, z=z, flag=flag
+        key=key,
+        label=label,
+        counts=counts,
+        current=counts[-1],
+        mean=mean,
+        z=z if flagged else None,
+        flag=flag if flagged else None,
     )
 
 
 def _top_series(
-    per_key: dict[str, list[int]], labels: dict[str, str], width: int, eligible: set[str] | None
+    per_key: dict[str, list[int]],
+    labels: dict[str, str],
+    width: int,
+    eligible: set[str] | None,
+    flagged: bool,
 ) -> list[Series]:
     ranked = sorted(
         (k for k in per_key if eligible is None or k in eligible),
@@ -961,9 +1037,9 @@ def _top_series(
         if key not in top:
             for i, n in enumerate(counts):
                 rest[i] += n
-    out = [_series(k, labels.get(k, k), per_key[k]) for k in top]
+    out = [_series(k, labels.get(k, k), per_key[k], flagged) for k in top]
     if any(rest):
-        out.append(_series(REST, REST_LABEL, rest))
+        out.append(_series(REST, REST_LABEL, rest, flagged))
     return out
 
 
@@ -972,7 +1048,16 @@ def _trends(ctx: Context) -> TrendsTab:
     width = len(ctx.trend)
     by_field = _field_counts(ctx, ctx.trend)
     labels = {f.key: f.name for f in FIELDS}
-    fields = _top_series(by_field, labels, width, set(FIELD_KEYS))
+    history = min(FLAG_HISTORY, width - 1)
+    compared = ctx.trend[-1 - history :]
+    fields_flagged = ctx.history_ok(compared)
+    regions_flagged = fields_flagged and (
+        not domain.enrichment_regions or ctx.enrichment_ok(compared)
+    )
+    notes = [] if fields_flagged else [NOTE_SHORT]
+    if fields_flagged and not regions_flagged:
+        notes.append(NOTE_ENRICHMENT)
+    fields = _top_series(by_field, labels, width, set(FIELD_KEYS), fields_flagged)
     region = domain.region_column()
     per_region = {
         key: counts
@@ -982,13 +1067,13 @@ def _trends(ctx: Context) -> TrendsTab:
         if key
     }
     region_labels = {key: domain.region_label(key) for key in per_region}
-    regions = _top_series(per_region, region_labels, width, None)
+    regions = _top_series(per_region, region_labels, width, None, regions_flagged)
     flags: list[FlagOut] = []
-    for axis, per_key, names in (
-        ("field", {k: v for k, v in by_field.items() if k in FIELD_KEYS}, labels),
-        (domain.region_dim, per_region, region_labels),
+    for axis, per_key, names, flagged in (
+        ("field", {k: v for k, v in by_field.items() if k in FIELD_KEYS}, labels, fields_flagged),
+        (domain.region_dim, per_region, region_labels, regions_flagged),
     ):
-        for key, counts in per_key.items():
+        for key, counts in per_key.items() if flagged else ():
             flag, z, mean = flag_of(counts)
             if flag is not None:
                 flags.append(
@@ -1005,9 +1090,10 @@ def _trends(ctx: Context) -> TrendsTab:
     flags.sort(key=lambda f: (-abs(f.z), f.axis, f.key))
     return TrendsTab(
         buckets=ctx.trend,
-        history=min(FLAG_HISTORY, width - 1),
+        history=history,
         fields=fields,
         regions_axis=domain.region_dim,
         regions=regions,
         flags=flags,
+        coverage_note=" · ".join(notes) or None,
     )

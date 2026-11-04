@@ -75,6 +75,7 @@ class PatentDomain:
     model = PatentDailyStat
     region_dim: Literal["office"] = "office"
     has_orgs = False
+    enrichment_regions = False
 
     def region_column(self) -> Any:
         return PatentDailyStat.office
@@ -157,6 +158,7 @@ class PatentDomain:
         watched: list[str],
         page: int,
         size: int,
+        recent: bool = False,
     ) -> tuple[int, list[Doc]]:
         conditions = _window(window)
         if field is not None:
@@ -202,7 +204,14 @@ class PatentDomain:
             .outerjoin(StoryItem, StoryItem.item_id == Item.id)
             .outerjoin(Story, Story.id == StoryItem.story_id)
             .where(*conditions)
-            .order_by(score.desc(), Item.occurred_at.desc(), Item.id.desc())
+            .order_by(
+                *(
+                    (Item.occurred_at.desc(),)
+                    if recent
+                    else (score.desc(), Item.occurred_at.desc())
+                ),
+                Item.id.desc(),
+            )
             .offset((page - 1) * size)
             .limit(size)
         ).all()

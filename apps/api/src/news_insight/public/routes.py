@@ -1,6 +1,5 @@
 """Reader API for the public web. Reached only by the web server over the internal network."""
 
-import dataclasses
 import threading
 from collections.abc import Sequence
 from datetime import UTC, date, datetime
@@ -18,7 +17,7 @@ from news_insight.digest import service as digest_service
 from news_insight.digest.models import Digest
 from news_insight.digest.schemas import DigestSummary
 from news_insight.periodic import service as periodic_service
-from news_insight.public import aggregates, domains, radar_cache
+from news_insight.public import aggregates, domain_cache, domains, radar_cache
 from news_insight.public import benchmarks as benchmark_queries
 from news_insight.public import board as board_queries
 from news_insight.public import briefings as briefing_queries
@@ -421,6 +420,9 @@ CompanyQ = Annotated[str | None, Query(max_length=80)]
 DomainPage = Annotated[int, Query(ge=1, le=100)]
 
 
+DomainCache = Annotated[object | None, Depends(domain_cache.cache_client)]
+
+
 def _domain_view(
     session: Session,
     domain: domains.Domain,
@@ -428,19 +430,9 @@ def _domain_view(
     now: datetime,
     cache: object | None,
 ) -> Response:
-    """The view from the reader cache (30 minutes: the counts end yesterday, so only late
-    cards, enrichment and new mentions move them), computed by one request at a time."""
-    key = radar_cache.plain_key(
-        f"domain:{domain.name}",
-        {"as_of": domains.as_of(now).isoformat(), **dataclasses.asdict(query)},
-    )
+    """The view from the reader cache (domain_cache.py), computed by one request at a time."""
     try:
-        body, hit = radar_cache.cached_json(
-            key,
-            domains.CACHE_TTL,
-            lambda: domains.build_view(session, domain, query, now=now),
-            client=cache,
-        )
+        body, hit = domain_cache.serve(session, domain, query, now=now, client=cache)
     except domains.UnknownField as error:
         raise HTTPException(
             status.HTTP_422_UNPROCESSABLE_CONTENT, f"unknown field '{error}'"
@@ -456,7 +448,7 @@ def _domain_view(
 def get_research(
     session: DB,
     now: Now,
-    cache: RadarCache,
+    cache: DomainCache,
     tab: domains.Tab = "overview",
     period: domains.Period = "month",
     field: FieldQ = None,
@@ -466,8 +458,8 @@ def get_research(
     page: DomainPage = 1,
 ) -> Response:
     """연구 menu (plan 19): papers by technology field, company or institution and country,
-    through yesterday (KST); `org` and `kind` pick an institution and the 기업/대학·연구기관
-    ranking."""
+    through the last day counted (at most yesterday, KST); `org` and `kind` pick an
+    institution and the 기업/대학·연구기관 ranking."""
     query = domains.Query(
         tab=tab, period=period, field=field, company=company, org=org, kind=kind, page=page
     )
@@ -478,7 +470,7 @@ def get_research(
 def get_patents(
     session: DB,
     now: Now,
-    cache: RadarCache,
+    cache: DomainCache,
     tab: domains.Tab = "overview",
     period: domains.Period = "month",
     field: FieldQ = None,
@@ -486,7 +478,7 @@ def get_patents(
     page: DomainPage = 1,
 ) -> Response:
     """특허 menu (plan 19): patent documents by technology field, applicant and office,
-    through yesterday (KST), with the coverage of the sources behind the counts."""
+    through the last day counted, with the coverage of the sources behind the counts."""
     query = domains.Query(
         tab=tab, period=period, field=field, company=company, org=None, kind="company", page=page
     )

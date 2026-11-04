@@ -1,5 +1,6 @@
-"""GET /api/public/research (plan 19 §1, §4): one response per tab, windows ending yesterday
-(KST), counts from research_daily_stats, documents and watched counts read live."""
+"""GET /api/public/research (plan 19 §1, §4): one response per tab, windows ending on the last
+day counted (at most yesterday, KST), counts from research_daily_stats, documents and watched
+counts from research_signals (rebuilt here with recompute_signals, as the nightly job does)."""
 
 from datetime import UTC, date, datetime, timedelta
 from typing import Any
@@ -10,18 +11,32 @@ from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
 from news_insight.content.models import Item, ItemMetricSnapshot
-from news_insight.public import radar_cache
+from news_insight.insights.models import StatsDay
+from news_insight.insights.signals import recompute_signals
+from news_insight.insights.stats import recompute_days
+from news_insight.public import domain_cache
 from news_insight.research.models import EnrichStatus, ResearchDailyStat, ResearchMeta
 from news_insight.sources.enums import AccessMethod, Track
 from news_insight.spotlight.candidates import HF_PAPERS
 from news_insight.taxonomy.catalog import FIELDS
-from tests.documents import card, document, source
+from tests.documents import card, document, mark_built, source
 from tests.factories import build_source
 
 pytestmark = pytest.mark.db
 
 URL = "/api/public/research"
 AS_OF = date(2026, 10, 3)  # NOW is 2026-10-04 12:00 KST: the stats end the day before
+NOW_DAY = date(2026, 10, 4)
+
+
+@pytest.fixture(autouse=True)
+def _built(db_session: Session) -> None:
+    """The nightly counts ran for every day up to AS_OF (enough history for every flag)."""
+    mark_built(db_session, AS_OF - timedelta(days=900), AS_OF)
+
+
+def signals(session: Session) -> None:
+    recompute_signals(session, through=AS_OF, now=at(AS_OF + timedelta(days=1), 4))
 
 
 def at(day: date, hour: int = 12) -> datetime:
@@ -50,17 +65,20 @@ def meta(
     company_keys: list[str] | None = None,
     institutions: list[dict[str, Any]] | None = None,
     cited_by: int | None = None,
+    counts_by_year: list[dict[str, int]] | None = None,
+    doi: str | None = None,
 ) -> None:
     session.add(
         ResearchMeta(
             item_id=item.id,
-            doi=f"10.1/{item.id}",
+            doi=doi or f"10.1/{item.id}",
             venue="NeurIPS",
             institutions=institutions or [],
             countries=[],
             company_keys=company_keys or [],
             has_company=bool(company_keys),
             cited_by=cited_by,
+            counts_by_year=counts_by_year or [],
             status=EnrichStatus.OK,
             enriched_at=at(AS_OF),
         )
@@ -76,9 +94,16 @@ def paper(
     field: str | None = "ai",
     refs: tuple[tuple[str, str], ...] = (),
     src: Any = None,
+    url: str | None = None,
 ) -> Item:
     item = document(
-        session, src or source(session, "arxiv"), slug, published=at(day), seen=at(day), refs=refs
+        session,
+        src or source(session, "arxiv"),
+        slug,
+        published=at(day),
+        seen=at(day),
+        refs=refs,
+        url=url,
     )
     if field is not None:
         card(session, item, field=field, themes=[])
@@ -107,11 +132,12 @@ def test_overview_kpis_heatmap_and_risers(
     meta(db_session, own, company_keys=["samsungelectronics"])
     meta(db_session, paper(db_session, "peer", date(2026, 9, 21)), company_keys=["openai"])
     meta(db_session, paper(db_session, "rival", date(2026, 8, 10)), company_keys=["apple"])
+    signals(db_session)
 
     body = get(public_client, public_headers)
 
     assert body["kind"] == "research" and body["tab"] == "overview" and body["period"] == "month"
-    assert body["as_of"] == "2026-10-03"
+    assert body["as_of"] == "2026-10-03" and body["stats_from"] == "2024-04-16"
     assert body["window"] == {"start": "2026-09-04", "end": "2026-10-03"}
     assert body["previous"] == {"start": "2026-08-05", "end": "2026-09-03"}
     assert body["fields"] is None and body["documents"] is None and body["coverage"] is None
@@ -134,7 +160,7 @@ def test_overview_kpis_heatmap_and_risers(
     rows = {row["key"]: row["counts"] for row in heatmap["rows"]}
     assert list(rows) == [f.key for f in FIELDS]
     assert rows["ai"][-1] == 30 and rows["semis"][8] == 10 and heatmap["max"] == 30
-    assert overview["insight"] is None
+    assert overview["insight"] is None and overview["coverage_note"] is None
 
 
 def test_period_windows_end_yesterday(
@@ -166,6 +192,7 @@ def test_fields_tab_themes_companies_orgs_and_documents(
     stat(db_session, AS_OF, 2, dim="org", org_name="Tiny Startup", org_type="company")
     ai_paper = paper(db_session, "agents", date(2026, 9, 30))
     paper(db_session, "chips", date(2026, 9, 30), field="semis")
+    signals(db_session)
 
     body = get(public_client, public_headers, tab="fields")
 
@@ -201,8 +228,11 @@ def test_fields_tab_themes_companies_orgs_and_documents(
 
     semis = get(public_client, public_headers, tab="fields", field="semis")["fields"]
     assert semis["selected"] == "semis" and semis["detail"]["count"] == 10
-    bad = public_client.get(URL, params={"tab": "fields", "field": "nope"}, headers=public_headers)
-    assert bad.status_code == 422
+    for field in ("nope", "other"):  # unclassified papers are counted, not selectable
+        bad = public_client.get(
+            URL, params={"tab": "fields", "field": field}, headers=public_headers
+        )
+        assert bad.status_code == 422
 
 
 def test_companies_tab_ranking_watch_and_detail(
@@ -217,6 +247,10 @@ def test_companies_tab_ranking_watch_and_detail(
     stat(db_session, AS_OF, 3, dim="org", org_name="Tiny Startup", org_type="company")
     stat(db_session, AS_OF, 7, dim="org", org_name="KAIST", org_type="education")
     stat(db_session, AS_OF, 2, dim="org", field="semis", org_name="MIT", org_type="education")
+    # a name with rows of both types counts only its type's rows in each ranking
+    stat(
+        db_session, AS_OF, 5, dim="org", field="semis", org_name="Tiny Startup", org_type="facility"
+    )
     own = paper(db_session, "own", date(2026, 9, 25))
     meta(
         db_session,
@@ -226,7 +260,11 @@ def test_companies_tab_ranking_watch_and_detail(
             {"name": "Samsung", "type": "company", "company_key": "samsungelectronics"},
             {"name": "KAIST", "type": "education", "company_key": None},
         ],
+        counts_by_year=[{"year": 2026, "cited_by_count": 4}],
     )
+    newer = paper(db_session, "newer", date(2026, 9, 28))
+    meta(db_session, newer, company_keys=["samsungelectronics"])
+    signals(db_session)
 
     body = get(public_client, public_headers, tab="companies")
 
@@ -244,6 +282,7 @@ def test_companies_tab_ranking_watch_and_detail(
     assert samsung["watched"] is True and samsung["relation"] == "self"
     assert [(f["key"], f["count"]) for f in samsung["top_fields"]] == [("ai", 4), ("semis", 2)]
     assert ranking[0]["watched"] is False and ranking[2]["org_type"] == "company"
+    assert ranking[2]["count"] == 3  # not the facility rows of the same name
     watch = tab["watch"]
     assert watch["total"] >= 2
     watched = {w["company"]["key"]: w for w in watch["companies"]}
@@ -260,15 +299,18 @@ def test_companies_tab_ranking_watch_and_detail(
     orgs = get(public_client, public_headers, tab="companies", kind="org")["companies"]
     assert [(r["key"], r["org_type"]) for r in orgs["ranking"]] == [
         ("KAIST", "education"),
+        ("Tiny Startup", "facility"),
         ("MIT", "education"),
     ]
+    assert orgs["ranking"][1]["count"] == 5
 
     detail = get(public_client, public_headers, tab="companies", company="samsungelectronics")
     company = detail["companies"]["detail"]
     assert company["key"] == "samsungelectronics" and company["label"] == "삼성전자"
     assert company["count"] == 6 and company["series"][-1] == 6
     assert [f["key"] for f in company["fields"]] == ["ai", "semis"]
-    assert [d["id"] for d in company["documents"]] == [own.id]
+    assert [d["id"] for d in company["documents"]] == [newer.id, own.id]  # 최근 문헌
+    assert [d["id"] for d in company["top_documents"]] == [own.id, newer.id]  # by score
 
     org = get(public_client, public_headers, tab="companies", kind="org", org="KAIST")
     assert org["companies"]["detail"]["entity"] == "org"
@@ -323,10 +365,7 @@ def test_trends_tab_series_rest_and_rise_fall_flags(
     assert ("field", "connectivity") not in flags
 
 
-def test_documents_tab_scores_filters_and_pages(
-    public_client: TestClient, public_headers: dict[str, str], db_session: Session
-) -> None:
-    news = source(db_session, "verge", category="independent_media", track=Track.NEWS)
+def hf_source(session: Session) -> Any:
     hf = build_source(
         key="hf-papers",
         name="Hugging Face",
@@ -335,22 +374,41 @@ def test_documents_tab_scores_filters_and_pages(
         category="academic_paper",
         access_method=AccessMethod.RESEARCH_API,
     )
-    db_session.add(hf)
-    db_session.flush()
-    talked = paper(db_session, "talked", date(2026, 9, 20), refs=(("arxiv", "2609.11111"),))
-    meta(db_session, talked, cited_by=3)
-    for slug in ("one", "two"):
+    session.add(hf)
+    session.flush()
+    return hf
+
+
+def test_documents_tab_scores_filters_and_pages(
+    public_client: TestClient, public_headers: dict[str, str], db_session: Session
+) -> None:
+    news = source(db_session, "verge", category="independent_media", track=Track.NEWS)
+    hf = hf_source(db_session)
+    talked = paper(
+        db_session,
+        "talked",
+        date(2026, 9, 20),
+        refs=(("arxiv", "2609.11111"),),
+        url="https://arxiv.org/abs/2609.11111v2",
+    )
+    meta(
+        db_session,
+        talked,
+        cited_by=9,
+        doi="10.48550/arxiv.2609.11111",
+        counts_by_year=[{"year": 2025, "cited_by_count": 6}, {"year": 2026, "cited_by_count": 9}],
+    )
+    for slug, day in (("one", date(2026, 9, 22)), ("two", date(2026, 9, 23)), ("late", NOW_DAY)):
         document(
-            db_session,
-            news,
-            slug,
-            published=at(date(2026, 9, 22)),
-            seen=at(date(2026, 9, 22)),
-            refs=(("arxiv", "2609.11111"),),
+            db_session, news, slug, published=at(day), seen=at(day), refs=(("arxiv", "2609.11111"),)
         )
     voted = paper(db_session, "voted", date(2026, 9, 21), src=hf)
-    db_session.add(
-        ItemMetricSnapshot(item_id=voted.id, captured_at=at(AS_OF), metrics={"upvotes": 40})
+    db_session.add_all(
+        [
+            ItemMetricSnapshot(item_id=voted.id, captured_at=at(AS_OF), metrics={"upvotes": 40}),
+            # counted up to as_of: today's snapshot is not
+            ItemMetricSnapshot(item_id=voted.id, captured_at=at(NOW_DAY), metrics={"upvotes": 90}),
+        ]
     )
     chips = paper(db_session, "chips", date(2026, 9, 19), field="semis")
     meta(
@@ -363,11 +421,8 @@ def test_documents_tab_scores_filters_and_pages(
         ],
     )
     older = paper(db_session, "older", date(2026, 8, 1))
-    paper(db_session, "today", date(2026, 10, 4))
-    # the page total comes from the stats the nightly job builds from the same papers
-    stat(db_session, date(2026, 9, 20), 2)
-    stat(db_session, date(2026, 9, 19), 1, field="semis")
-    stat(db_session, date(2026, 9, 19), 1, dim="org", field="semis", org_name="KAIST")
+    paper(db_session, "today", NOW_DAY)
+    signals(db_session)
 
     body = get(public_client, public_headers, tab="documents")
 
@@ -376,34 +431,167 @@ def test_documents_tab_scores_filters_and_pages(
     assert [d["id"] for d in page["items"]] == [voted.id, talked.id, chips.id]
     first, second, third = page["items"]
     assert first["upvotes"] == 40 and first["score"] == 40
-    assert second["mentions"] == 2 and second["cited_by"] == 3 and second["venue"] == "NeurIPS"
+    assert second["mentions"] == 2 and second["cited_by"] == 9 and second["venue"] == "NeurIPS"
+    assert second["cited_growth"] == 3  # 2026's citations against 2025's
     assert second["score"] == pytest.approx(20 + 5 * 1.386, abs=0.1)
     assert second["field"] == "ai" and second["field_label"] == "AI 모델·에이전트"
     assert third["companies"][0]["key"] == "samsungelectronics" and third["watched"] is True
     assert third["orgs"] == ["KAIST"]
 
-    def ids(**params: Any) -> list[int]:
-        found = get(public_client, public_headers, tab="documents", **params)["documents"]
-        return [d["id"] for d in found["items"]]
+    def found(**params: Any) -> tuple[list[int], int]:
+        tab = get(public_client, public_headers, tab="documents", **params)["documents"]
+        return [d["id"] for d in tab["items"]], int(tab["total"])
 
-    def total(**params: Any) -> int:
-        found = get(public_client, public_headers, tab="documents", **params)["documents"]
-        return int(found["total"])
-
-    assert ids(field="semis") == [chips.id] and total(field="semis") == 1
-    assert ids(company="samsungelectronics") == [chips.id]
-    assert ids(org="KAIST") == [chips.id] and total(org="KAIST", field="semis") == 1
-    assert older.id in ids(period="quarter")
-    assert ids(page=2) == []
+    assert found(field="semis") == ([chips.id], 1)
+    assert found(company="samsungelectronics") == ([chips.id], 1)
+    assert found(org="KAIST") == ([chips.id], 1)
+    assert found(company="samsungelectronics", org="MIT") == ([], 0)  # both filters hold
+    assert older.id in found(period="quarter")[0]
+    assert found(page=2) == ([], 3)
     missing = public_client.get(
         URL, params={"tab": "documents", "company": "nope"}, headers=public_headers
     )
     assert missing.status_code == 404
 
 
+def test_listings_of_one_paper_fold_into_one_document(
+    public_client: TestClient, public_headers: dict[str, str], db_session: Session
+) -> None:
+    hf = hf_source(db_session)
+    preprint = paper(
+        db_session,
+        "preprint",
+        date(2026, 9, 20),
+        refs=(("arxiv", "2609.33333"),),
+        url="https://arxiv.org/abs/2609.33333v1",
+    )
+    meta(db_session, preprint, doi="10.48550/arxiv.2609.33333", company_keys=["openai"])
+    listing = paper(
+        db_session,
+        "listing",
+        date(2026, 9, 22),
+        refs=(("arxiv", "2609.33333"),),
+        src=hf,
+        url="https://huggingface.co/papers/2609.33333",
+    )
+    db_session.add(
+        ItemMetricSnapshot(item_id=listing.id, captured_at=at(AS_OF), metrics={"upvotes": 25})
+    )
+    signals(db_session)
+
+    page = get(public_client, public_headers, tab="documents")["documents"]
+
+    assert page["total"] == 1 and [d["id"] for d in page["items"]] == [preprint.id]
+    assert page["items"][0]["upvotes"] == 25  # the group's signals ride on the lead
+    assert page["items"][0]["companies"][0]["key"] == "openai"
+
+
+def test_stats_totals_equal_the_documents_list(
+    public_client: TestClient, public_headers: dict[str, str], db_session: Session
+) -> None:
+    db_session.query(StatsDay).delete()
+    for slug, day, field in (
+        ("a", date(2026, 9, 10), "ai"),
+        ("b", date(2026, 9, 30), "ai"),
+        ("c", date(2026, 9, 15), "semis"),
+        ("d", date(2026, 8, 20), "ai"),  # previous window
+    ):
+        paper(db_session, slug, day, field=field)
+    unclassified = paper(db_session, "e", date(2026, 9, 12), field=None)
+    days = [AS_OF - timedelta(days=back) for back in range(120)]
+    recompute_days(db_session, days, now=at(NOW_DAY, 4))
+    signals(db_session)
+
+    overview = get(public_client, public_headers)["overview"]["kpis"]
+    documents = get(public_client, public_headers, tab="documents")["documents"]
+    fields = get(public_client, public_headers, tab="fields")["fields"]
+
+    assert overview["count"] == documents["total"] == 4
+    assert overview["previous"] == 1
+    assert fields["items"][0]["count"] == len(fields["detail"]["documents"]) == 2
+    assert fields["other"]["count"] == 1
+    assert unclassified.id in [d["id"] for d in documents["items"]]
+
+
+def test_as_of_is_the_last_day_built(
+    public_client: TestClient, public_headers: dict[str, str], db_session: Session
+) -> None:
+    db_session.query(StatsDay).filter(StatsDay.day == AS_OF).delete()  # 03:40 has not run yet
+
+    body = get(public_client, public_headers)
+
+    assert body["as_of"] == "2026-10-02"
+    assert body["window"] == {"start": "2026-09-03", "end": "2026-10-02"}
+
+
+def test_flags_are_off_when_the_history_is_short(
+    public_client: TestClient, public_headers: dict[str, str], db_session: Session
+) -> None:
+    db_session.query(StatsDay).filter(StatsDay.day < AS_OF - timedelta(days=70)).delete()
+    for back in range(1, 12):
+        stat(db_session, AS_OF - timedelta(days=30 * back), 5)
+    stat(db_session, AS_OF, 50)
+
+    overview = get(public_client, public_headers)["overview"]
+    trends = get(public_client, public_headers, tab="trends")["trends"]
+
+    assert overview["risers"] == [] and overview["kpis"]["rising_field"] is None
+    assert overview["coverage_note"]
+    ai = next(s for s in trends["fields"] if s["key"] == "ai")
+    assert ai["counts"][-1] == 50 and ai["flag"] is None and ai["z"] is None
+    assert trends["flags"] == [] and trends["coverage_note"]
+    # nine weeks reach back 63 days: within the 70 days built
+    weekly = get(public_client, public_headers, tab="trends", period="week")["trends"]
+    assert next(s for s in weekly["fields"] if s["key"] == "ai")["flag"] == "rise"
+
+
+def test_country_flags_wait_for_enrichment_coverage(
+    public_client: TestClient, public_headers: dict[str, str], db_session: Session
+) -> None:
+    db_session.query(StatsDay).delete()
+    mark_built(
+        db_session, AS_OF - timedelta(days=400), AS_OF - timedelta(days=7), research_enriched=10
+    )
+    mark_built(db_session, AS_OF - timedelta(days=6), AS_OF, research_enriched=90)
+    for back in range(1, 9):
+        day = AS_OF - timedelta(weeks=back)
+        stat(db_session, day, 10)
+        stat(db_session, day, 1, dim="country", country="KR")
+    stat(db_session, AS_OF, 40)
+    stat(db_session, AS_OF, 30, dim="country", country="KR")
+
+    trends = get(public_client, public_headers, tab="trends", period="week")["trends"]
+
+    assert next(s for s in trends["fields"] if s["key"] == "ai")["flag"] == "rise"
+    korea = next(s for s in trends["regions"] if s["key"] == "KR")
+    assert korea["counts"][-1] == 30 and korea["flag"] is None and korea["z"] is None
+    assert {f["axis"] for f in trends["flags"]} == {"field"}
+    assert "보강" in trends["coverage_note"]
+
+
+def test_rising_field_needs_z_of_two(
+    public_client: TestClient, public_headers: dict[str, str], db_session: Session
+) -> None:
+    for back in range(1, 5):
+        stat(db_session, AS_OF - timedelta(days=30 * back), 10)
+    stat(db_session, AS_OF, 13)  # above the mean, z = 3 / √10 < 2
+
+    overview = get(public_client, public_headers)["overview"]
+
+    assert [r["key"] for r in overview["risers"]] == ["ai"]
+    assert overview["kpis"]["rising_field"] is None
+
+
 @pytest.mark.parametrize(
     "params",
-    [{"tab": "today"}, {"period": "year"}, {"page": 0}, {"kind": "people"}, {"field": "x" * 50}],
+    [
+        {"tab": "today"},
+        {"period": "year"},
+        {"page": 0},
+        {"kind": "people"},
+        {"field": "x" * 50},
+        {"field": "other"},
+    ],
 )
 def test_bad_params_are_422(
     public_client: TestClient, public_headers: dict[str, str], params: dict[str, Any]
@@ -417,16 +605,43 @@ def test_views_are_served_from_the_reader_cache(
     redis_client: redis.Redis,
     db_session: Session,
 ) -> None:
-    public_client.app.dependency_overrides[radar_cache.cache_client] = lambda: redis_client  # type: ignore[attr-defined]
+    public_client.app.dependency_overrides[domain_cache.cache_client] = lambda: redis_client  # type: ignore[attr-defined]
     stat(db_session, AS_OF, 3)
+    variants = [
+        {"tab": "trends"},
+        {"tab": "trends", "period": "week"},
+        {"tab": "documents", "field": "ai"},
+        {"tab": "documents", "company": "openai"},
+        {"tab": "documents", "org": "KAIST"},
+        {"tab": "documents", "page": 2},
+        {"tab": "companies", "kind": "org"},
+    ]
 
-    first = public_client.get(URL, params={"tab": "trends"}, headers=public_headers)
-    second = public_client.get(URL, params={"tab": "trends"}, headers=public_headers)
-    other = public_client.get(
-        URL, params={"tab": "trends", "period": "week"}, headers=public_headers
-    )
+    first = [public_client.get(URL, params=p, headers=public_headers) for p in variants]
+    second = [public_client.get(URL, params=p, headers=public_headers) for p in variants]
     bad = public_client.get(URL, params={"field": "nope"}, headers=public_headers)
 
-    assert first.headers["x-cache"] == "miss" and second.headers["x-cache"] == "hit"
-    assert first.json() == second.json() and other.headers["x-cache"] == "miss"
+    assert [r.headers["x-cache"] for r in first] == ["miss"] * len(variants)
+    assert [r.headers["x-cache"] for r in second] == ["hit"] * len(variants)
+    assert [r.json() for r in first] == [r.json() for r in second]
     assert bad.status_code == 422
+
+
+def test_warm_fills_the_default_views(
+    public_client: TestClient,
+    public_headers: dict[str, str],
+    redis_client: redis.Redis,
+    db_session: Session,
+) -> None:
+    public_client.app.dependency_overrides[domain_cache.cache_client] = lambda: redis_client  # type: ignore[attr-defined]
+    stat(db_session, AS_OF, 3)
+
+    warmed = domain_cache.warm(db_session, now=at(NOW_DAY), client=redis_client)
+
+    assert warmed == 30
+    hit = public_client.get(URL, params={"period": "week"}, headers=public_headers)
+    assert hit.headers["x-cache"] == "hit"
+    patents = public_client.get(
+        "/api/public/patents", params={"tab": "documents"}, headers=public_headers
+    )
+    assert patents.headers["x-cache"] == "hit"

@@ -12,12 +12,17 @@ from news_insight.content.models import Item
 from news_insight.patents.models import PatentDailyStat, PatentMeta, PatentSource
 from news_insight.sources.enums import Track
 from news_insight.stories.models import Relation, Story, StoryItem
-from tests.documents import card, document, source
+from tests.documents import card, document, mark_built, source
 
 pytestmark = pytest.mark.db
 
 URL = "/api/public/patents"
 AS_OF = date(2026, 10, 3)  # NOW is 2026-10-04 12:00 KST
+
+
+@pytest.fixture(autouse=True)
+def _built(db_session: Session) -> None:
+    mark_built(db_session, AS_OF - timedelta(days=900), AS_OF)
 
 
 def at(day: date, hour: int = 12) -> datetime:
