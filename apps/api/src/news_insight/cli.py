@@ -1849,12 +1849,67 @@ def main() -> None:
 
 
 @benchmarks_app.command("collect")
-def benchmarks_collect() -> None:
-    """Collect every leaderboard now. One line per site; a failing site is printed, not fatal."""
-    with session_scope() as session, _fetcher() as fetcher:
-        results = collect_all(session, fetcher, datetime.now(UTC))
-    for site, result in results.items():
-        typer.echo(f"{site}: {result}")
+def benchmarks_collect(
+    dry_run: Annotated[
+        bool,
+        typer.Option(
+            "--dry-run",
+            help="Fetch and parse only: print each board's top entries, write nothing",
+        ),
+    ] = False,
+    site: Annotated[
+        list[str] | None, typer.Option("--site", help="Only this site (repeatable)")
+    ] = None,
+    top: Annotated[int, typer.Option(help="Entries per board in the dry run")] = 10,
+) -> None:
+    """Collect every leaderboard now. One line per site; a failing site is printed, not fatal.
+    With --dry-run nothing is saved and no database is opened: the parsed boards are ranked the
+    way readers see them and printed."""
+    from news_insight.benchmarks.service import SOURCES, fetch_only
+
+    known = [module.SITE for module in SOURCES]
+    unknown = [name for name in site or [] if name not in known]
+    if unknown:
+        raise typer.BadParameter(f"unknown site {unknown}; one of {known}", param_hint="--site")
+    if not dry_run:
+        if site:
+            raise typer.BadParameter("--site needs --dry-run", param_hint="--site")
+        with session_scope() as session, _fetcher() as fetcher:
+            results = collect_all(session, fetcher, datetime.now(UTC))
+        for name, result in results.items():
+            typer.echo(f"{name}: {result}")
+        return
+
+    from news_insight.public.benchmarks import preview
+
+    with _fetcher() as fetcher:
+        fetched = fetch_only(fetcher, datetime.now(UTC), site)
+    for name, snapshot in fetched.items():
+        if isinstance(snapshot, str):
+            typer.echo(f"{name}: {snapshot}")
+            continue
+        updated = snapshot.raw.get("updated") or {}
+        typer.echo(f"{name}: release {snapshot.release}, {len(snapshot.rows)} rows (not saved)")
+        for board, entries in preview(snapshot, top=top).items():
+            typer.echo(f"  [{board}] updated {updated.get(board, '?')}")
+            for entry in entries:
+                typer.echo("    " + _preview_line(entry))
+
+
+def _preview_line(entry: dict[str, Any]) -> str:
+    value = entry["value"]
+    shown = f"{value:.4f}" if abs(value) < 1 else f"{value:.2f}"
+    parts = [f"{entry['rank']:>3}", entry["model"]]
+    if entry["config"]:
+        parts.append(f"[{entry['config']}]")
+    parts.append(f"{entry['metric']}={shown}")
+    if entry["ci_low"] is not None and entry["ci_high"] is not None:
+        parts.append(f"ci={entry['ci_low']:.4g}..{entry['ci_high']:.4g}")
+    if entry["site_rank"] is not None:
+        parts.append(f"site_rank={entry['site_rank']:g}")
+    if entry["votes"] is not None:
+        parts.append(f"votes={entry['votes']:g}")
+    return "  ".join(parts)
 
 
 @research_app.command("enrich")

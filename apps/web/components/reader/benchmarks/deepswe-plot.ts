@@ -43,10 +43,6 @@ export const DEFAULT_EFFORT: Record<string, string> = {
   "muse-spark-1-1": "medium",
 };
 
-/** Models the site leaves off its chart until picked. */
-export const HIDDEN_BY_DEFAULT = new Set(["gpt-5-6-terra", "gpt-5-4", "grok-4-5", "kimi-k2-7-code", "claude-sonnet-4-6", "gemini-3-1-pro-preview", "muse-spark-1-1"]);
-/** Below this best pass@1 (percent) a model starts hidden. */
-const MIN_BEST = 5;
 /** Configurations dearer than this per task start hidden (the site's chart keeps its x range readable). */
 const MAX_DEFAULT_COST = 15;
 
@@ -57,10 +53,13 @@ export function bestByModel(points: Pick<DsPoint, "model" | "score">[]): { model
   return [...best.entries()].map(([model, value]) => ({ model, best: value })).sort((a, b) => b.best - a.best);
 }
 
-/** The configurations the chart opens with: the site's "Configs (57/70)". */
-export function defaultConfigs(points: DsPoint[]): Set<string> {
-  const shown = new Set(bestByModel(points).filter((m) => m.best >= MIN_BEST && !HIDDEN_BY_DEFAULT.has(m.model)).map((m) => m.model));
-  return new Set(points.filter((p) => shown.has(p.model) && (p.cost ?? 0) <= MAX_DEFAULT_COST).map((p) => p.id));
+/**
+ * The configurations the chart opens with: the site's "Configs (57/70)", i.e. the default
+ * models' configurations (`shown`: the API ranks exactly the models the site opens on, best
+ * pass rate of 5% or more minus the few it hides) that cost at most $15 a task.
+ */
+export function defaultConfigs(points: Pick<DsPoint, "id" | "shown" | "cost">[]): Set<string> {
+  return new Set(points.filter((p) => p.shown && (p.cost ?? 0) <= MAX_DEFAULT_COST).map((p) => p.id));
 }
 
 // ---- colour --------------------------------------------------------------------------
@@ -215,19 +214,27 @@ export interface Dims {
   mobile: boolean;
   plotW: number;
   plotH: number;
-  font: { title: number; tick: number; axis: number; eff: number; label: number; hover: number };
+  /** In the frame's own units; `sub` is a label's second line (the effort level). */
+  font: { title: number; tick: number; axis: number; eff: number; label: number; hover: number; sub: number };
 }
 
-/** The site's frames: 440×500 under 640 px, else 600–1200 wide at 1.6:1 (900 when unmeasured). */
+/**
+ * The site's frames: 440×500 under 640 px, else 600–1200 wide at 1.6:1 (900 when unmeasured).
+ * Text is sized so it reads at least 12 px on screen (tick labels 11 px): the desktop frame is
+ * drawn at its own size, the narrow one scaled down to the container, so its fonts grow by
+ * that scale.
+ */
 export function dims(width: number | null): Dims {
   if (width !== null && width < 640) {
     const M = { top: 40, right: 68, bottom: 52, left: 46 };
-    return { W: 440, H: 500, M, mobile: true, plotW: 440 - M.left - M.right, plotH: 500 - M.top - M.bottom, font: { title: 12, tick: 9.5, axis: 11, eff: 9, label: 10, hover: 10 } };
+    const k = 440 / Math.max(width, 280);
+    const font = { title: 13 * k, tick: 11 * k, axis: 12 * k, eff: 12 * k, label: 12 * k, hover: 12 * k, sub: 12 * k };
+    return { W: 440, H: 500, M, mobile: true, plotW: 440 - M.left - M.right, plotH: 500 - M.top - M.bottom, font };
   }
   const W = Math.round(Math.min(1200, Math.max(600, width ?? 900)));
   const H = Math.round(W / 1.6);
   const M = { top: 40, right: 60, bottom: 52, left: 46 };
-  return { W, H, M, mobile: false, plotW: W - M.left - M.right, plotH: H - M.top - M.bottom, font: { title: 14, tick: 12, axis: 13, eff: 11, label: 12.5, hover: 12 } };
+  return { W, H, M, mobile: false, plotW: W - M.left - M.right, plotH: H - M.top - M.bottom, font: { title: 14, tick: 12, axis: 13, eff: 12, label: 13, hover: 12, sub: 12 } };
 }
 
 export interface PlotPoint {
@@ -358,9 +365,10 @@ export function buildPlot(rows: DsPoint[], axis: Axis, width: number | null): Pl
   const labels: PlotLabel[] = [];
   for (const p of points.filter((q) => q.labeled).sort((a, b) => b.y - a.y)) {
     const line1 = displayName(p.model);
-    const w = Math.max(line1.length * font.label * 0.52, (p.effort?.length ?? 0) * font.eff * 0.82 * 0.58);
-    const h = p.effort ? 20 : 12;
-    const ascent = p.effort ? 7 : 5;
+    const w = Math.max(line1.length * font.label * 0.52, (p.effort?.length ?? 0) * font.sub * 0.62);
+    // one line is about a font's cap height tall; the effort line sits one `sub` below it
+    const h = p.effort ? font.label * 0.8 + font.sub + 1 : font.label;
+    const ascent = font.label * 0.6;
     const boxAt = (o: Offset): Box => ({
       x: o.anchor === "start" ? p.px + o.dx : o.anchor === "end" ? p.px + o.dx - w : p.px + o.dx - w / 2,
       y: p.py + o.dy - ascent,
@@ -386,6 +394,11 @@ export function buildPlot(rows: DsPoint[], axis: Axis, width: number | null): Pl
       }
     }
     pick ??= { o: above, box: boxAt(above) };
+    // the narrow frame has no room for every name at a readable size: a label that would
+    // cover another (or its dots) by more than a twentieth of itself is left off there; the
+    // point keeps its colour, its values show on hover, and the table below names it
+    const crowded = pick.box.w * pick.box.h * 0.05;
+    if (d.mobile && others.reduce((sum, b) => sum + overlap(pick.box, b), 0) > crowded) continue;
     placed.push(pick.box);
     const gapX = Math.max(pick.box.x - p.px, p.px - (pick.box.x + pick.box.w), 0);
     const gapY = Math.max(pick.box.y - p.py, p.py - (pick.box.y + pick.box.h), 0);

@@ -79,14 +79,58 @@ test.describe("spotlight", () => {
     await expect(main.getByText("조건에 맞는 항목이 없습니다")).toBeVisible();
   });
 
-  test("AI 모델·서비스 has its own tab beside the leaderboards", async ({ page, isMobile }) => {
+  test("AI 모델·서비스 holds the benchmarks below its ranked list; the AI 모델 tab is gone", async ({ page, isMobile }) => {
     test.skip(isMobile, "desktop flow");
     await page.goto("/spotlight");
     const tabs = page.getByRole("navigation", { name: "주목 받는 보기" });
-    await expect(tabs.getByRole("link", { name: "AI 모델", exact: true })).toHaveAttribute("href", "/spotlight?tab=models");
+    await expect(tabs.getByRole("link", { name: "AI 모델", exact: true })).toHaveCount(0);
     await tabs.getByRole("link", { name: "AI 모델·서비스", exact: true }).click();
     await expect(page).toHaveURL(/tab=ai/);
     await expect(page.getByRole("link", { name: "스마트폰용 4비트 LLM이 주목받았다" })).toBeVisible();
+
+    // the benchmarks follow the ranked list, collected from the sites' responses of 2026-11-04
+    const bench = page.getByRole("region", { name: "AI 모델 벤치마크" });
+    await expect(bench).toBeVisible();
+    const deepswe = bench.getByRole("region", { name: "DeepSWE" });
+    const dsTable = deepswe.getByRole("table", { name: "DeepSWE 순위표" });
+    // the site's default table: 21 models, gpt-5.6-terra (hidden on the site) not among them
+    await expect(dsTable.getByRole("rowheader").first()).toContainText("gpt-6-astra");
+    await expect(dsTable.getByRole("rowheader")).toHaveCount(20);
+    await expect(dsTable.getByText("gpt-5.6-terra")).toHaveCount(0);
+    await expect(deepswe.getByRole("button", { name: "모델 고르기" })).toContainText("(21/28)");
+    await expect(deepswe.getByText("2026년 9월 22일", { exact: false })).toBeVisible();
+
+    const arena = bench.getByRole("region", { name: "LMArena" });
+    const arenaTable = arena.getByRole("table", { name: /LMArena 텍스트 순위표/ });
+    // rank 9 is the effort-less "Claude Opus 4.6", its own row as on arena.ai
+    await expect(arenaTable.getByRole("rowheader").nth(8)).toHaveText(/^9.*Claude Opus 4\.6$/);
+    await expect(arena.getByText("Style Control (사이트 기본값)")).toBeVisible();
+    await arena.getByRole("tab", { name: "검색" }).click();
+    await expect(arena.getByRole("table", { name: /LMArena 검색 순위표/ }).getByRole("rowheader").nth(1)).toContainText("qwen3.8-max");
+    await expect(arena.getByText("None (사이트 기본값)")).toBeVisible();
+
+    const livebench = bench.getByRole("region", { name: "LiveBench" });
+    await expect(livebench.getByRole("table").getByRole("rowheader").first()).toContainText("Claude Fable 5.1");
+    await expect(bench.getByRole("region", { name: "Artificial Analysis" }).getByText("키 미설정")).toBeVisible();
+  });
+
+  test("an old AI 모델 link lands on the benchmarks under AI 모델·서비스", async ({ page, isMobile }) => {
+    test.skip(isMobile, "desktop flow");
+    await page.goto("/spotlight?tab=models");
+    await expect(page).toHaveURL(/\/spotlight\?tab=ai#benchmarks$/);
+    const tabs = page.getByRole("navigation", { name: "주목 받는 보기" });
+    await expect(tabs.getByRole("link", { name: "AI 모델·서비스", exact: true })).toHaveAttribute("aria-current", "page");
+    await expect(page.getByRole("heading", { level: 2, name: "AI 모델 벤치마크" })).toBeInViewport();
+  });
+
+  test("@mobile the benchmarks read on a phone", async ({ page }) => {
+    await page.goto("/spotlight?tab=ai#benchmarks");
+    const bench = page.getByRole("region", { name: "AI 모델 벤치마크" });
+    const table = bench.getByRole("table", { name: "DeepSWE 순위표" });
+    await expect(table.getByRole("rowheader").first()).toContainText("gpt-6-astra");
+    // body text at least 14 px
+    const size = await table.getByRole("rowheader").first().evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
+    expect(size).toBeGreaterThanOrEqual(14);
   });
 
   test("an earlier day opens by date; an impossible or unpublished date shows the not-found page", async ({ page, isMobile }) => {

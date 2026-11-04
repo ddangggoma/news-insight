@@ -36,24 +36,31 @@ declare module "@tanstack/react-table" {
     numeric?: boolean;
     /** Per-cell classes, e.g. the top-5 shading of a LiveBench column. */
     cellClassName?: (row: TData) => string | undefined;
+    /** Classes for the column's header and every cell, e.g. hiding it on a phone. */
+    className?: string;
   }
 }
 
 // Sticky first column: an opaque background so scrolled cells pass under it, and a hairline
 // at its right edge. The hover colour is the row's own hover (muted at 50%) mixed opaque.
-const STICKY = "sticky left-0 z-10 bg-card shadow-[inset_-1px_0_0_var(--border)]";
-
 // Body rows and cells are styled once here rather than per cell: a 400-row board would
-// otherwise repeat the same class strings in every cell of the server-rendered page. Same
-// look as the shadcn TableRow/TableCell.
+// otherwise repeat the same class strings in every cell of the server-rendered page. Body text
+// is 14 px; each row ends in a hairline of the theme's border colour (visible on the card in
+// light and dark); the first cell of a row is its <th scope="row">.
 const BODY = cn(
-  "text-[13px]",
-  "[&_tbody_tr]:border-b [&_tbody_tr:last-child]:border-0 [&_tbody_tr]:transition-colors [&_tbody_tr:hover]:bg-muted/50 [&_tbody_tr[data-state=selected]]:bg-muted",
-  "[&_tbody_td]:px-2 [&_tbody_td]:py-1.5 [&_tbody_td]:align-middle [&_tbody_td]:whitespace-nowrap",
-  "[&_tbody_tr:not([data-sub])>td:first-child]:sticky [&_tbody_tr:not([data-sub])>td:first-child]:left-0 [&_tbody_tr:not([data-sub])>td:first-child]:z-10",
-  "[&_tbody_tr:not([data-sub])>td:first-child]:bg-card [&_tbody_tr:not([data-sub])>td:first-child]:shadow-[inset_-1px_0_0_var(--border)]",
-  "[&_tbody_tr:hover>td:first-child]:bg-[color-mix(in_oklab,var(--muted)_50%,var(--card))] [&_tbody_tr[data-state=selected]>td:first-child]:bg-muted",
+  "text-sm",
+  "[&_tbody_tr]:border-b [&_tbody_tr]:border-border [&_tbody_tr:last-child]:border-0 [&_tbody_tr]:transition-colors [&_tbody_tr:hover]:bg-muted/50 [&_tbody_tr[data-state=selected]]:bg-muted",
+  "[&_tbody_tr>*]:px-2 [&_tbody_tr>*]:py-2 [&_tbody_tr>*]:align-middle [&_tbody_tr>*]:whitespace-nowrap",
+  "[&_tbody_th]:text-left [&_tbody_th]:font-normal",
+  "[&_tbody_tr:not([data-sub])>:first-child]:sticky [&_tbody_tr:not([data-sub])>:first-child]:left-0 [&_tbody_tr:not([data-sub])>:first-child]:z-10",
+  "[&_tbody_tr:not([data-sub])>:first-child]:bg-card [&_tbody_tr:not([data-sub])>:first-child]:shadow-[inset_-1px_0_0_var(--border)]",
+  "[&_tbody_tr:hover>:first-child]:bg-[color-mix(in_oklab,var(--muted)_50%,var(--card))] [&_tbody_tr[data-state=selected]>:first-child]:bg-muted",
 );
+
+// Header cells: semibold on a muted band so they read apart from the rows; the muted text keeps
+// at least 4.5:1 on it in both themes (light 5.4, dark 5.8 with the app's tokens).
+const HEAD = "h-9 bg-muted/60 text-xs font-semibold text-muted-foreground";
+const HEAD_STICKY = "sticky left-0 z-10 bg-[color-mix(in_oklab,var(--muted)_60%,var(--card))] shadow-[inset_-1px_0_0_var(--border)]";
 
 export interface DataTableProps<T> {
   // TanStack's accessor columns carry their value type; a mixed list needs `any` here.
@@ -183,7 +190,8 @@ export function DataTable<T>({
         </div>
       )}
       <div className="rounded-lg border">
-        <Table aria-label={label} className={BODY}>
+        <Table className={BODY}>
+          <caption className="sr-only">{label}</caption>
           <TableHeader>
             {table.getHeaderGroups().map((group) => (
               <TableRow key={group.id} className="hover:bg-transparent">
@@ -194,8 +202,9 @@ export function DataTable<T>({
                   return (
                     <TableHead
                       key={header.id}
+                      scope="col"
                       aria-sort={sorted === "asc" ? "ascending" : sorted === "desc" ? "descending" : undefined}
-                      className={cn("h-9 text-xs font-medium text-muted-foreground", meta?.numeric && "text-right", index === 0 && STICKY)}
+                      className={cn(HEAD, meta?.numeric && "text-right", index === 0 && HEAD_STICKY, meta?.className)}
                     >
                       {header.column.getCanSort() ? (
                         <button
@@ -242,8 +251,13 @@ export function DataTable<T>({
                       {row.getVisibleCells().map((cell, index) => {
                         const meta = cell.column.columnDef.meta;
                         const body = flexRender(cell.column.columnDef.cell, cell.getContext());
+                        const Cell = index === 0 ? "th" : "td";
                         return (
-                          <td key={cell.id} className={cn(meta?.numeric && "text-right tabular-nums", meta?.cellClassName?.(row.original)) || undefined}>
+                          <Cell
+                            key={cell.id}
+                            scope={index === 0 ? "row" : undefined}
+                            className={cn(meta?.numeric && "text-right tabular-nums", meta?.className, meta?.cellClassName?.(row.original)) || undefined}
+                          >
                             {index === 0 && (enableRowSelection || enableExpanding) ? (
                               <div className="flex items-center gap-1.5">
                                 {enableRowSelection && (
@@ -276,7 +290,7 @@ export function DataTable<T>({
                             ) : (
                               body
                             )}
-                          </td>
+                          </Cell>
                         );
                       })}
                     </tr>

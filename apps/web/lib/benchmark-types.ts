@@ -50,6 +50,8 @@ export interface BenchmarkSite {
   /** Not seen for more than 48 hours. */
   stale: boolean;
   boards: string[];
+  /** Per board, the day the source itself says it was updated (YYYY-MM-DD); may be empty. */
+  updated?: Record<string, string>;
   rows: BenchmarkRow[];
 }
 
@@ -57,13 +59,26 @@ export function isSiteKey(raw: string): raw is BenchmarkSiteKey {
   return (BENCHMARK_SITES as readonly string[]).includes(raw);
 }
 
-/** LMArena boards we collect, with the reader's tab label. */
+/** LMArena boards we collect, with the reader's tab label (in the site's tab order). */
 export const LMARENA_BOARD_LABEL: Record<string, string> = {
   text_style_control: "텍스트",
   webdev: "웹개발",
   vision_style_control: "비전",
+  search: "검색",
+  // collected before 2026-11-04, until the next snapshot replaces it
   search_style_control: "검색",
   agent: "에이전트",
+};
+
+/**
+ * The adjustment each LMArena board shows by default on arena.ai, in the site's own words:
+ * text and vision open with "Style Control" on, search opens with none.
+ */
+export const LMARENA_ADJUSTMENT: Record<string, string> = {
+  text_style_control: "Style Control",
+  vision_style_control: "Style Control",
+  search_style_control: "Style Control",
+  search: "None",
 };
 
 /** LiveBench's table.csv columns in the site's column order, with its header labels. */

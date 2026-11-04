@@ -300,3 +300,38 @@ def test_benchmarks_collect_prints_each_site_and_exits_0(
         "hf-trending: unchanged",
     ]
     assert seen["now"].tzinfo is not None
+
+
+def test_benchmarks_collect_dry_run_prints_the_top_and_writes_nothing(
+    db_session: Session, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from tests.benchmarks.fakes import Router, deepswe_routes
+
+    def no_session() -> Any:
+        raise AssertionError("a dry run opens no database session")
+
+    monkeypatch.setattr(cli, "session_scope", no_session)
+    monkeypatch.setattr(cli, "_fetcher", lambda: deepswe_routes(Router(), recorded=True).fetcher())
+
+    result = runner.invoke(
+        cli.app, ["benchmarks", "collect", "--dry-run", "--site", "deepswe", "--top", "3"]
+    )
+
+    assert result.exit_code == 0, result.output
+    lines = result.output.splitlines()
+    assert lines[0] == "deepswe: release 2026-09-22, 99 rows (not saved)"
+    assert lines[1] == "  [v1.1] updated 2026-09-22"
+    assert lines[2].split()[:3] == ["1", "gpt-6-astra", "[xhigh]"]
+    assert lines[4].split()[:3] == ["3", "claude-opus-5", "[max]"]
+    assert "  [v1] updated 2026-06-20" in lines
+    assert db_session.scalar(select(BenchmarkSnapshot.id)) is None
+
+
+@pytest.mark.parametrize(
+    "args",
+    [["--site", "deepswe"], ["--dry-run", "--site", "nope"]],
+    ids=["site-without-dry-run", "unknown-site"],
+)
+def test_benchmarks_collect_rejects_bad_site_options(args: list[str]) -> None:
+    result = runner.invoke(cli.app, ["benchmarks", "collect", *args])
+    assert result.exit_code == 2

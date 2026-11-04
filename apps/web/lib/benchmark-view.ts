@@ -53,6 +53,8 @@ export interface DsPoint {
   harness: string | null;
   /** The model's best configuration on the board (the ranked row). */
   best: boolean;
+  /** The model is in the site's default set (the chart's and table's opening models). */
+  shown: boolean;
   change: BenchmarkChange | null;
   changeBy: number;
 }
@@ -84,25 +86,34 @@ export function deepSweView(site: BenchmarkSite): DeepSweView {
         steps: r2n(extraNumber(row, "mean_agent_steps")),
         harness: extraString(row, "harness"),
         best: row.rank !== null,
+        shown: false,
         change: row.change,
         changeBy: row.change_by,
       }),
     );
-  // a board with no ranking at all: mark each model's best configuration
   for (const board of new Set(points.map((p) => p.board))) {
     const onBoard = points.filter((p) => p.board === board);
-    if (onBoard.some((p) => p.best)) continue;
+    // the API ranks exactly the site's default models (their best configuration)
+    const ranked = new Set(onBoard.filter((p) => p.best).map((p) => p.model));
+    if (ranked.size > 0) {
+      for (const p of onBoard) p.shown = ranked.has(p.model);
+      continue;
+    }
+    // a board with no ranking at all: every model shown, each best configuration marked
     const best = new Map<string, DsPoint>();
     for (const p of onBoard) if ((best.get(p.model)?.score ?? -1) < p.score) best.set(p.model, p);
     for (const p of best.values()) p.best = true;
+    for (const p of onBoard) p.shown = true;
   }
   const boards = newestBoardFirst(site.boards.filter((b) => points.some((p) => p.board === b)));
-  // the rows carry each config's task count; the snapshot's date is the newest board's
+  // the rows carry each config's task count; each board's date is the site's own, else (an
+  // older snapshot) the snapshot's release for the newest board
   const info: DeepSweView["info"] = {};
   for (const board of boards) {
     const counts = site.rows.filter((r) => r.board === board).map((r) => extraNumber(r, "n_tasks_in_set") ?? extraNumber(r, "n_tasks_attempted") ?? 0);
     const tasks = Math.max(0, ...counts);
-    info[board] = { tasks: tasks || null, updated: board === boards[0] ? site.release || null : null };
+    const updated = site.updated?.[board] ?? (board === boards[0] ? site.release || null : null);
+    info[board] = { tasks: tasks || null, updated };
   }
   return { boards, points, info };
 }
@@ -122,7 +133,8 @@ export interface LiveModel {
   /** True only when the site marks the weights open. */
   open: boolean;
   overall: number | null;
-  /** Null when the model covers under 75% of the categories. */
+  /** Null when the site leaves the model out of its default table (not in its model list, a
+   * fine-tune, or a variant beaten by its base model). */
   rank: number | null;
   coverage: number | null;
   change: BenchmarkChange | null;
@@ -253,7 +265,7 @@ export function lmArenaView(site: BenchmarkSite): ArenaView {
       board = { key: row.board, published: null, rows: [] };
       boards.set(row.board, board);
     }
-    const date = extraString(row, "leaderboard_publish_date");
+    const date = site.updated?.[row.board] ?? extraString(row, "leaderboard_publish_date");
     if (date && (board.published ?? "") < date) board.published = date;
     // the agent board is a 0-1 share: keep four decimals there
     const digits = row.board === "agent" ? 4 : 2;

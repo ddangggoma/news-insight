@@ -101,15 +101,15 @@ export interface SpotlightView {
   generated_at: string | null;
 }
 
-/** The page's tabs: the overview, one per section, and the AI model leaderboards (benchmarks only). */
-export const SPOTLIGHT_TABS = [
-  { key: "overview", label: "전체" },
-  ...SECTION_KEYS.map((key) => ({ key, label: SECTION_LABEL[key] })),
-  { key: "models", label: "AI 모델" },
-] as const;
+/** The page's tabs: the overview and one per section (AI 모델·서비스 also holds the benchmarks). */
+export const SPOTLIGHT_TABS = [{ key: "overview", label: "전체" }, ...SECTION_KEYS.map((key) => ({ key, label: SECTION_LABEL[key] }))] as const;
 export type SpotlightTab = (typeof SPOTLIGHT_TABS)[number]["key"];
 
+/** The tab key of the former 「AI 모델」 tab (until 2026-11-04); its benchmarks are under `ai` now. */
+export const RETIRED_MODELS_TAB = "models";
+
 export function parseTab(raw: string | undefined): SpotlightTab {
+  if (raw === RETIRED_MODELS_TAB) return "ai";
   return SPOTLIGHT_TABS.find((tab) => tab.key === raw)?.key ?? "overview";
 }
 

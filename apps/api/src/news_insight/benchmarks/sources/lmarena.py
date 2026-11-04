@@ -3,6 +3,11 @@
 Each board's `latest` split is one small parquet file in the dataset repo (the Hub answers 302
 to a CDN host); the datasets-server /filter API that used to serve the same rows fails on a
 share of its pages, so it is not used.
+
+The boards are the ones arena.ai opens on: its "Style Control" adjustment is the default for
+text and vision, while its search board opens without it (checked on the site 2026-11-04), so
+search is read from the plain `search` subset. The dataset is published by the site a few
+hours after the site itself updates; a board's date is its `leaderboard_publish_date`.
 """
 
 import io
@@ -31,7 +36,7 @@ SOURCE_URL = "https://lmarena.ai/leaderboard"
 LICENSE = "CC-BY-4.0 (Hugging Face 데이터셋 lmarena-ai/leaderboard-dataset)"
 ATTRIBUTION = "LMArena"
 DATASET = "lmarena-ai/leaderboard-dataset"
-BOARDS = ("text_style_control", "webdev", "vision_style_control", "search_style_control", "agent")
+BOARDS = ("text_style_control", "webdev", "vision_style_control", "search", "agent")
 MAX_BYTES = 20 * 1024 * 1024  # a board is ~0.6 MB at most today
 PARQUET_MIME = frozenset({"application/octet-stream", "application/vnd.apache.parquet"})
 RETRY_DELAY_SECONDS = 5.0  # one retry of a transient HTTP error (the CDN or the Hub hiccups)
@@ -88,8 +93,8 @@ def _finite(row: dict[str, Any]) -> dict[str, Any]:
 
 def fetch(fetcher: SafeFetcher, now: datetime) -> SiteSnapshot:
     raw: dict[str, list[dict[str, Any]]] = {}
+    updated: dict[str, str] = {}
     scores: list[ScoreRow] = []
-    published = ""
     for board in BOARDS:
         rows = _overall_rows(fetcher, board)
         if not rows:
@@ -101,14 +106,14 @@ def fetch(fetcher: SafeFetcher, now: datetime) -> SiteSnapshot:
             if score is not None:
                 scores.append(score)
                 day = _day(row.get("leaderboard_publish_date"))
-                if day > published:
-                    published = day
+                if day > updated.get(board, ""):
+                    updated[board] = day
         if len(scores) == before:
             raise BenchmarkError(SELECTOR_DRIFT, f"lmarena {board}: no rating or score column")
     return SiteSnapshot(
         site=SITE,
-        release=published or now.date().isoformat(),
-        raw={"boards": raw},
+        release=max(updated.values(), default="") or now.date().isoformat(),
+        raw={"boards": raw, "updated": updated},
         rows=scores,
     )
 

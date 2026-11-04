@@ -8,9 +8,11 @@ import hashlib
 import os
 import sys
 from datetime import UTC, date, datetime, timedelta
+from pathlib import Path
 from typing import Any
 from zoneinfo import ZoneInfo
 
+import httpx
 from alembic import command
 from alembic.config import Config
 from sqlalchemy import create_engine, text
@@ -775,6 +777,65 @@ def seed_accounts(session: Session) -> None:
     session.commit()
 
 
+BENCHMARK_FIXTURES = Path(__file__).resolve().parents[1] / "tests" / "benchmarks" / "fixtures"
+LIVEBENCH_HOME = (
+    '<html><head><script defer="defer" src="/static/js/main.1e1ce12d.js"></script></head></html>'
+)
+
+
+def _benchmark_answer(request: httpx.Request) -> httpx.Response:
+    """The leaderboard sites as recorded on 2026-11-04 (tests/benchmarks/fixtures), offline."""
+    url = str(request.url)
+    lmarena_files = {
+        "text_style_control": "lmarena_text_style_control_20261104.parquet",
+        "search": "lmarena_search_20261104.parquet",
+    }
+    routes: list[tuple[str, str, str]] = [
+        ("deepswe.datacurve.ai/artifacts/v1.1/", "deepswe_v1_1_20261104.json", "application/json"),
+        ("deepswe.datacurve.ai/artifacts/v1/", "deepswe_v1_20261104.json", "application/json"),
+        ("live-leaderboard-", "deepswe_live_leaderboard_20261104.js", "application/javascript"),
+        ("datacurve.ai/assets/index-", "deepswe_index_script_20261104.js", "text/javascript"),
+        ("livebench.ai/static/js/main", "livebench_main_20261104.js", "application/javascript"),
+        ("/data/20261025/table.csv", "livebench_table_20261025.csv", "text/csv"),
+        ("/data/20261025/cost.csv", "livebench_cost.csv", "text/csv"),
+        ("/data/20261025/categories.json", "livebench_categories.json", "application/json"),
+        ("/data/20261025/breakdown.json", "livebench_breakdown.json", "application/json"),
+    ]
+    if url == "https://deepswe.datacurve.ai/":
+        body = (BENCHMARK_FIXTURES / "deepswe_index_20261104.html").read_bytes()
+        return httpx.Response(200, headers={"content-type": "text/html"}, content=body)
+    if url == "https://livebench.ai/":
+        return httpx.Response(200, headers={"content-type": "text/html"}, content=LIVEBENCH_HOME)
+    for part, name, mime in routes:
+        if part in url:
+            body = (BENCHMARK_FIXTURES / name).read_bytes()
+            return httpx.Response(200, headers={"content-type": mime}, content=body)
+    if "lmarena-ai/leaderboard-dataset" in url:
+        board = url.split("/resolve/main/")[1].split("/")[0]
+        name = lmarena_files.get(board, f"lmarena_{board}.parquet")
+        body = (BENCHMARK_FIXTURES / name).read_bytes()
+        return httpx.Response(
+            200, headers={"content-type": "application/octet-stream"}, content=body
+        )
+    return httpx.Response(404, headers={"content-type": "text/plain"}, content=b"not found")
+
+
+def seed_benchmarks(session: Session) -> None:
+    """DeepSWE, LiveBench and LMArena collected by the real collectors from recorded responses
+    (Artificial Analysis has no key, as on live)."""
+    from news_insight.benchmarks.service import collect_all
+    from news_insight.net.safe_fetch import SafeFetcher
+
+    fetcher = SafeFetcher(
+        client=httpx.Client(transport=httpx.MockTransport(_benchmark_answer)),
+        resolver=lambda host, port: ["93.184.216.34"],
+        verify_peer=False,
+    )
+    with fetcher:
+        results = collect_all(session, fetcher, NOW - timedelta(hours=2))
+    print(f"benchmarks: {results}")
+
+
 if __name__ == "__main__":
     database_url = os.environ["DATABASE_URL"]
     _reset(database_url)
@@ -787,6 +848,7 @@ if __name__ == "__main__":
         seed(db)
         seed_domains(db)
         seed_accounts(db)
+        seed_benchmarks(db)
         from news_insight.taxonomy.seed import backfill_labels, seed_taxonomy
 
         seed_taxonomy(db)  # schemes and labels for the explorer and node filters (plan 15)

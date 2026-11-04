@@ -22,7 +22,6 @@ import {
 } from "@/components/reader/benchmarks/deepswe-plot";
 import { ChangeMark, ProviderDot, ProviderLegend, Segmented } from "@/components/reader/benchmarks/parts";
 import { Button } from "@/components/ui/button";
-import { formatCompact, formatUsd } from "@/lib/benchmark-types";
 import type { DeepSweView, DsPoint as Point } from "@/lib/benchmark-view";
 import { formatBriefingDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -31,6 +30,19 @@ type Effort = "best" | "all";
 const TABLE_ROWS = 20;
 
 const half = (point: Point) => (point.low !== null && point.high !== null ? (point.high - point.low) / 2 : null);
+
+/** The site table's "Avg cost": two decimals, three under a cent ($11.84, $0.24, $0.004). */
+function tableCost(value: number | null): string {
+  return value === null ? "—" : "$" + value.toFixed(value < 0.01 ? 3 : 2);
+}
+
+/** The site table's "Out tok": 1.2M, 143k, 9.6k, 850. */
+function tableTokens(value: number | null): string {
+  if (value === null) return "—";
+  if (value >= 1e6) return `${(value / 1e6).toFixed(1)}M`;
+  if (value >= 1e3) return `${(value / 1e3).toFixed(value >= 1e4 ? 0 : 1)}k`;
+  return value.toFixed(0);
+}
 
 // ---- table ---------------------------------------------------------------------------
 
@@ -73,7 +85,7 @@ function buildColumns(max: number) {
         <span className="flex items-center gap-1.5">
           <ProviderDot provider={p.provider} />
           <span className="font-medium">{displayName(p.model)}</span>
-          {p.effort && <span className="rounded border px-1 text-[10px] text-muted-foreground">{p.effort}</span>}
+          {p.effort && <span className="text-muted-foreground">{`[${p.effort}]`}</span>}
           <ChangeMark change={p.change} by={p.changeBy} />
         </span>
       ),
@@ -86,22 +98,24 @@ function buildColumns(max: number) {
           <span>{`${max}%`}</span>
         </span>
       ),
-      meta: { label: "막대" },
+      // on a phone the score sits right after the name, as the site's narrow layout has it
+      meta: { label: "막대", className: "hidden sm:table-cell" },
       enableSorting: false,
       cell: ({ row: { original: p } }) => <PassBar point={p} max={max} />,
     }),
     col.accessor("score", {
       header: "pass@1",
       meta: { label: "pass@1", numeric: true },
+      // whole percents like the site's table; the exact value on hover
       cell: ({ row: { original: p } }) => (
-        <span className="inline-flex items-baseline gap-1">
-          <span className="font-semibold">{p.score.toFixed(1)}</span>
-          {half(p) !== null && <span className="text-[11px] text-muted-foreground">{`±${half(p)!.toFixed(1)}`}</span>}
+        <span className="inline-flex items-baseline gap-1" title={`${p.score.toFixed(2)}%${half(p) !== null ? ` ±${half(p)!.toFixed(2)}` : ""}`}>
+          <span className="font-semibold">{`${p.score.toFixed(0)}%`}</span>
+          {half(p) !== null && <span className="text-xs text-muted-foreground">{`±${half(p)!.toFixed(0)}%`}</span>}
         </span>
       ),
     }),
-    col.accessor((p) => p.cost ?? undefined, { id: "cost", header: "평균 비용", meta: { label: "평균 비용", numeric: true }, cell: ({ row }) => formatUsd(row.original.cost) }),
-    col.accessor((p) => p.tokens ?? undefined, { id: "tokens", header: "출력 토큰", meta: { label: "출력 토큰", numeric: true }, cell: ({ row }) => formatCompact(row.original.tokens) }),
+    col.accessor((p) => p.cost ?? undefined, { id: "cost", header: "평균 비용", meta: { label: "평균 비용", numeric: true }, cell: ({ row }) => tableCost(row.original.cost) }),
+    col.accessor((p) => p.tokens ?? undefined, { id: "tokens", header: "출력 토큰", meta: { label: "출력 토큰", numeric: true }, cell: ({ row }) => tableTokens(row.original.tokens) }),
     col.accessor((p) => p.steps ?? undefined, {
       id: "steps",
       header: "단계",
@@ -161,7 +175,7 @@ function ConfigPicker({ points, selected, onChange }: { points: Point[]; selecte
                   <label htmlFor={id} className="flex cursor-pointer items-center gap-2 text-xs">
                     <Indeterminate id={id} checked={on === configs.length} mixed={on > 0 && on < configs.length} onChange={() => toggle(configs.map((p) => p.id))} />
                     <span className="flex-1 font-medium">{displayName(model)}</span>
-                    <span className="text-[11px] text-muted-foreground tabular-nums">{`${on}/${configs.length}`}</span>
+                    <span className="text-xs text-muted-foreground tabular-nums">{`${on}/${configs.length}`}</span>
                   </label>
                   {configs.length > 1 && (
                     <div className="mt-1 ml-6 flex flex-wrap gap-1">
@@ -173,10 +187,10 @@ function ConfigPicker({ points, selected, onChange }: { points: Point[]; selecte
                             type="button"
                             aria-pressed={pressed}
                             onClick={() => toggle([p.id])}
-                            title={`${p.effort ?? "기본"} · ${formatUsd(p.cost)} · ${p.score.toFixed(0)}%`}
+                            title={`${p.effort ?? "기본"} · ${tableCost(p.cost)} · ${p.score.toFixed(0)}%`}
                             className={cn(
-                              "rounded-sm border px-1.5 py-px font-mono text-[10px] tracking-[0.08em] uppercase transition-colors",
-                              pressed ? "border-foreground/70 bg-foreground/5 text-foreground" : "text-muted-foreground/70 line-through hover:text-foreground",
+                              "rounded-sm border px-1.5 py-px font-mono text-xs tracking-[0.08em] uppercase transition-colors",
+                              pressed ? "border-foreground/70 bg-foreground/5 text-foreground" : "text-muted-foreground line-through hover:text-foreground",
                             )}
                           >
                             {p.effort ?? "기본"}
@@ -190,10 +204,10 @@ function ConfigPicker({ points, selected, onChange }: { points: Point[]; selecte
             })}
           </ul>
           <div className="flex items-center gap-2 border-t px-3 py-2">
-            <button type="button" onClick={() => onChange(new Set(points.map((p) => p.id)))} className="rounded-sm border px-2 py-1 text-[11px] font-medium hover:bg-accent">
+            <button type="button" onClick={() => onChange(new Set(points.map((p) => p.id)))} className="rounded-sm border px-2 py-1 text-xs font-medium hover:bg-accent">
               전체 선택
             </button>
-            <button type="button" onClick={() => onChange(new Set())} className="rounded-sm border px-2 py-1 text-[11px] font-medium hover:bg-accent">
+            <button type="button" onClick={() => onChange(new Set())} className="rounded-sm border px-2 py-1 text-xs font-medium hover:bg-accent">
               모두 해제
             </button>
           </div>
@@ -201,6 +215,67 @@ function ConfigPicker({ points, selected, onChange }: { points: Point[]; selecte
       </Popover.Portal>
     </Popover.Root>
   );
+}
+
+/** The site's table menu "Models (shown/total)": which models the table lists. */
+function ModelPicker({ models, selected, onChange }: { models: { model: string; best: number }[]; selected: Set<string>; onChange: (next: Set<string>) => void }) {
+  const toggle = (model: string) => {
+    const next = new Set(selected);
+    if (!next.delete(model)) next.add(model);
+    onChange(next);
+  };
+  return (
+    <Popover.Root>
+      <Popover.Trigger asChild>
+        <Button type="button" variant="outline" size="xs" aria-label="모델 고르기" className="group">
+          <span>모델</span>
+          <span className="text-muted-foreground tabular-nums">{`(${selected.size}/${models.length})`}</span>
+          <ChevronDown className="size-3.5 transition-transform group-data-[state=open]:rotate-180" aria-hidden />
+        </Button>
+      </Popover.Trigger>
+      <Popover.Portal>
+        <Popover.Content
+          align="end"
+          sideOffset={4}
+          className="z-50 flex max-h-[400px] w-[260px] flex-col rounded-lg bg-popover text-popover-foreground shadow-md ring-1 ring-foreground/10"
+        >
+          <ul aria-label="순위표의 모델" className="flex-1 overflow-auto py-1">
+            {models.map(({ model }) => {
+              const id = `dsw-model-${model}`;
+              return (
+                <li key={model}>
+                  <label htmlFor={id} className="flex cursor-pointer items-center gap-2 px-3 py-1.5 text-sm hover:bg-accent">
+                    <input id={id} type="checkbox" checked={selected.has(model)} onChange={() => toggle(model)} className="size-3.5 accent-primary" />
+                    <span className="flex-1 font-medium">{displayName(model)}</span>
+                  </label>
+                </li>
+              );
+            })}
+          </ul>
+          <div className="flex items-center gap-2 border-t px-3 py-2">
+            <button type="button" onClick={() => onChange(new Set(models.map((m) => m.model)))} className="rounded-sm border px-2 py-1 text-xs font-medium hover:bg-accent">
+              전체 선택
+            </button>
+            <button type="button" onClick={() => onChange(new Set())} className="rounded-sm border px-2 py-1 text-xs font-medium hover:bg-accent">
+              모두 해제
+            </button>
+          </div>
+        </Popover.Content>
+      </Popover.Portal>
+    </Popover.Root>
+  );
+}
+
+/** Each model's best configuration: the highest pass@1, a tie going to the higher effort (the site's rule). */
+function bestConfigs(points: Point[]): Set<string> {
+  const best = new Map<string, Point>();
+  for (const p of points) {
+    const held = best.get(p.model);
+    if (!held || p.score > held.score || (p.score === held.score && effortRank(p.effort) > effortRank(held.effort))) best.set(p.model, p);
+  }
+  // the API's pick wins where it made one (the same rule, on unrounded values)
+  for (const p of points) if (p.best) best.set(p.model, p);
+  return new Set([...best.values()].map((p) => p.id));
 }
 
 // ---- chart ---------------------------------------------------------------------------
@@ -443,7 +518,7 @@ function ScorePlot({ rows, axis, shades }: { rows: Point[]; axis: Axis; shades: 
           <text
             x={active.px + 11}
             y={active.py + 4}
-            fontSize={font.eff * 0.82}
+            fontSize={font.sub}
             fill="var(--c)"
             pointerEvents="none"
             className={cn(cls(active.model), "font-mono tracking-[0.08em]")}
@@ -472,9 +547,9 @@ function ScorePlot({ rows, axis, shades }: { rows: Point[]; axis: Axis; shades: 
             {label.line2 && (
               <text
                 x={label.x}
-                y={label.y + 10}
+                y={label.y + font.sub + 1}
                 textAnchor={label.anchor}
-                fontSize={font.eff * 0.82}
+                fontSize={font.sub}
                 fill="var(--lc)"
                 opacity={0.6}
                 className="font-mono tracking-[0.08em]"
@@ -517,13 +592,19 @@ export function DeepSweChart({ view }: { view: DeepSweView }) {
   const [axis, setAxis] = useState<Axis>("cost");
   const [effort, setEffort] = useState<Effort>("best");
   const [picked, setPicked] = useState<Record<string, string[]>>({});
+  const [pickedModels, setPickedModels] = useState<Record<string, string[]>>({});
 
   const onBoard = useMemo(() => view.points.filter((p) => p.board === board), [view.points, board]);
   const defaults = useMemo(() => defaultConfigs(onBoard), [onBoard]);
   const selected = useMemo(() => (picked[board] ? new Set(picked[board]) : defaults), [picked, board, defaults]);
   const shown = useMemo(() => onBoard.filter((p) => selected.has(p.id)), [onBoard, selected]);
   const shades = useMemo(() => modelShades(onBoard), [onBoard]);
-  const tableRows = useMemo(() => onBoard.filter((p) => effort === "all" || p.best), [onBoard, effort]);
+  // the table opens on the site's default models, as its "Models (21/28)" does
+  const models = useMemo(() => bestByModel(onBoard), [onBoard]);
+  const defaultModels = useMemo(() => new Set(onBoard.filter((p) => p.shown).map((p) => p.model)), [onBoard]);
+  const listed = useMemo(() => (pickedModels[board] ? new Set(pickedModels[board]) : defaultModels), [pickedModels, board, defaultModels]);
+  const best = useMemo(() => bestConfigs(onBoard), [onBoard]);
+  const tableRows = useMemo(() => onBoard.filter((p) => listed.has(p.model) && (effort === "all" || best.has(p.id))), [onBoard, listed, effort, best]);
   const columns = useMemo(() => buildColumns(barMax(tableRows)), [tableRows]);
   const info = view.info[board];
 
@@ -563,15 +644,20 @@ export function DeepSweChart({ view }: { view: DeepSweView }) {
         initialSorting={[{ id: "score", desc: true }]}
         initialLimit={TABLE_ROWS}
         toolbar={
-          <Segmented
-            label="추론 강도"
-            options={[
-              { key: "best", label: "최고값만" },
-              { key: "all", label: "모든 추론 강도" },
-            ]}
-            value={effort}
-            onChange={setEffort}
-          />
+          <>
+            <Segmented
+              label="추론 강도"
+              options={[
+                { key: "best", label: "최고값만" },
+                { key: "all", label: "모든 추론 강도" },
+              ]}
+              value={effort}
+              onChange={setEffort}
+            />
+            <div className="ml-auto">
+              <ModelPicker models={models} selected={listed} onChange={(next) => setPickedModels((prev) => ({ ...prev, [board]: [...next] }))} />
+            </div>
+          </>
         }
       />
     </div>

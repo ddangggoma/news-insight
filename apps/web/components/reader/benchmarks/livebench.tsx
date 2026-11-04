@@ -11,7 +11,7 @@ import { slotColor } from "@/components/reader/benchmarks/provider-colors";
 import { Button } from "@/components/ui/button";
 import { type ChartConfig, ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Input } from "@/components/ui/input";
-import { LIVEBENCH_CATEGORIES, formatUsd } from "@/lib/benchmark-types";
+import { LIVEBENCH_CATEGORIES } from "@/lib/benchmark-types";
 import type { LiveModel } from "@/lib/benchmark-view";
 import { cn } from "@/lib/utils";
 
@@ -35,15 +35,15 @@ function buildColumns(top: Record<string, Set<number>>) {
       meta: { label: "모델" },
       cell: ({ row: { original: m } }) => (
         <span className="flex items-center gap-1.5">
-          <span className="w-5 text-right text-[11px] text-muted-foreground tabular-nums">{m.rank ?? ""}</span>
+          <span className="w-6 text-right text-xs text-muted-foreground tabular-nums">{m.rank ?? ""}</span>
           <ProviderDot provider={m.provider} />
           <span className="font-medium" title={m.name !== m.model ? m.model : undefined}>
             {m.name}
           </span>
-          {m.open && <span className="rounded border border-emerald-600/40 px-1 text-[10px] text-emerald-700 dark:text-emerald-400">open</span>}
-          {m.rank === null && m.coverage !== null && (
-            <span className="rounded bg-muted px-1 text-[10px] text-muted-foreground" title="영역의 75% 이상을 치른 모델만 순위를 매깁니다">
-              {`범위 ${Math.round(m.coverage * 100)}%`}
+          {m.open && <span className="rounded border border-emerald-600/40 px-1 text-xs text-emerald-700 dark:text-emerald-400">open</span>}
+          {m.rank === null && (
+            <span className="rounded bg-muted px-1 text-xs text-muted-foreground" title="LiveBench 기본 순위표에 없는 모델(모델 목록에 없거나 파인튠, 또는 같은 계열의 더 높은 변형이 있음)">
+              순위 외
             </span>
           )}
           <ChangeMark change={m.change} by={m.changeBy} />
@@ -77,7 +77,8 @@ function buildColumns(top: Record<string, Set<number>>) {
       meta: { label: "성공 작업당 비용", numeric: true },
       // cheapest first, as a cost should
       sortDescFirst: false,
-      cell: ({ row }) => formatUsd(row.original.costPerSuccess),
+      // three decimals, as the site prints it ($7.406)
+      cell: ({ row }) => (row.original.costPerSuccess === null ? "—" : `$${row.original.costPerSuccess.toFixed(3)}`),
     }),
   ];
 }
@@ -127,7 +128,7 @@ function Compare({ models, onClear }: { models: LiveModel[]; onClear: () => void
       <ChartContainer config={config} className="aspect-auto h-64 w-full">
         <BarChart data={data} margin={{ left: 0, right: 8, top: 8 }} barGap={2} accessibilityLayer>
           <CartesianGrid vertical={false} strokeOpacity={0.5} />
-          <XAxis dataKey="label" tickLine={false} axisLine={false} interval={0} tick={{ fontSize: 10 }} />
+          <XAxis dataKey="label" tickLine={false} axisLine={false} interval={0} tick={{ fontSize: 11 }} />
           <YAxis domain={[0, 100]} tickLine={false} axisLine={false} width={32} />
           <ChartTooltip cursor={{ fillOpacity: 0.08 }} content={<ChartTooltipContent />} />
           <ChartLegend content={<ChartLegendContent className="flex-wrap" />} />
@@ -209,9 +210,9 @@ export function LiveBenchTable({ models }: { models: LiveModel[] }) {
         }
       />
       {compared.length >= 2 && <Compare models={compared} onClear={() => setPicked([])} />}
-      <p className="text-[11px] text-muted-foreground">
-        종합은 사이트의 가중 평균(에이전틱·코딩·디자인 가중)입니다. 영역의 75% 미만을 치른 모델은 순위 없이 뒤에 둡니다. 진한 칸은 각 열의
-        상위 {SHADED}개, 조직과 open 표시는 사이트가 밝힌 정보 그대로입니다.
+      <p className="text-xs text-muted-foreground">
+        종합은 사이트와 같이 점수가 있는 영역들의 가중 평균(에이전틱 ×2, 코딩·디자인 ×1.5)이고, 순위는 사이트 기본 순위표와 같습니다(모델 목록에
+        없는 모델과 파인튠은 순위 외). 진한 칸은 각 열의 상위 {SHADED}개, 조직과 open 표시는 사이트가 밝힌 정보 그대로입니다.
       </p>
     </div>
   );
