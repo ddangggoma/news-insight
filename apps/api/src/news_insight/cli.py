@@ -152,6 +152,11 @@ patents_app = typer.Typer(
     no_args_is_help=True,
 )
 app.add_typer(patents_app, name="patents")
+insights_app = typer.Typer(
+    help="Research and patent insights: daily counts by field and company (plan 19)",
+    no_args_is_help=True,
+)
+app.add_typer(insights_app, name="insights")
 
 KST = ZoneInfo("Asia/Seoul")
 FAILED_OUTCOMES = (FetchOutcome.FAILED, FetchOutcome.DEAD_LETTERED)
@@ -1873,3 +1878,20 @@ def patents_index(
     with session_scope() as session:
         result = index_patents(session, now=datetime.now(UTC), limit=limit)
     typer.echo(f"indexed={result.indexed} removed={result.removed}")
+
+
+@insights_app.command("backfill-stats")
+def insights_backfill_stats(
+    days: Annotated[int, typer.Option(help="KST days before today to rebuild")] = 365,
+) -> None:
+    """Rebuild research_daily_stats and patent_daily_stats for the last N days (once after
+    deploying; the 03:40 job keeps the last three days current). One transaction per day."""
+    from news_insight.insights.stats import recent_days, recompute_days
+
+    total_research = total_patents = 0
+    for day in recent_days(datetime.now(UTC), days):
+        with session_scope() as session:
+            result = recompute_days(session, [day])
+        total_research += result.research_rows
+        total_patents += result.patent_rows
+    typer.echo(f"days={days} research_rows={total_research} patent_rows={total_patents}")

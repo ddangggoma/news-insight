@@ -309,3 +309,17 @@ def patents_index_task() -> dict[str, int]:
 
     with session_scope() as session:
         return asdict(index_patents(session, now=datetime.now(UTC)))
+
+
+@celery_app.task(name="insights.stats")
+def insights_stats_task() -> dict[str, Any]:
+    """Plan 19: research and patent counts of yesterday and the two days before (03:40)."""
+    from news_insight.insights.stats import recompute_recent
+
+    with session_scope() as session:
+        result = recompute_recent(session, now=datetime.now(UTC))
+        return {
+            "days": [day.isoformat() for day in result.days],
+            "research_rows": result.research_rows,
+            "patent_rows": result.patent_rows,
+        }

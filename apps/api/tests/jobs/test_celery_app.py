@@ -62,3 +62,10 @@ def test_beat_indexes_patents_hourly_at_twenty_five_past() -> None:
 
     assert entry["task"] == "patents.index"
     assert entry["schedule"].minute == {25} and len(entry["schedule"].hour) == 24
+
+
+def test_beat_rebuilds_research_and_patent_counts_at_0340() -> None:
+    entry = celery_app.conf.beat_schedule["insights-stats"]
+
+    assert entry["task"] == "insights.stats"
+    assert (entry["schedule"].hour, entry["schedule"].minute) == ({3}, {40})

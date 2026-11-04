@@ -36,6 +36,10 @@ BEAT_SCHEDULE: dict[str, dict[str, Any]] = {
         "task": "benchmarks.collect",
         "schedule": crontab(hour=3, minute=30),  # plan 18: AI leaderboards, once a day
     },
+    "insights-stats": {
+        "task": "insights.stats",
+        "schedule": crontab(hour=3, minute=40),  # plan 19: daily research and patent counts
+    },
     "technologies-refresh": {
         "task": "technologies.refresh",
         "schedule": crontab(hour=3, minute=45),  # keys and labels after registry edits

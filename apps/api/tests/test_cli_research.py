@@ -2,17 +2,19 @@
 
 from collections.abc import Iterator
 from contextlib import contextmanager
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import httpx
 import pytest
 import redis
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 from typer.testing import CliRunner
 
 from news_insight import cli
 from news_insight.patents.models import PatentMeta
-from news_insight.research.models import EnrichStatus, ResearchMeta
+from news_insight.research.models import EnrichStatus, ResearchDailyStat, ResearchMeta
 from tests.documents import document, source
 from tests.helpers import mock_fetcher
 
@@ -69,3 +71,14 @@ def test_patents_index_prints_the_tally(db_session: Session) -> None:
     assert result.output.splitlines()[-1] == "indexed=1 removed=0"
     row = db_session.get(PatentMeta, item.id)
     assert row is not None and row.field == "ai"
+
+
+def test_insights_backfill_stats_rebuilds_each_day(db_session: Session) -> None:
+    src = source(db_session, "arxiv-cs")
+    document(db_session, src, "p", published=datetime.now(UTC) - timedelta(days=2))
+
+    result = runner.invoke(cli.app, ["insights", "backfill-stats", "--days", "3"])
+
+    assert result.exit_code == 0, result.output
+    assert result.output.splitlines()[-1] == "days=3 research_rows=1 patent_rows=0"
+    assert len(db_session.scalars(select(ResearchDailyStat)).all()) == 1
