@@ -1,0 +1,2 @@
+// trimmed from https://deepswe.datacurve.ai/assets/live-leaderboard-CCyhM4yo.js (2026-11-04)
+opacity:.6,style:{fontFamily:fe,letterSpacing:"0.08em",paintOrder:"stroke",stroke:"var(--background)",strokeWidth:3,strokeLinejoin:"round"},children:e.line2.toUpperCase()})]},`lbl-${e.config}`))]})})}const ft=.05,mt=new Set(["gpt-5-6-terra","gpt-5-4","grok-4-5","kimi-k2-7-code","claude-sonnet-4-6","gemini-3-1-pro-preview","muse-spark-1-1"]),pt=15,ht={none:0,minimal:1,low:2,medium:3,high:4,xhigh:5,max:6};

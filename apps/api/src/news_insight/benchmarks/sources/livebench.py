@@ -130,7 +130,9 @@ def _unquote(literal: str) -> str:
 
 
 def _flags(body: str) -> dict[str, Any]:
-    """display_name, organization and open_weights of one metadata object's own properties."""
+    """display_name, organization, open_weights and finetune of one metadata object's own
+    properties. `finetune` is true for `finetune:!0` or a `finetune:{...}` object (the site
+    then names the base model; its table leaves fine-tunes out until "Fine-tunes" is on)."""
     out: dict[str, Any] = {}
     for key, name in (("displayName", "display_name"), ("organization", "organization")):
         found = re.search(rf"(?:^|,){key}:({_STRING})", body)
@@ -139,6 +141,9 @@ def _flags(body: str) -> dict[str, Any]:
     weights = re.search(r"(?:^|,)openweight:!([01])(?![\w.])", body)
     if weights:
         out["open_weights"] = weights.group(1) == "0"
+    finetune = re.search(r"(?:^|,)finetune:(!0|!1|\{)", body)
+    if finetune:
+        out["finetune"] = finetune.group(1) != "!1"
     return out
 
 
@@ -146,7 +151,9 @@ def model_metadata(bundle: str) -> dict[str, dict[str, Any]]:
     """The bundle's per-model metadata (`"id":{displayName:"…",organization:"…",openweight:!0,
     variants:[{rawName:"id-high",…}]}`) as {id: {display_name, organization, open_weights}}.
     open_weights is true only for `openweight:!0`; a model that does not say is closed. A variant
-    is a model of its own that inherits its base entry's fields and may override them."""
+    is a model of its own that inherits its base entry's fields and may override them; it
+    carries `base_name`, the entry the site groups it under (its table shows one row per base:
+    the variant with the best overall)."""
     found: dict[str, dict[str, Any]] = {}
     for match in _MODEL.finditer(bundle):
         body = _NESTED.sub("", match.group("body"))
@@ -159,7 +166,11 @@ def model_metadata(bundle: str) -> dict[str, dict[str, Any]]:
         for variant in _VARIANT.finditer(match.group("body")):
             raw = re.search(rf"(?:^|,)rawName:({_STRING})", variant.group(1))
             if raw:
-                found[_unquote(raw.group(1))] = {**found[key], **_flags(variant.group(1))}
+                found[_unquote(raw.group(1))] = {
+                    **found[key],
+                    **_flags(variant.group(1)),
+                    "base_name": key,
+                }
     return found
 
 
@@ -190,7 +201,8 @@ def fetch(fetcher: SafeFetcher, now: datetime) -> SiteSnapshot:
     rows: list[ScoreRow] = []
     for line in table:
         model = line["model"]
-        info = metadata.get(model, {})
+        # the site's table lists only the models its script describes
+        info = metadata.get(model, {"listed": False})
         for column, text in line.items():
             if column == "model":
                 continue
@@ -227,6 +239,7 @@ def fetch(fetcher: SafeFetcher, now: datetime) -> SiteSnapshot:
         "models": {
             line["model"]: metadata[line["model"]] for line in table if line["model"] in metadata
         },
+        "updated": {BOARD: release.isoformat()},
     }
     return SiteSnapshot(site=SITE, release=release.isoformat(), raw=raw, rows=rows)
 

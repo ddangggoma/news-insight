@@ -58,6 +58,27 @@ def collect_all(session: Session, fetcher: SafeFetcher, now: datetime) -> dict[s
     return results
 
 
+def fetch_only(
+    fetcher: SafeFetcher, now: datetime, sites: list[str] | None = None
+) -> dict[str, SiteSnapshot | str]:
+    """Each site's snapshot fetched and parsed but never saved (`collect --dry-run`); a site
+    that fails gives its error code instead. No database is touched."""
+    out: dict[str, SiteSnapshot | str] = {}
+    for module in SOURCES:
+        site: str = module.SITE
+        if sites and site not in sites:
+            continue
+        try:
+            out[site] = module.fetch(fetcher, now)
+        except BenchmarkError as exc:
+            logger.warning("benchmark %s: %s (%s)", site, exc.code, exc)
+            out[site] = exc.code
+        except Exception:  # noqa: BLE001 - one site's bug must not stop the others
+            logger.exception("benchmark %s failed", site)
+            out[site] = UNEXPECTED
+    return out
+
+
 def save(session: Session, snapshot: SiteSnapshot, now: datetime) -> str:
     digest = raw_digest(snapshot.raw)
     existing = session.scalar(

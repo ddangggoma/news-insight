@@ -1,3 +1,4 @@
+import re
 from datetime import timedelta
 from typing import Any
 
@@ -31,8 +32,10 @@ def snapshot(
     release: str = "r1",
     metric: str = "rating",
     raw: dict[str, Any] | None = None,
+    extras: dict[str, dict[str, Any]] | None = None,
 ) -> BenchmarkSnapshot:
-    """rows are (board, model, value[, metric[, config[, model_id]]])."""
+    """rows are (board, model, value[, metric[, config[, model_id]]]); `extras` adds to the
+    stored extra of every row of a model."""
     count = session.query(BenchmarkSnapshot).count()
     snap = BenchmarkSnapshot(
         site=site,
@@ -58,7 +61,7 @@ def snapshot(
                 config=config,
                 metric=row_metric,
                 value=value,
-                extra={"vote_count": 10},
+                extra={"vote_count": 10, **(extras or {}).get(model, {})},
             )
         )
     session.flush()
@@ -172,24 +175,93 @@ def test_deepswe_ranks_each_model_by_its_best_config(db_session: Session) -> Non
     assert ranks == {("alpha", "high"): 1, ("alpha", "low"): None, ("beta", "high"): 2}
 
 
-def test_models_are_one_entry_across_spellings_and_configs(db_session: Session) -> None:
-    model = AiModel(name="claude-opus-5", org="Anthropic")
+def test_lmarena_ranks_every_row_as_the_site_lists_it(db_session: Session) -> None:
+    # arena.ai lists a model's effort levels as rows of their own: nothing is merged, even when
+    # the names are linked to one model, and the dataset's own rank orders them
+    model = AiModel(name="claude-opus-4-6", org="Anthropic")
     db_session.add(model)
     db_session.flush()
     snapshot(
         db_session,
         lmarena.SITE,
         [
-            ("text", "claude-opus-5 (High)", 1500.0, "rating", "High"),
-            ("text", "Claude Opus 5 (Low)", 1450.0, "rating", "Low"),
-            ("text", "other", 1480.0),
+            ("text", "Claude Opus 4.6 (High)", 1503.16, "rating", "High", model.id),
+            ("text", "Claude Opus 4.6", 1496.10, "rating", None, model.id),
+            ("text", "Gemini 3.8 Flash (High)", 1495.95, "rating", "High"),
         ],
+        extras={
+            "Claude Opus 4.6 (High)": {"rank": 7},
+            "Claude Opus 4.6": {"rank": 9},
+            "Gemini 3.8 Flash (High)": {"rank": 10},
+        },
     )
     rows = full(db_session, lmarena.SITE).rows
-    by_model = {r.model: r for r in rows}
-    assert by_model["claude-opus-5 (High)"].rank == 1
-    assert by_model["Claude Opus 5 (Low)"].rank is None  # same model, lower config
-    assert by_model["other"].rank == 2
+    assert [(r.model, r.rank) for r in rows] == [
+        ("Claude Opus 4.6 (High)", 1),
+        ("Claude Opus 4.6", 2),
+        ("Gemini 3.8 Flash (High)", 3),
+    ]
+
+
+def test_lmarena_follows_the_sites_rank_over_the_value(db_session: Session) -> None:
+    snapshot(
+        db_session,
+        lmarena.SITE,
+        [("text", "a", 1500.0), ("text", "b", 1500.0), ("text", "c", 1499.0)],
+        extras={"a": {"rank": 2}, "b": {"rank": 1}, "c": {"rank": 3}},
+    )
+    assert [r.model for r in full(db_session, lmarena.SITE).rows] == ["b", "a", "c"]
+
+
+def test_deepswe_ranks_only_the_models_the_site_shows_by_default(db_session: Session) -> None:
+    snapshot(
+        db_session,
+        deepswe.SITE,
+        [
+            ("v1.1", "gpt-6-astra", 0.74, "pass_at_1", "xhigh"),
+            ("v1.1", "gpt-5-6-terra", 0.70, "pass_at_1", "max"),  # hidden on the site
+            ("v1.1", "glm-5-3", 0.69, "pass_at_1", "max"),
+            ("v1.1", "tiny", 0.04, "pass_at_1", "high"),  # under the 5% floor
+        ],
+        raw={"default_view": {"min_best": 0.05, "hidden": ["gpt-5-6-terra"]}},
+    )
+    rows = {r.model: r.rank for r in full(db_session, deepswe.SITE).rows}
+    assert rows == {"gpt-6-astra": 1, "glm-5-3": 2, "gpt-5-6-terra": None, "tiny": None}
+    summary = benchmarks_view(db_session, now=NOW)[0].rows
+    assert [r.model for r in summary] == ["gpt-6-astra", "glm-5-3"]
+
+
+def test_deepswe_without_a_stored_default_view_uses_the_last_known(db_session: Session) -> None:
+    snapshot(
+        db_session,
+        deepswe.SITE,
+        [("v1", "gpt-5-4", 0.56, "pass_at_1", "xhigh"), ("v1", "glm-5-2", 0.42, "pass_at_1")],
+    )
+    rows = {r.model: r.rank for r in full(db_session, deepswe.SITE).rows}
+    assert rows == {"gpt-5-4": None, "glm-5-2": 1}
+
+
+def test_deepswe_tie_between_configs_goes_to_the_higher_effort(db_session: Session) -> None:
+    snapshot(
+        db_session,
+        deepswe.SITE,
+        [
+            ("v1.1", "m", 0.5, "pass_at_1", "max"),
+            ("v1.1", "m", 0.5, "pass_at_1", "medium"),
+            ("v1.1", "m", 0.5, "pass_at_1", "xhigh"),
+        ],
+    )
+    ranked = [r for r in full(db_session, deepswe.SITE).rows if r.rank is not None]
+    assert [r.config for r in ranked] == ["max"]
+
+
+def test_equal_values_keep_the_sites_row_order(db_session: Session) -> None:
+    snapshot(
+        db_session,
+        deepswe.SITE,
+        [("v1.1", "zeta", 0.5, "pass_at_1"), ("v1.1", "alpha", 0.5, "pass_at_1")],
+    )
+    assert [r.model for r in full(db_session, deepswe.SITE).rows] == ["zeta", "alpha"]
 
 
 def test_livebench_gets_a_derived_overall_row_without_the_cost_metric(db_session: Session) -> None:
@@ -225,26 +297,49 @@ def strong_and_sparse(session: Session, hours_ago: float = 3, sparse_value: floa
     snapshot(session, livebench.SITE, rows, hours_ago=hours_ago)
 
 
-def test_livebench_sparse_model_keeps_its_row_but_gets_no_rank(db_session: Session) -> None:
+def test_livebench_ranks_a_model_on_the_categories_it_has(db_session: Session) -> None:
+    # the site's overall is the mean over the suites with a score; it ranks every model on it
     strong_and_sparse(db_session)
     rows = full(db_session, livebench.SITE).rows
     overall = {r.model: r for r in rows if r.metric == "overall"}
     assert overall["sparse"].value == pytest.approx(99.0)
-    assert overall["sparse"].rank is None and overall["sparse"].change is None
     assert overall["sparse"].extra["coverage"] == pytest.approx(0.286, abs=0.001)
-    assert (overall["edge"].rank, overall["full"].rank) == (1, 2)
-    # the summary leaves the unranked model out
-    summary = benchmarks_view(db_session, now=NOW)[0].rows
-    assert [r.model for r in summary] == ["edge", "full"]
+    assert (overall["sparse"].rank, overall["edge"].rank, overall["full"].rank) == (1, 2, 3)
 
 
-def test_livebench_coverage_threshold_is_75_percent(db_session: Session) -> None:
-    rows: list[tuple[Any, ...]] = [("main", "all", 50.0, c) for c in CATEGORIES[:4]]
-    rows += [("main", "three", 60.0, c) for c in CATEGORIES[:3]]  # 3 of 4 = exactly 75%
-    rows += [("main", "two", 70.0, c) for c in CATEGORIES[:2]]  # 2 of 4
-    snapshot(db_session, livebench.SITE, rows)
+def test_livebench_models_the_site_does_not_list_stay_unranked(db_session: Session) -> None:
+    rows: list[tuple[Any, ...]] = [("main", m, v, c) for m, v in _LB for c in CATEGORIES]
+    snapshot(
+        db_session,
+        livebench.SITE,
+        rows,
+        extras={"unlisted": {"listed": False}, "tuned": {"finetune": True}},
+    )
     overall = {r.model: r for r in full(db_session, livebench.SITE).rows if r.metric == "overall"}
-    assert (overall["three"].rank, overall["all"].rank, overall["two"].rank) == (1, 2, None)
+    assert {m: r.rank for m, r in overall.items()} == {
+        "unlisted": None,
+        "tuned": None,
+        "listed": 1,
+    }
+    summary = benchmarks_view(db_session, now=NOW)[0].rows
+    assert [r.model for r in summary] == ["listed"]
+
+
+def test_livebench_variant_competes_with_its_base(db_session: Session) -> None:
+    rows: list[tuple[Any, ...]] = [("main", "base", 60.0, c) for c in CATEGORIES]
+    rows += [("main", "base-xhigh", 70.0, c) for c in CATEGORIES]
+    rows += [("main", "other", 65.0, c) for c in CATEGORIES]
+    snapshot(db_session, livebench.SITE, rows, extras={"base-xhigh": {"base_name": "base"}})
+    overall = {r.model: r for r in full(db_session, livebench.SITE).rows if r.metric == "overall"}
+    # one row per base on the site: the variant with the best overall
+    assert {m: r.rank for m, r in overall.items()} == {
+        "base-xhigh": 1,
+        "other": 2,
+        "base": None,
+    }
+
+
+_LB = (("unlisted", 90.0), ("tuned", 80.0), ("listed", 50.0))
 
 
 def test_livebench_duplicate_spellings_count_a_category_once(db_session: Session) -> None:
@@ -414,6 +509,7 @@ def test_row_shape(
         "fetched_at",
         "stale",
         "boards",
+        "updated",
         "rows",
     }
     row = site_of(body, lmarena.SITE)["rows"][0]
@@ -500,11 +596,35 @@ def test_changes_use_the_site_title(db_session: Session) -> None:
     }
 
 
-def test_sparse_livebench_model_is_not_in_the_changes(db_session: Session) -> None:
-    strong_and_sparse(db_session, hours_ago=30, sparse_value=10.0)
-    strong_and_sparse(db_session, hours_ago=3, sparse_value=99.0)
-    # the sparse model would be first by its mean, but is never ranked: nothing moved
+def test_unlisted_livebench_model_is_not_in_the_changes(db_session: Session) -> None:
+    for hours_ago, value in ((30, 10.0), (3, 99.0)):
+        rows: list[tuple[Any, ...]] = [("main", "full", 60.0, c) for c in CATEGORIES]
+        rows += [("main", "unlisted", value, c) for c in CATEGORIES]
+        snapshot(
+            db_session,
+            livebench.SITE,
+            rows,
+            hours_ago=hours_ago,
+            extras={"unlisted": {"listed": False}},
+        )
+    # the unlisted model would be first, but is never ranked: nothing moved
     assert benchmark_changes(db_session, now=NOW) == {"changes": [], "new_models": []}
+
+
+def test_updated_is_each_boards_own_date(db_session: Session) -> None:
+    snapshot(
+        db_session,
+        lmarena.SITE,
+        [("text_style_control", "a", 1500.0), ("search", "b", 1200.0)],
+        raw={"updated": {"text_style_control": "2026-10-28", "search": "2026-10-13"}},
+    )
+    snapshot(db_session, deepswe.SITE, [("v1.1", "m", 0.5, "pass_at_1")])
+    sites = {s.site: s for s in benchmarks_view(db_session, now=NOW)}
+    assert sites[lmarena.SITE].updated == {
+        "text_style_control": "2026-10-28",
+        "search": "2026-10-13",
+    }
+    assert sites[deepswe.SITE].updated == {}  # collected before the dates were kept
 
 
 def test_summary_keeps_ten_ranked_rows_per_board(db_session: Session) -> None:
@@ -569,9 +689,12 @@ def test_ranking_the_previous_snapshot_reads_no_extra(db_session: Session) -> No
     latest = snapshot(db_session, lmarena.SITE, [("text", "a", 1500.0)], hours_ago=3)
     seen: list[tuple[str, Any]] = []
 
+    # ranking reads three small keys of extra (`extra -> 'rank'`...), never the whole column
+    whole = re.compile(r"benchmark_scores\.extra(?!\s*->)")
+
     @event.listens_for(db_session.get_bind(), "before_cursor_execute")
     def record(conn: Any, cursor: Any, statement: str, params: Any, *args: Any) -> None:
-        if "benchmark_scores" in statement and "extra" in statement:
+        if "benchmark_scores" in statement and whole.search(statement):
             seen.append((statement, params))
 
     try:

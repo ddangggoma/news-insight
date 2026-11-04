@@ -63,29 +63,54 @@ class Router:
         )
 
 
-def deepswe_routes(router: Router, *, body: str | None = None) -> Router:
-    """Both boards' JSON; `body` replaces what each answers (e.g. a page of HTML)."""
+DEEPSWE_CHUNK = "https://deepswe.datacurve.ai/assets/live-leaderboard-CCyhM4yo.js"
+
+
+def deepswe_routes(
+    router: Router, *, body: str | None = None, recorded: bool = False, page: bool = True
+) -> Router:
+    """Both boards' JSON; `body` replaces what each answers (e.g. a page of HTML).
+    `recorded`: the full boards as the site served them on 2026-11-04. `page`: the home page
+    and its leaderboard script (the default model set); without them the site 404s there."""
+    suffix = "_20261104" if recorded else ""
     for url, name in (
-        ("deepswe.datacurve.ai/artifacts/v1.1/", "deepswe_v1_1.json"),
-        ("deepswe.datacurve.ai/artifacts/v1/", "deepswe_v1.json"),
+        ("deepswe.datacurve.ai/artifacts/v1.1/", f"deepswe_v1_1{suffix}.json"),
+        ("deepswe.datacurve.ai/artifacts/v1/", f"deepswe_v1{suffix}.json"),
     ):
         if body is None:
             router.add(url, reply(200, fixture_text(name), "application/json"))
         else:
             router.add(url, reply(200, body, "text/html"))
+    if page:
+        router.add(
+            "=https://deepswe.datacurve.ai/",
+            reply(200, fixture_text("deepswe_index_20261104.html"), "text/html; charset=utf-8"),
+        )
+        router.add(
+            f"={DEEPSWE_CHUNK}",
+            reply(
+                200,
+                fixture_text("deepswe_live_leaderboard_20261104.js"),
+                "application/javascript",
+            ),
+        )
     return router
 
 
-def livebench_routes(router: Router, *, table: str | None = None) -> Router:
+def livebench_routes(router: Router, *, table: str | None = None, recorded: bool = False) -> Router:
+    """`recorded`: the 2026-10-25 table and the bundle's entries for its models, as served on
+    2026-11-04 (the other files are the same either way)."""
     csv_type = "text/csv; charset=utf-8"
+    bundle = "livebench_main_20261104.js" if recorded else "livebench_main.js"
+    default_table = "livebench_table_20261025.csv" if recorded else "livebench_table.csv"
     return (
         router.add(
             "livebench.ai/static/js/main",
-            reply(200, fixture_text("livebench_main.js"), "application/javascript"),
+            reply(200, fixture_text(bundle), "application/javascript"),
         )
         .add(
             "livebench.ai/data/20261025/table.csv",
-            reply(200, table or fixture_text("livebench_table.csv"), csv_type),
+            reply(200, table or fixture_text(default_table), csv_type),
         )
         .add(
             "livebench.ai/data/20261025/cost.csv",
@@ -111,10 +136,19 @@ def parquet_url(board: str) -> str:
     return f"https://huggingface.co/datasets/lmarena-ai/leaderboard-dataset/resolve/main/{board}/latest-00000-of-00001.parquet"
 
 
-def lmarena_routes(router: Router) -> Router:
-    """Each board's latest parquet: a 302 from the Hub to a CDN host, as the real one answers."""
+RECORDED_LMARENA = ("text_style_control", "search")  # boards recorded in full on 2026-11-04
+
+
+def lmarena_routes(router: Router, *, recorded: bool = False) -> Router:
+    """Each board's latest parquet: a 302 from the Hub to a CDN host, as the real one answers.
+    `recorded`: the text and search boards' top rows as served on 2026-11-04."""
     for board in BOARDS:
-        body = (FIXTURES / f"lmarena_{board}.parquet").read_bytes()
+        name = (
+            f"lmarena_{board}_20261104.parquet"
+            if recorded and board in RECORDED_LMARENA
+            else f"lmarena_{board}.parquet"
+        )
+        body = (FIXTURES / name).read_bytes()
         router.add(
             f"={parquet_url(board)}",
             httpx.Response(302, headers={"location": f"{CDN}/{board}?user_id=public"}),

@@ -50,9 +50,12 @@ def test_deepswe_stores_both_boards() -> None:
     assert [str(r.url) for r in router.requests] == [
         "https://deepswe.datacurve.ai/artifacts/v1.1/leaderboard-live.json",
         "https://deepswe.datacurve.ai/artifacts/v1/leaderboard-live.json",
+        "https://deepswe.datacurve.ai/",
+        "https://deepswe.datacurve.ai/assets/live-leaderboard-CCyhM4yo.js",
     ]
     assert snapshot.release == "2026-09-22"  # the newest file
     assert set(snapshot.raw["boards"]) == {"v1.1", "v1"}
+    assert snapshot.raw["updated"] == {"v1.1": "2026-09-22", "v1": "2026-06-20"}
     assert snapshot.raw["boards"]["v1.1"]["n_tasks_in_set"] == 113
     assert [r.board for r in snapshot.rows] == ["v1.1"] * 3 + ["v1"] * 3
     first = snapshot.rows[0]
@@ -207,6 +210,7 @@ def test_livebench_metadata_from_the_bundle() -> None:
         "display_name": "GPT-5 High",
         "organization": "OpenAI",
         "open_weights": False,
+        "base_name": "gpt-5",
     }
     assert found["gpt-5"]["display_name"] == "GPT-5"
 
@@ -219,11 +223,12 @@ def test_livebench_metadata_variant_may_override_and_strings_may_hold_braces() -
     )
     found = livebench.model_metadata(bundle)
     assert found["a"]["display_name"] == 'A {beta} "x"'
-    assert found["a-open"] == {**found["a"], "open_weights": True}
+    assert found["a-open"] == {**found["a"], "open_weights": True, "base_name": "a"}
     assert found["a-named"] == {
         "display_name": "Named",
         "organization": "Other",
         "open_weights": False,
+        "base_name": "a",
     }
     assert "b" not in found  # an object without a displayName is not a model entry
 
@@ -315,13 +320,20 @@ def test_lmarena_reads_each_boards_latest_parquet() -> None:
         "text_style_control",
         "webdev",
         "vision_style_control",
-        "search_style_control",
+        "search",  # arena.ai opens search without style control
         "agent",
     }
     # five 'overall' rows per board; the text fixture also holds two other categories
     for board in lmarena.BOARDS:
         assert len([r for r in snapshot.rows if r.board == board]) == 5
     assert snapshot.release == "2026-11-02"  # the newest publish date, the agent board's
+    assert snapshot.raw["updated"] == {
+        "text_style_control": "2026-10-28",
+        "webdev": "2026-10-28",
+        "vision_style_control": "2026-10-19",
+        "search": "2026-10-13",
+        "agent": "2026-11-02",
+    }
     assert set(snapshot.raw["boards"]) == set(lmarena.BOARDS)
     assert all(row["category"] == "overall" for row in snapshot.raw["boards"]["text_style_control"])
     # the Hub answers 302 to a CDN host, which is followed; nothing else is asked for
@@ -425,7 +437,7 @@ def test_lmarena_board_without_overall_rows_is_drift() -> None:
 )
 def test_lmarena_unreadable_file_is_drift(body: bytes) -> None:
     router = lmarena_routes(Router())
-    serve(router, "search_style_control", body)
+    serve(router, "search", body)
     with pytest.raises(BenchmarkError) as err:
         lmarena.fetch(router.fetcher(), NOW)
     assert err.value.code == "selector_drift"
