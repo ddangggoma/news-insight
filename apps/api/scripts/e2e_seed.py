@@ -306,8 +306,38 @@ SPOTLIGHT_TODAY: list[tuple[str, int, int, str, int, str, str | None, str | None
     ("news", 2, 1, "n-fold", 2, "폴더블 양산 소식이 뒤를 이었다", None, None, False),
     ("news", 3, 3, "n-matter", 3, "스마트홈 표준 갱신 소식", None, None, True),
     ("product", 1, 1, "p-tv", 1, "마이크로 RGB TV 공개", "Micro RGB TV", None, False),
+    (
+        "ai",
+        1,
+        1,
+        "ai:phone-llm",
+        4,
+        "스마트폰용 4비트 LLM이 주목받았다",
+        "Phone LLM 4bit",
+        None,
+        False,
+    ),
     ("oss", 1, 1, "o-llama", 6, "llama.cpp 모바일 NPU 백엔드 추가", None, None, False),
 ]
+# 지속 주목 rows of today (B3), same tuple shape
+SPOTLIGHT_SUSTAINED: list[tuple[str, int, int, str, int, str, str | None, str | None, bool]] = [
+    (
+        "news",
+        1,
+        1,
+        "n-rgb-week",
+        1,
+        "마이크로 RGB 패널 경쟁이 일주일째 이어졌다",
+        None,
+        None,
+        False,
+    ),
+]
+# Opus's insight tags and the server's signals, by key
+SPOTLIGHT_TAGS: dict[str, tuple[list[str], list[str]]] = {
+    "n-chip": (["첫 공개", "NPU 2배"], ["보도 4곳"]),
+    "n-rgb-week": (["장기 화제"], ["7일 중 5일"]),
+}
 SPOTLIGHT_YESTERDAY: list[tuple[str, int, int, str, int, str, str | None, str | None, bool]] = [
     ("news", 1, 1, "n-fold", 2, "폴더블 양산 소식", None, None, False),
     ("news", 2, 2, "n-chip", 0, "온디바이스 칩 소식", None, None, False),
@@ -337,8 +367,13 @@ def _spotlight(
         error=None,
         generated_at=now,
     )
+    groups = [("now", rows)] + ([("sustained", SPOTLIGHT_SUSTAINED)] if day == TODAY else [])
     entries = [
         SpotlightEntry(
+            group=group,
+            tags=SPOTLIGHT_TAGS.get(key, ([], []))[0] if day == TODAY else [],
+            signals=SPOTLIGHT_TAGS.get(key, ([], []))[1] if day == TODAY else [],
+            field=CARDS[card][4],
             section=section,
             rank=rank,
             stat_rank=stat_rank,
@@ -352,7 +387,8 @@ def _spotlight(
             metrics={"source_count": 5 - rank},
             fallback=fallback,
         )
-        for section, rank, stat_rank, key, card, title, product, note, fallback in rows
+        for group, listed in groups
+        for section, rank, stat_rank, key, card, title, product, note, fallback in listed
     ]
     return spotlight, entries
 
@@ -502,5 +538,11 @@ if __name__ == "__main__":
 
         seed_taxonomy(db)  # schemes and labels for the explorer and node filters (plan 15)
         backfill_labels(db)
+        db.commit()
+        # the explore feed, facets and insights read reader_facts (#135); live rebuilds it every
+        # few minutes, but here no scheduler runs, so the view stays as the migration left it: empty
+        from news_insight.public.facts import refresh
+
+        refresh(db)
         db.commit()
     print(f"seeded {database_url.rsplit('/', 1)[-1]}: briefings {YESTERDAY}, {TODAY}")
