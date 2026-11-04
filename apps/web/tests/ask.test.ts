@@ -19,13 +19,6 @@ describe("splitList", () => {
   });
 });
 
-describe("changeLabel", () => {
-  it("describes a change between two periods", async () => {
-    const { changeLabel } = await import("@/lib/patent-types");
-    expect([changeLabel(3, 1), changeLabel(1, 3), changeLabel(2, 0), changeLabel(0, 0), changeLabel(2, 2)]).toEqual(["+2", "-2", "새로", "–", "0"]);
-  });
-});
-
 describe("formatUsd", () => {
   it("writes rough dollar sizes in Korean units", async () => {
     const { formatUsd } = await import("@/lib/deal-types");

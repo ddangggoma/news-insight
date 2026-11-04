@@ -47,6 +47,9 @@ class Settings(BaseSettings):
     # id is pinned so a moved `opus` alias cannot change the picks
     spotlight_model: str = "claude-opus-5-5"
     spotlight_timeout_seconds: int = 900
+    # the daily 연구 and 특허 insights (plan 19 §3): Opus on the host, after the spotlight write
+    insights_model: str = "claude-opus-5-5"
+    insights_timeout_seconds: int = 900
     # trend reports on request (plan 17 R1): written on the host with the Claude CLI
     report_model: str = "opus"
     report_timeout_seconds: int = 1500

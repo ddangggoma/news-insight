@@ -45,12 +45,21 @@ OPENALEX_WITH_KEY = Provider(
 )
 
 
+# OpenAlex single-work lookups (research.enrich, plan 19): a singleton costs no credits, so they
+# draw from a bucket of their own (2000 an hour) and never from the search budget above; a 429
+# still pauses the whole host ("api.openalex.org"). Not a hostname, so no source maps to it.
+OPENALEX_WORKS = "api.openalex.org/works"
+BUCKETS: dict[str, Provider] = {
+    OPENALEX_WORKS: Provider(per_day=2000 * 24, burst=2000, validate_per_batch=0),
+}
+
+
 def provider(host: str) -> Provider:
     from news_insight.config import get_settings
 
     if host == "api.openalex.org" and get_settings().openalex_api_key:
         return OPENALEX_WITH_KEY
-    return PROVIDERS[host]
+    return BUCKETS.get(host) or PROVIDERS[host]
 
 
 MAX_BACKOFF_SECONDS = 24 * 3600

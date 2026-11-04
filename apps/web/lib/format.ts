@@ -100,6 +100,12 @@ export function formatDay(iso: string | null): string {
   return `${parts.year}.${parts.month}.${parts.day}`;
 }
 
+/** Today's date in KST as "2026-11-04", the form the API dates take. */
+export function kstToday(now: Date = new Date()): string {
+  const parts = Object.fromEntries(DATE.formatToParts(now).map((p) => [p.type, p.value]));
+  return `${parts.year}-${parts.month}-${parts.day}`;
+}
+
 export function formatRelative(iso: string | null, now: Date = new Date()): string {
   if (!iso) return "—";
   const seconds = Math.round((new Date(iso).getTime() - now.getTime()) / 1000);

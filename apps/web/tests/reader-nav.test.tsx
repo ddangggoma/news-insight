@@ -14,7 +14,7 @@ const item = (label: string) => READER_NAV.find((entry) => entry.label === label
 
 describe("reader menu", () => {
   it("starts with the daily briefing and leaves dossiers, collections and questions out", () => {
-    expect(READER_NAV.map((entry) => entry.label)).toEqual(["데일리 브리핑", "주목 받는", "탐색", "레이더", "투자·제휴", "특허", "로드맵", "동향 보고서 작성"]);
+    expect(READER_NAV.map((entry) => entry.label)).toEqual(["데일리 브리핑", "주목 받는", "탐색", "레이더", "투자·제휴", "특허", "연구", "로드맵", "동향 보고서 작성"]);
     expect(READER_NAV.some((entry) => ["/dossiers", "/collections", "/ask"].includes(entry.href))).toBe(false);
   });
 
@@ -34,6 +34,16 @@ describe("reader menu", () => {
     expect(isReaderActive("/spotlights", item("주목 받는"))).toBe(false);
   });
 
+  it("puts 연구 right after 특허 and lights it for the page only", () => {
+    const labels = READER_NAV.map((entry) => entry.label);
+    expect(labels.indexOf("연구")).toBe(labels.indexOf("특허") + 1);
+    expect(item("연구").href).toBe("/research");
+    expect(isReaderActive("/research", item("연구"))).toBe(true);
+    expect(isReaderActive("/research", item("특허"))).toBe(false);
+    expect(isReaderActive("/patents", item("특허"))).toBe(true);
+    expect(isReaderActive("/researchers", item("연구"))).toBe(false);
+  });
+
   it("lights 동향 보고서 작성 for the list and a report", () => {
     expect(isReaderActive("/reports", item("동향 보고서 작성"))).toBe(true);
     expect(isReaderActive("/reports/12", item("동향 보고서 작성"))).toBe(true);
@@ -42,12 +52,13 @@ describe("reader menu", () => {
   it("shows the same entries at the bottom on phones, with short labels where the full ones would wrap", () => {
     render(<BottomNav />);
     const links = within(screen.getByRole("navigation", { name: "하단 메뉴" })).getAllByRole("link");
-    expect(links.map((link) => link.textContent)).toEqual(["브리핑", "주목", "탐색", "레이더", "투자·제휴", "특허", "로드맵", "보고서"]);
+    expect(links.map((link) => link.textContent)).toEqual(["브리핑", "주목", "탐색", "레이더", "투자", "특허", "연구", "로드맵", "보고서"]);
     expect(links.map((link) => link.textContent)).toEqual(READER_NAV.map((entry) => entry.short ?? entry.label));
     // the full label stays the accessible name
     expect(links.map((link) => link.getAttribute("href"))).toEqual(READER_NAV.map((entry) => entry.href));
     expect(screen.getByRole("link", { name: "데일리 브리핑" })).toHaveTextContent("브리핑");
     expect(screen.getByRole("link", { name: "동향 보고서 작성" })).toHaveTextContent("보고서");
+    expect(screen.getByRole("link", { name: "투자·제휴" })).toHaveTextContent("투자");
     expect(screen.getByRole("link", { name: "로드맵" })).toHaveAttribute("aria-current", "page");
   });
 });

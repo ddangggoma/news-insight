@@ -1,0 +1,145 @@
+# CPC/IPC classification → technology field (plan 19 §2.2), for the 특허 menu.
+#
+# A patent's field is the field of its first classification found here (offices list the main
+# classification first); a patent without one takes its card's field, else "other".
+# Fields are the app's 12 taxonomy fields (taxonomy/catalog.py FIELDS).
+#
+# subclasses  four-character CPC/IPC subclass (section, class, subclass): "G06N"
+# groups      subclass + main group, for the parts of a subclass that belong elsewhere:
+#             "G06N 10" (quantum computing) inside G06N (AI). A group wins over its subclass.
+#
+# CPC and IPC share these symbols down to the main group, so one map serves both.
+version: 1
+subclasses:
+  # ai · AI 모델·에이전트
+  G06N: ai  # computing based on specific computational models (neural networks, ML)
+  G06V: ai  # image or video recognition and understanding
+  G10L: ai  # speech recognition, synthesis and processing
+  G06K: ai  # pattern recognition, data presentation (older recognition codes)
+  # semis · 반도체·컴퓨팅 HW
+  H01L: semis  # semiconductor devices (incl. packaging, H01L 21/23/25)
+  H10B: semis  # electronic memory devices
+  H10D: semis  # inorganic electric semiconductor devices (2023 CPC)
+  H10F: semis  # inorganic light-sensitive devices: image sensors, photodiodes
+  G11C: semis  # static stores: memory circuits
+  G11B: semis  # information storage on moving media (disks, optical storage)
+  H01S: semis  # lasers (laser diodes, VCSELs)
+  H03K: semis  # pulse technique: logic circuits
+  H03F: semis  # amplifiers (RF front ends)
+  H03H: semis  # impedance networks, filters (RF)
+  H03M: semis  # coding, decoding, code conversion (data converters)
+  B81B: semis  # MEMS devices
+  B81C: semis  # MEMS manufacture
+  H01G: semis  # capacitors (passive components)
+  # display_av · 디스플레이·영상·오디오
+  H10K: display_av  # organic electric solid-state devices (OLED)
+  H10H: display_av  # inorganic light-emitting devices (micro-LED)
+  G09G: display_av  # control of visual indicators (display drivers)
+  G09F: display_av  # displaying; display panels, signage
+  G02F: display_av  # optical devices: LCD, light modulators
+  G02B: display_av  # optical elements: lenses, head-mounted displays
+  G03B: display_av  # photographic cameras, projectors
+  G06T: display_av  # image data processing or generation
+  H04N: display_av  # pictorial communication: video, TV, cameras, codecs
+  H04R: display_av  # loudspeakers, microphones
+  H04S: display_av  # stereophonic systems, spatial audio
+  # connectivity · 무선·네트워크
+  H04W: connectivity  # wireless communication networks
+  H04B: connectivity  # transmission (radio, optical)
+  H04L: connectivity  # transmission of digital information, networks
+  H04J: connectivity  # multiplex communication
+  H04M: connectivity  # telephonic communication
+  H04Q: connectivity  # selecting (switching, IoT telemetry)
+  H01Q: connectivity  # antennas
+  H04H: connectivity  # broadcast communication
+  # platform_sw · 플랫폼·소프트웨어
+  G06F: platform_sw  # electric digital data processing (OS, UI, software)
+  G06Q: platform_sw  # business methods: commerce, payment, services
+  G09B: platform_sw  # educational appliances
+  # cloud_data · 클라우드·데이터센터
+  H05K: cloud_data  # printed circuits, casings, cooling of electronic equipment
+  # security · 보안·신뢰
+  G09C: security  # ciphering apparatus
+  H04K: security  # secret communication, jamming
+  G07C: security  # access control, time and attendance
+  G08B: security  # alarm and signalling systems (intrusion, fire, emergency)
+  # robotics_mobility · 로보틱스·모빌리티
+  B25J: robotics_mobility  # manipulators, robots
+  B60W: robotics_mobility  # conjoint control of vehicle sub-units (ADAS, autonomy)
+  B62D: robotics_mobility  # motor vehicles: steering, legged robots
+  B60R: robotics_mobility  # vehicle electric circuits and fittings
+  B60K: robotics_mobility  # vehicle arrangements: drive, cockpit instruments
+  G05D: robotics_mobility  # control of position or course (autonomous vehicles, robots)
+  G08G: robotics_mobility  # traffic control
+  G01S: robotics_mobility  # radar, lidar, sonar, positioning
+  G01C: robotics_mobility  # navigation, gyroscopes, surveying
+  B64C: robotics_mobility  # aeroplanes, helicopters
+  B64U: robotics_mobility  # unmanned aerial vehicles (drones)
+  A47L: robotics_mobility  # floor cleaning (robot vacuums)
+  # health_tech · 헬스테크
+  A61B: health_tech  # diagnosis, surgery, identification (biosensing)
+  G16H: health_tech  # healthcare informatics
+  A61N: health_tech  # electrotherapy, radiation therapy
+  A61H: health_tech  # physical therapy apparatus (care, rehabilitation)
+  A61M: health_tech  # devices for introducing media into the body
+  A61F: health_tech  # implants, prostheses, hearing aids
+  G16B: health_tech  # bioinformatics
+  # energy · 에너지·지속가능성
+  H01M: energy  # batteries, fuel cells
+  H02J: energy  # power supply and distribution, charging
+  H02M: energy  # power conversion (adapters, inverters)
+  H02S: energy  # photovoltaic power generation
+  B60L: energy  # electric propulsion of vehicles, EV charging
+  H02K: energy  # electric motors and generators
+  H02P: energy  # control of electric motors and generators (drives, inverters)
+  Y02T: energy  # climate change mitigation in transport (electrified vehicles)
+  Y02E: energy  # reduction of greenhouse gases: energy generation and storage
+  Y02D: energy  # climate change mitigation in ICT (energy-efficient computing)
+  Y02W: energy  # waste management, recycling
+  F24F: energy  # air conditioning, ventilation (HVAC)
+  F25B: energy  # refrigeration machines, heat pumps
+  # manufacturing · 제조 기술
+  G05B: manufacturing  # control or regulating systems (industrial control, smart factory)
+  B65G: manufacturing  # conveying, warehouses (logistics automation)
+  B23K: manufacturing  # soldering, welding, laser working
+  B23P: manufacturing  # assembly and other working of metal
+  B29C: manufacturing  # shaping of plastics, 3D printing
+  B33Y: manufacturing  # additive manufacturing
+  B22F: manufacturing  # metal powders, sintering
+  G01N: manufacturing  # investigating materials (inspection, analysis)
+  G01B: manufacturing  # measuring length, shape (metrology)
+  # frontier · 미래 기술
+  B82Y: frontier  # nanotechnology
+  B82B: frontier  # nanostructures
+  H10N: frontier  # superconducting, thermoelectric and other solid-state devices
+  H10L: frontier  # spintronic and related devices (2025 CPC)
+  G06E: frontier  # optical computing devices
+groups:
+  G06N 10: frontier  # quantum computing
+  G06F 21: security  # security arrangements for computers
+  G06F 16: cloud_data  # information retrieval, databases
+  G06F 11: cloud_data  # error detection, monitoring (infrastructure operations)
+  G06F 40: ai  # natural language processing
+  G06F 15: semis  # digital computers, processors (accelerators)
+  G06F 7: semis  # arithmetic circuits
+  G06T 7: ai  # image analysis
+  G10L 19: display_av  # audio coding
+  G10L 21: display_av  # audio signal processing (noise suppression)
+  H04L 9: security  # cryptographic mechanisms
+  H04L 63: security  # network security
+  H04L 67: cloud_data  # network services, distributed computing
+  H04W 12: security  # security in wireless networks
+  H04N 19: display_av  # video coding
+  H05K 7: cloud_data  # equipment cabinets, racks, cooling
+  H05K 1: semis  # printed circuits
+  H05K 3: semis  # manufacturing printed circuits
+  B60L 53: energy  # EV charging
+  B62D 57: robotics_mobility  # legged and walking vehicles (humanoids)
+  G01N 21: manufacturing  # optical inspection
+  G01N 33: health_tech  # analysing biological material
+  G06Q 10: manufacturing  # logistics, production planning
+  G06Q 20: platform_sw  # payment architectures
+  H01L 39: frontier  # superconducting devices (older IPC)
+  H01L 51: display_av  # organic semiconductor devices, OLED (older IPC, now H10K)
+  H05B 33: display_av  # electroluminescent light sources (OLED/EL displays, older codes)
+  C01B 32: frontier  # carbon, graphene, nanotubes

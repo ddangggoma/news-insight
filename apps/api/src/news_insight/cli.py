@@ -142,6 +142,21 @@ benchmarks_app = typer.Typer(
     no_args_is_help=True,
 )
 app.add_typer(benchmarks_app, name="benchmarks")
+research_app = typer.Typer(
+    help="Research papers: OpenAlex metadata, institutions and companies (plan 19)",
+    no_args_is_help=True,
+)
+app.add_typer(research_app, name="research")
+patents_app = typer.Typer(
+    help="Patent documents: publication numbers, CPC/IPC fields and applicants (plan 19)",
+    no_args_is_help=True,
+)
+app.add_typer(patents_app, name="patents")
+insights_app = typer.Typer(
+    help="Research and patent insights: daily counts by field and company (plan 19)",
+    no_args_is_help=True,
+)
+app.add_typer(insights_app, name="insights")
 
 KST = ZoneInfo("Asia/Seoul")
 FAILED_OUTCOMES = (FetchOutcome.FAILED, FetchOutcome.DEAD_LETTERED)
@@ -168,6 +183,13 @@ def _spotlight_claude() -> ClaudeClient:
     settings = get_settings()
     return ClaudeCli(
         executable=settings.claude_cli, timeout_seconds=settings.spotlight_timeout_seconds
+    )
+
+
+def _insights_claude() -> ClaudeClient:
+    settings = get_settings()
+    return ClaudeCli(
+        executable=settings.claude_cli, timeout_seconds=settings.insights_timeout_seconds
     )
 
 
@@ -1833,3 +1855,111 @@ def benchmarks_collect() -> None:
         results = collect_all(session, fetcher, datetime.now(UTC))
     for site, result in results.items():
         typer.echo(f"{site}: {result}")
+
+
+@research_app.command("enrich")
+def research_enrich(
+    limit: Annotated[int, typer.Option(help="Papers to look up at most")] = 2000,
+) -> None:
+    """Look up due papers on OpenAlex now (the hourly :20 job), within the shared budget.
+    Waits for nothing: if the scheduled run holds the lock, says so and exits 0."""
+    from news_insight.research.service import LOCK_NAME, LOCK_TTL_SECONDS, enrich
+    from news_insight.scheduling.providers import ProviderGate
+    from news_insight.scheduling.redis_guards import SourceLock
+
+    client = get_redis()
+    lock = SourceLock(client, ttl_seconds=LOCK_TTL_SECONDS, prefix="lock:")
+    with lock.hold(LOCK_NAME) as acquired:
+        if not acquired:
+            typer.echo("skipped: another enrichment is running")
+            return
+        with session_scope() as session, _fetcher() as fetcher:
+            result = enrich(
+                session, fetcher, now=datetime.now(UTC), limit=limit, gate=ProviderGate(client)
+            )
+    typer.echo(
+        f"attempted={result.attempted} ok={result.ok} not_found={result.not_found} "
+        f"errors={result.errors} stopped={result.stopped or '-'}"
+    )
+
+
+@patents_app.command("index")
+def patents_index(
+    limit: Annotated[int, typer.Option(help="Items to index at most")] = 5000,
+) -> None:
+    """Index new or re-carded patent documents now (the hourly :25 job)."""
+    from news_insight.patents.service import index_patents
+
+    with session_scope() as session:
+        result = index_patents(session, now=datetime.now(UTC), limit=limit)
+    typer.echo(f"indexed={result.indexed} removed={result.removed}")
+
+
+@insights_app.command("backfill-stats")
+def insights_backfill_stats(
+    days: Annotated[int, typer.Option(help="KST days before today to rebuild")] = 365,
+) -> None:
+    """Rebuild research_daily_stats and patent_daily_stats for the last N days (once after
+    deploying; the 03:40 job keeps the last three days current), one transaction per day, then
+    the per-paper signals of the 주목 문헌 list."""
+    from news_insight.insights.signals import recompute_signals
+    from news_insight.insights.stats import recent_days, recompute_days
+
+    total_research = total_patents = 0
+    now = datetime.now(UTC)
+    for day in recent_days(now, days):
+        with session_scope() as session:
+            result = recompute_days(session, [day], now=now)
+        total_research += result.research_rows
+        total_patents += result.patent_rows
+    with session_scope() as session:
+        signals = recompute_signals(session, through=recent_days(now, 1)[0], now=now)
+    typer.echo(
+        f"days={days} research_rows={total_research} patent_rows={total_patents} "
+        f"signal_rows={signals.rows}"
+    )
+
+
+@insights_app.command("write")
+def insights_write(
+    kind: Annotated[str | None, typer.Option(help="research or patent (default: both)")] = None,
+    on: Annotated[str | None, typer.Option("--date", help="Insight date YYYY-MM-DD (KST)")] = None,
+    model: Annotated[str | None, typer.Option(help="Claude model id")] = None,
+) -> None:
+    """Have Claude Opus write the day's 연구 and 특허 insights (plan 19 §3; the 05:00 digest job
+    runs it after the spotlight, and its later runs retry a failed kind). A published day is left
+    as it is. Exits 0 once the attempts ran, whatever they returned: the status of each kind is
+    printed, and a failed one is stored for the next run."""
+    from news_insight.insights.models import InsightKind
+    from news_insight.insights.writer import write
+
+    if kind is not None and kind not in {k.value for k in InsightKind}:
+        raise typer.BadParameter("research or patent", param_hint="--kind")
+    kinds = [kind] if kind is not None else [k.value for k in InsightKind]
+    now = datetime.now(UTC)
+    day = _briefing_date(on, now)
+    crashed = []
+    for name in kinds:
+        try:
+            with session_scope() as session:
+                row = write(
+                    session,
+                    name,
+                    day,
+                    client=_insights_claude(),
+                    model=model or get_settings().insights_model,
+                    now=now,
+                )
+                line = f"{day} {name} insight {row.status.value} model={row.model}"
+                if row.cost_usd is not None:
+                    line += f" cost=${row.cost_usd:.3f}"
+                if row.error:
+                    line += f" error: {row.error}"
+        except Exception as exc:  # noqa: BLE001 - the other kind still gets its attempt
+            logging.getLogger(__name__).exception("insights: %s write crashed", name)
+            typer.echo(f"{day} {name} insight not attempted: {exc}", err=True)
+            crashed.append(name)
+        else:
+            typer.echo(line)
+    if crashed:
+        raise typer.Exit(1)

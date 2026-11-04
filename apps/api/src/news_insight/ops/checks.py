@@ -20,6 +20,7 @@ from news_insight.cards.models import CardRun
 from news_insight.cards.service import pending_count
 from news_insight.collect.models import DeadLetter, FetchOutcome, FetchRun
 from news_insight.deals.models import DealScan
+from news_insight.insights.models import DomainInsightRecord, InsightKind, InsightStatus
 from news_insight.ops.models import Severity
 from news_insight.spotlight.models import Spotlight, SpotlightStatus
 from news_insight.strategy.models import StrategyRun, StrategyStatus
@@ -28,6 +29,8 @@ KST = ZoneInfo("Asia/Seoul")
 FREEZE_DEADLINE = time(4, 55)
 PUBLISH_DEADLINE = time(5, 20)
 SPOTLIGHT_DEADLINE = time(10, 30)  # the writer's last attempt is 10:00; 30 minutes to finish
+INSIGHTS_DEADLINE = time(11, 0)  # the 10:00 digest run is the insights' last try of the day
+INSIGHT_LABELS = {InsightKind.RESEARCH: "연구", InsightKind.PATENT: "특허"}
 COLLECTION_WINDOW = timedelta(hours=1)
 MIN_SUCCESS_RATE = 0.5
 DLQ_LIMIT = 50
@@ -131,6 +134,33 @@ def check_spotlight(session: Session, *, now: datetime) -> list[Finding]:
             f"{today} 주목 받는 목록이 발행되지 않았습니다",
             "Claude 로그인·한도와 ops/logs/digest.log를 확인하세요.",
         )
+    ]
+
+
+def check_domain_insights(session: Session, *, now: datetime) -> list[Finding]:
+    """The 연구 and 특허 insights are written after the spotlight (plan 19 §3); from 11:00 KST a
+    kind without today's published row is a miss (the reader shows the previous one)."""
+    local = now.astimezone(KST)
+    if local.time() < INSIGHTS_DEADLINE:
+        return []
+    today = local.date()
+    published = set(
+        session.scalars(
+            select(DomainInsightRecord.kind).where(
+                DomainInsightRecord.insight_date == today,
+                DomainInsightRecord.status == InsightStatus.PUBLISHED,
+            )
+        )
+    )
+    return [
+        Finding(
+            f"insights_missing:{kind.value}",
+            Severity.WARNING,
+            f"{today} {INSIGHT_LABELS[kind]} 인사이트가 발행되지 않았습니다",
+            "domain_insights의 error, Claude 로그인·한도와 ops/logs/digest.log를 확인하세요.",
+        )
+        for kind in InsightKind
+        if kind not in published
     ]
 
 
@@ -453,6 +483,7 @@ def run_checks(
         *check_card_output(session),
         *check_publication(session, now=now),
         *check_spotlight(session, now=now),
+        *check_domain_insights(session, now=now),
         *check_benchmarks(session, now=now),
         *check_collection(session, now=now),
         *check_queue(queue_length),

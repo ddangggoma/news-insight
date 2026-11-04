@@ -47,3 +47,25 @@ def test_beat_freezes_the_briefing_at_0440() -> None:
 
     assert entry["task"] == "briefing.freeze"
     assert (entry["schedule"].hour, entry["schedule"].minute) == ({4}, {40})
+
+
+def test_beat_enriches_papers_hourly_at_twenty_past() -> None:
+    entry = celery_app.conf.beat_schedule["research-enrich"]
+
+    assert entry["task"] == "research.enrich"
+    assert entry["schedule"].minute == {20} and len(entry["schedule"].hour) == 24
+    assert entry["options"]["expires"] < 3600
+
+
+def test_beat_indexes_patents_hourly_at_twenty_five_past() -> None:
+    entry = celery_app.conf.beat_schedule["patents-index"]
+
+    assert entry["task"] == "patents.index"
+    assert entry["schedule"].minute == {25} and len(entry["schedule"].hour) == 24
+
+
+def test_beat_rebuilds_research_and_patent_counts_at_0340() -> None:
+    entry = celery_app.conf.beat_schedule["insights-stats"]
+
+    assert entry["task"] == "insights.stats"
+    assert (entry["schedule"].hour, entry["schedule"].minute) == ({3}, {40})

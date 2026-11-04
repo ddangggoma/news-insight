@@ -1,6 +1,6 @@
 "use client";
 
-import { Compass, FileSearch, FileText, Flame, Handshake, type LucideIcon, Map as MapIcon, Radar, ScrollText, Search } from "lucide-react";
+import { Compass, FileSearch, FileText, Flame, FlaskConical, Handshake, type LucideIcon, Map as MapIcon, Radar, ScrollText, Search } from "lucide-react";
 import { AppLink as Link } from "@/components/app-link";
 import { usePathname, useSearchParams } from "next/navigation";
 
@@ -11,11 +11,12 @@ import { cn } from "@/lib/utils";
 // Reader menu (2026-10-12): the daily briefing first; the opportunity/threat board and the
 // roadmap share one entry with tabs (components/reader/roadmap-tabs.tsx). Dossiers, collections
 // and questions left the menu; their pages still open from a direct link. Trend reports on request
-// (plan 17 R1) joined it on 2026-10-13; 주목 받는 (plan 18, daily Top 10s) took the second place on 2026-11-03.
+// (plan 17 R1) joined it on 2026-10-13; 주목 받는 (plan 18, daily Top 10s) took the second place on 2026-11-03;
+// 연구 (plan 19, papers by field, company and trend) sits right after 특허 since 2026-11-04.
 interface ReaderNavEntry {
   href: string;
   label: string;
-  /** Shorter text for the phone's bottom bar, where eight entries share 375px; the header keeps `label`. */
+  /** Shorter text for the phone's bottom bar, where nine entries share 375px; the header keeps `label`. */
   short?: string;
   icon: LucideIcon;
   match: readonly string[];
@@ -26,8 +27,9 @@ export const READER_NAV: readonly ReaderNavEntry[] = [
   { href: "/spotlight", label: "주목 받는", short: "주목", icon: Flame, match: ["/spotlight"] },
   { href: "/", label: "탐색", icon: Compass, match: ["/items"] },
   { href: "/radar", label: "레이더", icon: Radar, match: ["/radar"] },
-  { href: "/deals", label: "투자·제휴", icon: Handshake, match: ["/deals"] },
+  { href: "/deals", label: "투자·제휴", short: "투자", icon: Handshake, match: ["/deals"] },
   { href: "/patents", label: "특허", icon: ScrollText, match: ["/patents"] },
+  { href: "/research", label: "연구", icon: FlaskConical, match: ["/research"] },
   { href: "/roadmap", label: "로드맵", icon: MapIcon, match: ["/roadmap", "/board"] },
   { href: "/reports", label: "동향 보고서 작성", short: "보고서", icon: FileSearch, match: ["/reports"] },
 ]
@@ -67,7 +69,7 @@ export function ReaderHeader({ user }: { user: AccountSummary }) {
         <form
           action="/"
           role="search"
-          className="order-last flex w-full items-center gap-2 rounded-lg border bg-muted/60 px-3 focus-within:border-primary md:order-none md:ml-auto md:w-80"
+          className="order-last flex w-full items-center gap-2 rounded-lg border bg-muted/60 px-3 focus-within:border-primary md:order-none md:ml-auto md:w-56 2xl:w-80"
         >
           <Search className="size-4 shrink-0 text-muted-foreground" aria-hidden />
           <input

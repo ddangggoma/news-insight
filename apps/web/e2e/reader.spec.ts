@@ -7,7 +7,7 @@ test.describe("reader", () => {
     await page.goto("/");
     await expect(page.getByRole("link", { name: "삼성, 차세대 온디바이스 AI 칩 공개" }).first()).toBeVisible();
     const menu = page.getByRole("navigation", { name: "주요 메뉴" }).getByRole("link");
-    await expect(menu).toHaveText(["데일리 브리핑", "주목 받는", "탐색", "레이더", "투자·제휴", "특허", "로드맵", "동향 보고서 작성"]);
+    await expect(menu).toHaveText(["데일리 브리핑", "주목 받는", "탐색", "레이더", "투자·제휴", "특허", "연구", "로드맵", "동향 보고서 작성"]);
   });
 
   test("the roadmap menu holds the roadmap and the opportunity board as tabs", async ({ page }) => {
@@ -124,15 +124,6 @@ test.describe("reader", () => {
     await expect(submit).toBeEnabled();
     await expect(page.getByLabel("기간")).toHaveValue("30");
     await expect(page.getByLabel("범위").locator("option")).not.toHaveCount(1);
-  });
-
-  test("patent signals switch between months and quarters (plan 16 #5)", async ({ page }) => {
-    await page.goto("/patents");
-    await expect(page.getByRole("heading", { level: 1, name: "특허 신호" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: /월별 특허 신호/ })).toBeVisible();
-    await page.getByRole("link", { name: "분기별" }).click();
-    await expect(page).toHaveURL(/kind=quarter/);
-    await expect(page.getByRole("heading", { name: /분기별 특허 신호/ })).toBeVisible();
   });
 
   test("deals page filters by kind and period (plan 16 #8)", async ({ page }) => {

@@ -1,0 +1,171 @@
+{
+ "id": "https://openalex.org/W7224955535",
+ "doi": "https://doi.org/10.48550/arxiv.2610.38252",
+ "title": "A Tutorial on Generative Models for Music Audio",
+ "publication_date": "2026-10-28",
+ "type": "preprint",
+ "primary_location": {
+  "id": "pmh:oai:arXiv.org:2610.38252",
+  "doi": null,
+  "is_oa": true,
+  "landing_page_url": "https://arxiv.org/abs/2610.38252",
+  "pdf_url": "https://arxiv.org/pdf/2610.38252",
+  "source": {
+   "id": "https://openalex.org/S4306400194",
+   "display_name": "arXiv (Cornell University)",
+   "issn_l": "2331-8422",
+   "issn": [
+    "2331-8422"
+   ],
+   "is_oa": true,
+   "is_in_doaj": false,
+   "is_core": false,
+   "listed_in": [],
+   "host_organization": "https://openalex.org/I205783295",
+   "host_organization_name": "Cornell University",
+   "host_organization_lineage": [
+    "https://openalex.org/I205783295"
+   ],
+   "host_organization_lineage_names": [],
+   "type": "repository"
+  },
+  "license": "cc-by-nc",
+  "license_id": "https://openalex.org/licenses/cc-by-nc",
+  "version": "submittedVersion",
+  "is_accepted": false,
+  "is_published": false,
+  "raw_source_name": null,
+  "raw_type": "text"
+ },
+ "primary_topic": {
+  "id": "https://openalex.org/T11309",
+  "display_name": "Music and Audio Processing",
+  "score": 0.8306000232696533,
+  "subfield": {
+   "id": "https://openalex.org/subfields/1711",
+   "display_name": "Signal Processing"
+  },
+  "field": {
+   "id": "https://openalex.org/fields/17",
+   "display_name": "Computer Science"
+  },
+  "domain": {
+   "id": "https://openalex.org/domains/3",
+   "display_name": "Physical Sciences"
+  }
+ },
+ "authorships": [
+  {
+   "author_position": "first",
+   "author": {
+    "id": "https://openalex.org/A5076000935",
+    "display_name": "Mateusz Modrzejewski",
+    "orcid": "https://orcid.org/0000-0002-6363-8584",
+    "observed_orcids": [
+     "https://orcid.org/0000-0002-6363-8584"
+    ]
+   },
+   "institutions": [
+    {
+     "id": "https://openalex.org/I108403487",
+     "display_name": "Warsaw University of Technology",
+     "ror": "https://ror.org/00y0xnp53",
+     "country_code": "PL",
+     "type": "education",
+     "lineage": [
+      "https://openalex.org/I108403487"
+     ]
+    },
+    {
+     "id": "https://openalex.org/I4210087266",
+     "display_name": "Institute of Computer Science",
+     "ror": "https://ror.org/003fvp964",
+     "country_code": "PL",
+     "type": "facility",
+     "lineage": [
+      "https://openalex.org/I4210087266",
+      "https://openalex.org/I99542240"
+     ]
+    }
+   ],
+   "countries": [
+    "PL"
+   ],
+   "is_corresponding": false,
+   "raw_author_name": "Modrzejewski, Mateusz",
+   "raw_affiliation_strings": [
+    "Warsaw University of Technology , Institute of Computer Science , and ZAiKS Lab ;"
+   ],
+   "raw_orcid": null,
+   "affiliations": [
+    {
+     "raw_affiliation_string": "Warsaw University of Technology , Institute of Computer Science , and ZAiKS Lab ;",
+     "institution_ids": [
+      "https://openalex.org/I108403487",
+      "https://openalex.org/I4210087266"
+     ]
+    }
+   ]
+  },
+  {
+   "author_position": "middle",
+   "author": {
+    "id": "https://openalex.org/A5056041779",
+    "display_name": "Joanna Kurkowska",
+    "orcid": null,
+    "observed_orcids": []
+   },
+   "institutions": [],
+   "countries": [],
+   "is_corresponding": false,
+   "raw_author_name": "Kurkowska, Joanna",
+   "raw_affiliation_strings": [],
+   "raw_orcid": null,
+   "affiliations": []
+  },
+  {
+   "author_position": "last",
+   "author": {
+    "id": "https://openalex.org/A5069548004",
+    "display_name": "Dorien Herremans",
+    "orcid": "https://orcid.org/0000-0001-8607-1640",
+    "observed_orcids": [
+     "https://orcid.org/0000-0001-8607-1640"
+    ]
+   },
+   "institutions": [
+    {
+     "id": "https://openalex.org/I152815399",
+     "display_name": "Singapore University of Technology and Design",
+     "ror": "https://ror.org/05j6fvn87",
+     "country_code": "SG",
+     "type": "education",
+     "lineage": [
+      "https://openalex.org/I152815399"
+     ]
+    }
+   ],
+   "countries": [
+    "SG"
+   ],
+   "is_corresponding": false,
+   "raw_author_name": "Herremans, Dorien",
+   "raw_affiliation_strings": [
+    "Singapore University of Technology and Design ;"
+   ],
+   "raw_orcid": null,
+   "affiliations": [
+    {
+     "raw_affiliation_string": "Singapore University of Technology and Design ;",
+     "institution_ids": [
+      "https://openalex.org/I152815399"
+     ]
+    }
+   ]
+  }
+ ],
+ "countries_distinct_count": 2,
+ "cited_by_count": 0,
+ "fwci": null,
+ "counts_by_year": []
+}

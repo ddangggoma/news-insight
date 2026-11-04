@@ -59,6 +59,10 @@
     --color-cat-2: var(--cat-2);
     --color-cat-3: var(--cat-3);
     --color-cat-4: var(--cat-4);
+    --color-cat-5: var(--cat-5);
+    --color-cat-6: var(--cat-6);
+    --color-cat-7: var(--cat-7);
+    --color-cat-8: var(--cat-8);
     --color-cat-other: var(--cat-other);
     --color-stage-research: var(--stage-research);
     --color-stage-diffusion: var(--stage-diffusion);
@@ -125,6 +129,11 @@
     --cat-2: #eb6834;
     --cat-3: #1baf7a;
     --cat-4: #eda100;
+    /* slots 5-8 (연구·특허 lines: top 8 fields, countries, companies) */
+    --cat-5: #e87ba4;
+    --cat-6: #008300;
+    --cat-7: #6250d6;
+    --cat-8: #e34948;
     --cat-other: #9aa3b0;
     --chart-1: oklch(0.585 0.233 277.12);
     --chart-2: oklch(0.696 0.17 162.48);
@@ -189,6 +198,10 @@
     --cat-2: #d95926;
     --cat-3: #199e70;
     --cat-4: #c98500;
+    --cat-5: #d55181;
+    --cat-6: #008300;
+    --cat-7: #9085e9;
+    --cat-8: #e66767;
     --cat-other: #6b7380;
     --chart-1: oklch(0.673 0.182 276.94);
     --chart-2: oklch(0.765 0.177 163.22);

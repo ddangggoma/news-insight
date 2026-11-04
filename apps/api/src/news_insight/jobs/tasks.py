@@ -286,3 +286,58 @@ def benchmarks_collect_task() -> dict[str, str]:
 
     with session_scope() as session, SafeFetcher.from_settings(get_settings()) as fetcher:
         return collect_all(session, fetcher, datetime.now(UTC))
+
+
+@celery_app.task(name="research.enrich")
+def research_enrich_task() -> dict[str, Any]:
+    """Plan 19: OpenAlex metadata for due papers, at most 2000 a run (hourly at :20)."""
+    from news_insight.research.service import LOCK_NAME, LOCK_TTL_SECONDS, enrich
+
+    client = get_redis()
+    lock = SourceLock(client, ttl_seconds=LOCK_TTL_SECONDS, prefix="lock:")
+    with lock.hold(LOCK_NAME) as acquired:
+        if not acquired:
+            return {"skipped": "another enrichment is running"}
+        with session_scope() as session, SafeFetcher.from_settings(get_settings()) as fetcher:
+            result = enrich(session, fetcher, now=datetime.now(UTC), gate=ProviderGate(client))
+            return asdict(result)
+
+
+@celery_app.task(name="patents.index")
+def patents_index_task() -> dict[str, int]:
+    """Plan 19: patent_meta for office publications and ip cards (hourly at :25)."""
+    from news_insight.patents.service import index_patents
+
+    with session_scope() as session:
+        return asdict(index_patents(session, now=datetime.now(UTC)))
+
+
+@celery_app.task(name="insights.stats")
+def insights_stats_task() -> dict[str, Any]:
+    """Plan 19 (03:40): research and patent counts of yesterday and the two days before (and
+    of days with late enrichment), then the per-paper signals up to the same day, then the
+    default 연구/특허 views are computed again into the reader cache."""
+    from news_insight.insights.signals import recompute_signals
+    from news_insight.insights.stats import recent_days, recompute_recent
+
+    now = datetime.now(UTC)
+    with session_scope() as session:
+        result = recompute_recent(session, now=now)
+        signals = recompute_signals(session, through=recent_days(now, 1)[0], now=now)
+    warmed = 0
+    try:
+        from news_insight.public import domain_cache
+
+        client = domain_cache.cache_client()
+        if client is not None:
+            with session_scope() as session:
+                warmed = domain_cache.warm(session, now=now, client=client)
+    except Exception:  # noqa: BLE001 - the counts are built; a cold cache only costs time
+        logger.warning("warming the research/patent views failed", exc_info=True)
+    return {
+        "days": [day.isoformat() for day in result.days],
+        "research_rows": result.research_rows,
+        "patent_rows": result.patent_rows,
+        "signal_rows": signals.rows,
+        "warmed": warmed,
+    }

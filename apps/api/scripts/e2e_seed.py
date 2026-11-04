@@ -19,6 +19,7 @@ from sqlalchemy.orm import Session
 
 from news_insight.briefing.models import Briefing, BriefingFreeze, BriefingStatus
 from news_insight.cards.models import CardStatus, ItemCard
+from news_insight.companies.catalog import Relation
 from news_insight.content.models import Item
 from news_insight.digest.models import Digest, DigestStatus
 from news_insight.sources.enums import (
@@ -501,6 +502,257 @@ def seed(session: Session) -> None:
     session.commit()
 
 
+# 연구·특허 menus (plan 19): papers and patents spread over the last 12 weeks, older than the
+# explore feed's default week so the other reader pages see the same items as before, and the
+# daily stats rebuilt from them. (field, theme, days ago, company keys, institutions, countries)
+E2E_COMPANIES = [
+    ("samsung", "Samsung Electronics", "삼성전자", Relation.SELF),
+    ("lg-electronics", "LG Electronics", "LG전자", Relation.COMPETITOR),
+    ("sony", "Sony", "소니", Relation.PEER),
+]
+SAMSUNG = {
+    "name": "Samsung Electronics",
+    "type": "company",
+    "country": "KR",
+    "company_key": "samsung",
+}
+LG = {"name": "LG Electronics", "type": "company", "country": "KR", "company_key": "lg-electronics"}
+KAIST = {"name": "KAIST", "type": "education", "country": "KR"}
+MIT = {"name": "Massachusetts Institute of Technology", "type": "education", "country": "US"}
+TSINGHUA = {"name": "Tsinghua University", "type": "education", "country": "CN"}
+PAPERS: list[tuple[str, str, int, list[dict[str, Any]]]] = [
+    ("ai", "ai__foundation_models", 8, [SAMSUNG, KAIST]),
+    ("ai", "ai__ai_agents", 10, [MIT]),
+    ("ai", "ai__multimodal_perception", 12, [LG, KAIST]),
+    ("ai", "ai__foundation_models", 15, [TSINGHUA]),
+    ("ai", "ai__ai_agents", 20, [SAMSUNG]),
+    ("semis", "semis__ap_soc_npu", 9, [SAMSUNG, MIT]),
+    ("semis", "semis__memory_storage", 25, [TSINGHUA]),
+    ("connectivity", "connectivity__cellular_5g_6g", 14, [KAIST]),
+    ("display_av", "display_av__display_panel", 18, [LG]),
+    ("ai", "ai__foundation_models", 40, [MIT]),
+    ("semis", "semis__ap_soc_npu", 45, [SAMSUNG]),
+    ("connectivity", "connectivity__ran_core", 50, [TSINGHUA]),
+    ("display_av", "display_av__display_panel", 60, [KAIST]),
+    ("ai", "ai__ai_agents", 70, [MIT]),
+    ("semis", "semis__memory_storage", 75, [LG]),
+]
+# (field, theme, days ago, company keys, applicants, office, source, publication number)
+PATENTS: list[tuple[str, str, int, list[str], list[str], str, str, str | None]] = [
+    (
+        "display_av",
+        "display_av__display_panel",
+        8,
+        ["samsung"],
+        ["Samsung Display"],
+        "KR",
+        "news",
+        None,
+    ),
+    (
+        "display_av",
+        "display_av__display_panel",
+        11,
+        ["lg-electronics"],
+        ["LG Electronics Inc."],
+        "EP",
+        "eps",
+        "EP4815726",
+    ),
+    (
+        "ai",
+        "ai__multimodal_perception",
+        13,
+        ["samsung"],
+        ["Samsung Electronics Co., Ltd."],
+        "US",
+        "news",
+        None,
+    ),
+    (
+        "connectivity",
+        "connectivity__cellular_5g_6g",
+        16,
+        ["lg-electronics"],
+        ["LG Electronics Inc."],
+        "EP",
+        "eps",
+        "EP4820011",
+    ),
+    (
+        "semis",
+        "semis__memory_storage",
+        22,
+        ["sony"],
+        ["Sony Group Corporation"],
+        "EP",
+        "eps",
+        "EP4801234",
+    ),
+    (
+        "display_av",
+        "display_av__camera_imaging",
+        27,
+        ["sony"],
+        ["Sony Semiconductor Solutions"],
+        "EP",
+        "eps",
+        "EP4799999",
+    ),
+    (
+        "display_av",
+        "display_av__display_panel",
+        38,
+        ["samsung"],
+        ["Samsung Display"],
+        "KR",
+        "news",
+        None,
+    ),
+    ("ai", "ai__ai_agents", 55, ["lg-electronics"], ["LG Electronics Inc."], "US", "news", None),
+    (
+        "semis",
+        "semis__ap_soc_npu",
+        66,
+        ["samsung"],
+        ["Samsung Electronics Co., Ltd."],
+        "EP",
+        "eps",
+        "EP4700001",
+    ),
+]
+
+
+def _domain_item(
+    session: Session,
+    source: Source,
+    slug: str,
+    title: str,
+    title_ko: str,
+    field: str,
+    theme: str,
+    signal: str,
+    when: datetime,
+) -> Item:
+    url = f"https://{source.key}.example/{slug}"
+    item = Item(
+        source_id=source.id,
+        track=source.track,
+        stable_id=url,
+        url=url,
+        canonical_url=url,
+        title=title,
+        summary=None,
+        body=None,
+        content_hash=hashlib.sha256(url.encode()).hexdigest(),
+        published_at=when,
+        first_seen_at=when,
+        last_changed_at=when,
+    )
+    session.add(item)
+    session.flush()
+    session.add(
+        ItemCard(
+            item_id=item.id,
+            status=CardStatus.READY,
+            title_ko=title_ko,
+            summary_ko=[f"{title_ko}에 관한 요약이다."],
+            keywords=title_ko.split()[:3],
+            engine="fixture",
+            model="fixture",
+            input_hash=item.content_hash,
+            attempts=1,
+            generated_at=when,
+            field=field,
+            themes=[theme],
+            signal_type=signal,
+            impact="watch",
+            scope="dx",
+            relevance=60,
+            taxonomy_revision=TAXONOMY_REVISION,
+        )
+    )
+    return item
+
+
+def seed_domains(session: Session) -> None:
+    from news_insight.companies.models import Company
+    from news_insight.insights.stats import recompute_days
+    from news_insight.patents.models import PatentMeta, PatentSource
+    from news_insight.research.models import EnrichStatus, ResearchMeta
+
+    for key, name, name_ko, relation in E2E_COMPANIES:
+        session.add(Company(key=key, name=name, name_ko=name_ko, relation=relation))
+    arxiv = session.query(Source).filter_by(key="arxiv").one()
+    office = _source("epo-pub", "EPO 공보", Track.RESEARCH_IP, "patent_office", Region.GLOBAL_EN)
+    news = session.query(Source).filter_by(key="etnews").one()
+    session.add(office)
+    session.flush()
+    for index, (field, theme, back, institutions) in enumerate(PAPERS):
+        when = NOW - timedelta(days=back, hours=index)
+        label = theme.split("__", 1)[1].replace("_", " ")
+        item = _domain_item(
+            session,
+            arxiv,
+            f"paper-{index}",
+            f"Paper on {label} #{index}",
+            f"{label} 연구 {index}",
+            field,
+            theme,
+            "research",
+            when,
+        )
+        companies = [i["company_key"] for i in institutions if i.get("company_key")]
+        session.add(
+            ResearchMeta(
+                item_id=item.id,
+                doi=f"10.48550/arXiv.2610.{index:05d}",
+                venue="NeurIPS" if index % 2 else "arXiv",
+                institutions=institutions,
+                countries=sorted({i["country"] for i in institutions}),
+                company_keys=companies,
+                has_company=bool(companies),
+                cited_by=index * 3,
+                status=EnrichStatus.OK,
+                enriched_at=NOW,
+            )
+        )
+    for index, (field, theme, back, keys, applicants, office_code, kind, number) in enumerate(
+        PATENTS
+    ):
+        when = NOW - timedelta(days=back, hours=index)
+        label = theme.split("__", 1)[1].replace("_", " ")
+        source = office if kind == "eps" else news
+        item = _domain_item(
+            session,
+            source,
+            f"patent-{index}",
+            f"Patent on {label} #{index}",
+            f"{label} 특허 {index}",
+            field,
+            theme,
+            "ip",
+            when,
+        )
+        session.add(
+            PatentMeta(
+                item_id=item.id,
+                publication_number=number,
+                kind="A1" if number else None,
+                office=office_code,
+                applicants=applicants,
+                company_keys=keys,
+                field=field,
+                fields=[field],
+                source=PatentSource(kind),
+                indexed_at=NOW,
+            )
+        )
+    session.flush()
+    recompute_days(session, [TODAY - timedelta(days=back) for back in range(1, 91)])
+    session.commit()
+
+
 # Login fixtures (plan 14); apps/web/e2e/accounts.ts has the same names and password.
 E2E_PASSWORD = "e2e-plum-orbit-4417"
 
@@ -533,6 +785,7 @@ if __name__ == "__main__":
 
         seed_registry(db, load_technologies())
         seed(db)
+        seed_domains(db)
         seed_accounts(db)
         from news_insight.taxonomy.seed import backfill_labels, seed_taxonomy
 

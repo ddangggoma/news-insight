@@ -17,7 +17,7 @@ from news_insight.digest import service as digest_service
 from news_insight.digest.models import Digest
 from news_insight.digest.schemas import DigestSummary
 from news_insight.periodic import service as periodic_service
-from news_insight.public import aggregates, radar_cache
+from news_insight.public import aggregates, domain_cache, domains, radar_cache
 from news_insight.public import benchmarks as benchmark_queries
 from news_insight.public import board as board_queries
 from news_insight.public import briefings as briefing_queries
@@ -27,6 +27,7 @@ from news_insight.public import maturity as maturity_queries
 from news_insight.public import patents as patent_queries
 from news_insight.public import periodic as periodic_queries
 from news_insight.public import radar as radar_queries
+from news_insight.public import research as research_queries
 from news_insight.public import spotlight as spotlight_queries
 from news_insight.public.auth import require_public_key
 from news_insight.public.distribution import Distribution, DistributionError, distribution
@@ -414,15 +415,74 @@ def get_maturity(
     return maturity_queries.maturity_view(session, now=now, days=days, field=field)
 
 
-@router.get("/patents")
+FieldQ = Annotated[str | None, Query(max_length=40)]
+CompanyQ = Annotated[str | None, Query(max_length=80)]
+DomainPage = Annotated[int, Query(ge=1, le=100)]
+
+
+DomainCache = Annotated[object | None, Depends(domain_cache.cache_client)]
+
+
+def _domain_view(
+    session: Session,
+    domain: domains.Domain,
+    query: domains.Query,
+    now: datetime,
+    cache: object | None,
+) -> Response:
+    """The view from the reader cache (domain_cache.py), computed by one request at a time."""
+    try:
+        body, hit = domain_cache.serve(session, domain, query, now=now, client=cache)
+    except domains.UnknownField as error:
+        raise HTTPException(
+            status.HTTP_422_UNPROCESSABLE_CONTENT, f"unknown field '{error}'"
+        ) from error
+    except domains.UnknownCompany as error:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, f"unknown company '{error}'") from error
+    return Response(
+        body, media_type="application/json", headers={"X-Cache": "hit" if hit else "miss"}
+    )
+
+
+@router.get("/research", response_model=domains.DomainView)
+def get_research(
+    session: DB,
+    now: Now,
+    cache: DomainCache,
+    tab: domains.Tab = "overview",
+    period: domains.Period = "month",
+    field: FieldQ = None,
+    company: CompanyQ = None,
+    org: Annotated[str | None, Query(max_length=200)] = None,
+    kind: domains.Entity = "company",
+    page: DomainPage = 1,
+) -> Response:
+    """연구 menu (plan 19): papers by technology field, company or institution and country,
+    through the last day counted (at most yesterday, KST); `org` and `kind` pick an
+    institution and the 기업/대학·연구기관 ranking."""
+    query = domains.Query(
+        tab=tab, period=period, field=field, company=company, org=org, kind=kind, page=page
+    )
+    return _domain_view(session, research_queries.ResearchDomain(), query, now, cache)
+
+
+@router.get("/patents", response_model=domains.DomainView)
 def get_patents(
     session: DB,
     now: Now,
-    kind: Literal["month", "quarter"] = "month",
-    page: Annotated[int, Query(ge=1, le=100)] = 1,
-) -> patent_queries.PatentView:
-    """Patent signals by period, technology area and company (plan 16 #5)."""
-    return patent_queries.patent_view(session, kind=kind, now=now, page=page)
+    cache: DomainCache,
+    tab: domains.Tab = "overview",
+    period: domains.Period = "month",
+    field: FieldQ = None,
+    company: CompanyQ = None,
+    page: DomainPage = 1,
+) -> Response:
+    """특허 menu (plan 19): patent documents by technology field, applicant and office,
+    through the last day counted, with the coverage of the sources behind the counts."""
+    query = domains.Query(
+        tab=tab, period=period, field=field, company=company, org=None, kind="company", page=page
+    )
+    return _domain_view(session, patent_queries.PatentDomain(), query, now, cache)
 
 
 @router.get("/spotlight")

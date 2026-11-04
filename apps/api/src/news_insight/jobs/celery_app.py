@@ -36,6 +36,10 @@ BEAT_SCHEDULE: dict[str, dict[str, Any]] = {
         "task": "benchmarks.collect",
         "schedule": crontab(hour=3, minute=30),  # plan 18: AI leaderboards, once a day
     },
+    "insights-stats": {
+        "task": "insights.stats",
+        "schedule": crontab(hour=3, minute=40),  # plan 19: daily research and patent counts
+    },
     "technologies-refresh": {
         "task": "technologies.refresh",
         "schedule": crontab(hour=3, minute=45),  # keys and labels after registry edits
@@ -43,6 +47,17 @@ BEAT_SCHEDULE: dict[str, dict[str, Any]] = {
     "auth-purge": {
         "task": "auth.purge",
         "schedule": crontab(hour=3, minute=20),  # sessions, sign-ups, audit 180 d, access 30 d
+    },
+    # plan 19: OpenAlex metadata for papers (a run takes minutes; the next hour's run waits)
+    "research-enrich": {
+        "task": "research.enrich",
+        "schedule": crontab(minute=20),
+        "options": {"expires": 3000},
+    },
+    "patents-index": {
+        "task": "patents.index",
+        "schedule": crontab(minute=25),  # plan 19: patent_meta for new and re-carded items
+        "options": {"expires": 3000},
     },
     "content-purge-expired": {
         "task": "content.purge_expired",
