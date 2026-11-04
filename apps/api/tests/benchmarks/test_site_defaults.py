@@ -149,6 +149,69 @@ def test_deepswe_default_table_equals_the_sites() -> None:
     assert snapshot.raw["updated"] == {"v1.1": "2026-09-22", "v1": "2026-06-20"}
 
 
+# the same table's "Avg cost" column: the page re-prices these models at today's prices
+DEEPSWE_COSTS = {
+    ("v1.1", "gpt-5-6-luna", "max"): "$0.61",
+    ("v1.1", "gpt-5-6-sol", "max"): "$6.46",
+    ("v1.1", "glm-5-3-flash", "max"): "$0.24",
+    ("v1.1", "deepseek-v4-pro", "max"): "$1.67",
+    ("v1.1", "deepseek-v4-flash", "max"): "$0.46",
+    ("v1.1", "gemini-3-6-flash", "high"): "$2.21",
+    ("v1.1", "claude-opus-5", "max"): "$11.84",  # not in the table: as served
+    ("v1.1", "gpt-6-astra", "xhigh"): "$4.43",
+    ("v1", "deepseek-v4-pro", None): "$1.05",  # the v1 board has its own price pair
+    ("v1", "gpt-5-5", "xhigh"): "$6.61",
+}
+
+
+def test_deepswe_costs_are_repriced_like_the_site() -> None:
+    snapshot = deepswe.fetch(deepswe_routes(Router(), recorded=True).fetcher(), NOW)
+    assert snapshot.raw["repricing"] == deepswe.DEFAULT_REPRICING
+    cost = {
+        (r.board, r.model_raw, r.config): f"${r.extra['mean_cost_usd']:.2f}" for r in snapshot.rows
+    }
+    for key, shown in DEEPSWE_COSTS.items():
+        assert cost[key] == shown, key
+    # the stored board stays as the site serves it
+    luna = next(
+        r
+        for r in snapshot.raw["boards"]["v1.1"]["rows"]
+        if r["model"] == "gpt-5-6-luna" and r.get("reasoning_effort") == "max"
+    )
+    assert f"${luna['mean_cost_usd']:.2f}" == "$3.03"
+
+
+def test_deepswe_chart_opens_on_the_sites_57_configurations() -> None:
+    # "Configs (57/70)": the default models' configurations at $15 a task or less
+    snapshot = deepswe.fetch(deepswe_routes(Router(), recorded=True).fetcher(), NOW)
+    shown = {e["model"] for e in preview(snapshot, top=100)["v1.1"]}
+    rows = [r for r in snapshot.rows if r.board == "v1.1"]
+    assert len(rows) == 70
+    assert sum(1 for r in rows if r.model_raw in shown and r.extra["mean_cost_usd"] <= 15) == 57
+
+
+def test_deepswe_repricing_table_read_from_the_main_script() -> None:
+    script = (
+        'x=1,T={"m-1":{from:{input:2,cached:.5,output:10},to:{input:1,cached:.25,output:5}}},'
+        "R=/(^|_)cost_usd$/,"
+    )
+    table = deepswe.repricing(script)
+    assert table == {
+        "m-1": {
+            "from": {"input": 2, "cached": 0.5, "output": 10},
+            "to": {"input": 1, "cached": 0.25, "output": 5},
+        }
+    }
+    row = {"model": "m.1", "mean_cost_usd": 4.0, "total_cost_usd": 8.0, "mean_output_tokens": 10.0}
+    # no input tokens: one factor across the board (all prices halved) is still applied
+    assert deepswe.repriced(row, "v1.1", table)["mean_cost_usd"] == 2.0
+    assert deepswe.repriced({"model": "other", "mean_cost_usd": 4.0}, "v1.1", table) == {
+        "model": "other",
+        "mean_cost_usd": 4.0,
+    }
+    assert deepswe.repricing("no table") is None
+
+
 def test_deepswe_hidden_models_are_not_ranked() -> None:
     snapshot = deepswe.fetch(deepswe_routes(Router(), recorded=True).fetcher(), NOW)
     ranked = {e["model"] for board in preview(snapshot, top=100).values() for e in board}
@@ -178,6 +241,7 @@ def test_deepswe_unreadable_page_falls_back_to_the_last_known_defaults(page: obj
     router = Router().add("=https://deepswe.datacurve.ai/", page)  # type: ignore[arg-type]
     snapshot = deepswe.fetch(deepswe_routes(router).fetcher(), NOW)
     assert snapshot.raw["default_view"] == deepswe.fallback_view()
+    assert snapshot.raw["repricing"] == deepswe.DEFAULT_REPRICING
     assert len(snapshot.rows) == 6  # the boards are unaffected
 
 

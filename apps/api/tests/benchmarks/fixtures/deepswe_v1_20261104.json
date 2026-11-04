@@ -17,6 +17,8 @@
 "ci_hi":0.7287159749862699,
 "ci_half":0.028265524535819504,
 "mean_cost_usd":6.605861326576576,
+"median_cost_usd":5.755558499999999,
+"mean_input_tokens":7891463.9346846845,
 "mean_output_tokens":46977.0472972973,
 "mean_agent_steps":78.96396396396396
 },
@@ -35,6 +37,8 @@
 "ci_hi":0.6555751361663291,
 "ci_half":0.03610610961765661,
 "mean_cost_usd":4.473357603982301,
+"median_cost_usd":3.9625985000000004,
+"mean_input_tokens":4284897.015486726,
 "mean_output_tokens":30784.19690265487,
 "mean_agent_steps":58.27433628318584
 },
@@ -53,6 +57,8 @@
 "ci_hi":0.6046664528084252,
 "ci_half":0.02280804572877925,
 "mean_cost_usd":12.581343959070795,
+"median_cost_usd":11.281396249999997,
+"mean_input_tokens":15257617.03539823,
 "mean_output_tokens":136262.3738938053,
 "mean_agent_steps":108.19026548672566
 },
@@ -71,6 +77,8 @@
 "ci_hi":0.6170966584237884,
 "ci_half":0.03966303010520437,
 "mean_cost_usd":7.553111373340708,
+"median_cost_usd":6.428008875,
+"mean_input_tokens":8859788.971238937,
 "mean_output_tokens":85553.93805309734,
 "mean_agent_steps":87.17699115044248
 },
@@ -89,6 +97,8 @@
 "ci_hi":0.5769907520413723,
 "ci_half":0.021681017528097937,
 "mean_cost_usd":4.377431901548673,
+"median_cost_usd":3.30643275,
+"mean_input_tokens":8840006.513274336,
 "mean_output_tokens":71059.83849557523,
 "mean_agent_steps":68.67699115044248
 },
@@ -107,6 +117,8 @@
 "ci_hi":0.589205108140024,
 "ci_half":0.0471697099099355,
 "mean_cost_usd":18.186730838691798,
+"median_cost_usd":15.951027500000002,
+"mean_input_tokens":28513813.842572063,
 "mean_output_tokens":103427.95343680709,
 "mean_agent_steps":202.83813747228382
 },
@@ -125,6 +137,8 @@
 "ci_hi":0.5361530952378716,
 "ci_half":0.02951592709627868,
 "mean_cost_usd":3.9815333136061946,
+"median_cost_usd":3.22568475,
+"mean_input_tokens":4415832.404867257,
 "mean_output_tokens":48188.20575221239,
 "mean_agent_steps":66.10619469026548
 },
@@ -143,6 +157,8 @@
 "ci_hi":0.5087424573159727,
 "ci_half":0.028653961740751407,
 "mean_cost_usd":2.3425817588495574,
+"median_cost_usd":2.0020310000000006,
+"mean_input_tokens":2102531.8738938053,
 "mean_output_tokens":18643.477876106193,
 "mean_agent_steps":41.73672566371681
 },
@@ -161,6 +177,8 @@
 "ci_hi":0.5125573766054381,
 "ci_half":0.03910604917180982,
 "mean_cost_usd":3.2540401521017697,
+"median_cost_usd":2.6678887500000004,
+"mean_input_tokens":3512695.524336283,
 "mean_output_tokens":40208.9092920354,
 "mean_agent_steps":60.347345132743364
 },
@@ -179,6 +197,8 @@
 "ci_hi":0.47566577495278445,
 "ci_half":0.02876312008552783,
 "mean_cost_usd":8.579992504424778,
+"median_cost_usd":6.649466500000003,
+"mean_input_tokens":12159100.522123894,
 "mean_output_tokens":65620.80530973451,
 "mean_agent_steps":125.90929203539822
 },
@@ -197,6 +217,8 @@
 "ci_hi":0.44425558872926063,
 "ci_half":0.029077017300689196,
 "mean_cost_usd":3.9521292135714288,
+"median_cost_usd":3.3501246799999995,
+"mean_input_tokens":12710420.36607143,
 "mean_output_tokens":81512.77232142857,
 "mean_agent_steps":125.48660714285714
 },
@@ -215,6 +237,8 @@
 "ci_hi":0.43770398291386375,
 "ci_half":0.035049115657226564,
 "mean_cost_usd":4.830124757190266,
+"median_cost_usd":3.6115387500000002,
+"mean_input_tokens":6169055.349557522,
 "mean_output_tokens":45735.96460176991,
 "mean_agent_steps":87.15265486725664
 },
@@ -233,6 +257,8 @@
 "ci_hi":0.33707803819635046,
 "ci_half":0.019404660120287773,
 "mean_cost_usd":5.518456022818792,
+"median_cost_usd":4.751740500000001,
+"mean_input_tokens":12682723.06935123,
 "mean_output_tokens":76182.25950782998,
 "mean_agent_steps":128.78299776286354
 },
@@ -251,6 +277,8 @@
 "ci_hi":0.35666183388571693,
 "ci_half":0.04029015246978775,
 "mean_cost_usd":2.340389400442478,
+"median_cost_usd":1.8745804999999998,
+"mean_input_tokens":2545442.280973451,
 "mean_output_tokens":27445.17699115044,
 "mean_agent_steps":55.39601769911504
 },
@@ -269,6 +297,8 @@
 "ci_hi":0.3185907940734167,
 "ci_half":0.035404953365452144,
 "mean_cost_usd":7.423100473451328,
+"median_cost_usd":5.6732165000000006,
+"mean_input_tokens":12547145.081858408,
 "mean_output_tokens":189024.15707964601,
 "mean_agent_steps":75.13938053097345
 },
@@ -287,6 +317,8 @@
 "ci_hi":0.31284089728564596,
 "ci_half":0.03682279773813465,
 "mean_cost_usd":5.394612032239819,
+"median_cost_usd":4.662465875,
+"mean_input_tokens":7132370.667420815,
 "mean_output_tokens":44481.24886877828,
 "mean_agent_steps":102.98642533936652
 },
@@ -305,6 +337,8 @@
 "ci_hi":0.27298474108058396,
 "ci_half":0.029621909222176883,
 "mean_cost_usd":2.0848254975663716,
+"median_cost_usd":2.02783005,
+"mean_input_tokens":12178956.221238937,
 "mean_output_tokens":134515.6261061947,
 "mean_agent_steps":85.89159292035399
 },
@@ -322,6 +356,8 @@
 "ci_hi":0.26346732432477304,
 "ci_half":0.02452927122742791,
 "mean_cost_usd":3.1615826901659294,
+"median_cost_usd":2.6950519500000008,
+"mean_input_tokens":12018459.223451328,
 "mean_output_tokens":84415.54646017699,
 "mean_agent_steps":146.7986725663717
 },
@@ -339,6 +375,8 @@
 "ci_hi":0.24170632311216345,
 "ci_half":0.037261878667718976,
 "mean_cost_usd":5.571048344133333,
+"median_cost_usd":5.04354582,
+"mean_input_tokens":41646947.88,
 "mean_output_tokens":97541.98444444445,
 "mean_agent_steps":314.2288888888889
 },
@@ -356,6 +394,8 @@
 "ci_hi":0.21342480584369078,
 "ci_half":0.018734540356965132,
 "mean_cost_usd":1.9863005676991152,
+"median_cost_usd":1.6824870000000003,
+"mean_input_tokens":8636167.210176991,
 "mean_output_tokens":49321.347345132745,
 "mean_agent_steps":121.49115044247787
 },
@@ -373,6 +413,8 @@
 "ci_hi":0.19115313178865873,
 "ci_half":0.014161981346180854,
 "mean_cost_usd":2.1210952610619467,
+"median_cost_usd":1.8698703749999999,
+"mean_input_tokens":6443835.25,
 "mean_output_tokens":42446.92256637168,
 "mean_agent_steps":110.30309734513274
 },
@@ -390,6 +432,8 @@
 "ci_hi":0.18311014578529933,
 "ci_half":0.00794384866778268,
 "mean_cost_usd":7.4640665507982265,
+"median_cost_usd":6.703224380000005,
+"mean_input_tokens":13539997.789356984,
 "mean_output_tokens":49157.29268292683,
 "mean_agent_steps":176.60088691796008
 },
@@ -407,6 +451,8 @@
 "ci_hi":0.15525444206137423,
 "ci_half":0.02443404294829217,
 "mean_cost_usd":6.60105246518847,
+"median_cost_usd":6.1736846,
+"mean_input_tokens":10257761.824833702,
 "mean_output_tokens":51896.41019955654,
 "mean_agent_steps":176.1330376940133
 },
@@ -424,6 +470,8 @@
 "ci_hi":0.12560872812518706,
 "ci_half":0.028323660251883893,
 "mean_cost_usd":1.8365265176470589,
+"median_cost_usd":1.5215495999999997,
+"mean_input_tokens":2047640.1787330317,
 "mean_output_tokens":52991.00452488688,
 "mean_agent_steps":74.13348416289593
 },
@@ -441,6 +489,8 @@
 "ci_hi":0.10218484810355073,
 "ci_half":0.026963609165497626,
 "mean_cost_usd":4.218363417836283,
+"median_cost_usd":3.537505265,
+"mean_input_tokens":8353624.685840708,
 "mean_output_tokens":49949.31194690266,
 "mean_agent_steps":111.33628318584071
 },
@@ -458,6 +508,8 @@
 "ci_hi":0.07617603737750028,
 "ci_half":0.024774168218621773,
 "mean_cost_usd":1.5269507896028036,
+"median_cost_usd":1.0448696749999995,
+"mean_input_tokens":5756060.196261683,
 "mean_output_tokens":233061.65420560748,
 "mean_agent_steps":70.82943925233644
 },
@@ -475,6 +527,8 @@
 "ci_hi":0.038813308180085646,
 "ci_half":0.012264635613713963,
 "mean_cost_usd":4.254706259986172,
+"median_cost_usd":3.6144070218750004,
+"mean_input_tokens":12662825.818584071,
 "mean_output_tokens":66892.56637168142,
 "mean_agent_steps":164.391592920354
 },
@@ -492,6 +546,8 @@
 "ci_hi":0.0065485928861505616,
 "ci_half":0.004336203505619588,
 "mean_cost_usd":0.8383226758849558,
+"median_cost_usd":0.7769098499999998,
+"mean_input_tokens":5293386.256637168,
 "mean_output_tokens":39188.00442477876,
 "mean_agent_steps":109.25442477876106
 },
@@ -509,6 +565,8 @@
 "ci_hi":0.0065485928861505616,
 "ci_half":0.004336203505619588,
 "mean_cost_usd":0.7043865151858407,
+"median_cost_usd":0.5399446019999999,
+"mean_input_tokens":9459353.971238937,
 "mean_output_tokens":60022.76991150442,
 "mean_agent_steps":135.57743362831857
 }

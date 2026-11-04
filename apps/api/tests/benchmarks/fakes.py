@@ -64,6 +64,7 @@ class Router:
 
 
 DEEPSWE_CHUNK = "https://deepswe.datacurve.ai/assets/live-leaderboard-CCyhM4yo.js"
+DEEPSWE_MAIN = "https://deepswe.datacurve.ai/assets/index-DYZDg9jy.js"
 
 
 def deepswe_routes(
@@ -71,7 +72,8 @@ def deepswe_routes(
 ) -> Router:
     """Both boards' JSON; `body` replaces what each answers (e.g. a page of HTML).
     `recorded`: the full boards as the site served them on 2026-11-04. `page`: the home page
-    and its leaderboard script (the default model set); without them the site 404s there."""
+    and its two scripts (the default model set, the cost repricing table); without them the
+    site 404s there."""
     suffix = "_20261104" if recorded else ""
     for url, name in (
         ("deepswe.datacurve.ai/artifacts/v1.1/", f"deepswe_v1_1{suffix}.json"),
@@ -86,14 +88,11 @@ def deepswe_routes(
             "=https://deepswe.datacurve.ai/",
             reply(200, fixture_text("deepswe_index_20261104.html"), "text/html; charset=utf-8"),
         )
-        router.add(
-            f"={DEEPSWE_CHUNK}",
-            reply(
-                200,
-                fixture_text("deepswe_live_leaderboard_20261104.js"),
-                "application/javascript",
-            ),
-        )
+        for url, name in (
+            (DEEPSWE_CHUNK, "deepswe_live_leaderboard_20261104.js"),
+            (DEEPSWE_MAIN, "deepswe_index_script_20261104.js"),
+        ):
+            router.add(f"={url}", reply(200, fixture_text(name), "application/javascript"))
     return router
 
 

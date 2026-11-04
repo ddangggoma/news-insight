@@ -52,6 +52,7 @@ def test_deepswe_stores_both_boards() -> None:
         "https://deepswe.datacurve.ai/artifacts/v1/leaderboard-live.json",
         "https://deepswe.datacurve.ai/",
         "https://deepswe.datacurve.ai/assets/live-leaderboard-CCyhM4yo.js",
+        "https://deepswe.datacurve.ai/assets/index-DYZDg9jy.js",
     ]
     assert snapshot.release == "2026-09-22"  # the newest file
     assert set(snapshot.raw["boards"]) == {"v1.1", "v1"}
