@@ -1,6 +1,6 @@
 import { formatNumber } from "@/lib/format";
 
-/** The daily Top 10 sections, in the order the page shows them. */
+/** The daily sections (24 h Top 10 and sustained Top 5 each), in the order the page shows them. */
 export const SECTION_KEYS = ["news", "product", "ai", "oss", "interview", "community", "research", "patent"] as const;
 export type SectionKey = (typeof SECTION_KEYS)[number];
 
@@ -15,7 +15,15 @@ export const SECTION_LABEL: Record<SectionKey, string> = {
   patent: "특허",
 };
 
+/** 최근 24시간 (the day's window) and 지속 주목 (attention held over several of the last 7 days). */
+export const GROUP_KEYS = ["now", "sustained"] as const;
+export type GroupKey = (typeof GROUP_KEYS)[number];
+export const GROUP_LABEL: Record<GroupKey, string> = { now: "최근 24시간", sustained: "지속 주목" };
+
 export interface SpotlightEntry {
+  /** Missing from lists published before the groups: read as "now". */
+  group?: GroupKey;
+  /** Within the group. */
   rank: number;
   /** Rank by the statistical score, before Opus moved the entry. */
   stat_rank: number;
@@ -32,6 +40,53 @@ export interface SpotlightEntry {
   /** True when Opus did not write this entry (statistical order and card text). */
   fallback: boolean;
   url: string | null;
+  /** Opus's short insight tags ("가격 인하", "첫 공개"). */
+  tags?: string[];
+  /** The server's tags from the numbers ("보도 7곳", "7일 중 4일"). */
+  signals?: string[];
+  /** Technology field of the lead card, with its Korean label. */
+  field?: string | null;
+  field_label?: string | null;
+}
+
+export const groupOf = (entry: Pick<SpotlightEntry, "group">): GroupKey => (entry.group === "sustained" ? "sustained" : "now");
+
+/** A section's entries split into its two groups, each in rank order. */
+export function splitGroups(entries: SpotlightEntry[]): Record<GroupKey, SpotlightEntry[]> {
+  const byRank = (a: SpotlightEntry, b: SpotlightEntry) => a.rank - b.rank;
+  return {
+    now: entries.filter((entry) => groupOf(entry) === "now").sort(byRank),
+    sustained: entries.filter((entry) => groupOf(entry) === "sustained").sort(byRank),
+  };
+}
+
+/** The list filters kept in the address: a technology field and a group (null: all). */
+export interface SpotlightFilters {
+  field: string | null;
+  group: GroupKey | null;
+}
+
+export function parseFilters(field: string | undefined, group: string | undefined): SpotlightFilters {
+  return {
+    field: field && /^[a-z0-9_]{1,40}$/.test(field) ? field : null,
+    group: GROUP_KEYS.find((key) => key === group) ?? null,
+  };
+}
+
+export function filterEntries(entries: SpotlightEntry[], filters: SpotlightFilters): SpotlightEntry[] {
+  return entries.filter((entry) => (!filters.field || entry.field === filters.field) && (!filters.group || groupOf(entry) === filters.group));
+}
+
+/** The fields present among `entries`, most entries first (ties by label), with their counts. */
+export function fieldCounts(entries: SpotlightEntry[]): { key: string; label: string; count: number }[] {
+  const found = new Map<string, { key: string; label: string; count: number }>();
+  for (const entry of entries) {
+    if (!entry.field) continue;
+    const seen = found.get(entry.field);
+    if (seen) seen.count += 1;
+    else found.set(entry.field, { key: entry.field, label: entry.field_label || entry.field, count: 1 });
+  }
+  return [...found.values()].sort((a, b) => b.count - a.count || a.label.localeCompare(b.label, "ko"));
 }
 
 export interface SpotlightView {
@@ -67,9 +122,16 @@ export function isCalendarDay(raw: string): boolean {
   return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
 }
 
-/** The page's address for a tab and day; the default tab and an unset day stay out of it. */
-export function spotlightHref(tab: SpotlightTab, date: string | null): string {
-  const query = [tab === "overview" ? null : `tab=${tab}`, date ? `date=${date}` : null].filter(Boolean).join("&");
+/** The page's address for a tab and day (and filters); the defaults stay out of it. */
+export function spotlightHref(tab: SpotlightTab, date: string | null, filters?: SpotlightFilters): string {
+  const query = [
+    tab === "overview" ? null : `tab=${tab}`,
+    date ? `date=${date}` : null,
+    filters?.field ? `field=${encodeURIComponent(filters.field)}` : null,
+    filters?.group ? `group=${filters.group}` : null,
+  ]
+    .filter(Boolean)
+    .join("&");
   return query ? `/spotlight?${query}` : "/spotlight";
 }
 
@@ -97,7 +159,7 @@ const METRIC_LABEL: Record<string, (n: string) => string> = {
 };
 
 /** Internal ranking inputs: they mean nothing to a reader. */
-const HIDDEN_METRICS = new Set(["community_z", "basis", "trend_rank"]);
+const HIDDEN_METRICS = new Set(["community_z", "basis", "trend_rank", "best_rank", "days_active", "listed_days"]);
 
 /** Shown by the trend chip instead, when there is one. */
 const TREND_METRICS = new Set(["rank", "from", "site", "board"]);

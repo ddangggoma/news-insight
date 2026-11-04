@@ -2,10 +2,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { ModelsTab } from "@/components/reader/benchmarks/models-tab";
+import { SpotlightBrowser } from "@/components/reader/spotlight/browser";
 import { DateSelect } from "@/components/reader/spotlight/date-select";
 import { GeneratingBand } from "@/components/reader/spotlight/generating-band";
-import { Overview } from "@/components/reader/spotlight/overview";
-import { SectionList } from "@/components/reader/spotlight/section-list";
 import { SpotlightTabs } from "@/components/reader/spotlight/spotlight-tabs";
 import { ApiError } from "@/lib/api";
 import { BENCHMARK_SITES, type BenchmarkSite, type BenchmarkSiteKey } from "@/lib/benchmark-types";
@@ -13,7 +12,7 @@ import { formatDateTime } from "@/lib/format";
 import { param, type SearchParams } from "@/lib/params";
 import { REVALIDATE, readerGet } from "@/lib/reader-api";
 import { requireUser } from "@/lib/session";
-import { SECTION_LABEL, type SpotlightView, isCalendarDay, parseTab } from "@/lib/spotlight-types";
+import { SECTION_LABEL, type SpotlightView, isCalendarDay, parseFilters, parseTab } from "@/lib/spotlight-types";
 
 /**
  * The AI 모델 tab's data: the all-sites summary (freshness, today's arrivals) and each site's
@@ -46,6 +45,7 @@ export default async function SpotlightPage({ searchParams }: { searchParams: Pr
   const sp = await searchParams;
   const tab = parseTab(param(sp, "tab"));
   const requested = param(sp, "date");
+  const filters = parseFilters(param(sp, "field"), param(sp, "group"));
   if (requested !== undefined && !isCalendarDay(requested)) notFound();
 
   let view: SpotlightView;
@@ -65,7 +65,7 @@ export default async function SpotlightPage({ searchParams }: { searchParams: Pr
         <div className="min-w-64 flex-1">
           <h1 className="text-xl font-semibold">주목 받는</h1>
           <p className="text-sm text-muted-foreground">
-            하루 동안 가장 화제가 된 뉴스·제품·AI 모델·서비스·오픈소스·인터뷰·커뮤니티·연구·특허를 분야별 Top 10으로 모았습니다.
+            뉴스·제품·AI 모델·서비스·오픈소스·인터뷰·커뮤니티·연구·특허별로 최근 24시간 Top 10과 지난 7일 동안 이어진 지속 주목 Top 5를 모았습니다.
             {view.generated_at && ` ${formatDateTime(view.generated_at)} 생성.`}
           </p>
         </div>
@@ -77,14 +77,14 @@ export default async function SpotlightPage({ searchParams }: { searchParams: Pr
       <SpotlightTabs active={tab} date={requested ?? null} />
 
       {tab === "overview" ? (
-        <Overview view={view} date={requested ?? null} />
+        <SpotlightBrowser view={view} tab={tab} date={requested ?? null} initial={filters} />
       ) : tab === "models" ? (
         <section aria-label="AI 모델">
           {benchmarks && <ModelsTab summary={benchmarks.summary} sites={benchmarks.sites} note={view.benchmark_note} noteDate={requested && requested !== view.available_dates[0] ? requested : null} />}
         </section>
       ) : (
         <section aria-label={SECTION_LABEL[tab]}>
-          <SectionList entries={view.sections[tab] ?? []} />
+          <SpotlightBrowser key={tab} view={view} tab={tab} date={requested ?? null} initial={filters} />
         </section>
       )}
     </main>
