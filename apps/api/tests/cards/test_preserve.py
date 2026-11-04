@@ -58,7 +58,9 @@ def test_facts_may_live_in_the_summary() -> None:
         ("Samsung 3Q26 earnings beat", "삼성전자 실적 예상 상회", ["3Q26"]),
         ("Inference 5x faster on NPU", "NPU 추론 빨라져", ["5x"]),
         ("Score 8.7/10 (CVSS v3.1) for EPICS Base", "EPICS Base 취약점, CVSS 3.1 기준 8.7점", []),
-        ("Score 8.7/10 (CVSS v3.1) for EPICS Base", "EPICS Base 취약점 8.7점", ["v3.1"]),
+        # the scoring version is a label, the score is the fact (2026-11-04: 1,484 cards)
+        ("Score 8.7/10 (CVSS v3.1) for EPICS Base", "EPICS Base 취약점 8.7점", []),
+        ("Score 78/100 (CVSS v3.1) for EPICS Base", "EPICS Base 취약점", ["78"]),
         ("Rated 4/5 by 120 testers", "테스터 120명이 4점 평가", []),
     ],
 )
@@ -100,4 +102,45 @@ def test_korean_quarter_and_multiplier_renderings(
 def test_links_scripts_dates_and_korean_units(
     title: str, title_ko: str, missing: list[str]
 ) -> None:
+    assert missing_facts(card(title), draft(title_ko)) == missing
+
+
+@pytest.mark.parametrize(
+    ("title", "title_ko", "missing"),
+    [
+        # 2026-11-04 audit: false alarms behind 3,692 "preservation: lost" notes
+        (
+            "EUVD-2026-99 Product: Linux, Linux, Linux (+15 more) Vendor: Linux",
+            "리눅스 취약점 EUVD-2026-99",
+            [],
+        ),
+        (
+            "EUVD-2026-99 Product: Windows Server 2016, Windows 11 22H2 Vendor: Microsoft",
+            "윈도우 취약점 EUVD-2026-99",
+            [],
+        ),
+        ("BYD builds 150,000th commercial NEV", "BYD, 상용 신에너지차 15만 대 돌파", []),
+        ("BYD builds 150,000th commercial NEV", "BYD, 상용 신에너지차 생산", ["150,000"]),
+        (
+            "Coinbase Q3 revenue down 35% to $1.22B",
+            "Coinbase 3분기 매출 12억 2천만 달러, 35% 감소",
+            [],
+        ),
+        ("Coinbase Q3 revenue down 35% to $1.22B", "Coinbase 3분기 매출 35% 감소", ["1.22B"]),
+        (
+            "Number of users: 1 401 297 posts: 11 542 238",
+            "이용자 140만 1,297명, 게시물 1,154만 2,238건",
+            [],
+        ),
+        ("Number of users: 1 401 297", "이용자 약 140만 명", ["1401297"]),
+        ("风神L8+上市 12.99万起 700TOPS", "풍신 L8+ 출시, 12만 9천900위안부터 700TOPS", []),
+        (
+            "CyberHost list +125 new domains blocked (96,526 total)",
+            "도메인 125개 추가, 총 9만 6,526개",
+            [],
+        ),
+        ("Cave Express | #3 - 9/10/2026, 21:43:34 video", "Cave Express 3편", []),
+    ],
+)
+def test_2026_11_04_false_alarms(title: str, title_ko: str, missing: list[str]) -> None:
     assert missing_facts(card(title), draft(title_ko)) == missing

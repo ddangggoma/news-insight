@@ -1,4 +1,11 @@
-from news_insight.cards.schemas import CardInput, parse_drafts
+import pytest
+
+from news_insight.cards.schemas import (
+    CardInput,
+    card_instructions,
+    is_meta_sentence,
+    parse_drafts,
+)
 
 INPUTS = [
     CardInput(
@@ -91,3 +98,60 @@ def test_classification_is_validated_against_the_taxonomy() -> None:
         None,
         0,
     )
+
+
+def test_summary_sentences_about_the_excerpt_are_dropped() -> None:
+    """2026-11-04 audit: Haiku wrote "발췌에는 링크와 태그만 있다" as the summary of 968 cards."""
+    raw = {
+        "cards": [
+            {
+                "id": 1,
+                "title_ko": "갤럭시 S30",
+                "summary_ko": [
+                    "3월에 출시된다. 구체적인 사양은 발췌에서 확인되지 않는다.",
+                    "발췌에는 링크와 태그만 있고 본문 내용은 없다.",
+                    "배터리는 5,000mAh다.",
+                ],
+            }
+        ]
+    }
+
+    assert parse_drafts(raw, INPUTS)[1].summary_ko == ["3월에 출시된다.", "배터리는 5,000mAh다."]
+
+
+def test_a_summary_with_nothing_but_commentary_is_empty() -> None:
+    raw = {
+        "cards": [
+            {"id": 1, "title_ko": "갤럭시", "summary_ko": ["발췌문이 짧아 내용은 확인되지 않는다."]}
+        ]
+    }
+
+    assert parse_drafts(raw, INPUTS)[1].summary_ko == []
+
+
+@pytest.mark.parametrize(
+    "sentence",
+    [
+        "GPU 가격이 20% 올랐다.",
+        "원문 링크를 공유한 게시물이다.",  # about the post, not about missing text
+        "제공된 API로 데이터를 가져온다.",
+    ],
+)
+def test_ordinary_sentences_are_not_meta(sentence: str) -> None:
+    assert not is_meta_sentence(sentence)
+
+
+def test_card_prompt_asks_for_plain_style_and_dates_from_the_published_day() -> None:
+    prompt = card_instructions()
+
+    assert "'~다'체" in prompt
+    assert "published" in prompt
+    assert "excerpt 자체를 설명하지 않는다" in prompt
+
+
+def test_published_day_reaches_the_engine_payload() -> None:
+    card = CardInput(
+        id=1, title="x", source="s", language="en", excerpt="y", published="2026-11-04"
+    )
+
+    assert card.model_dump(exclude_none=True)["published"] == "2026-11-04"
