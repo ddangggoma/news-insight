@@ -39,7 +39,7 @@ function AreaCard({ area }: { area: AreaMaturity }) {
         </span>
       </div>
       <MixBar mix={area.mix} />
-      <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+      <div className="flex items-center gap-2 text-xs text-muted-foreground">
         <span>
           {area.field_label} · 카드 {area.count}
         </span>
@@ -47,7 +47,7 @@ function AreaCard({ area }: { area: AreaMaturity }) {
           <Sparkline values={values} width={48} height={14} label={`${area.label} 성숙도 추이`} />
         </span>
       </div>
-      {area.companies.length ? <p className="line-clamp-1 text-[11px]">{area.companies.map((c) => c.label).join(" · ")}</p> : null}
+      {area.companies.length ? <p className="line-clamp-1 text-xs">{area.companies.map((c) => c.label).join(" · ")}</p> : null}
     </li>
   );
 }
@@ -87,7 +87,7 @@ export default async function RoadmapPage({ searchParams }: { searchParams: Prom
                 <h2 id={`stage-${stage}`} className="text-sm font-semibold">
                   {STAGE_LABEL[stage]} <span className="font-normal text-muted-foreground">{areas.length}</span>
                 </h2>
-                <p className="text-[11px] text-muted-foreground">{STAGE_HINT[stage]}</p>
+                <p className="text-xs text-muted-foreground">{STAGE_HINT[stage]}</p>
                 <ul className="space-y-2">
                   {areas.map((area) => (
                     <AreaCard key={area.key} area={area} />

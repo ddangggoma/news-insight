@@ -33,7 +33,7 @@ export default async function DigestsPage({ searchParams }: { searchParams: Prom
   return (
     <>
       <PageHeader title="데일리 다이제스트" description="매일 05:00 KST, 전일 수집 항목을 Claude가 트랙·범주·종합 인사이트로 요약" />
-      <DataTable columns={columns} rows={data.items} rowKey={(row) => `${row.digest_date}-${row.version}`} emptyTitle="아직 발행된 다이제스트가 없습니다" emptyDescription="launchd 스케줄을 등록하면 매일 05:00에 발행됩니다." />
+      <DataTable columns={columns} rows={data.items} rowKey={(row) => `${row.digest_date}-${row.version}`} caption="데일리 다이제스트" emptyTitle="아직 발행된 다이제스트가 없습니다" emptyDescription="launchd 스케줄을 등록하면 매일 05:00에 발행됩니다." />
       <PaginationBar pathname="/console/digests" params={{}} page={page} size={data.size} total={data.total} />
     </>
   );

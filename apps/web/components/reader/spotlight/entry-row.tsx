@@ -6,19 +6,19 @@ import { cn } from "@/lib/utils";
 function ChangeBadge({ entry }: { entry: Pick<SpotlightEntry, "change" | "change_by"> }) {
   if (entry.change === "new")
     return (
-      <span role="img" aria-label="새로 진입" className="text-[11px] font-bold text-primary">
+      <span role="img" aria-label="새로 진입" className="text-xs font-bold text-primary">
         NEW
       </span>
     );
   if (entry.change === "up")
     return (
-      <span role="img" aria-label={`${entry.change_by}계단 상승`} className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+      <span role="img" aria-label={`${entry.change_by}계단 상승`} className="text-xs font-semibold text-impact-opportunity">
         {`▲${entry.change_by}`}
       </span>
     );
   if (entry.change === "down")
     return (
-      <span role="img" aria-label={`${entry.change_by}계단 하락`} className="text-[11px] font-semibold text-rose-600 dark:text-rose-400">
+      <span role="img" aria-label={`${entry.change_by}계단 하락`} className="text-xs font-semibold text-impact-risk">
         {`▼${entry.change_by}`}
       </span>
     );
@@ -56,7 +56,7 @@ export function EntryRow({ entry }: { entry: SpotlightEntry }) {
       <div className="flex w-10 shrink-0 flex-col items-center gap-0.5">
         <span className="text-xl font-semibold tabular-nums">{entry.rank}</span>
         <ChangeBadge entry={entry} />
-        {entry.stat_rank !== entry.rank && <span className="text-[10px] whitespace-nowrap text-muted-foreground">{`통계 ${entry.stat_rank}위`}</span>}
+        {entry.stat_rank !== entry.rank && <span className="text-xs whitespace-nowrap text-muted-foreground">{`통계 ${entry.stat_rank}위`}</span>}
       </div>
       <div className="min-w-0 flex-1 space-y-1">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">

@@ -84,7 +84,7 @@ export function FacetPanel({ facets, filters }: { facets: Facets; filters: Reade
                   className={cn(
                     "flex cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-sm text-ink-2 hover:bg-muted",
                     checked && "bg-primary/10 font-semibold text-foreground",
-                    !count && !checked && "opacity-50",
+                    !count && !checked && "text-muted-foreground",
                   )}
                 >
                   <input

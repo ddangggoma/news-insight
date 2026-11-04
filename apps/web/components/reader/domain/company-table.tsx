@@ -25,12 +25,12 @@ const columns: ColumnDef<RankRow, any>[] = [
       const type = row.entity === "org" ? orgTypeLabel(row.org_type) : "";
       return (
         <div className="flex max-w-56 items-center gap-1.5 md:max-w-72">
-          <span className="w-5 shrink-0 text-right text-[11px] text-muted-foreground tabular-nums">{row.rank}</span>
+          <span className="w-5 shrink-0 text-right text-xs text-muted-foreground tabular-nums">{row.rank}</span>
           <Link href={row.href} aria-current={row.selected ? "true" : undefined} className="truncate font-medium hover:text-primary hover:underline aria-[current=true]:text-primary">
             {row.label}
           </Link>
           {row.watched ? <WatchedBadge relation={row.relation} /> : null}
-          {type ? <span className="shrink-0 text-[11px] text-muted-foreground">{type}</span> : null}
+          {type ? <span className="shrink-0 text-xs text-muted-foreground">{type}</span> : null}
         </div>
       );
     },

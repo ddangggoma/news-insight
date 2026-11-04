@@ -75,14 +75,15 @@ export default async function TechnologiesPage({ searchParams }: { searchParams:
         </div>
         <div className="overflow-x-auto rounded-lg border">
           <table className="w-full text-sm">
-            <thead className="bg-muted/50 text-left text-xs text-muted-foreground">
+            <caption className="sr-only">등록된 기술</caption>
+            <thead className="bg-muted/50 text-left text-xs">
               <tr>
-                <th className="p-2">기술</th>
-                <th className="p-2">테마</th>
-                <th className="p-2">종류·상태</th>
-                <th className="p-2">별칭</th>
-                <th className="p-2 text-right">30일</th>
-                <th className="p-2" />
+                <th scope="col" className="p-2">기술</th>
+                <th scope="col" className="p-2">테마</th>
+                <th scope="col" className="p-2">종류·상태</th>
+                <th scope="col" className="p-2">별칭</th>
+                <th scope="col" className="p-2 text-right">30일</th>
+                <th scope="col" className="p-2" />
               </tr>
             </thead>
             <tbody className="divide-y">

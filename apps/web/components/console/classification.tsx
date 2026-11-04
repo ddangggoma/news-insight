@@ -14,7 +14,7 @@ export function ClassificationBadges({ card, showTheme = true }: { card: CardBod
   if (!card.field && !scope) return null;
   const theme = card.themes?.[0];
   return (
-    <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
+    <div className="flex flex-wrap items-center gap-1.5 text-xs">
       {card.signal_type ? (
         <span className="rounded bg-primary/10 px-1.5 py-0.5 font-medium text-primary">{SIGNAL_LABEL[card.signal_type] ?? card.signal_type}</span>
       ) : null}

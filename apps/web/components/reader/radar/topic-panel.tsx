@@ -71,14 +71,14 @@ function Trend({ counts, periods, forecast }: { counts: number[]; periods: strin
                 {count}
               </text>
             ) : null}
-            <text x={x + bar / 2} y={H - 4} fontSize={10} textAnchor="middle" fill={current ? "var(--foreground)" : "var(--muted-foreground)"}>
+            <text x={x + bar / 2} y={H - 4} fontSize={11} textAnchor="middle" fill={current ? "var(--foreground)" : "var(--muted-foreground)"}>
               {periodLabel(periods[i])}
             </text>
           </g>
         );
       })}
       <line x1={0} x2={W} y1={y(base)} y2={y(base)} stroke="var(--state-hot)" strokeWidth={1.5} strokeOpacity={0.8} />
-      <text x={2} y={y(base) - 4} fontSize={10} fill="var(--ink-2)" paintOrder="stroke" stroke="var(--card)" strokeWidth={3}>
+      <text x={2} y={y(base) - 4} fontSize={11} fill="var(--ink-2)" paintOrder="stroke" stroke="var(--card)" strokeWidth={3}>
         직전 평균 {base.toFixed(1)}
       </text>
     </svg>
@@ -199,7 +199,7 @@ export function TopicPanel({ detail, radar, view }: { detail: TopicDetail; radar
               ["공식 발표", current ? `${Math.round((topic.official / current) * 100)}%` : "–"],
             ].map(([label, value]) => (
               <div key={String(label)} className="rounded-xl bg-muted/70 px-1 py-2">
-                <dt className="text-[11px] text-muted-foreground">{label}</dt>
+                <dt className="text-xs text-muted-foreground">{label}</dt>
                 <dd className="text-sm font-bold tabular-nums @2xl:text-base">{value}</dd>
               </div>
             ))}

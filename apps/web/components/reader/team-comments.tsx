@@ -43,7 +43,7 @@ export function TeamComments({ kind, targetId, initial, title = "팀 메모" }: 
         {(comments ?? []).map((c) => (
           <li key={c.id} className="rounded-md bg-muted/40 px-2.5 py-1.5 text-sm">
             <p className="whitespace-pre-wrap">{c.body}</p>
-            <p className="mt-0.5 flex items-center gap-2 text-[11px] text-muted-foreground">
+            <p className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
               {c.author ?? "알 수 없음"} · {formatDateTime(c.created_at)}
               {c.mine ? (
                 <button type="button" aria-label="메모 지우기" disabled={pending} onClick={() => run(() => deleteComment(c.id))} className="ml-auto hover:text-destructive">

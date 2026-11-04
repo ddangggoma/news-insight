@@ -7,22 +7,22 @@ export function SeriesTable({ caption, buckets, series }: { caption: string; buc
   const last = buckets.length - 1;
   return (
     <div className="overflow-x-auto">
-      <table className="w-full min-w-[640px] text-xs">
+      <table className="w-full min-w-[640px] text-sm">
         <caption className="sr-only">{caption}</caption>
         <thead>
-          <tr className="border-b text-muted-foreground">
-            <th scope="col" className="py-1.5 pr-2 text-left font-medium">
+          <tr className="border-b text-xs">
+            <th scope="col" className="py-1.5 pr-2 text-left font-semibold">
               항목
             </th>
             {buckets.map((bucket, i) => (
-              <th key={bucket.start} scope="col" title={spanLabel(bucket)} className={cn("px-1 py-1.5 text-right font-medium tabular-nums", i === last && "text-foreground")}>
+              <th key={bucket.start} scope="col" title={spanLabel(bucket)} className={cn("px-1 py-1.5 text-right font-semibold tabular-nums", i === last && "text-foreground")}>
                 ~{shortDay(bucket.end)}
               </th>
             ))}
-            <th scope="col" className="py-1.5 pl-2 text-right font-medium">
+            <th scope="col" className="py-1.5 pl-2 text-right font-semibold">
               이전 평균
             </th>
-            <th scope="col" className="py-1.5 pl-2 text-right font-medium">
+            <th scope="col" className="py-1.5 pl-2 text-right font-semibold">
               신호
             </th>
           </tr>
@@ -30,7 +30,7 @@ export function SeriesTable({ caption, buckets, series }: { caption: string; buc
         <tbody>
           {series.map((s) => (
             <tr key={s.key} className="border-b last:border-0">
-              <th scope="row" className="max-w-40 truncate py-1.5 pr-2 text-left font-medium">
+              <th scope="row" className="max-w-40 truncate py-1.5 pr-2 text-left font-semibold">
                 {s.label}
               </th>
               {s.counts.map((count, i) => (

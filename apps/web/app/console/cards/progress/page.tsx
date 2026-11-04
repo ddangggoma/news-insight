@@ -6,7 +6,7 @@ import { PageHeader } from "@/components/console/page-header";
 import { StatCard } from "@/components/console/stat-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api } from "@/lib/api";
 import { engineGroup, ENGINES, STATE_LABEL } from "@/lib/card-progress";
@@ -189,6 +189,7 @@ export default async function CardProgressPage() {
             {DIMENSIONS.map((d) => (
               <TabsContent key={d.key} value={d.key} className="min-w-0">
                 <Table>
+                  <TableCaption className="sr-only">{`${d.title}별 카드 현황`}</TableCaption>
                   <TableHeader>
                     <TableRow>
                       <TableHead>{d.title}</TableHead>
@@ -207,7 +208,7 @@ export default async function CardProgressPage() {
                         <TableCell className="font-medium">{d.label(row.key)}</TableCell>
                         <TableCell className="text-right tabular-nums">{formatNumber(row.total)}</TableCell>
                         {COLUMNS.map((c) => (
-                          <TableCell key={c} className={`text-right tabular-nums ${row[c] === 0 ? "text-muted-foreground/50" : ""}`}>
+                          <TableCell key={c} className={`text-right tabular-nums ${row[c] === 0 ? "text-muted-foreground" : ""}`}>
                             {formatNumber(row[c])}
                           </TableCell>
                         ))}
@@ -229,6 +230,7 @@ export default async function CardProgressPage() {
         </CardHeader>
         <CardContent className="overflow-x-auto">
           <Table>
+            <TableCaption className="sr-only">일별 카드 생성 표</TableCaption>
             <TableHeader>
               <TableRow>
                 <TableHead>날짜</TableHead>
@@ -268,6 +270,7 @@ export default async function CardProgressPage() {
         </CardHeader>
         <CardContent className="overflow-x-auto">
           <Table>
+            <TableCaption className="sr-only">최근 카드 실행</TableCaption>
             <TableHeader>
               <TableRow>
                 <TableHead>시작</TableHead>

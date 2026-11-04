@@ -48,7 +48,7 @@ export default async function DeadLettersPage({ searchParams }: { searchParams: 
           </Button>
         ))}
       </div>
-      <DataTable columns={columns} rows={data.items} rowKey={(row) => row.id} emptyTitle="DLQ가 비어 있습니다" />
+      <DataTable columns={columns} rows={data.items} rowKey={(row) => row.id} caption="DLQ 항목" emptyTitle="DLQ가 비어 있습니다" />
       <PaginationBar pathname="/console/dlq" params={{ state: param(sp, "state") }} page={page} size={data.size} total={data.total} />
     </>
   );

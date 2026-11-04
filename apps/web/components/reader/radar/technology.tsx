@@ -120,13 +120,13 @@ export function EmergingTable({ radar, view, limit = 14 }: { radar: Radar; view:
         <caption className="sr-only">신규·급상승·상승 기술 목록</caption>
         <thead className="text-left text-xs whitespace-nowrap text-muted-foreground">
           <tr className="border-b">
-            <th className="py-2 font-medium">기술</th>
-            <th className="py-2 font-medium">상태</th>
-            <th className="hidden py-2 font-medium sm:table-cell">추이</th>
-            <th className="py-2 text-right font-medium">건수</th>
-            <th className="py-2 pl-2 text-right font-medium">z</th>
-            <th className="hidden py-2 pl-3 text-right font-medium md:table-cell">출처</th>
-            <th className="hidden py-2 pl-3 font-medium lg:table-cell">연구 비중</th>
+            <th scope="col" className="py-2 font-semibold">기술</th>
+            <th scope="col" className="py-2 font-semibold">상태</th>
+            <th scope="col" className="hidden py-2 font-semibold sm:table-cell">추이</th>
+            <th scope="col" className="py-2 text-right font-semibold">건수</th>
+            <th scope="col" className="py-2 pl-2 text-right font-semibold">z</th>
+            <th scope="col" className="hidden py-2 pl-3 text-right font-semibold md:table-cell">출처</th>
+            <th scope="col" className="hidden py-2 pl-3 font-semibold lg:table-cell">연구 비중</th>
           </tr>
         </thead>
         <tbody>
@@ -138,7 +138,7 @@ export function EmergingTable({ radar, view, limit = 14 }: { radar: Radar; view:
                   <Link href={keywordHref(radar, view, keyword.key)} scroll={false} className="block truncate font-medium hover:text-primary">
                     {topicLabel("keyword", keyword)}
                   </Link>
-                  {keyword.field ? <span className="block truncate text-[11px] text-muted-foreground">{FIELD_LABEL[keyword.field] ?? keyword.field}</span> : null}
+                  {keyword.field ? <span className="block truncate text-xs text-muted-foreground">{FIELD_LABEL[keyword.field] ?? keyword.field}</span> : null}
                 </td>
                 <td className="py-1.5">
                   <span className="flex flex-wrap gap-1">
@@ -281,7 +281,7 @@ export function PairList({ radar, view, limit = 8 }: { radar: Radar; view: Radar
               {label(pair.b)}
             </Link>
           </span>
-          {pair.is_new ? <span className="rounded-full bg-primary/12 px-1.5 text-[11px] font-semibold text-primary">신규</span> : null}
+          {pair.is_new ? <span className="rounded-full bg-primary/12 px-1.5 text-xs font-semibold text-primary">신규</span> : null}
           <span className="text-xs text-muted-foreground tabular-nums">{pair.count}건 · {pair.lift.toFixed(1)}배</span>
         </li>
       ))}

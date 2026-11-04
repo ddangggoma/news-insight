@@ -49,7 +49,7 @@ export function CompanyChips({ companies, max = 4 }: { companies?: CompanyRef[];
         <li key={company.key}>
           <Link
             href={companyHref(company.key)}
-            className="inline-flex items-center gap-1 rounded-full border px-2 py-px text-[11px] text-ink-2 transition hover:border-primary hover:text-primary"
+            className="inline-flex items-center gap-1 rounded-full border px-2 py-px text-xs text-ink-2 transition hover:border-primary hover:text-primary"
             title={`${RELATION_META[company.relation].label} · 이 기업 기사 모두 보기`}
           >
             <span aria-hidden className="size-1.5 rounded-full" style={{ background: RELATION_META[company.relation].color }} />

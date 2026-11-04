@@ -95,14 +95,14 @@ export default async function TaxonomyExplorer({ params, searchParams }: Props) 
           {level(data.depth)}별 카드
         </h2>
         <div className="overflow-x-auto rounded-lg border">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/40 text-xs text-muted-foreground">
+          <table aria-labelledby="table-title" className="w-full text-sm">
+            <thead className="bg-muted/40 text-xs">
               <tr>
-                <th className="px-3 py-2 text-left font-medium">{level(data.depth)}</th>
-                <th className="px-3 py-2 text-right font-medium">이번 기간</th>
-                <th className="px-3 py-2 text-right font-medium">직전</th>
-                <th className="px-3 py-2 text-right font-medium">증감</th>
-                <th className="px-3 py-2 text-right font-medium">비중</th>
+                <th scope="col" className="px-3 py-2 text-left font-semibold">{level(data.depth)}</th>
+                <th scope="col" className="px-3 py-2 text-right font-semibold">이번 기간</th>
+                <th scope="col" className="px-3 py-2 text-right font-semibold">직전</th>
+                <th scope="col" className="px-3 py-2 text-right font-semibold">증감</th>
+                <th scope="col" className="px-3 py-2 text-right font-semibold">비중</th>
               </tr>
             </thead>
             <tbody className="divide-y">

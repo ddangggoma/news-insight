@@ -234,7 +234,7 @@ async function MoversSection() {
                       </a>
                       <span className="shrink-0 text-right">
                         <span className="block font-medium text-emerald-600 tabular-nums dark:text-emerald-400">+{formatNumber(mover.delta)}</span>
-                        <span className="block text-[11px] text-muted-foreground">{mover.label}</span>
+                        <span className="block text-xs text-muted-foreground">{mover.label}</span>
                       </span>
                     </li>
                   ))}

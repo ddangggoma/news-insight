@@ -272,7 +272,7 @@ function TrendsBody({ view, tab, state }: { view: DomainView; tab: TrendsTab; st
               className={f.flag === "rise" ? "rounded-full bg-impact-opportunity/12 px-2 py-0.5 text-xs font-semibold text-impact-opportunity" : "rounded-full bg-impact-risk/12 px-2 py-0.5 text-xs font-semibold text-impact-risk"}
             >
               {f.flag === "rise" ? "▲ 급증" : "▼ 급감"} {f.label}
-              <span className="ml-1 font-normal tabular-nums opacity-80">
+              <span className="ml-1 font-normal tabular-nums">
                 {f.current}건 (평균 {f.mean.toFixed(1)})
               </span>
             </span>

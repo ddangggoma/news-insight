@@ -180,7 +180,7 @@ function ZoomTools({ zoom, setZoom, onExpand }: Zoom & { onExpand?: () => void }
         type="button"
         title="원래 크기로 (0) · Ctrl/⌘ + 휠로 확대, 끌어서 이동"
         onClick={() => setZoom(1)}
-        className="h-7 min-w-11 rounded-md px-1 text-[11px] font-semibold text-ink-2 tabular-nums transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+        className="h-7 min-w-11 rounded-md px-1 text-xs font-semibold text-ink-2 tabular-nums transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
       >
         {Math.round(zoom * 100)}%
       </button>
@@ -424,7 +424,7 @@ export function Legend({ items, className }: { items: LegendItem[]; className?: 
               onDoubleClick={() => solo(keyOf(item))}
               className={cn(
                 "flex items-center gap-1.5 rounded-md px-1.5 py-0.5 transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
-                off && "text-muted-foreground/60 line-through decoration-muted-foreground/50",
+                off && "text-muted-foreground line-through decoration-muted-foreground",
               )}
             >
               <span

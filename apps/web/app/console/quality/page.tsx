@@ -76,7 +76,7 @@ export default async function QualityPage({ searchParams }: { searchParams: Prom
           },
         ]}
       />
-      <DataTable columns={columns} rows={rows} rowKey={(row) => row.key} emptyTitle="최근 7일 수집된 항목이 없습니다" />
+      <DataTable columns={columns} rows={rows} rowKey={(row) => row.key} caption="소스 품질" emptyTitle="최근 7일 수집된 항목이 없습니다" />
     </>
   );
 }

@@ -58,7 +58,7 @@ export default async function ItemsPage({ searchParams }: { searchParams: Promis
         query={filters.q}
         searchPlaceholder="제목 검색"
       />
-      <DataTable columns={columns} rows={data.items} rowKey={(item) => item.id} emptyTitle="항목이 없습니다" />
+      <DataTable columns={columns} rows={data.items} rowKey={(item) => item.id} caption="수집 항목" emptyTitle="항목이 없습니다" />
       <PaginationBar pathname="/console/items" params={filters} page={page} size={data.size} total={data.total} />
     </>
   );

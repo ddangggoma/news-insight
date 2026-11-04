@@ -75,7 +75,7 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
           </Button>
         ))}
       </nav>
-      <DataTable columns={columns} rows={data.items} rowKey={(row) => row.id} emptyTitle={tab.empty} />
+      <DataTable columns={columns} rows={data.items} rowKey={(row) => row.id} caption="사용자" emptyTitle={tab.empty} />
     </>
   );
 }

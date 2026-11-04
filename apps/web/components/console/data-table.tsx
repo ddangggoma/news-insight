@@ -1,7 +1,7 @@
 import type { Key, ReactNode } from "react";
 
 import { EmptyState } from "@/components/console/empty-state";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 export interface Column<T> {
   key: string;
@@ -24,17 +24,21 @@ export function DataTable<T>({
   rowKey,
   emptyTitle,
   emptyDescription,
+  caption,
 }: {
   columns: Column<T>[];
   rows: T[];
   rowKey: (row: T) => Key;
   emptyTitle: string;
   emptyDescription?: string;
+  /** What the table lists, for screen readers (visually hidden). */
+  caption?: string;
 }) {
   if (rows.length === 0) return <EmptyState title={emptyTitle} description={emptyDescription} />;
   return (
     <div className="overflow-hidden rounded-lg border">
       <Table>
+        {caption ? <TableCaption className="sr-only">{caption}</TableCaption> : null}
         <TableHeader className="bg-muted/50">
           <TableRow>
             {columns.map((column) => (

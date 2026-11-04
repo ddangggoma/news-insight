@@ -167,7 +167,7 @@ export default async function DossierPage({ params, searchParams }: { params: Pr
               {dossier.timeline.map((w) => (
                 <div key={w.week} className="flex flex-1 flex-col items-center gap-1" title={`${w.week} 주: ${w.items}건, 이슈 ${w.stories}개`}>
                   <div className="w-full rounded-t bg-primary/70" style={{ height: `${Math.max(2, (w.items / peak) * 96)}px` }} />
-                  <span className="text-[10px] text-muted-foreground tabular-nums">{w.week.slice(5).replace("-", "/")}</span>
+                  <span className="text-xs text-muted-foreground tabular-nums">{w.week.slice(5).replace("-", "/")}</span>
                 </div>
               ))}
             </div>

@@ -62,7 +62,7 @@ export default async function UserPage({ params }: { params: Promise<{ id: strin
         </Link>
       </div>
       <h2 className="text-lg font-semibold">기록 (최근 100건, 180일 보관)</h2>
-      <DataTable columns={columns} rows={events} rowKey={(row) => row.id} emptyTitle="기록이 없습니다" />
+      <DataTable columns={columns} rows={events} rowKey={(row) => row.id} caption="사용자 기록" emptyTitle="기록이 없습니다" />
     </>
   );
 }

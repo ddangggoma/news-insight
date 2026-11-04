@@ -36,11 +36,11 @@ export function SpotlightFilterBar({
     <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
       <div role="group" aria-label="분야 필터" className="flex flex-wrap gap-1.5">
         <Toggle pressed={filters.field === null} onClick={() => onChange({ ...filters, field: null })}>
-          전체 <span className="tabular-nums opacity-80">{total}</span>
+          전체 <span className="tabular-nums">{total}</span>
         </Toggle>
         {fields.map((field) => (
           <Toggle key={field.key} pressed={filters.field === field.key} onClick={() => onChange({ ...filters, field: filters.field === field.key ? null : field.key })}>
-            {field.label} <span className="tabular-nums opacity-80">{field.count}</span>
+            {field.label} <span className="tabular-nums">{field.count}</span>
           </Toggle>
         ))}
       </div>

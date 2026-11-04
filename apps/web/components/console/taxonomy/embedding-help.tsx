@@ -45,11 +45,11 @@ export function EmbeddingHelp({ node }: { node: ConsoleNode }) {
           <ul className="space-y-0.5 text-sm" aria-label="비슷한 기사">
             {similar.cards.map((card) => (
               <li key={card.item_id} className="flex gap-2">
-                <span className="w-10 shrink-0 text-[11px] text-muted-foreground tabular-nums">{card.similarity.toFixed(2)}</span>
+                <span className="w-10 shrink-0 text-xs text-muted-foreground tabular-nums">{card.similarity.toFixed(2)}</span>
                 <a href={`/console/items/${card.item_id}`} className={`min-w-0 flex-1 truncate hover:underline ${card.labelled ? "" : "font-medium"}`}>
                   {card.title}
                 </a>
-                <span className="shrink-0 text-[11px] text-muted-foreground">{card.labelled ? "붙음" : "없음"}</span>
+                <span className="shrink-0 text-xs text-muted-foreground">{card.labelled ? "붙음" : "없음"}</span>
               </li>
             ))}
           </ul>
@@ -64,7 +64,7 @@ export function EmbeddingHelp({ node }: { node: ConsoleNode }) {
             <ul className="space-y-0.5 text-sm" aria-label="어울리지 않는 카드">
               {odd.cards.map((card) => (
                 <li key={card.item_id} className="flex gap-2">
-                  <span className="w-10 shrink-0 text-[11px] text-muted-foreground tabular-nums">{card.similarity.toFixed(2)}</span>
+                  <span className="w-10 shrink-0 text-xs text-muted-foreground tabular-nums">{card.similarity.toFixed(2)}</span>
                   <a href={`/console/items/${card.item_id}`} className="min-w-0 flex-1 truncate hover:underline">
                     {card.title}
                   </a>
