@@ -897,3 +897,26 @@ def test_a_freeze_from_before_the_groups_is_written_as_24h(db_session: Session) 
     result = run(db_session, client)
     assert client.calls[0]["payload"]["sections"]["news"]["sustained"] == []
     assert {r.group for r in entries(db_session, result, "news")} == {"now"}
+
+
+@pytest.mark.parametrize(("listed_now", "listed_sustained"), [(13, 2), (4, 11)])
+def test_lent_places_never_take_a_section_past_fifteen(
+    db_session: Session, listed_now: int, listed_sustained: int
+) -> None:
+    found = {section: [] for section in SECTIONS} | {
+        "news": [cand(f"n{i}", "news", i) for i in range(1, 16)]
+        + [sustained_cand(f"ns{i}", "news", 500 + i) for i in range(1, 16)]
+    }
+    db_session.add(SpotlightFreeze(spotlight_date=DAY, frozen_at=NOW, candidates=found))
+    db_session.flush()
+    client = FakeClaude(
+        output(
+            {"news": [entry([f"n{i}"], i) for i in range(1, listed_now + 1)]},
+            {"news": [entry([f"ns{i}"], i) for i in range(1, listed_sustained + 1)]},
+        )
+    )
+    rows = entries(db_session, run(db_session, client), "news")
+    groups = [r.group for r in rows]
+    assert len(rows) == 15
+    assert (groups.count("now"), groups.count("sustained")) == (listed_now, listed_sustained)
+    assert not any(r.fallback for r in rows)

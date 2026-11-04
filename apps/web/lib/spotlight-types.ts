@@ -185,6 +185,15 @@ export function trendChip(metrics: Record<string, number | string>): string | nu
   }
 }
 
+/** Signals that restate the trend chip (list rank, HF trending, leaderboard rank). */
+const TREND_SIGNAL = /^(?:GitHub(?: 주간)? \d+위|HF 트렌딩|벤치마크 \d+위)$/;
+
+/** The server's signals worth showing beside the row's chips: none repeating its trend chip. */
+export function visibleSignals(entry: Pick<SpotlightEntry, "signals" | "metrics">): string[] {
+  const signals = entry.signals ?? [];
+  return trendChip(entry.metrics) ? signals.filter((signal) => !TREND_SIGNAL.test(signal)) : signals;
+}
+
 /** Short chips for an entry's raw metrics: Korean labels where obvious, the key itself otherwise. */
 export function metricChips(metrics: Record<string, number | string>): string[] {
   const chips: string[] = [];

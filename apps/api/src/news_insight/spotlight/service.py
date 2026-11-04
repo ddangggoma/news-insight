@@ -432,13 +432,18 @@ def top_up(
     section: str, kept: list[dict[str, Any]], candidates: list[dict[str, Any]]
 ) -> list[dict[str, Any]]:
     """A section filled toward 15 from the statistical order: the 24 h group to 10, the
-    sustained one to 5, then either one past its share while the other is short. The
+    sustained one to 5 (never past 15 with what the other group already holds, e.g. 13 places
+    the writer lent to 24 h), then either one past its share while the other is short. The
     open-source list reaches MIN_OSS whenever its candidates allow (B1)."""
     now = [built for built in kept if built["group"] == NOW]
     sustained = [built for built in kept if built["group"] == SUSTAINED]
     now_found, sustained_found = _of_group(candidates, NOW), _of_group(candidates, SUSTAINED)
-    _fill(section, now, now_found, MAX_NOW, sustained)
-    _fill(section, sustained, sustained_found, MAX_SUSTAINED, now)
+
+    def share(group: list[dict[str, Any]], quota: int, other: list[dict[str, Any]]) -> int:
+        return max(len(group), min(quota, MAX_TOTAL - len(other)))
+
+    _fill(section, now, now_found, share(now, MAX_NOW, sustained), sustained)
+    _fill(section, sustained, sustained_found, share(sustained, MAX_SUSTAINED, now), now)
     _fill(section, now, now_found, MAX_TOTAL - len(sustained), sustained)
     _fill(section, sustained, sustained_found, MAX_TOTAL - len(now), now)
     if section == "oss" and len(now) + len(sustained) < MIN_OSS:

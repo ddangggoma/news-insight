@@ -23,6 +23,7 @@ from sqlalchemy.orm import Session, defer
 from news_insight.benchmarks.models import AiModel, BenchmarkScore, BenchmarkSnapshot
 from news_insight.benchmarks.names import normalize
 from news_insight.benchmarks.sources import artificial_analysis, deepswe, livebench, lmarena
+from news_insight.public.periods import KST
 
 Change = Literal["new", "up", "down", "same"]
 
@@ -390,7 +391,7 @@ def top_holders(
     """Models that held a place in a board's top `top` through the last `days` days: in every
     snapshot of a site fetched in that span, and in the one current when it began (a site's
     snapshot is stored only when its bytes change, so the last one before the span still held
-    on its first day). The span the snapshots cover must reach `min_days` calendar days; a
+    on its first day). The span the snapshots cover must reach `min_days` KST dates; a
     stale site is skipped. One row per site, board and model: its current and best rank and
     how many days it held on."""
     start = now - timedelta(days=days)
@@ -420,7 +421,7 @@ def top_holders(
         if not covering or now - covering[-1].fetched_at > STALE_AFTER:
             continue
         since = max(covering[0].fetched_at, start)
-        held_days = (now.date() - since.date()).days + 1
+        held_days = (now.astimezone(KST).date() - since.astimezone(KST).date()).days + 1
         if held_days < min_days:
             continue
         places = [

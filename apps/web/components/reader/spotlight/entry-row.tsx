@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { type SpotlightEntry, metricChips } from "@/lib/spotlight-types";
+import { type SpotlightEntry, metricChips, visibleSignals } from "@/lib/spotlight-types";
 import { cn } from "@/lib/utils";
 
 /** Change against the previous day's list: NEW, ▲n or ▼n (nothing when unchanged). */
@@ -26,9 +26,9 @@ function ChangeBadge({ entry }: { entry: Pick<SpotlightEntry, "change" | "change
 }
 
 /** Opus's insight tags (neutral) and the server's signal tags (muted), each once. */
-export function EntryTags({ entry }: { entry: Pick<SpotlightEntry, "tags" | "signals"> }) {
+export function EntryTags({ entry }: { entry: Pick<SpotlightEntry, "tags" | "signals" | "metrics"> }) {
   const tags = entry.tags ?? [];
-  const signals = (entry.signals ?? []).filter((signal) => !tags.includes(signal));
+  const signals = visibleSignals(entry).filter((signal) => !tags.includes(signal));
   if (tags.length === 0 && signals.length === 0) return null;
   return (
     <ul className="flex flex-wrap gap-1" aria-label="주목 이유">
@@ -48,7 +48,7 @@ export function EntryTags({ entry }: { entry: Pick<SpotlightEntry, "tags" | "sig
 
 /** One line of a section's list: rank, change, title, field, Opus's summary and reason, the tags and the raw metrics. */
 export function EntryRow({ entry }: { entry: SpotlightEntry }) {
-  const signals = new Set(entry.signals ?? []);
+  const signals = new Set(visibleSignals(entry));
   const chips = metricChips(entry.metrics).filter((chip) => !signals.has(chip));
   const others = entry.item_ids.length - 1;
   return (
@@ -69,7 +69,8 @@ export function EntryRow({ entry }: { entry: SpotlightEntry }) {
           )}
           {entry.product_name && <Badge variant="outline">{entry.product_name}</Badge>}
           {entry.field_label && (
-            <Badge variant="ghost" className="border-border bg-muted/60 text-muted-foreground" aria-label={`분야 ${entry.field_label}`}>
+            <Badge variant="ghost" className="border-border bg-muted/60 text-muted-foreground">
+              <span className="sr-only">분야 </span>
               {entry.field_label}
             </Badge>
           )}

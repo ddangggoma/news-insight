@@ -202,7 +202,8 @@ def test_ai_takes_models_that_held_a_top_five_place(db_session: Session):
 
 
 def test_ai_holders_need_a_three_day_span(db_session: Session):
-    board(db_session, END - timedelta(hours=30), ["Alpha", "Beta"])
+    # 11-03 08:40 KST to 11-04 04:40 KST: two KST dates
+    board(db_session, END - timedelta(hours=20), ["Alpha", "Beta"])
     board(db_session, END - timedelta(hours=5), ["Alpha", "Beta"])
     assert collect_sustained(db_session, day=DAY)["ai"] == []
 
@@ -274,3 +275,13 @@ def test_kst_days_are_counted_not_utc_days(db_session: Session):
     seen = [base, base + timedelta(hours=23), base - timedelta(hours=24 * 2)]
     row = story(db_session, spread(db_session, "kst", seen))
     assert f"story:{row.id}" not in {c.key for c in collect_sustained(db_session, day=DAY)["news"]}
+
+
+def test_ai_holders_count_kst_dates(db_session: Session):
+    # 2026-11-01 23:30 KST is 14:30 UTC: by UTC dates the span would reach back one day less
+    first = datetime(2026, 11, 1, 14, 30, tzinfo=UTC)
+    board(db_session, first, ["Alpha", "Beta"])
+    board(db_session, END - timedelta(hours=5), ["Alpha", "Beta"])
+    # 11-01, 11-02, 11-03, 11-04 KST (END is 11-04 04:40 KST)
+    by_key = {c.key: c for c in collect_sustained(db_session, day=DAY)["ai"]}
+    assert by_key["model:alpha"].metrics["days_active"] == 4

@@ -329,7 +329,8 @@ describe("tags, signals and field", () => {
     render(<EntryRow entry={{ ...base, tags: ["가격 인하", "첫 공개"], signals: ["보도 14곳", "커뮤니티 확산"], field: "ai", field_label: "AI 모델·에이전트" }} />);
     const reasons = screen.getByRole("list", { name: "주목 이유" });
     expect(within(reasons).getAllByRole("listitem").map((li) => li.textContent)).toEqual(["가격 인하", "첫 공개", "보도 14곳", "커뮤니티 확산"]);
-    expect(screen.getByLabelText("분야 AI 모델·에이전트")).toHaveTextContent("AI 모델·에이전트");
+    // the field chip reads "분야 …" to a screen reader
+    expect(screen.getByText("AI 모델·에이전트").closest("[data-slot=badge]")).toHaveTextContent("분야 AI 모델·에이전트");
     // the source count is a signal now; the metric chips keep the rest
     const metrics = screen.getByRole("list", { name: "화제 지표" });
     expect(within(metrics).queryByText("보도 14곳")).not.toBeInTheDocument();
@@ -339,7 +340,25 @@ describe("tags, signals and field", () => {
   it("shows nothing extra for entries published before tags", () => {
     render(<EntryRow entry={base} />);
     expect(screen.queryByRole("list", { name: "주목 이유" })).not.toBeInTheDocument();
-    expect(screen.queryByLabelText(/^분야 /)).not.toBeInTheDocument();
+    expect(screen.queryByText("분야")).not.toBeInTheDocument();
+  });
+
+  it("does not repeat the trend or leaderboard chip as a signal", () => {
+    render(<EntryRow entry={{ ...base, metrics: { basis: "github_daily", trend_rank: 3, rank: 3 }, signals: ["GitHub 3위", "커뮤니티 확산"] }} />);
+    expect(screen.getByText("GitHub 트렌딩 3위")).toBeInTheDocument();
+    expect(screen.queryByText("GitHub 3위")).not.toBeInTheDocument();
+    expect(screen.getByText("커뮤니티 확산")).toBeInTheDocument();
+  });
+
+  it("keeps one leaderboard rank and one HF mark", () => {
+    const { rerender } = render(<EntryRow entry={{ ...base, metrics: { basis: "benchmark", site: "LMArena", board: "text", rank: 2 }, signals: ["벤치마크 2위"] }} />);
+    expect(screen.getByText("LMArena 2위")).toBeInTheDocument();
+    expect(screen.queryByText("벤치마크 2위")).not.toBeInTheDocument();
+    rerender(<EntryRow entry={{ ...base, metrics: { basis: "hf_trending", trending: 40 }, signals: ["HF 트렌딩"] }} />);
+    expect(screen.getAllByText("HF 트렌딩")).toHaveLength(1);
+    // without a trend chip the signal is the only place the fact shows
+    rerender(<EntryRow entry={{ ...base, metrics: { source_count: 2 }, signals: ["GitHub 최고 2위"] }} />);
+    expect(screen.getByText("GitHub 최고 2위")).toBeInTheDocument();
   });
 
   it("the overview shows the insight tags", () => {
