@@ -31,10 +31,16 @@ export interface Option {
 export interface InsightSentence {
   text: string;
   doc_ids: number[];
+  /** The field or company a one-liner is about (fields and companies tabs). */
+  key?: string | null;
 }
 
-/** The daily Opus insight (plan 19 §3); null until one is published. */
+/**
+ * The daily Opus insight (plan 19 §3): the latest published one, today's or an earlier day's;
+ * null until one is published (and on the fields tab, for a field without a line).
+ */
 export interface DomainInsight {
+  /** The day it was written (KST), not the as_of its counts end on. */
   date: string;
   sentences: InsightSentence[];
 }

@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 import { AppLink as Link } from "@/components/app-link";
-import { formatDay, formatNumber } from "@/lib/format";
+import { formatDay, formatNumber, kstToday } from "@/lib/format";
 import {
   DOMAIN_META,
   DOMAIN_TABS,
@@ -151,12 +151,15 @@ export function EmptyNote({ children, className }: { children: ReactNode; classN
 }
 
 /**
- * The daily Opus insight: each sentence ends with links to the documents behind it. Before the
- * first one is published (plan 19 P4) a quiet placeholder takes its place.
+ * The daily Opus insight: each sentence ends with links to the documents behind it, and the date
+ * shows when it is not today's (the API falls back to the latest published one). Before the first
+ * one is published (plan 19 P4) a quiet placeholder takes its place; a compact block (a field's
+ * one-liner) without a line shows nothing.
  */
-export function InsightBlock({ insight, title = "오늘의 인사이트", asOf, compact = false }: { insight: DomainInsight | null | undefined; title?: string; asOf?: string; compact?: boolean }) {
+export function InsightBlock({ insight, title = "오늘의 인사이트", today, compact = false }: { insight: DomainInsight | null | undefined; title?: string; today?: string; compact?: boolean }) {
   const sentences = insight?.sentences.filter((s) => s.text.trim()) ?? [];
   if (!insight || !sentences.length) {
+    if (compact) return null;
     return (
       <section aria-label={title} className={cn("rounded-2xl border border-dashed px-4 text-sm text-muted-foreground", compact ? "py-2.5" : "py-4")}>
         {compact ? null : <h2 className="mb-1 text-[15px] font-bold tracking-tight text-foreground">{title}</h2>}
@@ -165,13 +168,13 @@ export function InsightBlock({ insight, title = "오늘의 인사이트", asOf, 
     );
   }
   let n = 0;
-  const stale = asOf && insight.date < asOf;
+  const fresh = insight.date === (today ?? kstToday());
   return (
     <section aria-label={title} className="rounded-2xl border bg-card px-4 py-4 shadow-xs md:px-5">
       <header className="mb-2 flex flex-wrap items-baseline gap-x-2">
         {compact ? null : <h2 className="text-[15px] font-bold tracking-tight">{title}</h2>}
         <span className="text-xs text-muted-foreground">
-          {insight.date.replaceAll("-", ".")} 작성{stale ? " (가장 최근 발행본)" : ""}
+          {fresh ? "오늘 작성" : `${insight.date.replaceAll("-", ".")} 작성 (가장 최근 발행본)`}
         </span>
       </header>
       <ul className="space-y-1.5 text-sm leading-relaxed">

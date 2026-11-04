@@ -32,7 +32,7 @@ export function FieldsBody({ view, tab, state }: { view: DomainView; tab: Fields
           이번 기간 <b>{formatNumber(detail.count)}건</b> · 직전 {formatNumber(detail.previous)}건 <ChangeBadge change={detail.change} count={detail.count} previous={detail.previous} />
         </span>
       </header>
-      <InsightBlock insight={detail.insight} title={`${detail.label} 인사이트`} asOf={view.as_of} compact />
+      <InsightBlock insight={detail.insight} title={`${detail.label} 인사이트`} compact />
       {empty ? (
         <EmptyNote>
           최근 {tab.buckets.length}개 기간 동안 {detail.label} 분야 {noun}이 없습니다.

@@ -209,7 +209,7 @@ describe("insight", () => {
   it("links each sentence to the documents behind it", () => {
     render(
       <InsightBlock
-        asOf="2026-11-03"
+        today="2026-11-04"
         insight={{
           date: "2026-11-02",
           sentences: [
@@ -225,10 +225,33 @@ describe("insight", () => {
     expect(screen.getByText(/2026\.11\.02 작성 \(가장 최근 발행본\)/)).toBeInTheDocument();
   });
 
+  it("says today instead of the date when the insight is today's", () => {
+    render(<InsightBlock today="2026-11-04" insight={{ date: "2026-11-04", sentences: [{ text: "오늘 문장.", doc_ids: [] }] }} />);
+    expect(screen.getByText("오늘 작성")).toBeInTheDocument();
+    expect(screen.queryByText(/2026\.11\.04/)).toBeNull();
+    expect(screen.queryByText(/가장 최근 발행본/)).toBeNull();
+  });
+
+  it("uses today's KST date when none is given", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-11-03T16:30:00Z")); // 01:30 KST on the 4th
+    try {
+      render(<InsightBlock insight={{ date: "2026-11-04", sentences: [{ text: "자정 뒤.", doc_ids: [] }] }} />);
+      expect(screen.getByText("오늘 작성")).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("shows a quiet placeholder until the first insight is written", () => {
     render(<InsightBlock insight={null} />);
     expect(screen.getByText("인사이트는 매일 05시 브리핑 뒤에 작성됩니다.")).toBeInTheDocument();
     expect(screen.queryByRole("link")).toBeNull();
+  });
+
+  it("leaves a field without a line quiet", () => {
+    const { container } = render(<InsightBlock insight={null} title="반도체 인사이트" compact />);
+    expect(container).toBeEmptyDOMElement();
   });
 });
 
@@ -268,6 +291,15 @@ describe("fields", () => {
     expect(within(chips).getByRole("link", { name: /미분류/ })).toHaveAttribute("href", "/research?tab=fields&field=other");
     expect(screen.getByRole("heading", { level: 2, name: "반도체" })).toBeInTheDocument();
     expect(screen.getByText("이 기간 반도체 분야 논문이 없습니다.")).toBeInTheDocument();
+  });
+
+  it("shows the field's one-liner with its documents and date", () => {
+    const detail = { ...fieldsView.fields!.detail, insight: { date: "2026-11-02", sentences: [{ text: "반도체 특허가 줄었다.", doc_ids: [7], key: "semis" }] } };
+    render(<DomainPage view={{ ...fieldsView, fields: { ...fieldsView.fields!, detail } }} state={state({ tab: "fields", field: "semis" })} />);
+    const block = screen.getByRole("region", { name: "반도체 인사이트" });
+    expect(within(block).getByText("반도체 특허가 줄었다.")).toBeInTheDocument();
+    expect(within(block).getByRole("link", { name: "근거 문헌 1" })).toHaveAttribute("href", "/items/7");
+    expect(within(block).getByText(/2026\.11\.02 작성 \(가장 최근 발행본\)/)).toBeInTheDocument();
   });
 
   it("says when a field has no documents at all", () => {

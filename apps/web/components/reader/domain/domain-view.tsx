@@ -108,7 +108,7 @@ function OverviewBody({ view, tab, state }: { view: DomainView; tab: OverviewTab
   const fieldHref = (field: string) => domainHref(domain, state, { tab: "fields", field, page: 1 });
   return (
     <section aria-label="개요" className="space-y-4">
-      <InsightBlock insight={tab.insight} asOf={view.as_of} />
+      <InsightBlock insight={tab.insight} />
       {tab.kpis.count === 0 ? <EmptyNote className="py-5">이 기간({spanLabel(view.window)})에 집계된 {noun}이 없습니다. 기간을 넓혀 보세요.</EmptyNote> : null}
       <StatStrip stats={kpiStats(view, tab.kpis)} />
       <div className="grid gap-4 lg:grid-cols-3">
@@ -164,7 +164,7 @@ function CompaniesBody({ view, tab, state }: { view: DomainView; tab: CompaniesT
         ) : null}
         <ChipRow label="분야 필터" chips={fieldChips(view, (field) => domainHref(domain, state, { field }), state.field)} />
       </div>
-      {tab.insight ? <InsightBlock insight={tab.insight} title="기업·기관 인사이트" asOf={view.as_of} /> : null}
+      {tab.insight ? <InsightBlock insight={tab.insight} title="기업·기관 인사이트" /> : null}
       {tab.detail ? <CompanyDetailBlock view={view} tab={tab} state={state} /> : null}
       <Panel id="domain-ranking" title={`${entityLabel} 순위`} question={`이번 기간 ${noun} 수 상위 ${tab.ranking.length}곳입니다. 이름을 누르면 상세를 봅니다.`} tools={false}>
         <CompanyTable rows={rows} label={`${entityLabel} 순위`} emptyText={`이 기간 ${entityLabel}이 확인된 ${noun}이 없습니다.`} />
