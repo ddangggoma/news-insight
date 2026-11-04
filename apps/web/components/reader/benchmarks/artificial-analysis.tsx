@@ -48,11 +48,9 @@ function RankedBars({ data, dataKey, format, label }: { data: AaModel[]; dataKey
           />
           <ChartTooltip cursor={{ fillOpacity: 0.08 }} content={<Tip />} />
           <Bar dataKey={dataKey} radius={[0, 4, 4, 0]} isAnimationActive={false}>
-            {data.map((m) => {
-              // solid bars need no outline; hollow providers get a tinted bar with a coloured edge
-              const paint = providerPaint(m.provider);
-              return <Cell key={m.model} fill={paint.fill} fillOpacity={paint.fillOpacity} stroke={paint.fillOpacity < 1 ? paint.stroke : "none"} strokeWidth={1.5} />;
-            })}
+            {data.map((m) => (
+              <Cell key={m.model} fill={providerPaint(m.provider).fill} />
+            ))}
             <LabelList dataKey={dataKey} position="right" offset={6} className="fill-foreground text-[11px]" formatter={(v: unknown) => (typeof v === "number" ? format(v) : "")} />
           </Bar>
         </BarChart>

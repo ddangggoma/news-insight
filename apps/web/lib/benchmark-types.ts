@@ -115,6 +115,8 @@ const ORG_BY_PREFIX: [RegExp, string][] = [
   [/^kimi/i, "Moonshot AI"],
   [/^glm/i, "Z AI"],
   [/^minimax/i, "MiniMax"],
+  [/^mimo/i, "Xiaomi"],
+  [/^composer/i, "Cursor"],
 ];
 
 /** The row's organisation, else a guess from the model name (colour only, never shown as data). */

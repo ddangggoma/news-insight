@@ -3,6 +3,7 @@
  * runs these before handing props to the client components, so the browser gets one small
  * record per model or point instead of every stored row with its `extra` (plan 18, R21/R24).
  */
+import { family } from "@/components/reader/benchmarks/deepswe-plot";
 import { type ProviderKey, providerKey } from "@/components/reader/benchmarks/provider-colors";
 import {
   AA_METRICS,
@@ -40,6 +41,7 @@ export interface DsPoint {
   board: string;
   model: string;
   effort: string | null;
+  /** The maker as DeepSWE tells it, by model name. */
   provider: ProviderKey;
   /** pass@1 in percent, and its 95% interval. */
   score: number;
@@ -59,6 +61,8 @@ export interface DeepSweView {
   /** Newest version first; the card opens on the first. */
   boards: string[];
   points: DsPoint[];
+  /** Per board: tasks in the set and the day the site generated it, when known. */
+  info: Record<string, { tasks: number | null; updated: string | null }>;
 }
 
 export function deepSweView(site: BenchmarkSite): DeepSweView {
@@ -71,7 +75,7 @@ export function deepSweView(site: BenchmarkSite): DeepSweView {
         board: row.board,
         model: row.model,
         effort: row.config,
-        provider: provider(row.org, row.model),
+        provider: family(row.model),
         score: r2(row.value * 100),
         low: pct(row.ci_low),
         high: pct(row.ci_high),
@@ -93,7 +97,14 @@ export function deepSweView(site: BenchmarkSite): DeepSweView {
     for (const p of best.values()) p.best = true;
   }
   const boards = newestBoardFirst(site.boards.filter((b) => points.some((p) => p.board === b)));
-  return { boards, points };
+  // the rows carry each config's task count; the snapshot's date is the newest board's
+  const info: DeepSweView["info"] = {};
+  for (const board of boards) {
+    const counts = site.rows.filter((r) => r.board === board).map((r) => extraNumber(r, "n_tasks_in_set") ?? extraNumber(r, "n_tasks_attempted") ?? 0);
+    const tasks = Math.max(0, ...counts);
+    info[board] = { tasks: tasks || null, updated: board === boards[0] ? site.release || null : null };
+  }
+  return { boards, points, info };
 }
 
 // ---- LiveBench -----------------------------------------------------------------------
