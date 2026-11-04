@@ -123,8 +123,8 @@ def test_entries_cascade_with_spotlight(db_session: Session) -> None:
 
 
 def _migration() -> ModuleType:
-    path = Path(__file__).resolve().parents[2] / "migrations/versions/0048_spotlight_groups.py"
-    spec = importlib.util.spec_from_file_location("migration_0048", path)
+    path = Path(__file__).resolve().parents[2] / "migrations/versions/0047_spotlight_groups.py"
+    spec = importlib.util.spec_from_file_location("migration_0047", path)
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
