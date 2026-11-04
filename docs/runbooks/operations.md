@@ -8,6 +8,7 @@
 |---|---|---|
 | 매분 | 수집 대상 배정 | Celery beat → worker |
 | 5분마다 | 이슈 묶음, **운영 점검**(`ops.check`) | Celery |
+| 5분마다·로그인 때 | **호스트 워치독**: Docker·컨테이너·사이트·수집·카드·Claude 로그인·오늘 브리핑 점검, 휴대폰 푸시(§14) | 호스트 launchd(`com.newsinsight.watchdog`) |
 | 10분마다 | 소스 자동 검증, 한국어 카드 생성 | Celery / 호스트 launchd(`com.newsinsight.cards`) |
 | 03:00 | 암호화 백업 | 호스트 launchd(`com.newsinsight.backup`, 설치 시) |
 | 03:15 | 만료 본문 삭제 + 지표 스냅샷 솎기(30일 지나면 항목·일당 1개, 180일 지나면 항목·주당 1개, 항목의 첫 스냅샷은 유지 — DATA-1) | Celery |
@@ -18,7 +19,7 @@
 
 ## 2. 운영 알림
 
-콘솔 → **운영 알림**(`/console/alerts`)과 콘솔 상단 띠에만 표시됩니다(2026-10-09 결정: 운영 알림 메일 없음). 메일로도 받으려면 `.env`에 `OPS_ALERT_MAIL=true`를 넣고 재배포합니다(SMTP 필요, ops-console.md §2-1). 지금 상태는 `cd apps/api && uv run --env-file ../../.env news-insight ops check`로도 볼 수 있습니다.
+콘솔 → **운영 알림**(`/console/alerts`)과 콘솔 상단 띠에 표시됩니다(2026-10-09 결정: 운영 알림 메일 없음). 긴급 알림과 스택 정지는 호스트 워치독이 휴대폰으로도 보냅니다(§14). 메일로도 받으려면 `.env`에 `OPS_ALERT_MAIL=true`를 넣고 재배포합니다(SMTP 필요, ops-console.md §2-1). 지금 상태는 `cd apps/api && uv run --env-file ../../.env news-insight ops check`로도 볼 수 있습니다.
 
 | 키 | 수준 | 뜻 | 대응 |
 |---|---|---|---|
@@ -208,3 +209,51 @@ tail ops/logs/edge.log
 **되돌리기**
 
 - Caddy를 다시 `0.0.0.0`에 공개하는 커밋을 main에 올린 뒤 `scripts/install-edge-proxy.sh --uninstall && WITH_CADDY=1 scripts/deploy.sh`. 엣지 프록시가 8700을 잡은 채로는 Docker가 그 포트에 Caddy를 공개하지 못합니다. 프록시를 내린 뒤 배포가 이미지를 빌드하는 동안(보통 1~2분) 사이트가 멈춥니다.
+
+## 14. 호스트 워치독과 푸시 알림 (2026-11-04)
+
+**왜 필요한가**
+
+- 운영 점검(`ops.check`)은 Celery 안에서 돌고, 그 알림은 콘솔에만 보입니다. Docker가 멈추면 점검도 같이 멈춥니다.
+- 2026-10-30 08:47 Mac이 재부팅된 뒤 Docker Desktop이 다시 켜지지 않았습니다(설정 `AutoStart: false`). 10-31 05:51까지 21시간 동안 사이트·수집·카드가 멈췄는데 알림은 0건이었고, 10-31 브리핑은 발행되지 않았습니다.
+- 10-29 밤 호스트 Claude CLI 로그인이 풀려 카드가 31회 연속 실패했을 때도 콘솔을 열기 전에는 알 수 없었습니다.
+
+**무엇을 보나** (`ops/watchdog/watchdog.py`, 시스템 `/usr/bin/python3`, 표준 라이브러리만)
+
+| 키 | 수준 | 조건 | 자동 조치 |
+|---|---|---|---|
+| `docker_down` | 긴급 | `docker info` 실패 | `open -a Docker` (10분에 한 번까지) |
+| `containers_down` | 긴급 | postgres·redis·api·worker·scheduler·web·caddy 중 실행 중이 아니거나 unhealthy (2회 연속) | 없음. restart 정책이 Docker 기동 뒤 다시 띄움 |
+| `site_down` | 긴급 | `https://127.0.0.1:8700/api/health`(엣지 프록시 → Caddy → api)가 200이 아님 (2회 연속) | 없음 |
+| `db_unreachable` | 긴급 | postgres 컨테이너에서 점검 쿼리 실패 (2회 연속) | 없음 |
+| `collection_stale` | 긴급 | 45분 동안 성공한 수집 없음(`source_runtimes.last_success_at`) | 없음 |
+| `cards_stale` | 주의 | 45분 동안 카드 실행 없음(`card_runs`) | 없음 |
+| `claude_login` | 긴급 | 최근 카드 실행 2회 모두 "Not logged in"·"OAuth session expired" | 없음. 터미널에서 `claude` → `/login` |
+| `briefing_missing:<날짜>` | 긴급 | 05:30 KST 이후 오늘 발행본 없음(차단이면 실패 게이트를 함께 보냄) | 없음. 6시간 반복 안 함, 날짜가 바뀌면 조용히 닫음 |
+| `ops:<키>` | 긴급 | 운영 점검이 열어 둔 다른 긴급 알림(freeze_missing, redis_unreachable, disk_low 등) | 없음 |
+
+- 문제를 확인한 첫 실행에 한 번, 긴급이면 계속되는 동안 6시간마다 한 번, 풀리면 "복구"를 한 번 보냅니다. Docker나 DB가 꺼져 점검하지 못한 항목은 "복구"로 치지 않고 그대로 둡니다.
+- 상태: `ops/logs/watchdog-state.json`. 로그: `ops/logs/watchdog.log`(알림·복구와 시간당 한 줄).
+- 주의 수준의 호스트 메모리 경고(`host_memory`)는 2026-10-08 결정대로 보내지 않습니다.
+
+**알림 채널** (`.env`, 비워 두면 그 채널은 꺼짐)
+
+| 채널 | 설정 | 비고 |
+|---|---|---|
+| macOS 알림 | 기본 켜짐, `WATCHDOG_MAC_NOTIFY=false`로 끔 | 이 Mac 앞에 있을 때만. 처음에 "스크립트 편집기" 알림 허용 필요 |
+| ntfy | `WATCHDOG_NTFY_TOPIC=<길고 무작위인 이름>`, 자체 서버면 `WATCHDOG_NTFY_SERVER` | 휴대폰 ntfy 앱에서 같은 토픽 구독. ntfy.sh는 토픽 이름이 유일한 비밀이므로 추측할 수 없게 |
+| Telegram | `WATCHDOG_TELEGRAM_BOT_TOKEN`, `WATCHDOG_TELEGRAM_CHAT_ID` | @BotFather로 봇 생성, 봇에게 말을 건 뒤 `getUpdates`에서 chat id 확인 |
+
+**설치와 확인**
+
+```bash
+cd /Users/ggoma/WorkSpace/NEWS_INSIGHT-live && scripts/install-watchdog.sh    # deploy.sh도 없거나 바뀌면 설치
+/usr/bin/python3 ops/watchdog/watchdog.py --dry-run                           # 지금 보이는 문제, 보내지 않음
+/usr/bin/python3 ops/watchdog/watchdog.py --test-notify                       # 설정한 모든 채널로 시험 알림
+launchctl print gui/$(id -u)/com.newsinsight.watchdog | grep -E '^\s*(state|runs|last exit code) ='
+tail ops/logs/watchdog.log
+```
+
+- `watchdog.py`는 실행할 때마다 새로 읽으므로 코드만 바뀐 배포는 재설치가 필요 없습니다. plist 템플릿이나 설치 스크립트가 바뀌면 `deploy.sh`가 다시 설치합니다.
+- launchd 사용자 작업은 **로그인한 뒤에** 돕니다. 재부팅 뒤 로그인 화면에 멈춰 있으면 워치독도 Docker도 돌지 않으니, Docker Desktop의 "Start Docker Desktop when you sign in"도 함께 켜 둡니다.
+
