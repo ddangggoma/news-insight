@@ -589,6 +589,9 @@ def items_redate(
         datetime | None,
         typer.Option(help="UTC: only items first seen before it take an inferred offset"),
     ] = None,
+    source: Annotated[
+        list[str] | None, typer.Option(help="Only this source key (repeat for several)")
+    ] = None,
 ) -> None:
     """Repair stored article dates (zone-less feeds, future dates, missing dates)."""
     from dataclasses import asdict
@@ -613,6 +616,7 @@ def items_redate(
             shift_before=shift_before.replace(tzinfo=shift_before.tzinfo or UTC)
             if shift_before
             else None,
+            only=source or (),
         )
         if apply:
             apply_redate(session, plan)
@@ -633,6 +637,13 @@ def items_redate(
 @items_app.command("page-dates")
 def items_page_dates(
     source: Annotated[list[str], typer.Option(help="Source key (repeat for several)")],
+    earlier: Annotated[
+        list[str] | None,
+        typer.Option(
+            help="Feed source (also in --source) that re-lists old posts under a new date: "
+            "takes any earlier page date, not only its zone offset. Never an aggregator"
+        ),
+    ] = None,
     workers: Annotated[int, typer.Option(help="Sources read at the same time")] = 8,
     apply: Annotated[bool, typer.Option(help="Write the page dates (default: report)")] = False,
     report: Annotated[Path | None, typer.Option(help="Write the per-source report as JSON")] = None,
@@ -644,9 +655,16 @@ def items_page_dates(
     from news_insight.content.redate import apply_redate, plan_page_dates, read_page_dates
 
     with _fetcher() as fetcher, session_scope() as session:
-        plan = plan_page_dates(
-            session, sources=source, pages=read_page_dates(fetcher), workers=workers
-        )
+        try:
+            plan = plan_page_dates(
+                session,
+                sources=source,
+                pages=read_page_dates(fetcher),
+                workers=workers,
+                any_earlier=earlier or (),
+            )
+        except ValueError as exc:
+            raise typer.BadParameter(str(exc), param_hint="--earlier") from exc
         if apply:
             apply_redate(session, plan)
     for repair in sorted(plan.sources, key=lambda r: -r.changed):
@@ -660,6 +678,47 @@ def items_page_dates(
         changes = {str(k): v.isoformat() if v else None for k, v in plan.changes.items()}
         report.write_text(json.dumps({"sources": rows, "changes": changes}, ensure_ascii=False))
     typer.echo("applied" if apply else "dry run: nothing written (--apply to write)")
+
+
+@items_app.command("hide-junk")
+def items_hide_junk(
+    source: Annotated[list[str], typer.Option(help="Source key (repeat for several)")],
+    hide_regex: Annotated[str | None, typer.Option(help="Also hide URLs matching this")] = None,
+    keep_regex: Annotated[str | None, typer.Option(help="Never hide URLs matching this")] = None,
+    reason: Annotated[str, typer.Option(help="Why the pages are not articles")] = "not an article",
+    backup: Annotated[
+        Path | None, typer.Option(help="CSV of the hidden items (needed to apply)")
+    ] = None,
+    apply: Annotated[bool, typer.Option(help="Hide them (default: report)")] = False,
+) -> None:
+    """Hide stored items the source's `link_pattern` / `exclude_pattern` now refuse (the
+    catalog's rules, which a deploy has not yet copied to the database).
+
+    Nothing is deleted: the card is set to failed with a `hidden:` error (content/hide.py)."""
+    import re
+
+    from news_insight.content.hide import find_junk, hide, write_backup
+
+    if apply and backup is None:
+        typer.echo("--backup is required with --apply", err=True)
+        raise typer.Exit(code=2)
+    now = datetime.now(UTC)
+    catalog = {entry.key: entry.config for entry in load_catalog().sources}
+    hide_re = re.compile(hide_regex) if hide_regex else None
+    keep_re = re.compile(keep_regex) if keep_regex else None
+    hidden = 0
+    with session_scope() as session:
+        for key in source:
+            row = get_source(session, key)
+            junk, total = find_junk(
+                session, row, config=catalog.get(key), hide=hide_re, keep=keep_re
+            )
+            typer.echo(f"{key}: {total} refused, {len(junk)} visible")
+            if apply and junk:
+                assert backup is not None
+                write_backup(backup, row, junk)
+                hidden += hide(session, junk, reason=reason, now=now)
+    typer.echo(f"hidden {hidden}" if apply else "dry run: nothing written (--apply to write)")
 
 
 @trends_app.command("movers")
@@ -861,21 +920,62 @@ def cards_embed(
 def cards_deals(
     limit: Annotated[int, typer.Option(help="Cards to read this run")] = 36,
     night: Annotated[bool, typer.Option(help="Only between 00:00 and 06:00 KST")] = False,
+    dry_run: Annotated[
+        bool, typer.Option(help="Show what the cards yield; write nothing, mark nothing read")
+    ] = False,
 ) -> None:
     """Extract investments, acquisitions and partnerships with the local Qwen (plan 16 #8)."""
     from news_insight.deals.extract import lm_studio_chat, scan
+    from news_insight.deals.models import Deal
     from news_insight.public.periods import KST
 
     now = datetime.now(UTC)
     if night and not 0 <= now.astimezone(KST).hour < 6:
-        typer.echo("deals: daytime, skipped (the local Qwen writes cards by day)")
+        typer.echo("deals: daytime, skipped (Qwen runs at night only)")
         return
     settings = get_settings()
     chat = lm_studio_chat(settings.lm_studio_url, settings.lm_studio_model)
     with session_scope() as session:
+        savepoint = session.begin_nested()
         stats = scan(session, chat, model=settings.lm_studio_model, now=now, limit=limit)
+        if dry_run:
+            for deal in session.scalars(select(Deal).where(Deal.extracted_at == now)):
+                typer.echo(
+                    f"  {deal.kind} {deal.actor} → {deal.counterparty or '-'} "
+                    f"[{deal.actor_key or ''}/{deal.counterparty_key or ''}] "
+                    f"{deal.amount} {deal.currency or ''} {deal.stage or ''}: {deal.summary}"
+                )
+            savepoint.rollback()
+        else:
+            savepoint.commit()
     typer.echo(
         f"deals: read={stats.read} found={stats.deals} failed_batches={stats.failed_batches}"
+    )
+    if stats.failed_batches and not stats.read:
+        # every batch failed (2026-10-17 to 10-27: LM Studio down after a restart, unnoticed)
+        typer.echo(f"deals: no batch succeeded: {stats.error}", err=True)
+        raise typer.Exit(1)
+
+
+@cards_app.command("deals-repair")
+def cards_deals_repair(
+    apply: Annotated[bool, typer.Option(help="Write the changes (default: show them)")] = False,
+) -> None:
+    """Re-clean stored deals: registry keys, stage spellings, implausible amounts, USD sizes."""
+    from news_insight.deals.extract import repair
+
+    with session_scope() as session:
+        savepoint = session.begin_nested()
+        stats = repair(session)
+        if apply:
+            savepoint.commit()
+        else:
+            savepoint.rollback()
+    for line in stats.examples:
+        typer.echo(line)
+    typer.echo(
+        f"deals repair: rows={stats.rows} keys={stats.keys} stages={stats.stages} "
+        f"amounts={stats.amounts}{'' if apply else ' (preview: nothing written)'}"
     )
 
 

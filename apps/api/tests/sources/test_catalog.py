@@ -13,6 +13,8 @@ from news_insight.sources.catalog import (
     seed_catalog,
 )
 from news_insight.sources.enums import (
+    AccessMethod,
+    Region,
     SourceStatus,
     Track,
     ValidationOutcome,
@@ -73,6 +75,18 @@ def test_bundled_catalog_loads_and_covers_every_track() -> None:
     catalog = load_catalog(DEFAULT_CATALOG_PATH)
 
     assert {entry.track for entry in catalog.sources} == set(Track)
+
+
+def test_english_fediverse_hashtags_are_global() -> None:
+    """mastodon.social is hosted in Germany, but its English hashtag timelines are worldwide
+    (2026-10-27 audit: Mastodon toots were 88 % of the "유럽·기타" items)."""
+    entries = load_catalog(DEFAULT_CATALOG_PATH).sources
+    fediverse = [e for e in entries if e.access_method is AccessMethod.ACTIVITYPUB]
+
+    assert fediverse
+    assert {
+        e.key for e in fediverse if e.language == "en" and e.region is not Region.GLOBAL_EN
+    } == set()
 
 
 @pytest.mark.db

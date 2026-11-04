@@ -1,5 +1,8 @@
+"use client";
+
 import type { CSSProperties, ReactNode } from "react";
 
+import { useSeriesToggle } from "@/components/chart-frame";
 import { PROVIDER_ORDER, type ProviderKey, providerColor, providerLabel } from "@/components/reader/benchmarks/provider-colors";
 import type { BenchmarkChange } from "@/lib/benchmark-types";
 import { cn } from "@/lib/utils";
@@ -17,17 +20,60 @@ export function ProviderDot({ provider, className }: { provider: ProviderKey; cl
   );
 }
 
-/** Legend of the providers present, in palette order, gray "기타" last. */
+/**
+ * Legend of the providers present, in palette order, gray "기타" last. Inside a chart frame each
+ * entry is a toggle: click hides that provider's points, double-click shows it alone.
+ */
 export function ProviderLegend({ providers }: { providers: ProviderKey[] }) {
   const present = new Set(providers);
+  const keys = PROVIDER_ORDER.filter((key) => present.has(key));
+  const series = useSeriesToggle();
+  if (!series)
+    return (
+      <ul aria-label="제공사 색" className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
+        {keys.map((key) => (
+          <li key={key} className="flex items-center gap-1.5">
+            <ProviderDot provider={key} className="size-2.5" />
+            {providerLabel(key)}
+          </li>
+        ))}
+      </ul>
+    );
+  const anyHidden = keys.some((key) => series.hidden.has(key));
   return (
-    <ul aria-label="제공사 색" className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
-      {PROVIDER_ORDER.filter((key) => present.has(key)).map((key) => (
-        <li key={key} className="flex items-center gap-1.5">
-          <ProviderDot provider={key} className="size-2.5" />
-          {providerLabel(key)}
+    <ul aria-label="제공사 색 (눌러서 숨기기)" className="flex flex-wrap gap-x-1 gap-y-1 text-xs text-muted-foreground">
+      {keys.map((key) => {
+        const off = series.hidden.has(key);
+        return (
+          <li key={key}>
+            <button
+              type="button"
+              aria-pressed={!off}
+              title={`${providerLabel(key)}: 눌러서 ${off ? "보이기" : "숨기기"}, 두 번 눌러 이것만 보기`}
+              onClick={() => series.toggle(key)}
+              onDoubleClick={() => series.solo(key, keys)}
+              className={cn(
+                "flex items-center gap-1.5 rounded-md px-1.5 py-0.5 transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
+                off && "text-muted-foreground/60 line-through decoration-muted-foreground/50",
+              )}
+            >
+              <ProviderDot provider={key} className={cn("size-2.5 transition-opacity", off && "opacity-25")} />
+              {providerLabel(key)}
+            </button>
+          </li>
+        );
+      })}
+      {anyHidden ? (
+        <li>
+          <button
+            type="button"
+            onClick={series.reset}
+            className="rounded-md px-1.5 py-0.5 font-medium text-primary hover:bg-primary/10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+          >
+            모두 보기
+          </button>
         </li>
-      ))}
+      ) : null}
     </ul>
   );
 }

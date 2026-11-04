@@ -2,11 +2,11 @@
 
 import { type MouseEvent, useEffect, useRef, useState } from "react";
 
+import { DetailDialog } from "@/components/detail-dialog";
 import { CompanyBoard } from "@/components/reader/radar/companies";
 import { ActivityCalendar, EngagementMatrix, FieldCrossMatrix, TopMovers } from "@/components/reader/radar/activity";
 import { Deferred } from "@/components/reader/radar/deferred";
 import { FlowDiagram, ImpactBalance, RankBump } from "@/components/reader/radar/dynamics";
-import { FocusScroll } from "@/components/reader/radar/focus-scroll";
 import { CategoryTreemap, PositioningMatrix, TimingHeatmap } from "@/components/reader/radar/landscape";
 import { KpiStrip, SignalCards } from "@/components/reader/radar/overview";
 import { Panel } from "@/components/reader/radar/parts";
@@ -14,9 +14,16 @@ import { KoreaWatch, RegionLens } from "@/components/reader/radar/regions";
 import { CategoryShare, MaturityBars } from "@/components/reader/radar/structure";
 import { ConvergenceNetwork, EmergingTable, PairList, TechCloud } from "@/components/reader/radar/technology";
 import { TopicPanel } from "@/components/reader/radar/topic-panel";
-import { focusParam, type Focus, parseFocus, radarFilters, type RadarView, sameFocus } from "@/lib/radar";
+import { type Focus, parseFocus, radarFilters, type RadarView, sameFocus, topicLabel } from "@/lib/radar";
 import { withQuery } from "@/lib/query";
 import type { Radar, TopicDetail } from "@/lib/reader-types";
+
+/** The current URL without `focus`: closing the dialog leaves the page as it was. */
+function withoutFocus(): string {
+  const url = new URL(window.location.href);
+  url.searchParams.delete("focus");
+  return url.pathname + url.search + url.hash;
+}
 
 /** Same page and filters, only the focus differs: handled here without a server round trip. */
 function focusOnly(href: string): Focus | null | undefined {
@@ -50,17 +57,34 @@ export function RadarBoard({
   unit: string;
 }) {
   const [focus, setFocus] = useState<Focus | null>(initial.focus);
+  // the URL named a topic: its dialog opens straight away
+  const [open, setOpen] = useState(initial.focus !== null);
+  // history entries this dialog pushed, so closing it can step back over all of them
+  const pushed = useRef(0);
+  const closing = useRef(false);
   const [detail, setDetail] = useState<TopicDetail | null>(initialDetail);
   const [loading, setLoading] = useState(false);
   const loaded = useRef<Focus | null>(initial.focus);
   const view: RadarView = { ...initial, focus };
 
   useEffect(() => {
-    // no focus in the URL: back to the topic the server opened first
-    const onPop = () => setFocus(parseFocus(new URLSearchParams(window.location.search).get("focus") ?? undefined) ?? initial.focus);
+    // back/forward: the dialog follows the URL's focus
+    const onPop = () => {
+      const named = parseFocus(new URLSearchParams(window.location.search).get("focus") ?? undefined);
+      if (closing.current) {
+        closing.current = false;
+        if (named) window.history.replaceState(null, "", withoutFocus());
+        setOpen(false);
+        setFocus(null);
+        return;
+      }
+      pushed.current = Math.max(0, pushed.current - 1);
+      setOpen(named !== null);
+      setFocus(named);
+    };
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
-  }, [initial.focus]);
+  }, []);
 
   useEffect(() => {
     if (!focus || sameFocus(focus, loaded.current)) return;
@@ -88,29 +112,48 @@ export function RadarBoard({
     if (next === undefined) return;
     event.preventDefault();
     window.history.pushState(null, "", anchor.href);
+    pushed.current += 1;
     setFocus(next);
+    setOpen(next !== null);
+  };
+
+  const close = () => {
+    if (pushed.current) {
+      closing.current = true;
+      window.history.go(-pushed.current);
+      pushed.current = 0;
+    } else {
+      window.history.replaceState(null, "", withoutFocus());
+      setOpen(false);
+      setFocus(null);
+    }
   };
 
   return (
     <div className="space-y-5" onClickCapture={onClickCapture}>
       <section id="signals" aria-labelledby="signals-title" className="scroll-mt-28 space-y-3">
         <h2 id="signals-title" className="text-sm font-bold">
-          지금 볼 신호 <span className="font-normal text-muted-foreground">· 눌러서 오른쪽에서 자세히</span>
+          지금 볼 신호 <span className="font-normal text-muted-foreground">· 누르면 상세 창이 열립니다</span>
         </h2>
         <SignalCards radar={radar} view={view} />
       </section>
       <KpiStrip radar={radar} />
 
-      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start">
-        <aside aria-label="선택한 항목" aria-live="polite" className="min-w-0 lg:sticky lg:top-28 lg:order-2 lg:max-h-[calc(100dvh-8rem)] lg:overflow-y-auto lg:overscroll-contain">
-          <FocusScroll focusKey={focus ? focusParam(focus) : ""}>
-            <div className={`rounded-2xl border bg-card p-4 shadow-xs transition-opacity md:p-5 ${loading ? "opacity-60" : ""}`}>
-              {detail ? <TopicPanel detail={detail} radar={radar} view={view} /> : <p className="text-sm text-muted-foreground">이 기간에 분류된 기사가 아직 없습니다.</p>}
-            </div>
-          </FocusScroll>
-        </aside>
+      <DetailDialog
+        open={open && detail !== null}
+        onOpenChange={(next) => !next && close()}
+        title={detail ? topicLabel(detail.kind, detail.topic) : "토픽 상세"}
+        label="토픽 상세"
+        description="선택한 카테고리·테마·기술·기업의 추이와 구성"
+        size="xl"
+      >
+        <div aria-live="polite" aria-busy={loading} className={`px-5 py-6 transition-opacity md:px-8 md:py-7 ${loading ? "opacity-50" : ""}`}>
+          {detail ? <TopicPanel detail={detail} radar={radar} view={view} /> : null}
+        </div>
+      </DetailDialog>
 
-        <div className="min-w-0 space-y-5 lg:order-1">
+      <div>
+        <div className="min-w-0 space-y-5">
           <Panel
             id="landscape"
             title="카테고리 · 테마 지도"
@@ -130,7 +173,7 @@ export function RadarBoard({
             <CompanyBoard radar={radar} view={view} /></>)}</Deferred>
           </Panel>
 
-          <div className="grid gap-5 2xl:grid-cols-2">
+          <div className="grid gap-5 xl:grid-cols-2">
             <Panel
               id="matrix"
               title="테마 포지셔닝"

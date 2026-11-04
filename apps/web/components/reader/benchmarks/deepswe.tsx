@@ -5,6 +5,7 @@ import { ChevronDown } from "lucide-react";
 import { Popover } from "radix-ui";
 import { type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, type MouseEvent as ReactMouseEvent, useEffect, useId, useMemo, useRef, useState } from "react";
 
+import { ChartFrame, useHiddenSeries } from "@/components/chart-frame";
 import { DataTable } from "@/components/reader/benchmarks/data-table";
 import {
   AXES,
@@ -19,7 +20,7 @@ import {
   labelShade,
   modelShades,
 } from "@/components/reader/benchmarks/deepswe-plot";
-import { ChangeMark, ProviderDot, Segmented } from "@/components/reader/benchmarks/parts";
+import { ChangeMark, ProviderDot, ProviderLegend, Segmented } from "@/components/reader/benchmarks/parts";
 import { Button } from "@/components/ui/button";
 import { formatCompact, formatUsd } from "@/lib/benchmark-types";
 import type { DeepSweView, DsPoint as Point } from "@/lib/benchmark-view";
@@ -490,6 +491,23 @@ function ScorePlot({ rows, axis, shades }: { rows: Point[]; axis: Axis; shades: 
 }
 
 /**
+ * The plot and its provider legend, inside the chart frame: a provider switched off in the
+ * legend leaves the plot (its dots, lines and labels) but stays in the legend.
+ */
+function ScoreChart({ rows, axis, shades }: { rows: Point[]; axis: Axis; shades: Map<string, Shade> }) {
+  const hidden = useHiddenSeries();
+  const plotted = useMemo(() => rows.filter((p) => !hidden.has(p.provider)), [rows, hidden]);
+  return (
+    <div className="space-y-2">
+      <div className="rounded-lg border bg-card p-2 sm:p-3">
+        <ScorePlot rows={plotted} axis={axis} shades={shades} />
+      </div>
+      <ProviderLegend providers={rows.map((p) => p.provider)} />
+    </div>
+  );
+}
+
+/**
  * DeepSWE's own page: the version and x-metric toggles over its score chart (configurations
  * picked in "구성"), then its table with a pass@1 bar per row.
  */
@@ -533,9 +551,9 @@ export function DeepSweChart({ view }: { view: DeepSweView }) {
         </div>
       </div>
 
-      <div className="rounded-lg border bg-card p-2 sm:p-3">
-        <ScorePlot key={board} rows={shown} axis={axis} shades={shades} />
-      </div>
+      <ChartFrame title="DeepSWE 점수">
+        <ScoreChart key={board} rows={shown} axis={axis} shades={shades} />
+      </ChartFrame>
 
       <DataTable
         label="DeepSWE 순위표"

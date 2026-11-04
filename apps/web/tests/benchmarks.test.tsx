@@ -557,6 +557,25 @@ describe("DeepSWE chart", () => {
     expect(other().style.opacity).toBe("");
   });
 
+  it("drops a provider switched off in the legend from the plot, not from the legend", () => {
+    render(<DeepSweChart view={boardView} />);
+    const legend = screen.getByRole("list", { name: "제공사 색 (눌러서 숨기기)" });
+    fireEvent.click(within(legend).getByRole("button", { name: "Anthropic" }));
+    expect(within(legend).getByRole("button", { name: "Anthropic" })).toHaveAttribute("aria-pressed", "false");
+    expect(svg().querySelector('[data-point="claude-opus-5"], [data-line="claude-opus-5"], [data-label="claude-opus-5"]')).toBeNull();
+    expect(svg().querySelector('[data-point="gpt-5-5"]')).not.toBeNull();
+    fireEvent.click(within(legend).getByRole("button", { name: "모두 보기" }));
+    expect(svg().querySelector('[data-label="claude-opus-5"]')).not.toBeNull();
+  });
+
+  it("opens the chart full screen from the chart tools", () => {
+    render(<DeepSweChart view={boardView} />);
+    fireEvent.click(within(screen.getByRole("toolbar", { name: "차트 도구" })).getByRole("button", { name: "크게 보기" }));
+    const dialog = screen.getByRole("dialog");
+    expect(within(dialog).getByRole("group", { name: /DeepSWE 점수와/ })).toBeInTheDocument();
+    expect(screen.getByText("크게 보기 창에서 보는 중입니다")).toBeInTheDocument();
+  });
+
   it("puts a pass@1 bar with its interval on every table row", () => {
     render(<DeepSweChart view={boardView} />);
     const table = screen.getByRole("table");

@@ -2,6 +2,7 @@
 
 import { Bar, BarChart, CartesianGrid, Cell, LabelList, Scatter, ScatterChart, XAxis, YAxis } from "recharts";
 
+import { ChartFrame, useHiddenSeries } from "@/components/chart-frame";
 import { ProviderLegend, TipBox } from "@/components/reader/benchmarks/parts";
 import { PROVIDER_CHART_CONFIG, providerPaint } from "@/components/reader/benchmarks/provider-colors";
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
@@ -64,11 +65,23 @@ function RankedBars({ data, dataKey, format, label }: { data: AaModel[]; dataKey
  * tier of their API requires the credit line, so it is part of the component.
  */
 export function ArtificialAnalysisCharts({ models, sourceUrl, attribution }: { models: AaModel[]; sourceUrl: string; attribution: string }) {
-  const top = models
+  return (
+    <ChartFrame title="Artificial Analysis 지능 지수·가격·속도">
+      <AaBody models={models} sourceUrl={sourceUrl} attribution={attribution} />
+    </ChartFrame>
+  );
+}
+
+/** The three charts and their shared provider legend, inside the frame so the legend can switch providers off. */
+function AaBody({ models, sourceUrl, attribution }: { models: AaModel[]; sourceUrl: string; attribution: string }) {
+  const hidden = useHiddenSeries();
+  const ranked = models
     .filter((m) => m.intelligence !== null)
     .sort((a, b) => (b.intelligence ?? 0) - (a.intelligence ?? 0))
     .slice(0, TOP);
-  const priced = models.filter((m) => m.intelligence !== null && m.price !== null && m.price > 0);
+  // providers switched off in the legend leave the charts, not the legend
+  const top = ranked.filter((m) => !hidden.has(m.provider));
+  const priced = models.filter((m) => m.intelligence !== null && m.price !== null && m.price > 0 && !hidden.has(m.provider));
   const speed = top.filter((m) => m.speed !== null).sort((a, b) => (b.speed ?? 0) - (a.speed ?? 0));
   const labelled = new Set(top.slice(0, 5).map((m) => m.model));
 
@@ -102,7 +115,7 @@ export function ArtificialAnalysisCharts({ models, sourceUrl, attribution }: { m
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <ProviderLegend providers={top.map((m) => m.provider)} />
+        <ProviderLegend providers={ranked.map((m) => m.provider)} />
         <a href={sourceUrl} target="_blank" rel="noopener noreferrer" className="text-xs font-medium text-muted-foreground underline-offset-2 hover:text-foreground hover:underline">
           {attribution || "Data: Artificial Analysis"}
         </a>

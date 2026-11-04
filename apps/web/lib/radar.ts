@@ -344,16 +344,6 @@ export function keywordIndex(radar: Radar): Map<string, Topic> {
   return new Map(radar.keywords.map((keyword) => [keyword.key, keyword]));
 }
 
-/** The topic to open first: the requested one, else the theme with the strongest momentum. */
-export function initialFocus(radar: Radar, requested: Focus | null): Focus | null {
-  if (requested) return requested;
-  const ranked = [...radar.themes]
-    .filter((t) => last(t.counts) > 0)
-    .sort((a, b) => b.z - a.z || last(b.counts) - last(a.counts));
-  if (ranked.length) return { kind: "theme", key: ranked[0].key };
-  return radar.fields.length ? { kind: "field", key: radar.fields[0].key } : null;
-}
-
 // ── regions, ranks, projection ───────────────────────────────────────────────────────────
 
 export const REGIONS: Region[] = ["kr", "global_en", "jp", "greater_china", "eu_other"];
