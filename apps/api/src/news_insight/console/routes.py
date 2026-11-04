@@ -47,6 +47,7 @@ from news_insight.db import get_db
 from news_insight.digest import service as digest_service
 from news_insight.digest.schemas import DigestOut, DigestSummary
 from news_insight.ops.engines import CardEngineHealth, card_engine_health
+from news_insight.research import service as research_service
 from news_insight.sources.enums import Region, SourceStatus, Track, ValidationStage
 from news_insight.sources.ladder import LadderError, pause_source, resume_source, retire_source
 from news_insight.sources.models import Source
@@ -85,6 +86,18 @@ def _source(session: Session, key: str) -> Source:
 def get_overview(session: DB) -> Overview:
     seconds = get_settings().console_cache_seconds
     return cached("overview", seconds, lambda: queries.overview(session, now=datetime.now(UTC)))
+
+
+@router.get("/research/enrich-status")
+def get_research_enrich_status(session: DB) -> research_service.EnrichProgress:
+    """보강 진행률 (plan 19 §5): papers enriched from OpenAlex of those it can be asked about,
+    and when the enrichment last ran."""
+    seconds = get_settings().console_cache_seconds
+    return cached(
+        "research-enrich-status",
+        seconds,
+        lambda: research_service.enrich_progress(session, now=datetime.now(UTC)),
+    )
 
 
 class OpsStatus(BaseModel):

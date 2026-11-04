@@ -16,7 +16,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any
 
-from sqlalchemy import and_, case, exists, or_, select
+from sqlalchemy import and_, case, exists, func, or_, select
 from sqlalchemy.orm import Session
 
 from news_insight.collect.context import polite_url, provider_headers
@@ -83,6 +83,14 @@ def research_documents() -> list[Any]:
     ]
 
 
+def identified() -> Any:
+    """A paper OpenAlex can be asked about: a DOI or arXiv ref, or an OpenAlex work id."""
+    return or_(
+        exists().where(ItemRef.item_id == Item.id, ItemRef.kind.in_(REF_KINDS)),
+        Item.stable_id.like(f"{OPENALEX_PREFIX}%"),
+    )
+
+
 @dataclass(frozen=True)
 class Lookup:
     """One paper to ask OpenAlex about: by its OpenAlex id (openalex_works items) or a DOI.
@@ -117,15 +125,11 @@ def due_items(session: Session, *, now: datetime, limit: int) -> list[Lookup]:
             Item.occurred_at >= now - REFRESH_HORIZON,
         ),
     )
-    identified = or_(
-        exists().where(ItemRef.item_id == Item.id, ItemRef.kind.in_(REF_KINDS)),
-        Item.stable_id.like(f"{OPENALEX_PREFIX}%"),
-    )
     rows = session.execute(
         select(Item.id, Item.url, Item.stable_id, Item.title)
         .join(Source, Source.id == Item.source_id)
         .outerjoin(meta, meta.item_id == Item.id)
-        .where(*research_documents(), identified, due)
+        .where(*research_documents(), identified(), due)
         .order_by(
             case((meta.item_id.is_(None), 0), else_=1),
             Item.occurred_at.desc(),
@@ -331,3 +335,56 @@ def enrich(
         result.stopped,
     )
     return result
+
+
+@dataclass(frozen=True)
+class EnrichProgress:
+    """The console dashboard's 보강 진행률 line (plan 19 §5)."""
+
+    eligible: int  # papers OpenAlex can be asked about
+    asked: int
+    ok: int
+    not_found: int
+    error: int
+    enriched_share: float | None  # ok / eligible
+    asked_24h: int
+    last_run_at: datetime | None  # the last answer of any kind
+    last_ok_at: datetime | None
+
+
+def enrich_progress(session: Session, *, now: datetime) -> EnrichProgress:
+    """Counts for the dashboard. The eligible count scans every paper (seconds on the live
+    data), so the console caches it."""
+    eligible = int(
+        session.scalar(
+            select(func.count())
+            .select_from(Item)
+            .join(Source, Source.id == Item.source_id)
+            .where(*research_documents(), identified())
+        )
+        or 0
+    )
+    by_status = dict(
+        session.execute(select(ResearchMeta.status, func.count()).group_by(ResearchMeta.status))
+        .tuples()
+        .all()
+    )
+    last_run, last_ok, recent = session.execute(
+        select(
+            func.max(ResearchMeta.enriched_at),
+            func.max(ResearchMeta.enriched_at).filter(ResearchMeta.status == EnrichStatus.OK),
+            func.count().filter(ResearchMeta.enriched_at >= now - timedelta(hours=24)),
+        )
+    ).one()
+    ok = by_status.get(EnrichStatus.OK, 0)
+    return EnrichProgress(
+        eligible=eligible,
+        asked=sum(by_status.values()),
+        ok=ok,
+        not_found=by_status.get(EnrichStatus.NOT_FOUND, 0),
+        error=by_status.get(EnrichStatus.ERROR, 0),
+        enriched_share=round(ok / eligible, 4) if eligible else None,
+        asked_24h=int(recent or 0),
+        last_run_at=last_run,
+        last_ok_at=last_ok,
+    )
