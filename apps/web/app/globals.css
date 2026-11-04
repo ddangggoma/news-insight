@@ -77,8 +77,9 @@
 }
 
 :root {
-    /* Neutrals carry a slight blue bias. Contrast on --background / --card (WCAG):
-       foreground 16.6 / 17.3, ink-2 9.6 / 10.0, muted-foreground 5.7 / 6.0. */
+    /* Neutrals carry a slight blue bias. Contrast on --background / --card / --muted (WCAG):
+       foreground 16.6 / 17.3 / 15.6, ink-2 9.6 / 10.0 / 9.0, muted-foreground 6.8 / 7.1 / 6.4.
+       Lines: border 1.5 / 1.6, input 1.8 / 1.9, focus ring 4.0 / 4.2. */
     --background: oklch(0.985 0.003 250);
     --foreground: oklch(0.22 0.02 255);
     --ink-2: oklch(0.38 0.02 255);
@@ -91,13 +92,13 @@
     --secondary: oklch(0.965 0.006 250);
     --secondary-foreground: oklch(0.26 0.02 255);
     --muted: oklch(0.965 0.006 250);
-    --muted-foreground: oklch(0.5 0.015 255);
+    --muted-foreground: oklch(0.46 0.016 255);
     --accent: oklch(0.955 0.008 250);
     --accent-foreground: oklch(0.26 0.02 255);
     --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.91 0.008 250);
-    --input: oklch(0.89 0.01 250);
-    --ring: oklch(0.673 0.182 276.94);
+    --border: oklch(0.85 0.01 250);
+    --input: oklch(0.8 0.012 250);
+    --ring: oklch(0.6 0.2 277);
     /* Semantic colours: tracks (4) and impact (3). Text on a 12% tint of itself >= 4.8:1. */
     --track-news: oklch(0.5 0.14 250);
     --track-community: oklch(0.51 0.13 50);
@@ -117,7 +118,7 @@
     --viz-community: var(--track-community);
     --viz-research: var(--track-research);
     --viz-oss: var(--track-oss);
-    --state-hot: oklch(0.55 0.17 40);
+    --state-hot: oklch(0.52 0.17 40);
     --state-cool: oklch(0.5 0.13 250);
     --stage-research: oklch(0.72 0.1 300);
     --stage-diffusion: oklch(0.58 0.14 300);
@@ -147,14 +148,16 @@
     --sidebar-primary-foreground: oklch(0.985 0.003 250);
     --sidebar-accent: oklch(0.945 0.01 255);
     --sidebar-accent-foreground: oklch(0.22 0.02 255);
-    --sidebar-border: oklch(0.91 0.008 250);
-    --sidebar-ring: oklch(0.673 0.182 276.94);
+    --sidebar-border: oklch(0.85 0.01 250);
+    --sidebar-ring: oklch(0.6 0.2 277);
 }
 
 .dark {
-    /* Contrast on --background / --card: foreground 17.0 / 15.8, ink-2 11.3 / 10.5,
-       muted-foreground 7.2 / 6.6. Primary keeps its hue; its foreground is dark ink
-       because white on the light dark-mode primary is only 3.1:1. */
+    /* Contrast on --background / --card / --muted: foreground 17.0 / 15.8 / 13.8, ink-2
+       11.3 / 10.5 / 9.2, muted-foreground 8.6 / 8.0 / 7.0. Lines: border 1.9 / 1.8, input
+       2.5 / 2.3, focus ring 5.5 / 5.1. Primary keeps its hue; its foreground is dark ink
+       because white on the light dark-mode primary is only 3.1:1. Primary text on a 12%
+       primary tint is 5.0:1. */
     --background: oklch(0.17 0.01 255);
     --foreground: oklch(0.96 0.005 255);
     --ink-2: oklch(0.83 0.01 255);
@@ -162,18 +165,18 @@
     --card-foreground: oklch(0.96 0.005 255);
     --popover: oklch(0.21 0.012 255);
     --popover-foreground: oklch(0.96 0.005 255);
-    --primary: oklch(0.673 0.182 276.94);
+    --primary: oklch(0.71 0.17 277);
     --primary-foreground: oklch(0.17 0.01 255);
     --secondary: oklch(0.27 0.014 255);
     --secondary-foreground: oklch(0.96 0.005 255);
     --muted: oklch(0.26 0.013 255);
-    --muted-foreground: oklch(0.7 0.012 255);
+    --muted-foreground: oklch(0.75 0.012 255);
     --accent: oklch(0.28 0.015 255);
     --accent-foreground: oklch(0.96 0.005 255);
     --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(0.32 0.014 255);
-    --input: oklch(0.36 0.015 255);
-    --ring: oklch(0.585 0.233 277.12);
+    --border: oklch(0.38 0.014 255);
+    --input: oklch(0.44 0.015 255);
+    --ring: oklch(0.65 0.2 277);
     --track-news: oklch(0.76 0.12 250);
     --track-community: oklch(0.77 0.12 50);
     --track-research: oklch(0.76 0.13 300);
@@ -210,12 +213,12 @@
     --chart-5: oklch(0.712 0.194 13.43);
     --sidebar: oklch(0.19 0.011 255);
     --sidebar-foreground: oklch(0.96 0.005 255);
-    --sidebar-primary: oklch(0.673 0.182 276.94);
+    --sidebar-primary: oklch(0.71 0.17 277);
     --sidebar-primary-foreground: oklch(0.17 0.01 255);
     --sidebar-accent: oklch(0.26 0.013 255);
     --sidebar-accent-foreground: oklch(0.96 0.005 255);
-    --sidebar-border: oklch(0.32 0.014 255);
-    --sidebar-ring: oklch(0.585 0.233 277.12);
+    --sidebar-border: oklch(0.38 0.014 255);
+    --sidebar-ring: oklch(0.65 0.2 277);
 }
 
 @layer base {
@@ -227,12 +230,54 @@
     /* Korean: break between words (eojeol), never mid-word; still wrap long URLs. */
     word-break: keep-all;
     overflow-wrap: anywhere;
+    line-break: strict;
     }
   h1, h2, h3, h4, h5, h6 {
     text-wrap: balance;
     }
   p, li, dd, blockquote {
     text-wrap: pretty;
+    }
+  /* Paragraphs read at 1.65 (Hangul needs more room than Latin). Setting --tw-leading lets a
+     text-sm/text-base utility pick it up; an explicit leading-* class still wins. Small meta
+     lines stay at 1.5. */
+  p, blockquote {
+    --tw-leading: 1.65;
+    line-height: 1.65;
+    }
+  p:is(.text-xs, .truncate, [class*="line-clamp-"]) {
+    --tw-leading: 1.5;
+    line-height: 1.5;
+    }
+  /* Tables: 14 px body at 1.5, 600-weight headers in ink-2, a separator under every body row,
+     tabular figures. Utilities on a table still override these defaults. */
+  table {
+    font-variant-numeric: tabular-nums;
+    border-collapse: collapse;
+    }
+  caption {
+    @apply text-sm text-muted-foreground;
+    }
+  th {
+    font-weight: 600;
+    line-height: 1.4;
+    }
+  :where(thead) th {
+    color: var(--ink-2);
+    }
+  td {
+    line-height: 1.5;
+    }
+  :where(tbody) > :where(tr:not(:last-child)) {
+    border-bottom: 1px solid var(--border);
+    }
+  :where(td, th)[data-numeric] {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    }
+  /* KPI figures and definition values line up digit by digit */
+  dd, output, data {
+    font-variant-numeric: tabular-nums;
     }
   button:not(:disabled), [role="button"]:not(:disabled) {
     cursor: pointer;
@@ -250,6 +295,30 @@
     outline: 2px solid var(--ring);
     outline-offset: 2px;
     }
+}
+
+/* Numeric table columns: right-aligned tabular figures (also td[data-numeric]). */
+@utility num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Heatmap cells and treemap tiles: the element sets --cell to its fill. Figures pick light or
+   dark ink from that fill's lightness, and fills inside the band where neither ink reaches
+   4.5:1 (oklch L 0.53-0.64, only reached in dark mode) step to its nearer edge. */
+.heat-cell {
+  background-color: var(--cell);
+}
+@supports (color: oklch(from red l c h)) {
+  .heat-cell {
+    background-color: oklch(
+      from var(--cell)
+        calc((1 - clamp(0, (l - 0.585) * 1000, 1)) * min(l, 0.53) + clamp(0, (l - 0.585) * 1000, 1) * max(l, 0.64)) c h
+    );
+  }
+  .heat-cell:not(.text-transparent) {
+    color: oklch(from var(--cell) calc(0.97 - clamp(0, (l - 0.585) * 1000, 1) * 0.77) 0.015 255);
+  }
 }
 
 /* Reduced motion: drop movement and scaling, keep the short fades that show what changed. */
