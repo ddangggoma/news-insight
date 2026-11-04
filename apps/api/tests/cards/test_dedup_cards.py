@@ -26,7 +26,7 @@ BODY = "The US Department of Defense has stopped using the tools of the AI compa
 
 
 def source(db_session: Session, key: str, **kwargs: Any) -> Source:
-    row = build_source(key=key, storage_right=StorageRight.EXCERPT_ALLOWED, **kwargs)
+    row = build_source(key=key, **{"storage_right": StorageRight.EXCERPT_ALLOWED, **kwargs})
     db_session.add(row)
     db_session.flush()
     return row
@@ -242,3 +242,114 @@ def test_a_repeat_with_text_is_not_given_a_root_card_without_summary(
     assert made[TITLE].summary_ko == []  # nothing to summarise
     assert made["Pentagon post"].engine != REUSED and made["Pentagon post"].summary_ko == ["요약"]
     assert pending_count(db_session) == 0
+
+
+class RecordingAgy(FakeAgy):
+    """Keeps what the engine was shown, to tell a placeholder from an excerpt."""
+
+    def __init__(self, quotas: list[Any]) -> None:
+        super().__init__(quotas)
+        self.seen: dict[str, str | None] = {}
+
+    def generate(self, inputs: list[Any]) -> Any:
+        self.seen.update({card.title: card.excerpt for card in inputs})
+        return super().generate(inputs)
+
+
+def test_boilerplate_posts_about_different_articles_are_not_repeats(db_session: Session) -> None:
+    """K08 (2026-10-27): 93 cards copied the card of an unrelated post whose text was the
+    same label ("Source: X Read: <link>") or the same publisher and tag list (wacoca)."""
+    social = source(db_session, "masto", access_method=AccessMethod.ACTIVITYPUB)
+    tail = " More cyber news: https:// cyzo.io/news?utm_source=social # Cyzo # Cybersecurity"
+    raws = []
+    for n, topic in enumerate(["ransomware at a hospital", "a router flaw", "a bank breach"]):
+        label = f"Source: BleepingComputer Read: https://www. bleepingcomputer.com/news/{n}/"
+        raws.append(
+            RawItem(
+                stable_id=str(n),
+                url=f"https://mastodon.social/@cyzoio/{n}",
+                title=f"{label} {topic}…",
+                summary=f"{label} {topic}{tail}",
+                link=f"https://www.bleepingcomputer.com/news/{n}/",
+            )
+        )
+    tags = "AppBank # # GAMING # Android # Game # GameNews # games # GamingNews # iOS # iPhone"
+    for n in (7, 8):
+        line = f"https://www. wacoca.com/games/{n}/ 新作ゲーム{n}号 | {tags}"
+        raws.append(
+            RawItem(
+                stable_id=f"w{n}",
+                url=f"https://wakoka.com/@games/{n}",
+                title=line[:90] + "…",
+                summary=line,
+            )
+        )
+    ingest(db_session, social, raws)
+
+    rows = db_session.scalars(select(ItemDedup)).all()
+    assert len(rows) == 5 and [r.duplicate_of for r in rows] == [None] * 5
+    assert pending_count(db_session) == 5
+
+    agy = FakeAgy([FULL])
+    stats = run_cards(scope_for(db_session), agy=agy, partner=None, policy=POLICY)
+
+    assert stats.reused == 0 and sum(len(b) for b in agy.batches) == 5
+
+
+def test_a_placeholder_summary_is_no_excerpt_for_the_engine(db_session: Session) -> None:
+    """K01 (2026-10-27): 732 cards came from "Comments", "None" and similar site text, and the
+    engine invented a summary for them."""
+    feed = source(db_session, "hn")
+    full = source(db_session, "full", storage_right=StorageRight.FULLTEXT_PERMITTED)
+    ingest(
+        db_session,
+        feed,
+        [
+            RawItem(stable_id="h", url="https://ex.com/h", title="HN post", summary="Comments"),
+            RawItem(stable_id="n", url="https://ex.com/n", title="CMS post", summary="None"),
+            RawItem(stable_id="r", url="https://ex.com/r", title="Real post", summary=BODY),
+        ],
+    )
+    ingest(
+        db_session,
+        full,
+        [
+            RawItem(
+                stable_id="b",
+                url="https://ex.com/b",
+                title="Post with body",
+                summary="Comments",
+                body="The article text that really says something.",
+            )
+        ],
+    )
+    agy = RecordingAgy([FULL])
+
+    run_cards(scope_for(db_session), agy=agy, partner=None, policy=POLICY)
+
+    assert agy.seen["HN post"] is None and agy.seen["CMS post"] is None
+    assert agy.seen["Post with body"] == "The article text that really says something."
+    assert agy.seen["Real post"] == BODY
+    made = cards(db_session)
+    assert made["HN post"].summary_ko == [] and made["CMS post"].summary_ko == []
+    assert made["Real post"].summary_ko == ["요약"]
+
+
+def test_a_repeat_whose_text_is_a_placeholder_takes_the_root_card(db_session: Session) -> None:
+    """A repeat with only "Comments" has nothing to summarise: it waits for its root and copies
+    the card, even when that card has no summary."""
+    feed = source(db_session, "titles-only")
+    social = source(db_session, "lobsters")
+    ingest(db_session, feed, [RawItem(stable_id="a", url="https://ex.com/1", title=TITLE)])
+    ingest(
+        db_session,
+        social,
+        [RawItem(stable_id="p", url="https://ex.com/1", title="Lobsters post", summary="Comments")],
+    )
+    agy = FakeAgy([FULL])
+    run_cards(scope_for(db_session), agy=agy, partner=None, policy=POLICY)
+    run_cards(scope_for(db_session), agy=agy, partner=None, policy=POLICY)
+
+    made = cards(db_session)
+    assert made["Lobsters post"].engine == REUSED and made["Lobsters post"].summary_ko == []
+    assert len(agy.batches) == 1 and pending_count(db_session) == 0
