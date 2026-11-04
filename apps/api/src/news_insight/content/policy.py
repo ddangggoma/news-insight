@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 
 from news_insight.content.normalize import truncate
+from news_insight.content.placeholder import usable_text
 from news_insight.sources.enums import StorageRight
 
 EXCERPT_MAX_CHARS = 500
@@ -23,7 +24,8 @@ def apply_storage_right(
     """`summary` and `body` must already be plain text."""
     if right is None or right is StorageRight.METADATA_ONLY:
         return StoredContent(summary=None, body=None, body_expires_at=None)
-    excerpt_source = summary or body
+    # a placeholder summary ("Comments") gives way to a real body (2026-10-27 audit K01)
+    excerpt_source = usable_text(summary, body) or summary or body
     excerpt = truncate(excerpt_source, EXCERPT_MAX_CHARS) if excerpt_source else None
     if right is StorageRight.EXCERPT_ALLOWED:
         return StoredContent(summary=excerpt, body=None, body_expires_at=None)

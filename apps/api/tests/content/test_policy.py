@@ -45,3 +45,13 @@ def test_fulltext_permitted_keeps_body_without_expiry() -> None:
     )
 
     assert (stored.body, stored.body_expires_at) == ("full", None)
+
+
+def test_a_placeholder_summary_gives_way_to_a_real_body() -> None:
+    """2026-10-27 audit K01: the excerpt was "Comments" although the page had text."""
+    stored = apply_storage_right(
+        StorageRight.EXCERPT_ALLOWED, summary="Comments", body="The real article.", now=NOW
+    )
+    assert stored.summary == "The real article."
+    only = apply_storage_right(StorageRight.EXCERPT_ALLOWED, summary="Comments", body=None, now=NOW)
+    assert only.summary == "Comments"  # kept as stored; the card input treats it as no text
