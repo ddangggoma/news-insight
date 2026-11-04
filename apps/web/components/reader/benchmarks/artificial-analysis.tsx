@@ -51,7 +51,7 @@ function RankedBars({ data, dataKey, format, label }: { data: AaModel[]; dataKey
             {data.map((m) => (
               <Cell key={m.model} fill={providerPaint(m.provider).fill} />
             ))}
-            <LabelList dataKey={dataKey} position="right" offset={6} className="fill-foreground text-[11px]" formatter={(v: unknown) => (typeof v === "number" ? format(v) : "")} />
+            <LabelList dataKey={dataKey} position="right" offset={6} className="fill-foreground text-xs" formatter={(v: unknown) => (typeof v === "number" ? format(v) : "")} />
           </Bar>
         </BarChart>
       </ChartContainer>
@@ -105,11 +105,11 @@ function AaBody({ models, sourceUrl, attribution }: { models: AaModel[]; sourceU
                   <circle cx={props.cx} cy={props.cy} r={5} strokeWidth={2} {...providerPaint(props.payload?.provider ?? "other")} />
                 )}
               >
-                <LabelList dataKey="tag" position="top" offset={8} className="fill-foreground text-[10px]" />
+                <LabelList dataKey="tag" position="top" offset={8} className="fill-foreground text-xs" />
               </Scatter>
             </ScatterChart>
           </ChartContainer>
-          <p className="text-[11px] text-muted-foreground">왼쪽 위일수록 싸고 똑똑한 모델</p>
+          <p className="text-xs text-muted-foreground">왼쪽 위일수록 싸고 똑똑한 모델</p>
         </figure>
         <RankedBars data={speed} dataKey="speed" format={(v) => v.toFixed(0)} label="출력 속도 (토큰/초, 중앙값) · 위 모델들" />
       </div>

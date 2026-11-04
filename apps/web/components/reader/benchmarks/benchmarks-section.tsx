@@ -31,9 +31,10 @@ function SiteCard({ siteKey, meta, views }: { siteKey: BenchmarkSiteKey; meta: S
   return (
     <Card id={anchor(siteKey)} role="region" aria-label={title} className="scroll-mt-20">
       <CardHeader>
-        <CardTitle className="flex flex-wrap items-center gap-2 text-base font-semibold">
+        <CardTitle role="heading" aria-level={3} className="flex flex-wrap items-center gap-2 text-base font-semibold">
           {title}
-          {meta?.release && (
+          {/* one board: its date here; several (DeepSWE versions, LMArena boards): each board shows its own */}
+          {meta?.release && Object.keys(meta.updated ?? {}).length <= 1 && (
             <Badge variant="outline" className="font-normal text-muted-foreground">
               {`기준 ${meta.release}`}
             </Badge>
@@ -73,15 +74,18 @@ function SiteCard({ siteKey, meta, views }: { siteKey: BenchmarkSiteKey; meta: S
   );
 }
 
+/** The anchor of the benchmarks inside 「AI 모델·서비스」 (old `?tab=models` links land on it). */
+export const BENCHMARKS_ANCHOR = "benchmarks";
+
 /**
- * The AI 모델 tab: Opus's note on the leaderboard moves, models new to a board, then one card
- * per site recreating that site's own chart or table. A server component: `sites` (each
- * site's full rows) is projected here, and only the projections reach the client cards.
- * `summary` (top 10 per board) feeds the arrivals; without it the tab still works.
- * `noteDate` is the day the reader picked (null = latest): the note belongs to that day,
- * while the leaderboards below are always the latest.
+ * 「AI 모델 벤치마크」 under the AI 모델·서비스 tab's ranked list: Opus's note on the leaderboard
+ * moves, models new to a board, then one card per site recreating that site's own chart or
+ * table. A server component: `sites` (each site's full rows) is projected here, and only the
+ * projections reach the client cards. `summary` (top 10 per board) feeds the arrivals; without
+ * it the section still works. `noteDate` is the day the reader picked (null = latest): the note
+ * belongs to that day, while the leaderboards below are always the latest.
  */
-export function ModelsTab({
+export function BenchmarksSection({
   summary,
   sites,
   note,
@@ -103,7 +107,13 @@ export function ModelsTab({
   const arrivals = summary ? newModels(summary) : [];
 
   return (
-    <div className="space-y-5">
+    <section id={BENCHMARKS_ANCHOR} aria-labelledby={`${BENCHMARKS_ANCHOR}-title`} className="scroll-mt-20 space-y-5 border-t pt-6">
+      <div className="space-y-1">
+        <h2 id={`${BENCHMARKS_ANCHOR}-title`} className="text-lg font-semibold">
+          AI 모델 벤치마크
+        </h2>
+        <p className="text-sm text-muted-foreground">DeepSWE·LiveBench·LMArena·Artificial Analysis의 순위를 각 사이트가 처음 열 때 보여 주는 기준 그대로 옮겼습니다.</p>
+      </div>
       {note && (
         <div className="rounded-lg border bg-muted/40 px-4 py-3">
           <p className="mb-1 flex flex-wrap items-center gap-1 text-xs font-medium text-muted-foreground">
@@ -130,7 +140,7 @@ export function ModelsTab({
 
       {arrivals.length > 0 && (
         <div className="space-y-1.5">
-          <h2 className="text-xs font-medium text-muted-foreground">새로 등장한 모델</h2>
+          <h3 className="text-sm font-medium text-muted-foreground">새로 등장한 모델</h3>
           <ul aria-label="새로 등장한 모델" className="flex flex-wrap gap-1.5">
             {arrivals.map((a) => (
               <li key={`${a.site}|${a.board}|${a.model}`}>
@@ -148,6 +158,6 @@ export function ModelsTab({
       {BENCHMARK_SITES.map((key) => (
         <SiteCard key={key} siteKey={key} meta={metas.get(key)} views={views} />
       ))}
-    </div>
+    </section>
   );
 }

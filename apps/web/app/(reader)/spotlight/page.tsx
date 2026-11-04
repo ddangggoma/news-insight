@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
-import { ModelsTab } from "@/components/reader/benchmarks/models-tab";
+import { BENCHMARKS_ANCHOR, BenchmarksSection } from "@/components/reader/benchmarks/benchmarks-section";
 import { SpotlightBrowser } from "@/components/reader/spotlight/browser";
 import { DateSelect } from "@/components/reader/spotlight/date-select";
 import { GeneratingBand } from "@/components/reader/spotlight/generating-band";
@@ -12,13 +12,13 @@ import { formatDateTime } from "@/lib/format";
 import { param, type SearchParams } from "@/lib/params";
 import { REVALIDATE, readerGet } from "@/lib/reader-api";
 import { requireUser } from "@/lib/session";
-import { SECTION_LABEL, type SpotlightView, isCalendarDay, parseFilters, parseTab } from "@/lib/spotlight-types";
+import { RETIRED_MODELS_TAB, SECTION_LABEL, type SpotlightView, isCalendarDay, parseFilters, parseTab, spotlightHref } from "@/lib/spotlight-types";
 
 /**
- * The AI 모델 tab's data: the all-sites summary (freshness, today's arrivals) and each site's
+ * The benchmarks' data (under the AI 모델·서비스 tab): the all-sites summary (freshness, today's arrivals) and each site's
  * full rows, fetched side by side so every cached response stays small. A failed summary only
  * hides the arrivals; a site whose full request fails falls back to its summary rows (top 10
- * per board). The rows stay on the server: ModelsTab projects them before any client card.
+ * per board). The rows stay on the server: BenchmarksSection projects them before any client card.
  */
 async function loadBenchmarks(): Promise<{ summary: BenchmarkSite[] | null; sites: Partial<Record<BenchmarkSiteKey, BenchmarkSite>> }> {
   const [summary, ...full] = await Promise.all([
@@ -47,6 +47,8 @@ export default async function SpotlightPage({ searchParams }: { searchParams: Pr
   const requested = param(sp, "date");
   const filters = parseFilters(param(sp, "field"), param(sp, "group"));
   if (requested !== undefined && !isCalendarDay(requested)) notFound();
+  // the former 「AI 모델」 tab: its benchmarks live under AI 모델·서비스 now
+  if (param(sp, "tab") === RETIRED_MODELS_TAB) redirect(`${spotlightHref("ai", requested ?? null)}#${BENCHMARKS_ANCHOR}`);
 
   let view: SpotlightView;
   try {
@@ -57,7 +59,7 @@ export default async function SpotlightPage({ searchParams }: { searchParams: Pr
     throw error;
   }
 
-  const benchmarks = tab === "models" ? await loadBenchmarks() : null;
+  const benchmarks = tab === "ai" ? await loadBenchmarks() : null;
 
   return (
     <main className="mx-auto max-w-6xl space-y-5 px-4 py-6 md:px-6">
@@ -78,14 +80,20 @@ export default async function SpotlightPage({ searchParams }: { searchParams: Pr
 
       {tab === "overview" ? (
         <SpotlightBrowser view={view} tab={tab} date={requested ?? null} initial={filters} />
-      ) : tab === "models" ? (
-        <section aria-label="AI 모델">
-          {benchmarks && <ModelsTab summary={benchmarks.summary} sites={benchmarks.sites} note={view.benchmark_note} noteDate={requested && requested !== view.available_dates[0] ? requested : null} />}
-        </section>
       ) : (
-        <section aria-label={SECTION_LABEL[tab]}>
-          <SpotlightBrowser key={tab} view={view} tab={tab} date={requested ?? null} initial={filters} />
-        </section>
+        <>
+          <section aria-label={SECTION_LABEL[tab]}>
+            <SpotlightBrowser key={tab} view={view} tab={tab} date={requested ?? null} initial={filters} />
+          </section>
+          {benchmarks && (
+            <BenchmarksSection
+              summary={benchmarks.summary}
+              sites={benchmarks.sites}
+              note={view.benchmark_note}
+              noteDate={requested && requested !== view.available_dates[0] ? requested : null}
+            />
+          )}
+        </>
       )}
     </main>
   );

@@ -54,7 +54,7 @@ export function ProviderLegend({ providers }: { providers: ProviderKey[] }) {
               onDoubleClick={() => series.solo(key, keys)}
               className={cn(
                 "flex items-center gap-1.5 rounded-md px-1.5 py-0.5 transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
-                off && "text-muted-foreground/60 line-through decoration-muted-foreground/50",
+                off && "text-muted-foreground line-through decoration-muted-foreground/60",
               )}
             >
               <ProviderDot provider={key} className={cn("size-2.5 transition-opacity", off && "opacity-25")} />
@@ -82,19 +82,19 @@ export function ProviderLegend({ providers }: { providers: ProviderKey[] }) {
 export function ChangeMark({ change, by }: { change: BenchmarkChange | null; by: number }) {
   if (change === "new")
     return (
-      <span role="img" aria-label="새로 진입" className="text-[10px] font-bold text-primary">
+      <span role="img" aria-label="새로 진입" className="text-xs font-bold text-primary">
         NEW
       </span>
     );
   if (change === "up" && by > 0)
     return (
-      <span role="img" aria-label={`${by}계단 상승`} className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
+      <span role="img" aria-label={`${by}계단 상승`} className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
         {`▲${by}`}
       </span>
     );
   if (change === "down" && by > 0)
     return (
-      <span role="img" aria-label={`${by}계단 하락`} className="text-[10px] font-semibold text-rose-600 dark:text-rose-400">
+      <span role="img" aria-label={`${by}계단 하락`} className="text-xs font-semibold text-rose-600 dark:text-rose-400">
         {`▼${by}`}
       </span>
     );

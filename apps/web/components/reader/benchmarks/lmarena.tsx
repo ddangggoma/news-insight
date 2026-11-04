@@ -8,9 +8,9 @@ import { ChangeMark, ProviderDot, ToggleChip } from "@/components/reader/benchma
 import { type ProviderKey, providerKey, providerLabel } from "@/components/reader/benchmarks/provider-colors";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { boardLabel, colourOrg, isOpenLicense } from "@/lib/benchmark-types";
+import { LMARENA_ADJUSTMENT, boardLabel, colourOrg, isOpenLicense } from "@/lib/benchmark-types";
 import type { ArenaRow as Projected, ArenaView } from "@/lib/benchmark-view";
-import { formatNumber } from "@/lib/format";
+import { formatBriefingDate, formatNumber } from "@/lib/format";
 
 /** The agent board scores a share of tasks (0-1); the others are Elo-style ratings. */
 const isShare = (board: string) => board === "agent";
@@ -23,6 +23,12 @@ function orgName(org: string | null): string {
   if (!org) return "—";
   const key = providerKey(org);
   return key === "other" ? org : providerLabel(key);
+}
+
+/** "±9" when the interval is even (as the site prints it), else "+13 / −12". */
+function plusMinus(score: number, low: number, high: number, format: (v: number) => string): string {
+  const [up, down] = [format(high - score), format(score - low)];
+  return up === down ? `±${up}` : `+${up} / −${down}`;
 }
 
 /** The 95% interval as a segment on the board's own min–max scale, the score as a tick. */
@@ -43,9 +49,7 @@ function IntervalBar({ low, high, score, min, max, format }: { low: number | nul
         )}
         <span className="absolute top-1/2 h-3 w-0.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary" style={{ left: at(score) }} aria-hidden />
       </span>
-      {low !== null && high !== null && (
-        <span className="text-[11px] text-muted-foreground tabular-nums">{`+${format(high - score)} / −${format(score - low)}`}</span>
-      )}
+      {low !== null && high !== null && <span className="text-xs text-muted-foreground tabular-nums">{plusMinus(score, low, high, format)}</span>}
     </span>
   );
 }
@@ -54,7 +58,8 @@ const col = createColumnHelper<ArenaRow>();
 
 function buildColumns(board: string, min: number, max: number) {
   const share = isShare(board);
-  const format = share ? (v: number) => (v * 100).toFixed(1) : (v: number) => v.toFixed(0);
+  // as the site prints them: a share in percent with two decimals, a rating whole
+  const format = share ? (v: number) => (v * 100).toFixed(2) : (v: number) => v.toFixed(0);
   return [
     col.accessor((r) => r.rank ?? undefined, {
       id: "model",
@@ -67,13 +72,13 @@ function buildColumns(board: string, min: number, max: number) {
           <span className="max-w-56 truncate font-medium" title={r.model}>
             {r.model}
           </span>
-          {r.open && <span className="rounded border border-emerald-600/40 px-1 text-[10px] text-emerald-700 dark:text-emerald-400">open</span>}
+          {r.open && <span className="rounded border border-emerald-600/40 px-1 text-xs text-emerald-700 dark:text-emerald-400">open</span>}
           <ChangeMark change={r.change ?? null} by={r.changeBy ?? 0} />
         </span>
       ),
     }),
     col.accessor("score", {
-      header: share ? "점수(%)" : "점수",
+      header: share ? "Net Improvement(%)" : "점수",
       meta: { label: "점수", numeric: true },
       cell: ({ getValue }) => <span className="font-semibold">{format(getValue())}</span>,
     }),
@@ -116,6 +121,7 @@ export function LmArenaTable({ view }: { view: ArenaView }) {
   const needle = query.trim().toLowerCase();
   const shown = rows.filter((r) => (!openOnly || r.open) && (!needle || r.model.toLowerCase().includes(needle)));
   const published = current?.published;
+  const adjustment = LMARENA_ADJUSTMENT[board];
 
   return (
     <div className="space-y-3">
@@ -146,7 +152,18 @@ export function LmArenaTable({ view }: { view: ArenaView }) {
             </ToggleChip>
             <span className="text-xs text-muted-foreground">
               {`${shown.length}개 모델`}
-              {published && ` · 보드 공개 ${published}`}
+              {adjustment && (
+                <>
+                  {" · 보정 "}
+                  <span className="font-medium text-foreground" title="arena.ai가 이 보드를 처음 열 때의 Adjustments 설정">{`${adjustment} (사이트 기본값)`}</span>
+                </>
+              )}
+              {published && (
+                <>
+                  {" · 갱신 "}
+                  <span className="text-foreground">{formatBriefingDate(published)}</span>
+                </>
+              )}
             </span>
           </>
         }

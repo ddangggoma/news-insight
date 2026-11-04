@@ -7,7 +7,7 @@ import { DeepSweChart } from "@/components/reader/benchmarks/deepswe";
 import { buildPlot, defaultConfigs, displayName, family, formatCost, modelShades, niceTicks, toHsl } from "@/components/reader/benchmarks/deepswe-plot";
 import { LiveBenchTable } from "@/components/reader/benchmarks/livebench";
 import { LmArenaTable } from "@/components/reader/benchmarks/lmarena";
-import { ModelsTab } from "@/components/reader/benchmarks/models-tab";
+import { BenchmarksSection } from "@/components/reader/benchmarks/benchmarks-section";
 import { providerColor, providerKey } from "@/components/reader/benchmarks/provider-colors";
 import { type BenchmarkRow, type BenchmarkSite, colourOrg, isOpenLicense, newestBoardFirst } from "@/lib/benchmark-types";
 import { aaModels, deepSweView, liveBenchModels, lmArenaView, projectViews } from "@/lib/benchmark-view";
@@ -84,7 +84,7 @@ const firstColumn = (table: HTMLElement) =>
   within(table)
     .getAllByRole("row")
     .slice(1)
-    .map((tr) => within(tr).getAllByRole("cell")[0].textContent ?? "");
+    .map((tr) => tr.querySelector("th, td")?.textContent ?? "");
 
 describe("provider colours", () => {
   it("keeps provider colours stable", () => {
@@ -154,9 +154,9 @@ describe("helpers", () => {
     expect(liveModels.map((m) => m.model)).toEqual(["claude-opus-5.5", "gpt-5.5", "deepseek-v4.1-flash", "qwen3.8-27b", "small-model", "tiny-model"]);
   });
 
-  it("adds the AI model tab", () => {
-    expect(SPOTLIGHT_TABS.some((tab) => tab.key === "models" && tab.label === "AI 모델")).toBe(true);
-    expect(parseTab("models")).toBe("models");
+  it("has no AI 모델 tab: the benchmarks moved under AI 모델·서비스, old links map there", () => {
+    expect(SPOTLIGHT_TABS.map((tab) => tab.label)).not.toContain("AI 모델");
+    expect(parseTab("models")).toBe("ai");
   });
 });
 
@@ -172,7 +172,7 @@ describe("projections", () => {
     expect(boards[0].rows.find((r) => r.model === "Claude Opus 5.5")).toMatchObject({ change: "new", changeBy: 0 });
     expect(boards[0]).toMatchObject({ key: "text_style_control", published: "2026-11-02" });
     expect(Object.keys(deepSweView(deepswe).points[0]).sort()).toEqual(
-      ["id", "board", "model", "effort", "provider", "score", "low", "high", "cost", "tokens", "steps", "harness", "best", "change", "changeBy"].sort(),
+      ["id", "board", "model", "effort", "provider", "score", "low", "high", "cost", "tokens", "steps", "harness", "best", "shown", "change", "changeBy"].sort(),
     );
     expect(Object.keys(aaModels(aa)[0]).sort()).toEqual(["model", "org", "provider", "intelligence", "price", "speed"].sort());
   });
@@ -195,16 +195,16 @@ describe("projections", () => {
       livebench: siteOf({ rows: Array.from({ length: 32 }, (_, i) => liveModel(`livebench-model-${i}`, [70, 80, 90, 60, 70, 80, 90], i + 1, { display_name: `Model ${i}`, organization: "Org", open_weights: false })).flat() }),
       lmarena: siteOf({
         site: "lmarena",
-        boards: ["text_style_control", "webdev", "vision_style_control", "search_style_control", "agent"],
+        boards: ["text_style_control", "webdev", "vision_style_control", "search", "agent"],
         rows: [419, 152, 167, 42, 57].flatMap((n, b) =>
           Array.from({ length: n }, (_, i) =>
-            row({ board: ["text_style_control", "webdev", "vision_style_control", "search_style_control", "agent"][b], model: `Arena Model Name ${i} (High)`, org: "google", config: "High", metric: "rating", value: 1527.5065447464403 - i * 0.731, ci_low: 1521.8137264519027 - i * 0.731, ci_high: 1533.1993630409779 - i * 0.731, rank: i + 1, extra: { rank: i + 1, vote_count: 20000, license: "Proprietary", variance: 3.1, leaderboard_publish_date: "2026-11-02" } }),
+            row({ board: ["text_style_control", "webdev", "vision_style_control", "search", "agent"][b], model: `Arena Model Name ${i} (High)`, org: "google", config: "High", metric: "rating", value: 1527.5065447464403 - i * 0.731, ci_low: 1521.8137264519027 - i * 0.731, ci_high: 1533.1993630409779 - i * 0.731, rank: i + 1, extra: { rank: i + 1, vote_count: 20000, license: "Proprietary", variance: 3.1, leaderboard_publish_date: "2026-11-02" } }),
           ),
         ),
       }),
     };
     const props = JSON.stringify(projectViews(big)).length;
-    const html = renderToString(<ModelsTab summary={null} sites={big} note="" />).length;
+    const html = renderToString(<BenchmarksSection summary={null} sites={big} note="" />).length;
     // measured 164 KB of props + 146 KB of HTML on this data (2026-11-03)
     expect(props + html).toBeLessThan(350_000);
   });
@@ -243,12 +243,19 @@ describe("LiveBenchTable", () => {
     expect(tagged[0]).toContain("DeepSeek V4.1 Flash");
   });
 
-  it("lists models under the coverage bar after the ranked ones, best first, with their coverage", () => {
+  it("lists models the site leaves out of its table after the ranked ones, best first, marked", () => {
     render(<LiveBenchTable models={liveModels} />);
     const names = firstColumn(screen.getByRole("table"));
     expect(names.at(-2)).toContain("small-model");
     expect(names.at(-1)).toContain("tiny-model");
-    expect(names.at(-1)).toContain("29%");
+    expect(names.at(-1)).toContain("순위 외");
+    expect(names[0]).not.toContain("순위 외");
+  });
+
+  it("prints the cost per successful task with three decimals, as the site does", () => {
+    render(<LiveBenchTable models={liveModels} />);
+    const opus = liveModels.find((m) => m.model === "claude-opus-5.5")!;
+    expect(within(screen.getByRole("table")).getByText("$" + opus.costPerSuccess!.toFixed(3))).toBeInTheDocument();
   });
 
   it("expands a row into the category's sub-scores", () => {
@@ -356,8 +363,45 @@ describe("DeepSweChart", () => {
     expect(within(screen.getByRole("table")).getAllByRole("row")).toHaveLength(3);
     fireEvent.click(screen.getByRole("button", { name: "모든 추론 강도" }));
     expect(within(screen.getByRole("table")).getAllByRole("row")).toHaveLength(4);
-    expect(screen.getByText("70.0")).toBeInTheDocument();
-    expect(screen.getByText("±3.0")).toBeInTheDocument();
+    // whole percents like the site's table, the exact value on hover
+    const table = within(screen.getByRole("table"));
+    expect(table.getByText("±3%")).toBeInTheDocument();
+    expect(table.getByText("70%").parentElement).toHaveAttribute("title", "70.00% ±3.00");
+  });
+
+  it("prints cost and output tokens the way the site's table does", () => {
+    const site = siteOf({
+      site: "deepswe",
+      boards: ["v1.1"],
+      rows: [
+        dsRow({ model: "a-model", config: "max", value: 0.7, rank: 1, extra: { mean_cost_usd: 0.2401, mean_output_tokens: 143_152, mean_agent_steps: 166.4 } }),
+        dsRow({ model: "b-model", config: "max", value: 0.6, rank: 2, extra: { mean_cost_usd: 11.8376, mean_output_tokens: 9_612, mean_agent_steps: 29 } }),
+      ],
+    });
+    render(<DeepSweChart view={deepSweView(site)} />);
+    const table = within(screen.getByRole("table"));
+    for (const text of ["$0.24", "143k", "166", "$11.84", "9.6k"]) expect(table.getByText(text)).toBeInTheDocument();
+  });
+
+  it("lists only the site's default models until more are picked in 모델", () => {
+    const site = siteOf({
+      site: "deepswe",
+      boards: ["v1.1"],
+      rows: [
+        dsRow({ model: "shown-model", config: "max", value: 0.7, rank: 1 }),
+        // ranked by nobody: the site hides it until picked
+        dsRow({ model: "gpt-5-6-terra", config: "max", value: 0.72 }),
+        dsRow({ model: "gpt-5-6-terra", config: "high", value: 0.6 }),
+      ],
+    });
+    render(<DeepSweChart view={deepSweView(site)} />);
+    expect(firstColumn(screen.getByRole("table"))).toEqual([expect.stringContaining("shown-model")]);
+    const picker = screen.getByRole("button", { name: "모델 고르기" });
+    expect(picker).toHaveTextContent("(1/2)");
+    fireEvent.click(picker);
+    fireEvent.click(screen.getByRole("checkbox", { name: "gpt-5.6-terra" }));
+    // its best effort joins the table, in pass@1 order
+    expect(firstColumn(screen.getByRole("table"))).toEqual([expect.stringContaining("gpt-5.6-terra[max]"), expect.stringContaining("shown-model")]);
   });
 
   it("switches the x axis", () => {
@@ -374,16 +418,22 @@ const sweep = (model: string, levels: [string | null, number, number][], extra: 
   levels.map(([config, pass, cost]) =>
     dsRow({ model, config, value: pass, ci_low: pass - 0.03, ci_high: pass + 0.03, extra: { mean_cost_usd: cost, mean_output_tokens: cost * 10_000, mean_agent_steps: 30, harness: "mini-swe-agent", n_tasks_attempted: 113, ...extra } }),
   );
+// the API ranks each default model's best configuration: gpt-5-4 is one the site hides, and
+// tiny-model is under its 5% floor, so neither is ranked
+const ranked = (rows: BenchmarkRow[], rank: number) => {
+  const best = rows.reduce((a, b) => (b.value > a.value ? b : a));
+  return rows.map((r) => (r === best ? { ...r, rank } : r));
+};
 const board = siteOf({
   site: "deepswe",
   title: "DeepSWE",
   boards: ["v1.1"],
   release: "2026-09-22",
   rows: [
-    ...sweep("gpt-5-5", [["high", 0.64, 5.1], ["max", 0.66, 9], ["low", 0.27, 1.2], ["medium", 0.54, 2.75], ["xhigh", 0.67, 7.23]]),
-    ...sweep("claude-opus-5", [["low", 0.58, 1.66], ["max", 0.736, 11.84], ["high", 0.728, 6.08]]),
-    ...sweep("claude-fable-5", [["high", 0.686, 9.18], ["max", 0.697, 21.63]]),
-    ...sweep("glm-5-3-flash", [[null, 0.63, 0.48]]),
+    ...ranked(sweep("gpt-5-5", [["high", 0.64, 5.1], ["max", 0.66, 9], ["low", 0.27, 1.2], ["medium", 0.54, 2.75], ["xhigh", 0.67, 7.23]]), 3),
+    ...ranked(sweep("claude-opus-5", [["low", 0.58, 1.66], ["max", 0.736, 11.84], ["high", 0.728, 6.08]]), 1),
+    ...ranked(sweep("claude-fable-5", [["high", 0.686, 9.18], ["max", 0.697, 21.63]]), 2),
+    ...ranked(sweep("glm-5-3-flash", [[null, 0.63, 0.48]]), 4),
     ...sweep("gpt-5-4", [["xhigh", 0.518, 5.65]]),
     ...sweep("tiny-model", [["high", 0.03, 0.2]]),
   ],
@@ -478,7 +528,7 @@ describe("DeepSWE chart rules", () => {
   it("opens with the site's default configurations", () => {
     const shown = defaultConfigs(v11);
     const models = (ids: Set<string>) => new Set(v11.filter((p) => ids.has(p.id)).map((p) => p.model));
-    // gpt-5-4 is in the hidden set, tiny-model under 5%, fable's $21.63 max above $15
+    // gpt-5-4 and tiny-model are not ranked (not default models), fable's $21.63 max is above $15
     expect([...models(shown)].sort()).toEqual(["claude-fable-5", "claude-opus-5", "glm-5-3-flash", "gpt-5-5"]);
     expect(v11.filter((p) => shown.has(p.id)).some((p) => p.cost! > 15)).toBe(false);
     expect(shown.size).toBe(10);
@@ -486,6 +536,21 @@ describe("DeepSWE chart rules", () => {
 
   it("carries the task count and the snapshot day", () => {
     expect(boardView.info["v1.1"]).toEqual({ tasks: 113, updated: "2026-09-22" });
+  });
+
+  it("dates every version from the site's own timestamp", () => {
+    const view = deepSweView({ ...deepswe, updated: { "v1.1": "2026-09-22", v1: "2026-06-20" } });
+    expect(view.info).toMatchObject({ "v1.1": { updated: "2026-09-22" }, v1: { updated: "2026-06-20" } });
+  });
+
+  it("sizes chart text to read at least 12 px (ticks 11 px) on a phone and a desktop", () => {
+    const narrow = buildPlot(v11, "cost", 343)!.dims;
+    const scale = 343 / narrow.W; // the 440-wide frame is drawn into 343 px
+    expect(narrow.font.tick * scale).toBeGreaterThanOrEqual(11);
+    for (const key of ["title", "axis", "eff", "label", "hover", "sub"] as const) expect(narrow.font[key] * scale).toBeGreaterThanOrEqual(12);
+    const wide = buildPlot(v11, "cost", 900)!.dims;
+    expect(wide.font.tick).toBeGreaterThanOrEqual(11);
+    for (const key of ["title", "axis", "eff", "label", "hover", "sub"] as const) expect(wide.font[key]).toBeGreaterThanOrEqual(12);
   });
 });
 
@@ -606,18 +671,18 @@ describe("ArtificialAnalysisCharts", () => {
   });
 });
 
-describe("ModelsTab", () => {
+describe("BenchmarksSection", () => {
   const summary = [siteOf({ site: "deepswe", title: "DeepSWE", stale: true, boards: ["v1.1"] }), siteOf({ rows: [row({ model: "gpt-5.5", rank: 2, change: "new" })] })];
 
   it("marks a stale site", () => {
-    render(<ModelsTab summary={summary} sites={{ deepswe, livebench }} note="" />);
+    render(<BenchmarksSection summary={summary} sites={{ deepswe, livebench }} note="" />);
     const card = screen.getByRole("region", { name: "DeepSWE" });
     expect(within(card).getByText("갱신 지연")).toBeInTheDocument();
     expect(within(screen.getByRole("region", { name: "LiveBench" })).queryByText("갱신 지연")).not.toBeInTheDocument();
   });
 
   it("shows Opus's note, today's new models and a missing key", () => {
-    render(<ModelsTab summary={summary} sites={{ deepswe, livebench }} note="오늘은 오픈 모델이 약진했습니다" />);
+    render(<BenchmarksSection summary={summary} sites={{ deepswe, livebench }} note="오늘은 오픈 모델이 약진했습니다" />);
     expect(screen.getByText("오늘은 오픈 모델이 약진했습니다")).toBeInTheDocument();
     expect(screen.getByText("오늘의 순위 변화 (Opus)")).toBeInTheDocument();
     expect(within(screen.getByRole("list", { name: "새로 등장한 모델" })).getByText(/gpt-5\.5/)).toBeInTheDocument();
@@ -625,19 +690,26 @@ describe("ModelsTab", () => {
   });
 
   it("dates the note of a past day, since the leaderboards are always the latest", () => {
-    render(<ModelsTab summary={summary} sites={{ deepswe, livebench }} note="지난 메모" noteDate="2026-11-01" />);
+    render(<BenchmarksSection summary={summary} sites={{ deepswe, livebench }} note="지난 메모" noteDate="2026-11-01" />);
     expect(screen.getByText(/2026년 11월 1일.*순위 변화 \(Opus\) · 아래 순위표는 최신 기준/)).toBeInTheDocument();
   });
 
   it("works without the summary", () => {
-    render(<ModelsTab summary={null} sites={{ deepswe, livebench }} note="" />);
+    render(<BenchmarksSection summary={null} sites={{ deepswe, livebench }} note="" />);
     expect(screen.queryByRole("list", { name: "새로 등장한 모델" })).not.toBeInTheDocument();
     expect(within(screen.getByRole("region", { name: "LiveBench" })).getByRole("table")).toBeInTheDocument();
     expect(within(screen.getByRole("region", { name: "LiveBench" })).getByRole("link", { name: /원본/ })).toBeInTheDocument();
   });
 
+  it("sits under one 「AI 모델 벤치마크」 heading", () => {
+    render(<BenchmarksSection summary={summary} sites={{ deepswe, livebench }} note="" />);
+    const heading = screen.getByRole("heading", { level: 2, name: "AI 모델 벤치마크" });
+    expect(heading.closest("section")).toHaveAttribute("id", "benchmarks");
+    expect(screen.getByRole("heading", { level: 3, name: /LiveBench/ })).toBeInTheDocument();
+  });
+
   it("gives every card its source link and update time", () => {
-    render(<ModelsTab summary={summary} sites={{ deepswe, livebench }} note="" />);
+    render(<BenchmarksSection summary={summary} sites={{ deepswe, livebench }} note="" />);
     const card = screen.getByRole("region", { name: "LiveBench" });
     expect(within(card).getByRole("link", { name: /원본/ })).toHaveAttribute("href", "https://livebench.ai/");
     expect(within(card).getByText(/LiveBench \(Abacus\.AI\)/)).toBeInTheDocument();
