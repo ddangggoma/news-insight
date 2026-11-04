@@ -58,6 +58,8 @@ def test_codes_from_an_ops_query() -> None:
         ("CN118123456A", ("CN118123456", "A", "CN")),
         ("US12264976", ("US12264976", None, "US")),
         ("WO2025/123456", ("WO2025123456", None, "WO")),
+        ("KR10-2025-0012345", ("KR1020250012345", None, "KR")),  # stories.refs keeps dashes
+        ("KR1020250012345A", ("KR1020250012345", "A", "KR")),
         ("https://example.com/x", (None, None, None)),
     ],
 )
@@ -83,6 +85,16 @@ def test_map_covers_the_design_examples() -> None:
         "H04L 9/32": "security",
         "H04L 5/00": "connectivity",
         "G06N 10/40": "frontier",  # quantum computing inside the AI subclass
+        "H01L 51/52": "display_av",  # OLED under the older IPC, not semis
+        "H01L 21/02": "semis",
+        "H05B 33/14": "display_av",
+        "G11B 7/24": "semis",
+        "H02K 7/14": "energy",
+        "H02P 27/08": "energy",
+        "G01C 21/34": "robotics_mobility",
+        "G08B 21/04": "security",
+        "H01S 5/183": "semis",
+        "Y02T 10/70": "energy",
     }
     for code, field in expected.items():
         assert fields_for([code]) == [field], code

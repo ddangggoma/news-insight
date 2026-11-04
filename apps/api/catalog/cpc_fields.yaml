@@ -22,6 +22,8 @@ subclasses:
   H10D: semis  # inorganic electric semiconductor devices (2023 CPC)
   H10F: semis  # inorganic light-sensitive devices: image sensors, photodiodes
   G11C: semis  # static stores: memory circuits
+  G11B: semis  # information storage on moving media (disks, optical storage)
+  H01S: semis  # lasers (laser diodes, VCSELs)
   H03K: semis  # pulse technique: logic circuits
   H03F: semis  # amplifiers (RF front ends)
   H03H: semis  # impedance networks, filters (RF)
@@ -60,6 +62,7 @@ subclasses:
   G09C: security  # ciphering apparatus
   H04K: security  # secret communication, jamming
   G07C: security  # access control, time and attendance
+  G08B: security  # alarm and signalling systems (intrusion, fire, emergency)
   # robotics_mobility · 로보틱스·모빌리티
   B25J: robotics_mobility  # manipulators, robots
   B60W: robotics_mobility  # conjoint control of vehicle sub-units (ADAS, autonomy)
@@ -69,6 +72,7 @@ subclasses:
   G05D: robotics_mobility  # control of position or course (autonomous vehicles, robots)
   G08G: robotics_mobility  # traffic control
   G01S: robotics_mobility  # radar, lidar, sonar, positioning
+  G01C: robotics_mobility  # navigation, gyroscopes, surveying
   B64C: robotics_mobility  # aeroplanes, helicopters
   B64U: robotics_mobility  # unmanned aerial vehicles (drones)
   A47L: robotics_mobility  # floor cleaning (robot vacuums)
@@ -86,6 +90,9 @@ subclasses:
   H02M: energy  # power conversion (adapters, inverters)
   H02S: energy  # photovoltaic power generation
   B60L: energy  # electric propulsion of vehicles, EV charging
+  H02K: energy  # electric motors and generators
+  H02P: energy  # control of electric motors and generators (drives, inverters)
+  Y02T: energy  # climate change mitigation in transport (electrified vehicles)
   Y02E: energy  # reduction of greenhouse gases: energy generation and storage
   Y02D: energy  # climate change mitigation in ICT (energy-efficient computing)
   Y02W: energy  # waste management, recycling
@@ -133,4 +140,6 @@ groups:
   G06Q 10: manufacturing  # logistics, production planning
   G06Q 20: platform_sw  # payment architectures
   H01L 39: frontier  # superconducting devices (older IPC)
+  H01L 51: display_av  # organic semiconductor devices, OLED (older IPC, now H10K)
+  H05B 33: display_av  # electroluminescent light sources (OLED/EL displays, older codes)
   C01B 32: frontier  # carbon, graphene, nanotubes

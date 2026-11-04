@@ -13,6 +13,7 @@ item whose card is no longer "ip" loses its row.
 """
 
 import logging
+import re
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
@@ -33,6 +34,7 @@ from news_insight.patents.classification import (
 from news_insight.patents.models import PatentMeta, PatentSource
 from news_insight.sources.models import Source
 from news_insight.stories.models import ItemRef
+from news_insight.stories.refs import PATENT
 
 logger = logging.getLogger(__name__)
 
@@ -118,6 +120,17 @@ def build_meta(
     }
 
 
+def cited_order(item: Item, refs: list[str]) -> list[str]:
+    """The item's patent references in the order its text cites them (URL, title, summary:
+    the texts stories.refs reads), then any left over alphabetically."""
+    found: list[str] = []
+    for match in PATENT.finditer(" ".join(t for t in (item.url, item.title, item.summary) if t)):
+        value = re.sub(r"[\s,]", "", match.group(1)).upper()
+        if value in refs and value not in found:
+            found.append(value)
+    return found + sorted(set(refs) - set(found))
+
+
 def remove_stale_news(session: Session) -> int:
     """News rows whose card is no longer an ip card (reclassified or failed)."""
     stale = (
@@ -169,7 +182,8 @@ def index_patents(session: Session, *, now: datetime, limit: int = MAX_PER_RUN) 
         refs.setdefault(item_id, []).append(value)
     aliases = alias_map(session)
     for item, source, item_card in rows:
-        values = build_meta(item, source, item_card, refs.get(item.id, []), aliases, now)
+        cited = cited_order(item, refs.get(item.id, []))
+        values = build_meta(item, source, item_card, cited, aliases, now)
         row = session.get(PatentMeta, item.id)
         if row is None:
             session.add(PatentMeta(item_id=item.id, **values))

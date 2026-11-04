@@ -23,8 +23,9 @@ _CODE = re.compile(
 )
 _LABELLED = re.compile(r"\b(CPC|IPC)\s*:\s*([^;\n]+)", re.IGNORECASE)
 _QUERY_CPC = re.compile(r"\b(?:cpc|ipc|ic)\s*=\s*([A-HY]\d{2}[A-Z](?:\s*\d{1,4}/\d{1,6})?)", re.I)
-# EP4815726NWA1 (EPS adds "NW"), US2025123456A1, CN118123456A, US12264976, WO2025/123456
-_PUBLICATION = re.compile(r"^(?:EPO:)?([A-Z]{2})(\d[\d/]*\d)(?:[A-Z]*?([A-Z]\d?))?$")
+# EP4815726NWA1 (EPS adds "NW"), US2025123456A1, CN118123456A, US12264976, WO2025/123456,
+# KR10-2025-0012345
+_PUBLICATION = re.compile(r"^(?:EPO:)?([A-Z]{2})(\d[\d/-]*\d)(?:[A-Z]*?([A-Z]\d?))?$")
 
 
 def parse_code(raw: str) -> str | None:
@@ -72,7 +73,7 @@ def parse_publication(stable_id: str) -> tuple[str | None, str | None, str | Non
     if not match:
         return None, None, None
     office, number, kind = match.groups()
-    return f"{office}{number.replace('/', '')}", kind, office
+    return f"{office}{re.sub(r'[/-]', '', number)}", kind, office
 
 
 class CpcFieldMap(BaseModel):

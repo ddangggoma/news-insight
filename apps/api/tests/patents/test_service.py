@@ -153,3 +153,21 @@ def test_skips_repeats_and_canaries_and_respects_the_limit(db_session: Session) 
     assert db_session.scalars(select(PatentMeta.item_id)).all() == [newest]
     index_patents(db_session, now=NOW)
     assert set(db_session.scalars(select(PatentMeta.item_id))) == {newest, first}
+
+
+def test_news_takes_the_patent_its_text_cites_first(db_session: Session) -> None:
+    news = source(db_session, "ipwatchdog-web", category="ip_office", track=Track.NEWS)
+    item = document(
+        db_session,
+        news,
+        "kr",
+        title="Court construes KR 10-2025-0012345 claims",
+        summary="The ruling also cites US12264976 and EP 4123456 A1.",
+        refs=(("patent", "EP4123456"), ("patent", "KR10-2025-0012345"), ("patent", "US12264976")),
+    )
+    card(db_session, item, field="semis", signal_type="ip")
+
+    index_patents(db_session, now=NOW)
+
+    row = meta(db_session, item.id)
+    assert (row.publication_number, row.office) == ("KR1020250012345", "KR")
