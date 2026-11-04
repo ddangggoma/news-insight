@@ -16,8 +16,14 @@ What counts as a fact (2026-10-05 audit: 4,638 cards had failed, almost all on f
   1천", "100 million" = "1억", "800K" = "80만";
 - Korean renderings keep the number: "8-bit" → "8비트", "3rd" → "3주년", "7B-Class" → "7B급",
   "COVID-19" → "코로나19", "1H26" → "2026년 상반기";
-- dates and times ("_20240711", "2026 - 07 - 27", "Jul. 30, 2026", "19h00") are not checked,
-  nor the scale of a score ("8.7/10") or a version's "v" ("CVSS v3.1" = "CVSS 3.1").
+- dates and times ("_20240711", "2026 - 07 - 27", "Jul. 30, 2026", "19h00", "21:43:34") are not
+  checked, nor the scale of a score ("8.7/10");
+- 2026-11-04 audit: 3,692 of 4,197 cards that carry a "preservation: lost" note were false
+  alarms (10 % precision on a sample of 30), so these are not facts either:
+  the scoring version of "CVSS v3.1" (1,484 cards; the score itself is checked), an advisory's
+  affected-product list with its "(+15 more)", an ordinal "150,000th" (= 15만), digits grouped
+  by spaces ("1 401 297"), Chinese units ("12.99万" = 12만 9천900) and Korean unit chains
+  ("12억 2천만", "9만 6,526").
 """
 
 import re
@@ -35,7 +41,7 @@ IDENTIFIER = re.compile(
 # a number with optional thousands separators, decimals, a percent sign or a scale word
 SOURCE_NUMBER = re.compile(
     r"(?<![A-Za-z0-9.])(\d{1,3}(?:,\d{3})+|\d+)(\.\d+)?\s?"
-    r"(%|[KkMmBb](?![A-Za-z])|thousand|million|billion|trillion)?(?![A-Za-z0-9])",
+    r"(%|[KkMmBb](?![A-Za-z])|thousand|million|billion|trillion|万|萬|亿|億)?(?![A-Za-z0-9])",
 )
 SOURCE_SCALE = {
     "k": 1e3,
@@ -45,12 +51,29 @@ SOURCE_SCALE = {
     "million": 1e6,
     "billion": 1e9,
     "trillion": 1e12,
+    "万": 1e4,
+    "萬": 1e4,
+    "亿": 1e8,
+    "億": 1e8,
 }
 # Korean: "8만 1천", "1억", "3.5조", "800K", "2,500"
 TARGET_NUMBER = re.compile(
-    r"(\d{1,3}(?:,\d{3})+|\d+)(\.\d+)?\s?(조|억|만|천|[KkMmBb](?![A-Za-z]))?"
+    r"(\d{1,3}(?:,\d{3})+|\d+)(\.\d+)?\s?"
+    r"(천억|백억|천만|백만|조|억|만|천|[KkMmBb](?![A-Za-z]))?"
 )
-TARGET_SCALE = {"조": 1e12, "억": 1e8, "만": 1e4, "천": 1e3, "k": 1e3, "m": 1e6, "b": 1e9}
+TARGET_SCALE = {
+    "천억": 1e11,
+    "백억": 1e10,
+    "천만": 1e7,
+    "백만": 1e6,
+    "조": 1e12,
+    "억": 1e8,
+    "만": 1e4,
+    "천": 1e3,
+    "k": 1e3,
+    "m": 1e6,
+    "b": 1e9,
+}
 MIN_NUMBER = 10  # single digits ("3 ways") are too common to check
 MAX_RANDOM_ID = 12  # long letter-digit strings are post or file ids, not product names
 DOMAIN = re.compile(r"^[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,6}$", re.IGNORECASE)  # t3n.de
@@ -62,6 +85,7 @@ DATES = re.compile(
     r"|(?<!\d)\d{1,2}\s?[-./]\s?\d{1,2}\s?[-./]\s?(?:19|20)\d{2}(?!\d)"  # 27.07.2026
     rf"|\b\d{{1,2}}\.?\s{MONTH}\s(?:19|20)\d{{2}}\b"  # 21. April 2022
     rf"|\b{MONTH}\s\d{{1,2}},?\s(?:19|20)\d{{2}}\b"  # Jul. 30, 2026
+    r"|(?<!\d)\d{1,2}:\d{2}:\d{2}(?!\d)"  # 21:43:34
     r"|(?<!\d)\d{1,2}[:h]\d{2}(?!\d)",  # 19h00, 21:00
     re.IGNORECASE,
 )
@@ -89,8 +113,23 @@ def _compact(text: str) -> str:
 SCORE_SCALE = re.compile(r"(?<=\d)\s?/\s?(?:5|10|100)(?![\d.,])")
 
 
+# noise in a source title that no translation has to keep
+LIST_MORE = re.compile(r"\(\s?\+\s?\d+\s+more\s?\)", re.IGNORECASE)  # "Linux, Linux (+15 more)"
+# an advisory feed's affected-product list ("📦 Product: Windows Server 2016, Windows 11 22H2 🏢"):
+# the card names the component, not every product and build
+PRODUCT_LIST = re.compile(r"Product:[^🏢]*(?=🏢|Vendor:|$)")
+CVSS_VERSION = re.compile(r"\b(CVSS)\s?v\d+(?:\.\d+)*", re.IGNORECASE)  # the score stays a fact
+ORDINAL = re.compile(r"(?<=\d)(?:st|nd|rd|th)(?![A-Za-z])", re.IGNORECASE)  # 150,000th
+SPACED_THOUSANDS = re.compile(r"(?<![\d.,])(\d{1,3})((?: \d{3})+)(?!\d)")  # 1 401 297
+
+
 def _clean(title: str) -> str:
-    return SCORE_SCALE.sub(" ", DATES.sub(" ", REPO.sub("", URL.sub(" ", title))))
+    title = DATES.sub(" ", REPO.sub("", URL.sub(" ", title)))
+    title = PRODUCT_LIST.sub(" ", LIST_MORE.sub(" ", title))
+    title = CVSS_VERSION.sub(r"\1", title)
+    title = ORDINAL.sub("", title)
+    title = SPACED_THOUSANDS.sub(lambda m: m.group(1) + m.group(2).replace(" ", ""), title)
+    return SCORE_SCALE.sub(" ", title)
 
 
 def _random_id(token: str) -> bool:
@@ -116,9 +155,11 @@ def _kept(token: str, target: str) -> bool:
 
 
 def target_values(text: str) -> set[float]:
-    """Every number in the Korean text, with adjacent unit groups summed ("8만 1천" = 81000)."""
+    """Every number in the Korean text, with adjacent unit groups summed ("8만 1천" = 81000,
+    "12억 2천만" = 1.22 billion, "9만 6,526" = 96526)."""
     values: set[float] = set()
     run: float | None = None
+    last_scale = 0.0
     last_end = -2
     for match in TARGET_NUMBER.finditer(text):
         digits, decimals, unit = match.groups()
@@ -126,11 +167,14 @@ def target_values(text: str) -> set[float]:
         scale = TARGET_SCALE.get((unit or "").lower(), 1.0)
         value *= scale
         values.add(value)
-        # "8만 1천": a smaller unit right after a larger one continues the same number
-        if run is not None and scale > 1 and match.start() - last_end <= 1 and value < run:
+        # "8만 1천": a smaller unit (or plain digits) right after a larger one continues the number
+        adjacent = match.start() - last_end <= 1
+        if run is not None and adjacent and value < last_scale and scale < last_scale:
             run += value
+            last_scale = scale if scale > 1 else 0.0
         else:
             run = value if scale > 1 else None
+            last_scale = scale if scale > 1 else 0.0
         if run is not None:
             values.add(run)
         last_end = match.end()

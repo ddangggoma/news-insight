@@ -615,3 +615,19 @@ def test_claude_gets_a_share_of_a_backlog_agy_could_take_alone(db_session: Sessi
 
     assert stats.ready == 5 and stats.batches == {"claude": 1, "agy": 1}
     assert len(claude.batches[0]) == 2 and len(agy.batches[0]) == 3
+
+
+def test_card_input_carries_the_kst_publication_day(db_session: Session) -> None:
+    """Relative dates in a summary ("내일", "다음 주") need an anchor (2026-11-04 audit)."""
+    from news_insight.cards.service import card_input
+
+    seed(db_session, ["launch"])
+    item, source = pending_items(db_session, limit=1)[0]
+    item.published_at = datetime(2026, 10, 31, 16, 30, tzinfo=UTC)  # 01:30 on 11-01 in Seoul
+    db_session.flush()
+
+    assert card_input(item, source).published == "2026-11-01"
+
+    item.published_at = None
+    item.first_seen_at = datetime(2026, 11, 2, 1, tzinfo=UTC)
+    assert card_input(item, source).published == "2026-11-02"
