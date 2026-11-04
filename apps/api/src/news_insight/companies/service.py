@@ -5,6 +5,7 @@
 path agrees; registry edits are applied to existing cards with `recompute_all`.
 """
 
+import re
 from collections import Counter
 from collections.abc import Iterable
 from dataclasses import dataclass
@@ -32,6 +33,56 @@ def canonical_keys(names: Iterable[str], aliases: dict[str, str]) -> list[str]:
         if key is not None and key not in keys:
             keys.append(key)
     return keys
+
+
+# legal-form words at the end of an organisation name ("Co., Ltd.", "Inc.", "GmbH")
+LEGAL_SUFFIXES = frozenset(
+    {
+        "ag",
+        "bv",
+        "co",
+        "company",
+        "corp",
+        "corporation",
+        "gmbh",
+        "inc",
+        "incorporated",
+        "kk",
+        "limited",
+        "llc",
+        "ltd",
+        "nv",
+        "plc",
+        "sa",
+        "sas",
+        "se",
+    }
+)
+_COUNTRY_SUFFIX = re.compile(r"\s*[(\[][^()\[\]]*[)\]]\s*$")  # "Google (United States)", "[CN]"
+_PUNCTUATION = re.compile(r"[.,;:'’\"&]+")
+
+
+def org_spellings(name: str) -> list[str]:
+    """Normalised spellings of an organisation name to look up in the alias map, the name as
+    written first: without OpenAlex's "(Country)" or EPO's "[CC]" tail, then without legal-form
+    words ("SAMSUNG ELECTRONICS CO LTD", "Samsung Electronics Co., Ltd.")."""
+    spellings = [normalize(name)]
+    bare = _COUNTRY_SUFFIX.sub("", name).strip()
+    spellings.append(normalize(bare))
+    words = _PUNCTUATION.sub(" ", bare).lower().split()
+    while words and words[-1] in LEGAL_SUFFIXES:
+        words.pop()
+    if words:
+        spellings.append(normalize(" ".join(words)))
+    return [s for s in dict.fromkeys(spellings) if s]
+
+
+def match_company(name: str, aliases: dict[str, str]) -> str | None:
+    """Registry key of an organisation name (institution, patent applicant), or None."""
+    for spelling in org_spellings(name):
+        if len(spelling) >= 2 and (key := aliases.get(spelling)) is not None:
+            return key
+    return None
 
 
 def alias_map(session: Session) -> dict[str, str]:
