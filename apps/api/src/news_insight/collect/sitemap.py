@@ -9,7 +9,14 @@ from news_insight.collect.contracts import CollectContext, CollectorError, Colle
 from news_insight.collect.fields import parse_datetime
 from news_insight.collect.http import fetch_checked
 from news_insight.collect.macros import expand_macros
-from news_insight.collect.pages import Candidate, RobotsGate, complete, timezone_of
+from news_insight.collect.pages import (
+    Candidate,
+    RobotsGate,
+    UrlExclusion,
+    complete,
+    exclusion,
+    timezone_of,
+)
 from news_insight.content.normalize import clean_text
 from news_insight.net.mime import EXPECTED_MIME
 from news_insight.net.safe_fetch import SafeFetcher
@@ -56,13 +63,18 @@ def _pick_children(root: ET.Element) -> list[str]:
 
 
 def _candidates(
-    root: ET.Element, context: CollectContext, pattern: re.Pattern[str] | None
+    root: ET.Element,
+    context: CollectContext,
+    pattern: re.Pattern[str] | None,
+    excluded: UrlExclusion | None = None,
 ) -> list[Candidate]:
     tz = timezone_of(context.config)
     rows: list[tuple[datetime | None, Candidate]] = []
     for node in root.findall(f"{SM}url"):
         loc = _child_text(node, f"{SM}loc")
         if not loc or (pattern is not None and not pattern.search(loc)):
+            continue
+        if excluded is not None and excluded.search(loc):
             continue
         news = node.find(f"{NEWS}news")
         title = _child_text(news, f"{NEWS}title") if news is not None else None
@@ -111,7 +123,10 @@ class SitemapCollector:
             urlsets = [root]
         pattern_text = context.config.get("link_pattern")
         pattern = re.compile(str(pattern_text)) if pattern_text else None
-        candidates = [c for urlset in urlsets for c in _candidates(urlset, context, pattern)]
+        excluded = exclusion(context.config)
+        candidates = [
+            c for urlset in urlsets for c in _candidates(urlset, context, pattern, excluded)
+        ]
         if not candidates:
             raise CollectorError("selector_drift", "sitemap has no matching URLs", retryable=False)
         items = complete(self._fetcher, candidates, context, robots=RobotsGate(self._fetcher))

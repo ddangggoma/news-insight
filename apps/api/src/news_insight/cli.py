@@ -662,6 +662,47 @@ def items_page_dates(
     typer.echo("applied" if apply else "dry run: nothing written (--apply to write)")
 
 
+@items_app.command("hide-junk")
+def items_hide_junk(
+    source: Annotated[list[str], typer.Option(help="Source key (repeat for several)")],
+    hide_regex: Annotated[str | None, typer.Option(help="Also hide URLs matching this")] = None,
+    keep_regex: Annotated[str | None, typer.Option(help="Never hide URLs matching this")] = None,
+    reason: Annotated[str, typer.Option(help="Why the pages are not articles")] = "not an article",
+    backup: Annotated[
+        Path | None, typer.Option(help="CSV of the hidden items (needed to apply)")
+    ] = None,
+    apply: Annotated[bool, typer.Option(help="Hide them (default: report)")] = False,
+) -> None:
+    """Hide stored items the source's `link_pattern` / `exclude_pattern` now refuse (the
+    catalog's rules, which a deploy has not yet copied to the database).
+
+    Nothing is deleted: the card is set to failed with a `hidden:` error (content/hide.py)."""
+    import re
+
+    from news_insight.content.hide import find_junk, hide, write_backup
+
+    if apply and backup is None:
+        typer.echo("--backup is required with --apply", err=True)
+        raise typer.Exit(code=2)
+    now = datetime.now(UTC)
+    catalog = {entry.key: entry.config for entry in load_catalog().sources}
+    hide_re = re.compile(hide_regex) if hide_regex else None
+    keep_re = re.compile(keep_regex) if keep_regex else None
+    hidden = 0
+    with session_scope() as session:
+        for key in source:
+            row = get_source(session, key)
+            junk, total = find_junk(
+                session, row, config=catalog.get(key), hide=hide_re, keep=keep_re
+            )
+            typer.echo(f"{key}: {total} refused, {len(junk)} visible")
+            if apply and junk:
+                assert backup is not None
+                write_backup(backup, row, junk)
+                hidden += hide(session, junk, reason=reason, now=now)
+    typer.echo(f"hidden {hidden}" if apply else "dry run: nothing written (--apply to write)")
+
+
 @trends_app.command("movers")
 def movers(
     metric: Annotated[str, typer.Option(help="Metric key, e.g. stars, points, likes")] = "stars",
