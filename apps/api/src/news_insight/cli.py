@@ -1124,14 +1124,19 @@ def spotlight_freeze(
 ) -> None:
     """Snapshot today's spotlight candidates (idempotent; Celery runs it at 04:40 KST)."""
     from news_insight.spotlight.candidates import SECTIONS
-    from news_insight.spotlight.service import freeze
+    from news_insight.spotlight.service import SUSTAINED, freeze, group_of
 
     now = datetime.now(UTC)
     with session_scope() as session:
         snapshot = freeze(session, day=_briefing_date(on, now), now=now)
+        counts = []
+        for name in SECTIONS:
+            found = snapshot.candidates.get(name, [])
+            lasting = sum(1 for candidate in found if group_of(candidate) == SUSTAINED)
+            counts.append(f"{name} {len(found) - lasting}+{lasting}")
+        # 24 h + sustained candidates per section
         typer.echo(
-            f"{snapshot.spotlight_date} frozen at {_kst(snapshot.frozen_at)}: "
-            + ", ".join(f"{name} {len(snapshot.candidates.get(name, []))}" for name in SECTIONS)
+            f"{snapshot.spotlight_date} frozen at {_kst(snapshot.frozen_at)}: " + ", ".join(counts)
         )
 
 
@@ -1142,9 +1147,10 @@ def spotlight_write(
     ] = None,
     model: Annotated[str | None, typer.Option(help="Claude model alias")] = None,
 ) -> None:
-    """Have Claude Opus pick each section's Top 10 and publish it (05:00 KST digest job, after the
-    briefing; later runs act only while the date has no published list). From 10:00 KST a failure
-    publishes the statistical lists instead of raising."""
+    """Have Claude Opus pick each section's lists (24 h Top 10, sustained Top 5) and publish
+    them (05:00 KST digest job, after the briefing; later runs act only while the date has no
+    published list). From 10:00 KST a failure publishes the statistical lists instead of
+    raising."""
     from news_insight.digest.claude import ClaudeError
     from news_insight.public.benchmarks import benchmark_changes
     from news_insight.spotlight.models import Spotlight, SpotlightStatus

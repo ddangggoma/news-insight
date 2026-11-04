@@ -86,7 +86,7 @@ MIN_BENCHMARK_MOVE = 3
 
 @dataclass
 class Candidate:
-    cid: str  # short id the writer answers with: n1, p3, ...
+    cid: str  # short id the writer answers with: n1, p3, ... (sustained: ns1, ps3, ...)
     section: str
     key: str  # story:{id} for an event, item:{id} for a single item
     item_ids: list[int]
@@ -96,6 +96,7 @@ class Candidate:
     metrics: dict[str, Any]
     score: float
     stat_rank: int
+    group: str = "now"  # "now" (the 24 h window) or "sustained" (several of the last 7 days)
 
     def to_json(self) -> dict[str, Any]:
         return asdict(self)
@@ -133,7 +134,13 @@ def window(day: date) -> tuple[datetime, datetime]:
 ELIGIBLE = or_(ItemDedup.duplicate_of.is_(None), ItemDedup.matched_by == "link")
 # The text-heavy columns (body, summary, …) are never needed here and there are ~20k rows a day.
 _ITEM_COLUMNS = load_only(
-    Item.id, Item.track, Item.title, Item.url, Item.published_at, Item.first_seen_at
+    Item.id,
+    Item.source_id,
+    Item.track,
+    Item.title,
+    Item.url,
+    Item.published_at,
+    Item.first_seen_at,
 )
 
 

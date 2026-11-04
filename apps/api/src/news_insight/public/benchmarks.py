@@ -382,3 +382,67 @@ def benchmark_changes(session: Session, *, now: datetime) -> dict[str, Any]:
                 elif was != place:
                     changes.append({**base, "from": was, "to": place})
     return {"changes": changes, "new_models": new_models}
+
+
+def top_holders(
+    session: Session, *, now: datetime, days: int = 7, top: int = 5, min_days: int = 3
+) -> list[dict[str, Any]]:
+    """Models that held a place in a board's top `top` through the last `days` days: in every
+    snapshot of a site fetched in that span, and in the one current when it began (a site's
+    snapshot is stored only when its bytes change, so the last one before the span still held
+    on its first day). The span the snapshots cover must reach `min_days` calendar days; a
+    stale site is skipped. One row per site, board and model: its current and best rank and
+    how many days it held on."""
+    start = now - timedelta(days=days)
+    out: list[dict[str, Any]] = []
+    for module in SITES:
+        site: str = module.SITE
+        snapshots = list(
+            session.scalars(
+                select(BenchmarkSnapshot)
+                .options(defer(BenchmarkSnapshot.raw))
+                .where(
+                    BenchmarkSnapshot.site == site,
+                    BenchmarkSnapshot.fetched_at >= start,
+                    BenchmarkSnapshot.fetched_at <= now,
+                )
+                .order_by(BenchmarkSnapshot.fetched_at, BenchmarkSnapshot.id)
+            )
+        )
+        before = session.scalars(
+            select(BenchmarkSnapshot)
+            .options(defer(BenchmarkSnapshot.raw))
+            .where(BenchmarkSnapshot.site == site, BenchmarkSnapshot.fetched_at < start)
+            .order_by(BenchmarkSnapshot.fetched_at.desc(), BenchmarkSnapshot.id.desc())
+            .limit(1)
+        ).first()
+        covering = ([before] if before is not None else []) + snapshots
+        if not covering or now - covering[-1].fetched_at > STALE_AFTER:
+            continue
+        since = max(covering[0].fetched_at, start)
+        held_days = (now.date() - since.date()).days + 1
+        if held_days < min_days:
+            continue
+        places = [
+            {
+                board: {s.key: (place, s.model) for place, s in enumerate(ranked[:top], start=1)}
+                for board, ranked in _ranking(site, _scores(session, site, snap.id)).items()
+            }
+            for snap in covering
+        ]
+        for board, latest in places[-1].items():
+            for key, (rank, model) in latest.items():
+                ranks = [found[board][key][0] for found in places if key in found.get(board, {})]
+                if len(ranks) != len(places):
+                    continue
+                out.append(
+                    {
+                        "site": module.TITLE,
+                        "board": board,
+                        "model": model,
+                        "rank": rank,
+                        "best_rank": min(ranks),
+                        "days": min(held_days, days),
+                    }
+                )
+    return out

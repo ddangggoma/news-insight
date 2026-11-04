@@ -342,7 +342,9 @@ def test_to_json_round_trips_plain_data(db_session: Session):
         "metrics",
         "score",
         "stat_rank",
+        "group",
     }
+    assert data["group"] == "now"
     assert json.loads(json.dumps(data)) == data
 
 

@@ -1,5 +1,7 @@
-"""Spotlight for readers (plan 18): the latest published day's Top 10 per section, each entry
-marked against the immediately preceding calendar day. Failed rows are never shown."""
+"""Spotlight for readers (plan 18): the latest published day's lists per section, the 최근
+24시간 entries (group "now") by rank and then the 지속 주목 ones ("sustained") by rank, each
+marked against the immediately preceding calendar day (by section and key, whatever the
+group). Failed rows are never shown."""
 
 import datetime as dt
 from datetime import date, datetime, timedelta
@@ -13,9 +15,11 @@ from news_insight.content.models import Item
 from news_insight.public.periods import KST
 from news_insight.spotlight.candidates import SECTIONS
 from news_insight.spotlight.models import Spotlight, SpotlightEntry, SpotlightStatus
+from news_insight.taxonomy.catalog import LABELS
 
 AVAILABLE_DATES = 60
 Change = Literal["new", "up", "down", "same"]
+Group = Literal["now", "sustained"]
 
 
 class SpotlightNotFound(LookupError):
@@ -23,7 +27,8 @@ class SpotlightNotFound(LookupError):
 
 
 class SpotlightEntryOut(BaseModel):
-    rank: int
+    group: Group
+    rank: int  # within the group
     stat_rank: int
     change: Change
     change_by: int  # places moved against the day before; 0 for same and new
@@ -37,6 +42,10 @@ class SpotlightEntryOut(BaseModel):
     metrics: dict[str, Any]
     fallback: bool
     url: str | None  # the original of the representative item (item_ids[0])
+    tags: list[str]  # Opus's short insight tags
+    signals: list[str]  # the server's tags from the metrics ("보도 7곳", "7일 중 4일", …)
+    field: str | None  # technology field of the lead card
+    field_label: str | None
 
 
 class SpotlightView(BaseModel):
@@ -95,7 +104,7 @@ def spotlight_view(session: Session, *, day: date | None, now: datetime) -> Spot
         session.scalars(
             select(SpotlightEntry)
             .where(SpotlightEntry.spotlight_id == spotlight.id)
-            .order_by(SpotlightEntry.section, SpotlightEntry.rank)
+            .order_by(SpotlightEntry.section, SpotlightEntry.group != "now", SpotlightEntry.rank)
         )
     )
     previous = _published(session, spotlight.spotlight_date - timedelta(days=1))
@@ -118,6 +127,7 @@ def spotlight_view(session: Session, *, day: date | None, now: datetime) -> Spot
         change, change_by = _change(entry, before)
         sections.setdefault(entry.section, []).append(
             SpotlightEntryOut(
+                group="sustained" if entry.group == "sustained" else "now",
                 rank=entry.rank,
                 stat_rank=entry.stat_rank,
                 change=change,
@@ -132,6 +142,10 @@ def spotlight_view(session: Session, *, day: date | None, now: datetime) -> Spot
                 metrics=entry.metrics,
                 fallback=entry.fallback,
                 url=urls.get(entry.item_ids[0]) if entry.item_ids else None,
+                tags=list(entry.tags or []),
+                signals=list(entry.signals or []),
+                field=entry.field,
+                field_label=LABELS.get(entry.field, entry.field) if entry.field else None,
             )
         )
     return SpotlightView(
