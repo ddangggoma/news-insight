@@ -12,7 +12,6 @@ import {
   formatChange,
   formatPoints,
   formatZ,
-  initialFocus,
   parseFocus,
   periodLabel,
   quadrantOf,
@@ -135,11 +134,6 @@ describe("radar numbers", () => {
     const split = volumeSplit(radar.themes);
     expect(split).toBe(6);
     expect(radar.themes.map((t) => quadrantOf(t, split))).toEqual(["leading", "emerging", "mainstream", "niche"]);
-  });
-
-  it("opens the requested topic, else the theme with the strongest momentum", () => {
-    expect(initialFocus(radar, { kind: "keyword", key: "hbm4" })).toEqual({ kind: "keyword", key: "hbm4" });
-    expect(initialFocus(radar, null)).toEqual({ kind: "theme", key: "ai__ai_agents" });
   });
 });
 

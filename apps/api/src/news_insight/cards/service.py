@@ -297,6 +297,7 @@ def card_input(item: Item, source: Source, keep: list[str] | None = None) -> Car
         source=source.name,
         language=source.language,
         excerpt=truncate(excerpt, EXCERPT_LIMIT) if excerpt else None,
+        published=(item.published_at or item.first_seen_at).astimezone(KST).date().isoformat(),
         keep=keep or None,
     )
 

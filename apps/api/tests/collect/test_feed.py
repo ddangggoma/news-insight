@@ -5,7 +5,9 @@ import pytest
 
 from news_insight.collect.contracts import CollectContext, CollectorError
 from news_insight.collect.feed import FeedCollector
-from tests.helpers import serving
+from news_insight.content.normalize import stable_key
+from news_insight.net.safe_fetch import SafeFetcher
+from tests.helpers import mock_fetcher, serving
 from tests.parsers.test_feed_probe import RECENT, item, rss
 
 NOW = datetime(2026, 10, 3, tzinfo=UTC)
@@ -128,6 +130,24 @@ def test_zoneless_dates_are_the_source_local_time() -> None:
     assert zoned.published_at == datetime(2026, 10, 1, 23, 0, tzinfo=UTC)
 
 
+LABELLED = b"""<?xml version="1.0"?>
+<rss version="2.0"><channel><title>t</title><link>https://www.example.com</link><description>d</description>
+<item><guid>s-1</guid><link>https://www.example.com/a</link><title>a</title>
+<pubDate>Tue, 03 Nov 2026 08:00:00 +0000</pubDate></item>
+</channel></rss>"""
+
+
+def test_local_clock_reads_a_wall_clock_labelled_utc_in_the_source_zone() -> None:
+    # Samsung Newsroom: "08:00:00 +0000" for a page that says 2026-11-03T08:00:00+09:00
+    config = {"timezone": "Asia/Seoul", "local_clock": True}
+
+    [labelled] = FeedCollector(serving(LABELLED)).collect(context(config=config)).items
+    [honest] = FeedCollector(serving(LABELLED)).collect(context()).items
+
+    assert labelled.published_at == datetime(2026, 11, 2, 23, 0, tzinfo=UTC)
+    assert honest.published_at == datetime(2026, 11, 3, 8, 0, tzinfo=UTC)
+
+
 def test_zoneless_dates_stay_utc_without_a_zone() -> None:
     zoneless, _ = FeedCollector(serving(ZONELESS)).collect(context()).items
 
@@ -166,3 +186,80 @@ def test_a_source_may_raise_the_size_limit() -> None:
 
     raised = FeedCollector(limited).collect(context(config={"max_bytes": 1_000_000}))
     assert [raw.title for raw in raised.items] == ["Galaxy S30"]
+
+
+FEED_RELISTED = b"""<?xml version="1.0"?>
+<rss version="2.0"><channel><title>t</title><link>https://www.example.com</link>
+<description>d</description>
+<item><guid>old</guid><link>https://www.example.com/old</link><title>Best space heaters</title>
+<pubDate>Thu, 01 Oct 2026 09:00:00 GMT</pubDate></item>
+<item><guid>fresh</guid><link>https://www.example.com/fresh</link><title>New review</title>
+<pubDate>Thu, 01 Oct 2026 10:00:00 GMT</pubDate></item>
+<item><guid>known</guid><link>https://www.example.com/known</link><title>Seen already</title>
+<pubDate>Thu, 01 Oct 2026 11:00:00 GMT</pubDate></item>
+<item><guid>edited</guid><link>https://www.example.com/edited</link><title>Edited page</title>
+<pubDate>Thu, 01 Oct 2026 12:00:00 GMT</pubDate></item>
+</channel></rss>"""
+
+
+def article(published: str, modified: str | None = None) -> bytes:
+    tags = f'<meta property="article:published_time" content="{published}">'
+    if modified:
+        tags += f'<meta property="article:modified_time" content="{modified}">'
+    return f"<html><head>{tags}</head><body><p>text</p></body></html>".encode()
+
+
+def relisting_site(pages: dict[str, bytes], seen: list[str]) -> SafeFetcher:
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(request.url.path)
+        if request.url.path == "/robots.txt":
+            return httpx.Response(404)
+        if request.url.path == "/feed.xml":
+            return httpx.Response(
+                200, headers={"content-type": "application/rss+xml"}, content=FEED_RELISTED
+            )
+        return httpx.Response(
+            200, headers={"content-type": "text/html"}, content=pages[request.url.path]
+        )
+
+    return mock_fetcher(handler)
+
+
+def test_page_date_gives_a_relisted_post_its_own_earlier_date() -> None:
+    seen: list[str] = []
+    pages = {
+        "/old": article("2025-03-01T09:00:00+00:00"),
+        "/fresh": article("2026-10-01T10:00:00+00:00"),  # the feed is right: unchanged
+        "/edited": article("2026-10-01T14:00:00+00:00"),  # later than the feed: never forward
+    }
+
+    result = FeedCollector(relisting_site(pages, seen)).collect(
+        context(
+            config={"page_date": True},
+            known_ids=frozenset({stable_key("known")}),
+        )
+    )
+
+    dates = {item.stable_id: item.published_at for item in result.items}
+    assert dates["old"] == datetime(2025, 3, 1, 9, 0, tzinfo=UTC)
+    assert dates["fresh"] == datetime(2026, 10, 1, 10, 0, tzinfo=UTC)
+    assert dates["known"] == datetime(2026, 10, 1, 11, 0, tzinfo=UTC)
+    assert dates["edited"] == datetime(2026, 10, 1, 12, 0, tzinfo=UTC)
+    assert "/known" not in seen  # a stored entry is not read again
+
+
+def test_page_dates_are_read_only_for_sources_that_ask_and_within_the_limit() -> None:
+    seen: list[str] = []
+    pages = {"/old": article("2025-03-01T09:00:00+00:00")}
+
+    plain = FeedCollector(relisting_site(pages, seen)).collect(context())
+    assert all(
+        item.published_at is not None and item.published_at.year == 2026 for item in plain.items
+    )
+    assert seen == ["/feed.xml"]
+
+    limited = FeedCollector(relisting_site(pages, seen := [])).collect(
+        context(config={"page_date": True, "enrich_limit": 1})
+    )
+    assert [p for p in seen if p != "/robots.txt"] == ["/feed.xml", "/old"]
+    assert limited.items[0].published_at == datetime(2025, 3, 1, 9, 0, tzinfo=UTC)

@@ -6,7 +6,7 @@ import { RadarControls } from "@/components/reader/radar/controls";
 import { SectionNav } from "@/components/reader/radar/section-nav";
 import { ApiError } from "@/lib/api";
 import type { SearchParams } from "@/lib/params";
-import { BASELINE_UNIT, initialFocus, isRadarKind, RADAR_KINDS, radarFilters, type RadarView } from "@/lib/radar";
+import { BASELINE_UNIT, isRadarKind, RADAR_KINDS, radarFilters, type RadarView } from "@/lib/radar";
 import { radarView } from "@/lib/radar-view";
 import { REVALIDATE, readerGet } from "@/lib/reader-api";
 import type { Radar, TopicDetail } from "@/lib/reader-types";
@@ -31,13 +31,13 @@ export async function generateMetadata({ params }: Props) {
 export default async function RadarPage({ params, searchParams }: Props) {
   const [{ period, key }, sp] = await Promise.all([params, searchParams]);
   if (!isRadarKind(period)) notFound();
-  const requested = radarView(sp);
-  const filters = radarFilters(requested);
-  const topic = (view: RadarView) =>
-    view.focus ? load<TopicDetail>("/radar/topic", { period, key, ...filters, kind: view.focus.kind, value: view.focus.key }) : null;
-  const [radar, requestedDetail] = await Promise.all([load<Radar>("/radar", { period, key, ...filters }), topic(requested)]);
-  const view: RadarView = { ...requested, focus: initialFocus(radar, requested.focus) };
-  const detail = requestedDetail ?? (await topic(view));
+  // a topic opens in a dialog only when the URL names one (?focus=)
+  const view: RadarView = radarView(sp);
+  const filters = radarFilters(view);
+  const [radar, detail] = await Promise.all([
+    load<Radar>("/radar", { period, key, ...filters }),
+    view.focus ? load<TopicDetail>("/radar/topic", { period, key, ...filters, kind: view.focus.kind, value: view.focus.key }) : null,
+  ]);
   const unit = `직전 ${radar.periods.length - 1}${BASELINE_UNIT[radar.window.kind]}`;
 
   return (

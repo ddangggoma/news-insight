@@ -16,7 +16,7 @@ from news_insight.ops.models import OpsAlert, Severity
 log = logging.getLogger(__name__)
 NOTIFY = (Severity.CRITICAL, Severity.WARNING)
 # shown on the console only (2026-10-08, no mail or push alerts for these)
-CONSOLE_ONLY = frozenset({"host_memory", "qwen_unloaded", "cards_zero"})
+CONSOLE_ONLY = frozenset({"host_memory", "qwen_unloaded", "cards_zero", "deals_stalled"})
 
 
 @dataclass

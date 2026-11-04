@@ -24,6 +24,9 @@ export type ChartConfig = Record<
 
 type ChartContextProps = {
   config: ChartConfig
+  // series switched off from the legend (dimmed in place, so stacks keep their scale)
+  hidden: ReadonlySet<string>
+  toggle: (key: string) => void
 }
 
 const ChartContext = React.createContext<ChartContextProps | null>(null)
@@ -56,10 +59,18 @@ function ChartContainer({
   }
 }) {
   const uniqueId = React.useId()
-  const chartId = `chart-${id ?? uniqueId.replace(/:/g, "")}`
+  const chartId = `chart-${id ?? uniqueId.replace(/[^a-zA-Z0-9_-]/g, "")}`
+  const [hidden, setHidden] = React.useState<ReadonlySet<string>>(new Set())
+  const toggle = (key: string) =>
+    setHidden((current) => {
+      const next = new Set(current)
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
+      return next
+    })
 
   return (
-    <ChartContext.Provider value={{ config }}>
+    <ChartContext.Provider value={{ config, hidden, toggle }}>
       <div
         data-slot="chart"
         data-chart={chartId}
@@ -70,6 +81,13 @@ function ChartContainer({
         {...props}
       >
         <ChartStyle id={chartId} config={config} />
+        {hidden.size ? (
+          <style>
+            {[...hidden]
+              .map((key) => `[data-chart=${chartId}] :is([fill="var(--color-${key})"],[stroke="var(--color-${key})"]){opacity:.07}`)
+              .join("")}
+          </style>
+        ) : null}
         <RechartsPrimitive.ResponsiveContainer
           initialDimension={initialDimension}
         >
@@ -281,7 +299,7 @@ function ChartLegendContent({
   hideIcon?: boolean
   nameKey?: string
 } & RechartsPrimitive.DefaultLegendContentProps) {
-  const { config } = useChart()
+  const { config, hidden, toggle } = useChart()
 
   if (!payload?.length) {
     return null
@@ -290,7 +308,7 @@ function ChartLegendContent({
   return (
     <div
       className={cn(
-        "flex items-center justify-center gap-4",
+        "flex flex-wrap items-center justify-center gap-x-1 gap-y-1",
         verticalAlign === "top" ? "pb-3" : "pt-3",
         className
       )}
@@ -301,11 +319,17 @@ function ChartLegendContent({
           const key = `${nameKey ?? item.dataKey ?? "value"}`
           const itemConfig = getPayloadConfigFromPayload(config, item, key)
 
+          const off = hidden.has(key)
           return (
-            <div
+            <button
+              type="button"
               key={index}
+              aria-pressed={!off}
+              title={`${itemConfig?.label ?? key}: 눌러서 ${off ? "보이기" : "숨기기"}`}
+              onClick={() => toggle(key)}
               className={cn(
-                "flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground"
+                "flex items-center gap-1.5 rounded-md px-1.5 py-0.5 transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground",
+                off && "text-muted-foreground line-through opacity-60"
               )}
             >
               {itemConfig?.icon && !hideIcon ? (
@@ -319,7 +343,7 @@ function ChartLegendContent({
                 />
               )}
               {itemConfig?.label}
-            </div>
+            </button>
           )
         })}
     </div>

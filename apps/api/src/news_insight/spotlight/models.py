@@ -43,12 +43,20 @@ class Spotlight(Base):
     generated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
 
+class SpotlightGroup(StrEnum):
+    NOW = "now"  # the day's 24 h window
+    SUSTAINED = "sustained"  # attention that lasted several of the last seven days
+
+
 class SpotlightEntry(Base):
-    """One ranked row of a section's Top 10: `rank` is the writer's, `stat_rank` the statistical."""
+    """One ranked row of a section's list: `rank` is the writer's within its group (최근 24시간
+    or 지속 주목), `stat_rank` the statistical."""
 
     __tablename__ = "spotlight_entries"
     __table_args__ = (
-        UniqueConstraint("spotlight_id", "section", "rank", name="uq_spotlight_entries_rank"),
+        UniqueConstraint(
+            "spotlight_id", "section", "group", "rank", name="uq_spotlight_entries_rank"
+        ),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -65,3 +73,7 @@ class SpotlightEntry(Base):
     rank_note: Mapped[str | None] = mapped_column(Text)
     metrics: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
     fallback: Mapped[bool] = mapped_column(default=False)
+    group: Mapped[str] = mapped_column(String(20), default=SpotlightGroup.NOW, server_default="now")
+    tags: Mapped[list[str]] = mapped_column(JSONB, default=list, server_default="[]")  # Opus's
+    signals: Mapped[list[str]] = mapped_column(JSONB, default=list, server_default="[]")  # server's
+    field: Mapped[str | None] = mapped_column(String(40))  # technology field of the lead card

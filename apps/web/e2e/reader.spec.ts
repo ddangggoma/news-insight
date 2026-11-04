@@ -39,7 +39,7 @@ test.describe("reader", () => {
     await expect(page.getByText(/품질 게이트 1\/1/)).toBeVisible();
   });
 
-  test("previous briefing navigation and article sheet", async ({ page }) => {
+  test("previous briefing navigation and article dialog", async ({ page }) => {
     await page.goto("/briefings");
     await page.getByRole("link", { name: "이전 브리핑" }).click();
     await expect(page).toHaveURL(/\/briefings\/\d{4}-\d{2}-\d{2}$/);
@@ -49,7 +49,11 @@ test.describe("reader", () => {
 
     await main.getByRole("link", { name: "삼성, 차세대 온디바이스 AI 칩 공개 (전일)" }).click();
     await expect(page).toHaveURL(/\/items\/\d+$/);
-    await expect(page.getByRole("link", { name: /원문/ }).first()).toHaveAttribute("href", /etnews\.example/);
+    const article = page.getByRole("dialog", { name: /삼성, 차세대 온디바이스 AI 칩 공개/ });
+    await expect(article.getByRole("link", { name: /원문/ }).first()).toHaveAttribute("href", /etnews\.example/);
+    await page.keyboard.press("Escape");
+    await expect(article).toBeHidden();
+    await expect(page).toHaveURL(/\/briefings\/\d{4}-\d{2}-\d{2}$/);
   });
 
   test("unknown briefing dates are 404", async ({ page }) => {
@@ -91,7 +95,11 @@ test.describe("reader", () => {
     const name = (await theme.getAttribute("aria-label"))!.replace(/ \d+건.*$/, "");
     await theme.click();
     await expect(page).toHaveURL(/focus=theme%3A/);
-    await expect(page.getByRole("complementary", { name: "선택한 항목" }).getByRole("heading", { level: 2 })).toContainText(name);
+    const topic = page.getByRole("dialog", { name });
+    await expect(topic.getByRole("heading", { level: 2 })).toContainText(name);
+    await page.keyboard.press("Escape");
+    await expect(topic).toBeHidden();
+    await expect(page).not.toHaveURL(/focus=/);
     await page.getByRole("group", { name: "신호 유형 필터" }).getByRole("link", { name: "제품·기능 출시" }).click();
     await expect(page).toHaveURL(/signal=launch/);
     await expect(page.getByRole("group", { name: "신호 유형 필터" }).getByRole("link", { name: "제품·기능 출시" })).toHaveAttribute("aria-pressed", "true");

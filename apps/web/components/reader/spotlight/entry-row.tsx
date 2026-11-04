@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { type SpotlightEntry, metricChips } from "@/lib/spotlight-types";
+import { type SpotlightEntry, metricChips, visibleSignals } from "@/lib/spotlight-types";
 import { cn } from "@/lib/utils";
 
 /** Change against the previous day's list: NEW, ▲n or ▼n (nothing when unchanged). */
@@ -25,9 +25,31 @@ function ChangeBadge({ entry }: { entry: Pick<SpotlightEntry, "change" | "change
   return null;
 }
 
-/** One line of a daily Top 10: rank, change, title, Opus's summary and reason, and the raw metrics. */
+/** Opus's insight tags (neutral) and the server's signal tags (muted), each once. */
+export function EntryTags({ entry }: { entry: Pick<SpotlightEntry, "tags" | "signals" | "metrics"> }) {
+  const tags = entry.tags ?? [];
+  const signals = visibleSignals(entry).filter((signal) => !tags.includes(signal));
+  if (tags.length === 0 && signals.length === 0) return null;
+  return (
+    <ul className="flex flex-wrap gap-1" aria-label="주목 이유">
+      {tags.map((tag) => (
+        <li key={`t-${tag}`} className="rounded-sm bg-secondary px-1.5 py-0.5 text-xs font-medium text-secondary-foreground">
+          {tag}
+        </li>
+      ))}
+      {signals.map((signal) => (
+        <li key={`s-${signal}`} className="rounded-sm border border-dashed px-1.5 py-0.5 text-xs text-muted-foreground">
+          {signal}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** One line of a section's list: rank, change, title, field, Opus's summary and reason, the tags and the raw metrics. */
 export function EntryRow({ entry }: { entry: SpotlightEntry }) {
-  const chips = metricChips(entry.metrics);
+  const signals = new Set(visibleSignals(entry));
+  const chips = metricChips(entry.metrics).filter((chip) => !signals.has(chip));
   const others = entry.item_ids.length - 1;
   return (
     <div className="flex gap-3 py-3">
@@ -46,8 +68,15 @@ export function EntryRow({ entry }: { entry: SpotlightEntry }) {
             <span className="font-medium leading-snug">{entry.title_ko}</span>
           )}
           {entry.product_name && <Badge variant="outline">{entry.product_name}</Badge>}
+          {entry.field_label && (
+            <Badge variant="ghost" className="border-border bg-muted/60 text-muted-foreground">
+              <span className="sr-only">분야 </span>
+              {entry.field_label}
+            </Badge>
+          )}
           {entry.fallback && <Badge variant="secondary">Opus 미작성</Badge>}
         </div>
+        <EntryTags entry={entry} />
         {entry.summary && <p className="text-sm text-muted-foreground">{entry.summary}</p>}
         {entry.why_hot && <p className="text-sm">{entry.why_hot}</p>}
         {entry.rank_note && <p className="text-xs text-muted-foreground">{entry.rank_note}</p>}
