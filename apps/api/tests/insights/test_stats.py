@@ -7,6 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from news_insight.content.models import Item, ItemDedup
+from news_insight.insights.models import StatsDay
 from news_insight.insights.stats import (
     day_bounds,
     recent_days,
@@ -264,3 +265,20 @@ def test_recent_rebuild_leaves_today_out_even_when_it_changed(db_session: Sessio
     result = recompute_recent(db_session, now=now)
 
     assert DAY + timedelta(days=1) not in result.days
+
+
+def test_each_built_day_is_marked_with_its_enrichment_coverage(db_session: Session) -> None:
+    src = source(db_session, "arxiv-cs")
+    found = document(db_session, src, "found", published=LATE)
+    document(db_session, src, "waiting", published=LATE)
+    enriched(db_session, found, institutions=[], countries=[], company_keys=[])
+    empty_day = DAY - timedelta(days=1)
+
+    recompute_days(db_session, [DAY, empty_day], now=MIDNIGHT)
+    recompute_days(db_session, [DAY], now=MIDNIGHT)  # again: the marker is replaced
+
+    marks = {
+        m.day: (m.research_docs, m.research_enriched, m.patent_docs)
+        for m in db_session.scalars(select(StatsDay))
+    }
+    assert marks == {DAY: (2, 1, 0), empty_day: (0, 0, 0)}

@@ -1,6 +1,6 @@
 """Papers and patents in the test database (plan 19 research, patents and daily stats)."""
 
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from typing import Any
 
 from sqlalchemy import select
@@ -121,3 +121,33 @@ def card(
     session.flush()
     session.refresh(row)  # company_keys come from a database trigger
     return row
+
+
+def mark_built(
+    session: Session,
+    first: date,
+    last: date,
+    *,
+    research_docs: int = 100,
+    research_enriched: int = 100,
+) -> None:
+    """stats_days rows for first..last: the days the nightly counts were built."""
+    from datetime import timedelta
+
+    from news_insight.insights.models import StatsDay
+
+    day = first
+    rows = []
+    while day <= last:
+        rows.append(
+            StatsDay(
+                day=day,
+                built_at=SEEN,
+                research_docs=research_docs,
+                research_enriched=research_enriched,
+                patent_docs=0,
+            )
+        )
+        day += timedelta(days=1)
+    session.add_all(rows)
+    session.flush()

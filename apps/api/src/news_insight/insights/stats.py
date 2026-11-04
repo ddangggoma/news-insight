@@ -9,6 +9,9 @@ rebuilds a longer stretch once.
 Counted like the reader counts: no canary items, no repeats of an earlier item, no archive pages
 (content/freshness.py). A document without a ready card is counted under field "other".
 
+Each day built is marked in stats_days with its research documents and those with OpenAlex
+metadata: the reader's as_of is the last day marked, and the trend flags read the coverage.
+
 research_daily_stats rows (dim → key column): total, theme (field = the theme's own field),
 company (registry key), org (institution name, not linked to a company, with its OpenAlex
 type), country. patent_daily_stats rows: total, company, office, each per field and source.
@@ -22,11 +25,13 @@ from typing import Any
 from zoneinfo import ZoneInfo
 
 from sqlalchemy import and_, delete, exists, func, insert, select, union
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import Session
 
 from news_insight.cards.models import CardStatus, ItemCard
 from news_insight.content.freshness import fresh_condition
 from news_insight.content.models import Item, ItemDedup
+from news_insight.insights.models import StatsDay
 from news_insight.patents.models import PatentDailyStat, PatentMeta
 from news_insight.research.models import EnrichStatus, ResearchDailyStat, ResearchMeta
 from news_insight.research.service import research_documents
@@ -72,7 +77,8 @@ def _in_day(day: date) -> list[Any]:
     return [Item.occurred_at >= start, Item.occurred_at < end]
 
 
-def _research_rows(session: Session, day: date) -> list[dict[str, Any]]:
+def _research_rows(session: Session, day: date) -> tuple[list[dict[str, Any]], int, int]:
+    """The day's rows, its research documents and those with OpenAlex metadata."""
     docs = session.execute(
         select(
             ItemCard.field,
@@ -81,6 +87,7 @@ def _research_rows(session: Session, day: date) -> list[dict[str, Any]]:
             ResearchMeta.countries,
             ResearchMeta.company_keys,
             ResearchMeta.has_company,
+            ResearchMeta.status,
         )
         .select_from(Item)
         .join(Source, Source.id == Item.source_id)
@@ -91,7 +98,9 @@ def _research_rows(session: Session, day: date) -> list[dict[str, Any]]:
     counts: Counter[tuple[str, str, str, str, str, str]] = Counter()
     company_counts: Counter[tuple[str, str, str, str, str, str]] = Counter()
     org_types: dict[tuple[str, str, str, str, str, str], str] = {}
-    for card_field, themes, institutions, countries, company_keys, has_company in docs:
+    enriched = 0
+    for card_field, themes, institutions, countries, company_keys, has_company, status in docs:
+        enriched += status == EnrichStatus.OK
         doc_field = _field(card_field)
         keys: set[tuple[str, str, str, str, str, str]] = {("total", doc_field, "", "", "", "")}
         for theme in themes or []:
@@ -111,7 +120,7 @@ def _research_rows(session: Session, day: date) -> list[dict[str, Any]]:
             if has_company:
                 company_counts[key] += 1
     columns = ("dim", "field", "theme", "company_key", "org_name", "country")
-    return [
+    rows = [
         {
             "day": day,
             **dict(zip(columns, key, strict=True)),
@@ -121,9 +130,10 @@ def _research_rows(session: Session, day: date) -> list[dict[str, Any]]:
         }
         for key, n in counts.items()
     ]
+    return rows, len(docs), enriched
 
 
-def _patent_rows(session: Session, day: date) -> list[dict[str, Any]]:
+def _patent_rows(session: Session, day: date) -> tuple[list[dict[str, Any]], int]:
     docs = session.execute(
         select(PatentMeta.field, PatentMeta.source, PatentMeta.company_keys, PatentMeta.office)
         .join(Item, Item.id == PatentMeta.item_id)
@@ -142,7 +152,7 @@ def _patent_rows(session: Session, day: date) -> list[dict[str, Any]]:
         if office:
             keys.add(("office", doc_field, kind, "", office))
         counts.update(keys)
-    return [
+    rows = [
         {
             "day": day,
             "dim": dim,
@@ -154,20 +164,35 @@ def _patent_rows(session: Session, day: date) -> list[dict[str, Any]]:
         }
         for (dim, doc_field, kind, company_key, office), n in counts.items()
     ]
+    return rows, len(docs)
 
 
-def recompute_days(session: Session, days: Iterable[date]) -> StatsResult:
-    """Rebuild the given days of both tables."""
+def recompute_days(
+    session: Session, days: Iterable[date], *, now: datetime | None = None
+) -> StatsResult:
+    """Rebuild the given days of both tables and mark them built (stats_days)."""
     result = StatsResult()
+    built_at = now or datetime.now(UTC)
     for day in sorted(set(days)):
-        research = _research_rows(session, day)
-        patents = _patent_rows(session, day)
+        research, research_docs, enriched = _research_rows(session, day)
+        patents, patent_docs = _patent_rows(session, day)
         session.execute(delete(ResearchDailyStat).where(ResearchDailyStat.day == day))
         session.execute(delete(PatentDailyStat).where(PatentDailyStat.day == day))
         if research:
             session.execute(insert(ResearchDailyStat), research)
         if patents:
             session.execute(insert(PatentDailyStat), patents)
+        marker = {
+            "built_at": built_at,
+            "research_docs": research_docs,
+            "research_enriched": enriched,
+            "patent_docs": patent_docs,
+        }
+        session.execute(
+            pg_insert(StatsDay)
+            .values(day=day, **marker)
+            .on_conflict_do_update(index_elements=[StatsDay.day], set_=marker)
+        )
         result.days.append(day)
         result.research_rows += len(research)
         result.patent_rows += len(patents)
@@ -200,4 +225,4 @@ def recompute_recent(
     out: its rows would be partial until tomorrow's run."""
     today = now.astimezone(KST).date()
     changed = changed_days(session, since=now - changed_within)
-    return recompute_days(session, {*recent_days(now), *(d for d in changed if d < today)})
+    return recompute_days(session, {*recent_days(now), *(d for d in changed if d < today)}, now=now)

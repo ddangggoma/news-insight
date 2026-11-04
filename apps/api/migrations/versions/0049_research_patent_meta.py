@@ -4,9 +4,11 @@
 citations per paper. `patent_meta`: publication number, office, CPC/IPC codes, applicants,
 company keys and technology field per patent document or patent news item.
 `research_daily_stats` and `patent_daily_stats`: documents per KST day by field, theme,
-company, organisation, country and office, rebuilt daily for the 연구 and 특허 menus.
+company, organisation, country and office, rebuilt daily for the 연구 and 특허 menus;
+`stats_days` marks the days built (the reader's as_of) with their enrichment coverage;
+`research_signals`: per recent paper, what the 주목 문헌 list filters and ranks by.
 
-Additive: four new tables. Code from before this revision never reads them.
+Additive: six new tables. Code from before this revision never reads them.
 
 Revision ID: 0049
 Revises: 0048
@@ -170,6 +172,12 @@ def upgrade() -> None:
     op.create_index(
         "ix_research_daily_stats_dim_day", "research_daily_stats", ["dim", "day"], unique=False
     )
+    op.create_index(
+        "ix_research_daily_stats_dim_org_day",
+        "research_daily_stats",
+        ["dim", "org_name", "day"],
+        unique=False,
+    )
     op.create_table(
         "patent_daily_stats",
         sa.Column("day", sa.Date(), nullable=False),
@@ -192,9 +200,75 @@ def upgrade() -> None:
     op.create_index(
         "ix_patent_daily_stats_dim_day", "patent_daily_stats", ["dim", "day"], unique=False
     )
+    op.create_table(
+        "stats_days",
+        sa.Column("day", sa.Date(), nullable=False),
+        sa.Column("built_at", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("research_docs", sa.Integer(), nullable=False),
+        sa.Column("research_enriched", sa.Integer(), nullable=False),
+        sa.Column("patent_docs", sa.Integer(), nullable=False),
+        sa.PrimaryKeyConstraint("day", name=op.f("pk_stats_days")),
+    )
+    op.create_table(
+        "research_signals",
+        sa.Column("item_id", sa.Integer(), nullable=False),
+        sa.Column("occurred_at", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("day", sa.Date(), nullable=False),
+        sa.Column("field", sa.String(length=40), nullable=False),
+        sa.Column(
+            "company_keys",
+            postgresql.ARRAY(sa.String(length=80)),
+            server_default=EMPTY_ARRAY,
+            nullable=False,
+        ),
+        sa.Column(
+            "orgs",
+            postgresql.ARRAY(sa.String(length=200)),
+            server_default=EMPTY_ARRAY,
+            nullable=False,
+        ),
+        sa.Column("canon_key", sa.String(length=320), nullable=True),
+        sa.Column("lead", sa.Boolean(), server_default=sa.text("true"), nullable=False),
+        sa.Column("lead_id", sa.Integer(), nullable=False),
+        sa.Column("mentions", sa.Integer(), server_default=sa.text("0"), nullable=False),
+        sa.Column("upvotes", sa.Integer(), server_default=sa.text("0"), nullable=False),
+        sa.Column("cited_growth", sa.Integer(), server_default=sa.text("0"), nullable=False),
+        sa.Column("score", sa.Float(), server_default=sa.text("0"), nullable=False),
+        sa.Column("computed_at", sa.DateTime(timezone=True), nullable=False),
+        sa.ForeignKeyConstraint(
+            ["item_id"],
+            ["items.id"],
+            name=op.f("fk_research_signals_item_id_items"),
+            ondelete="CASCADE",
+        ),
+        sa.PrimaryKeyConstraint("item_id", name=op.f("pk_research_signals")),
+    )
+    op.create_index(
+        "ix_research_signals_lead_day",
+        "research_signals",
+        ["day"],
+        unique=False,
+        postgresql_where=sa.text("lead"),
+    )
+    op.create_index(
+        "ix_research_signals_company_keys",
+        "research_signals",
+        ["company_keys"],
+        unique=False,
+        postgresql_using="gin",
+    )
+    op.create_index(
+        "ix_research_signals_orgs",
+        "research_signals",
+        ["orgs"],
+        unique=False,
+        postgresql_using="gin",
+    )
 
 
 def downgrade() -> None:
+    op.drop_table("research_signals")
+    op.drop_table("stats_days")
     op.drop_table("patent_daily_stats")
     op.drop_table("research_daily_stats")
     op.drop_table("patent_meta")

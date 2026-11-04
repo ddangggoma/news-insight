@@ -71,7 +71,11 @@ class ResearchDailyStat(Base):
     by insights.stats (delete + insert), so a day's rows are always one consistent pass."""
 
     __tablename__ = "research_daily_stats"
-    __table_args__ = (Index("ix_research_daily_stats_dim_day", "dim", "day"),)
+    __table_args__ = (
+        Index("ix_research_daily_stats_dim_day", "dim", "day"),
+        # an institution's rows (org detail): the org dimension is most of the table
+        Index("ix_research_daily_stats_dim_org_day", "dim", "org_name", "day"),
+    )
 
     day: Mapped[date] = mapped_column(Date, primary_key=True)
     dim: Mapped[str] = mapped_column(String(10), primary_key=True)
@@ -83,3 +87,44 @@ class ResearchDailyStat(Base):
     org_type: Mapped[str] = mapped_column(String(20), default="")
     n: Mapped[int]
     n_company: Mapped[int] = mapped_column(default=0)
+
+
+class ResearchSignal(Base):
+    """Per research document of the last ~100 days (plan 19 §1 주목 문헌): what the documents
+    list filters and ranks by, rebuilt daily after the counts (insights/signals.py) up to the
+    same as_of. Listings of one paper (arXiv and Hugging Face, a DOI and its arXiv id) share a
+    `canon_key`; the group's lead (`lead`, `lead_id` = item_id) carries the group's signals and
+    the union of its companies and institutions, the other rows point to it.
+
+    score = 10 × mentions + upvotes + 5 × ln(1 + cited_growth); mentions = news and community
+    items citing the paper's own DOI or arXiv id up to as_of (repeats left out); upvotes = the
+    Hugging Face daily papers count; cited_growth = OpenAlex citations of as_of's year minus
+    the year before (never below 0)."""
+
+    __tablename__ = "research_signals"
+    __table_args__ = (
+        Index("ix_research_signals_lead_day", "day", postgresql_where=text("lead")),
+        Index("ix_research_signals_company_keys", "company_keys", postgresql_using="gin"),
+        Index("ix_research_signals_orgs", "orgs", postgresql_using="gin"),
+    )
+
+    item_id: Mapped[int] = mapped_column(
+        ForeignKey("items.id", ondelete="CASCADE"), primary_key=True
+    )
+    occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    day: Mapped[date] = mapped_column(Date)  # KST
+    field: Mapped[str] = mapped_column(String(40))  # card field, else "other" (as the counts)
+    company_keys: Mapped[list[str]] = mapped_column(
+        ARRAY(String(80)), default=list, server_default=text("'{}'")
+    )
+    orgs: Mapped[list[str]] = mapped_column(
+        ARRAY(String(200)), default=list, server_default=text("'{}'")
+    )
+    canon_key: Mapped[str | None] = mapped_column(String(320))
+    lead: Mapped[bool] = mapped_column(default=True, server_default=text("true"))
+    lead_id: Mapped[int]
+    mentions: Mapped[int] = mapped_column(default=0, server_default=text("0"))
+    upvotes: Mapped[int] = mapped_column(default=0, server_default=text("0"))
+    cited_growth: Mapped[int] = mapped_column(default=0, server_default=text("0"))
+    score: Mapped[float] = mapped_column(Float, default=0.0, server_default=text("0"))
+    computed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))

@@ -86,7 +86,7 @@ def test_insights_backfill_stats_rebuilds_each_day(db_session: Session) -> None:
     result = runner.invoke(cli.app, ["insights", "backfill-stats", "--days", "3"])
 
     assert result.exit_code == 0, result.output
-    assert result.output.splitlines()[-1] == "days=3 research_rows=1 patent_rows=0"
+    assert result.output.splitlines()[-1] == "days=3 research_rows=1 patent_rows=0 signal_rows=1"
     assert len(db_session.scalars(select(ResearchDailyStat)).all()) == 1
 
 

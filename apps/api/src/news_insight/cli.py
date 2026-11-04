@@ -1893,13 +1893,21 @@ def insights_backfill_stats(
     days: Annotated[int, typer.Option(help="KST days before today to rebuild")] = 365,
 ) -> None:
     """Rebuild research_daily_stats and patent_daily_stats for the last N days (once after
-    deploying; the 03:40 job keeps the last three days current). One transaction per day."""
+    deploying; the 03:40 job keeps the last three days current), one transaction per day, then
+    the per-paper signals of the 주목 문헌 list."""
+    from news_insight.insights.signals import recompute_signals
     from news_insight.insights.stats import recent_days, recompute_days
 
     total_research = total_patents = 0
-    for day in recent_days(datetime.now(UTC), days):
+    now = datetime.now(UTC)
+    for day in recent_days(now, days):
         with session_scope() as session:
-            result = recompute_days(session, [day])
+            result = recompute_days(session, [day], now=now)
         total_research += result.research_rows
         total_patents += result.patent_rows
-    typer.echo(f"days={days} research_rows={total_research} patent_rows={total_patents}")
+    with session_scope() as session:
+        signals = recompute_signals(session, through=recent_days(now, 1)[0], now=now)
+    typer.echo(
+        f"days={days} research_rows={total_research} patent_rows={total_patents} "
+        f"signal_rows={signals.rows}"
+    )
