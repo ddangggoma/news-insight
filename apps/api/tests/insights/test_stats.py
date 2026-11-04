@@ -213,3 +213,54 @@ def test_recompute_recent_rebuilds_three_days(db_session: Session) -> None:
     assert result.days == [DAY - timedelta(days=2), DAY - timedelta(days=1), DAY]
     stored = set(db_session.scalars(select(ResearchDailyStat.day)))
     assert stored == set(result.days)
+
+
+def test_recent_rebuild_also_covers_days_of_papers_enriched_since_the_last_run(
+    db_session: Session,
+) -> None:
+    now = MIDNIGHT + timedelta(days=5, hours=4)  # 04:00 KST on 2026-11-08
+    old_day = DAY - timedelta(days=1)  # a week before "now" in KST, outside the last three
+    src = source(db_session, "arxiv-cs")
+    paper = document(db_session, src, "late", published=LATE - timedelta(days=1))
+    card(db_session, paper, field="ai", themes=[])
+    recompute_days(db_session, [old_day])
+    assert research_rows(db_session, old_day) == {("total", "ai", "", "", "", "", "", 1, 0)}
+
+    enriched(
+        db_session,
+        paper,
+        institutions=[inst("Google (United States)", "company", "US", "google")],
+        countries=["US"],
+        company_keys=["google"],
+    )
+    db_session.get_one(ResearchMeta, paper.id).enriched_at = now - timedelta(hours=2)
+    stale = document(db_session, src, "stale", published=LATE - timedelta(days=2))
+    db_session.add(
+        ResearchMeta(
+            item_id=stale.id,
+            doi="10.1/stale",
+            status=EnrichStatus.OK,
+            enriched_at=now - timedelta(days=3),
+        )
+    )
+    db_session.flush()
+
+    result = recompute_recent(db_session, now=now)
+
+    assert old_day in result.days and DAY - timedelta(days=2) not in result.days
+    assert research_rows(db_session, old_day) == {
+        ("total", "ai", "", "", "", "", "", 1, 1),
+        ("company", "ai", "", "google", "", "", "", 1, 1),
+        ("country", "ai", "", "", "", "", "US", 1, 1),
+    }
+
+
+def test_recent_rebuild_leaves_today_out_even_when_it_changed(db_session: Session) -> None:
+    src = source(db_session, "arxiv-cs")
+    now = MIDNIGHT + timedelta(hours=4)  # 04:00 KST on the 3rd
+    paper = document(db_session, src, "today", published=MIDNIGHT + timedelta(hours=1))
+    enriched(db_session, paper, institutions=[], countries=["KR"], company_keys=[])
+
+    result = recompute_recent(db_session, now=now)
+
+    assert DAY + timedelta(days=1) not in result.days

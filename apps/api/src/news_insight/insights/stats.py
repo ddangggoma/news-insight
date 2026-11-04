@@ -21,14 +21,14 @@ from datetime import UTC, date, datetime, time, timedelta
 from typing import Any
 from zoneinfo import ZoneInfo
 
-from sqlalchemy import and_, delete, exists, insert, select
+from sqlalchemy import and_, delete, exists, func, insert, select, union
 from sqlalchemy.orm import Session
 
 from news_insight.cards.models import CardStatus, ItemCard
 from news_insight.content.freshness import fresh_condition
 from news_insight.content.models import Item, ItemDedup
 from news_insight.patents.models import PatentDailyStat, PatentMeta
-from news_insight.research.models import ResearchDailyStat, ResearchMeta
+from news_insight.research.models import EnrichStatus, ResearchDailyStat, ResearchMeta
 from news_insight.research.service import research_documents
 from news_insight.sources.models import Source
 from news_insight.taxonomy.catalog import FIELD_KEYS
@@ -36,6 +36,7 @@ from news_insight.taxonomy.catalog import FIELD_KEYS
 KST = ZoneInfo("Asia/Seoul")
 OTHER = "other"
 RECENT_DAYS = 3
+CHANGED_WITHIN = timedelta(hours=25)  # a day between runs, with an hour to spare
 ORG_TYPE_MAX = 20
 
 
@@ -174,6 +175,29 @@ def recompute_days(session: Session, days: Iterable[date]) -> StatsResult:
     return result
 
 
-def recompute_recent(session: Session, *, now: datetime) -> StatsResult:
-    """The daily 03:40 rebuild: yesterday and the two days before (late cards and papers)."""
-    return recompute_days(session, recent_days(now))
+def changed_days(session: Session, *, since: datetime) -> list[date]:
+    """KST days of the papers enriched and patents indexed since `since`: a new arXiv paper is
+    usually not on OpenAlex yet and is found a week later, after its day was last rebuilt."""
+    kst_day = func.date(func.timezone(KST.key, Item.occurred_at))
+    research = (
+        select(kst_day)
+        .join(ResearchMeta, ResearchMeta.item_id == Item.id)
+        .where(ResearchMeta.enriched_at >= since, ResearchMeta.status == EnrichStatus.OK)
+    )
+    patents = (
+        select(kst_day)
+        .join(PatentMeta, PatentMeta.item_id == Item.id)
+        .where(PatentMeta.indexed_at >= since)
+    )
+    return sorted(set(session.scalars(union(research, patents))))
+
+
+def recompute_recent(
+    session: Session, *, now: datetime, changed_within: timedelta = CHANGED_WITHIN
+) -> StatsResult:
+    """The daily 03:40 rebuild: yesterday and the two days before (late cards), plus every
+    earlier day with papers enriched or patents indexed since the previous run. Today is left
+    out: its rows would be partial until tomorrow's run."""
+    today = now.astimezone(KST).date()
+    changed = changed_days(session, since=now - changed_within)
+    return recompute_days(session, {*recent_days(now), *(d for d in changed if d < today)})
