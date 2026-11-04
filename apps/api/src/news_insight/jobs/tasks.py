@@ -1,10 +1,12 @@
 """Celery entry points. They wire sessions, locks and fetchers; logic lives in services."""
 
+import logging
 from dataclasses import asdict
 from datetime import UTC, datetime
 from typing import Any
 from zoneinfo import ZoneInfo
 
+from news_insight.collect.dead_letters import resume_transient
 from news_insight.collect.dispatch import claim_due_sources
 from news_insight.collect.service import collect_source
 from news_insight.config import get_settings
@@ -19,6 +21,8 @@ from news_insight.sources.canary import run_canaries
 from news_insight.sources.models import Source
 from news_insight.sources.quality import run_quality
 from news_insight.stories.service import cluster
+
+logger = logging.getLogger(__name__)
 
 
 @celery_app.task(name="collect.dispatch_due")
@@ -50,6 +54,12 @@ def collect_source_task(source_id: int) -> str:
                 gate=ProviderGate(client),
             )
             return run.outcome.value
+
+
+@celery_app.task(name="sources.resume_transient")
+def resume_transient_task() -> list[str]:
+    with session_scope() as session:
+        return [source.key for source in resume_transient(session, now=datetime.now(UTC))]
 
 
 @celery_app.task(name="sources.run_canaries")
@@ -94,13 +104,30 @@ def source_quality_task() -> dict[str, Any]:
 def briefing_freeze_task() -> int:
     from news_insight.briefing.service import freeze
     from news_insight.signals.service import snapshot
+    from news_insight.spotlight.service import freeze as freeze_spotlight
 
     now = datetime.now(UTC)
     with session_scope() as session:
         today = now.astimezone(ZoneInfo(get_settings().timezone)).date()
         frozen = freeze(session, briefing_date=today, now=now)
-        snapshot(session, day=today, now=now)  # PRD-1: the radar cards the 05:00 roles will read
-        return len(frozen.candidate_ids)
+        # PRD-1: the radar cards the 05:00 roles will read. A failed snapshot must not take the
+        # freeze with it (2026-10-26/27: a too-long tone rolled back both, no briefing).
+        try:
+            with session.begin_nested():
+                snapshot(session, day=today, now=now)
+        except Exception:  # noqa: BLE001 - the briefing still publishes without radar evidence
+            logger.exception("radar signal snapshot failed; freeze kept")
+        count = len(frozen.candidate_ids)
+        # the briefing must not wait on, or be lost with, the spotlight step below
+        session.commit()
+        # plan 18: the candidates the 05:00 spotlight writer chooses from; the writer freezes on
+        # the spot if this fails
+        try:
+            with session.begin_nested():
+                freeze_spotlight(session, day=today, now=now)
+        except Exception:  # noqa: BLE001 - the briefing does not depend on the spotlight
+            logger.exception("spotlight freeze failed; briefing freeze kept")
+        return count
 
 
 @celery_app.task(name="auth.purge")
@@ -207,8 +234,35 @@ def radar_warm_task() -> int:
     client = cache_client()
     if client is None:
         return 0
-    with session_scope() as session:
-        return warm(session, now=datetime.now(UTC), client=client)
+    # one warm-up at a time: on 2026-10-29 a run took 25 minutes on average against a 10 minute
+    # schedule, and overlapping runs held 2.4 of the 4 worker slots, so collection stalled
+    with SourceLock(get_redis(), ttl_seconds=3600, prefix="lock:").hold("radar-warm") as acquired:
+        if not acquired:
+            return 0
+        with session_scope() as session:
+            return warm(session, now=datetime.now(UTC), client=client)
+
+
+@celery_app.task(name="reader.refresh_facts")
+def refresh_reader_facts_task() -> bool:
+    from psycopg.errors import LockNotAvailable
+    from sqlalchemy.exc import OperationalError
+
+    from news_insight.public.facts import refresh
+
+    # one refresh at a time: a slow one must not pile up behind the next schedule
+    with SourceLock(get_redis(), ttl_seconds=900, prefix="lock:").hold("reader-facts") as acquired:
+        if not acquired:
+            return False
+        try:
+            with session_scope() as session:
+                refresh(session)
+        except OperationalError as error:
+            if not isinstance(error.orig, LockNotAvailable):
+                raise
+            logger.warning("reader facts: a long read held the view, next run tries again")
+            return False
+        return True
 
 
 @celery_app.task(name="cards.triage_train")
@@ -223,3 +277,12 @@ def triage_train_task() -> dict[str, Any]:
             if result is None
             else {"model": result.model_id, "auc": result.auc, "samples": result.samples}
         )
+
+
+@celery_app.task(name="benchmarks.collect")
+def benchmarks_collect_task() -> dict[str, str]:
+    """Plan 18: the four AI leaderboards, once a day. A site that fails keeps its last snapshot."""
+    from news_insight.benchmarks.service import collect_all
+
+    with session_scope() as session, SafeFetcher.from_settings(get_settings()) as fetcher:
+        return collect_all(session, fetcher, datetime.now(UTC))

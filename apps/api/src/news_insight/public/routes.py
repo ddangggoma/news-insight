@@ -18,6 +18,7 @@ from news_insight.digest.models import Digest
 from news_insight.digest.schemas import DigestSummary
 from news_insight.periodic import service as periodic_service
 from news_insight.public import aggregates, radar_cache
+from news_insight.public import benchmarks as benchmark_queries
 from news_insight.public import board as board_queries
 from news_insight.public import briefings as briefing_queries
 from news_insight.public import companies as company_queries
@@ -26,6 +27,7 @@ from news_insight.public import maturity as maturity_queries
 from news_insight.public import patents as patent_queries
 from news_insight.public import periodic as periodic_queries
 from news_insight.public import radar as radar_queries
+from news_insight.public import spotlight as spotlight_queries
 from news_insight.public.auth import require_public_key
 from news_insight.public.distribution import Distribution, DistributionError, distribution
 from news_insight.public.filters import FilterError, ReaderFilters
@@ -146,7 +148,7 @@ def list_items(
     page: Annotated[int, Query(ge=1)] = 1,
     size: Annotated[int, Query(ge=1, le=50)] = 30,
 ) -> FeedPage:
-    return feed_queries.feed(session, filters, window, sort=sort, page=page, size=size)
+    return feed_queries.reader_feed(session, filters, window, sort=sort, page=page, size=size)
 
 
 @router.get("/items/{item_id}")
@@ -421,6 +423,31 @@ def get_patents(
 ) -> patent_queries.PatentView:
     """Patent signals by period, technology area and company (plan 16 #5)."""
     return patent_queries.patent_view(session, kind=kind, now=now, page=page)
+
+
+@router.get("/spotlight")
+def get_spotlight(
+    session: DB, now: Now, day: Annotated[date | None, Query(alias="date")] = None
+) -> spotlight_queries.SpotlightView:
+    """Daily Top 10s per section with the change since the day before (plan 18)."""
+    try:
+        return spotlight_queries.spotlight_view(session, day=day, now=now)
+    except spotlight_queries.SpotlightNotFound as error:
+        raise HTTPException(
+            status.HTTP_404_NOT_FOUND, "no published spotlight on that date"
+        ) from error
+
+
+@router.get("/benchmarks")
+def get_benchmarks(
+    session: DB, now: Now, site: Annotated[str | None, Query(max_length=40)] = None
+) -> list[benchmark_queries.BenchmarkSiteOut]:
+    """AI model leaderboards (plan 18): every site's summary (top ten per board with ranks and
+    moves), or with `site` that site's full rows."""
+    try:
+        return benchmark_queries.benchmarks_view(session, now=now, site=site)
+    except benchmark_queries.UnknownSite as error:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "unknown benchmark site") from error
 
 
 class AskIn(BaseModel):

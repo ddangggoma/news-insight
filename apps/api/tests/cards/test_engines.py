@@ -48,6 +48,22 @@ def test_usage_parses_gemini_limits_only() -> None:
     assert not parse_usage("nothing").usable(min_weekly=0, min_five_hour=0)
 
 
+def test_usage_of_another_model_group() -> None:
+    # Antigravity's Claude Sonnet spends the "Claude and GPT models" limit (2026-10-29)
+    quota = parse_usage(USAGE, "Claude and GPT models")
+    assert (quota.weekly, quota.five_hour) == (100, None)
+
+    engine = AgyEngine(
+        executable="agy",
+        model="claude-sonnet-5-5-medium",
+        timeout_seconds=30,
+        runner=FakeRunner(json.dumps({"response": USAGE})),
+        name="agy-claude",
+        quota_group="Claude and GPT models",
+    )
+    assert engine.name == "agy-claude" and engine.usage().weekly == 100
+
+
 def test_agy_generates_with_schema_without_slash_commands_and_secrets() -> None:
     envelope = {"status": "SUCCESS", "structured_output": json.dumps({"cards": []})}
     runner = FakeRunner(json.dumps(envelope))

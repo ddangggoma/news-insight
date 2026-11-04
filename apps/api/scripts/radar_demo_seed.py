@@ -742,7 +742,8 @@ def main() -> None:
         for n, plan in enumerate(plans):
             verb = ["공개", "연구", "출시", "분석", "논의", "도입"][n % 6]
             topic = plan.theme.key.split("__")[1].replace("_", " ")
-            title = f"{plan.keywords[0]} {verb} — {topic} #{n}"
+            # numbered without "#": dedup drops hashtags, and the reports must stay distinct
+            title = f"{plan.keywords[0]} {verb} — {topic} ({n})"
             ingest_items(
                 session,
                 sources[plan.source],

@@ -26,6 +26,7 @@ const item = (id: number, field: string, impact: string): ReaderItem => ({
   region: "kr",
   published_at: null,
   first_seen_at: "2026-10-04T00:00:00Z",
+  occurred_at: "2026-10-04T00:00:00Z",
   metrics: {},
   story: null,
 });

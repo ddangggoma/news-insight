@@ -25,6 +25,7 @@ const item: ReaderItem = {
   region: "global_en",
   published_at: null,
   first_seen_at: "2026-10-04T02:00:00Z",
+  occurred_at: "2026-10-04T02:00:00Z",
   metrics: { stars: 2312 },
   story: { id: 7, item_count: 3, source_count: 2, tracks: ["news"] },
 };

@@ -219,3 +219,26 @@ def test_backfill_keys_old_items_and_recovers_split_mastodon_links(db_session: S
         == "JNTC to invest in glass substrates"
     )
     assert cards(db_session) == {}  # backfill writes no cards
+
+
+def test_a_repeat_with_text_is_not_given_a_root_card_without_summary(
+    db_session: Session,
+) -> None:
+    feed = source(db_session, "titles-only")
+    social = source(db_session, "masto", access_method=AccessMethod.ACTIVITYPUB)
+    ingest(db_session, feed, [RawItem(stable_id="a", url="https://ex.com/1", title=TITLE)])
+    ingest(
+        db_session,
+        social,
+        [RawItem(stable_id="p", url="https://ex.com/1", title="Pentagon post", summary=BODY)],
+    )
+    assert dedup(db_session, "Pentagon post").matched_by == "url"
+
+    agy = FakeAgy([FULL])
+    run_cards(scope_for(db_session), agy=agy, partner=None, policy=POLICY)
+    run_cards(scope_for(db_session), agy=agy, partner=None, policy=POLICY)
+
+    made = cards(db_session)
+    assert made[TITLE].summary_ko == []  # nothing to summarise
+    assert made["Pentagon post"].engine != REUSED and made["Pentagon post"].summary_ko == ["요약"]
+    assert pending_count(db_session) == 0

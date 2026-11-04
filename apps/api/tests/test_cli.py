@@ -1,14 +1,20 @@
 from collections.abc import Iterator
 from contextlib import contextmanager
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
+from typing import Any
 
 import httpx
 import pytest
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 from typer.testing import CliRunner
 
 from news_insight import cli
+from news_insight.benchmarks.models import BenchmarkScore, BenchmarkSnapshot
+from news_insight.digest.claude import ClaudeError, ClaudeResult
 from news_insight.net.safe_fetch import SafeFetcher
+from news_insight.spotlight.models import Spotlight, SpotlightFreeze, SpotlightStatus
 from tests.sources.test_catalog import ENTRY, write_catalog
 
 pytestmark = pytest.mark.db
@@ -107,3 +113,190 @@ def test_ops_keys_reports_missing_keys_without_values(monkeypatch: pytest.Monkey
     assert result.exit_code == 0
     assert "OPENALEX_API_KEY is not set" in result.output
     assert "SOURCE_SECRET_EPO_OPS_KEY is not configured" in result.output
+
+
+SPOTLIGHT_DAY = date(2026, 11, 3)
+SPOTLIGHT_AT = datetime(2026, 11, 2, 20, 30, tzinfo=UTC)  # 05:30 KST on SPOTLIGHT_DAY
+
+
+def clock_at(monkeypatch: pytest.MonkeyPatch, moment: datetime) -> None:
+    class Frozen(datetime):
+        @classmethod
+        def now(cls, tz: Any = None) -> "Frozen":  # type: ignore[override]
+            return cls.fromtimestamp(moment.timestamp(), tz)
+
+    monkeypatch.setattr(cli, "datetime", Frozen)
+
+
+class FailingClaude:
+    def generate(self, payload: dict[str, Any], **kwargs: Any) -> ClaudeResult:
+        raise ClaudeError("claude login expired")
+
+
+def test_spotlight_write_noop_when_published(db_session: Session) -> None:
+    freeze = SpotlightFreeze(spotlight_date=SPOTLIGHT_DAY, frozen_at=SPOTLIGHT_AT, candidates={})
+    db_session.add(freeze)
+    db_session.flush()
+    db_session.add(
+        Spotlight(
+            spotlight_date=SPOTLIGHT_DAY,
+            status=SpotlightStatus.PUBLISHED,
+            model="claude-opus-5-5",
+            headline="",
+            benchmark_note="",
+            freeze_id=freeze.id,
+            generated_at=SPOTLIGHT_AT,
+        )
+    )
+    db_session.flush()
+
+    result = runner.invoke(cli.app, ["spotlight", "write", "--date", "2026-11-03"])
+
+    assert result.exit_code == 0, result.output
+    assert "2026-11-03 spotlight already published; nothing to do" in result.output
+
+
+def test_spotlight_write_commits_the_failed_row_before_exiting_1(
+    db_session: Session, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    @contextmanager
+    def real_scope() -> Iterator[Session]:
+        """Like db.session_scope: commit on success, roll back when anything propagates."""
+        try:
+            yield db_session
+        except BaseException:
+            db_session.rollback()
+            raise
+        db_session.commit()
+
+    monkeypatch.setattr(cli, "session_scope", real_scope)
+    monkeypatch.setattr(cli, "_spotlight_claude", lambda: FailingClaude())
+    clock_at(monkeypatch, SPOTLIGHT_AT)  # 05:30 KST: not the last attempt
+
+    result = runner.invoke(cli.app, ["spotlight", "write", "--date", "2026-11-03"])
+
+    assert result.exit_code == 1
+    assert "claude login expired" in result.output
+    row = db_session.scalars(
+        select(Spotlight).where(Spotlight.spotlight_date == SPOTLIGHT_DAY)
+    ).one()
+    assert row.status is SpotlightStatus.FAILED and row.error == "claude login expired"
+    # the on-the-spot freeze survived with it
+    assert db_session.scalars(select(SpotlightFreeze)).one().spotlight_date == SPOTLIGHT_DAY
+
+
+class CapturingClaude:
+    def __init__(self) -> None:
+        self.payloads: list[dict[str, Any]] = []
+
+    def generate(self, payload: dict[str, Any], **kwargs: Any) -> ClaudeResult:
+        self.payloads.append(payload)
+        return ClaudeResult(
+            structured={"headline": "", "benchmark_note": "", "sections": {}},
+            model="claude-opus-5-5",
+            cost_usd=0.1,
+        )
+
+
+def _leaderboard(db_session: Session, hours_ago: int, order: tuple[str, str]) -> None:
+    snapshot = BenchmarkSnapshot(
+        site="lmarena",
+        release=str(hours_ago),
+        fetched_at=SPOTLIGHT_AT - timedelta(hours=hours_ago),
+        sha256=str(hours_ago),
+        raw={},
+    )
+    db_session.add(snapshot)
+    db_session.flush()
+    for value, model in zip((1500.0, 1400.0), order, strict=True):
+        db_session.add(
+            BenchmarkScore(
+                snapshot_id=snapshot.id,
+                site="lmarena",
+                board="text",
+                model_raw=model,
+                metric="rating",
+                value=value,
+                extra={},
+            )
+        )
+    db_session.flush()
+
+
+def test_spotlight_write_gives_opus_the_benchmark_moves(
+    db_session: Session, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _leaderboard(db_session, 28, ("alpha", "beta"))
+    _leaderboard(db_session, 2, ("beta", "alpha"))
+    claude = CapturingClaude()
+    monkeypatch.setattr(cli, "_spotlight_claude", lambda: claude)
+    clock_at(monkeypatch, SPOTLIGHT_AT)
+
+    result = runner.invoke(cli.app, ["spotlight", "write", "--date", "2026-11-03"])
+
+    assert result.exit_code == 0, result.output
+    changes = claude.payloads[0]["benchmarks"]["changes"]
+    assert {(c["model"], c["from"], c["to"]) for c in changes} == {("beta", 2, 1), ("alpha", 1, 2)}
+
+
+def test_spotlight_write_goes_on_when_the_benchmark_view_breaks(
+    db_session: Session, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def broken(session: Session, *, now: datetime) -> dict[str, Any]:
+        raise RuntimeError("bad benchmark data")
+
+    claude = CapturingClaude()
+    monkeypatch.setattr(cli, "_spotlight_claude", lambda: claude)
+    monkeypatch.setattr("news_insight.public.benchmarks.benchmark_changes", broken)
+    clock_at(monkeypatch, SPOTLIGHT_AT)
+
+    result = runner.invoke(cli.app, ["spotlight", "write", "--date", "2026-11-03"])
+
+    assert result.exit_code == 0, result.output
+    assert claude.payloads[0]["benchmarks"] == {"changes": [], "new_models": []}
+
+
+def test_spotlight_write_from_ten_publishes_the_fallback(
+    db_session: Session, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(cli, "_spotlight_claude", lambda: FailingClaude())
+    clock_at(monkeypatch, datetime(2026, 11, 3, 1, 0, tzinfo=UTC))  # 10:00 KST
+
+    result = runner.invoke(cli.app, ["spotlight", "write", "--date", "2026-11-03"])
+
+    assert result.exit_code == 0, result.output
+    row = db_session.scalars(
+        select(Spotlight).where(Spotlight.spotlight_date == SPOTLIGHT_DAY)
+    ).one()
+    assert row.status is SpotlightStatus.PUBLISHED
+    assert "fallback: claude login expired" in result.output
+
+
+def test_spotlight_freeze_is_idempotent() -> None:
+    first = runner.invoke(cli.app, ["spotlight", "freeze", "--date", "2026-11-03"])
+    second = runner.invoke(cli.app, ["spotlight", "freeze", "--date", "2026-11-03"])
+
+    assert first.exit_code == second.exit_code == 0, first.output + second.output
+    assert first.output == second.output and "2026-11-03 frozen" in first.output
+
+
+def test_benchmarks_collect_prints_each_site_and_exits_0(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    seen: dict[str, Any] = {}
+
+    def fake_collect_all(session: Session, fetcher: SafeFetcher, now: datetime) -> dict[str, str]:
+        seen["now"] = now
+        return {"lmarena": "saved", "livebench": "selector_drift", "hf-trending": "unchanged"}
+
+    monkeypatch.setattr(cli, "collect_all", fake_collect_all)
+
+    result = runner.invoke(cli.app, ["benchmarks", "collect"])
+
+    assert result.exit_code == 0, result.output
+    assert result.output.splitlines() == [
+        "lmarena: saved",
+        "livebench: selector_drift",
+        "hf-trending: unchanged",
+    ]
+    assert seen["now"].tzinfo is not None

@@ -137,3 +137,52 @@ def test_same_url_and_same_headline_under_a_new_id_is_skipped(db_session: Sessio
 
     assert (stats.new, stats.duplicate_urls) == (0, 1)
     assert db_session.scalar(select(func.count()).select_from(Item)) == 1
+
+
+def dated(
+    n: int, published: datetime | None, *, body: str | None = None, title: str = ""
+) -> RawItem:
+    return RawItem(
+        stable_id=f"id-{n}",
+        url=f"https://www.example.com/{n}",
+        title=title or f"Title {n}",
+        body=body,
+        published_at=published,
+    )
+
+
+def test_future_wall_clock_dates_are_corrected_for_the_source_zone(db_session: Session) -> None:
+    from news_insight.sources.enums import Region
+
+    source = persisted(db_session, region=Region.KR)
+
+    ingest(
+        db_session, source, [dated(1, NOW + timedelta(hours=8)), dated(2, NOW + timedelta(days=4))]
+    )
+
+    first, second = db_session.scalars(select(Item).order_by(Item.stable_id)).all()
+    assert first.published_at == NOW - timedelta(hours=1)
+    assert second.published_at is None
+    assert second.occurred_at == NOW  # falls back to when it was seen
+
+
+def test_missing_dates_come_from_the_dateline(db_session: Session) -> None:
+    from news_insight.sources.enums import Region
+
+    source = persisted(db_session, region=Region.KR)
+
+    ingest(db_session, source, [dated(1, None, body="입력 2026.10.02 18:00 본문")])
+
+    item = db_session.scalars(select(Item)).one()
+    assert item.published_at == datetime(2026, 10, 2, 9, 0, tzinfo=UTC)
+
+
+def test_a_revision_keeps_the_first_date(db_session: Session) -> None:
+    source = persisted(db_session)
+    first = NOW - timedelta(days=2)
+
+    ingest(db_session, source, [dated(1, first)])
+    ingest(db_session, source, [dated(1, NOW, title="Edited")], now=LATER)
+
+    item = db_session.scalars(select(Item)).one()
+    assert (item.title, item.revision, item.published_at) == ("Edited", 2, first)

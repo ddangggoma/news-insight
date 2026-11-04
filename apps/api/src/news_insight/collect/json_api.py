@@ -7,9 +7,9 @@ Mapping keys: `list_path`, `fields` (each a dotted path or a list of fallbacks),
 
 import json
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any
-from urllib.parse import quote, urljoin
+from urllib.parse import parse_qsl, quote, urlencode, urljoin, urlsplit, urlunsplit
 
 from news_insight.collect.contracts import (
     CollectContext,
@@ -56,9 +56,11 @@ class JsonApiCollector:
         if context.config.get("mode") == "epo_ops":
             return collect_ops(self._fetcher, context)
         url = expand_macros(str(context.config.get("url") or context.endpoint_url), now=context.now)
-        response = fetch_checked(
-            self._fetcher, url, allowed_mime=JSON_MIME, headers=request_headers(context)
-        )
+        url = with_query(url, context.config.get("query_overrides") or {})
+        # A source with video_stats must always get a 200: on a 304 the statistics call would
+        # not run, and the view counts of known videos would freeze at their first value.
+        headers = context.headers if context.config.get("video_stats") else request_headers(context)
+        response = fetch_checked(self._fetcher, url, allowed_mime=JSON_MIME, headers=headers)
         if response.status_code == 304:
             return CollectResult(
                 items=[],
@@ -87,11 +89,14 @@ class JsonApiCollector:
             metrics=dict(context.config.get("metrics") or {}),
         )
         window = records[: context.item_limit]
-        items = [
-            raw
+        pairs = [
+            (record, raw)
             for record in window
             if (raw := _to_item(record, mapping, base_url=response.url)) is not None
         ]
+        items = [raw for _, raw in pairs]
+        if context.config.get("video_stats"):
+            items = _with_video_stats(self._fetcher, pairs, mapping, context.headers)
         incomplete = len(window) - len(items)
         if majority_incomplete(incomplete, len(window)):
             raise CollectorError(
@@ -107,6 +112,77 @@ class JsonApiCollector:
             last_modified=response.headers.get("last-modified"),
             incomplete=incomplete,
         )
+
+
+YOUTUBE_VIDEOS = "https://www.googleapis.com/youtube/v3/videos"
+YOUTUBE_BATCH = 50  # the videos endpoint takes at most 50 ids per call
+YOUTUBE_STATS = {"views": "viewCount", "likes": "likeCount", "comments": "commentCount"}
+
+
+def _youtube_stats(
+    fetcher: SafeFetcher, ids: list[str], headers: dict[str, str]
+) -> dict[str, dict[str, int]]:
+    """Statistics per video id (counts arrive as strings). A failed batch is skipped: the
+    items are still worth collecting without their view counts."""
+    stats: dict[str, dict[str, int]] = {}
+    for start in range(0, len(ids), YOUTUBE_BATCH):
+        query = urlencode(
+            {"part": "statistics", "id": ",".join(ids[start : start + YOUTUBE_BATCH])}, safe=","
+        )
+        try:
+            response = fetch_checked(
+                fetcher, f"{YOUTUBE_VIDEOS}?{query}", allowed_mime=JSON_MIME, headers=headers
+            )
+            payload = json.loads(response.content)
+        except (CollectorError, ValueError):
+            continue
+        for entry in (payload.get("items") if isinstance(payload, dict) else None) or []:
+            if isinstance(entry, dict) and isinstance(entry.get("id"), str):
+                found = extract_metrics(entry.get("statistics"), YOUTUBE_STATS)
+                if found:
+                    stats[entry["id"]] = found
+    return stats
+
+
+def _with_video_stats(
+    fetcher: SafeFetcher,
+    pairs: list[tuple[Any, RawItem]],
+    mapping: _Mapping,
+    headers: dict[str, str],
+) -> list[RawItem]:
+    video_ids = [first_text(record, mapping.fields["id"]) for record, _ in pairs]
+    stats = _youtube_stats(fetcher, [v for v in video_ids if v], headers)
+    return [
+        replace(raw, metrics={**raw.metrics, **stats.get(video_id or "", {})})
+        for (_, raw), video_id in zip(pairs, video_ids, strict=True)
+    ]
+
+
+def with_query(url: str, overrides: dict[str, Any]) -> str:
+    """Replace query parameters (a preset's fixed choices, such as Europe PMC's resultType=core
+    for abstracts) without touching the catalog URL, which is part of a source's identity."""
+    if not overrides:
+        return url
+    parts = urlsplit(url)
+    query = [
+        (k, v) for k, v in parse_qsl(parts.query, keep_blank_values=True) if k not in overrides
+    ]
+    query += [(str(k), str(v)) for k, v in overrides.items()]
+    return urlunsplit(parts._replace(query=urlencode(query, safe=":,[]{}()*")))
+
+
+def inverted_text(index: Any, limit: int = 4000) -> str | None:
+    """OpenAlex sends abstracts as {word: [positions]}; rebuild the text in position order."""
+    if not isinstance(index, dict) or not index:
+        return None
+    words: dict[int, str] = {}
+    for word, positions in index.items():
+        if isinstance(positions, list):
+            for position in positions:
+                if isinstance(position, int):
+                    words[position] = str(word)
+    text = " ".join(words[position] for position in sorted(words))
+    return text[:limit] or None
 
 
 def _int_or_none(value: Any) -> int | None:
@@ -186,7 +262,8 @@ def _to_item(record: Any, mapping: _Mapping, *, base_url: str) -> RawItem | None
         title=title,
         published_at=parse_datetime(first_value(record, mapping.fields["published_at"])),
         author=first_text(record, mapping.fields["author"]),
-        summary=first_text(record, mapping.fields["summary"]),
+        summary=first_text(record, mapping.fields["summary"])
+        or inverted_text(first_value(record, mapping.fields.get("summary_index") or [])),
         metrics=extract_metrics(record, mapping.metrics),
         link=first_text(record, mapping.fields.get("link") or []),
     )

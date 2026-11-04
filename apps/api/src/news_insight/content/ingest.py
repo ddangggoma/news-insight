@@ -2,7 +2,7 @@
 
 from collections.abc import Sequence
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, tzinfo
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from news_insight.collect.contracts import RawItem
 from news_insight.collect.models import FetchRun
 from news_insight.content import duplicates
+from news_insight.content.dates import earliest, plausible, source_timezone, stated_date
 from news_insight.content.dedup import DedupKeys, dedup_keys, shared_link
 from news_insight.content.models import Item, ItemMetricSnapshot, ItemRevision
 from news_insight.content.normalize import canonical_url, clean_text, content_hash, stable_key
@@ -84,7 +85,17 @@ def keys_of(item: Item, link: str | None) -> DedupKeys:
     )
 
 
-def _apply(item: Item, candidate: _Prepared, source: Source, now: datetime) -> None:
+def article_date(candidate: _Prepared, *, seen: datetime, tz: tzinfo) -> datetime | None:
+    """The date the source gives, corrected or dropped when it cannot be right; else the
+    dateline in the text ("입력 2026.10.26 14:30")."""
+    return plausible(candidate.published_at, seen=seen, tz=tz) or stated_date(
+        candidate.body or candidate.summary, seen=seen, tz=tz
+    )
+
+
+def _apply(
+    item: Item, candidate: _Prepared, source: Source, now: datetime, published: datetime | None
+) -> None:
     stored = apply_storage_right(
         source.storage_right, summary=candidate.summary, body=candidate.body, now=now
     )
@@ -95,7 +106,7 @@ def _apply(item: Item, candidate: _Prepared, source: Source, now: datetime) -> N
     item.body = stored.body
     item.body_expires_at = stored.body_expires_at
     item.author = candidate.author
-    item.published_at = candidate.published_at
+    item.published_at = earliest(item.published_at, published)
     item.content_hash = candidate.digest
 
 
@@ -137,6 +148,7 @@ def ingest_items(
         url_owners.setdefault(url, stable_id)
         owner_titles.setdefault(url, title)
     run_id = fetch_run.id if fetch_run is not None else None
+    tz = source_timezone(source.region, source.config)
     new = updated = unchanged = duplicate_urls = 0
     touched: dict[str, Item] = {}
     keyed: list[tuple[Item, DedupKeys, bool]] = []  # new or changed items: (item, keys, changed)
@@ -164,7 +176,7 @@ def ingest_items(
                 first_seen_at=now,
                 last_changed_at=now,
             )
-            _apply(item, candidate, source, now)
+            _apply(item, candidate, source, now, article_date(candidate, seen=now, tz=tz))
             session.add(item)
             touched[candidate.stable_id] = item
             keyed.append((item, keys_of(item, candidate.link), False))
@@ -177,7 +189,7 @@ def ingest_items(
             item.revision += 1
             item.canary = canary
             item.last_changed_at = now
-            _apply(item, candidate, source, now)
+            _apply(item, candidate, source, now, article_date(candidate, seen=now, tz=tz))
             touched[candidate.stable_id] = item
             keyed.append((item, keys_of(item, candidate.link), True))
             updated += 1

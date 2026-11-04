@@ -133,7 +133,10 @@ def cached_json[M: BaseModel](
 
 def warm(session: object, *, now: datetime, client: object) -> int:
     """Pre-compute the default radar views (week, month, quarter; current and previous window;
-    DX-relevant and all scopes) so the first reader after a cache expiry is not kept waiting."""
+    DX-relevant and all scopes) so the first reader after a cache expiry is not kept waiting.
+
+    A closed window does not change: its cached entry is kept (a day), and only the open
+    windows are computed again on every run (2026-10-29: 12 views took 25 minutes)."""
     from news_insight.public import radar as radar_queries
     from news_insight.public.periods import calendar_window, current_key
 
@@ -150,8 +153,16 @@ def warm(session: object, *, now: datetime, client: object) -> int:
                 ) -> BaseModel:
                     return radar_queries.radar(session, f, w, current_key, now)  # type: ignore[arg-type]
 
-                with contextlib.suppress(Exception):  # refresh even an unexpired entry
-                    client.delete(key)  # type: ignore[attr-defined]
+                closed = window.end <= now
+                cached = None
+                if closed:
+                    with contextlib.suppress(Exception):
+                        cached = _get(client, key)
+                if cached is not None:
+                    continue
+                if not closed:
+                    with contextlib.suppress(Exception):  # refresh even an unexpired entry
+                        client.delete(key)  # type: ignore[attr-defined]
                 cached_json(key, ttl_for(window, now), compute, client=client)
                 warmed += 1
     return warmed

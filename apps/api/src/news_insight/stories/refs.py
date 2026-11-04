@@ -4,7 +4,10 @@ models — so a vulnerability or a standard can be followed from advisory to for
 
 import re
 
-ARXIV = re.compile(r"(?:arxiv\.org/(?:abs|pdf|html)/|arxiv:\s?)(\d{4}\.\d{4,5})", re.IGNORECASE)
+ARXIV = re.compile(
+    r"(?:arxiv\.org/(?:abs|pdf|html)/|huggingface\.co/papers/|arxiv:\s?)(\d{4}\.\d{4,5})",
+    re.IGNORECASE,
+)
 DOI = re.compile(r"\b(10\.\d{4,9}/[^\s\"'<>()\[\],;]+)", re.IGNORECASE)
 GITHUB = re.compile(r"github\.com/([A-Za-z0-9](?:[A-Za-z0-9-]{0,38})/[A-Za-z0-9_.-]{1,100})")
 CVE = re.compile(r"\bCVE-(\d{4})-(\d{4,7})\b", re.IGNORECASE)

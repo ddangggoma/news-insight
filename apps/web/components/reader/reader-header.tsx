@@ -1,6 +1,6 @@
 "use client";
 
-import { Compass, FileSearch, FileText, Handshake, Map as MapIcon, Radar, ScrollText, Search } from "lucide-react";
+import { Compass, FileSearch, FileText, Flame, Handshake, type LucideIcon, Map as MapIcon, Radar, ScrollText, Search } from "lucide-react";
 import { AppLink as Link } from "@/components/app-link";
 import { usePathname, useSearchParams } from "next/navigation";
 
@@ -11,18 +11,28 @@ import { cn } from "@/lib/utils";
 // Reader menu (2026-10-12): the daily briefing first; the opportunity/threat board and the
 // roadmap share one entry with tabs (components/reader/roadmap-tabs.tsx). Dossiers, collections
 // and questions left the menu; their pages still open from a direct link. Trend reports on request
-// (plan 17 R1) joined it on 2026-10-13.
-export const READER_NAV = [
-  { href: "/briefings", label: "데일리 브리핑", icon: FileText, match: ["/briefings"] },
+// (plan 17 R1) joined it on 2026-10-13; 주목 받는 (plan 18, daily Top 10s) took the second place on 2026-11-03.
+interface ReaderNavEntry {
+  href: string;
+  label: string;
+  /** Shorter text for the phone's bottom bar, where eight entries share 375px; the header keeps `label`. */
+  short?: string;
+  icon: LucideIcon;
+  match: readonly string[];
+}
+
+export const READER_NAV: readonly ReaderNavEntry[] = [
+  { href: "/briefings", label: "데일리 브리핑", short: "브리핑", icon: FileText, match: ["/briefings"] },
+  { href: "/spotlight", label: "주목 받는", short: "주목", icon: Flame, match: ["/spotlight"] },
   { href: "/", label: "탐색", icon: Compass, match: ["/items"] },
   { href: "/radar", label: "레이더", icon: Radar, match: ["/radar"] },
   { href: "/deals", label: "투자·제휴", icon: Handshake, match: ["/deals"] },
   { href: "/patents", label: "특허", icon: ScrollText, match: ["/patents"] },
   { href: "/roadmap", label: "로드맵", icon: MapIcon, match: ["/roadmap", "/board"] },
-  { href: "/reports", label: "동향 보고서 작성", icon: FileSearch, match: ["/reports"] },
-] as const;
+  { href: "/reports", label: "동향 보고서 작성", short: "보고서", icon: FileSearch, match: ["/reports"] },
+]
 
-export function isReaderActive(pathname: string, item: (typeof READER_NAV)[number]): boolean {
+export function isReaderActive(pathname: string, item: ReaderNavEntry): boolean {
   if (item.href === "/" && pathname === "/") return true;
   return item.match.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
 }

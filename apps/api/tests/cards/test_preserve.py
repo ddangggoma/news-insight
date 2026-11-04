@@ -57,6 +57,9 @@ def test_facts_may_live_in_the_summary() -> None:
         ("Inference 2.5x faster", "추론 2.5배 향상", []),
         ("Samsung 3Q26 earnings beat", "삼성전자 실적 예상 상회", ["3Q26"]),
         ("Inference 5x faster on NPU", "NPU 추론 빨라져", ["5x"]),
+        ("Score 8.7/10 (CVSS v3.1) for EPICS Base", "EPICS Base 취약점, CVSS 3.1 기준 8.7점", []),
+        ("Score 8.7/10 (CVSS v3.1) for EPICS Base", "EPICS Base 취약점 8.7점", ["v3.1"]),
+        ("Rated 4/5 by 120 testers", "테스터 120명이 4점 평가", []),
     ],
 )
 def test_korean_quarter_and_multiplier_renderings(

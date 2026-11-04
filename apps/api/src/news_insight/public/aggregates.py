@@ -1,17 +1,15 @@
-"""Facet counts and the insight panel, computed live from cards (R3 will swap in rollups)."""
+"""Facet counts and the insight panel, counted on the reader facts view (public/facts.py)."""
 
 from typing import Any
 
-from sqlalchemy import ColumnElement, func, select, true
+from sqlalchemy import ColumnElement, and_, func, select, true, tuple_
 from sqlalchemy.orm import Session
 
-from news_insight.cards.models import ItemCard
-from news_insight.content.models import Item
-from news_insight.public.filters import AXES, ReaderFilters, in_window, joined
-from news_insight.public.keywords import keyword_element
+from news_insight.public import facts
+from news_insight.public.facts import AXIS_COLUMNS, F
+from news_insight.public.filters import AXES, ReaderFilters
 from news_insight.public.periods import Window
 from news_insight.public.schemas import Count, Insights, KeywordTrend
-from news_insight.sources.models import Source
 from news_insight.technologies.service import labels_for
 
 KEYWORD_TOP = 6
@@ -19,88 +17,100 @@ KEYWORD_MIN_COUNT = 2
 RELATED_TOP = 8
 
 
-def _grouped(session: Session, key: Any, conditions: list[ColumnElement[bool]]) -> dict[str, int]:
-    statement = joined(select(key, func.count(func.distinct(Item.id))))
-    rows = session.execute(statement.where(*conditions).group_by(key)).tuples()
-    return {str(value): int(count) for value, count in rows if value is not None}
-
-
-def _axis_counts(
-    session: Session, axis: str, conditions: list[ColumnElement[bool]]
-) -> dict[str, int]:
-    if axis == "theme":
-        element = (
-            func.jsonb_array_elements_text(ItemCard.themes).table_valued("value").lateral("element")
-        )
-        statement = (
-            joined(select(element.c.value, func.count(func.distinct(Item.id))))
-            .join(element, true())
-            .where(*conditions)
-            .group_by(element.c.value)
-        )
-        return {str(value): int(count) for value, count in session.execute(statement).tuples()}
-    key: Any = {
-        "field": ItemCard.field,
-        "impact": ItemCard.impact,
-        "signal": ItemCard.signal_type,
-        "track": Item.track,
-        "region": Source.region,
-    }[axis]
-    return _grouped(session, key, conditions)
-
-
 def _ordered(counts: dict[str, int]) -> dict[str, int]:
     return dict(sorted(counts.items(), key=lambda pair: (-pair[1], pair[0])))
 
 
+def _counted(conditions: list[ColumnElement[bool]]) -> Any:
+    return func.count().filter(and_(true(), *conditions))
+
+
 def facets(session: Session, filters: ReaderFilters, window: Window) -> dict[str, dict[str, int]]:
-    period = in_window(window)
-    result = {
-        axis: _ordered(_axis_counts(session, axis, [*filters.conditions(skip=axis), *period]))
-        for axis in AXES
+    """Each axis counted without its own filter, the scope without the scope; one pass for
+    every column axis, one for the themes (2026-11-03: was seven queries over the tables)."""
+    shared = [*facts.in_window(window), *facts.common(filters)]
+    groups = {**AXIS_COLUMNS, "scope": F.scope}
+    counts = {
+        axis: _counted(facts.narrowing(filters, skip=axis, scoped=axis != "scope"))
+        for axis in groups
     }
-    everything = ReaderFilters(scope="all", values=filters.values, q=filters.q)
-    result["scope"] = _ordered(
-        _grouped(session, ItemCard.scope, [*everything.conditions(), *period])
-    )
-    return result
-
-
-def keyword_counts(session: Session, conditions: list[ColumnElement[bool]]) -> dict[str, int]:
-    """Items per normalized keyword; labels are looked up later, only for the keys shown."""
-    element = keyword_element("kw")
-    normalized = element.c.value
     statement = (
-        joined(
-            select(
-                normalized,
-                func.count(func.distinct(Item.id)),
-            )
+        select(
+            *(func.grouping(column) for column in groups.values()),
+            *groups.values(),
+            *counts.values(),
         )
+        .where(*shared)
+        .group_by(func.grouping_sets(*groups.values()))
+    )
+    found: dict[str, dict[str, int]] = {axis: {} for axis in groups}
+    width = len(groups)
+    for row in session.execute(statement):
+        for index, axis in enumerate(groups):
+            grouped, value, count = row[index], row[width + index], row[2 * width + index]
+            if grouped == 0 and value is not None and count:
+                found[axis][str(value)] = int(count)
+
+    theme = func.jsonb_array_elements_text(F.themes).table_valued("value").lateral("theme")
+    themes = (
+        select(theme.c.value, func.count(func.distinct(F.item_id)))
+        .select_from(facts.facts)
+        .join(theme, true())
+        .where(*shared, *facts.narrowing(filters, skip="theme"))
+        .group_by(theme.c.value)
+    )
+    found["theme"] = {str(value): int(count) for value, count in session.execute(themes)}
+    return {axis: _ordered(found[axis]) for axis in [*AXES, "scope"]}
+
+
+def keyword_counts(
+    session: Session, conditions: list[ColumnElement[bool]], only: set[str] | None = None
+) -> dict[str, int]:
+    """Items per normalized keyword (`only`: just these keys); labels come later."""
+    element = func.jsonb_array_elements_text(F.technology_keys).table_valued("value").lateral("kw")
+    statement = (
+        select(element.c.value, func.count(func.distinct(F.item_id)))
+        .select_from(facts.facts)
         .join(element, true())
         .where(*conditions)
-        .group_by(normalized)
+        .group_by(element.c.value)
     )
+    if only is not None:
+        statement = statement.where(element.c.value.in_(only))
     return {str(key): int(count) for key, count in session.execute(statement).tuples() if key}
 
 
-def _total(session: Session, conditions: list[ColumnElement[bool]]) -> int:
-    return (
-        session.scalar(joined(select(func.count(func.distinct(Item.id)))).where(*conditions)) or 0
-    )
-
-
 def insights(session: Session, filters: ReaderFilters, window: Window) -> Insights:
-    current = [*filters.conditions(), *in_window(window)]
+    chosen = facts.conditions(filters)
+    current = [*chosen, *facts.in_window(window)]
     previous_window = window.previous() if window.start is not None else None
-    previous = [*filters.conditions(), *in_window(previous_window)] if previous_window else None
+    previous = [*chosen, *facts.in_window(previous_window)] if previous_window else None
+
+    columns = {"fields": F.field, "signal_types": F.signal_type, "impacts": F.impact}
+    split: dict[str, dict[str, int]] = {name: {} for name in columns}
+    total = 0
+    statement = (
+        select(*(func.grouping(c) for c in columns.values()), *columns.values(), func.count())
+        .where(*current)
+        .group_by(func.grouping_sets(*columns.values(), tuple_()))
+    )
+    width = len(columns)
+    for row in session.execute(statement):
+        flags, values, count = row[:width], row[width : 2 * width], int(row[-1])
+        if all(flags):
+            total = count
+            continue
+        for index, name in enumerate(columns):
+            if flags[index] == 0 and values[index] is not None:
+                split[name][str(values[index])] = count
 
     now_keywords = keyword_counts(session, current)
-    before = keyword_counts(session, previous) if previous is not None else {}
     ranked = sorted(now_keywords.items(), key=lambda pair: (-pair[1], pair[0]))
     top = [(key, count) for key, count in ranked if count >= KEYWORD_MIN_COUNT][:KEYWORD_TOP]
     top_keys = {key for key, _ in top}
     related = [key for key, _ in ranked if key not in top_keys][:RELATED_TOP]
+    # the previous window only matters for the keys shown with a trend
+    before = keyword_counts(session, previous, top_keys) if previous and top_keys else {}
     # labels only for what is shown: a busy week has tens of thousands of keys (2026-10-05)
     labels = labels_for(session, [*top_keys, *related])
 
@@ -118,12 +128,17 @@ def insights(session: Session, filters: ReaderFilters, window: Window) -> Insigh
     def counts(values: dict[str, int]) -> list[Count]:
         return [Count(key=key, count=count) for key, count in _ordered(values).items()]
 
+    previous_total = (
+        session.scalar(select(func.count()).select_from(facts.facts).where(*previous)) or 0
+        if previous is not None
+        else None
+    )
     return Insights(
-        total=_total(session, current),
-        previous_total=_total(session, previous) if previous is not None else None,
+        total=total,
+        previous_total=previous_total,
         keywords=[trend(key, labels[key], count) for key, count in top],
         related_keywords=[labels[key] for key in related],
-        fields=counts(_grouped(session, ItemCard.field, current)),
-        signal_types=counts(_axis_counts(session, "signal", current)),
-        impacts=counts(_grouped(session, ItemCard.impact, current)),
+        fields=counts(split["fields"]),
+        signal_types=counts(split["signal_types"]),
+        impacts=counts(split["impacts"]),
     )

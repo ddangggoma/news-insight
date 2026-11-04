@@ -25,7 +25,7 @@ interface TriageCoverage {
   dx_share_24h: number | null;
 }
 
-const ENGINE_LABEL: Record<string, string> = { codex: "Codex", agy: "Antigravity", claude: "Claude", qwen: "로컬 Qwen", reuse: "재사용" };
+const ENGINE_LABEL: Record<string, string> = { codex: "Codex", agy: "Antigravity", "agy-claude": "Antigravity Claude", claude: "Claude", qwen: "로컬 Qwen", reuse: "재사용" };
 
 function options<T extends string>(labels: Record<T, string>) {
   return (Object.entries(labels) as [T, string][]).map(([value, label]) => ({ value, label }));

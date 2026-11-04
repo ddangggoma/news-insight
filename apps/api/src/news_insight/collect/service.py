@@ -5,7 +5,7 @@ from collections.abc import Callable
 from datetime import datetime, timedelta
 from urllib.parse import urlsplit
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from news_insight.collect.context import collect_context
@@ -171,7 +171,19 @@ def collect_source(
     runtime.last_modified = result.last_modified or runtime.last_modified
     runtime.last_success_at = now
     runtime.next_due_at = now + timedelta(seconds=runtime.interval_seconds)
+    _recover_letters(session, source, now)
     return _finish(session, run, now + timedelta(milliseconds=result.elapsed_ms))
+
+
+def _recover_letters(session: Session, source: Source, now: datetime) -> None:
+    """A success ends the failure: its open letters close, so "repeated" in _handle_failure
+    means the same failure with no success in between. Until 2026-10-29 letters stayed open
+    after the source recovered, and one Europe PMC outage weeks later paused 80 searches."""
+    session.execute(
+        update(DeadLetter)
+        .where(DeadLetter.source_id == source.id, DeadLetter.resolved_at.is_(None))
+        .values(resolved_at=now, resolution="recovered")
+    )
 
 
 def _handle_failure(

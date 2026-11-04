@@ -1,8 +1,20 @@
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import DateTime, ForeignKey, Index, String, Text, UniqueConstraint, false, text
+from sqlalchemy import (
+    ColumnElement,
+    DateTime,
+    ForeignKey,
+    Index,
+    String,
+    Text,
+    UniqueConstraint,
+    false,
+    func,
+    text,
+)
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from news_insight.db import Base, str_enum
@@ -25,6 +37,8 @@ class Item(Base):
         # time windows drive the feed, radar, briefing freeze and card queue (checklist PERF-1)
         Index("ix_items_first_seen_at", "first_seen_at"),
         Index("ix_items_source_first_seen", "source_id", "first_seen_at"),
+        # trends, lists and windows read the article's date (Item.occurred_at, 2026-10-27)
+        Index("ix_items_occurred_at", text("coalesce(published_at, first_seen_at)")),
         Index(
             "ix_items_body_expires_at",
             "body_expires_at",
@@ -53,6 +67,18 @@ class Item(Base):
     revisions: Mapped[list["ItemRevision"]] = relationship(
         back_populates="item", order_by="ItemRevision.revision"
     )
+
+    @hybrid_property
+    def occurred_at(self) -> datetime:
+        """The article's own date (content/dates.py keeps `published_at` plausible), or when
+        we first saw it when the source gives none. `first_seen_at` stays the clock for work
+        queues: carding, briefing freezes, retention."""
+        return self.published_at or self.first_seen_at
+
+    @occurred_at.inplace.expression
+    @classmethod
+    def _occurred_at_expression(cls) -> ColumnElement[datetime]:
+        return func.coalesce(cls.published_at, cls.first_seen_at)
 
 
 class ItemRevision(Base):

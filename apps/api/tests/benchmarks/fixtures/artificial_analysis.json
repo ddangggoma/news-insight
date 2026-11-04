@@ -1,0 +1,127 @@
+{
+ "tier": "pro",
+ "intelligence_index_version": 5,
+ "pagination": {
+  "page": 1,
+  "page_size": 200,
+  "total_pages": 1,
+  "has_more": false
+ },
+ "data": [
+  {
+   "id": "cd684ea4-b475-4269-b001-d469d06d8a7a",
+   "name": "GLM-5.3 (Max)",
+   "slug": "glm-5-3",
+   "release_date": "2026-08-18",
+   "model_creator": {
+    "id": "67437eb6-7dc1-4e93-befd-22c8b8ec2065",
+    "name": "Z AI",
+    "country": "cn"
+   },
+   "reasoning_model": true,
+   "evaluations": {
+    "artificial_analysis_intelligence_index": 31.7,
+    "artificial_analysis_coding_index": null,
+    "artificial_analysis_agentic_index": null,
+    "artificial_analysis_finance_and_accounting_index": 42.1,
+    "artificial_analysis_strategy_and_ops_index": 47.4,
+    "artificial_analysis_legal_index": 35.8,
+    "artificial_analysis_healthcare_and_medical_index": 39.3,
+    "artificial_analysis_engineering_index": 37.6,
+    "artificial_analysis_economics_index": 39.3,
+    "tau2_telecom": null,
+    "tau_banking": 0.503,
+    "terminalbench_hard": null,
+    "terminalbench_v2_1": 0.839,
+    "terminalbench_v4_0": 0.419,
+    "terminalbench_science": 0.095,
+    "aa_briefcase_elo": 1504,
+    "automationbench_aa": 0.622,
+    "gdp_pdf": 0.112,
+    "scicode": 0.59,
+    "aa_lcr": 0.797,
+    "aa_omniscience_index": 6.03,
+    "aa_omniscience_accuracy": 0.323,
+    "aa_omniscience_non_hallucination_rate": 0.611,
+    "ifbench": null,
+    "hle": 0.423,
+    "gpqa_diamond": 0.917,
+    "critpt": 0.191,
+    "hle_diamond": 0.179,
+    "frontiercode_v1_1": 0.401,
+    "frontiercode_v2_0": 0.216,
+    "critpt_v2_hard": 0.335,
+    "gdpval_aa_elo": 1658,
+    "gdpval_aa_normalized": 0.579,
+    "mmmu_pro": null,
+    "artificial_analysis_openness_index": 33.3,
+    "artificial_analysis_multilingual_index": null,
+    "mlcr_overall": 0.172
+   },
+   "artificial_analysis_intelligence_index_cost": {
+    "total_cost": 3495.62,
+    "cost_per_task": {
+     "total_cost": 5.0093,
+     "input_cost": 4.4857,
+     "reasoning_cost": 0.373,
+     "answer_cost": 0.1505
+    },
+    "input_cost": 2901.32,
+    "reasoning_cost": 473.65,
+    "answer_cost": 120.65
+   },
+   "artificial_analysis_intelligence_index_token_counts": {
+    "input_tokens": 10296409355,
+    "answer_tokens": 27420388,
+    "output_tokens": 135067089,
+    "reasoning_tokens": 107646701
+   },
+   "pricing": {
+    "price_1m_blended_3_to_1": 2.15,
+    "price_1m_blended_7_to_2_to_1": 0.902,
+    "price_1m_input_tokens": 1.4,
+    "price_1m_output_tokens": 4.4,
+    "price_1m_cache_hit_tokens": 0.26,
+    "price_1m_cache_write_tokens": null
+   },
+   "performance": {
+    "percentile_05_output_tokens_per_second": 35.32,
+    "quartile_25_output_tokens_per_second": 62.53,
+    "median_output_tokens_per_second": 80.07,
+    "quartile_75_output_tokens_per_second": 100.58,
+    "percentile_95_output_tokens_per_second": 117.05,
+    "percentile_05_time_to_first_token_seconds": 1.34,
+    "quartile_25_time_to_first_token_seconds": 1.83,
+    "median_time_to_first_token_seconds": 2.22,
+    "quartile_75_time_to_first_token_seconds": 2.94,
+    "percentile_95_time_to_first_token_seconds": 5.18,
+    "median_time_to_first_answer_token_seconds": 27.19,
+    "median_end_to_end_response_time_seconds": 33.44
+   },
+   "context_window_tokens": 1000000,
+   "parameters": {
+    "total": 753,
+    "active": 40
+   },
+   "modalities": {
+    "input": {
+     "text": true,
+     "image": false,
+     "video": false,
+     "speech": false
+    },
+    "output": {
+     "text": true,
+     "image": false,
+     "video": false,
+     "speech": false
+    }
+   },
+   "licensing": {
+    "is_open_weights": true
+   },
+   "huggingface_url": "https://huggingface.co/zai-org/GLM-5.3",
+   "openrouter_api_id": "z-ai/glm-5.3"
+  }
+ ]
+}

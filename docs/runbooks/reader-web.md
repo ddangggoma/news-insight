@@ -125,6 +125,8 @@ PUBLIC_API_KEY=dev-public scripts/dev.sh web-dev
 
 웹 서버가 독자 API 응답을 캐시합니다(탐색 5분, 다이제스트·레이더 10분, 분류 체계 1시간). 새 카드가 들어와도 최대 5~10분 뒤에 보입니다.
 
+탐색의 피드·필터 개수·인사이트(`/api/public/items`·`facets`·`insights`)는 기사·카드·출처·스토리를 미리 묶어 둔 materialized view `reader_facts`를 읽습니다(2026-11-03, 응답 20~70초 → 1초 안팎). Celery `reader.refresh_facts`가 3분마다 옆에 새 뷰를 만들어(6~7초) 이름을 바꿔 끼우므로 새 카드·분류 변경·중복 판정·스토리 병합은 최대 약 3분 늦게 반영됩니다. 기사 상세·레이더는 원래 테이블을 그대로 읽습니다. 탐색만 오래 멈춰 있으면 worker 로그에서 `reader.refresh_facts`를 찾고, 급하면 `REFRESH MATERIALIZED VIEW CONCURRENTLY reader_facts;`를 직접 실행하세요(30초~1분 반, 읽기는 막지 않음). 남은 `reader_facts_next`는 실패한 갱신의 흔적이라 지워도 됩니다.
+
 ## 6. 문제 해결
 
 | 증상 | 확인 |
