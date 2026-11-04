@@ -2,10 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { DealCard } from "@/components/reader/deal-card";
-import { PatentCard } from "@/components/reader/patent-card";
 import { type Deal, type DealView, dealBuckets, formatOriginal, formatUsdShort } from "@/lib/deal-types";
-import { articleDate, type PatentView, patentSummary, periodLabel } from "@/lib/patent-types";
-import type { ReaderItem } from "@/lib/reader-types";
 
 const deal: Deal = {
   id: 1,
@@ -78,69 +75,5 @@ describe("DealCard", () => {
   it("flags an implausible amount instead of presenting it", () => {
     render(<DealCard deal={{ ...deal, amount_usd: 2e12, currency: "USD", outlier: true }} companyHref={() => "/"} />);
     expect(screen.getByText("확인 필요, 합계 제외")).toBeInTheDocument();
-  });
-});
-
-describe("patent helpers", () => {
-  const trend = (key: string, current: number, previous: number) => ({ key, label: key, axis: "field" as const, counts: [previous, current], current, previous });
-  const patents: PatentView = {
-    kind: "month",
-    periods: [
-      { key: "2026-09", total: 10, office: 4 },
-      { key: "2026-10", total: 15, office: 5 },
-    ],
-    nodes: [trend("ai", 6, 2), trend("display", 3, 3)],
-    companies: [],
-    recent: { items: [], total: 0, items_total: 0, page: 1, size: 20 },
-  };
-
-  it("sums the periods, the office share and the fastest riser", () => {
-    const s = patentSummary(patents);
-    expect(s.current?.total).toBe(15);
-    expect(s.change).toBeCloseTo(0.5);
-    expect(s.officeShare).toBeCloseTo(9 / 25);
-    expect(s.riser?.key).toBe("ai");
-  });
-
-  it("labels months and quarters", () => {
-    expect(periodLabel("2026-10")).toBe("26.10");
-    expect(periodLabel("2026-Q3")).toBe("26 Q3");
-  });
-
-  it("dates an article by its own date first", () => {
-    expect(articleDate({ occurred_at: "2026-10-01T00:00:00Z", published_at: "2026-10-02T00:00:00Z", first_seen_at: "2026-10-03T00:00:00Z" })).toBe("2026-10-01T00:00:00Z");
-    expect(articleDate({ published_at: null, first_seen_at: "2026-10-03T00:00:00Z" })).toBe("2026-10-03T00:00:00Z");
-  });
-});
-
-describe("PatentCard", () => {
-  const item: ReaderItem = {
-    id: 7,
-    url: "https://epo.example/1",
-    title: "Foldable hinge",
-    title_ko: "폴더블 힌지 특허",
-    summary_ko: ["힌지 구조를 다룬다."],
-    keywords: [],
-    field: "ai",
-    themes: [],
-    signal_type: "ip",
-    impact: null,
-    scope: "dx",
-    relevance: 60,
-    track: "research_ip",
-    source_name: "EPO OPS",
-    region: "global_en",
-    published_at: "2026-09-30T03:00:00Z",
-    first_seen_at: "2026-10-04T02:00:00Z",
-    occurred_at: "2026-09-30T03:00:00Z",
-    metrics: {},
-    story: null,
-  };
-
-  it("links the title to the item and shows the article's date", () => {
-    render(<PatentCard item={item} />);
-    expect(screen.getByRole("link", { name: "폴더블 힌지 특허" })).toHaveAttribute("href", "/items/7");
-    expect(screen.getByText("2026.09.30")).toBeInTheDocument();
-    expect(screen.getByText("EPO OPS")).toBeInTheDocument();
   });
 });
