@@ -15245,6 +15245,7 @@ sources:
     config:
       timezone: Europe/Berlin
       enrich_limit: 15
+      exclude_pattern: '/jf/|/exemples?[-_/]|/liste-de-pages|/liste-des-pages|PAGES-SPECIALES|/ARCHIVES/|/textes-de-droit/'
   - key: computerweekly-web
     name: Computer Weekly
     track: news
@@ -15277,6 +15278,7 @@ sources:
     config:
       timezone: Europe/Berlin
       enrich_limit: 15
+      link_pattern: '^https://www\.continental\.com/en/press/press-releases/[^/?#]+'
   - key: enisa-news-web
     name: ENISA News
     track: news
@@ -15360,6 +15362,7 @@ sources:
     config:
       timezone: Europe/Berlin
       enrich_limit: 15
+      exclude_pattern: 'imec-int\.com/ja/|/en/(events|expertise|research-portfolio|what-we-offer|careers|organization|icon|partner-access|the-netherlands|agenda|privacy)'
   - key: infineon-news-web
     name: Infineon Press
     track: news
@@ -15395,6 +15398,7 @@ sources:
     config:
       timezone: Europe/Berlin
       enrich_limit: 15
+      link_pattern: '^https://mistral\.ai/news/[^/?#]+/?$'
   - key: mpg-news-web
     name: Max Planck Society News
     track: news
@@ -15492,6 +15496,7 @@ sources:
     config:
       timezone: UTC
       enrich_limit: 15
+      exclude_pattern: '/(our-people|people|technology-platforms|funding-opportunities|scholarships|faces|kto|about-[a-z0-9-]+)(/|$)'
   - key: anthropic-web
     name: Anthropic News
     track: news
@@ -15747,6 +15752,7 @@ sources:
     config:
       timezone: UTC
       enrich_limit: 15
+      exclude_pattern: '/resources/innovative-tech-companies-directory/|/regulations-and-licensing-listing/|/how-we-can-help/|/about-imda/|/activities/activities-catalogue/'
   - key: intel-web
     name: Intel Newsroom
     track: news
@@ -15866,6 +15872,7 @@ sources:
     config:
       timezone: UTC
       enrich_limit: 15
+      exclude_pattern: '/blog/tag/'
   - key: nfc-forum-web
     name: NFC Forum
     track: news
@@ -15930,6 +15937,7 @@ sources:
     config:
       timezone: UTC
       enrich_limit: 15
+      exclude_pattern: '/device-finder(/|$)|/content-hub/|/support/partner(/|$)'
   - key: stanford-hai-web
     name: Stanford HAI
     track: news
@@ -15946,6 +15954,7 @@ sources:
     config:
       timezone: UTC
       enrich_limit: 15
+      exclude_pattern: '/(ai-definitions|centers-labs|careers|people|fellowship-programs|grant-programs|student-opportunities)(/|$)'
   - key: theinformation
     name: The Information
     track: news
@@ -16153,6 +16162,7 @@ sources:
     config:
       timezone: Asia/Shanghai
       enrich_limit: 15
+      exclude_pattern: '/product/|/store(/|$)'
   - key: scmp-tech
     name: SCMP Tech
     track: news
@@ -16185,6 +16195,7 @@ sources:
     config:
       timezone: Asia/Shanghai
       enrich_limit: 15
+      exclude_pattern: '/research/download/'
   - key: zol-web
     name: 中关村在线
     track: news
@@ -16283,6 +16294,7 @@ sources:
     config:
       timezone: Asia/Tokyo
       enrich_limit: 15
+      exclude_pattern: '/ja/|/en/(applications|key-technologies)/'
   - key: sharp-news-web
     name: Sharp News
     track: news
@@ -16332,6 +16344,7 @@ sources:
     config:
       timezone: Asia/Tokyo
       enrich_limit: 15
+      exclude_pattern: 'global\.toyota/jp/|/en/(sustainability|company|ir|sitemap|downloadable-assets|your-vehicle)/'
   - key: ajunews-tech-web
     name: 아주경제
     track: news
@@ -16907,18 +16920,15 @@ sources:
     name: OpenWrt Forum Announcements
     track: community
     category: open_governance
-    access_method: sitemap
-    endpoint_url: https://forum.openwrt.org/sitemap.xml
+    access_method: feed
+    endpoint_url: https://forum.openwrt.org/c/announcements/14.rss
     official_domain: openwrt.org
     operator: OpenWrt Forum Announcements
     region: global_en
     language: en
     poll_class: community
-    dx_relevance: 'OpenWrt Forum Announcements: 주요 IT·DX 카테고리 대상 소스 (RSS 미제공 시 사이트맵·크롤링 수집)'
+    dx_relevance: 'OpenWrt 포럼 공지: 릴리스·보안 권고·인프라 공지만 수집 (공지 카테고리 RSS)'
     storage_right: excerpt_allowed
-    config:
-      timezone: UTC
-      enrich_limit: 15
   - key: the-batch-web
     name: The Batch
     track: community
@@ -16935,6 +16945,7 @@ sources:
     config:
       timezone: UTC
       enrich_limit: 15
+      exclude_pattern: '/the-batch/tag/'
   - key: zigbee2mqtt-web
     name: Zigbee2MQTT
     track: community
@@ -16951,6 +16962,7 @@ sources:
     config:
       timezone: UTC
       enrich_limit: 15
+      exclude_pattern: '/(devices|guide|advanced)/'
   - key: clien-cm-ittalk
     name: 클리앙 IT 소식·사용기
     track: community
@@ -16970,6 +16982,7 @@ sources:
       enrich_limit: 12
       date_fallback: now
       drop_query: false
+      exclude_pattern: '/service/board/(rule|annonce|notice)/'
   - key: clien-news
     name: 클리앙 새로운소식
     track: community
@@ -16989,6 +17002,7 @@ sources:
       enrich_limit: 12
       date_fallback: now
       drop_query: false
+      exclude_pattern: '/service/board/(rule|annonce|notice)/'
   - key: disquiet
     name: 디스콰이엇
     track: community
@@ -17150,6 +17164,7 @@ sources:
       enrich_limit: 15
 
   # ── Track 4 보강: 토큰 불필요 오픈소스 신호 (GitHub 릴리스 Atom·PyPI·Hugging Face) (55) ──
+      exclude_pattern: '/content-tags/|/sessions/|/event/'
   - key: pypi-torch
     name: 'PyPI releases: torch'
     track: oss
