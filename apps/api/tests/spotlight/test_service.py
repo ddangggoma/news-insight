@@ -525,3 +525,42 @@ def test_cid_repeated_inside_one_entry_counts_once(db_session: Session) -> None:
     (row,) = entries(db_session, run(db_session, client), "product")
     assert row.metrics == {"source_count": 3}
     assert row.item_ids == [101]
+
+
+def test_oss_topped_up_to_ten_when_opus_lists_fewer(db_session: Session) -> None:
+    row = SpotlightFreeze(
+        spotlight_date=DAY,
+        frozen_at=NOW,
+        candidates=candidates() | {"oss": [cand(f"o{i}", "oss", 300 + i) for i in range(1, 13)]},
+    )
+    db_session.add(row)
+    db_session.flush()
+    client = FakeClaude(output({"oss": [entry(["o5"], 1), entry(["o2"], 2), entry(["o9"], 3)]}))
+    rows = entries(db_session, run(db_session, client), "oss")
+    assert [(r.key, r.fallback) for r in rows] == [
+        ("item:305", False),
+        ("item:302", False),
+        ("item:309", False),
+        ("item:301", True),
+        ("item:303", True),
+        ("item:304", True),
+        ("item:306", True),
+        ("item:307", True),
+        ("item:308", True),
+        ("item:310", True),
+    ]
+    assert [r.rank for r in rows] == list(range(1, 11))
+    assert rows[3].summary == "카드 요약 o1"
+
+
+def test_oss_not_topped_up_with_fewer_than_ten_candidates(db_session: Session) -> None:
+    row = SpotlightFreeze(
+        spotlight_date=DAY,
+        frozen_at=NOW,
+        candidates=candidates() | {"oss": [cand(f"o{i}", "oss", 300 + i) for i in range(1, 4)]},
+    )
+    db_session.add(row)
+    db_session.flush()
+    client = FakeClaude(output({"oss": [entry(["o2"], 1)]}))
+    rows = entries(db_session, run(db_session, client), "oss")
+    assert [(r.key, r.fallback) for r in rows] == [("item:302", False)]

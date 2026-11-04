@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from news_insight.cards.models import CardStatus, ItemCard
 from news_insight.collect.contracts import RawItem
 from news_insight.content.ingest import ingest_items
-from news_insight.content.models import Item, ItemDedup
+from news_insight.content.models import Item, ItemDedup, ItemMetricSnapshot
 from news_insight.sources.enums import Region, Track, ValidationStage
 from news_insight.sources.models import Source
 from news_insight.spotlight import candidates as candidates_module
@@ -791,3 +791,85 @@ def test_oss_twin_does_not_count_as_a_mention(db_session: Session):
     ref(db_session, second, "github", "acme/tool")
     result = collect_candidates(db_session, day=DAY, now=NOW)
     assert result["oss"] == []
+
+
+def snapshot(session: Session, target: Item, at: datetime, **metrics: int) -> None:
+    session.add(ItemMetricSnapshot(item_id=target.id, captured_at=at, metrics=metrics))
+    session.flush()
+
+
+DAILY = "github-trending-repositories-daily"
+WEEKLY = "github-trending-repositories-weekly"
+HF_MODELS = "hf-models-trending"
+
+
+def test_oss_includes_a_repo_first_seen_earlier_that_trends_again(db_session: Session):
+    daily = source(db_session, DAILY, Track.OSS, "GitHub")
+    back = item(db_session, daily, "back", seen=SEEN - timedelta(days=3), metrics={"rank": 9})
+    snapshot(db_session, back, SEEN, rank=2, stars=900)
+    # first seen earlier and not shown again in the window: stays out
+    gone = item(db_session, daily, "gone", seen=SEEN - timedelta(days=3), metrics={"rank": 1})
+    result = collect_candidates(db_session, day=DAY, now=NOW)
+    leads = [c.item_ids[0] for c in result["oss"]]
+    assert back.id in leads
+    assert gone.id not in leads
+    (candidate,) = result["oss"]
+    assert candidate.metrics["rank"] == 2  # the latest snapshot
+    assert candidate.metrics["basis"] == "github_daily"
+    assert candidate.metrics["trend_rank"] == 2
+
+
+def test_oss_backfills_to_ten_from_daily_weekly_then_hf(
+    db_session: Session, monkeypatch: pytest.MonkeyPatch
+):
+    monkeypatch.setattr(candidates_module, "MIN_OSS_Z", 1e9)  # only mentions lift a repo here
+    daily = source(db_session, DAILY, Track.OSS, "GitHub")
+    weekly = source(db_session, WEEKLY, Track.OSS, "GitHub")
+    hf = source(db_session, HF_MODELS, Track.OSS, "Hugging Face")
+    talked = item(db_session, daily, "talked", metrics={"rank": 20})
+    ref(db_session, talked, "github", "acme/talked")
+    for n in range(2):
+        post = item(db_session, source(db_session, f"press{n}", Track.NEWS), f"press{n}")
+        ref(db_session, post, "github", "acme/talked")
+    days = {
+        rank: item(db_session, daily, f"d{rank}", metrics={"rank": rank}) for rank in (4, 1, 3, 2)
+    }
+    eleventh = item(db_session, daily, "d11", metrics={"rank": 11})
+    for rank, row in days.items():
+        ref(db_session, row, "github", f"acme/d{rank}")
+    weeks = {
+        rank: item(db_session, weekly, f"w{rank}", metrics={"rank": rank}) for rank in (1, 2, 3, 4)
+    }
+    ref(db_session, weeks[1], "github", "acme/d2")  # the same repo as daily #2
+    hfs = {t: item(db_session, hf, f"h{t}", metrics={"trending": t}) for t in (20, 50, 30, 40)}
+    result = collect_candidates(db_session, day=DAY, now=NOW)
+    oss = result["oss"]
+    assert len(oss) == 10
+    assert [c.item_ids[0] for c in oss] == [
+        talked.id,
+        days[1].id,
+        days[2].id,
+        days[3].id,
+        days[4].id,
+        weeks[2].id,
+        weeks[3].id,
+        weeks[4].id,
+        hfs[50].id,
+        hfs[40].id,
+    ]
+    assert "basis" not in oss[0].metrics
+    assert [(c.metrics["basis"], c.metrics["trend_rank"]) for c in oss[1:]] == [
+        ("github_daily", 1),
+        ("github_daily", 2),
+        ("github_daily", 3),
+        ("github_daily", 4),
+        ("github_weekly", 2),
+        ("github_weekly", 3),
+        ("github_weekly", 4),
+        ("hf_trending", 1),
+        ("hf_trending", 2),
+    ]
+    assert oss[2].item_ids == [days[2].id, weeks[1].id]  # one repo, one candidate
+    assert [c.stat_rank for c in oss] == list(range(1, 11))
+    assert eleventh.id not in {i for c in oss for i in c.item_ids}
+    assert len({c.key for c in oss}) == 10

@@ -51,6 +51,11 @@ MIN_OSS_Z = 1.0
 MIN_OSS_MENTIONS = 2
 OSS_MENTION_WEIGHT = 0.5
 OSS_REF_KINDS = ("github", "hf")
+MIN_OSS = 10  # the open-source list is topped up from the trending lists to at least this
+TREND_DAILY_TOP = 10
+GITHUB_DAILY = "github-trending-repositories-daily"
+GITHUB_WEEKLY = "github-trending-repositories-weekly"
+HF_TRENDING = "hf-models-trending"
 RESEARCH_MENTION_WEIGHT = 10
 RESEARCH_REF_KINDS = ("doi", "arxiv")
 MIN_HF_UPVOTES = 10
@@ -93,6 +98,7 @@ class Row:
     url_key: str | None
     link_key: str | None
     category: str
+    source_key: str
 
 
 @dataclass(frozen=True)
@@ -118,9 +124,7 @@ _ITEM_COLUMNS = load_only(
 )
 
 
-def _rows(
-    session: Session, start: datetime, end: datetime, *where: ColumnElement[bool]
-) -> list[Row]:
+def _select_rows(session: Session, *where: ColumnElement[bool]) -> list[Row]:
     stmt = (
         select(
             Item,
@@ -129,20 +133,22 @@ def _rows(
             ItemDedup.url_key,
             ItemDedup.link_key,
             Source.category,
+            Source.key,
         )
         .options(_ITEM_COLUMNS)
         .join(Source, Source.id == Item.source_id)
         .outerjoin(StoryItem, StoryItem.item_id == Item.id)
         .outerjoin(ItemDedup, ItemDedup.item_id == Item.id)
-        .where(
-            Item.first_seen_at >= start,
-            Item.first_seen_at < end,
-            Item.canary.is_(False),
-            *where,
-        )
+        .where(Item.canary.is_(False), *where)
         .order_by(Item.id)
     )
     return [Row(*row) for row in session.execute(stmt).tuples()]
+
+
+def _rows(
+    session: Session, start: datetime, end: datetime, *where: ColumnElement[bool]
+) -> list[Row]:
+    return _select_rows(session, Item.first_seen_at >= start, Item.first_seen_at < end, *where)
 
 
 def _eligible_items(session: Session, start: datetime, end: datetime) -> list[Row]:
@@ -218,14 +224,19 @@ def _summary(card: ItemCard | None) -> str:
     return " ".join(card.summary_ko) if card is not None and card.summary_ko else ""
 
 
-def _finish(section: str, drafts: list[Candidate]) -> list[Candidate]:
-    """Order drafts by score (ties keep their arrival order), cut to the section limit and
-    number them."""
-    ranked = sorted(drafts, key=lambda c: -c.score)[: LIMITS.get(section, DEFAULT_LIMIT)]
+def _number(section: str, ranked: list[Candidate]) -> list[Candidate]:
+    """Cut an ordered list to the section limit and number it."""
+    ranked = ranked[: LIMITS.get(section, DEFAULT_LIMIT)]
     for rank, candidate in enumerate(ranked, start=1):
         candidate.stat_rank = rank
         candidate.cid = f"{CID_PREFIX[section]}{rank}"
     return ranked
+
+
+def _finish(section: str, drafts: list[Candidate]) -> list[Candidate]:
+    """Order drafts by score (ties keep their arrival order), cut to the section limit and
+    number them."""
+    return _number(section, sorted(drafts, key=lambda c: -c.score))
 
 
 def _stories(session: Session, folds: Sequence[Fold]) -> dict[int, Story]:
@@ -512,20 +523,108 @@ def _product(
     return _finish("product", drafts)
 
 
+def _oss_rows(session: Session, start: datetime, end: datetime) -> list[Row]:
+    """Open-source items collected in the window, and those collected earlier that a trending
+    list showed again in it (a metrics snapshot taken in the window): GitHub's trending repos
+    come back every day but are new items only on the first."""
+    shown = select(ItemMetricSnapshot.item_id).where(
+        ItemMetricSnapshot.captured_at >= start, ItemMetricSnapshot.captured_at < end
+    )
+    return _select_rows(
+        session,
+        Item.track == Track.OSS,
+        Item.first_seen_at < end,
+        or_(Item.first_seen_at >= start, Item.id.in_(shown)),
+        ELIGIBLE,
+    )
+
+
+@dataclass(frozen=True)
+class _Trend:
+    basis: str  # metrics.basis of a backfilled candidate
+    trend_rank: int
+    lead: Row
+
+
+def _trend_ranks(groups: Sequence[RefGroup], metrics: dict[int, dict[str, Any]]) -> list[_Trend]:
+    """Groups by trending lists, in backfill order: GitHub daily ranks 1-10, GitHub weekly by
+    rank, then Hugging Face by trending score. A group appears once, at its first list."""
+
+    def best(group: RefGroup, source_key: str, field: str, *, low: bool) -> tuple[int, Row] | None:
+        found = [
+            (value, row)
+            for row in group.rows
+            if row.source_key == source_key
+            and isinstance(value := metrics.get(row.item.id, {}).get(field), int)
+        ]
+        if not found:
+            return None
+        return (min if low else max)(found, key=lambda pair: pair[0])
+
+    out: list[_Trend] = []
+    taken: set[int] = set()
+    daily = [
+        (found, n)
+        for n, g in enumerate(groups)
+        if (found := best(g, GITHUB_DAILY, "rank", low=True))
+    ]
+    for (rank, row), n in sorted(daily, key=lambda pair: pair[0][0]):
+        if rank <= TREND_DAILY_TOP:
+            out.append(_Trend("github_daily", rank, row))
+            taken.add(n)
+    weekly = [
+        (found, n)
+        for n, g in enumerate(groups)
+        if (found := best(g, GITHUB_WEEKLY, "rank", low=True))
+    ]
+    for (rank, row), n in sorted(weekly, key=lambda pair: pair[0][0]):
+        if n not in taken:
+            out.append(_Trend("github_weekly", rank, row))
+            taken.add(n)
+    hf = [
+        (found, n)
+        for n, g in enumerate(groups)
+        if (found := best(g, HF_TRENDING, "trending", low=False))
+    ]
+    for place, ((_, row), n) in enumerate(sorted(hf, key=lambda pair: -pair[0][0]), start=1):
+        if n not in taken:
+            out.append(_Trend("hf_trending", place, row))
+            taken.add(n)
+    return out
+
+
 def _oss(
     session: Session,
     start: datetime,
     end: datetime,
-    eligible: list[Row],
     scorer: Scorer,
 ) -> list[Candidate]:
     """Repositories (and Hugging Face models) by their star velocity, lifted by how many news
-    and community items of the window point at the same one. Listings of one repository fold."""
-    rows = [row for row in eligible if row.item.track is Track.OSS]
+    and community items of the window point at the same one. Listings of one repository fold.
+    Fewer than ten above the floor are topped up from the trending lists (B1): GitHub daily
+    ranks 1-10, then GitHub weekly, then Hugging Face, after the scored ones."""
+    rows = _oss_rows(session, start, end)
     scorer.add(rows)
     groups = _ref_groups(session, start, end, rows, OSS_REF_KINDS)
     cards = _cards(session, [row.item.id for row in rows])
+
+    def build(group: RefGroup, lead: Row, metrics: dict[str, Any], score: float) -> Candidate:
+        card = cards.get(lead.item.id)
+        return Candidate(
+            cid="",
+            section="oss",
+            key=f"item:{lead.item.id}",
+            item_ids=[lead.item.id, *(r.item.id for r in group.rows if r is not lead)],
+            title_ko=(card.title_ko if card is not None else None) or lead.item.title,
+            summary_ko=_summary(card),
+            url=lead.item.url,
+            metrics=metrics,
+            score=score,
+            stat_rank=0,
+        )
+
     drafts: list[Candidate] = []
+    below: list[RefGroup] = []
     for group in groups:
         lead = max(
             group.rows,
@@ -536,23 +635,29 @@ def _oss(
         count = len(group.mentions)
         z = max((scorer.z[r.item.id] for r in group.rows if r.item.id in scorer.z), default=None)
         if (z is None or z < MIN_OSS_Z) and count < MIN_OSS_MENTIONS:
+            below.append(group)
             continue
-        card = cards.get(lead.item.id)
         drafts.append(
-            Candidate(
-                cid="",
-                section="oss",
-                key=f"item:{lead.item.id}",
-                item_ids=[lead.item.id, *(r.item.id for r in group.rows if r is not lead)],
-                title_ko=(card.title_ko if card is not None else None) or lead.item.title,
-                summary_ko=_summary(card),
-                url=lead.item.url,
-                metrics={**scorer.metrics[lead.item.id], "mentions": count},
-                score=(z or 0.0) + count * OSS_MENTION_WEIGHT,
-                stat_rank=0,
+            build(
+                group,
+                lead,
+                {**scorer.metrics[lead.item.id], "mentions": count},
+                (z or 0.0) + count * OSS_MENTION_WEIGHT,
             )
         )
-    return _finish("oss", drafts)
+    ranked = sorted(drafts, key=lambda c: -c.score)
+    if len(ranked) < MIN_OSS:
+        owner = {id(row): group for group in below for row in group.rows}
+        for trend in _trend_ranks(below, scorer.metrics)[: MIN_OSS - len(ranked)]:
+            group = owner[id(trend.lead)]
+            metrics = {
+                **scorer.metrics[trend.lead.item.id],
+                "mentions": len(group.mentions),
+                "basis": trend.basis,
+                "trend_rank": trend.trend_rank,
+            }
+            ranked.append(build(group, trend.lead, metrics, 0.0))
+    return _number("oss", ranked)
 
 
 def _interview(
@@ -729,7 +834,7 @@ def collect_candidates(session: Session, *, day: date, now: datetime) -> dict[st
     return {
         "news": _news(session, eligible, scorer, mentions),
         "product": _product(session, start, end, eligible, scorer, mentions),
-        "oss": _oss(session, start, end, eligible, scorer),
+        "oss": _oss(session, start, end, scorer),
         "interview": _interview(session, eligible, scorer, mentions),
         "community": _community(session, eligible, scorer),
         "research": _research(session, start, end, eligible, scorer),

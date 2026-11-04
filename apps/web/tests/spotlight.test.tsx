@@ -15,6 +15,7 @@ import {
   isCalendarDay,
   metricChips,
   spotlightHref,
+  trendChip,
 } from "@/lib/spotlight-types";
 
 const router = vi.hoisted(() => ({ push: vi.fn() }));
@@ -114,6 +115,13 @@ describe("metricChips", () => {
 
   it("labels the product group size and the Hugging Face trending rank in Korean", () => {
     expect(metricChips({ group_size: 3, trending: 12 })).toEqual(["묶음 3건", "트렌딩 12"]);
+  });
+
+  it("names the trending list a backfilled open-source entry came from", () => {
+    expect(metricChips({ rank: 3, stars: 900, basis: "github_daily", trend_rank: 3 })).toEqual(["GitHub 트렌딩 3위", "별 900"]);
+    expect(metricChips({ rank: 7, basis: "github_weekly", trend_rank: 7 })).toEqual(["GitHub 주간 트렌딩 7위"]);
+    expect(metricChips({ trending: 40, basis: "hf_trending", trend_rank: 2 })).toEqual(["HF 트렌딩", "트렌딩 40"]);
+    expect(trendChip({ basis: "other" })).toBeNull();
   });
 
   it("rounds fractions and tolerates no metrics", () => {

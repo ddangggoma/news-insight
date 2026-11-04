@@ -96,13 +96,31 @@ const METRIC_LABEL: Record<string, (n: string) => string> = {
 };
 
 /** Internal ranking inputs: they mean nothing to a reader. */
-const HIDDEN_METRICS = new Set(["community_z"]);
+const HIDDEN_METRICS = new Set(["community_z", "basis", "trend_rank"]);
+
+/** Why a backfilled open-source entry is listed: the trending list it came from. */
+export function trendChip(metrics: Record<string, number | string>): string | null {
+  const rank = metrics.trend_rank;
+  const place = typeof rank === "number" && Number.isFinite(rank) ? Math.round(rank) : null;
+  switch (metrics.basis) {
+    case "github_daily":
+      return place ? `GitHub 트렌딩 ${place}위` : "GitHub 트렌딩";
+    case "github_weekly":
+      return place ? `GitHub 주간 트렌딩 ${place}위` : "GitHub 주간 트렌딩";
+    case "hf_trending":
+      return "HF 트렌딩";
+    default:
+      return null;
+  }
+}
 
 /** Short chips for an entry's raw metrics: Korean labels where obvious, the key itself otherwise. */
 export function metricChips(metrics: Record<string, number | string>): string[] {
   const chips: string[] = [];
+  const trend = trendChip(metrics);
+  if (trend) chips.push(trend);
   for (const [key, value] of Object.entries(metrics)) {
-    if (HIDDEN_METRICS.has(key)) continue;
+    if (HIDDEN_METRICS.has(key) || (trend && key === "rank")) continue;
     if (key === "platform") {
       if (typeof value === "string" && value) chips.push(value);
       continue;

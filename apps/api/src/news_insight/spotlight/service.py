@@ -13,7 +13,7 @@ from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from news_insight.digest.claude import ClaudeClient, ClaudeError
-from news_insight.spotlight.candidates import SECTIONS, collect_candidates
+from news_insight.spotlight.candidates import MIN_OSS, SECTIONS, collect_candidates
 from news_insight.spotlight.models import (
     Spotlight,
     SpotlightEntry,
@@ -274,6 +274,36 @@ def fallback_entries(section: str, candidates: list[dict[str, Any]]) -> list[dic
     return built
 
 
+def top_up(
+    section: str, kept: list[dict[str, Any]], candidates: list[dict[str, Any]], target: int
+) -> list[dict[str, Any]]:
+    """`kept` followed by the best unused candidates by stat_rank (marked fallback, with the
+    card text) until there are `target` entries or no candidates left."""
+    used = {cid for built in kept for cid in built["cids"]}
+    keys = {built["key"] for built in kept}
+    out = list(kept)
+    for candidate in sorted(candidates, key=lambda c: c["stat_rank"]):
+        if len(out) >= target:
+            break
+        if candidate["cid"] in used or candidate["key"] in keys:
+            continue
+        row = _entry(
+            section,
+            [candidate],
+            title_ko=candidate["title_ko"],
+            product_name=None,
+            summary=candidate["summary_ko"],
+            why_hot="",
+            rank_note=None,
+            fallback=True,
+        )
+        keys.add(row["key"])
+        out.append(row)
+    for rank, built in enumerate(out, start=1):
+        built["rank"] = rank
+    return out
+
+
 def _row(session: Session, day: date) -> Spotlight | None:
     return session.scalars(select(Spotlight).where(Spotlight.spotlight_date == day)).one_or_none()
 
@@ -406,6 +436,10 @@ def write(
         # the statistical list fills in only for a missing section or one validation emptied
         if not chosen[section] and listed[section] != 0:
             chosen[section] = fallback_entries(section, snapshot.candidates.get(section, []))
+    # B1: the open-source list holds at least MIN_OSS whenever that many candidates exist
+    oss = snapshot.candidates.get("oss", [])
+    if len(oss) >= MIN_OSS:
+        chosen["oss"] = top_up("oss", chosen["oss"], oss, MIN_OSS)
     structured = result.structured
     return _publish(
         session,
