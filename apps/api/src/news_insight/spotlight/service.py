@@ -103,9 +103,13 @@ def _text(value: Any) -> str | None:
     return value.strip() if isinstance(value, str) else None
 
 
-def _product_key(name: str) -> str:
+# sections whose writer may group candidates under one product (or model, service) name
+GROUPED = frozenset({"product", "ai"})
+
+
+def _product_key(name: str, section: str = "product") -> str:
     # casefold can expand a name; the column holds 200 characters
-    return ("product:" + "-".join(name.casefold().split()))[:200]
+    return (f"{section}:" + "-".join(name.casefold().split()))[:200]
 
 
 def _merged_metrics(members: list[dict[str, Any]]) -> dict[str, Any]:
@@ -140,7 +144,7 @@ def _entry(
     return {
         "section": section,
         "cids": [member["cid"] for member in members],
-        "key": _product_key(product_name) if product_name else members[0]["key"],
+        "key": _product_key(product_name, section) if product_name else members[0]["key"],
         "item_ids": item_ids,
         "title_ko": title_ko,
         "product_name": product_name,
@@ -186,12 +190,12 @@ def _checked(
     rank = raw.get("rank")
     order = rank if isinstance(rank, int) and not isinstance(rank, bool) else MAX_PER_SECTION * 100
     product_name = None
-    if section == "product":
+    if section in GROUPED:
         product_name = _text(raw.get("product_name")) or None
         if product_name is not None and len(product_name) > MAX_PRODUCT_NAME:
             return None  # the key built from it must fit its column
     else:
-        members = members[:1]  # only a product can be a group
+        members = members[:1]  # only a product (or an AI model or service) can be a group
     fields = {
         "title_ko": title,
         "product_name": product_name,

@@ -38,7 +38,7 @@ const base: SpotlightEntry = {
   url: "https://example.com/a",
 };
 
-const emptySections = (): SpotlightView["sections"] => ({ news: [], product: [], oss: [], interview: [], community: [], research: [], patent: [] });
+const emptySections = (): SpotlightView["sections"] => ({ news: [], product: [], ai: [], oss: [], interview: [], community: [], research: [], patent: [] });
 const viewOf = (over: Partial<SpotlightView> = {}): SpotlightView => ({
   date: "2026-11-03",
   generating: false,
@@ -161,6 +161,38 @@ describe("Overview", () => {
     render(<Overview view={viewOf({ date: null, headline: "", available_dates: [], generated_at: null })} date={null} />);
     expect(screen.getAllByText("오늘은 기준을 넘는 화제가 없습니다")).toHaveLength(SECTION_KEYS.length);
     expect(screen.getByRole("link", { name: SECTION_LABEL.patent })).toHaveAttribute("href", "/spotlight?tab=patent");
+  });
+});
+
+describe("AI 모델·서비스", () => {
+  it("has its own tab right after 제품, and the leaderboards keep theirs at the end", () => {
+    render(<SpotlightTabs active="ai" date={null} />);
+    const labels = within(screen.getByRole("navigation", { name: "주목 받는 보기" }))
+      .getAllByRole("link")
+      .map((link) => link.textContent);
+    expect(labels).toEqual(["전체", "뉴스", "제품", "AI 모델·서비스", "오픈소스", "인터뷰·발언", "커뮤니티", "연구", "특허", "AI 모델"]);
+    expect(screen.getByRole("link", { name: "AI 모델·서비스" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("link", { name: "AI 모델·서비스" })).toHaveAttribute("href", "/spotlight?tab=ai");
+  });
+
+  it("shows its top three on the overview", () => {
+    const sections = emptySections();
+    sections.ai = [1, 2, 3, 4].map((n) => ({ ...base, rank: n, stat_rank: n, key: `a${n}`, title_ko: `모델 ${n}` }));
+    render(<Overview view={viewOf({ sections })} date={null} />);
+    const block = screen.getByRole("heading", { level: 2, name: "AI 모델·서비스" }).closest("section")!;
+    expect(within(block).getAllByRole("listitem")).toHaveLength(3);
+    expect(within(block).getByText("모델 3")).toBeInTheDocument();
+    expect(screen.queryByText("모델 4")).not.toBeInTheDocument();
+  });
+
+  it("labels a leaderboard entry by its site and rank", () => {
+    expect(metricChips({ basis: "benchmark", site: "LMArena", board: "text", rank: 3, from: 9 })).toEqual(["LMArena 3위"]);
+  });
+
+  it("tolerates an API that has no ai section yet", () => {
+    const { ai: _omitted, ...older } = emptySections();
+    render(<Overview view={viewOf({ sections: older as SpotlightView["sections"] })} date={null} />);
+    expect(screen.getAllByText("오늘은 기준을 넘는 화제가 없습니다")).toHaveLength(SECTION_KEYS.length);
   });
 });
 

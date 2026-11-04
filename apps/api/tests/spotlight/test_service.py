@@ -564,3 +564,37 @@ def test_oss_not_topped_up_with_fewer_than_ten_candidates(db_session: Session) -
     client = FakeClaude(output({"oss": [entry(["o2"], 1)]}))
     rows = entries(db_session, run(db_session, client), "oss")
     assert [(r.key, r.fallback) for r in rows] == [("item:302", False)]
+
+
+def test_ai_groups_like_product() -> None:
+    found = candidates() | {
+        "ai": [
+            cand("a1", "ai", 401, source_count=3),
+            cand("a2", "ai", 402, source_count=2),
+            cand("a3", "ai", 403, source_count=2),
+        ]
+    }
+    kept = validate(
+        output(
+            {
+                "ai": [
+                    entry(["a2", "a1"], 1, product_name="Gemini 3.8"),
+                    entry(["a3"], 2, product_name="가" * 81),
+                    entry(["a1", "a3"], 3, product_name="Claude Opus 5.5"),
+                ],
+                "news": [entry(["n1", "n2"], 1, product_name="Galaxy S30")],
+            }
+        ),
+        found,
+    )
+    first, second = kept["ai"]
+    assert first["key"] == "ai:gemini-3.8"
+    assert first["product_name"] == "Gemini 3.8"
+    assert first["item_ids"] == [402, 401]
+    assert first["metrics"] == {"source_count": 5, "group_size": 2}
+    assert first["stat_rank"] == 1
+    # the over-long name is dropped; a1 is used, so the third keeps a3 alone
+    assert (second["cids"], second["key"], second["rank"]) == (["a3"], "ai:claude-opus-5.5", 2)
+    # outside product and ai a group keeps only its first cid and no name
+    (news,) = kept["news"]
+    assert (news["cids"], news["product_name"], news["key"]) == (["n1"], None, "item:1")

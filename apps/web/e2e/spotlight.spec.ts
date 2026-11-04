@@ -2,7 +2,8 @@ import { expect, test } from "@playwright/test";
 
 // Fixtures: apps/api/scripts/e2e_seed.py (a published spotlight for today and yesterday, KST).
 // Today: news has three entries (one moved by Opus with a note, one fallback), product has one
-// with a product name, oss has one; interview, community, research and patent are empty.
+// with a product name, ai and oss have one each; interview, community, research and patent are
+// empty.
 test.describe("spotlight", () => {
   test("opens from the menu with the day's headline and every section", async ({ page, isMobile }) => {
     test.skip(isMobile, "desktop flow");
@@ -45,6 +46,16 @@ test.describe("spotlight", () => {
 
     await page.goto("/spotlight?tab=patent");
     await expect(page.getByText("오늘은 기준을 넘는 화제가 없습니다")).toBeVisible();
+  });
+
+  test("AI 모델·서비스 has its own tab beside the leaderboards", async ({ page, isMobile }) => {
+    test.skip(isMobile, "desktop flow");
+    await page.goto("/spotlight");
+    const tabs = page.getByRole("navigation", { name: "주목 받는 보기" });
+    await expect(tabs.getByRole("link", { name: "AI 모델", exact: true })).toHaveAttribute("href", "/spotlight?tab=models");
+    await tabs.getByRole("link", { name: "AI 모델·서비스", exact: true }).click();
+    await expect(page).toHaveURL(/tab=ai/);
+    await expect(page.getByRole("link", { name: "스마트폰용 4비트 LLM이 주목받았다" })).toBeVisible();
   });
 
   test("an earlier day opens by date; an impossible or unpublished date shows the not-found page", async ({ page, isMobile }) => {

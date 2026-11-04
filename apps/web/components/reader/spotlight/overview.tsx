@@ -18,7 +18,7 @@ export function Overview({ view, date }: { view: SpotlightView; date: string | n
       )}
       <div className="grid gap-4 lg:grid-cols-2">
         {SECTION_KEYS.map((key) => {
-          const top = view.sections[key].slice(0, TOP);
+          const top = (view.sections[key] ?? []).slice(0, TOP);
           return (
             <section key={key} className="rounded-lg border p-4">
               <h2 className="mb-2 text-sm font-semibold">

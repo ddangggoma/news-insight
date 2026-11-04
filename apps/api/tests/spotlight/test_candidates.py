@@ -873,3 +873,108 @@ def test_oss_backfills_to_ten_from_daily_weekly_then_hf(
     assert [c.stat_rank for c in oss] == list(range(1, 11))
     assert eleventh.id not in {i for c in oss for i in c.item_ids}
     assert len({c.key for c in oss}) == 10
+
+
+def ai_card(session: Session, target: Item, signal: str, field: str = "ai") -> ItemCard:
+    row = card(session, target, signal)
+    row.field = field
+    session.flush()
+    return row
+
+
+def test_ai_takes_ai_field_launch_market_and_ecosystem_events(db_session: Session):
+    stories = {}
+    for name, signal, field in (
+        ("model", "launch", "ai"),
+        ("deal", "market", "ai"),
+        ("hub", "ecosystem", "ai"),
+        ("funding", "finance", "ai"),
+        ("chip", "launch", "semis"),
+    ):
+        row = news_story(db_session, name, 3 if name == "model" else 2)
+        ai_card(db_session, db_session.get(Item, row.representative_item_id), signal, field)  # type: ignore[arg-type]
+        stories[name] = row
+    lone = item(db_session, source(db_session, "lone", Track.NEWS), "lone")
+    ai_card(db_session, lone, "launch")
+    result = collect_candidates(db_session, day=DAY, now=NOW)
+    keys = [c.key for c in result["ai"]]
+    assert keys[0] == f"story:{stories['model'].id}"
+    assert set(keys) == {f"story:{stories[n].id}" for n in ("model", "deal", "hub")}
+    top = result["ai"][0]
+    assert top.cid == "a1"
+    assert top.metrics == {"source_count": 3, "community_mentions": 0, "community_z": 0.0}
+    assert top.score == pytest.approx(300.0)
+    # the semis launch is a product, not an AI model or service
+    assert f"story:{stories['chip'].id}" in {c.key for c in result["product"]}
+
+
+def test_ai_takes_benchmark_arrivals_and_big_moves(
+    db_session: Session, monkeypatch: pytest.MonkeyPatch
+):
+    changes = {
+        "new_models": [
+            {"site": "LMArena", "board": "text", "model": "Gemini 3.8 Pro", "rank": 4},
+            {
+                "site": "LiveBench",
+                "board": "overall",
+                "model": "gemini-3.8-pro",
+                "rank": 2,
+                "previous_rank": 25,
+            },
+        ],
+        "changes": [
+            {"site": "LMArena", "board": "text", "model": "Claude Opus 5.5", "from": 9, "to": 3},
+            {"site": "LMArena", "board": "text", "model": "GPT-6", "from": 5, "to": 3},
+            {"site": "LMArena", "board": "text", "model": "Grok 6", "from": 7, "to": 6},
+        ],
+    }
+    monkeypatch.setattr(candidates_module, "benchmark_changes", lambda session, *, now: changes)
+    result = collect_candidates(db_session, day=DAY, now=NOW)
+    by_key = {c.key: c for c in result["ai"]}
+    assert set(by_key) == {"model:gemini-3-8-pro", "model:claude-opus-5-5"}
+    gemini = by_key["model:gemini-3-8-pro"]
+    assert gemini.title_ko == "gemini-3.8-pro — LiveBench overall 2위"
+    assert gemini.metrics == {
+        "basis": "benchmark",
+        "site": "LiveBench",
+        "board": "overall",
+        "rank": 2,
+        "from": 25,
+    }
+    assert gemini.score == pytest.approx(98.0)
+    assert gemini.item_ids == []
+    claude = by_key["model:claude-opus-5-5"]
+    assert claude.metrics["from"] == 9
+    assert "9위에서 3위로" in claude.summary_ko
+    assert [c.key for c in result["ai"]] == ["model:gemini-3-8-pro", "model:claude-opus-5-5"]
+
+
+def test_ai_survives_unavailable_benchmarks(db_session: Session, monkeypatch: pytest.MonkeyPatch):
+    def broken(session: Session, *, now: datetime) -> dict:
+        raise RuntimeError("leaderboard tables missing")
+
+    monkeypatch.setattr(candidates_module, "benchmark_changes", broken)
+    assert collect_candidates(db_session, day=DAY, now=NOW)["ai"] == []
+
+
+def test_ai_takes_hot_hugging_face_models_the_oss_section_did_not(
+    db_session: Session, monkeypatch: pytest.MonkeyPatch
+):
+    hf = source(db_session, HF_MODELS, Track.OSS, "Hugging Face")
+    hn_posts(db_session, [5] * 32)
+    hot = item(db_session, hf, "hot", metrics={"trending": 500})
+    calm = item(db_session, hf, "calm", metrics={"trending": 1})
+    # an HF model the oss section takes stays there
+    result = collect_candidates(db_session, day=DAY, now=NOW)
+    assert hot.id in {c.item_ids[0] for c in result["oss"]}
+    assert result["ai"] == []
+    # with the oss section full of others, it is an AI candidate
+    monkeypatch.setattr(candidates_module, "MIN_OSS_Z", 1e9)
+    monkeypatch.setattr(candidates_module, "MIN_OSS", 0)
+    result = collect_candidates(db_session, day=DAY, now=NOW)
+    assert result["oss"] == []
+    (candidate,) = result["ai"]
+    assert candidate.item_ids == [hot.id]
+    assert candidate.metrics["basis"] == "hf_trending"
+    assert candidate.score > 1.0
+    assert calm.id not in candidate.item_ids

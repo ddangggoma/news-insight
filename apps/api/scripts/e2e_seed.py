@@ -306,6 +306,17 @@ SPOTLIGHT_TODAY: list[tuple[str, int, int, str, int, str, str | None, str | None
     ("news", 2, 1, "n-fold", 2, "폴더블 양산 소식이 뒤를 이었다", None, None, False),
     ("news", 3, 3, "n-matter", 3, "스마트홈 표준 갱신 소식", None, None, True),
     ("product", 1, 1, "p-tv", 1, "마이크로 RGB TV 공개", "Micro RGB TV", None, False),
+    (
+        "ai",
+        1,
+        1,
+        "ai:phone-llm",
+        4,
+        "스마트폰용 4비트 LLM이 주목받았다",
+        "Phone LLM 4bit",
+        None,
+        False,
+    ),
     ("oss", 1, 1, "o-llama", 6, "llama.cpp 모바일 NPU 백엔드 추가", None, None, False),
 ]
 SPOTLIGHT_YESTERDAY: list[tuple[str, int, int, str, int, str, str | None, str | None, bool]] = [

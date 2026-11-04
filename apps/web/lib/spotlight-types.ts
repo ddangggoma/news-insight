@@ -1,12 +1,13 @@
 import { formatNumber } from "@/lib/format";
 
 /** The daily Top 10 sections, in the order the page shows them. */
-export const SECTION_KEYS = ["news", "product", "oss", "interview", "community", "research", "patent"] as const;
+export const SECTION_KEYS = ["news", "product", "ai", "oss", "interview", "community", "research", "patent"] as const;
 export type SectionKey = (typeof SECTION_KEYS)[number];
 
 export const SECTION_LABEL: Record<SectionKey, string> = {
   news: "뉴스",
   product: "제품",
+  ai: "AI 모델·서비스",
   oss: "오픈소스",
   interview: "인터뷰·발언",
   community: "커뮤니티",
@@ -45,7 +46,7 @@ export interface SpotlightView {
   generated_at: string | null;
 }
 
-/** The page's tabs: the overview, one per section, and the AI model leaderboards. */
+/** The page's tabs: the overview, one per section, and the AI model leaderboards (benchmarks only). */
 export const SPOTLIGHT_TABS = [
   { key: "overview", label: "전체" },
   ...SECTION_KEYS.map((key) => ({ key, label: SECTION_LABEL[key] })),
@@ -98,7 +99,10 @@ const METRIC_LABEL: Record<string, (n: string) => string> = {
 /** Internal ranking inputs: they mean nothing to a reader. */
 const HIDDEN_METRICS = new Set(["community_z", "basis", "trend_rank"]);
 
-/** Why a backfilled open-source entry is listed: the trending list it came from. */
+/** Shown by the trend chip instead, when there is one. */
+const TREND_METRICS = new Set(["rank", "from", "site", "board"]);
+
+/** Why a trend-listed entry is there: the trending list or leaderboard it came from. */
 export function trendChip(metrics: Record<string, number | string>): string | null {
   const rank = metrics.trend_rank;
   const place = typeof rank === "number" && Number.isFinite(rank) ? Math.round(rank) : null;
@@ -109,6 +113,11 @@ export function trendChip(metrics: Record<string, number | string>): string | nu
       return place ? `GitHub 주간 트렌딩 ${place}위` : "GitHub 주간 트렌딩";
     case "hf_trending":
       return "HF 트렌딩";
+    case "benchmark": {
+      const site = typeof metrics.site === "string" ? metrics.site : "벤치마크";
+      const at = typeof metrics.rank === "number" ? ` ${Math.round(metrics.rank)}위` : "";
+      return `${site}${at}`;
+    }
     default:
       return null;
   }
@@ -120,7 +129,7 @@ export function metricChips(metrics: Record<string, number | string>): string[] 
   const trend = trendChip(metrics);
   if (trend) chips.push(trend);
   for (const [key, value] of Object.entries(metrics)) {
-    if (HIDDEN_METRICS.has(key) || (trend && key === "rank")) continue;
+    if (HIDDEN_METRICS.has(key) || (trend && TREND_METRICS.has(key))) continue;
     if (key === "platform") {
       if (typeof value === "string" && value) chips.push(value);
       continue;
