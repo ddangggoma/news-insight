@@ -539,9 +539,10 @@ if __name__ == "__main__":
         seed_taxonomy(db)  # schemes and labels for the explorer and node filters (plan 15)
         backfill_labels(db)
         db.commit()
+        # the explore feed, facets and insights read reader_facts (#135); live rebuilds it every
+        # few minutes, but here no scheduler runs, so the view stays as the migration left it: empty
         from news_insight.public.facts import refresh
 
-        # the explore pages read reader_facts (#135); the scheduler that rebuilds it does not run
         refresh(db)
         db.commit()
     print(f"seeded {database_url.rsplit('/', 1)[-1]}: briefings {YESTERDAY}, {TODAY}")
