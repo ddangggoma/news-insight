@@ -4,7 +4,7 @@ import { beforeAll, describe, expect, it, vi } from "vitest";
 
 import { ArtificialAnalysisCharts } from "@/components/reader/benchmarks/artificial-analysis";
 import { DeepSweChart } from "@/components/reader/benchmarks/deepswe";
-import { paretoFrontier } from "@/components/reader/benchmarks/frontier";
+import { buildPlot, defaultConfigs, displayName, family, formatCost, modelShades, niceTicks } from "@/components/reader/benchmarks/deepswe-plot";
 import { LiveBenchTable } from "@/components/reader/benchmarks/livebench";
 import { LmArenaTable } from "@/components/reader/benchmarks/lmarena";
 import { ModelsTab } from "@/components/reader/benchmarks/models-tab";
@@ -107,11 +107,6 @@ describe("provider colours", () => {
 });
 
 describe("helpers", () => {
-  it("computes the efficiency frontier", () => {
-    expect(paretoFrontier([{ id: "a", x: 1, y: 50 }, { id: "b", x: 2, y: 40 }, { id: "c", x: 3, y: 70 }])).toEqual(["a", "c"]);
-    expect(paretoFrontier([{ id: "a", x: 1, y: 50 }, { id: "b", x: 1, y: 60 }, { id: "c", x: Number.NaN, y: 99 }])).toEqual(["b"]);
-  });
-
   it("guesses a maker from the name only for colour", () => {
     expect(colourOrg(null, "claude-opus-5.5")).toBe("Anthropic");
     expect(colourOrg("google", "claude-x")).toBe("google");
@@ -358,6 +353,153 @@ describe("DeepSweChart", () => {
     const toggle = within(screen.getByRole("group", { name: "가로축" })).getByRole("button", { name: "출력 토큰" });
     fireEvent.click(toggle);
     expect(toggle).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByText("작업당 평균 출력 토큰")).toBeInTheDocument();
+  });
+});
+
+// a small v1.1 board shaped like the site's: several effort levels per model, out of order
+const sweep = (model: string, levels: [string | null, number, number][], extra: Record<string, unknown> = {}) =>
+  levels.map(([config, pass, cost]) =>
+    dsRow({ model, config, value: pass, ci_low: pass - 0.03, ci_high: pass + 0.03, extra: { mean_cost_usd: cost, mean_output_tokens: cost * 10_000, mean_agent_steps: 30, harness: "mini-swe-agent", n_tasks_attempted: 113, ...extra } }),
+  );
+const board = siteOf({
+  site: "deepswe",
+  title: "DeepSWE",
+  boards: ["v1.1"],
+  release: "2026-09-22",
+  rows: [
+    ...sweep("gpt-5-5", [["high", 0.64, 5.1], ["max", 0.66, 9], ["low", 0.27, 1.2], ["medium", 0.54, 2.75], ["xhigh", 0.67, 7.23]]),
+    ...sweep("claude-opus-5", [["low", 0.58, 1.66], ["max", 0.736, 11.84], ["high", 0.728, 6.08]]),
+    ...sweep("claude-fable-5", [["high", 0.686, 9.18], ["max", 0.697, 21.63]]),
+    ...sweep("glm-5-3-flash", [[null, 0.63, 0.48]]),
+    ...sweep("gpt-5-4", [["xhigh", 0.518, 5.65]]),
+    ...sweep("tiny-model", [["high", 0.03, 0.2]]),
+  ],
+});
+const boardView = deepSweView(board);
+const v11 = boardView.points;
+
+describe("DeepSWE chart rules", () => {
+  it("names models like the site", () => {
+    expect(displayName("gpt-5-6-sol")).toBe("gpt-5.6-sol");
+    expect(displayName("glm-5-3-flash")).toBe("glm-5.3-flash");
+    expect(displayName("qwen3-8-max")).toBe("qwen3.8-max");
+    expect(displayName("gemini-3-1-pro-preview")).toBe("gemini-3.1-pro");
+    expect(displayName("gpt-6-astra")).toBe("gpt-6-astra");
+  });
+
+  it("colours by the maker in the name, each next model of a maker a lighter step", () => {
+    expect(family("gpt-6-astra")).toBe("openai");
+    expect(family("muse-spark-1-1")).toBe("meta");
+    expect(family("glm-5-3")).toBe("zai");
+    expect(family("mimo-v2-5-pro")).toBe("other");
+    const shades = modelShades(v11);
+    expect(shades.get("claude-opus-5")!.light).toBe(providerColor("anthropic", "light"));
+    expect(shades.get("claude-fable-5")!.light).not.toBe(shades.get("claude-opus-5")!.light);
+    expect(shades.get("claude-fable-5")!.dark).not.toBe(shades.get("claude-opus-5")!.dark);
+  });
+
+  it("joins a model's configurations in effort order, one line per swept model", () => {
+    const plot = buildPlot(v11, "cost", null)!;
+    const ids = (model: string) => v11.filter((p) => p.model === model);
+    const gpt = plot.lines.find((l) => l.model === "gpt-5-5")!;
+    expect(gpt.ids.map((id) => ids("gpt-5-5").find((p) => p.id === id)!.effort)).toEqual(["low", "medium", "high", "xhigh", "max"]);
+    expect(plot.lines.map((l) => l.model).sort()).toEqual(["claude-fable-5", "claude-opus-5", "gpt-5-5"]);
+    expect(plot.lines.find((l) => l.model === "glm-5-3-flash")).toBeUndefined();
+  });
+
+  it("labels each model's default effort, else its highest", () => {
+    const plot = buildPlot(v11, "cost", null)!;
+    const labelled = (model: string) => plot.points.filter((p) => p.model === model && p.labeled).map((p) => p.effort);
+    expect(labelled("gpt-5-5")).toEqual(["medium"]);
+    expect(labelled("claude-fable-5")).toEqual(["high"]);
+    expect(labelled("claude-opus-5")).toEqual(["max"]);
+    expect(labelled("glm-5-3-flash")).toEqual([null]);
+    expect(plot.labels).toHaveLength(6);
+    expect(plot.labels.find((l) => l.model === "glm-5-3-flash")).toMatchObject({ line1: "glm-5.3-flash", line2: null });
+  });
+
+  it("runs the x axis from dear to cheap with nice ticks", () => {
+    expect(niceTicks(13.94)).toEqual([0, 5, 10]);
+    expect(niceTicks(52_000)).toEqual([0, 10_000, 20_000, 30_000, 40_000, 50_000]);
+    expect([formatCost(0), formatCost(5), formatCost(10), formatCost(0.005)]).toEqual(["$0", "$5.00", "$10", "$0.005"]);
+    const plot = buildPlot(v11, "cost", null)!;
+    const at = (model: string, effort: string) => plot.points.find((p) => p.model === model && p.effort === effort)!;
+    expect(at("gpt-5-5", "low").px).toBeGreaterThan(at("gpt-5-5", "max").px);
+    expect(plot.xTicks).toEqual([0, 5, 10, 15, 20]);
+    expect(plot.yTicks).toEqual([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]);
+    // every label inside the frame
+    for (const l of plot.labels) expect(l.x).toBeGreaterThan(0);
+  });
+
+  it("opens with the site's default configurations", () => {
+    const shown = defaultConfigs(v11);
+    const models = (ids: Set<string>) => new Set(v11.filter((p) => ids.has(p.id)).map((p) => p.model));
+    // gpt-5-4 is in the hidden set, tiny-model under 5%, fable's $21.63 max above $15
+    expect([...models(shown)].sort()).toEqual(["claude-fable-5", "claude-opus-5", "glm-5-3-flash", "gpt-5-5"]);
+    expect(v11.filter((p) => shown.has(p.id)).some((p) => p.cost! > 15)).toBe(false);
+    expect(shown.size).toBe(10);
+  });
+
+  it("carries the task count and the snapshot day", () => {
+    expect(boardView.info["v1.1"]).toEqual({ tasks: 113, updated: "2026-09-22" });
+  });
+});
+
+describe("DeepSWE chart", () => {
+  const svg = () => screen.getByRole("img", { name: /DeepSWE 점수와/ });
+
+  it("draws dots, effort lines and labels without error bars or a frontier", () => {
+    render(<DeepSweChart view={boardView} />);
+    const chart = svg();
+    // fable's $21.63 max starts hidden, so fable is a lone dot
+    expect(chart.querySelectorAll("[data-line]")).toHaveLength(2);
+    expect(chart.querySelectorAll("[data-point]")).toHaveLength(10);
+    expect(within(chart).getByText("gpt-5.5")).toBeInTheDocument();
+    expect(within(chart).getByText("MEDIUM")).toBeInTheDocument();
+    expect(within(chart).queryByText("gpt-5.4")).not.toBeInTheDocument();
+    expect(within(chart).getByText("효율 높음 ↗")).toBeInTheDocument();
+    expect(document.querySelector(".recharts-wrapper, .recharts-errorBar")).toBeNull();
+    expect(screen.queryByText(/효율 경계/)).not.toBeInTheDocument();
+    expect(screen.getByText("과제 113개")).toBeInTheDocument();
+  });
+
+  it("counts shown configurations and toggles a model's", () => {
+    render(<DeepSweChart view={boardView} />);
+    const picker = screen.getByRole("button", { name: "구성 고르기" });
+    expect(picker).toHaveTextContent("(10/13)");
+    fireEvent.click(picker);
+    fireEvent.click(screen.getByRole("checkbox", { name: /gpt-5\.4/ }));
+    expect(picker).toHaveTextContent("(11/13)");
+    expect(within(svg()).getByText("gpt-5.4")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("checkbox", { name: /gpt-5\.5/ }));
+    expect(picker).toHaveTextContent("(6/13)");
+    expect(svg().querySelector('[data-line="gpt-5-5"]')).toBeNull();
+  });
+
+  it("picks out the hovered model and pins it on click", () => {
+    render(<DeepSweChart view={boardView} />);
+    const chart = svg();
+    const point = (model: string) => chart.querySelector<SVGGElement>(`[data-point="${model}"]`)!;
+    fireEvent.mouseEnter(point("gpt-5-5"));
+    expect(point("claude-opus-5").style.opacity).toBe("0.55");
+    expect(point("claude-opus-5").style.filter).toBe("grayscale(1)");
+    expect(point("gpt-5-5").style.opacity).toBe("");
+    // the crosshair reads the exact pass rate off the y axis
+    expect(within(chart).getAllByText("64%").length).toBeGreaterThan(0);
+    fireEvent.click(point("gpt-5-5"));
+    fireEvent.mouseLeave(point("gpt-5-5"));
+    expect(point("claude-opus-5").style.opacity).toBe("0.55");
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(point("claude-opus-5").style.opacity).toBe("");
+  });
+
+  it("puts a pass@1 bar with its interval on every table row", () => {
+    render(<DeepSweChart view={boardView} />);
+    const table = screen.getByRole("table");
+    const rows = within(table).getAllByRole("row").length - 1;
+    expect(within(table).getAllByRole("img", { name: /^pass@1 / })).toHaveLength(rows);
+    expect(within(table).getByText("80%")).toBeInTheDocument();
   });
 });
 
