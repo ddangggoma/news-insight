@@ -24,8 +24,17 @@ import re
 
 from news_insight.cards.schemas import CardDraft, CardInput
 
-# a link, including path pieces a feed split off with spaces ("…/2026/04/ 28/popular")
-URL = re.compile(r"(?:https?://|www\.)\s?\S+(?:\s+\S*/\S*)*", re.IGNORECASE)
+# a link, including pieces a feed split off with spaces: path pieces ("…/2026/04/ 28/popular"),
+# a query ("youtube.com/shorts/8kQVsdFa3kQ ?si=AbSIBBDx0IqtugSJ"), the rest of an id or slug
+# ("…/1175096 04097935890", "…/b7671d34-878e-4 5ae-ba…", "…/norway-ai-g lasses-ban-be20dbd9").
+# 2026-10-27 audit K07: such leftovers were read as facts, and the retry told the engine to
+# keep them (49 cards ended in "(keep: lasses-ban)").
+URL = re.compile(
+    r"(?:https?://|www\.)\s?\S+"
+    r"(?:\s+(?:\S*/\S*|[?&#=]\S*|\d{6,}\S*|(?=\S*\d)[a-z0-9]+(?:-[a-z0-9]+)+…?))*",
+    re.IGNORECASE,
+)
+MENTION = re.compile(r"@\s?[A-Za-z_][\w.]*")  # "@ grumble209": a name, not a fact
 SCALED = re.compile(r"\d[\d,.]*(?:%|[KkMmBb])")  # "800K", "2.5B": checked as numbers
 REPO = re.compile(r"^\s*[A-Za-z0-9][\w.-]*/(?=[\w.-]+)")
 IDENTIFIER = re.compile(
@@ -90,7 +99,8 @@ SCORE_SCALE = re.compile(r"(?<=\d)\s?/\s?(?:5|10|100)(?![\d.,])")
 
 
 def _clean(title: str) -> str:
-    return SCORE_SCALE.sub(" ", DATES.sub(" ", REPO.sub("", URL.sub(" ", title))))
+    title = MENTION.sub(" ", URL.sub(" ", title))
+    return SCORE_SCALE.sub(" ", DATES.sub(" ", REPO.sub("", title)))
 
 
 def _random_id(token: str) -> bool:

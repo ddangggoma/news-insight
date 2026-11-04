@@ -26,6 +26,7 @@ from html.parser import HTMLParser
 from urllib.parse import parse_qsl, urlencode, urlsplit
 
 from news_insight.content.normalize import html_to_text
+from news_insight.content.placeholder import strip_boilerplate
 
 KEY_LENGTH = 32
 MIN_TEXT = 40
@@ -84,10 +85,20 @@ def dedup_keys(
     norm_title = normalize_text(title)
     norm_body = normalize_text(summary or body)
     joined = f"{norm_title} | {norm_body}"
+    # the text and title keys stand for a story only when text is left once boilerplate is taken
+    # away (2026-10-27, K08: "Source: X Read: <link>" posts and wacoca/AppBank tag lists all
+    # shared one key and copied each other's card); the keys themselves are unchanged
+    core_title = normalize_text(strip_boilerplate(title))
+    core_body = normalize_text(strip_boilerplate(summary or body))
+    core = len(core_title) + len(core_body)
     return DedupKeys(
         url=url_key(canonical),
-        text=_digest(joined) if len(norm_title) + len(norm_body) >= MIN_TEXT else None,
-        title=_digest(norm_title) if len(norm_title) >= MIN_TITLE else None,
+        text=_digest(joined)
+        if len(norm_title) + len(norm_body) >= MIN_TEXT and core >= MIN_TEXT
+        else None,
+        title=_digest(norm_title)
+        if len(norm_title) >= MIN_TITLE and len(core_title) >= MIN_TITLE
+        else None,
         lead=_digest(norm_body[:LEAD]) if len(norm_body) >= MIN_TEXT else None,
         lead_title=bool(norm_title) and norm_body.startswith(norm_title[:TITLE_PREFIX]),
         link=url_key(link) if link else None,
