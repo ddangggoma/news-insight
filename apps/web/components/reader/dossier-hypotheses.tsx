@@ -126,7 +126,7 @@ function HypothesisCard({
         <ul className="space-y-1">
           {h.evidence.map((e) => (
             <li key={e.id} className="flex items-start gap-2 text-sm">
-              <span className={cn("shrink-0 rounded border px-1.5 text-[11px]", STANCE_STYLE[e.stance])}>{STANCE_LABEL[e.stance]}</span>
+              <span className={cn("shrink-0 rounded border px-1.5 text-xs", STANCE_STYLE[e.stance])}>{STANCE_LABEL[e.stance]}</span>
               <div className="min-w-0 flex-1">
                 <Link href={`/items/${e.item_id}`} scroll={false} className="line-clamp-1 hover:underline">
                   {e.title}

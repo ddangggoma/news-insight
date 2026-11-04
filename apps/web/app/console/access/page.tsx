@@ -249,22 +249,23 @@ export default async function AccessPage({ searchParams }: { searchParams: Promi
             columns={usageColumns()}
             rows={usage.accounts}
             rowKey={(row) => row.user.id}
+            caption="계정별 접속"
             emptyTitle="이 조건의 접속 기록이 없습니다"
             emptyDescription="요청 내역은 이 기능을 배포한 뒤부터 쌓입니다."
           />
           <h2 className="text-lg font-semibold">많이 쓴 경로</h2>
-          <DataTable columns={pathColumns(filters)} rows={usage.paths} rowKey={(row) => `${row.kind} ${row.path}`} emptyTitle="기록된 경로가 없습니다" />
+          <DataTable columns={pathColumns(filters)} rows={usage.paths} rowKey={(row) => `${row.kind} ${row.path}`} caption="많이 쓴 경로" emptyTitle="기록된 경로가 없습니다" />
         </>
       ) : null}
       {requests ? (
         <>
-          <DataTable columns={requestColumns} rows={requests.items} rowKey={(row) => row.id} emptyTitle="이 조건의 요청이 없습니다" />
+          <DataTable columns={requestColumns} rows={requests.items} rowKey={(row) => row.id} caption="요청 기록" emptyTitle="이 조건의 요청이 없습니다" />
           <PaginationBar pathname={PATH} params={params} page={page} size={requests.size} total={requests.total} />
         </>
       ) : null}
       {logins ? (
         <>
-          <DataTable columns={loginColumns} rows={logins.items} rowKey={(row) => row.id} emptyTitle="이 조건의 로그인 기록이 없습니다" />
+          <DataTable columns={loginColumns} rows={logins.items} rowKey={(row) => row.id} caption="로그인 기록" emptyTitle="이 조건의 로그인 기록이 없습니다" />
           <PaginationBar pathname={PATH} params={params} page={page} size={logins.size} total={logins.total} />
         </>
       ) : null}

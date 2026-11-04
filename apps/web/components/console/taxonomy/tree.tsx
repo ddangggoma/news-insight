@@ -134,7 +134,7 @@ export function TaxonomyTree({
               style={{ paddingLeft: `${(node.depth - 1) * 16 + 4}px` }}
             >
               {hint?.id === node.id ? (
-                <span role="status" className="pointer-events-none absolute -top-5 right-1 z-10 rounded bg-primary px-1.5 py-0.5 text-[10px] text-primary-foreground shadow">
+                <span role="status" className="pointer-events-none absolute -top-5 right-1 z-10 rounded bg-primary px-1.5 py-0.5 text-xs text-primary-foreground shadow">
                   {landing(node, hint.position)}
                 </span>
               ) : null}
@@ -148,13 +148,13 @@ export function TaxonomyTree({
               {tree ? <GripVertical className="size-3 shrink-0 text-muted-foreground/50 opacity-0 group-hover:opacity-100" aria-hidden /> : null}
               <button type="button" onClick={() => onSelect(node)} className="min-w-0 flex-1 truncate text-left">
                 {node.label}
-                <span className="ml-1.5 font-mono text-[11px] text-muted-foreground">{node.key}</span>
+                <span className="ml-1.5 font-mono text-xs text-muted-foreground">{node.key}</span>
               </button>
-              {STATUS[node.status] ? <span className="rounded bg-muted px-1 text-[10px]">{STATUS[node.status]}</span> : null}
-              {moved.has(node.id) ? <span className="rounded bg-sky-500/15 px-1 text-[10px] text-sky-700 dark:text-sky-300" title="변경 초안에 이동이 담겼습니다 (적용 전)">이동 예정</span> : null}
-              {node.edited_in_console ? <span className="rounded bg-primary/10 px-1 text-[10px] text-primary">콘솔</span> : null}
+              {STATUS[node.status] ? <span className="rounded bg-muted px-1 text-xs">{STATUS[node.status]}</span> : null}
+              {moved.has(node.id) ? <span className="rounded bg-sky-500/15 px-1 text-xs text-sky-700 dark:text-sky-300" title="변경 초안에 이동이 담겼습니다 (적용 전)">이동 예정</span> : null}
+              {node.edited_in_console ? <span className="rounded bg-primary/10 px-1 text-xs text-primary">콘솔</span> : null}
               {node.attrs.priority !== undefined && Number(node.attrs.priority) !== 1 ? (
-                <span className={cn("rounded px-1 text-[10px]", Number(node.attrs.priority) === 0 ? "bg-destructive/10 text-destructive" : "bg-amber-500/15 text-amber-700 dark:text-amber-300")} title="카드화 우선순위">
+                <span className={cn("rounded px-1 text-xs", Number(node.attrs.priority) === 0 ? "bg-destructive/10 text-destructive" : "bg-amber-500/15 text-amber-700 dark:text-amber-300")} title="카드화 우선순위">
                   {PRIORITY_LABEL[String(node.attrs.priority)] ?? String(node.attrs.priority)}
                 </span>
               ) : null}

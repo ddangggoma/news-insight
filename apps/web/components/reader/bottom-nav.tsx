@@ -22,7 +22,7 @@ export function BottomNav() {
             aria-current={active ? "page" : undefined}
             aria-label={item.short ? item.label : undefined}
             className={cn(
-              "flex flex-col items-center gap-0.5 px-0.5 py-2 text-center text-[10px] leading-tight text-muted-foreground",
+              "flex flex-col items-center gap-0.5 px-0.5 py-2 text-center text-xs leading-tight text-muted-foreground",
               active && "font-semibold text-primary",
             )}
           >

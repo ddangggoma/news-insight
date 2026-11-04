@@ -68,7 +68,7 @@ export default async function SourcesPage({ searchParams }: { searchParams: Prom
       />
       <BulkSelection>
         <BulkBar pageKeys={data.items.map((row) => row.key)} />
-        <DataTable columns={columns} rows={data.items} rowKey={(row) => row.key} emptyTitle="조건에 맞는 소스가 없습니다" />
+        <DataTable columns={columns} rows={data.items} rowKey={(row) => row.key} caption="수집 소스" emptyTitle="조건에 맞는 소스가 없습니다" />
       </BulkSelection>
       <PaginationBar pathname="/console/sources" params={filters} page={page} size={data.size} total={data.total} />
     </>

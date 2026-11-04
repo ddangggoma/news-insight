@@ -54,7 +54,7 @@ export function DealCard({ deal, companyHref }: { deal: Deal; companyHref: (comp
           <span className={cn("text-lg font-bold tracking-tight tabular-nums", deal.outlier && "text-muted-foreground line-through decoration-1")}>{formatUsd(deal.amount_usd)}</span>
           {original ? <span className="text-xs text-muted-foreground tabular-nums">{original}</span> : null}
           {deal.outlier ? (
-            <span title="500억 달러 이상은 기업가치 등을 금액으로 잘못 읽은 경우가 많아 합계에서 뺍니다." className="rounded-full bg-impact-risk/12 px-1.5 py-px text-[11px] font-semibold text-impact-risk">
+            <span title="500억 달러 이상은 기업가치 등을 금액으로 잘못 읽은 경우가 많아 합계에서 뺍니다." className="rounded-full bg-impact-risk/12 px-1.5 py-px text-xs font-semibold text-impact-risk">
               확인 필요, 합계 제외
             </span>
           ) : null}

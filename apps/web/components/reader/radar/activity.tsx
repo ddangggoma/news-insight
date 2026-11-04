@@ -1,3 +1,5 @@
+import type { CSSProperties } from "react";
+
 import { AppLink as Link } from "@/components/app-link";
 
 import { ChartTips } from "@/components/reader/radar/chart-tips";
@@ -174,11 +176,11 @@ export function ActivityCalendar({ radar, view }: { radar: Radar; view: RadarVie
       <div className="overflow-x-auto">
         <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" style={{ minWidth: Math.min(W, 640), maxWidth: Math.max(W * 1.6, 420) }} role="img" aria-label="일별 보도량 캘린더">
           {months.map((month) => (
-            <text key={`${month.x}-${month.label}`} x={month.x} y={11} fontSize={10} fill="var(--muted-foreground)">{month.label}</text>
+            <text key={`${month.x}-${month.label}`} x={month.x} y={11} fontSize={11} fill="var(--muted-foreground)">{month.label}</text>
           ))}
           {WEEKDAYS.map((label, row) =>
             row % 2 === 0 ? (
-              <text key={label} x={0} y={T + row * (CELL + GAP) + CELL - 3} fontSize={10} fill="var(--muted-foreground)">{label}</text>
+              <text key={label} x={0} y={T + row * (CELL + GAP) + CELL - 3} fontSize={11} fill="var(--muted-foreground)">{label}</text>
             ) : null,
           )}
           {days.map((count, i) => {
@@ -275,7 +277,7 @@ export function FieldCrossMatrix({ radar, view }: { radar: Radar; view: RadarVie
             <tbody>
               {fields.slice(1).map((row, r) => (
                 <tr key={row}>
-                  <th scope="row" className="pr-2 text-right font-medium whitespace-nowrap">
+                  <th scope="row" className="pr-2 text-right font-semibold whitespace-nowrap">
                     <Link href={radarHref(radar.window.kind, radar.window.key, { ...view, focus: { kind: "field", key: row } })} scroll={false} className="hover:text-primary">
                       {short(row)}
                     </Link>
@@ -288,8 +290,8 @@ export function FieldCrossMatrix({ radar, view }: { radar: Radar; view: RadarVie
                       <td
                         key={col}
                         data-tip={link ? `${FIELD_LABEL[row]} × ${FIELD_LABEL[col]}\n${link.count}건\n직전 기간 ${link.previous}건${fresh ? " · 새로 생긴 교차" : ""}` : `${FIELD_LABEL[row]} × ${FIELD_LABEL[col]}\n0건`}
-                        className={cn("relative size-9 rounded-[5px] text-center tabular-nums", level >= 55 ? "font-semibold text-heat-ink" : "text-ink-2")}
-                        style={{ background: link ? `color-mix(in oklab, var(--heat) ${level}%, var(--muted))` : "var(--muted)" }}
+                        className={cn("heat-cell relative size-9 rounded-[5px] text-center tabular-nums", level >= 55 ? "font-semibold text-heat-ink" : "text-ink-2")}
+                        style={{ "--cell": link ? `color-mix(in oklab, var(--heat) ${level}%, var(--muted))` : "var(--muted)" } as CSSProperties}
                       >
                         {link?.count ?? ""}
                         {fresh ? <span className="absolute top-0.5 right-0.5 size-1.5 rounded-full bg-primary" aria-label="새로 생긴 교차" /> : null}
@@ -301,7 +303,7 @@ export function FieldCrossMatrix({ radar, view }: { radar: Radar; view: RadarVie
               <tr>
                 <td />
                 {fields.slice(0, -1).map((col) => (
-                  <th key={col} scope="col" className="h-20 align-top font-medium">
+                  <th key={col} scope="col" className="h-20 align-top font-semibold">
                     <span className="inline-block origin-top-left translate-x-3 rotate-45 whitespace-nowrap">{short(col)}</span>
                   </th>
                 ))}
@@ -317,7 +319,7 @@ export function FieldCrossMatrix({ radar, view }: { radar: Radar; view: RadarVie
                 <span className="min-w-0 flex-1 truncate">
                   {FIELD_LABEL[l.a]} <span className="text-muted-foreground">×</span> {FIELD_LABEL[l.b]}
                 </span>
-                {l.previous === 0 ? <span className="rounded-full bg-primary/12 px-1.5 text-[11px] font-semibold text-primary">신규</span> : null}
+                {l.previous === 0 ? <span className="rounded-full bg-primary/12 px-1.5 text-xs font-semibold text-primary">신규</span> : null}
                 <span className="text-xs whitespace-nowrap text-muted-foreground tabular-nums">
                   {l.count}건 ({delta >= 0 ? "+" : "−"}
                   {Math.abs(delta)})

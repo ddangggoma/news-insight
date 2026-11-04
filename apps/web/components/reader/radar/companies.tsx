@@ -18,7 +18,7 @@ const LEADER_THEMES = 8;
 function RelationBadge({ relation }: { relation: CompanyRelation }) {
   const meta = RELATION_META[relation];
   return (
-    <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+    <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
       <span aria-hidden className="size-2 rounded-full" style={{ background: meta.color }} />
       {meta.label}
     </span>
@@ -46,21 +46,22 @@ function MomentumTable({ rows, at }: { rows: CompanyTopic[]; at: (focus: Focus) 
     <div className="min-w-0">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[640px] text-sm">
-          <thead className="text-left text-[11px] text-muted-foreground">
+          <caption className="sr-only">기업별 보도 모멘텀</caption>
+          <thead className="text-left text-xs text-muted-foreground">
             <tr className="border-b">
-              <th className="py-1.5 pr-2 font-medium">기업</th>
-              <th className="py-1.5 pr-2 text-right font-medium" title="다른 매체 보도 / 자사 발표">외부 · 자사</th>
-              <th className="py-1.5 pr-2 text-right font-medium">직전 대비</th>
-              <th className="py-1.5 pr-2 font-medium">상태</th>
-              <th className="py-1.5 pr-2 font-medium">주 활동 · 전환</th>
-              <th className="py-1.5 font-medium">많이 다뤄진 테마</th>
+              <th scope="col" className="py-1.5 pr-2 font-semibold">기업</th>
+              <th scope="col" className="py-1.5 pr-2 text-right font-semibold" title="다른 매체 보도 / 자사 발표">외부 · 자사</th>
+              <th scope="col" className="py-1.5 pr-2 text-right font-semibold">직전 대비</th>
+              <th scope="col" className="py-1.5 pr-2 font-semibold">상태</th>
+              <th scope="col" className="py-1.5 pr-2 font-semibold">주 활동 · 전환</th>
+              <th scope="col" className="py-1.5 font-semibold">많이 다뤄진 테마</th>
             </tr>
           </thead>
           <tbody>
             {shown.map((topic) => {
               const main = mainSignal(topic);
               return (
-                <tr key={topic.key} className="border-b border-border/60 align-top">
+                <tr key={topic.key} className="border-b align-top">
                   <td className="py-1.5 pr-2">
                     <Link href={at({ kind: "company", key: topic.key })} scroll={false} className="font-semibold hover:text-primary">
                       {topic.label ?? topic.name}
@@ -75,7 +76,7 @@ function MomentumTable({ rows, at }: { rows: CompanyTopic[]; at: (focus: Focus) 
                   </td>
                   <td className="py-1.5 pr-2 text-right">
                     <Change value={topic.change} />
-                    <div className="text-[11px] text-muted-foreground tabular-nums">{formatZ(topic.z)}</div>
+                    <div className="text-xs text-muted-foreground tabular-nums">{formatZ(topic.z)}</div>
                   </td>
                   <td className="py-1.5 pr-2">
                     <StateBadge state={topic.state} />
@@ -169,8 +170,8 @@ function CompetitorPressure({ rows, at }: { rows: CompanyTopic[]; at: (focus: Fo
       <line x1={P} x2={W - P} y1={H - P} y2={H - P} stroke="var(--border)" />
       <line x1={P} x2={P} y1={P} y2={H - P} stroke="var(--border)" />
       <line x1={P} x2={W - P} y1={y(0.5)} y2={y(0.5)} stroke="var(--border)" strokeDasharray="3 3" />
-      <text x={W - P} y={H - 8} fontSize={10} textAnchor="end" fill="var(--muted-foreground)">출시 보도 →</text>
-      <text x={4} y={P - 8} fontSize={10} fill="var(--muted-foreground)">위험 비중 ↑</text>
+      <text x={W - P} y={H - 8} fontSize={11} textAnchor="end" fill="var(--muted-foreground)">출시 보도 →</text>
+      <text x={4} y={P - 8} fontSize={11} fill="var(--muted-foreground)">위험 비중 ↑</text>
       {competitors.map((topic) => {
         const count = last(topic.counts);
         const launches = topic.signal_mix.launch ?? 0;
@@ -181,7 +182,7 @@ function CompetitorPressure({ rows, at }: { rows: CompanyTopic[]; at: (focus: Fo
             <g data-tip={`${topic.label ?? topic.name}\n출시 ${launches}건 · 위험 ${Math.round(risk * 100)}% · 전체 ${count}건`}>
               <circle cx={x(launches)} cy={y(risk)} r={r} fill="var(--impact-risk)" fillOpacity={0.25} stroke="var(--impact-risk)" />
               {labelled.has(topic.key) ? (
-                <text x={x(launches)} y={y(risk) - r - 3} fontSize={10} textAnchor="middle" fill="var(--foreground)" paintOrder="stroke" stroke="var(--card)" strokeWidth={3}>
+                <text x={x(launches)} y={y(risk) - r - 3} fontSize={11} textAnchor="middle" fill="var(--foreground)" paintOrder="stroke" stroke="var(--card)" strokeWidth={3}>
                   {topic.label ?? topic.name}
                 </text>
               ) : null}
@@ -205,7 +206,7 @@ function Lists({ data, at }: { data: CompanyRadar; at: (focus: Focus) => string 
               <li key={entrant.key} className="flex items-baseline justify-between gap-2">
                 <Link href={entrant.registered ? at({ kind: "company", key: entrant.key }) : withQuery("/", { q: entrant.name })} scroll={!entrant.registered} className="truncate font-medium hover:text-primary">
                   {entrant.name}
-                  {entrant.registered ? null : <span className="ml-1 rounded bg-muted px-1 text-[10px] text-muted-foreground">미등록</span>}
+                  {entrant.registered ? null : <span className="ml-1 rounded bg-muted px-1 text-xs text-muted-foreground">미등록</span>}
                 </Link>
                 <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
                   {entrant.cards}건 · {entrant.sources}곳
@@ -254,7 +255,7 @@ function Lists({ data, at }: { data: CompanyRadar; at: (focus: Focus) => string 
                   <Link href={at({ kind: "company", key: pair.b })} scroll={false} className="hover:text-primary">
                     {name(pair.b)}
                   </Link>
-                  {pair.is_new ? <span className="ml-1 rounded-full bg-primary/12 px-1.5 text-[10px] font-semibold text-primary">새 조합</span> : null}
+                  {pair.is_new ? <span className="ml-1 rounded-full bg-primary/12 px-1.5 text-xs font-semibold text-primary">새 조합</span> : null}
                 </span>
                 <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
                   {pair.count}건 · {pair.lift.toFixed(1)}배{pair.signal_type ? ` · ${signalLabel(pair.signal_type)}` : ""}
@@ -314,7 +315,7 @@ export function CompanyBoard({ radar, view }: { radar: Radar; view: RadarView })
                 scroll={s.focus.kind === "search"}
                 className="block h-full rounded-xl border bg-background p-3 transition hover:border-primary/40"
               >
-                <span className="block text-[11px] font-semibold text-muted-foreground">{COMPANY_SIGNAL_LABEL[s.tone] ?? s.tone}</span>
+                <span className="block text-xs font-semibold text-muted-foreground">{COMPANY_SIGNAL_LABEL[s.tone] ?? s.tone}</span>
                 <span className="block font-bold leading-snug">{s.title}</span>
                 <span className="mt-0.5 block text-xs text-ink-2">{s.detail}</span>
               </Link>

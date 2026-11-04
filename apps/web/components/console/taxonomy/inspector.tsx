@@ -225,11 +225,11 @@ export function NodeInspector({
           <ul className="space-y-1 text-sm">
             {cards.map((card) => (
               <li key={card.item_id} className="flex gap-2">
-                <span className="w-10 shrink-0 text-[11px] text-muted-foreground">{SOURCE[card.source] ?? card.source}</span>
+                <span className="w-10 shrink-0 text-xs text-muted-foreground">{SOURCE[card.source] ?? card.source}</span>
                 <a href={`/console/items/${card.item_id}`} className="min-w-0 flex-1 truncate hover:underline">
                   {card.title}
                 </a>
-                <span className="shrink-0 text-[11px] text-muted-foreground">{formatRelative(card.first_seen_at)}</span>
+                <span className="shrink-0 text-xs text-muted-foreground">{formatRelative(card.first_seen_at)}</span>
               </li>
             ))}
           </ul>

@@ -43,7 +43,7 @@ export default async function TrendsPage({ searchParams }: { searchParams: Promi
           { name: "track", label: "트랙", value: track, options: (Object.entries(TRACK_LABEL) as [Track, string][]).map(([value, label]) => ({ value, label })) },
         ]}
       />
-      <DataTable columns={columns} rows={movers} rowKey={(row) => row.item.id} emptyTitle="아직 상승 데이터가 없습니다" emptyDescription="같은 항목의 지표 스냅샷이 2개 이상 쌓여야 계산됩니다." />
+      <DataTable columns={columns} rows={movers} rowKey={(row) => row.item.id} caption="지표 상승 항목" emptyTitle="아직 상승 데이터가 없습니다" emptyDescription="같은 항목의 지표 스냅샷이 2개 이상 쌓여야 계산됩니다." />
     </>
   );
 }

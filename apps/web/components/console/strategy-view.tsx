@@ -57,11 +57,11 @@ export function StrategyView({ strategy }: { strategy: StrategyOut }) {
             ) : null}
             {report.roadmap.length > 0 ? (
               <div className="space-y-2">
-                <p className="text-sm font-semibold">로드맵 시사점</p>
+                <h3 className="text-sm font-semibold">로드맵 시사점</h3>
                 <div className="grid gap-4 md:grid-cols-3 [&>*]:min-w-0">
                   {(["1y", "3y", "5y"] as const).map((horizon) => (
                     <div key={horizon} className="space-y-2 rounded-lg border p-3">
-                      <p className="text-xs font-medium text-muted-foreground">{HORIZON_LABEL[horizon]}</p>
+                      <h4 className="text-xs font-medium text-muted-foreground">{HORIZON_LABEL[horizon]}</h4>
                       <Claims claims={report.roadmap.filter((r) => r.horizon === horizon)} items={strategy.items} />
                     </div>
                   ))}
@@ -70,11 +70,11 @@ export function StrategyView({ strategy }: { strategy: StrategyOut }) {
             ) : null}
             <div className="grid gap-6 md:grid-cols-2 [&>*]:min-w-0">
               <div className="space-y-2">
-                <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">기회</p>
+                <h3 className="text-sm font-semibold text-impact-opportunity">기회</h3>
                 <Claims claims={report.opportunities} items={strategy.items} />
               </div>
               <div className="space-y-2">
-                <p className="text-sm font-semibold text-rose-700 dark:text-rose-300">위험</p>
+                <h3 className="text-sm font-semibold text-impact-risk">위험</h3>
                 <Claims claims={report.risks} items={strategy.items} />
               </div>
             </div>

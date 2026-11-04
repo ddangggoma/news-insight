@@ -26,7 +26,7 @@ export function StrengthBadge({ strength }: { strength: Pick<Strength, "grade" |
   if (!strength) return null;
   const meta = STRENGTH_META[strength.grade];
   return (
-    <span title={strength.reason} className={cn("inline-flex rounded-full px-2 py-px text-[11px] font-semibold whitespace-nowrap", meta.className)}>
+    <span title={strength.reason} className={cn("inline-flex rounded-full px-2 py-px text-xs font-semibold whitespace-nowrap", meta.className)}>
       {meta.label}
     </span>
   );
@@ -37,7 +37,7 @@ export function ContinuityBadge({ continuity, previous }: { continuity: Continui
   return (
     <span
       title={previous ? `이전: ${previous}` : undefined}
-      className={cn("inline-flex rounded-full px-2 py-px text-[11px] font-semibold whitespace-nowrap", meta.className)}
+      className={cn("inline-flex rounded-full px-2 py-px text-xs font-semibold whitespace-nowrap", meta.className)}
     >
       {meta.label}
     </span>
@@ -75,7 +75,7 @@ export function InsightCard({ insight, index, refs }: { insight: BriefingInsight
       <div className="flex flex-wrap items-center gap-1.5">
         <ContinuityBadge continuity={insight.continuity} previous={insight.previous_title} />
         <StrengthBadge strength={insight.strength} />
-        {insight.strength ? <span className="text-[11px] text-muted-foreground">{insight.strength.reason}</span> : null}
+        {insight.strength ? <span className="text-xs text-muted-foreground">{insight.strength.reason}</span> : null}
       </div>
       <p className="font-semibold">
         <span className="mr-2 text-primary tabular-nums">{index + 1}</span>

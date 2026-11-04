@@ -127,10 +127,10 @@ export default async function SourcePage({ params }: { params: Promise<{ key: st
           </Card>
         </TabsContent>
         <TabsContent value="runs">
-          <DataTable columns={runColumns} rows={detail.runs} rowKey={(run) => run.id} emptyTitle="실행 기록이 없습니다" />
+          <DataTable columns={runColumns} rows={detail.runs} rowKey={(run) => run.id} caption="실행 기록" emptyTitle="실행 기록이 없습니다" />
         </TabsContent>
         <TabsContent value="items">
-          <DataTable columns={itemColumns} rows={detail.items} rowKey={(item) => item.id} emptyTitle="수집된 항목이 없습니다" />
+          <DataTable columns={itemColumns} rows={detail.items} rowKey={(item) => item.id} caption="수집된 항목" emptyTitle="수집된 항목이 없습니다" />
         </TabsContent>
       </Tabs>
     </>

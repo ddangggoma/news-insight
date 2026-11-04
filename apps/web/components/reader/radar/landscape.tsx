@@ -1,3 +1,5 @@
+import type { CSSProperties } from "react";
+
 import { AppLink as Link } from "@/components/app-link";
 
 import { ChartTips } from "@/components/reader/radar/chart-tips";
@@ -78,7 +80,7 @@ function TreemapLayer({ radar, view, width, height, className }: { radar: Radar;
                 scroll={false}
                 data-tip={topicTip("field", box, radar)}
                 className={cn(
-                  "absolute inset-x-0 top-0 flex h-[22px] items-center justify-between gap-1 px-2 text-[11px] font-bold text-ink-2 hover:text-primary",
+                  "absolute inset-x-0 top-0 flex h-[22px] items-center justify-between gap-1 px-2 text-xs font-bold text-ink-2 hover:text-primary",
                   sameFocus(view.focus, { kind: "field", key: box.key }) && "text-primary",
                 )}
               >
@@ -100,7 +102,7 @@ function TreemapLayer({ radar, view, width, height, className }: { radar: Radar;
                 aria-label={`${topicLabel("theme", theme)} ${last(theme.counts)}건, ${formatZ(theme.z)}`}
                 aria-current={sameFocus(view.focus, focus) ? "true" : undefined}
                 className={cn(
-                  "absolute flex flex-col justify-between overflow-hidden rounded-md p-1.5 text-left leading-tight transition-[filter,outline] hover:brightness-105 focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-ring",
+                  "heat-cell absolute flex flex-col justify-between overflow-hidden rounded-md p-1.5 text-left leading-tight transition-[filter,outline] hover:brightness-105 focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-ring",
                   level >= 45 ? "text-heat-ink" : "text-foreground",
                   sameFocus(view.focus, focus) && "z-10 outline-2 outline-offset-1 outline-foreground",
                 )}
@@ -109,19 +111,19 @@ function TreemapLayer({ radar, view, width, height, className }: { radar: Radar;
                   top: pct(theme.y - box.y + 1, box.h),
                   width: `calc(${pct(theme.w, box.w)} - 2px)`,
                   height: `calc(${pct(theme.h, box.h)} - 2px)`,
-                  background: momentumFill(theme.z),
-                }}
+                  "--cell": momentumFill(theme.z),
+                } as CSSProperties}
               >
                 {big ? (
                   <>
                     <span className="line-clamp-2 text-xs font-semibold">{topicLabel("theme", theme)}</span>
-                    <span className="flex items-baseline justify-between gap-1 text-[11px] tabular-nums">
+                    <span className="flex items-baseline justify-between gap-1 text-xs tabular-nums">
                       <span className="font-bold">{last(theme.counts)}</span>
-                      <span className="opacity-80">{formatZ(theme.z)}</span>
+                      <span>{formatZ(theme.z)}</span>
                     </span>
                   </>
                 ) : theme.w > 60 && theme.h > 22 ? (
-                  <span className="truncate text-[10px] font-semibold">{topicLabel("theme", theme)}</span>
+                  <span className="truncate text-xs font-semibold">{topicLabel("theme", theme)}</span>
                 ) : null}
               </Link>
             );
@@ -274,13 +276,13 @@ export function TimingHeatmap({ radar, view, limit = 16 }: { radar: Radar; view:
           <caption className="sr-only">테마별 기간별 언급량. 각 행은 그 테마의 최고치를 기준으로 칠합니다.</caption>
           <thead>
             <tr className="text-muted-foreground">
-              <th scope="col" className="pb-1 text-left font-medium">테마</th>
+              <th scope="col" className="pb-1 text-left font-semibold">테마</th>
               {radar.periods.map((period, i) => (
-                <th key={period} scope="col" className={cn("pb-1 font-medium tabular-nums", i === radar.periods.length - 1 && "text-foreground")}>
+                <th key={period} scope="col" className={cn("pb-1 font-semibold tabular-nums", i === radar.periods.length - 1 && "text-foreground")}>
                   {periodLabel(period)}
                 </th>
               ))}
-              <th scope="col" className="pb-1 pl-2 text-right font-medium">모멘텀</th>
+              <th scope="col" className="pb-1 pl-2 text-right font-semibold">모멘텀</th>
             </tr>
           </thead>
           <tbody>
@@ -289,7 +291,7 @@ export function TimingHeatmap({ radar, view, limit = 16 }: { radar: Radar; view:
               const focus = { kind: "theme" as const, key: theme.key };
               return (
                 <tr key={theme.key}>
-                  <th scope="row" className="max-w-44 pr-2 text-left font-medium">
+                  <th scope="row" className="max-w-44 pr-2 text-left font-semibold">
                     <Link
                       href={focusHref(radar, view, focus)}
                       scroll={false}
@@ -306,8 +308,8 @@ export function TimingHeatmap({ radar, view, limit = 16 }: { radar: Radar; view:
                         key={radar.periods[i]}
                         data-tip={`${topicLabel("theme", theme)} · ${radar.periods[i]}\n${count}건\n이 테마 최고치의 ${Math.round((count / peak) * 100)}%`}
                         aria-label={`${radar.periods[i]} ${count}건`}
-                        className={cn("h-7 min-w-9 rounded-[5px] text-center tabular-nums", level >= 55 ? "font-semibold text-heat-ink" : "text-transparent")}
-                        style={{ background: `color-mix(in oklab, var(--heat) ${level}%, var(--muted))` }}
+                        className={cn("heat-cell h-7 min-w-9 rounded-[5px] text-center tabular-nums", level >= 55 ? "font-semibold text-heat-ink" : "text-transparent")}
+                        style={{ "--cell": `color-mix(in oklab, var(--heat) ${level}%, var(--muted))` } as CSSProperties}
                       >
                         {count || ""}
                       </td>

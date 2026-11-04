@@ -114,7 +114,7 @@ export function ImpactBalance({ radar, view, limit = 12 }: { radar: Radar; view:
   if (!rows.length) return <p className="py-10 text-center text-sm text-muted-foreground">영향이 분류된 테마가 부족합니다.</p>;
   return (
     <ChartTips>
-      <div className="mb-1 grid grid-cols-[minmax(0,9rem)_minmax(0,1fr)_3rem] gap-3 text-[11px] text-muted-foreground sm:grid-cols-[minmax(0,12rem)_minmax(0,1fr)_3.5rem]">
+      <div className="mb-1 grid grid-cols-[minmax(0,9rem)_minmax(0,1fr)_3rem] gap-3 text-xs text-muted-foreground sm:grid-cols-[minmax(0,12rem)_minmax(0,1fr)_3.5rem]">
         <span />
         <span className="flex justify-between">
           <span>← 위험</span>
@@ -260,17 +260,17 @@ export function FlowDiagram({ radar }: { radar: Radar }) {
               </g>
             );
           })}
-          <text x={L + NODE / 2} y={H - 2} fontSize={10.5} textAnchor="middle" fill="var(--muted-foreground)">먼저</text>
-          <text x={W - R - NODE / 2} y={H - 2} fontSize={10.5} textAnchor="middle" fill="var(--muted-foreground)">다음</text>
+          <text x={L + NODE / 2} y={H - 2} fontSize={11} textAnchor="middle" fill="var(--muted-foreground)">먼저</text>
+          <text x={W - R - NODE / 2} y={H - 2} fontSize={11} textAnchor="middle" fill="var(--muted-foreground)">다음</text>
         </svg>
       </div>
       <table className="mt-3 w-full text-sm">
         <caption className="sr-only">트랙 간 전파 경로</caption>
         <thead className="text-left text-xs text-muted-foreground">
           <tr className="border-b">
-            <th className="py-1.5 font-medium">경로</th>
-            <th className="py-1.5 text-right font-medium">건수</th>
-            <th className="py-1.5 text-right font-medium">걸린 시간 (중앙값)</th>
+            <th scope="col" className="py-1.5 font-semibold">경로</th>
+            <th scope="col" className="py-1.5 text-right font-semibold">건수</th>
+            <th scope="col" className="py-1.5 text-right font-semibold">걸린 시간 (중앙값)</th>
           </tr>
         </thead>
         <tbody>

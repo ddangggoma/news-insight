@@ -1,3 +1,5 @@
+import type { CSSProperties } from "react";
+
 import { AppLink as Link } from "@/components/app-link";
 
 import { ChartTips } from "@/components/reader/radar/chart-tips";
@@ -42,9 +44,9 @@ export function RegionLens({ radar, view, limit = 14 }: { radar: Radar; view: Ra
           <caption className="sr-only">테마별 지역 특화 지수(해당 지역 내 비중 ÷ 전체 비중)</caption>
           <thead>
             <tr className="text-muted-foreground">
-              <th scope="col" className="pb-1 text-left font-medium">테마</th>
+              <th scope="col" className="pb-1 text-left font-semibold">테마</th>
               {regions.map((region) => (
-                <th key={region} scope="col" className="pb-1 font-medium">
+                <th key={region} scope="col" className="pb-1 font-semibold">
                   <span className={cn("block", region === "kr" && "font-bold text-foreground")}>{REGION_LABEL[region]}</span>
                   <span className="font-normal tabular-nums">{Math.round((totals[region] / all) * 100)}%</span>
                 </th>
@@ -57,7 +59,7 @@ export function RegionLens({ radar, view, limit = 14 }: { radar: Radar; view: Ra
               const label = topicLabel("theme", theme);
               return (
                 <tr key={theme.key}>
-                  <th scope="row" className="max-w-44 pr-2 text-left font-medium">
+                  <th scope="row" className="max-w-44 pr-2 text-left font-semibold">
                     <Link href={radarHref(radar.window.kind, radar.window.key, { ...view, focus })} scroll={false} className={cn("block truncate hover:text-primary", sameFocus(view.focus, focus) && "font-bold text-primary")}>
                       {label}
                     </Link>
@@ -71,8 +73,8 @@ export function RegionLens({ radar, view, limit = 14 }: { radar: Radar; view: Ra
                         key={region}
                         aria-label={`${REGION_LABEL[region]} ${count}건, 특화 ${lq === null ? "-" : lq.toFixed(1)}배`}
                         data-tip={`${label} · ${REGION_LABEL[region]}\n${count}건 · 특화 ${lq === null ? "–" : `${lq.toFixed(2)}배`}\n${REGION_LABEL[region]} 보도의 ${totals[region] ? ((count / totals[region]) * 100).toFixed(1) : 0}% (전체 평균 ${((last(theme.counts) / all) * 100).toFixed(1)}%)`}
-                        className={cn("h-7 min-w-14 rounded-[5px] text-center tabular-nums", strong ? "font-semibold text-heat-ink" : "text-ink-2")}
-                        style={{ background: quotientFill(lq) }}
+                        className={cn("heat-cell h-7 min-w-14 rounded-[5px] text-center tabular-nums", strong ? "font-semibold text-heat-ink" : "text-ink-2")}
+                        style={{ "--cell": quotientFill(lq) } as CSSProperties}
                       >
                         {count || "·"}
                       </td>

@@ -43,7 +43,7 @@ export function NodePicker({
           <li key={node.id}>
             <button type="button" onClick={() => onPick(node)} className="w-full px-2 py-1 text-left hover:bg-muted">
               <span className="block truncate">{node.label}</span>
-              <span className="block truncate text-[11px] text-muted-foreground">{pathLabel(nodes, node)}</span>
+              <span className="block truncate text-xs text-muted-foreground">{pathLabel(nodes, node)}</span>
             </button>
           </li>
         ))}

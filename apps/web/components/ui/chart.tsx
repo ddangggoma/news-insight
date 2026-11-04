@@ -329,7 +329,7 @@ function ChartLegendContent({
               onClick={() => toggle(key)}
               className={cn(
                 "flex items-center gap-1.5 rounded-md px-1.5 py-0.5 transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground",
-                off && "text-muted-foreground line-through opacity-60"
+                off && "text-muted-foreground line-through"
               )}
             >
               {itemConfig?.icon && !hideIcon ? (

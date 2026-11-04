@@ -82,7 +82,7 @@ export function CategoryShare({ radar, view }: { radar: Radar; view: RadarView }
                 </span>
                 <span className="flex items-baseline gap-1.5">
                   <span className="text-lg leading-none font-bold">{last(values).toFixed(1)}%</span>
-                  <span className={cn("text-[11px] tabular-nums", delta > 0.05 ? "text-impact-opportunity" : delta < -0.05 ? "text-impact-risk" : "text-muted-foreground")}>
+                  <span className={cn("text-xs tabular-nums", delta > 0.05 ? "text-impact-opportunity" : delta < -0.05 ? "text-impact-risk" : "text-muted-foreground")}>
                     {formatPoints(delta)}
                   </span>
                 </span>
@@ -97,7 +97,7 @@ export function CategoryShare({ radar, view }: { radar: Radar; view: RadarView }
                     )}
                   </span>
                 ) : null}
-                <span className="text-[11px] text-muted-foreground tabular-nums">
+                <span className="text-xs text-muted-foreground tabular-nums">
                   {last(field.counts)}건 · {formatZ(field.z)}
                 </span>
               </Link>

@@ -106,7 +106,7 @@ export function SignalCards({ radar, view }: { radar: Radar; view: RadarView }) 
                 <Icon className="size-4.5" aria-hidden />
               </span>
               <span className="min-w-0">
-                <span className="block text-[11px] font-semibold text-muted-foreground">{SIGNAL_META[signal.tone].label}</span>
+                <span className="block text-xs font-semibold text-muted-foreground">{SIGNAL_META[signal.tone].label}</span>
                 <span className="block font-bold leading-snug group-hover:text-primary">{signal.title}</span>
                 <span className="mt-0.5 block text-xs leading-relaxed text-ink-2">{signal.detail}</span>
               </span>

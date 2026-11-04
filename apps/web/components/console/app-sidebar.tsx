@@ -111,7 +111,7 @@ export function AppSidebar({ pendingUsers = 0 }: { pendingUsers?: number }) {
                 <button type="button" aria-expanded={open} onClick={() => toggle(group.label, open)} className="flex w-full items-center justify-between">
                   <span>
                     {group.label}
-                    {!open && badge ? <span className="ml-1.5 rounded-full bg-primary px-1.5 text-[10px] text-primary-foreground">{pendingUsers}</span> : null}
+                    {!open && badge ? <span className="ml-1.5 rounded-full bg-primary px-1.5 text-xs text-primary-foreground">{pendingUsers}</span> : null}
                   </span>
                   <ChevronDown className={`size-3.5 transition-transform ${open ? "" : "-rotate-90"}`} aria-hidden />
                 </button>

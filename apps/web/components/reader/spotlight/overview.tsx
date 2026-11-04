@@ -33,7 +33,7 @@ function OverviewRow({ entry }: { entry: SpotlightEntry }) {
         {tags.length > 0 && (
           <ul className="flex flex-wrap gap-1" aria-label="주목 이유">
             {tags.map((tag) => (
-              <li key={tag} className="rounded-sm bg-secondary px-1.5 py-0.5 text-[11px] font-medium text-secondary-foreground">
+              <li key={tag} className="rounded-sm bg-secondary px-1.5 py-0.5 text-xs font-medium text-secondary-foreground">
                 {tag}
               </li>
             ))}

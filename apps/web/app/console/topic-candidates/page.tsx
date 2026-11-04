@@ -57,7 +57,7 @@ export default async function TopicCandidatesPage({ searchParams }: { searchPara
                 </p>
                 <div className="flex flex-wrap gap-1">
                   {Object.entries(candidate.fields).map(([field, count]) => (
-                    <Badge key={field} variant="outline" className="text-[11px]">
+                    <Badge key={field} variant="outline" className="text-xs">
                       {FIELD_LABEL[field] ?? field} {count}
                     </Badge>
                   ))}

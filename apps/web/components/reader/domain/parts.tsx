@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 import { AppLink as Link } from "@/components/app-link";
 import { formatDay, formatNumber, kstToday } from "@/lib/format";
@@ -44,7 +44,7 @@ const RELATION_LABEL: Record<string, string> = { self: "자사", competitor: "�
 export function WatchedBadge({ relation }: { relation: string | null }) {
   const detail = relation ? RELATION_LABEL[relation] : undefined;
   return (
-    <span title={`관심 기업${detail ? ` (${detail})` : ""}`} className="shrink-0 rounded-full bg-primary/12 px-1.5 py-px text-[11px] font-semibold whitespace-nowrap text-primary">
+    <span title={`관심 기업${detail ? ` (${detail})` : ""}`} className="shrink-0 rounded-full bg-primary/12 px-1.5 py-px text-xs font-semibold whitespace-nowrap text-primary">
       관심{detail ? `·${detail}` : ""}
     </span>
   );
@@ -127,7 +127,7 @@ export function ChipRow({ label, chips }: { label: string; chips: Chip[] }) {
           )}
         >
           {chip.label}
-          {chip.count !== undefined ? <span className={cn("tabular-nums", chip.active ? "opacity-80" : "text-muted-foreground")}>{formatNumber(chip.count)}</span> : null}
+          {chip.count !== undefined ? <span className={cn("tabular-nums", !chip.active && "text-muted-foreground")}>{formatNumber(chip.count)}</span> : null}
         </Link>
       ))}
     </nav>
@@ -186,7 +186,7 @@ export function InsightBlock({ insight, title = "오늘의 인사이트", today,
               {sentence.doc_ids.map((id) => {
                 n += 1;
                 return (
-                  <Link key={id} href={`/items/${id}`} scroll={false} aria-label={`근거 문헌 ${n}`} className="ml-1 align-super text-[11px] font-semibold text-primary hover:underline">
+                  <Link key={id} href={`/items/${id}`} scroll={false} aria-label={`근거 문헌 ${n}`} className="ml-1 align-super text-xs font-semibold text-primary hover:underline">
                     [{n}]
                   </Link>
                 );
@@ -209,15 +209,15 @@ export function HeatmapTable({ heatmap, href }: { heatmap: Heatmap; href: (field
         <caption className="sr-only">기술분야별 주간 문헌 수 (최근 {heatmap.weeks.length}주, 가장 많은 칸 {heatmap.max}건 기준으로 칠함)</caption>
         <thead>
           <tr className="text-muted-foreground">
-            <th scope="col" className="pb-1 text-left font-medium">
+            <th scope="col" className="pb-1 text-left font-semibold">
               분야
             </th>
             {heatmap.weeks.map((week, i) => (
-              <th key={week.start} scope="col" title={spanLabel(week)} className={cn("pb-1 font-medium tabular-nums", i === last && "text-foreground")}>
+              <th key={week.start} scope="col" title={spanLabel(week)} className={cn("pb-1 font-semibold tabular-nums", i === last && "text-foreground")}>
                 {shortDay(week.start)}
               </th>
             ))}
-            <th scope="col" className="pb-1 pl-2 text-right font-medium">
+            <th scope="col" className="pb-1 pl-2 text-right font-semibold">
               합계
             </th>
           </tr>
@@ -227,7 +227,7 @@ export function HeatmapTable({ heatmap, href }: { heatmap: Heatmap; href: (field
             const total = row.counts.reduce((a, b) => a + b, 0);
             return (
               <tr key={row.key}>
-                <th scope="row" className="max-w-36 pr-2 text-left font-medium">
+                <th scope="row" className="max-w-36 pr-2 text-left font-semibold">
                   <Link href={href(row.key)} className="block truncate hover:text-primary">
                     {row.label}
                   </Link>
@@ -241,8 +241,8 @@ export function HeatmapTable({ heatmap, href }: { heatmap: Heatmap; href: (field
                       title={`${row.label} · ${spanLabel(week)}: ${count}건`}
                       aria-label={`${row.label} ${spanLabel(week)} ${count}건`}
                       data-level={level}
-                      className={cn("h-7 min-w-9 rounded-[5px] text-center tabular-nums", level >= 55 ? "font-semibold text-heat-ink" : count ? "text-ink-2" : "text-transparent")}
-                      style={{ background: `color-mix(in oklab, var(--heat) ${level}%, var(--muted))` }}
+                      className={cn("heat-cell h-7 min-w-9 rounded-[5px] text-center tabular-nums", level >= 55 ? "font-semibold text-heat-ink" : count ? "text-ink-2" : "text-transparent")}
+                      style={{ "--cell": `color-mix(in oklab, var(--heat) ${level}%, var(--muted))` } as CSSProperties}
                     >
                       {count || ""}
                     </td>
@@ -303,11 +303,11 @@ export function DocRow({ doc, domain, companyHref }: { doc: Doc; domain: DomainK
         )}
         {doc.companies.map((company) =>
           companyHref ? (
-            <Link key={company.key} href={companyHref(company.key)} className="rounded-full border px-1.5 py-px text-[11px] text-ink-2 hover:border-primary/50 hover:text-foreground">
+            <Link key={company.key} href={companyHref(company.key)} className="rounded-full border px-1.5 py-px text-xs text-ink-2 hover:border-primary/50 hover:text-foreground">
               {company.label}
             </Link>
           ) : (
-            <span key={company.key} className="rounded-full border px-1.5 py-px text-[11px] text-ink-2">
+            <span key={company.key} className="rounded-full border px-1.5 py-px text-xs text-ink-2">
               {company.label}
             </span>
           ),

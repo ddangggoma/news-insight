@@ -45,7 +45,7 @@ function Row({ row }: { row: BoardRow }) {
     <article className="space-y-3 rounded-lg border p-3">
       <header className="flex flex-wrap items-start gap-2">
         <div className="min-w-0 flex-1">
-          <p className="text-[11px] text-muted-foreground">{row.field_label}</p>
+          <p className="text-xs text-muted-foreground">{row.field_label}</p>
           <h2 className="font-semibold">
             <Link href={`/?theme=${encodeURIComponent(row.key)}&period=30d`} className="hover:underline">
               {row.label}
@@ -53,7 +53,7 @@ function Row({ row }: { row: BoardRow }) {
           </h2>
         </div>
         {row.persona && Object.keys(row.persona.stances).length ? (
-          <span className="rounded-full border px-2 py-0.5 text-[11px]">
+          <span className="rounded-full border px-2 py-0.5 text-xs">
             역할 판단:{" "}
             {(Object.entries(row.persona.stances) as [Impact, number][]).map(([k, n]) => `${IMPACT_TEXT[k]} ${n}`).join(" · ")}
           </span>
@@ -84,14 +84,14 @@ function Row({ row }: { row: BoardRow }) {
         <div className="grid gap-2 border-t pt-2 sm:grid-cols-4">
           {(["1y", "3y", "5y"] as Horizon[]).map((h) => (
             <div key={h}>
-              <p className="text-[11px] font-medium text-muted-foreground">{HORIZON_TEXT[h]} 안</p>
+              <p className="text-xs font-medium text-muted-foreground">{HORIZON_TEXT[h]} 안</p>
               <ul className="space-y-1">
                 {row.horizons[h].length ? row.horizons[h].map((c, i) => <Claim key={i} claim={c} />) : <li className="text-xs text-muted-foreground">–</li>}
               </ul>
             </div>
           ))}
           <div>
-            <p className="text-[11px] font-medium text-muted-foreground">브리핑 기회·위험</p>
+            <p className="text-xs font-medium text-muted-foreground">브리핑 기회·위험</p>
             <ul className="space-y-1">
               {row.claims.length ? row.claims.map((c, i) => <Claim key={i} claim={c} />) : <li className="text-xs text-muted-foreground">–</li>}
             </ul>

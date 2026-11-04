@@ -175,7 +175,7 @@ function MarketImpact({ briefing }: { briefing: PublicBriefing }) {
           <span className="text-right text-muted-foreground tabular-nums">{row.total}</span>
         </div>
       ))}
-      <div className="flex gap-3 pt-1 text-[11px] text-muted-foreground">
+      <div className="flex gap-3 pt-1 text-xs text-muted-foreground">
         {Object.entries(IMPACT_LABEL).map(([impact, label]) => (
           <span key={impact} className="flex items-center gap-1">
             <span className={cn("size-2 rounded-full", IMPACT_BAR[impact])} aria-hidden /> {label}
@@ -285,7 +285,7 @@ export function BriefingAside({ briefing, past }: { briefing: PublicBriefing; pa
           <div className="space-y-2 border-t pt-3 text-sm">
             {report.opportunities.slice(0, 3).map((claim) => (
               <p key={claim.id} className="flex gap-2">
-                <span className={cn("h-fit shrink-0 rounded px-1.5 py-0.5 text-[11px] font-medium", IMPACT_STYLE.opportunity)}>기회</span>
+                <span className={cn("h-fit shrink-0 rounded px-1.5 py-0.5 text-xs font-medium", IMPACT_STYLE.opportunity)}>기회</span>
                 <span className="leading-snug">
                   {claim.text} <StrengthBadge strength={claim.strength} />
                 </span>
@@ -293,7 +293,7 @@ export function BriefingAside({ briefing, past }: { briefing: PublicBriefing; pa
             ))}
             {report.risks.slice(0, 3).map((claim) => (
               <p key={claim.id} className="flex gap-2">
-                <span className={cn("h-fit shrink-0 rounded px-1.5 py-0.5 text-[11px] font-medium", IMPACT_STYLE.risk)}>위험</span>
+                <span className={cn("h-fit shrink-0 rounded px-1.5 py-0.5 text-xs font-medium", IMPACT_STYLE.risk)}>위험</span>
                 <span className="leading-snug">
                   {claim.text} <StrengthBadge strength={claim.strength} />
                 </span>

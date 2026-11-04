@@ -41,7 +41,7 @@ export default async function RunsPage({ searchParams }: { searchParams: Promise
     <>
       <PageHeader title="수집 현황" description="모든 수집 시도의 결과 (최신순)" />
       <FilterBar fields={[{ name: "outcome", label: "결과", value: filters.outcome, options: outcomeOptions }]} />
-      <DataTable columns={columns} rows={data.items} rowKey={(run) => run.id} emptyTitle="실행 기록이 없습니다" emptyDescription="V3 이상 소스가 생기면 1분마다 기한이 된 소스를 수집합니다." />
+      <DataTable columns={columns} rows={data.items} rowKey={(run) => run.id} caption="수집 실행 기록" emptyTitle="실행 기록이 없습니다" emptyDescription="V3 이상 소스가 생기면 1분마다 기한이 된 소스를 수집합니다." />
       <PaginationBar pathname="/console/runs" params={filters} page={page} size={data.size} total={data.total} />
     </>
   );
