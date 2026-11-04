@@ -18,19 +18,26 @@ later stand-in (a sitemap's lastmod, the time we crawled it, a feed's local time
 
 import random
 from collections import Counter, defaultdict
-from collections.abc import Callable
+from collections.abc import Callable, Collection
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
-from datetime import UTC, datetime, time, timedelta, tzinfo
+from datetime import datetime, timedelta, tzinfo
 
-from sqlalchemy import select
+from sqlalchemy import select, true
 from sqlalchemy.orm import Session, defer
 
 from news_insight.collect.context import collect_context
 from news_insight.collect.contracts import RawItem
 from news_insight.collect.page_meta import extract_meta, publication_dates
 from news_insight.collect.pages import RobotsGate
-from news_insight.content.dates import earliest, plausible, source_timezone, stated_date
+from news_insight.content.dates import (
+    TOLERANCE,
+    earliest,
+    page_date,
+    plausible,
+    source_timezone,
+    stated_date,
+)
 from news_insight.content.models import Item
 from news_insight.content.normalize import stable_key
 from news_insight.net.mime import HTML_MIME
@@ -41,8 +48,9 @@ from news_insight.sources.models import Source
 # items of a feed that must agree on one offset before it is applied to the rest
 MIN_MATCHED = 3
 AGREEMENT = 0.8
-# a verified date within this of the page's own date counts as right
-TOLERANCE = timedelta(minutes=10)
+# link aggregators (Hacker News, Lobsters, Hatena): the page is the linked article, so the stored
+# submission time is right and must never move to the article's date
+AGGREGATOR_CATEGORIES = frozenset({"dev_forum"})
 
 FeedReader = Callable[[Source, datetime], list[RawItem]]
 PageReader = Callable[[str, tzinfo], datetime | None]
@@ -133,15 +141,16 @@ def plan_redate(
     verify: int = 0,
     seed: int = 0,
     shift_before: datetime | None = None,
+    only: Collection[str] = (),
 ) -> RedatePlan:
     """`shift_before`: only items first seen before it take an inferred offset (items stored
-    after the collection fix already carry the right date)."""
+    after the collection fix already carry the right date). `only`: these source keys alone."""
     plan = RedatePlan(since=since)
     rows = session.execute(
         select(Item, Source)
         .options(defer(Item.body), defer(Item.summary))  # loaded only for a dateline
         .join(Source, Source.id == Item.source_id)
-        .where(Item.first_seen_at >= since)
+        .where(Item.first_seen_at >= since, Source.key.in_(only) if only else true())
         .order_by(Source.key, Item.id)
     ).tuples()
     by_source: dict[int, tuple[Source, list[Item]]] = {}
@@ -222,54 +231,21 @@ def _verify(
         repair.right_after += abs(after - truth) <= TOLERANCE
 
 
-def page_date(
-    stored: datetime | None,
-    dates: list[datetime],
-    *,
-    seen: datetime,
-    tz: tzinfo,
-    offset_only: bool,
-) -> datetime | None:
-    """The page's own date when it replaces the stored one, else None.
-
-    Only an earlier date counts: a lastmod, a crawl time or a feed's local wall clock read as
-    UTC are all later than the publication, while pages that relabel local time as UTC or show
-    their last edit are later too and must not move a right date. `offset_only` (feeds) takes
-    the page only when it is exactly the source's UTC offset earlier."""
-    if not dates or dates[-1] - dates[0] > TOLERANCE:
-        return None  # no date, or the page contradicts itself
-    truth = dates[0]
-    if plausible(truth, seen=seen, tz=tz) != truth:
-        return None
-    if stored is None:
-        return None if offset_only else truth
-    if truth >= stored - TOLERANCE:
-        return None
-    if offset_only:
-        offset = stored.astimezone(tz).utcoffset()
-        return truth if offset and abs(stored - truth - offset) <= timedelta(minutes=1) else None
-    return None if _same_day(truth, stored, tz) else truth
-
-
-def _same_day(truth: datetime, stored: datetime, tz: tzinfo) -> bool:
-    """A page that gives only a day (midnight in its zone or in UTC) on the stored date: the
-    stored time is no worse than a midnight."""
-    for zone in (tz, UTC):
-        local = truth.astimezone(zone)
-        if local.time() == time() and stored.astimezone(zone).date() == local.date():
-            return True
-    return False
-
-
 def plan_page_dates(
     session: Session,
     *,
     sources: list[str],
     pages: PageDatesReader,
     workers: int = 8,
+    any_earlier: Collection[str] = (),
 ) -> RedatePlan:
     """Read every item's page for these sources (one source at a time per worker, so a site
-    sees one request after another) and plan the dates `page_date` accepts."""
+    sees one request after another) and plan the dates `page_date` accepts.
+
+    A feed's date moves only by the source's UTC offset, unless the source is named in
+    `any_earlier`: a feed checked to re-list old posts under a new date (an evergreen coupon
+    page, a gov.uk "last updated") takes any earlier date its page agrees on. Aggregators are
+    refused there."""
     plan = RedatePlan(since=datetime.min)
     rows = session.execute(
         select(Item.id, Item.url, Item.published_at, Item.first_seen_at, Source.id, Source.key)
@@ -285,11 +261,18 @@ def plan_page_dates(
         for source in session.scalars(select(Source).where(Source.id.in_(by_source)))
     }
 
+    for key in any_earlier:
+        if key not in sources:
+            raise ValueError(f"{key} is not among the sources to read")
+    for source in loaded.values():
+        if source.key in any_earlier and str(source.category) in AGGREGATOR_CATEGORIES:
+            raise ValueError(f"{source.key} is a link aggregator: its stored time is the right one")
+
     def one(source_id: int) -> tuple[SourceRepair, dict[int, datetime]]:
         source, items = loaded[source_id], by_source[source_id]
         repair = SourceRepair(key=source.key, name=source.name, items=len(items))
         tz = source_timezone(str(source.region), source.config)
-        offset_only = source.access_method == AccessMethod.FEED
+        offset_only = source.access_method == AccessMethod.FEED and source.key not in any_earlier
         changes: dict[int, datetime] = {}
         for item_id, url, published, seen in items:
             try:

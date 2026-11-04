@@ -589,6 +589,9 @@ def items_redate(
         datetime | None,
         typer.Option(help="UTC: only items first seen before it take an inferred offset"),
     ] = None,
+    source: Annotated[
+        list[str] | None, typer.Option(help="Only this source key (repeat for several)")
+    ] = None,
 ) -> None:
     """Repair stored article dates (zone-less feeds, future dates, missing dates)."""
     from dataclasses import asdict
@@ -613,6 +616,7 @@ def items_redate(
             shift_before=shift_before.replace(tzinfo=shift_before.tzinfo or UTC)
             if shift_before
             else None,
+            only=source or (),
         )
         if apply:
             apply_redate(session, plan)
@@ -633,6 +637,13 @@ def items_redate(
 @items_app.command("page-dates")
 def items_page_dates(
     source: Annotated[list[str], typer.Option(help="Source key (repeat for several)")],
+    earlier: Annotated[
+        list[str] | None,
+        typer.Option(
+            help="Feed source (also in --source) that re-lists old posts under a new date: "
+            "takes any earlier page date, not only its zone offset. Never an aggregator"
+        ),
+    ] = None,
     workers: Annotated[int, typer.Option(help="Sources read at the same time")] = 8,
     apply: Annotated[bool, typer.Option(help="Write the page dates (default: report)")] = False,
     report: Annotated[Path | None, typer.Option(help="Write the per-source report as JSON")] = None,
@@ -644,9 +655,16 @@ def items_page_dates(
     from news_insight.content.redate import apply_redate, plan_page_dates, read_page_dates
 
     with _fetcher() as fetcher, session_scope() as session:
-        plan = plan_page_dates(
-            session, sources=source, pages=read_page_dates(fetcher), workers=workers
-        )
+        try:
+            plan = plan_page_dates(
+                session,
+                sources=source,
+                pages=read_page_dates(fetcher),
+                workers=workers,
+                any_earlier=earlier or (),
+            )
+        except ValueError as exc:
+            raise typer.BadParameter(str(exc), param_hint="--earlier") from exc
         if apply:
             apply_redate(session, plan)
     for repair in sorted(plan.sources, key=lambda r: -r.changed):
