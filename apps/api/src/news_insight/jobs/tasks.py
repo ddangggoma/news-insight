@@ -291,10 +291,11 @@ def benchmarks_collect_task() -> dict[str, str]:
 @celery_app.task(name="research.enrich")
 def research_enrich_task() -> dict[str, Any]:
     """Plan 19: OpenAlex metadata for due papers, at most 2000 a run (hourly at :20)."""
-    from news_insight.research.service import enrich
+    from news_insight.research.service import LOCK_NAME, LOCK_TTL_SECONDS, enrich
 
     client = get_redis()
-    with SourceLock(client, ttl_seconds=3600, prefix="lock:").hold("research-enrich") as acquired:
+    lock = SourceLock(client, ttl_seconds=LOCK_TTL_SECONDS, prefix="lock:")
+    with lock.hold(LOCK_NAME) as acquired:
         if not acquired:
             return {"skipped": "another enrichment is running"}
         with session_scope() as session, SafeFetcher.from_settings(get_settings()) as fetcher:

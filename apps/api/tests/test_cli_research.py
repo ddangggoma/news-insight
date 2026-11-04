@@ -43,7 +43,13 @@ def wire_cli(
 
 def test_research_enrich_looks_up_due_papers_and_prints_the_tally(db_session: Session) -> None:
     src = source(db_session, "arxiv-cs")
-    paper = document(db_session, src, "attention", refs=(("arxiv", "1706.03762"),))
+    paper = document(
+        db_session,
+        src,
+        "attention",
+        refs=(("arxiv", "1706.03762"),),
+        url="https://arxiv.org/abs/1706.03762",
+    )
 
     result = runner.invoke(cli.app, ["research", "enrich", "--limit", "5"])
 
@@ -82,3 +88,18 @@ def test_insights_backfill_stats_rebuilds_each_day(db_session: Session) -> None:
     assert result.exit_code == 0, result.output
     assert result.output.splitlines()[-1] == "days=3 research_rows=1 patent_rows=0"
     assert len(db_session.scalars(select(ResearchDailyStat)).all()) == 1
+
+
+def test_research_enrich_skips_while_another_run_holds_the_lock(
+    db_session: Session, redis_client: redis.Redis
+) -> None:
+    src = source(db_session, "arxiv-cs")
+    paper = document(db_session, src, "p", refs=(("arxiv", "1706.03762"),))
+    redis_client.set("lock:research-enrich", "celery-run")
+
+    result = runner.invoke(cli.app, ["research", "enrich"])
+
+    assert result.exit_code == 0, result.output
+    assert result.output.splitlines()[-1] == "skipped: another enrichment is running"
+    assert db_session.get(ResearchMeta, paper.id) is None
+    assert redis_client.get("lock:research-enrich") == b"celery-run"

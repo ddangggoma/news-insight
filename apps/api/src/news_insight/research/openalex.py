@@ -6,15 +6,19 @@ DataCite DOI, 10.48550/arXiv.<id>. `select=` keeps the answer to the fields stor
 answer with the reference list is 30-60 KB, this one 4-12 KB).
 """
 
+import re
+import unicodedata
 from dataclasses import dataclass, field
+from difflib import SequenceMatcher
 from typing import Any
 from urllib.parse import quote
 
 HOST = "api.openalex.org"
-WORKS_URL = f"https://{HOST}/works/doi:"
+WORKS_URL = f"https://{HOST}/works/"
 FIELDS = (
     "id",
     "doi",
+    "title",
     "publication_date",
     "primary_location",
     "primary_topic",
@@ -29,6 +33,9 @@ NAME_MAX = 200  # institution names (they become org_name in the daily stats)
 VENUE_MAX = 300
 LABEL_MAX = 120
 TOPIC_MAX = 300
+# an OpenAlex work id: the stable id of items from the openalex_works preset
+OPENALEX_WORK = re.compile(r"^(?:https?://openalex\.org/)?(W\d{4,12})$", re.IGNORECASE)
+TITLE_MATCH = 0.75  # SequenceMatcher ratio of the normalised titles
 
 
 @dataclass(frozen=True)
@@ -52,6 +59,7 @@ class Institution:
 class Work:
     openalex_id: str | None
     doi: str | None
+    title: str | None
     venue: str | None
     oa_field: str | None
     oa_subfield: str | None
@@ -72,10 +80,33 @@ def doi_for_ref(kind: str, value: str) -> str | None:
     return None
 
 
-def work_url(doi: str) -> str:
-    """Singleton URL; the DOI keeps its slashes (OpenAlex routes on them) but nothing else
-    that would end or split the path."""
-    return f"{WORKS_URL}{quote(doi, safe='/()-._;:')}?select={','.join(FIELDS)}"
+def openalex_work_id(stable_id: str) -> str | None:
+    """ "W7224094464" from an openalex_works item's stable id ("https://openalex.org/W…")."""
+    match = OPENALEX_WORK.match(stable_id.strip())
+    return match.group(1).upper() if match else None
+
+
+def work_url(doi: str | None = None, *, openalex_id: str | None = None) -> str:
+    """Singleton URL by OpenAlex id, else by DOI; the DOI keeps its slashes (OpenAlex routes
+    on them) but nothing else that would end or split the path."""
+    path = openalex_id if openalex_id else f"doi:{quote(doi or '', safe='/()-._;:')}"
+    return f"{WORKS_URL}{path}?select={','.join(FIELDS)}"
+
+
+def _title_key(text: str) -> str:
+    folded = unicodedata.normalize("NFKC", text).lower()
+    return " ".join(re.findall(r"\w+", folded))
+
+
+def titles_match(item_title: str, work_title: str | None) -> bool:
+    """Whether OpenAlex's work is the item's paper and not one its abstract cites: the
+    normalised titles are alike, or one contains the other (subtitles, series prefixes)."""
+    a, b = _title_key(item_title), _title_key(work_title or "")
+    if not a or not b:
+        return False
+    if a in b or b in a:
+        return True
+    return SequenceMatcher(None, a, b).ratio() >= TITLE_MATCH
 
 
 def _short_id(value: Any) -> str | None:
@@ -92,9 +123,12 @@ def _label(block: Any, limit: int = LABEL_MAX) -> str | None:
     return _name(block.get("display_name"), limit) if isinstance(block, dict) else None
 
 
-def parse_work(payload: dict[str, Any]) -> Work:
+def parse_work(payload: Any) -> Work:
     """A single-work answer → Work. Missing blocks become None or empty, never errors:
-    OpenAlex fills topics, institutions and citations in over the weeks after publication."""
+    OpenAlex fills topics, institutions and citations in over the weeks after publication.
+    Raises ValueError for an answer that is not a JSON object."""
+    if not isinstance(payload, dict):
+        raise ValueError(f"expected a work object, got {type(payload).__name__}")
     doi = str(payload.get("doi") or "").lower().removeprefix(DOI_PREFIX) or None
     location = payload.get("primary_location") or {}
     source = location.get("source") if isinstance(location, dict) else None
@@ -126,6 +160,7 @@ def parse_work(payload: dict[str, Any]) -> Work:
     return Work(
         openalex_id=_short_id(payload.get("id")),
         doi=doi,
+        title=_name(payload.get("title"), 1000),
         venue=_label(source, VENUE_MAX),
         oa_field=_label(topic.get("field")),
         oa_subfield=_label(topic.get("subfield")),

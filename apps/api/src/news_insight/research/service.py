@@ -1,4 +1,5 @@
-"""research.enrich (plan 19 §2.1): OpenAlex metadata for papers that carry a DOI or arXiv id.
+"""research.enrich (plan 19 §2.1): OpenAlex metadata for papers with an OpenAlex id, a DOI or
+an arXiv id.
 
 Hourly at :20, at most 2000 papers a run: papers never asked first, newest first; then papers
 OpenAlex did not know (asked again 7 days later while the paper is under 90 days old), failed
@@ -9,6 +10,7 @@ the next run carries on.
 
 import json
 import logging
+import re
 from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import datetime, timedelta
@@ -30,7 +32,9 @@ from news_insight.research.openalex import (
     Institution,
     Work,
     doi_for_ref,
+    openalex_work_id,
     parse_work,
+    titles_match,
     work_url,
 )
 from news_insight.scheduling.providers import OPENALEX_WORKS, ProviderGate
@@ -53,6 +57,10 @@ MAX_FAILURES_IN_A_ROW = 5
 RATE_LIMIT_PAUSE = 3600
 COMMIT_EVERY = 100
 ERROR_MAX = 500
+OPENALEX_PREFIX = "https://openalex.org/W"  # stable ids of the openalex_works preset
+# one run at a time (Celery and CLI); far above a run's length, so only a crash leaves it
+LOCK_NAME = "research-enrich"
+LOCK_TTL_SECONDS = 4 * 3600
 
 
 @dataclass
@@ -75,8 +83,25 @@ def research_documents() -> list[Any]:
     ]
 
 
-def due_items(session: Session, *, now: datetime, limit: int) -> list[tuple[int, str]]:
-    """(item id, DOI to look up) of the papers due, in the order they are asked."""
+@dataclass(frozen=True)
+class Lookup:
+    """One paper to ask OpenAlex about: by its OpenAlex id (openalex_works items) or a DOI.
+    `verify_title` is set when the DOI is not the item's own (not in its URL or stable id):
+    the answer must then carry the item's title, or it is a paper the abstract cites."""
+
+    item_id: int
+    title: str
+    doi: str | None
+    openalex_id: str | None = None
+    verify_title: bool = False
+
+    @property
+    def url(self) -> str:
+        return work_url(self.doi, openalex_id=self.openalex_id)
+
+
+def due_items(session: Session, *, now: datetime, limit: int) -> list[Lookup]:
+    """The papers due, in the order they are asked."""
     meta = ResearchMeta
     due = or_(
         meta.item_id.is_(None),
@@ -92,15 +117,15 @@ def due_items(session: Session, *, now: datetime, limit: int) -> list[tuple[int,
             Item.occurred_at >= now - REFRESH_HORIZON,
         ),
     )
+    identified = or_(
+        exists().where(ItemRef.item_id == Item.id, ItemRef.kind.in_(REF_KINDS)),
+        Item.stable_id.like(f"{OPENALEX_PREFIX}%"),
+    )
     rows = session.execute(
-        select(Item.id, Item.url)
+        select(Item.id, Item.url, Item.stable_id, Item.title)
         .join(Source, Source.id == Item.source_id)
         .outerjoin(meta, meta.item_id == Item.id)
-        .where(
-            *research_documents(),
-            exists().where(ItemRef.item_id == Item.id, ItemRef.kind.in_(REF_KINDS)),
-            due,
-        )
+        .where(*research_documents(), identified, due)
         .order_by(
             case((meta.item_id.is_(None), 0), else_=1),
             Item.occurred_at.desc(),
@@ -117,25 +142,38 @@ def due_items(session: Session, *, now: datetime, limit: int) -> list[tuple[int,
         .order_by(ItemRef.item_id, ItemRef.kind.desc(), ItemRef.value)
     ):
         refs.setdefault(item_id, []).append((kind, value))
-    due_list = []
+    lookups = []
     for row in rows:
-        doi = pick_doi(refs.get(row.id, []), row.url)
-        if doi is not None:
-            due_list.append((row.id, doi))
-    return due_list
+        lookup = pick_lookup(row.id, row.title, row.stable_id, row.url, refs.get(row.id, []))
+        if lookup is not None:
+            lookups.append(lookup)
+    return lookups
 
 
-def pick_doi(refs: Iterable[tuple[str, str]], url: str) -> str | None:
-    """The paper's own identifier among those its text mentions: the one in its URL, else a
-    DOI before an arXiv id (cited papers appear in abstracts too)."""
+def pick_lookup(
+    item_id: int, title: str, stable_id: str, url: str, refs: Iterable[tuple[str, str]]
+) -> Lookup | None:
+    """How to find the item's own paper: its OpenAlex id; else the DOI or arXiv id in its URL
+    or stable id; else a DOI (before an arXiv id) its text mentions, checked against the title
+    when the answer comes back (cited papers appear in abstracts too)."""
+    if work_id := openalex_work_id(stable_id):
+        return Lookup(item_id, title, None, openalex_id=work_id)
     candidates = [(kind, value) for kind, value in refs if kind in REF_KINDS]
-    lowered = url.lower()
+    own = f"{url} {stable_id}".lower()
     for kind, value in candidates:
-        if value.lower() in lowered:
-            return doi_for_ref(kind, value)
+        if value.lower() in own:
+            return Lookup(item_id, title, doi_for_ref(kind, value))
     for kind, value in sorted(candidates, key=lambda ref: (ref[0] != "doi", ref[1])):
-        return doi_for_ref(kind, value)
+        return Lookup(item_id, title, doi_for_ref(kind, value), verify_title=True)
     return None
+
+
+_QUERY = re.compile(r"(https?://[^\s?#]+)[?#]\S*")
+
+
+def scrub(error: str) -> str:
+    """Stored error text without URL query strings (the polite-pool mailto address)."""
+    return _QUERY.sub(r"\1", error)[:ERROR_MAX]
 
 
 def link_institutions(
@@ -158,20 +196,23 @@ def link_institutions(
     return stored, keys, has_company
 
 
-def _row(session: Session, item_id: int, doi: str) -> ResearchMeta:
-    row = session.get(ResearchMeta, item_id)
+def _row(session: Session, lookup: Lookup) -> ResearchMeta:
+    row = session.get(ResearchMeta, lookup.item_id)
     if row is None:
-        row = ResearchMeta(item_id=item_id, doi=doi)
+        row = ResearchMeta(item_id=lookup.item_id)
         session.add(row)
-    row.doi = doi
+    if not lookup.verify_title:  # a DOI only mentioned in the text may be another paper's
+        row.doi = lookup.doi or row.doi
+    row.openalex_id = lookup.openalex_id or row.openalex_id
     return row
 
 
 def _save_work(
-    session: Session, item_id: int, doi: str, work: Work, aliases: dict[str, str], now: datetime
+    session: Session, lookup: Lookup, work: Work, aliases: dict[str, str], now: datetime
 ) -> None:
     institutions, keys, has_company = link_institutions(work.institutions, aliases)
-    row = _row(session, item_id, doi)
+    row = _row(session, lookup)
+    row.doi = work.doi or row.doi
     row.openalex_id = work.openalex_id
     row.venue = work.venue
     row.oa_field = work.oa_field
@@ -191,17 +232,51 @@ def _save_work(
 
 def _save_status(
     session: Session,
-    item_id: int,
-    doi: str,
+    lookup: Lookup,
     status: EnrichStatus,
     now: datetime,
     error: str | None = None,
 ) -> None:
     """A miss or a failure keeps whatever an earlier answer stored."""
-    row = _row(session, item_id, doi)
+    row = _row(session, lookup)
     row.status = status
-    row.error = error[:ERROR_MAX] if error else None
+    row.error = scrub(error) if error else None
     row.enriched_at = now
+
+
+def _ask(
+    session: Session,
+    fetcher: SafeFetcher,
+    lookup: Lookup,
+    aliases: dict[str, str],
+    now: datetime,
+) -> str:
+    """Look one paper up and store the outcome: ok | not_found | error. A rate limit is raised
+    (CollectorError "rate_limited") and leaves the paper untouched."""
+    url = lookup.url
+    try:
+        response = fetch_checked(
+            fetcher, polite_url(url), allowed_mime=JSON_MIME, headers=provider_headers(url)
+        )
+        work = parse_work(json.loads(response.content))
+    except CollectorError as exc:
+        if exc.code == "rate_limited":
+            raise
+        if exc.status_code == 404:
+            _save_status(session, lookup, EnrichStatus.NOT_FOUND, now)
+            return "not_found"
+        _save_status(session, lookup, EnrichStatus.ERROR, now, f"{exc.code}: {exc}")
+        return "error"
+    except (ValueError, TypeError, KeyError, AttributeError) as exc:  # not JSON, not a work
+        _save_status(session, lookup, EnrichStatus.ERROR, now, f"parse_error: {exc}")
+        return "error"
+    if lookup.verify_title and not titles_match(lookup.title, work.title):
+        _save_status(
+            session, lookup, EnrichStatus.NOT_FOUND, now, f"title_mismatch: {work.openalex_id}"
+        )
+        return "not_found"
+    _save_work(session, lookup, work, aliases, now)
+    return "ok"
 
 
 def enrich(
@@ -218,7 +293,7 @@ def enrich(
         return result
     aliases = alias_map(session)
     failures = 0
-    for item_id, doi in due:
+    for lookup in due:
         if gate is not None:
             if gate.backoff_seconds(HOST):
                 result.stopped = "provider_backoff"
@@ -226,37 +301,23 @@ def enrich(
             if not gate.try_acquire(OPENALEX_WORKS):
                 result.stopped = "provider_budget"
                 break
-        result.attempted += 1
-        url = work_url(doi)
         try:
-            response = fetch_checked(
-                fetcher, polite_url(url), allowed_mime=JSON_MIME, headers=provider_headers(url)
-            )
-            work = parse_work(json.loads(response.content))
-        except CollectorError as exc:
-            if exc.status_code == 404:
-                _save_status(session, item_id, doi, EnrichStatus.NOT_FOUND, now)
-                result.not_found += 1
-                failures = 0
-                continue
-            if exc.code == "rate_limited":
-                result.attempted -= 1  # not asked: due again next run
-                if gate is not None:
-                    gate.back_off(HOST, exc.retry_after or RATE_LIMIT_PAUSE)
-                result.stopped = "rate_limited"
-                break
-            _save_status(session, item_id, doi, EnrichStatus.ERROR, now, f"{exc.code}: {exc}")
-        except (ValueError, TypeError, KeyError) as exc:  # not JSON, or not a work
-            _save_status(session, item_id, doi, EnrichStatus.ERROR, now, f"parse_error: {exc}")
-        else:
-            _save_work(session, item_id, doi, work, aliases, now)
+            outcome = _ask(session, fetcher, lookup, aliases, now)
+        except CollectorError as exc:  # rate limited: due again next run
+            if gate is not None:
+                gate.back_off(HOST, exc.retry_after or RATE_LIMIT_PAUSE)
+            result.stopped = "rate_limited"
+            break
+        result.attempted += 1
+        if outcome == "ok":
             result.ok += 1
-            failures = 0
-            if result.attempted % COMMIT_EVERY == 0:
-                session.commit()  # a long run keeps what it found if it is stopped
-            continue
-        result.errors += 1
-        failures += 1
+        elif outcome == "not_found":
+            result.not_found += 1
+        else:
+            result.errors += 1
+        failures = failures + 1 if outcome == "error" else 0
+        if result.attempted % COMMIT_EVERY == 0:
+            session.commit()  # short transactions; a stopped run keeps what it stored
         if failures >= MAX_FAILURES_IN_A_ROW:
             result.stopped = "errors"
             break

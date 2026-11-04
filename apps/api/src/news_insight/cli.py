@@ -1854,14 +1854,22 @@ def benchmarks_collect() -> None:
 def research_enrich(
     limit: Annotated[int, typer.Option(help="Papers to look up at most")] = 2000,
 ) -> None:
-    """Look up due papers on OpenAlex now (the hourly :20 job), within the shared budget."""
-    from news_insight.research.service import enrich
+    """Look up due papers on OpenAlex now (the hourly :20 job), within the shared budget.
+    Waits for nothing: if the scheduled run holds the lock, says so and exits 0."""
+    from news_insight.research.service import LOCK_NAME, LOCK_TTL_SECONDS, enrich
     from news_insight.scheduling.providers import ProviderGate
+    from news_insight.scheduling.redis_guards import SourceLock
 
-    with session_scope() as session, _fetcher() as fetcher:
-        result = enrich(
-            session, fetcher, now=datetime.now(UTC), limit=limit, gate=ProviderGate(get_redis())
-        )
+    client = get_redis()
+    lock = SourceLock(client, ttl_seconds=LOCK_TTL_SECONDS, prefix="lock:")
+    with lock.hold(LOCK_NAME) as acquired:
+        if not acquired:
+            typer.echo("skipped: another enrichment is running")
+            return
+        with session_scope() as session, _fetcher() as fetcher:
+            result = enrich(
+                session, fetcher, now=datetime.now(UTC), limit=limit, gate=ProviderGate(client)
+            )
     typer.echo(
         f"attempted={result.attempted} ok={result.ok} not_found={result.not_found} "
         f"errors={result.errors} stopped={result.stopped or '-'}"
