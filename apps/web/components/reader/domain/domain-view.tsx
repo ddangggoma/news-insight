@@ -34,6 +34,7 @@ import {
   orgTypeLabel,
   periodMeta,
   recentDocs,
+  topDocs,
   spanLabel,
 } from "@/lib/domain-types";
 
@@ -41,6 +42,7 @@ const PATENT_PILOT_NOTE = "지식재산 뉴스·EPO 공보 파일럿 기준(공�
 
 /** What the counts stand on: the patent sources (always shown on 특허), or the API's own note. */
 function CoverageNote({ view }: { view: DomainView }) {
+  const note = view.overview?.coverage_note ?? view.trends?.coverage_note ?? view.coverage_note ?? null;
   if (view.kind === "patent") {
     const coverage = view.coverage;
     return (
@@ -52,14 +54,14 @@ function CoverageNote({ view }: { view: DomainView }) {
             · 이번 기간 지식재산 뉴스 {formatNumber(coverage.news)}건, EPO 공보 {formatNumber(coverage.eps)}건, EPO OPS {formatNumber(coverage.ops)}건
           </span>
         ) : null}
-        {view.coverage_note ? <span className="block text-muted-foreground">{view.coverage_note}</span> : null}
+        {note ? <span className="block text-muted-foreground">{note}</span> : null}
       </p>
     );
   }
-  if (!view.coverage_note) return null;
+  if (!note) return null;
   return (
     <p role="note" aria-label="데이터 범위" className="rounded-xl border bg-muted/40 px-3.5 py-2 text-xs leading-relaxed text-ink-2">
-      <span className="font-semibold text-foreground">데이터 범위</span> {view.coverage_note}
+      <span className="font-semibold text-foreground">데이터 범위</span> {note}
     </p>
   );
 }
@@ -207,7 +209,6 @@ function CompanyDetailBlock({ view, tab, state }: { view: DomainView; tab: Compa
           선택 해제 ✕
         </Link>
       </header>
-      {detail.coverage_note ? <p className="text-xs text-muted-foreground">{detail.coverage_note}</p> : null}
       <div className="grid gap-4 lg:grid-cols-2">
         <Panel id="domain-detail-fields" title="분야 분포" question="이번 기간 분야별 문헌 수, 직전 기간 대비입니다." tools={false}>
           <RankBars
@@ -228,7 +229,7 @@ function CompanyDetailBlock({ view, tab, state }: { view: DomainView; tab: Compa
       </div>
       <div className="space-y-2">
         <h3 className="text-sm font-semibold">이번 기간 주목 {noun}</h3>
-        <DocList docs={detail.documents} domain={domain} empty={`이 기간 ${detail.label}의 ${noun}이 없습니다.`} />
+        <DocList docs={topDocs(detail)} domain={domain} empty={`이 기간 ${detail.label}의 ${noun}이 없습니다.`} />
       </div>
       {recent.length ? (
         <div className="space-y-2">

@@ -332,8 +332,8 @@ describe("company table", () => {
           change: 2,
           fields: [{ key: "display_av", label: "디스플레이·AV", count: 3, previous: 1, change: 2 }],
           series: [0, 1, 3],
-          documents: [doc({ id: 7, title_ko: "폴더블 힌지 특허", publication_number: "EP4815726", office: "EP", press: 3, patent_source: "eps" })],
-          recent: [doc({ id: 8, title_ko: "롤러블 패널 특허" })],
+          top_documents: [doc({ id: 7, title_ko: "폴더블 힌지 특허", publication_number: "EP4815726", office: "EP", press: 3, patent_source: "eps" })],
+          documents: [doc({ id: 8, title_ko: "롤러블 패널 특허" })],
         },
       },
     });

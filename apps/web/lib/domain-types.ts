@@ -83,6 +83,8 @@ export interface Heatmap {
 }
 
 export interface OverviewTab {
+  /** Why some flags or KPIs are held back (short history, enrichment coverage). */
+  coverage_note?: string | null;
   kpis: Kpis;
   heatmap: Heatmap;
   risers: Riser[];
@@ -198,11 +200,10 @@ export interface CompanyDetail {
   change: number | null;
   fields: WindowCount[];
   series: number[];
+  /** 최근 문헌: the 10 most recent of the window. */
   documents: Doc[];
-  /** The latest documents whatever the window (newer API). */
-  recent?: Doc[] | null;
-  recent_documents?: Doc[] | null;
-  coverage_note?: string | null;
+  /** The 10 best scored of the window. */
+  top_documents?: Doc[] | null;
 }
 
 export interface CompaniesTab {
@@ -234,6 +235,8 @@ export interface FlagOut {
 }
 
 export interface TrendsTab {
+  /** Why some rise/fall flags are held back. */
+  coverage_note?: string | null;
   buckets: Span[];
   history: number;
   fields: Series[];
@@ -471,9 +474,14 @@ export function heatLevel(count: number, max: number): number {
   return Math.max(10, Math.round((count / max) * 88));
 }
 
-/** A company detail's latest documents, under whichever name the API gives them. */
+/** A company detail's best-scored documents of the window. */
+export function topDocs(detail: CompanyDetail): Doc[] {
+  return detail.top_documents ?? [];
+}
+
+/** A company detail's most recent documents of the window (shown only next to a scored list). */
 export function recentDocs(detail: CompanyDetail): Doc[] {
-  return detail.recent ?? detail.recent_documents ?? [];
+  return detail.top_documents ? detail.documents : [];
 }
 
 /** Series colours: categorical slots 1-8, then the 기타 grey. */
