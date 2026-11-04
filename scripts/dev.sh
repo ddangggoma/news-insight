@@ -85,8 +85,11 @@ digest()        {
   # 06:00-08:00 and 10:00 runs retry a failed write (10:00 publishes the statistical fallback);
   # a failure here never changes the briefing's status
   (cd "$API" && uv run --env-file "$ROOT/.env" news-insight spotlight write) || echo "spotlight not written; the next digest run retries" >&2
-  # the reader cache may hold the briefing and spotlight from before they existed (10-minute TTL):
-  # refresh both together, after the audio render
+  # the 연구 and 특허 insights (plan 19 §3, Opus), after the spotlight: a published kind is left
+  # as it is, a failed one is retried by the later runs; never changes the briefing's status
+  (cd "$API" && uv run --env-file "$ROOT/.env" news-insight insights write) || echo "insights not written; the next digest run retries" >&2
+  # the reader cache may hold the briefing, spotlight and insights from before they existed
+  # (10-minute TTL): refresh them together, after the audio render
   (cd "$ROOT" && docker compose exec -T web node -e "fetch('http://127.0.0.1:3000/internal/revalidate',{method:'POST',headers:{'x-console-key':process.env.CONSOLE_API_KEY}}).then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))") || true
   (cd "$API" && uv run --env-file "$ROOT/.env" news-insight periodic publish) || true
   return "$status"

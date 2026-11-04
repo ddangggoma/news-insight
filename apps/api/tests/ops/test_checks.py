@@ -10,11 +10,13 @@ from news_insight.briefing.models import Briefing, BriefingFreeze, BriefingStatu
 from news_insight.cards.models import CardRun
 from news_insight.collect.models import FetchOutcome, FetchRun
 from news_insight.config import Settings
+from news_insight.insights.models import DomainInsightRecord, InsightKind, InsightStatus
 from news_insight.ops import service
 from news_insight.ops.checks import (
     check_accounts,
     check_cards,
     check_collection,
+    check_domain_insights,
     check_publication,
     check_queue,
     check_spotlight,
@@ -223,6 +225,50 @@ def test_check_spotlight_published_quiet(db_session: Session) -> None:
     row.status = SpotlightStatus.PUBLISHED
     db_session.flush()
     assert check_spotlight(db_session, now=AT_1031) == []
+
+
+AT_1059 = datetime(2026, 10, 5, 1, 59, tzinfo=UTC)  # 10:59 KST on DAY
+AT_1101 = datetime(2026, 10, 5, 2, 1, tzinfo=UTC)  # 11:01 KST
+
+
+def test_check_domain_insights_waits_for_eleven(db_session: Session) -> None:
+    assert check_domain_insights(db_session, now=AT_1059) == []
+
+
+def test_check_domain_insights_warns_per_kind_not_published(db_session: Session) -> None:
+    findings = check_domain_insights(db_session, now=AT_1101)
+    assert keys(findings) == {"insights_missing:research", "insights_missing:patent"}
+    assert all(f.severity is Severity.WARNING for f in findings)
+    assert findings[0].title == f"{DAY} 연구 인사이트가 발행되지 않았습니다"
+    assert "insights_missing:patent" in keys(run_checks(db_session, now=AT_1101, queue_length=0))
+
+    for kind, status in (
+        (InsightKind.RESEARCH, InsightStatus.PUBLISHED),
+        (InsightKind.PATENT, InsightStatus.FAILED),
+    ):
+        db_session.add(
+            DomainInsightRecord(
+                insight_date=DAY,
+                kind=kind,
+                status=status,
+                model="claude-opus-5-5",
+                payload={},
+                generated_at=AT_0530,
+            )
+        )
+    # yesterday's published row does not cover today
+    db_session.add(
+        DomainInsightRecord(
+            insight_date=DAY - timedelta(days=1),
+            kind=InsightKind.PATENT,
+            status=InsightStatus.PUBLISHED,
+            model="claude-opus-5-5",
+            payload={},
+            generated_at=AT_0530,
+        )
+    )
+    db_session.flush()
+    assert keys(check_domain_insights(db_session, now=AT_1101)) == {"insights_missing:patent"}
 
 
 def test_deals_stalled_after_a_night_without_a_scan(db_session: Session) -> None:

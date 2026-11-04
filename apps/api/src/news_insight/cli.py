@@ -186,6 +186,13 @@ def _spotlight_claude() -> ClaudeClient:
     )
 
 
+def _insights_claude() -> ClaudeClient:
+    settings = get_settings()
+    return ClaudeCli(
+        executable=settings.claude_cli, timeout_seconds=settings.insights_timeout_seconds
+    )
+
+
 def _card_engines(qwen_only: bool) -> tuple[list[MeteredEngine], QwenEngine]:
     """Metered engines in order of use (Antigravity's Gemini, then its Claude Sonnet; Codex first
     when enabled) and the local Qwen for `--qwen-only`."""
@@ -1911,3 +1918,48 @@ def insights_backfill_stats(
         f"days={days} research_rows={total_research} patent_rows={total_patents} "
         f"signal_rows={signals.rows}"
     )
+
+
+@insights_app.command("write")
+def insights_write(
+    kind: Annotated[str | None, typer.Option(help="research or patent (default: both)")] = None,
+    on: Annotated[str | None, typer.Option("--date", help="Insight date YYYY-MM-DD (KST)")] = None,
+    model: Annotated[str | None, typer.Option(help="Claude model id")] = None,
+) -> None:
+    """Have Claude Opus write the day's 연구 and 특허 insights (plan 19 §3; the 05:00 digest job
+    runs it after the spotlight, and its later runs retry a failed kind). A published day is left
+    as it is. Exits 0 once the attempts ran, whatever they returned: the status of each kind is
+    printed, and a failed one is stored for the next run."""
+    from news_insight.insights.models import InsightKind
+    from news_insight.insights.writer import write
+
+    if kind is not None and kind not in {k.value for k in InsightKind}:
+        raise typer.BadParameter("research or patent", param_hint="--kind")
+    kinds = [kind] if kind is not None else [k.value for k in InsightKind]
+    now = datetime.now(UTC)
+    day = _briefing_date(on, now)
+    crashed = []
+    for name in kinds:
+        try:
+            with session_scope() as session:
+                row = write(
+                    session,
+                    name,
+                    day,
+                    client=_insights_claude(),
+                    model=model or get_settings().insights_model,
+                    now=now,
+                )
+                line = f"{day} {name} insight {row.status.value} model={row.model}"
+                if row.cost_usd is not None:
+                    line += f" cost=${row.cost_usd:.3f}"
+                if row.error:
+                    line += f" error: {row.error}"
+        except Exception as exc:  # noqa: BLE001 - the other kind still gets its attempt
+            logging.getLogger(__name__).exception("insights: %s write crashed", name)
+            typer.echo(f"{day} {name} insight not attempted: {exc}", err=True)
+            crashed.append(name)
+        else:
+            typer.echo(line)
+    if crashed:
+        raise typer.Exit(1)

@@ -11,7 +11,12 @@ from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
 from news_insight.content.models import Item, ItemMetricSnapshot
-from news_insight.insights.models import StatsDay
+from news_insight.insights.models import (
+    DomainInsightRecord,
+    InsightKind,
+    InsightStatus,
+    StatsDay,
+)
 from news_insight.insights.signals import recompute_signals
 from news_insight.insights.stats import recompute_days
 from news_insight.public import domain_cache
@@ -645,3 +650,96 @@ def test_warm_fills_the_default_views(
         "/api/public/patents", params={"tab": "documents"}, headers=public_headers
     )
     assert patents.headers["x-cache"] == "hit"
+
+
+def insight(
+    session: Session,
+    day: date,
+    *,
+    kind: InsightKind = InsightKind.RESEARCH,
+    status: InsightStatus = InsightStatus.PUBLISHED,
+    text: str = "AI 논문이 늘었다.",
+) -> DomainInsightRecord:
+    row = DomainInsightRecord(
+        insight_date=day,
+        kind=kind,
+        status=status,
+        model="claude-opus-5-5",
+        payload={
+            "as_of": (day - timedelta(days=1)).isoformat(),
+            "overview": [{"text": text, "doc_ids": [11, 12]}, {"text": "둘째.", "doc_ids": []}],
+            "fields": [
+                {"field": "ai", "text": "AI 한 줄.", "doc_ids": [11]},
+                {"field": "semis", "text": "반도체 한 줄.", "doc_ids": []},
+            ],
+            "companies": [{"company_key": "openai", "text": "OpenAI 한 줄.", "doc_ids": [12]}],
+            "watch": "관심 기업 한 줄.",
+        },
+        generated_at=at(day, 5),
+    )
+    session.add(row)
+    session.flush()
+    return row
+
+
+def test_tabs_show_the_latest_published_insight_with_its_date(
+    public_client: TestClient, public_headers: dict[str, str], db_session: Session
+) -> None:
+    stat(db_session, AS_OF, 3)
+    assert get(public_client, public_headers)["overview"]["insight"] is None
+    insight(db_session, date(2026, 10, 2), text="그제.")
+    insight(db_session, AS_OF, text="어제.")
+    insight(db_session, NOW_DAY, status=InsightStatus.FAILED, text="오늘 실패.")
+    insight(db_session, NOW_DAY + timedelta(days=1), text="내일.")  # not yet: dated tomorrow
+    insight(db_session, NOW_DAY, kind=InsightKind.PATENT, text="특허.")
+
+    overview = get(public_client, public_headers)["overview"]["insight"]
+    fields = get(public_client, public_headers, tab="fields", field="ai")["fields"]["detail"]
+    companies = get(public_client, public_headers, tab="companies")["companies"]["insight"]
+    patents = public_client.get("/api/public/patents", headers=public_headers).json()
+
+    assert overview == {
+        "date": "2026-10-03",
+        "sentences": [
+            {"text": "어제.", "doc_ids": [11, 12], "key": None},
+            {"text": "둘째.", "doc_ids": [], "key": None},
+        ],
+    }
+    assert fields["insight"] == {
+        "date": "2026-10-03",
+        "sentences": [{"text": "AI 한 줄.", "doc_ids": [11], "key": "ai"}],
+    }
+    assert companies["sentences"] == [
+        {"text": "관심 기업 한 줄.", "doc_ids": [], "key": None},
+        {"text": "OpenAI 한 줄.", "doc_ids": [12], "key": "openai"},
+    ]
+    assert patents["overview"]["insight"]["date"] == "2026-10-04"
+    assert patents["overview"]["insight"]["sentences"][0]["text"] == "특허."
+    quiet = get(public_client, public_headers, tab="fields", field="health_tech")
+    assert quiet["fields"]["detail"]["insight"] is None  # no line for the field
+
+
+def test_a_new_insight_starts_new_cache_keys(
+    public_client: TestClient,
+    public_headers: dict[str, str],
+    redis_client: redis.Redis,
+    db_session: Session,
+) -> None:
+    public_client.app.dependency_overrides[domain_cache.cache_client] = lambda: redis_client  # type: ignore[attr-defined]
+    stat(db_session, AS_OF, 3)
+    insight(db_session, AS_OF, text="어제.")
+
+    def fetch(**params: Any) -> Any:
+        return public_client.get(URL, params=params, headers=public_headers)
+
+    first, trends = fetch(), fetch(tab="trends")
+    assert first.headers["x-cache"] == "miss"
+    assert fetch().headers["x-cache"] == "hit"
+    insight(db_session, NOW_DAY, text="오늘.")
+
+    fresh = fetch()
+    assert fresh.headers["x-cache"] == "miss"
+    assert fresh.json()["overview"]["insight"]["sentences"][0]["text"] == "오늘."
+    assert fetch().headers["x-cache"] == "hit"
+    assert trends.headers["x-cache"] == "miss"
+    assert fetch(tab="trends").headers["x-cache"] == "hit"  # tabs without an insight keep theirs

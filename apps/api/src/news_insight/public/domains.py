@@ -28,7 +28,7 @@ from sqlalchemy.orm import Session
 from news_insight.companies.catalog import CompanyStatus, Relation
 from news_insight.companies.models import Company
 from news_insight.companies.service import info_for
-from news_insight.insights.models import StatsDay
+from news_insight.insights.models import DomainInsightRecord, InsightKind, InsightStatus, StatsDay
 from news_insight.insights.stats import day_bounds
 from news_insight.public.periods import KST
 from news_insight.taxonomy.catalog import FIELD_KEYS, FIELDS, LABELS
@@ -57,6 +57,7 @@ REST = "rest"  # the lines beyond the top 8, summed
 REST_LABEL = "기타"
 WATCHED = (Relation.SELF, Relation.COMPETITOR)
 ENRICHMENT_RATIO = 0.8
+INSIGHT_TABS = ("overview", "fields", "companies")
 NOTE_SHORT = "비교할 과거 집계가 부족해 급증·급감을 표시하지 않음"
 NOTE_ENRICHMENT = "과거 기간의 기관·국가 정보 보강률이 낮아 국가별 급증·급감을 표시하지 않음"
 
@@ -85,10 +86,12 @@ class Option(BaseModel):
 class DomainInsightSentence(BaseModel):
     text: str
     doc_ids: list[int]
+    key: str | None = None  # the field or company a one-liner is about
 
 
 class DomainInsight(BaseModel):
-    """Filled by the daily Opus insight (plan 19 §3, P4); null until then."""
+    """The daily Opus insight (plan 19 §3, P4): the latest published one up to today, with its
+    date (the screen says so when it is not today's); null before the first."""
 
     date: date
     sentences: list[DomainInsightSentence]
@@ -473,6 +476,57 @@ def company_refs(session: Session, keys: Sequence[str]) -> dict[str, CompanyOut]
     }
 
 
+def latest_insight(session: Session, kind: str, now: datetime) -> DomainInsightRecord | None:
+    """The kind's latest published insight dated today (KST) or earlier."""
+    return session.scalars(
+        select(DomainInsightRecord)
+        .where(
+            DomainInsightRecord.kind == InsightKind(kind),
+            DomainInsightRecord.status == InsightStatus.PUBLISHED,
+            DomainInsightRecord.insight_date <= now.astimezone(KST).date(),
+        )
+        .order_by(DomainInsightRecord.insight_date.desc())
+        .limit(1)
+    ).first()
+
+
+def _sentences(raw: Any, key_name: str | None = None) -> list[DomainInsightSentence]:
+    out = []
+    for entry in raw if isinstance(raw, list) else []:
+        if isinstance(entry, dict) and isinstance(entry.get("text"), str):
+            out.append(
+                DomainInsightSentence(
+                    text=entry["text"],
+                    doc_ids=[i for i in entry.get("doc_ids") or [] if isinstance(i, int)],
+                    key=entry.get(key_name) if key_name else None,
+                )
+            )
+    return out
+
+
+def _insight(
+    row: DomainInsightRecord | None, part: str, key: str | None = None
+) -> DomainInsight | None:
+    """One part of a published insight for a tab: the overview sentences, the one-liner of a
+    field (`key`), or the watched-company line and the company lines."""
+    if row is None:
+        return None
+    payload = row.payload or {}
+    if part == "overview":
+        sentences = _sentences(payload.get("overview"))
+    elif part == "field":
+        sentences = [s for s in _sentences(payload.get("fields"), "field") if s.key == key]
+    else:
+        watch = payload.get("watch")
+        sentences = (
+            [DomainInsightSentence(text=watch, doc_ids=[])]
+            if isinstance(watch, str) and watch.strip()
+            else []
+        )
+        sentences += _sentences(payload.get("companies"), "company_key")
+    return DomainInsight(date=row.insight_date, sentences=sentences) if sentences else None
+
+
 def watched_keys(session: Session) -> list[str]:
     return list(
         session.scalars(
@@ -645,12 +699,16 @@ def build_view(
         field_options=[Option(key=f.key, label=f.name) for f in FIELDS],
         coverage=domain.coverage(session, ctx.window),
     )
+    insight = latest_insight(session, domain.name, now) if query.tab in INSIGHT_TABS else None
     if query.tab == "overview":
         view.overview = _overview(ctx)
+        view.overview.insight = _insight(insight, "overview")
     elif query.tab == "fields":
         view.fields = _fields(ctx)
+        view.fields.detail.insight = _insight(insight, "field", view.fields.selected)
     elif query.tab == "companies":
         view.companies = _companies(ctx)
+        view.companies.insight = _insight(insight, "companies")
     elif query.tab == "trends":
         view.trends = _trends(ctx)
     else:

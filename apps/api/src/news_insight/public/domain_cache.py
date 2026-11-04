@@ -6,7 +6,9 @@ late cards and patents arrive. Entries live CACHE_TTL; the nightly job warms the
 
 The key holds the view (as_of and every query parameter), the package version, the taxonomy
 revision and a hash of the code that computes it (public, insights, research, patents), so a
-deploy that changes a rule or the response shape starts new keys."""
+deploy that changes a rule or the response shape starts new keys. The tabs that carry the daily
+insight (overview, fields, companies) also hold the id of the kind's latest published insight:
+the digest's insight write starts new keys for them the moment it publishes."""
 
 import dataclasses
 import hashlib
@@ -54,8 +56,20 @@ def cache_client() -> object | None:
         return None
 
 
-def view_key(domain: domains.Domain, as_of: object, query: domains.Query) -> str:
-    view = {"as_of": str(as_of), **dataclasses.asdict(query)}
+def insight_marker(
+    session: Session, domain: domains.Domain, query: domains.Query, now: datetime
+) -> int | None:
+    """The id of the insight the view shows, for the key; None for tabs without one."""
+    if query.tab not in domains.INSIGHT_TABS:
+        return None
+    row = domains.latest_insight(session, domain.name, now)
+    return row.id if row is not None else None
+
+
+def view_key(
+    domain: domains.Domain, as_of: object, query: domains.Query, insight: int | None = None
+) -> str:
+    view = {"as_of": str(as_of), **dataclasses.asdict(query), "insight": insight}
     return plain_key(f"{PREFIX}:{__version__}:{CODE_HASH}:{TAXONOMY_REVISION}:{domain.name}", view)
 
 
@@ -72,7 +86,7 @@ def serve(
     built = domains.stats_range(session)
     as_of = domains.as_of(now, built)
     return cached_json(
-        view_key(domain, as_of, query),
+        view_key(domain, as_of, query, insight_marker(session, domain, query, now)),
         CACHE_TTL,
         lambda: domains.build_view(session, domain, query, now=now, built=built),
         client=client,
@@ -103,7 +117,7 @@ def warm(session: Session, *, now: datetime, client: object) -> int:
     as_of = domains.as_of(now, built)
     warmed = 0
     for domain, query in default_views():
-        key = view_key(domain, as_of, query)
+        key = view_key(domain, as_of, query, insight_marker(session, domain, query, now))
         try:
             client.delete(key)  # type: ignore[attr-defined]
         except Exception:  # noqa: BLE001

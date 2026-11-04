@@ -13,9 +13,11 @@ from sqlalchemy.orm import Session
 from typer.testing import CliRunner
 
 from news_insight import cli
+from news_insight.digest.claude import ClaudeError, ClaudeResult
+from news_insight.insights.models import DomainInsightRecord, InsightStatus
 from news_insight.patents.models import PatentMeta
 from news_insight.research.models import EnrichStatus, ResearchDailyStat, ResearchMeta
-from tests.documents import document, source
+from tests.documents import card, document, source
 from tests.helpers import mock_fetcher
 
 pytestmark = pytest.mark.db
@@ -103,3 +105,56 @@ def test_research_enrich_skips_while_another_run_holds_the_lock(
     assert result.output.splitlines()[-1] == "skipped: another enrichment is running"
     assert db_session.get(ResearchMeta, paper.id) is None
     assert redis_client.get("lock:research-enrich") == b"celery-run"
+
+
+class InsightClaude:
+    """Fails every call: the attempts still run and are stored."""
+
+    def __init__(self) -> None:
+        self.calls = 0
+
+    def generate(self, payload: dict[str, object], **kwargs: object) -> ClaudeResult:
+        self.calls += 1
+        raise ClaudeError("claude login expired")
+
+
+def test_insights_write_attempts_both_kinds_and_exits_0(
+    db_session: Session, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    claude = InsightClaude()
+    monkeypatch.setattr(cli, "_insights_claude", lambda: claude)
+    src = source(db_session, "arxiv-cs")
+    paper = document(db_session, src, "fresh", published=datetime(2026, 11, 2, 3, tzinfo=UTC))
+    card(db_session, paper, field="ai")
+    from news_insight.insights.models import StatsDay
+    from news_insight.insights.signals import recompute_signals
+
+    db_session.add(StatsDay(day=datetime(2026, 11, 2).date(), built_at=datetime.now(UTC)))
+    recompute_signals(db_session, through=datetime(2026, 11, 2).date(), now=datetime.now(UTC))
+
+    result = runner.invoke(cli.app, ["insights", "write", "--date", "2026-11-03"])
+
+    assert result.exit_code == 0, result.output
+    assert "2026-11-03 research insight failed model=claude-opus-5-5 error: claude login" in (
+        result.output
+    )
+    assert "2026-11-03 patent insight failed" in result.output and "no documents" in result.output
+    assert claude.calls == 1  # the patent side had nothing to write about
+    rows = db_session.scalars(select(DomainInsightRecord)).all()
+    assert {(r.kind.value, r.status) for r in rows} == {
+        ("research", InsightStatus.FAILED),
+        ("patent", InsightStatus.FAILED),
+    }
+
+
+def test_insights_write_one_kind_and_reject_others(
+    db_session: Session, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(cli, "_insights_claude", lambda: InsightClaude())
+
+    one = runner.invoke(cli.app, ["insights", "write", "--kind", "patent", "--date", "2026-11-03"])
+    bad = runner.invoke(cli.app, ["insights", "write", "--kind", "news"])
+
+    assert one.exit_code == 0, one.output
+    assert "patent insight failed" in one.output and "research" not in one.output
+    assert bad.exit_code == 2
