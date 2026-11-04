@@ -12,7 +12,7 @@ says it was written. Trends and lists read the article date (`Item.occurred_at`)
 
 import re
 from collections.abc import Mapping
-from datetime import UTC, datetime, timedelta, tzinfo
+from datetime import UTC, datetime, time, timedelta, tzinfo
 from typing import Any
 from zoneinfo import ZoneInfo
 
@@ -27,6 +27,9 @@ FUTURE_SLACK = timedelta(minutes=15)
 # a date without a time ("2026-10-27", papers and patents) names a day, which may not have begun
 # everywhere when we see it
 DAY_SLACK = timedelta(days=1)
+# a verified date within this of the page's own date counts as right, and a page whose dates
+# differ by more contradicts itself
+TOLERANCE = timedelta(minutes=10)
 # a date before this is a parse error (epoch zero, two-digit years), never an article date
 EARLIEST = datetime(1990, 1, 1, tzinfo=UTC)
 
@@ -109,3 +112,42 @@ def stated_date(text: str | None, *, seen: datetime, tz: tzinfo) -> datetime | N
         return None
     moment = local.replace(tzinfo=tz).astimezone(UTC)
     return moment if EARLIEST <= moment <= seen + FUTURE_SLACK else None
+
+
+def page_date(
+    stored: datetime | None,
+    dates: list[datetime],
+    *,
+    seen: datetime,
+    tz: tzinfo,
+    offset_only: bool,
+) -> datetime | None:
+    """The page's own date when it replaces the stored one, else None.
+
+    Only an earlier date counts: a lastmod, a crawl time or a feed's local wall clock read as
+    UTC are all later than the publication, while pages that relabel local time as UTC or show
+    their last edit are later too and must not move a right date. `offset_only` (feeds) takes
+    the page only when it is exactly the source's UTC offset earlier."""
+    if not dates or dates[-1] - dates[0] > TOLERANCE:
+        return None  # no date, or the page contradicts itself
+    truth = dates[0]
+    if plausible(truth, seen=seen, tz=tz) != truth:
+        return None
+    if stored is None:
+        return None if offset_only else truth
+    if truth >= stored - TOLERANCE:
+        return None
+    if offset_only:
+        offset = stored.astimezone(tz).utcoffset()
+        return truth if offset and abs(stored - truth - offset) <= timedelta(minutes=1) else None
+    return None if _same_day(truth, stored, tz) else truth
+
+
+def _same_day(truth: datetime, stored: datetime, tz: tzinfo) -> bool:
+    """A page that gives only a day (midnight in its zone or in UTC) on the stored date: the
+    stored time is no worse than a midnight."""
+    for zone in (tz, UTC):
+        local = truth.astimezone(zone)
+        if local.time() == time() and stored.astimezone(zone).date() == local.date():
+            return True
+    return False
