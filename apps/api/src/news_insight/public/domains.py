@@ -47,6 +47,7 @@ TOP_DETAIL = 10
 TOP_FIELDS = 3
 WATCH_MAX = 20
 PAGE_SIZE = 20
+CACHE_TTL = 30 * 60
 OTHER = "other"  # documents without a classified field
 REST = "rest"  # the lines beyond the top 8, summed
 REST_LABEL = "기타"
@@ -74,19 +75,19 @@ class Option(BaseModel):
     label: str
 
 
-class InsightSentence(BaseModel):
+class DomainInsightSentence(BaseModel):
     text: str
     doc_ids: list[int]
 
 
-class Insight(BaseModel):
+class DomainInsight(BaseModel):
     """Filled by the daily Opus insight (plan 19 §3, P4); null until then."""
 
     date: date
-    sentences: list[InsightSentence]
+    sentences: list[DomainInsightSentence]
 
 
-class Count(BaseModel):
+class WindowCount(BaseModel):
     key: str
     label: str
     count: int
@@ -130,7 +131,7 @@ class OverviewTab(BaseModel):
     kpis: Kpis
     heatmap: Heatmap
     risers: list[Riser]
-    insight: Insight | None = None
+    insight: DomainInsight | None = None
 
 
 class CompanyOut(BaseModel):
@@ -182,23 +183,23 @@ class FieldDetail(BaseModel):
     count: int
     previous: int
     change: float | None
-    themes: list[Count]  # every theme of the field, busiest first
+    themes: list[WindowCount]  # every theme of the field, busiest first
     series: list[int]  # per trend window (FieldsTab.buckets)
-    companies: list["CompanyCount"]
+    companies: list["RankedCompany"]
     orgs: list[OrgCount]  # research only
     documents: list[Doc]
-    insight: Insight | None = None
+    insight: DomainInsight | None = None
 
 
 class FieldsTab(BaseModel):
-    items: list[Count]  # the 12 fields in catalog order
-    other: Count  # unclassified documents
+    items: list[WindowCount]  # the 12 fields in catalog order
+    other: WindowCount  # unclassified documents
     selected: str
     buckets: list[Span]
     detail: FieldDetail
 
 
-class CompanyCount(BaseModel):
+class RankedCompany(BaseModel):
     key: str  # registry key, or the institution name for an org
     label: str
     entity: Entity
@@ -209,7 +210,7 @@ class CompanyCount(BaseModel):
     count: int
     previous: int
     change: float | None
-    top_fields: list[Count]
+    top_fields: list[WindowCount]
 
 
 class WatchedCompany(BaseModel):
@@ -217,7 +218,7 @@ class WatchedCompany(BaseModel):
     count: int
     previous: int
     change: float | None
-    fields: list[Count]  # the current window's field mix
+    fields: list[WindowCount]  # the current window's field mix
     series: list[int]  # per trend window
 
 
@@ -237,17 +238,17 @@ class CompanyDetail(BaseModel):
     count: int
     previous: int
     change: float | None
-    fields: list[Count]
+    fields: list[WindowCount]
     series: list[int]  # per trend window (WatchBlock.buckets)
     documents: list[Doc]
 
 
 class CompaniesTab(BaseModel):
     kind: Entity  # research: 기업 (registry + company-type orgs) or 대학·연구기관
-    ranking: list[CompanyCount]
+    ranking: list[RankedCompany]
     watch: WatchBlock
     detail: CompanyDetail | None
-    insight: Insight | None = None
+    insight: DomainInsight | None = None
 
 
 class Series(BaseModel):
@@ -371,10 +372,10 @@ def check_field(field: str | None) -> None:
         raise UnknownField(field)
 
 
-def count_of(key: str, label: str, values: Sequence[int]) -> Count:
-    """A Count from [..., previous, current]."""
+def count_of(key: str, label: str, values: Sequence[int]) -> WindowCount:
+    """A WindowCount from [..., previous, current]."""
     current, previous = values[-1], values[-2] if len(values) > 1 else 0
-    return Count(
+    return WindowCount(
         key=key, label=label, count=current, previous=previous, change=change(current, previous)
     )
 
@@ -653,7 +654,9 @@ def _overview(ctx: Context) -> OverviewTab:
     )
 
 
-def _top_fields(per_field: dict[str, list[int]], limit: int | None = TOP_FIELDS) -> list[Count]:
+def _top_fields(
+    per_field: dict[str, list[int]], limit: int | None = TOP_FIELDS
+) -> list[WindowCount]:
     counts = [count_of(key, field_label(key), values) for key, values in per_field.items()]
     counts = [c for c in counts if c.count > 0]
     counts.sort(key=lambda c: (-c.count, c.key))
@@ -805,9 +808,9 @@ def _fields(ctx: Context) -> FieldsTab:
 
 def _ranked_company(
     key: str, ref: CompanyOut, per_field: dict[str, list[int]], width: int
-) -> CompanyCount:
+) -> RankedCompany:
     total = _sum(per_field, width)
-    return CompanyCount(
+    return RankedCompany(
         key=key,
         label=ref.label,
         entity="company",
@@ -824,9 +827,9 @@ def _ranked_company(
 
 def _ranked_org(
     name: str, org_type: str, per_field: dict[str, list[int]], width: int
-) -> CompanyCount:
+) -> RankedCompany:
     total = _sum(per_field, width)
-    return CompanyCount(
+    return RankedCompany(
         key=name,
         label=name,
         entity="org",
@@ -847,7 +850,7 @@ def _companies(ctx: Context) -> CompaniesTab:
     kind: Entity = query.kind if domain.has_orgs else "company"
     where = _field_filter(ctx)
     pair = [ctx.previous, ctx.window]
-    ranking: list[CompanyCount] = []
+    ranking: list[RankedCompany] = []
     if kind == "company":
         keys = top_keys(session, model, "company", ctx.window, model.company_key, RANKING, *where)
         refs = company_refs(session, keys)

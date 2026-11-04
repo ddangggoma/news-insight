@@ -1,8 +1,8 @@
 """The 연구 menu (plan 19 §1): papers by technology field, company or institution and country.
 
-Counts come from research_daily_stats (insights/stats.py); the documents page, the watched-company
-count and the company share's documents are read live with the same document conditions
-(research_documents, no archive pages). A paper's 화제 점수 is
+Counts come from research_daily_stats (insights/stats.py), the documents page's total too; the
+documents themselves and the watched-company count are read live with the same document
+conditions (research_documents, no archive pages). A paper's 화제 점수 is
 10 × news and community items citing its DOI or arXiv id since the window began
 + its Hugging Face upvotes + 5 × ln(1 + citations)."""
 
@@ -172,9 +172,7 @@ class ResearchDomain:
             conditions.append(ResearchMeta.company_keys.contains([company]))
         if org is not None:
             conditions.append(ResearchMeta.institutions.contains([{"name": org}]))
-        total = int(session.scalar(_scoped(select(func.count())).where(*conditions)) or 0)
-        if total <= (page - 1) * size:
-            return total, []
+        total = _stats_total(session, window, field=field, company=company, org=org)
         start, _ = instants(window)
         mentions = _mentions(start)
         upvotes = _upvotes(window)
@@ -245,6 +243,32 @@ class ResearchDomain:
                 )
             )
         return total, docs
+
+
+def _stats_total(
+    session: Session, window: Span, *, field: str | None, company: str | None, org: str | None
+) -> int:
+    """The documents matching the filters, from the daily stats: a live count would scan the
+    window's papers a second time (tens of thousands a month)."""
+    stat = ResearchDailyStat
+    if company is not None:
+        where = [stat.dim == "company", stat.company_key == company]
+    elif org is not None:
+        where = [stat.dim == "org", stat.org_name == org]
+    else:
+        where = [stat.dim == "total"]
+    if field == OTHER:
+        where.append(stat.field.not_in(sorted(FIELD_KEYS)))
+    elif field is not None:
+        where.append(stat.field == field)
+    return int(
+        session.scalar(
+            select(func.coalesce(func.sum(stat.n), 0)).where(
+                *where, stat.day >= window.start, stat.day <= window.end
+            )
+        )
+        or 0
+    )
 
 
 def _mentions(since: Any) -> Any:

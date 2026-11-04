@@ -77,6 +77,7 @@ def patent(
 def get(client: TestClient, headers: dict[str, str], **params: Any) -> Any:
     response = client.get(URL, params=params, headers=headers)
     assert response.status_code == 200, response.text
+    assert len(response.content) < 1_000_000
     return response.json()
 
 

@@ -11,7 +11,7 @@ import hashlib
 import json
 import logging
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from datetime import datetime
 from pathlib import Path
 
@@ -55,6 +55,11 @@ def view_key(
         "q": filters.q,
         **(extra or {}),
     }
+    return plain_key(kind, view)
+
+
+def plain_key(kind: str, view: Mapping[str, object]) -> str:
+    """Cache key of any reader view described by `view` (JSON-serialisable values)."""
     digest = hashlib.sha1(json.dumps(view, sort_keys=True).encode()).hexdigest()[:20]
     return f"{PREFIX}:{__version__}:{CODE_HASH}:{TAXONOMY_REVISION}:{kind}:{digest}"
 

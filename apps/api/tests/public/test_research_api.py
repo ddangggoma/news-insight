@@ -5,10 +5,12 @@ from datetime import UTC, date, datetime, timedelta
 from typing import Any
 
 import pytest
+import redis
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
 from news_insight.content.models import Item, ItemMetricSnapshot
+from news_insight.public import radar_cache
 from news_insight.research.models import EnrichStatus, ResearchDailyStat, ResearchMeta
 from news_insight.sources.enums import AccessMethod, Track
 from news_insight.spotlight.candidates import HF_PAPERS
@@ -86,6 +88,7 @@ def paper(
 def get(client: TestClient, headers: dict[str, str], **params: Any) -> Any:
     response = client.get(URL, params=params, headers=headers)
     assert response.status_code == 200, response.text
+    assert len(response.content) < 1_000_000
     return response.json()
 
 
@@ -361,7 +364,10 @@ def test_documents_tab_scores_filters_and_pages(
     )
     older = paper(db_session, "older", date(2026, 8, 1))
     paper(db_session, "today", date(2026, 10, 4))
-    db_session.flush()
+    # the page total comes from the stats the nightly job builds from the same papers
+    stat(db_session, date(2026, 9, 20), 2)
+    stat(db_session, date(2026, 9, 19), 1, field="semis")
+    stat(db_session, date(2026, 9, 19), 1, dim="org", field="semis", org_name="KAIST")
 
     body = get(public_client, public_headers, tab="documents")
 
@@ -380,9 +386,13 @@ def test_documents_tab_scores_filters_and_pages(
         found = get(public_client, public_headers, tab="documents", **params)["documents"]
         return [d["id"] for d in found["items"]]
 
-    assert ids(field="semis") == [chips.id]
+    def total(**params: Any) -> int:
+        found = get(public_client, public_headers, tab="documents", **params)["documents"]
+        return int(found["total"])
+
+    assert ids(field="semis") == [chips.id] and total(field="semis") == 1
     assert ids(company="samsungelectronics") == [chips.id]
-    assert ids(org="KAIST") == [chips.id]
+    assert ids(org="KAIST") == [chips.id] and total(org="KAIST", field="semis") == 1
     assert older.id in ids(period="quarter")
     assert ids(page=2) == []
     missing = public_client.get(
@@ -399,3 +409,24 @@ def test_bad_params_are_422(
     public_client: TestClient, public_headers: dict[str, str], params: dict[str, Any]
 ) -> None:
     assert public_client.get(URL, params=params, headers=public_headers).status_code == 422
+
+
+def test_views_are_served_from_the_reader_cache(
+    public_client: TestClient,
+    public_headers: dict[str, str],
+    redis_client: redis.Redis,
+    db_session: Session,
+) -> None:
+    public_client.app.dependency_overrides[radar_cache.cache_client] = lambda: redis_client  # type: ignore[attr-defined]
+    stat(db_session, AS_OF, 3)
+
+    first = public_client.get(URL, params={"tab": "trends"}, headers=public_headers)
+    second = public_client.get(URL, params={"tab": "trends"}, headers=public_headers)
+    other = public_client.get(
+        URL, params={"tab": "trends", "period": "week"}, headers=public_headers
+    )
+    bad = public_client.get(URL, params={"field": "nope"}, headers=public_headers)
+
+    assert first.headers["x-cache"] == "miss" and second.headers["x-cache"] == "hit"
+    assert first.json() == second.json() and other.headers["x-cache"] == "miss"
+    assert bad.status_code == 422

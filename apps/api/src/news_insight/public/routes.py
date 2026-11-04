@@ -1,5 +1,6 @@
 """Reader API for the public web. Reached only by the web server over the internal network."""
 
+import dataclasses
 import threading
 from collections.abc import Sequence
 from datetime import UTC, date, datetime
@@ -421,22 +422,41 @@ DomainPage = Annotated[int, Query(ge=1, le=100)]
 
 
 def _domain_view(
-    session: Session, domain: domains.Domain, query: domains.Query, now: datetime
-) -> domains.DomainView:
+    session: Session,
+    domain: domains.Domain,
+    query: domains.Query,
+    now: datetime,
+    cache: object | None,
+) -> Response:
+    """The view from the reader cache (30 minutes: the counts end yesterday, so only late
+    cards, enrichment and new mentions move them), computed by one request at a time."""
+    key = radar_cache.plain_key(
+        f"domain:{domain.name}",
+        {"as_of": domains.as_of(now).isoformat(), **dataclasses.asdict(query)},
+    )
     try:
-        return domains.build_view(session, domain, query, now=now)
+        body, hit = radar_cache.cached_json(
+            key,
+            domains.CACHE_TTL,
+            lambda: domains.build_view(session, domain, query, now=now),
+            client=cache,
+        )
     except domains.UnknownField as error:
         raise HTTPException(
             status.HTTP_422_UNPROCESSABLE_CONTENT, f"unknown field '{error}'"
         ) from error
     except domains.UnknownCompany as error:
         raise HTTPException(status.HTTP_404_NOT_FOUND, f"unknown company '{error}'") from error
+    return Response(
+        body, media_type="application/json", headers={"X-Cache": "hit" if hit else "miss"}
+    )
 
 
-@router.get("/research")
+@router.get("/research", response_model=domains.DomainView)
 def get_research(
     session: DB,
     now: Now,
+    cache: RadarCache,
     tab: domains.Tab = "overview",
     period: domains.Period = "month",
     field: FieldQ = None,
@@ -444,32 +464,33 @@ def get_research(
     org: Annotated[str | None, Query(max_length=200)] = None,
     kind: domains.Entity = "company",
     page: DomainPage = 1,
-) -> domains.DomainView:
+) -> Response:
     """연구 menu (plan 19): papers by technology field, company or institution and country,
     through yesterday (KST); `org` and `kind` pick an institution and the 기업/대학·연구기관
     ranking."""
     query = domains.Query(
         tab=tab, period=period, field=field, company=company, org=org, kind=kind, page=page
     )
-    return _domain_view(session, research_queries.ResearchDomain(), query, now)
+    return _domain_view(session, research_queries.ResearchDomain(), query, now, cache)
 
 
-@router.get("/patents")
+@router.get("/patents", response_model=domains.DomainView)
 def get_patents(
     session: DB,
     now: Now,
+    cache: RadarCache,
     tab: domains.Tab = "overview",
     period: domains.Period = "month",
     field: FieldQ = None,
     company: CompanyQ = None,
     page: DomainPage = 1,
-) -> domains.DomainView:
+) -> Response:
     """특허 menu (plan 19): patent documents by technology field, applicant and office,
     through yesterday (KST), with the coverage of the sources behind the counts."""
     query = domains.Query(
         tab=tab, period=period, field=field, company=company, org=None, kind="company", page=page
     )
-    return _domain_view(session, patent_queries.PatentDomain(), query, now)
+    return _domain_view(session, patent_queries.PatentDomain(), query, now, cache)
 
 
 @router.get("/spotlight")
