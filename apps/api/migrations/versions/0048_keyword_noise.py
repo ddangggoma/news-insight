@@ -5,8 +5,8 @@ keys like `v3.1`, `cvssv3.1` and `cve2026109618` into the word cloud, 국내 공
 cards (2026-10-27 audit). The regex is the twin of `technologies.catalog.NOT_A_TECHNOLOGY`.
 Card keywords themselves are untouched; only the derived keys are recomputed.
 
-Revision ID: 0047
-Revises: 0046
+Revision ID: 0048
+Revises: 0047
 """
 
 from alembic import op
@@ -34,8 +34,8 @@ RECOMPUTE = (
     "WHERE technology_keys IS DISTINCT FROM canonical_keyword_keys(keywords)"
 )
 
-revision = "0047"
-down_revision = "0046"
+revision = "0048"
+down_revision = "0047"
 branch_labels = None
 depends_on = None
 
