@@ -23,7 +23,7 @@ from tests.helpers import mock_fetcher
 
 pytestmark = pytest.mark.db
 
-NOW = SEEN + timedelta(hours=2)
+NOW = SEEN + timedelta(days=3, hours=2)  # past the OpenAlex index lag
 FIXTURES = Path(__file__).parent / "fixtures"
 ATTENTION = (FIXTURES / "openalex_attention.json").read_bytes()
 ALPHAFOLD = (FIXTURES / "openalex_alphafold.json").read_bytes()
@@ -402,3 +402,10 @@ def ids(session: Session, now: datetime) -> list[int]:
 
 def test_fixture_is_a_real_single_work_answer() -> None:
     assert json.loads(ATTENTION)["id"] == "https://openalex.org/W2626778328"
+
+
+def test_a_new_paper_waits_out_the_openalex_index_lag(db_session: Session) -> None:
+    src = source(db_session, "arxiv-cs")
+    paper = document(db_session, src, "brand new", refs=(("arxiv", "2611.09999"),), published=SEEN)
+    assert paper.id not in ids(db_session, SEEN + timedelta(days=2, hours=23))
+    assert paper.id in ids(db_session, SEEN + timedelta(days=3, minutes=1))

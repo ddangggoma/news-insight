@@ -48,6 +48,10 @@ MAX_PER_RUN = 2000
 REF_KINDS = ("doi", "arxiv")
 # patent offices and IP news share the research_ip track; they are indexed by patents.service
 PATENT_CATEGORIES = ("patent_office", "ip_office")
+# OpenAlex indexes a new paper a few days after it appears: asking sooner spends the budget on
+# not_found answers (2026-11-04: 1644 of the first 2000, all first seen that day or the day
+# before)
+INDEX_LAG = timedelta(days=3)
 RETRY_NOT_FOUND = timedelta(days=7)
 NOT_FOUND_HORIZON = timedelta(days=90)
 RETRY_ERROR = timedelta(days=1)
@@ -112,7 +116,7 @@ def due_items(session: Session, *, now: datetime, limit: int) -> list[Lookup]:
     """The papers due, in the order they are asked."""
     meta = ResearchMeta
     due = or_(
-        meta.item_id.is_(None),
+        and_(meta.item_id.is_(None), Item.occurred_at <= now - INDEX_LAG),
         and_(
             meta.status == EnrichStatus.NOT_FOUND,
             meta.enriched_at <= now - RETRY_NOT_FOUND,
