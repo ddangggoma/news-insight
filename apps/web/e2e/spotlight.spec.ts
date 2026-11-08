@@ -125,22 +125,24 @@ test.describe("spotlight", () => {
     const tbTable = tb.getByRole("table", { name: "Terminal-Bench 4.0 순위표" });
     // tbench.ai's best-effort table: GPT-6 Astra and GPT-6.1 Sol share third place
     await expect(tbTable.getByRole("rowheader")).toHaveCount(6);
-    await expect(tbTable.getByRole("rowheader").nth(3)).toHaveText(/^3\s*Codex/);
+    await expect(tbTable.getByRole("rowheader").nth(3)).toHaveText(/^3/);
+    await expect(tbTable.getByRole("row").nth(4)).toContainText("Codex");
     await expect(tbTable.getByText("64.8% ± 3.1%")).toBeVisible();
     await expect(tb.getByRole("list", { name: "에이전트별 최고 점수" }).getByRole("listitem")).toHaveCount(2);
     await tb.getByRole("group", { name: "에이전트별" }).getByRole("button", { name: "Codex" }).click();
     await expect(tbTable.getByRole("rowheader")).toHaveCount(2);
     await tb.getByRole("button", { name: "TB 2.1" }).click();
-    await expect(tb.getByRole("table", { name: "Terminal-Bench 2.1 순위표" }).getByRole("rowheader").first()).toContainText("Codex");
+    await expect(tb.getByRole("table", { name: "Terminal-Bench 2.1 순위표" }).getByRole("row").nth(1)).toContainText("Codex");
 
     const os = agents.getByRole("region", { name: "OSWorld 2.0" });
     await expect(os.getByRole("table", { name: "OSWorld 2.0 순위표" }).getByRole("rowheader").first()).toContainText("Claude Opus 5");
     await expect(os.getByText("44.33%")).toBeVisible();
 
     const tau = agents.getByRole("region", { name: "τ²-bench" });
-    await expect(tau.getByRole("table").getByRole("rowheader").first()).toContainText("Claude Opus 4.5");
-    await tau.getByRole("button", { name: "τ³-Banking" }).click();
+    // the card opens on τ³-Banking, the leaderboard's first tab
     await expect(tau.getByRole("table").getByRole("rowheader").first()).toContainText("Claude Opus 5");
+    await tau.getByRole("button", { name: "τ²-bench" }).click();
+    await expect(tau.getByRole("table").getByRole("rowheader").first()).toContainText("Claude Opus 4.5");
 
     const models = bench.getByRole("group", { name: "AI 모델 벤치마크" });
     const epoch = models.getByRole("region", { name: "Epoch AI" });
@@ -169,7 +171,7 @@ test.describe("spotlight", () => {
     const size = await table.getByRole("rowheader").first().evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
     expect(size).toBeGreaterThanOrEqual(14);
     const tb = bench.getByRole("table", { name: "Terminal-Bench 4.0 순위표" });
-    await expect(tb.getByRole("rowheader").first()).toContainText("Claude Code");
+    await expect(tb.getByRole("row").nth(1)).toContainText("Claude Code");
     const tbSize = await tb.getByRole("rowheader").first().evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
     expect(tbSize).toBeGreaterThanOrEqual(14);
     // the page does not scroll sideways: wide tables scroll inside their own box

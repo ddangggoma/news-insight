@@ -162,7 +162,7 @@ export function TerminalBenchCard({ view }: { view: TbView }) {
         columns={columns}
         data={shown}
         getRowId={(r) => r.id}
-        initialSorting={[{ id: "agent", desc: false }]}
+        initialSorting={[{ id: "rank", desc: false }]}
         initialLimit={TABLE_ROWS}
         emptyText="이 조건에 맞는 행이 없습니다"
         toolbar={<span className="text-xs text-muted-foreground">{`${shown.length}개 조합`}</span>}
