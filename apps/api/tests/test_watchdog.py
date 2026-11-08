@@ -49,25 +49,35 @@ def facts(**overrides: Any) -> dict[str, Any]:
 
 
 class FakeRunner:
-    """Answers by command: `docker info`, `docker ps`, `docker exec … psql`, `open`, `osascript`."""
+    """Answers by command: `docker info`, `docker ps`, `docker exec … psql`, `pgrep`, `open`,
+    `osascript`. `docker_fails` failing `docker info` calls come before it answers (docker=False:
+    it never answers); `app` says whether Docker Desktop's process exists."""
 
     def __init__(
         self,
         *,
         docker: bool = True,
+        docker_fails: int = 0,
+        app: bool = True,
         ps: str = HEALTHY_PS,
         db: dict[str, Any] | None = None,
         db_error: str = "",
         osascript: int = 0,
     ) -> None:
         self.docker, self.ps, self.db, self.db_error = docker, ps, db, db_error
+        self.docker_fails, self.app = docker_fails, app
         self.osascript = osascript
         self.calls: list[list[str]] = []
 
     def __call__(self, args: list[str], timeout: float) -> tuple[int, str]:
         self.calls.append(args)
         if args[:2] == ["docker", "info"]:
-            return (0, "29.8.1\n") if self.docker else (1, "Cannot connect to the Docker daemon")
+            if not self.docker or self.docker_fails > 0:
+                self.docker_fails -= 1
+                return 124, "Command timed out after 20 seconds"
+            return 0, "29.8.1\n"
+        if args[0] == "pgrep":
+            return (0, "56944\n") if self.app else (1, "")
         if args[:2] == ["docker", "ps"]:
             return 0, self.ps
         if args[:2] == ["docker", "exec"]:
@@ -138,12 +148,47 @@ def test_a_healthy_stack_has_no_problems() -> None:
     assert not findings.docker_down and findings.db_read
 
 
-def test_docker_down_stops_the_other_checks() -> None:
-    runner = FakeRunner(docker=False)
-    findings = wd.inspect({}, NOW, run=runner, status=lambda url: 0)
+def no_pause(seconds: float) -> None:
+    pass
+
+
+def test_docker_off_stops_the_other_checks_and_asks_to_start_it() -> None:
+    runner = FakeRunner(docker=False, app=False)
+    pauses: list[float] = []
+    findings = wd.inspect({}, NOW, run=runner, status=lambda url: 0, pause=pauses.append)
     assert keys(findings) == ["docker_down"]
-    assert findings.docker_down
-    assert [call[:2] for call in runner.calls] == [["docker", "info"]]
+    assert findings.docker_down and not findings.docker_app
+    assert findings.problems[0].title == "Docker가 꺼져 있습니다"
+    assert [call[:2] for call in runner.calls] == [["docker", "info"]] * 3 + [["pgrep", "-x"]]
+    assert pauses == [wd.DOCKER_RETRY_PAUSE] * 2
+
+
+def test_a_stuck_engine_with_the_app_running_is_reported_not_restarted() -> None:
+    findings = wd.inspect({}, NOW, run=FakeRunner(docker=False), status=lambda u: 0, pause=no_pause)
+    assert findings.docker_down and findings.docker_app
+    (problem,) = findings.problems
+    assert problem.title == "Docker가 응답하지 않습니다"
+    assert "exit 124: Command timed out after 20 seconds" in problem.detail
+
+
+def test_docker_info_answering_on_a_retry_is_no_problem() -> None:
+    runner = FakeRunner(docker_fails=2)
+    findings = wd.inspect({}, NOW, run=runner, status=lambda url: 200, pause=no_pause)
+    assert findings.problems == [] and not findings.docker_down
+    assert sum(call[:2] == ["docker", "info"] for call in runner.calls) == 3
+    assert not any(call[0] == "pgrep" for call in runner.calls)
+
+
+def test_docker_down_alerts_only_on_the_second_run_in_a_row() -> None:
+    state: dict[str, Any] = {}
+    notifier = RecordingNotifier()
+    down = wd.Findings([problem("docker_down")], docker_down=True, docker_app=True)
+    assert wd.step(state, down, NOW, notifier) == []
+    assert wd.step(state, wd.Findings([]), NOW + timedelta(minutes=5), notifier) == []
+    assert wd.step(state, down, NOW + timedelta(minutes=10), notifier) == []
+    assert wd.step(state, down, NOW + timedelta(minutes=15), notifier) == [
+        "[Daily IT] 긴급: title docker_down"
+    ]
 
 
 def test_stopped_missing_and_unhealthy_containers() -> None:
@@ -289,6 +334,7 @@ def test_unchecked_problems_stay_open_while_docker_is_down() -> None:
     notifier = RecordingNotifier()
     wd.step(state, wd.Findings([problem("collection_stale")]), NOW, notifier)
     docker_down = wd.Findings([problem("docker_down")], docker_down=True)
+    assert wd.step(state, docker_down, NOW + timedelta(minutes=4), notifier) == []
     sent = wd.step(state, docker_down, NOW + timedelta(minutes=5), notifier)
     assert sent == ["[Daily IT] 긴급: title docker_down"]
     assert set(state["problems"]) == {"collection_stale", "docker_down"}
