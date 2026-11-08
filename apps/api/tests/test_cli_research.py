@@ -84,7 +84,10 @@ def test_patents_index_prints_the_tally(db_session: Session) -> None:
 
 def test_insights_backfill_stats_rebuilds_each_day(db_session: Session) -> None:
     src = source(db_session, "arxiv-cs")
-    document(db_session, src, "p", published=datetime.now(UTC) - timedelta(days=2))
+    now = datetime.now(UTC)
+    # seen now as well: with the helper's fixed SEEN (11-03) a date two days before today became a
+    # future publication date from 11-06 on, was not taken, and the paper fell out of the window
+    document(db_session, src, "p", published=now - timedelta(days=2), seen=now)
 
     result = runner.invoke(cli.app, ["insights", "backfill-stats", "--days", "3"])
 
