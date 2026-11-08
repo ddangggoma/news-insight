@@ -1,0 +1,12 @@
+{
+ "submissions": [
+  "claude-opus-4-5_sierra_2026-02-26",
+  "claude-opus-5_sierra_2026-08-04"
+ ],
+ "voice_submissions": [
+  "pine-voice-1-0_pineai_2026-10-27"
+ ],
+ "legacy_submissions": [],
+ "voice_v2_submissions": [],
+ "voice_v2_domain_submissions": []
+}

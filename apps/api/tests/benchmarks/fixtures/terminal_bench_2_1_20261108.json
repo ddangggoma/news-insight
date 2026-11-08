@@ -1,0 +1,461 @@
+{
+ "leaderboard": {
+  "id": "60330f75-0dd8-47ea-bd1d-e2ea28945731",
+  "package_id": "272adc1e-e7ec-46b0-b53b-b91e8dde79de",
+  "package": "terminal-bench/terminal-bench-2-1",
+  "dataset_version_ids": [
+   "14172910-955c-46de-9120-4ddd1078d4dd",
+   "45f21fc7-8906-416f-9dd3-99ef6c6825ba",
+   "bd220b45-1203-40ed-b403-c231ceaeda73",
+   "c2ca7974-c0f6-4581-b342-a2ed88edd454",
+   "c6a94f4b-817b-414d-b453-992bd2d7eba4",
+   "f92eea12-ff70-4d30-ace0-003abf294998"
+  ],
+  "name": "main",
+  "title": "Terminal-Bench 2.1",
+  "description": "The official leaderboard for Terminal-Bench 2.1. Submit your results to [the TB2.1 repo](https://github.com/harbor-framework/terminal-bench-2-1) to join the leaderboard.",
+  "columns": [
+   {
+    "id": "agent_display",
+    "type": "link",
+    "header": "Agent",
+    "accessor": "metadata.agent_display"
+   },
+   {
+    "id": "model_display",
+    "type": "link",
+    "header": "Model",
+    "accessor": "metadata.model_display"
+   },
+   {
+    "id": "reasoning_effort",
+    "type": "text",
+    "header": "Effort",
+    "accessor": "metadata.reasoning_effort"
+   },
+   {
+    "id": "accuracy",
+    "type": "number",
+    "align": "right",
+    "header": "Accuracy",
+    "accessor": "metrics.accuracy",
+    "display_type": "markdown",
+    "display_accessor": "metrics.display_accuracy"
+   },
+   {
+    "id": "date",
+    "type": "date",
+    "align": "right",
+    "header": "Release Date",
+    "accessor": "metadata.date",
+    "display_type": "text",
+    "display_accessor": "metadata.display_date"
+   },
+   {
+    "id": "agent_org",
+    "type": "link",
+    "header": "Agent Org",
+    "accessor": "metadata.agent_org"
+   },
+   {
+    "id": "model_org",
+    "type": "link",
+    "header": "Model Org",
+    "accessor": "metadata.model_org"
+   },
+   {
+    "id": "pr_url",
+    "type": "link",
+    "header": "PR",
+    "accessor": "metadata.pr_url"
+   },
+   {
+    "id": "reward_hacks",
+    "type": "number",
+    "align": "right",
+    "header": "Hacks",
+    "accessor": "metrics.reward_hacks",
+    "display_type": "link",
+    "display_accessor": "metrics.display_reward_hacks"
+   },
+   {
+    "id": "total_tokens",
+    "type": "number",
+    "align": "right",
+    "header": "Tokens",
+    "accessor": "metrics.total_tokens",
+    "display_type": "text",
+    "display_accessor": "metrics.display_total_tokens"
+   },
+   {
+    "id": "total_cost_usd",
+    "type": "number",
+    "align": "right",
+    "header": "Cost",
+    "accessor": "metrics.total_cost_usd",
+    "display_type": "text",
+    "display_accessor": "metrics.display_total_cost_usd"
+   }
+  ],
+  "rank_by": [
+   {
+    "accessor": "metrics.accuracy",
+    "direction": "desc"
+   }
+  ],
+  "visibility": "public",
+  "created_by": "08a519e0-9b19-42e4-b66c-8afcd5262ad4",
+  "created_at": "2026-07-07T23:15:22.037902+00:00",
+  "updated_at": "2026-09-03T20:54:37.791805+00:00"
+ },
+ "rows": [
+  {
+   "id": "03ff7953-4955-4fc5-9ddd-911cab72d7f1",
+   "leaderboard_id": "60330f75-0dd8-47ea-bd1d-e2ea28945731",
+   "rank": 1,
+   "metadata": {
+    "date": "2026-09-03",
+    "pr_url": {
+     "url": "https://hub.harborframework.com/jobs/17d1a7f6-3339-4670-8b70-3b145979f57f",
+     "label": "job"
+    },
+    "agent_org": {
+     "url": "https://openai.com",
+     "label": "OpenAI"
+    },
+    "model_org": {
+     "url": "https://openai.com",
+     "label": "OpenAI"
+    },
+    "display_date": "Sep 3, 2026",
+    "agent_display": {
+     "url": "https://openai.com/codex/",
+     "label": "Codex"
+    },
+    "model_display": {
+     "url": "https://developers.openai.com/api/docs/models/gpt-6-astra",
+     "label": "GPT-6 Astra"
+    },
+    "reasoning_effort": "high"
+   },
+   "metrics": {
+    "accuracy": 87.42,
+    "n_trials": 445,
+    "pass_at_2": 0.9112,
+    "pass_at_3": 0.927,
+    "pass_at_4": 0.9371,
+    "pass_at_5": 0.9438,
+    "reward_hacks": 0,
+    "total_tokens": 368258713,
+    "output_tokens": 4220835,
+    "total_cost_usd": 773.5,
+    "accuracy_stderr": 0.91,
+    "display_accuracy": "**87.4%** ± 1.8%",
+    "cached_input_tokens": 341991423,
+    "display_reward_hacks": {
+     "url": "https://hub.harborframework.com/jobs/17d1a7f6-3339-4670-8b70-3b145979f57f",
+     "label": "0.0%"
+    },
+    "display_total_tokens": "368.3M",
+    "uncached_input_tokens": 364037878,
+    "avg_trial_duration_sec": 434.1,
+    "display_total_cost_usd": "$773.50",
+    "accuracy_ci95_half_width": 1.79
+   },
+   "status": "display",
+   "created_at": "2026-09-03T20:54:37.791805+00:00",
+   "updated_at": "2026-09-03T20:54:37.791805+00:00",
+   "n_trials": 445
+  },
+  {
+   "id": "17be4c09-ab31-4202-9d56-31a2ccf37e1b",
+   "leaderboard_id": "60330f75-0dd8-47ea-bd1d-e2ea28945731",
+   "rank": 2,
+   "metadata": {
+    "date": "2026-09-03",
+    "pr_url": {
+     "url": "https://hub.harborframework.com/jobs/17d1a7f6-3339-4670-8b70-3b145979f57f",
+     "label": "job"
+    },
+    "agent_org": {
+     "url": "https://openai.com",
+     "label": "OpenAI"
+    },
+    "model_org": {
+     "url": "https://openai.com",
+     "label": "OpenAI"
+    },
+    "display_date": "Sep 3, 2026",
+    "agent_display": {
+     "url": "https://openai.com/codex/",
+     "label": "Codex"
+    },
+    "model_display": {
+     "url": "https://developers.openai.com/api/docs/models/gpt-6-astra",
+     "label": "GPT-6 Astra"
+    },
+    "reasoning_effort": "medium"
+   },
+   "metrics": {
+    "accuracy": 86.97,
+    "n_trials": 445,
+    "pass_at_2": 0.9112,
+    "pass_at_3": 0.927,
+    "pass_at_4": 0.9371,
+    "pass_at_5": 0.9438,
+    "reward_hacks": 0,
+    "total_tokens": 320800101,
+    "output_tokens": 2900108,
+    "total_cost_usd": 619.07,
+    "accuracy_stderr": 0.96,
+    "display_accuracy": "**87.0%** ± 1.9%",
+    "cached_input_tokens": 300548240,
+    "display_reward_hacks": {
+     "url": "https://hub.harborframework.com/jobs/17d1a7f6-3339-4670-8b70-3b145979f57f",
+     "label": "0.0%"
+    },
+    "display_total_tokens": "320.8M",
+    "uncached_input_tokens": 317899993,
+    "avg_trial_duration_sec": 390.4,
+    "display_total_cost_usd": "$619.07",
+    "accuracy_ci95_half_width": 1.89
+   },
+   "status": "display",
+   "created_at": "2026-09-03T20:54:37.791805+00:00",
+   "updated_at": "2026-09-03T20:54:37.791805+00:00",
+   "n_trials": 445
+  },
+  {
+   "id": "93fc9e32-98c9-4e4a-a6a0-89dd3da598af",
+   "leaderboard_id": "60330f75-0dd8-47ea-bd1d-e2ea28945731",
+   "rank": 3,
+   "metadata": {
+    "date": "2026-09-03",
+    "pr_url": {
+     "url": "https://hub.harborframework.com/jobs/17d1a7f6-3339-4670-8b70-3b145979f57f",
+     "label": "job"
+    },
+    "agent_org": {
+     "url": "https://openai.com",
+     "label": "OpenAI"
+    },
+    "model_org": {
+     "url": "https://openai.com",
+     "label": "OpenAI"
+    },
+    "display_date": "Sep 3, 2026",
+    "agent_display": {
+     "url": "https://openai.com/codex/",
+     "label": "Codex"
+    },
+    "model_display": {
+     "url": "https://developers.openai.com/api/docs/models/gpt-6-astra",
+     "label": "GPT-6 Astra"
+    },
+    "reasoning_effort": "low"
+   },
+   "metrics": {
+    "accuracy": 86.74,
+    "n_trials": 445,
+    "pass_at_2": 0.9056,
+    "pass_at_3": 0.9191,
+    "pass_at_4": 0.9281,
+    "pass_at_5": 0.9326,
+    "reward_hacks": 0,
+    "total_tokens": 239142284,
+    "output_tokens": 1957872,
+    "total_cost_usd": 463.45,
+    "accuracy_stderr": 0.93,
+    "display_accuracy": "**86.7%** ± 1.8%",
+    "cached_input_tokens": 222920585,
+    "display_reward_hacks": {
+     "url": "https://hub.harborframework.com/jobs/17d1a7f6-3339-4670-8b70-3b145979f57f",
+     "label": "0.0%"
+    },
+    "display_total_tokens": "239.1M",
+    "uncached_input_tokens": 237184412,
+    "avg_trial_duration_sec": 348.9,
+    "display_total_cost_usd": "$463.45",
+    "accuracy_ci95_half_width": 1.82
+   },
+   "status": "display",
+   "created_at": "2026-09-03T20:54:37.791805+00:00",
+   "updated_at": "2026-09-03T20:54:37.791805+00:00",
+   "n_trials": 445
+  },
+  {
+   "id": "f8d623c8-5f1b-4f9c-8deb-d110fa91e1d2",
+   "leaderboard_id": "60330f75-0dd8-47ea-bd1d-e2ea28945731",
+   "rank": 3,
+   "metadata": {
+    "date": "2026-09-03",
+    "pr_url": {
+     "url": "https://hub.harborframework.com/jobs/17d1a7f6-3339-4670-8b70-3b145979f57f",
+     "label": "job"
+    },
+    "agent_org": {
+     "url": "https://openai.com",
+     "label": "OpenAI"
+    },
+    "model_org": {
+     "url": "https://openai.com",
+     "label": "OpenAI"
+    },
+    "display_date": "Sep 3, 2026",
+    "agent_display": {
+     "url": "https://openai.com/codex/",
+     "label": "Codex"
+    },
+    "model_display": {
+     "url": "https://developers.openai.com/api/docs/models/gpt-6-astra",
+     "label": "GPT-6 Astra"
+    },
+    "reasoning_effort": "max"
+   },
+   "metrics": {
+    "accuracy": 86.74,
+    "n_trials": 445,
+    "pass_at_2": 0.8888,
+    "pass_at_3": 0.8989,
+    "pass_at_4": 0.9056,
+    "pass_at_5": 0.9101,
+    "reward_hacks": 0,
+    "total_tokens": 429273930,
+    "output_tokens": 7577290,
+    "total_cost_usd": 1069.75,
+    "accuracy_stderr": 0.69,
+    "display_accuracy": "**86.7%** ± 1.4%",
+    "cached_input_tokens": 391786531,
+    "display_reward_hacks": {
+     "url": "https://hub.harborframework.com/jobs/17d1a7f6-3339-4670-8b70-3b145979f57f",
+     "label": "0.0%"
+    },
+    "display_total_tokens": "429.3M",
+    "uncached_input_tokens": 421696640,
+    "avg_trial_duration_sec": 576,
+    "display_total_cost_usd": "$1,069.75",
+    "accuracy_ci95_half_width": 1.36
+   },
+   "status": "display",
+   "created_at": "2026-09-03T20:54:37.791805+00:00",
+   "updated_at": "2026-09-03T20:54:37.791805+00:00",
+   "n_trials": 445
+  },
+  {
+   "id": "3d9a7a70-ad72-4197-b895-c73698601637",
+   "leaderboard_id": "60330f75-0dd8-47ea-bd1d-e2ea28945731",
+   "rank": 5,
+   "metadata": {
+    "date": "2026-09-03",
+    "pr_url": {
+     "url": "https://hub.harborframework.com/jobs/17d1a7f6-3339-4670-8b70-3b145979f57f",
+     "label": "job"
+    },
+    "agent_org": {
+     "url": "https://openai.com",
+     "label": "OpenAI"
+    },
+    "model_org": {
+     "url": "https://openai.com",
+     "label": "OpenAI"
+    },
+    "display_date": "Sep 3, 2026",
+    "agent_display": {
+     "url": "https://openai.com/codex/",
+     "label": "Codex"
+    },
+    "model_display": {
+     "url": "https://developers.openai.com/api/docs/models/gpt-6-astra",
+     "label": "GPT-6 Astra"
+    },
+    "reasoning_effort": "xhigh"
+   },
+   "metrics": {
+    "accuracy": 85.84,
+    "n_trials": 445,
+    "pass_at_2": 0.882,
+    "pass_at_3": 0.8944,
+    "pass_at_4": 0.9034,
+    "pass_at_5": 0.9101,
+    "reward_hacks": 0,
+    "total_tokens": 404698440,
+    "output_tokens": 5287268,
+    "total_cost_usd": 888.54,
+    "accuracy_stderr": 0.73,
+    "display_accuracy": "**85.8%** ± 1.4%",
+    "cached_input_tokens": 374437038,
+    "display_reward_hacks": {
+     "url": "https://hub.harborframework.com/jobs/17d1a7f6-3339-4670-8b70-3b145979f57f",
+     "label": "0.0%"
+    },
+    "display_total_tokens": "404.7M",
+    "uncached_input_tokens": 399411172,
+    "avg_trial_duration_sec": 487.3,
+    "display_total_cost_usd": "$888.54",
+    "accuracy_ci95_half_width": 1.43
+   },
+   "status": "display",
+   "created_at": "2026-09-03T20:54:37.791805+00:00",
+   "updated_at": "2026-09-03T20:54:37.791805+00:00",
+   "n_trials": 445
+  },
+  {
+   "id": "40dbe33d-e8af-475b-8eba-7d5d8f70054c",
+   "leaderboard_id": "60330f75-0dd8-47ea-bd1d-e2ea28945731",
+   "rank": 6,
+   "metadata": {
+    "date": "2026-06-09",
+    "pr_url": {
+     "url": "https://github.com/harbor-framework/terminal-bench-2-1/pull/75",
+     "label": "#75"
+    },
+    "agent_org": {
+     "url": "https://www.anthropic.com",
+     "label": "Anthropic"
+    },
+    "model_org": {
+     "url": "https://www.anthropic.com",
+     "label": "Anthropic"
+    },
+    "display_date": "Jun 9, 2026",
+    "agent_display": {
+     "url": "https://claude.com/claude-code",
+     "label": "Claude Code"
+    },
+    "model_display": {
+     "url": "https://www.anthropic.com/news/claude-fable-5-mythos-5",
+     "label": "Fable 5"
+    },
+    "reasoning_effort": "xhigh"
+   },
+   "metrics": {
+    "accuracy": 83.82,
+    "n_trials": 445,
+    "pass_at_2": 0.8978,
+    "pass_at_3": 0.918,
+    "pass_at_4": 0.9281,
+    "pass_at_5": 0.9326,
+    "reward_hacks": 0.22,
+    "total_tokens": 204502003,
+    "output_tokens": 9954945,
+    "total_cost_usd": 552.67,
+    "accuracy_stderr": 1.16,
+    "display_accuracy": "**83.8%** ± 2.3%",
+    "cached_input_tokens": 174066133,
+    "display_reward_hacks": {
+     "url": "https://github.com/harbor-framework/terminal-bench-2-1/pull/75#issuecomment-4920314071",
+     "label": "-0.2%"
+    },
+    "display_total_tokens": "204.5M",
+    "uncached_input_tokens": 20480925,
+    "avg_trial_duration_sec": 579.7,
+    "display_total_cost_usd": "$552.67",
+    "accuracy_ci95_half_width": 2.27
+   },
+   "status": "display",
+   "created_at": "2026-07-09T03:44:30.779979+00:00",
+   "updated_at": "2026-08-29T00:04:08.213344+00:00",
+   "n_trials": 445
+  }
+ ]
+}

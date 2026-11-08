@@ -1,0 +1,33 @@
+Model,id_model_version,Display name,Organization,Unique display name,model_group,slug
+Kimi K3.1 Pro,kimi-k3.1-pro-together_max,"Kimi K3.1 Pro (Together, max)",Moonshot,"Kimi K3.1 Pro (Together, max)",Kimi K3.1 Pro,kimi-k3-1-pro
+Claude Fable 5.1,claude-fable-5-1_max,Claude Fable 5.1 (max),Anthropic,Claude Fable 5.1 (max),Claude Fable 5.1,claude-fable-5-1
+Claude Sonnet 5.5,claude-sonnet-5-5_max,Claude Sonnet 5.5 (max),Anthropic,Claude Sonnet 5.5 (max),Claude Sonnet 5.5,claude-sonnet-5-5
+GPT-6.1 Sol,gpt-6.1-sol_max,GPT-6.1 Sol (max),OpenAI,GPT-6.1 Sol (max),GPT-6.1 Sol,gpt-6-1-sol
+GPT-6 Astra,gpt-6-astra_max,GPT-6 Astra (max),OpenAI,GPT-6 Astra (max),GPT-6 Astra,gpt-6-astra
+GPT-6.1 Terra,gpt-6.1-terra_max,GPT-6.1 Terra (max),OpenAI,GPT-6.1 Terra (max),GPT-6.1 Terra,gpt-6-1-terra
+Gemini 3.7 Flash,gemini-3.7-flash_high,Gemini 3.7 Flash (high),Google DeepMind,Gemini 3.7 Flash (high),Gemini 3.7 Flash,gemini-3-7-flash
+Gemini 4 Argon,gemini-4-argon_high,Gemini 4 Argon (high),Google DeepMind,Gemini 4 Argon (high),Gemini 4 Argon,gemini-4-argon
+DeepSeek V4.1 Flash 1017,deepseek-v4.1-flash-1017_max,DeepSeek V4.1 Flash 1017 (max),DeepSeek,DeepSeek V4.1 Flash 1017 (max),DeepSeek V4.1 Flash 1017,deepseek-v4-1-flash-1017
+Muse Spark Open,Muse-Spark-Open-816B-A42B_xhigh,Muse Spark Open (xhigh),Meta AI,Muse Spark Open (xhigh),Muse Spark Open,muse-spark-open
+GPT-5.4 Pro,gpt-5.4-pro-2026-03-05_xhigh,GPT-5.4 Pro (xhigh),OpenAI,GPT-5.4 Pro (xhigh),GPT-5.4 Pro,gpt-5-4-pro
+GLM-5.2,glm-5.2_max,GLM-5.2,Z.ai (Zhipu AI),GLM-5.2 (max),GLM-5.2,glm-5-2
+GPT-5.2,gpt-5.2-2025-12-11_high,GPT-5.2 (high),OpenAI,GPT-5.2 (high),GPT-5.2,gpt-5-2
+GPT-5.2,gpt-5.2-2025-12-11_none,GPT-5.2 (none),OpenAI,GPT-5.2 (none),GPT-5.2,gpt-5-2
+Claude Sonnet 4.5,claude-sonnet-4-5-20250929,Claude Sonnet 4.5 (no thinking),Anthropic,Claude Sonnet 4.5 (no thinking),Claude Sonnet 4.5,claude-sonnet-4-5
+Claude Opus 4.5,claude-opus-4-5-20251101,Claude Opus 4.5 (no thinking),Anthropic,Claude Opus 4.5 (no thinking),Claude Opus 4.5,claude-opus-4-5
+DeepSeek-V4-Pro,deepseek-v4-pro_max,DeepSeek v4 Pro (max),DeepSeek,DeepSeek v4 (max),DeepSeek-V4-Pro,deepseek-v4-pro
+Gemini 3.1 Pro,gemini-3.1-pro-preview_high,Gemini 3.1 Pro Preview,Google DeepMind,Gemini 3.1 Pro Preview (high),Gemini 3.1 Pro,gemini-3-1-pro
+Gemini 3.5 Flash,gemini-3.5-flash_high,Gemini 3.5 Flash,Google DeepMind,Gemini 3.5 Flash (high),Gemini 3.5 Flash,gemini-3-5-flash
+Qwen3.7-Max,qwen3.7-max,Qwen3.7 Max,Alibaba,,Qwen3.7-Max,qwen3-7-max
+Gemini 3.8 Flash,gemini-3.8-flash_high,Gemini 3.8 Flash (high),Google DeepMind,Gemini 3.8 Flash (high),Gemini 3.8 Flash,gemini-3-8-flash
+Claude Opus 5.5,claude-opus-5-5_high,Claude Opus 5.5 (high),Anthropic,Claude Opus 5.5 (high),Claude Opus 5.5,claude-opus-5-5
+Claude Fable 5.1,claude-fable-5-1_high,Claude Fable 5.1 (high),Anthropic,Claude Fable 5.1 (high),Claude Fable 5.1,claude-fable-5-1
+GPT-6 Astra,gpt-6-astra_xhigh,GPT-6 Astra (xhigh),OpenAI,GPT-6 Astra (xhigh),GPT-6 Astra,gpt-6-astra
+Claude Opus 4.1,claude-opus-4-1-20250805,,Anthropic,Claude Opus 4.1,Claude Opus 4.1,claude-opus-4-1
+Gemini 3.1 Pro,gemini-3.1-pro-preview,Gemini 3.1 Pro Preview,Google DeepMind,Gemini 3.1 Pro Preview,Gemini 3.1 Pro,gemini-3-1-pro
+GPT-6 Astra,gpt-6-astra_unknown,GPT-6 Astra (unknown thinking),OpenAI,GPT-6 Astra (unknown thinking),GPT-6 Astra,gpt-6-astra
+Claude Opus 4.6,claude-opus-4-6_unknown,Claude Opus 4.6 (unknown thinking),Anthropic,Claude Opus 4.6 (unknown settings),Claude Opus 4.6,claude-opus-4-6
+Claude Fable 5.1,claude-fable-5-1_xhigh,Claude Fable 5.1 (xhigh),Anthropic,Claude Fable 5.1 (xhigh),Claude Fable 5.1,claude-fable-5-1
+Claude Sonnet 5.5,claude-sonnet-5-5_xhigh,Claude Sonnet 5.5 (xhigh),Anthropic,Claude Sonnet 5.5 (xhigh),Claude Sonnet 5.5,claude-sonnet-5-5
+Claude Fable 5.1,claude-fable-5-1_medium,Claude Fable 5.1 (medium),Anthropic,Claude Fable 5.1 (medium),Claude Fable 5.1,claude-fable-5-1
+Claude Mythos Preview,claude-mythos-preview-early,Claude Mythos Preview (Early),Anthropic,,Claude Mythos Preview,claude-mythos-preview

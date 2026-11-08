@@ -281,7 +281,8 @@ def triage_train_task() -> dict[str, Any]:
 
 @celery_app.task(name="benchmarks.collect")
 def benchmarks_collect_task() -> dict[str, str]:
-    """Plan 18: the four AI leaderboards, once a day. A site that fails keeps its last snapshot."""
+    """Plan 18: every AI leaderboard (benchmarks.service.SOURCES), once a day. A site that fails
+    keeps its last snapshot and never stops the others."""
     from news_insight.benchmarks.service import collect_all
 
     with session_scope() as session, SafeFetcher.from_settings(get_settings()) as fetcher:

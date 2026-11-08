@@ -1,10 +1,11 @@
-"""The daily collection of the four leaderboards into snapshots and score rows."""
+"""The daily collection of the leaderboards into snapshots and score rows."""
 
 import hashlib
 import json
 import logging
 from datetime import datetime
 from types import ModuleType
+from typing import Any
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -13,17 +14,31 @@ from news_insight.benchmarks.models import BenchmarkScore, BenchmarkSnapshot
 from news_insight.benchmarks.names import resolve_model
 from news_insight.benchmarks.sources import (
     BenchmarkError,
+    NotModified,
     SiteSnapshot,
     artificial_analysis,
     deepswe,
+    epoch,
     livebench,
     lmarena,
+    osworld,
+    tau2,
+    terminal_bench,
 )
 from news_insight.net.safe_fetch import SafeFetcher
 
 logger = logging.getLogger(__name__)
 
-SOURCES: tuple[ModuleType, ...] = (deepswe, livebench, lmarena, artificial_analysis)
+SOURCES: tuple[ModuleType, ...] = (
+    deepswe,
+    livebench,
+    lmarena,
+    artificial_analysis,
+    terminal_bench,
+    epoch,
+    osworld,
+    tau2,
+)
 SAVED = "saved"
 UNCHANGED = "unchanged"
 UNEXPECTED = "error"
@@ -35,16 +50,51 @@ def raw_digest(raw: dict[str, object]) -> str:
     return hashlib.sha256(text.encode()).hexdigest()
 
 
+def _latest(session: Session, site: str) -> BenchmarkSnapshot | None:
+    return session.scalars(
+        select(BenchmarkSnapshot)
+        .where(BenchmarkSnapshot.site == site)
+        .order_by(BenchmarkSnapshot.fetched_at.desc(), BenchmarkSnapshot.id.desc())
+        .limit(1)
+    ).first()
+
+
+def _fetch(
+    module: ModuleType, fetcher: SafeFetcher, now: datetime, previous: dict[str, Any] | None
+) -> SiteSnapshot:
+    if getattr(module, "USES_PREVIOUS", False):
+        snapshot: SiteSnapshot = module.fetch(fetcher, now, previous)
+    else:
+        snapshot = module.fetch(fetcher, now)
+    return snapshot
+
+
 def collect_all(session: Session, fetcher: SafeFetcher, now: datetime) -> dict[str, str]:
     """Per site: "saved", "unchanged", or the error code (selector_drift, http_error,
-    config_error, error). A site that fails keeps its last good snapshot and never blocks the
-    others. Each site is fetched with no transaction open and committed on its own, so a slow
-    site holds nothing idle and a restart keeps the sites already saved."""
+    config_error, parse_error, error). A site that fails keeps its last good snapshot and never
+    blocks the others. Each site is fetched with no transaction open and committed on its own,
+    so a slow site holds nothing idle and a restart keeps the sites already saved. A site that
+    reads its previous snapshot (an ETag, per-file SHAs) gets it first; when it answers
+    NotModified that snapshot is marked seen today."""
     results: dict[str, str] = {}
     for module in SOURCES:
         site: str = module.SITE
         try:
-            snapshot = module.fetch(fetcher, now)
+            previous = None
+            if getattr(module, "USES_PREVIOUS", False):
+                latest = _latest(session, site)
+                previous = latest.raw if latest is not None else None
+                session.commit()  # no transaction stays open while the site is fetched
+            try:
+                snapshot = _fetch(module, fetcher, now, previous)
+            except NotModified:
+                with session.begin_nested():
+                    latest = _latest(session, site)
+                    if latest is not None:
+                        latest.fetched_at = now
+                session.commit()
+                results[site] = UNCHANGED
+                continue
             with session.begin_nested():
                 results[site] = save(session, snapshot, now)
             session.commit()
@@ -69,7 +119,9 @@ def fetch_only(
         if sites and site not in sites:
             continue
         try:
-            out[site] = module.fetch(fetcher, now)
+            out[site] = _fetch(module, fetcher, now, None)
+        except NotModified:  # pragma: no cover - nothing to compare against without a database
+            out[site] = UNCHANGED
         except BenchmarkError as exc:
             logger.warning("benchmark %s: %s (%s)", site, exc.code, exc)
             out[site] = exc.code

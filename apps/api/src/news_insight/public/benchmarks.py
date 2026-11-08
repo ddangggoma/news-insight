@@ -15,7 +15,14 @@ Ranks follow each site's own default view (higher is better for all four):
 - LMArena the dataset's own `rank` per row: every row is its own entry, as on arena.ai (a
   model's effort levels are separate rows there).
 - Artificial Analysis its intelligence index, one entry per model.
-The rank is the place in that list, counted the way the site counts it."""
+- Terminal-Bench, Epoch AI, OSWorld 2.0 and τ²-bench: their collectors work out the site's
+  default view (which rows its table opens on, in its order) and store it on each row as
+  `extra.default_rank`, with `extra.entry` naming the entry across snapshots and `extra.label`
+  how it reads (Terminal-Bench: harness · model). Rows without a default rank stay unranked.
+The rank is the place in that list, counted the way the site counts it.
+
+The spotlight's leaderboard moves read every board of the first four sites but only the boards
+in SPOTLIGHT_BOARDS of the newer ones (Epoch's many boards and the agent boards would flood it)."""
 
 import math
 from collections.abc import Iterable
@@ -34,8 +41,12 @@ from news_insight.benchmarks.sources import (
     SiteSnapshot,
     artificial_analysis,
     deepswe,
+    epoch,
     livebench,
     lmarena,
+    osworld,
+    tau2,
+    terminal_bench,
 )
 from news_insight.public.periods import KST
 
@@ -50,7 +61,30 @@ _MODEL_INFO = ("display_name", "organization", "open_weights")  # LiveBench's mo
 INTELLIGENCE_INDEX = "artificial_analysis_intelligence_index"
 AGENT_BOARD = "agent"
 
-SITES = (deepswe, livebench, lmarena, artificial_analysis)
+SITES = (
+    deepswe,
+    livebench,
+    lmarena,
+    artificial_analysis,
+    terminal_bench,
+    epoch,
+    osworld,
+    tau2,
+)
+# sites whose collector stores the default view (extra.default_rank) and names its metric
+DEFAULT_VIEW_SITES = {m.SITE: m for m in (terminal_bench, epoch, osworld, tau2)}
+# the newer sites' boards the spotlight hears about; a site not named here: every board
+SPOTLIGHT_BOARDS: dict[str, frozenset[str]] = {
+    terminal_bench.SITE: frozenset({terminal_bench.DEFAULT_BOARD}),
+    epoch.SITE: frozenset({"eci"}),
+    osworld.SITE: frozenset(),
+    tau2.SITE: frozenset(),
+}
+
+
+def spotlight_board(site: str, board: str) -> bool:
+    allowed = SPOTLIGHT_BOARDS.get(site)
+    return allowed is None or board in allowed
 
 
 class BenchmarkRowOut(BaseModel):
@@ -86,6 +120,9 @@ class BenchmarkSiteOut(BaseModel):
 
 
 def representative_metric(site: str, board: str) -> str:
+    if site in DEFAULT_VIEW_SITES:
+        metric: str = DEFAULT_VIEW_SITES[site].METRIC
+        return metric
     if site == deepswe.SITE:
         return "pass_at_1"
     if site == livebench.SITE:
@@ -143,6 +180,9 @@ class _Stored(NamedTuple):
     listed: bool | None  # LiveBench: false when the site's script does not describe the model
     finetune: bool | None  # LiveBench
     base_name: str | None  # LiveBench: the base model a variant belongs to
+    default_rank: float | None = None  # the newer sites: the place in the site's default view
+    entry: str | None = None  # the newer sites: the entry across snapshots
+    label: str | None = None  # the newer sites: how the entry reads
 
 
 def _key(model_id: int | None, raw: str) -> str:
@@ -164,6 +204,9 @@ def _stored(session: Session, snapshot_id: int) -> list[_Stored]:
             extra["listed"].as_boolean(),
             extra["finetune"].as_boolean(),
             extra["base_name"].as_string(),
+            extra["default_rank"].as_float(),
+            extra["entry"].as_string(),
+            extra["label"].as_string(),
         )
         .where(BenchmarkScore.snapshot_id == snapshot_id)
         .order_by(BenchmarkScore.board, BenchmarkScore.id)
@@ -195,6 +238,20 @@ def build_scores(
 ) -> list[_Score]:
     """The rows as each site's default view ranks them (see the module docstring)."""
     rows = list(stored)
+    if site in DEFAULT_VIEW_SITES:
+        return [
+            _Score(
+                r.id,
+                r.board,
+                f"entry:{r.entry or r.model}",
+                r.label or r.model,
+                r.metric,
+                r.value,
+                eligible=r.default_rank is not None,
+                order=r.default_rank if r.default_rank is not None else math.inf,
+            )
+            for r in rows
+        ]
     if site == deepswe.SITE:
         return _deepswe_scores(rows, default_view)
     if site == lmarena.SITE:
@@ -518,7 +575,7 @@ def benchmark_changes(session: Session, *, now: datetime) -> dict[str, Any]:
         after = _ranking(site, _scores(session, site, snapshots[0].id))
         before = _places(_ranking(site, _scores(session, site, snapshots[1].id)))
         for board, ranked in after.items():
-            if board not in before:
+            if board not in before or not spotlight_board(site, board):
                 continue
             for place, score in enumerate(ranked[:TOP], start=1):
                 was = before[board].get(score.group)
@@ -577,6 +634,8 @@ def top_holders(
             for snap in covering
         ]
         for board, latest in places[-1].items():
+            if not spotlight_board(site, board):
+                continue
             for key, (rank, model) in latest.items():
                 ranks = [found[board][key][0] for found in places if key in found.get(board, {})]
                 if len(ranks) != len(places):
@@ -615,6 +674,9 @@ def preview(snapshot: SiteSnapshot, *, top: int = SUMMARY_ROWS) -> dict[str, lis
             _flag(row.extra.get("listed")),
             _flag(row.extra.get("finetune")),
             name if isinstance(name := row.extra.get("base_name"), str) else None,
+            value if isinstance(value := row.extra.get("default_rank"), int | float) else None,
+            entry if isinstance(entry := row.extra.get("entry"), str) else None,
+            label if isinstance(label := row.extra.get("label"), str) else None,
         )
         for index, row in enumerate(rows)
     ]
@@ -633,7 +695,10 @@ def preview(snapshot: SiteSnapshot, *, top: int = SUMMARY_ROWS) -> dict[str, lis
             out[board].append(
                 {
                     "rank": place,
-                    "site_rank": row.extra.get("rank"),
+                    # the newer sites: the rank their default view prints (ties shared)
+                    "site_rank": row.extra.get(
+                        "default_rank" if snapshot.site in DEFAULT_VIEW_SITES else "rank"
+                    ),
                     "model": score.model,
                     "config": None if score.derived else row.config,
                     "metric": score.metric,
