@@ -165,12 +165,106 @@ def artificial_analysis_routes(router: Router, *, key: str = "test-key") -> Rout
     return router.add("artificialanalysis.ai/api/v2/language/models", respond)
 
 
+TB_BOARDS = (("4-0-0", "4_0"), ("3-0-0", "3_0"), ("main", "2_1"))
+
+
+class TbRouter(Router):
+    """A Router that also answers Terminal-Bench's leaderboard-read by its `name` parameter
+    (the three boards share one path): the boards recorded 2026-11-08 (their first rows), or
+    `bodies[name]` instead; a board set to None is not found."""
+
+    def __init__(self, bodies: dict[str, str | None] | None = None) -> None:
+        super().__init__()
+        self.tb_bodies: dict[str, str | None] = {
+            board: fixture_text(f"terminal_bench_{file}_20261108.json") for board, file in TB_BOARDS
+        }
+        self.tb_bodies.update(bodies or {})
+
+    def __call__(self, request: httpx.Request) -> httpx.Response:
+        if "leaderboard-read" in str(request.url):
+            self.requests.append(request)
+            name = request.url.params.get("name")
+            body = self.tb_bodies.get(name or "")
+            if body is not None:
+                return reply(200, body, "application/json")
+            return reply(404, '{"error":{"code":"not_found"}}', "application/json")
+        return super().__call__(request)
+
+
+OSWORLD_URL = "https://osworld-v2.xlang.ai/static/data/leaderboard/official-results.json"
+
+
+def osworld_routes(router: Router, *, body: str | None = None) -> Router:
+    text = body if body is not None else fixture_text("osworld_20261108.json")
+    return router.add(f"={OSWORLD_URL}", reply(200, text, "application/json; charset=utf-8"))
+
+
+EPOCH_ETAG = '"c7e776ea636a81824722e0fa728afe98"'
+
+
+def epoch_routes(router: Router, *, etag: str = EPOCH_ETAG, names: bool = True) -> Router:
+    """The zip (trimmed from the one served 2026-11-08) with its ETag: a request that carries
+    that ETag in If-None-Match is answered 304. `names`: the site's model names file."""
+    body = (FIXTURES / "epoch_20261108.zip").read_bytes()
+
+    def respond(request: httpx.Request) -> httpx.Response:
+        if request.headers.get("if-none-match") == etag:
+            return httpx.Response(304, headers={"etag": etag})
+        return httpx.Response(
+            200, headers={"content-type": "application/zip", "etag": etag}, content=body
+        )
+
+    router.add("=https://epoch.ai/data/benchmark_data.zip", respond)
+    if names:
+        router.add(
+            "=https://epoch.ai/data/benchmarked_models.csv",
+            reply(200, fixture_text("epoch_benchmarked_models_20261108.csv"), "text/csv"),
+        )
+    return router
+
+
+TAU2_SHA = "62bfa5114ff619a41c680d66aa21214f9b64f43c"
+TAU2_FOLDERS = (
+    "claude-opus-4-5_sierra_2026-02-26",
+    "claude-opus-5_sierra_2026-08-04",
+    "pine-voice-1-0_pineai_2026-10-27",
+)
+
+
+def tau2_routes(router: Router, *, sha: str = TAU2_SHA) -> Router:
+    """The folder's newest commit, its listing, the manifest (two text submissions and one
+    voice submission) and the three submission.json files, as served 2026-11-08."""
+    commits = fixture_json("tau2_commits_20261108.json")
+    commits[0]["sha"] = sha
+    api = "https://api.github.com/repos/sierra-research/tau2-bench"
+    raw = f"https://raw.githubusercontent.com/sierra-research/tau2-bench/{sha}"
+    folder = "web/leaderboard/public/submissions"
+    router.add(f"{api}/commits?path=", reply(200, json.dumps(commits), "application/json"))
+    router.add(
+        f"{api}/contents/{folder}?ref={sha}",
+        reply(200, fixture_text("tau2_listing_20261108.json"), "application/json; charset=utf-8"),
+    )
+    router.add(
+        f"={raw}/{folder}/manifest.json",
+        reply(200, fixture_text("tau2_manifest_20261108.json"), "text/plain; charset=utf-8"),
+    )
+    for name in TAU2_FOLDERS:
+        router.add(
+            f"={raw}/{folder}/{name}/submission.json",
+            reply(200, fixture_text(f"tau2_{name}.json"), "text/plain; charset=utf-8"),
+        )
+    return router
+
+
 def all_sites() -> Router:
-    router = Router()
+    router = TbRouter()
     deepswe_routes(router)
     livebench_routes(router)
     lmarena_routes(router)
     artificial_analysis_routes(router)
+    osworld_routes(router)
+    epoch_routes(router)
+    tau2_routes(router)
     return router
 
 

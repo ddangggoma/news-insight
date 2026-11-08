@@ -114,6 +114,45 @@ test.describe("spotlight", () => {
     await expect(bench.getByRole("region", { name: "Artificial Analysis" }).getByText("키 미설정")).toBeVisible();
   });
 
+  test("the agent benchmarks lead: Terminal-Bench, OSWorld 2.0 and τ²-bench, then Epoch AI among the models", async ({ page, isMobile }) => {
+    test.skip(isMobile, "desktop flow");
+    await page.goto("/spotlight?tab=ai#benchmarks");
+    const bench = page.getByRole("region", { name: "AI 모델 벤치마크" });
+    // collected from the sites' responses of 2026-11-08 (trimmed fixtures)
+    const agents = bench.getByRole("group", { name: "AI 에이전트 벤치마크" });
+    await expect(agents.getByRole("heading", { level: 4 })).toHaveText([/^Terminal-Bench/, /^OSWorld 2\.0/, /^τ²-bench/]);
+    const tb = agents.getByRole("region", { name: "Terminal-Bench" });
+    const tbTable = tb.getByRole("table", { name: "Terminal-Bench 4.0 순위표" });
+    // tbench.ai's best-effort table: GPT-6 Astra and GPT-6.1 Sol share third place
+    await expect(tbTable.getByRole("rowheader")).toHaveCount(6);
+    await expect(tbTable.getByRole("rowheader").nth(3)).toHaveText(/^3/);
+    await expect(tbTable.getByRole("row").nth(4)).toContainText("Codex");
+    await expect(tbTable.getByText("64.8% ± 3.1%")).toBeVisible();
+    await expect(tb.getByRole("list", { name: "에이전트별 최고 점수" }).getByRole("listitem")).toHaveCount(2);
+    await tb.getByRole("group", { name: "에이전트별" }).getByRole("button", { name: "Codex" }).click();
+    await expect(tbTable.getByRole("rowheader")).toHaveCount(2);
+    await tb.getByRole("button", { name: "TB 2.1" }).click();
+    await expect(tb.getByRole("table", { name: "Terminal-Bench 2.1 순위표" }).getByRole("row").nth(1)).toContainText("Codex");
+
+    const os = agents.getByRole("region", { name: "OSWorld 2.0" });
+    await expect(os.getByRole("table", { name: "OSWorld 2.0 순위표" }).getByRole("rowheader").first()).toContainText("Claude Opus 5");
+    await expect(os.getByText("44.33%")).toBeVisible();
+
+    const tau = agents.getByRole("region", { name: "τ²-bench" });
+    // the card opens on τ³-Banking, the leaderboard's first tab
+    await expect(tau.getByRole("table").getByRole("rowheader").first()).toContainText("Claude Opus 5");
+    await tau.getByRole("button", { name: "τ²-bench" }).click();
+    await expect(tau.getByRole("table").getByRole("rowheader").first()).toContainText("Claude Opus 4.5");
+
+    const models = bench.getByRole("group", { name: "AI 모델 벤치마크" });
+    const epoch = models.getByRole("region", { name: "Epoch AI" });
+    await expect(epoch.getByText("ECI 상위 6개 모델")).toBeVisible();
+    await expect(epoch.getByRole("table").getByRole("rowheader").first()).toContainText("GPT-6 Astra");
+    await expect(epoch.getByText("CC BY 4.0")).toBeVisible();
+    await epoch.getByRole("button", { name: "GPQA Diamond" }).click();
+    await expect(epoch.getByRole("table").getByText("96.4%")).toBeVisible();
+  });
+
   test("an old AI 모델 link lands on the benchmarks under AI 모델·서비스", async ({ page, isMobile }) => {
     test.skip(isMobile, "desktop flow");
     await page.goto("/spotlight?tab=models");
@@ -131,6 +170,13 @@ test.describe("spotlight", () => {
     // body text at least 14 px
     const size = await table.getByRole("rowheader").first().evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
     expect(size).toBeGreaterThanOrEqual(14);
+    const tb = bench.getByRole("table", { name: "Terminal-Bench 4.0 순위표" });
+    await expect(tb.getByRole("row").nth(1)).toContainText("Claude Code");
+    const tbSize = await tb.getByRole("rowheader").first().evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
+    expect(tbSize).toBeGreaterThanOrEqual(14);
+    // the page does not scroll sideways: wide tables scroll inside their own box
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    expect(overflow).toBeLessThanOrEqual(1);
   });
 
   test("an earlier day opens by date; an impossible or unpublished date shows the not-found page", async ({ page, isMobile }) => {

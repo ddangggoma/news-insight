@@ -14,6 +14,7 @@ import {
   type BenchmarkSiteKey,
   LIVEBENCH_CATEGORIES,
   LMARENA_BOARD_LABEL,
+  TAU2_BOARDS,
   colourOrg,
   extraNumber,
   extraString,
@@ -310,6 +311,235 @@ export function aaModels(site: BenchmarkSite): AaModel[] {
   return [...byModel.values()];
 }
 
+// ---- the newer sites: their collectors store the site's default view -------------------
+
+/** The place in the site's default view, ties shared as the site prints them; null: not shown. */
+const defaultRank = (row: BenchmarkRow) => extraNumber(row, "default_rank");
+const byDefaultRank = (a: { rank: number | null }, b: { rank: number | null }) => (a.rank ?? Infinity) - (b.rank ?? Infinity);
+
+// ---- Terminal-Bench ------------------------------------------------------------------
+
+export interface TbRow {
+  id: string;
+  board: string;
+  /** Rank in the site's default table (best effort per model and agent); null when that table
+   * leaves the row out (a lower effort of the same model and agent). */
+  rank: number | null;
+  /** Rank among every effort (the site's "all efforts" view). */
+  allRank: number | null;
+  agent: string;
+  model: string;
+  effort: string | null;
+  provider: ProviderKey;
+  /** Resolution rate in percent and its 95% interval. */
+  accuracy: number;
+  low: number | null;
+  high: number | null;
+  date: string | null;
+  tokens: number | null;
+  cost: number | null;
+  change: BenchmarkChange | null;
+  changeBy: number;
+}
+
+export interface TbView {
+  /** The site's order: 4.0 (its default), 3.0, 2.1. */
+  boards: string[];
+  updated: Record<string, string>;
+  rows: TbRow[];
+}
+
+export function terminalBenchView(site: BenchmarkSite): TbView {
+  const rows = site.rows
+    .filter((row) => row.metric === "accuracy")
+    .map(
+      (row, index): TbRow => ({
+        id: `${row.board}|${extraString(row, "row_id") ?? index}`,
+        board: row.board,
+        rank: defaultRank(row),
+        allRank: extraNumber(row, "rank"),
+        agent: extraString(row, "agent") ?? "—",
+        model: row.model,
+        effort: row.config,
+        provider: provider(row.org, row.model),
+        accuracy: r2(row.value),
+        low: r2n(row.ci_low),
+        high: r2n(row.ci_high),
+        date: extraString(row, "date"),
+        tokens: extraNumber(row, "total_tokens"),
+        cost: r2n(extraNumber(row, "total_cost_usd")),
+        change: row.change,
+        changeBy: row.change_by,
+      }),
+    )
+    .sort((a, b) => byDefaultRank({ rank: a.allRank }, { rank: b.allRank }));
+  // the site's order: newest version first (4.0, its default, then 3.0 and 2.1)
+  const boards = newestBoardFirst([...new Set(rows.map((r) => r.board))]);
+  return { boards, updated: site.updated ?? {}, rows };
+}
+
+// ---- OSWorld 2.0 ---------------------------------------------------------------------
+
+export interface OsRow {
+  rank: number;
+  model: string;
+  org: string | null;
+  provider: ProviderKey;
+  reasoning: string | null;
+  tool: string | null;
+  steps: number | null;
+  release: string | null;
+  /** Binary accuracy (success rate) and partial score, in percent. */
+  binary: number;
+  partial: number | null;
+  costPerTask: number | null;
+  official: boolean | null;
+  change: BenchmarkChange | null;
+  changeBy: number;
+}
+
+/** The rows of the site's default table, in its order. */
+export function osWorldView(site: BenchmarkSite): OsRow[] {
+  return site.rows
+    .filter((row) => defaultRank(row) !== null)
+    .map(
+      (row): OsRow => ({
+        rank: defaultRank(row) as number,
+        model: row.model,
+        org: row.org,
+        provider: provider(row.org, row.model),
+        reasoning: row.config,
+        tool: extraString(row, "tool_setting"),
+        steps: extraNumber(row, "step_budget"),
+        release: extraString(row, "release_version"),
+        binary: row.value,
+        partial: extraNumber(row, "partial_score"),
+        costPerTask: r2n(extraNumber(row, "cost_per_task"), 3),
+        official: typeof row.extra.official === "boolean" ? row.extra.official : null,
+        change: row.change,
+        changeBy: row.change_by,
+      }),
+    )
+    .sort(byDefaultRank);
+}
+
+// ---- τ²-bench ------------------------------------------------------------------------
+
+export interface Tau2Row {
+  id: string;
+  board: string;
+  /** Rank by pass^1 among the board's standard submissions (the site's default). */
+  rank: number | null;
+  model: string;
+  /** Who submitted it (the site's organisation column); for voice the provider. */
+  submitter: string | null;
+  modelOrg: string | null;
+  provider: ProviderKey;
+  effort: string | null;
+  /** pass^1..pass^4 in percent. */
+  passes: (number | null)[];
+  verified: boolean;
+  custom: boolean;
+  release: string | null;
+  retrieval: string | null;
+  change: BenchmarkChange | null;
+  changeBy: number;
+}
+
+export interface Tau2View {
+  boards: string[];
+  updated: Record<string, string>;
+  rows: Tau2Row[];
+}
+
+export function tau2View(site: BenchmarkSite): Tau2View {
+  const rows = site.rows
+    .filter((row) => row.metric === "pass_1")
+    .map(
+      (row): Tau2Row => ({
+        id: `${row.board}|${extraString(row, "entry") ?? row.model}`,
+        board: row.board,
+        rank: defaultRank(row),
+        model: row.model,
+        submitter: extraString(row, "voice_provider") ?? extraString(row, "submitting_org"),
+        modelOrg: row.org,
+        provider: provider(row.org, row.model),
+        effort: row.config,
+        passes: [r2(row.value), r2n(extraNumber(row, "pass_2")), r2n(extraNumber(row, "pass_3")), r2n(extraNumber(row, "pass_4"))],
+        verified: row.extra.verified === true,
+        custom: extraString(row, "submission_type") === "custom",
+        release: extraString(row, "release_date"),
+        retrieval: extraString(row, "retrieval_config"),
+        change: row.change,
+        changeBy: row.change_by,
+      }),
+    )
+    .sort(byDefaultRank);
+  const present = new Set(rows.map((r) => r.board));
+  return { boards: TAU2_BOARDS.map((b) => b.key as string).filter((b) => present.has(b)), updated: site.updated ?? {}, rows };
+}
+
+// ---- Epoch AI ------------------------------------------------------------------------
+
+/** Rows per board the card carries; the site opens on 20 and shows more on request. */
+export const EPOCH_ROWS = 50;
+
+export interface EpochRow {
+  rank: number;
+  model: string;
+  org: string | null;
+  provider: ProviderKey;
+  /** A 0-1 share, minutes (METR) or index points (ECI), as `unit` says. */
+  value: number;
+  low: number | null;
+  high: number | null;
+  source: string | null;
+  change: BenchmarkChange | null;
+  changeBy: number;
+}
+
+export interface EpochBoard {
+  key: string;
+  unit: "percent" | "minutes" | "index";
+  updated: string | null;
+  /** How many models the board ranks (only the first EPOCH_ROWS ride along). */
+  total: number;
+  rows: EpochRow[];
+}
+
+const EPOCH_ORDER = ["eci", "gpqa_diamond", "frontiermath_tiers_1_3", "frontiermath_tier_4", "hle", "arc_agi_2", "swe_bench_verified", "metr_time_horizons", "cursorbench", "gdpval"];
+
+export function epochView(site: BenchmarkSite): EpochBoard[] {
+  const boards = new Map<string, EpochBoard>();
+  for (const row of site.rows) {
+    const rank = defaultRank(row);
+    if (rank === null) continue;
+    let board = boards.get(row.board);
+    if (!board) {
+      const unit = extraString(row, "unit");
+      board = { key: row.board, unit: unit === "minutes" || unit === "index" ? unit : "percent", updated: site.updated?.[row.board] ?? null, total: 0, rows: [] };
+      boards.set(row.board, board);
+    }
+    board.total += 1;
+    const digits = board.unit === "percent" ? 4 : 2;
+    board.rows.push({
+      rank,
+      model: row.model,
+      org: row.org,
+      provider: provider(row.org, row.model),
+      value: round(row.value, digits),
+      low: r2n(row.ci_low, digits),
+      high: r2n(row.ci_high, digits),
+      source: extraString(row, "source_link") ?? extraString(row, "source"),
+      change: row.change,
+      changeBy: row.change_by,
+    });
+  }
+  for (const board of boards.values()) board.rows = board.rows.sort(byDefaultRank).slice(0, EPOCH_ROWS);
+  const order = (key: string) => (EPOCH_ORDER.includes(key) ? EPOCH_ORDER.indexOf(key) : EPOCH_ORDER.length);
+  return [...boards.values()].sort((a, b) => order(a.key) - order(b.key));
+}
+
 // ---- all sites -----------------------------------------------------------------------
 
 export interface BenchmarkViews {
@@ -317,6 +547,10 @@ export interface BenchmarkViews {
   livebench?: LiveModel[];
   lmarena?: ArenaView;
   artificial_analysis?: AaModel[];
+  terminal_bench?: TbView;
+  osworld?: OsRow[];
+  tau2?: Tau2View;
+  epoch?: EpochBoard[];
 }
 
 export function projectViews(sites: Partial<Record<BenchmarkSiteKey, BenchmarkSite>>): BenchmarkViews {
@@ -327,7 +561,54 @@ export function projectViews(sites: Partial<Record<BenchmarkSiteKey, BenchmarkSi
     if (key === "deepswe") views.deepswe = deepSweView(site);
     else if (key === "livebench") views.livebench = liveBenchModels(site);
     else if (key === "lmarena") views.lmarena = lmArenaView(site);
+    else if (key === "terminal_bench") views.terminal_bench = terminalBenchView(site);
+    else if (key === "osworld") views.osworld = osWorldView(site);
+    else if (key === "tau2") views.tau2 = tau2View(site);
+    else if (key === "epoch") views.epoch = epochView(site);
     else views.artificial_analysis = aaModels(site);
   }
   return views;
+}
+
+// ---- how the newer sites print their numbers -----------------------------------------
+
+/** tbench.ai: tokens in billions with one decimal ("8.0B"), "—" for none. */
+export function tbTokens(value: number | null): string {
+  return value !== null && value > 0 ? `${(value / 1e9).toFixed(1)}B` : "—";
+}
+
+/** tbench.ai: cost in thousands of dollars with one decimal ("$4.7k", "$0.6k"), "—" for none. */
+export function tbCost(value: number | null): string {
+  return value !== null && value > 0 ? `$${(value / 1e3).toFixed(1)}k` : "—";
+}
+
+/** osworld-v2.xlang.ai's formatPercent: two decimals unless one is exact ("44.33%", "20.6%"). */
+export function osPercent(value: number | null): string {
+  if (value === null) return "—";
+  const decimals = Math.abs(value * 10 - Math.round(value * 10)) > 1e-8 ? 2 : 1;
+  return `${value.toFixed(decimals)}%`;
+}
+
+/** epoch.ai's formatDurationMinutes: "17 hr 25 min", "59 min 18 sec", "45 sec". */
+export function formatDurationMinutes(minutes: number): string {
+  if (minutes >= 60) {
+    const whole = Math.round(minutes);
+    const hours = Math.floor(whole / 60);
+    const rest = whole % 60;
+    return rest === 0 ? `${hours} hr` : `${hours} hr ${rest} min`;
+  }
+  const seconds = Math.round(minutes * 60);
+  if (seconds >= 3600) return "1 hr";
+  const wholeMinutes = Math.floor(seconds / 60);
+  const rest = seconds % 60;
+  if (wholeMinutes === 0) return `${rest} sec`;
+  return rest === 0 ? `${wholeMinutes} min` : `${wholeMinutes} min ${rest} sec`;
+}
+
+/** An Epoch score as its leaderboard prints it: a share in percent with one decimal, METR as a
+ * duration, the ECI whole. */
+export function epochScore(value: number, unit: EpochBoard["unit"]): string {
+  if (unit === "minutes") return formatDurationMinutes(value);
+  if (unit === "index") return value.toFixed(0);
+  return `${(value * 100).toFixed(1)}%`;
 }

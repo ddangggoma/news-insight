@@ -23,6 +23,17 @@ from tests.benchmarks.fakes import (
 
 pytestmark = pytest.mark.db
 
+SITES = (
+    "deepswe",
+    "livebench",
+    "lmarena",
+    "artificial_analysis",
+    "terminal_bench",
+    "epoch",
+    "osworld",
+    "tau2",
+)
+
 NOW = datetime(2026, 11, 3, 3, 30, tzinfo=UTC)
 KEY = "SOURCE_SECRET_ARTIFICIAL_ANALYSIS_KEY"
 
@@ -53,18 +64,8 @@ def test_collect_all_saves_every_site_and_links_names(db_session: Session) -> No
     db_session.add(carbon)
     db_session.flush()
     result = collect_all(db_session, all_sites().fetcher(), NOW)
-    assert result == {
-        "deepswe": "saved",
-        "livebench": "saved",
-        "lmarena": "saved",
-        "artificial_analysis": "saved",
-    }
-    assert snapshots(db_session) == {
-        "deepswe": 1,
-        "livebench": 1,
-        "lmarena": 1,
-        "artificial_analysis": 1,
-    }
+    assert result == dict.fromkeys(SITES, "saved")
+    assert snapshots(db_session) == dict.fromkeys(SITES, 1)
     snap = db_session.scalars(
         select(BenchmarkSnapshot).where(BenchmarkSnapshot.site == "livebench")
     ).one()
@@ -151,7 +152,7 @@ def test_one_site_failing_does_not_block_the_others(
     assert result["artificial_analysis"] == "config_error"
     assert result["deepswe"] == "error"
     assert result["livebench"] == result["lmarena"] == "saved"
-    assert set(snapshots(db_session)) == {"livebench", "lmarena"}
+    assert set(snapshots(db_session)) == set(SITES) - {"deepswe", "artificial_analysis"}
 
 
 def test_each_site_is_committed_on_its_own(
@@ -170,10 +171,11 @@ def test_each_site_is_committed_on_its_own(
     )
     result = collect_all(db_session, all_sites().fetcher(), NOW)
     assert result["artificial_analysis"] == "error"
-    # one commit per saved site, each right after that site's save
-    assert [len(c) for c in commits] == [1, 2, 3]
-    # the failure afterwards rolls back nothing that was committed
-    assert set(snapshots(db_session)) == {"deepswe", "livebench", "lmarena"}
+    # one commit per saved site, each right after that site's save; a site that reads its
+    # previous snapshot (epoch, tau2) also commits that read before it fetches
+    assert [len(c) for c in commits] == [1, 2, 3, 4, 4, 5, 6, 6, 7]
+    # the failure in the middle rolls back nothing that was committed
+    assert set(snapshots(db_session)) == set(SITES) - {"artificial_analysis"}
 
 
 def make_snapshot(session: Session, site: str, fetched_at: datetime) -> None:

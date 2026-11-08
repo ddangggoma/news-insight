@@ -783,8 +783,46 @@ LIVEBENCH_HOME = (
 )
 
 
+TB_FILES = {"4-0-0": "4_0", "3-0-0": "3_0", "main": "2_1"}
+TAU2_FILES = {
+    "commits?path=": ("tau2_commits_20261108.json", "application/json"),
+    "/contents/web/leaderboard/public/submissions": (
+        "tau2_listing_20261108.json",
+        "application/json",
+    ),
+    "submissions/manifest.json": ("tau2_manifest_20261108.json", "text/plain"),
+}
+
+
+def _newer_benchmark_answer(request: httpx.Request) -> httpx.Response | None:
+    """Terminal-Bench, OSWorld 2.0, Epoch AI and τ²-bench as recorded on 2026-11-08 (trimmed)."""
+    url = str(request.url)
+    found: tuple[str, str] | None = None
+    if "leaderboard-read" in url:
+        board = TB_FILES.get(request.url.params.get("name", ""))
+        found = (f"terminal_bench_{board}_20261108.json", "application/json") if board else None
+    elif url.endswith("official-results.json"):
+        found = ("osworld_20261108.json", "application/json")
+    elif url.endswith("benchmark_data.zip"):
+        found = ("epoch_20261108.zip", "application/zip")
+    elif url.endswith("benchmarked_models.csv"):
+        found = ("epoch_benchmarked_models_20261108.csv", "text/csv")
+    elif "tau2-bench" in url:
+        found = next((f for part, f in TAU2_FILES.items() if part in url), None)
+        if found is None and url.endswith("/submission.json"):
+            found = (f"tau2_{url.rsplit('/', 2)[-2]}.json", "text/plain")
+    if found is None or not (BENCHMARK_FIXTURES / found[0]).exists():
+        return None
+    body = (BENCHMARK_FIXTURES / found[0]).read_bytes()
+    return httpx.Response(200, headers={"content-type": found[1]}, content=body)
+
+
 def _benchmark_answer(request: httpx.Request) -> httpx.Response:
-    """The leaderboard sites as recorded on 2026-11-04 (tests/benchmarks/fixtures), offline."""
+    """The leaderboard sites as recorded on 2026-11-04 and 2026-11-08
+    (tests/benchmarks/fixtures), offline."""
+    newer = _newer_benchmark_answer(request)
+    if newer is not None:
+        return newer
     url = str(request.url)
     lmarena_files = {
         "text_style_control": "lmarena_text_style_control_20261104.parquet",
@@ -821,8 +859,8 @@ def _benchmark_answer(request: httpx.Request) -> httpx.Response:
 
 
 def seed_benchmarks(session: Session) -> None:
-    """DeepSWE, LiveBench and LMArena collected by the real collectors from recorded responses
-    (Artificial Analysis has no key, as on live)."""
+    """Every leaderboard but Artificial Analysis (no key, as on live) collected by the real
+    collectors from recorded responses."""
     from news_insight.benchmarks.service import collect_all
     from news_insight.net.safe_fetch import SafeFetcher
 

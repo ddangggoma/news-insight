@@ -1,0 +1,26 @@
+[
+ {
+  "name": "claude-opus-4-5_sierra_2026-02-26",
+  "path": "web/leaderboard/public/submissions/claude-opus-4-5_sierra_2026-02-26",
+  "sha": "564f1bf1ff38c3831cec18bc1c6bca0980587b69",
+  "type": "dir"
+ },
+ {
+  "name": "claude-opus-5_sierra_2026-08-04",
+  "path": "web/leaderboard/public/submissions/claude-opus-5_sierra_2026-08-04",
+  "sha": "874d9952a501bfa8d8f9e8d82ad0b4cb22a0d9c9",
+  "type": "dir"
+ },
+ {
+  "name": "manifest.json",
+  "path": "web/leaderboard/public/submissions/manifest.json",
+  "sha": "b43cc5b7123880c457e013b7d2f9d8f260f02066",
+  "type": "file"
+ },
+ {
+  "name": "pine-voice-1-0_pineai_2026-10-27",
+  "path": "web/leaderboard/public/submissions/pine-voice-1-0_pineai_2026-10-27",
+  "sha": "c3e176e825b3b932931a89bf1b403c352511f349",
+  "type": "dir"
+ }
+]

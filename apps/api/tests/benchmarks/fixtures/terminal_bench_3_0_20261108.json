@@ -1,0 +1,260 @@
+{
+ "leaderboard": {
+  "id": "694bb3b0-c5d5-4899-93de-4c392b814d7e",
+  "package_id": "3b8b0bb8-dba3-4e0d-af49-ddd07651c1a4",
+  "package": "terminal-bench/terminal-bench",
+  "dataset_version_ids": [
+   "b936386b-4afd-4ad7-aa7f-6b52bcab9853"
+  ],
+  "name": "3-0-0",
+  "title": "Terminal-Bench 3.0",
+  "description": "The official leaderboard for Terminal-Bench 3.0.",
+  "columns": [
+   {
+    "id": "agent_display",
+    "type": "link",
+    "header": "Agent",
+    "accessor": "metadata.agent_display"
+   },
+   {
+    "id": "model_display",
+    "type": "link",
+    "header": "Model",
+    "accessor": "metadata.model_display"
+   },
+   {
+    "id": "reasoning_effort",
+    "type": "text",
+    "header": "Reasoning Effort",
+    "accessor": "metadata.reasoning_effort"
+   },
+   {
+    "id": "accuracy",
+    "type": "number",
+    "align": "right",
+    "header": "Accuracy",
+    "accessor": "metrics.accuracy",
+    "display_type": "markdown",
+    "display_accessor": "metrics.display_accuracy"
+   },
+   {
+    "id": "release_date",
+    "type": "date",
+    "header": "Release Date",
+    "accessor": "metadata.release_date",
+    "display_type": "text",
+    "display_accessor": "metadata.display_release_date"
+   },
+   {
+    "id": "agent_org",
+    "type": "link",
+    "header": "Agent Org",
+    "accessor": "metadata.agent_org"
+   },
+   {
+    "id": "model_org",
+    "type": "link",
+    "header": "Model Org",
+    "accessor": "metadata.model_org"
+   },
+   {
+    "id": "total_tokens",
+    "type": "number",
+    "align": "right",
+    "header": "Tokens",
+    "accessor": "metrics.total_tokens",
+    "display_type": "text",
+    "display_accessor": "metrics.display_total_tokens"
+   },
+   {
+    "id": "total_cost_usd",
+    "type": "number",
+    "align": "right",
+    "header": "Cost",
+    "accessor": "metrics.total_cost_usd",
+    "display_type": "text",
+    "display_accessor": "metrics.display_cost"
+   }
+  ],
+  "rank_by": [
+   {
+    "accessor": "metrics.accuracy",
+    "direction": "desc"
+   }
+  ],
+  "visibility": "public",
+  "created_by": "746d4ff2-40d7-4ad3-b1ac-cda3290cb01b",
+  "created_at": "2026-08-12T21:36:46.714989+00:00",
+  "updated_at": "2026-09-03T00:07:57.08561+00:00"
+ },
+ "rows": [
+  {
+   "id": "b26434fb-f08b-4f95-bcc5-ce0c7310e047",
+   "leaderboard_id": "694bb3b0-c5d5-4899-93de-4c392b814d7e",
+   "rank": 1,
+   "metadata": {
+    "date": "2026-07-24",
+    "agent_org": {
+     "url": "https://www.princeton.edu",
+     "label": "Princeton"
+    },
+    "model_org": {
+     "url": "https://www.anthropic.com",
+     "label": "Anthropic"
+    },
+    "display_date": "Jul 24, 2026",
+    "release_date": "2026-07-24",
+    "agent_display": {
+     "url": "https://github.com/SWE-agent/mini-swe-agent",
+     "label": "mini-SWE-agent"
+    },
+    "model_display": {
+     "url": "https://www.anthropic.com/news/claude-opus-5",
+     "label": "Opus 5"
+    },
+    "reasoning_effort": "max",
+    "display_release_date": "Jul 24, 2026"
+   },
+   "metrics": {
+    "accuracy": 42.7,
+    "display_cost": "$5.8k",
+    "total_tokens": 7280393172,
+    "total_cost_usd": 5818.2,
+    "accuracy_stderr": 1.58,
+    "display_accuracy": "**42.7%** ± 3.1%",
+    "display_total_tokens": "7.3B",
+    "accuracy_ci95_half_width": 3.1
+   },
+   "status": "display",
+   "created_at": "2026-08-12T22:08:44.699364+00:00",
+   "updated_at": "2026-09-03T00:07:44.976503+00:00",
+   "n_trials": 370
+  },
+  {
+   "id": "b8d9ccae-23a2-485e-b9f1-a7654c79c560",
+   "leaderboard_id": "694bb3b0-c5d5-4899-93de-4c392b814d7e",
+   "rank": 2,
+   "metadata": {
+    "date": "2026-07-13",
+    "agent_org": {
+     "url": "https://openai.com",
+     "label": "OpenAI"
+    },
+    "model_org": {
+     "url": "https://openai.com",
+     "label": "OpenAI"
+    },
+    "display_date": "Jul 13, 2026",
+    "release_date": "2026-07-09",
+    "agent_display": {
+     "url": "https://openai.com/codex/",
+     "label": "Codex"
+    },
+    "model_display": {
+     "url": "https://developers.openai.com/api/docs/models/gpt-5.6-sol",
+     "label": "GPT-5.6 Sol"
+    },
+    "reasoning_effort": "max",
+    "display_release_date": "Jul 9, 2026"
+   },
+   "metrics": {
+    "accuracy": 34.59,
+    "display_cost": "$4.0k",
+    "total_tokens": 5760922727,
+    "total_cost_usd": 3950.9,
+    "accuracy_stderr": 1.58,
+    "display_accuracy": "**34.6%** ± 3.1%",
+    "display_total_tokens": "5.8B",
+    "accuracy_ci95_half_width": 3.1
+   },
+   "status": "display",
+   "created_at": "2026-08-12T21:39:34.661007+00:00",
+   "updated_at": "2026-09-03T00:07:14.05849+00:00",
+   "n_trials": 370
+  },
+  {
+   "id": "b8ed61a2-838a-495f-8d24-3ebffb9be16b",
+   "leaderboard_id": "694bb3b0-c5d5-4899-93de-4c392b814d7e",
+   "rank": 3,
+   "metadata": {
+    "date": "2026-07-13",
+    "agent_org": {
+     "url": "https://www.anthropic.com",
+     "label": "Anthropic"
+    },
+    "model_org": {
+     "url": "https://www.anthropic.com",
+     "label": "Anthropic"
+    },
+    "display_date": "Jul 13, 2026",
+    "release_date": "2026-06-09",
+    "agent_display": {
+     "url": "https://claude.com/claude-code",
+     "label": "Claude Code"
+    },
+    "model_display": {
+     "url": "https://www.anthropic.com/news/claude-fable-5-mythos-5",
+     "label": "Fable 5"
+    },
+    "reasoning_effort": "max",
+    "display_release_date": "Jun 9, 2026"
+   },
+   "metrics": {
+    "accuracy": 34.05,
+    "display_cost": "$6.5k",
+    "total_tokens": 3583230945,
+    "total_cost_usd": 6480.94,
+    "accuracy_stderr": 1.71,
+    "display_accuracy": "**34.0%** ± 3.4%",
+    "display_total_tokens": "3.6B",
+    "accuracy_ci95_half_width": 3.35
+   },
+   "status": "display",
+   "created_at": "2026-08-12T21:39:34.661007+00:00",
+   "updated_at": "2026-09-03T00:06:23.406434+00:00",
+   "n_trials": 370
+  },
+  {
+   "id": "d5152814-6bf2-473f-be57-b1908ed480a9",
+   "leaderboard_id": "694bb3b0-c5d5-4899-93de-4c392b814d7e",
+   "rank": 4,
+   "metadata": {
+    "date": "2026-08-18",
+    "agent_org": {
+     "url": "https://www.anthropic.com",
+     "label": "Anthropic"
+    },
+    "model_org": {
+     "url": "https://z.ai",
+     "label": "Z.AI"
+    },
+    "display_date": "Aug 18, 2026",
+    "release_date": "2026-08-14",
+    "agent_display": {
+     "url": "https://claude.com/claude-code",
+     "label": "Claude Code"
+    },
+    "model_display": {
+     "url": "https://z.ai/blog/glm-5.3",
+     "label": "GLM 5.3"
+    },
+    "reasoning_effort": "max",
+    "display_release_date": "Aug 14, 2026"
+   },
+   "metrics": {
+    "accuracy": 32.43,
+    "display_cost": "$1.8k",
+    "total_tokens": 5603245878,
+    "total_cost_usd": 1771.02,
+    "accuracy_stderr": 1.46,
+    "display_accuracy": "**32.4%** ± 2.9%",
+    "display_total_tokens": "5.6B",
+    "accuracy_ci95_half_width": 2.86
+   },
+   "status": "display",
+   "created_at": "2026-08-19T03:41:59.486409+00:00",
+   "updated_at": "2026-09-03T00:07:01.521097+00:00",
+   "n_trials": 370
+  }
+ ]
+}

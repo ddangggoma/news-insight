@@ -327,6 +327,34 @@ def test_benchmarks_collect_dry_run_prints_the_top_and_writes_nothing(
     assert db_session.scalar(select(BenchmarkSnapshot.id)) is None
 
 
+def test_benchmarks_collect_dry_run_of_the_newer_sites(
+    db_session: Session, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from tests.benchmarks.fakes import TbRouter, epoch_routes, osworld_routes, tau2_routes
+
+    def no_session() -> Any:
+        raise AssertionError("a dry run opens no database session")
+
+    router = tau2_routes(osworld_routes(epoch_routes(TbRouter())))
+    monkeypatch.setattr(cli, "session_scope", no_session)
+    monkeypatch.setattr(cli, "_fetcher", router.fetcher)
+    sites = ["terminal_bench", "epoch", "osworld", "tau2"]
+    args = [part for site in sites for part in ("--site", site)]
+
+    result = runner.invoke(cli.app, ["benchmarks", "collect", "--dry-run", *args, "--top", "2"])
+
+    assert result.exit_code == 0, result.output
+    lines = result.output.splitlines()
+    assert [line.split(":")[0] for line in lines if not line.startswith(" ")] == sites
+    assert "  [4.0] updated 2026-10-23" in lines
+    first = lines[lines.index("  [4.0] updated 2026-10-23") + 1].split()
+    assert first[:5] == ["1", "Claude", "Code", "·", "Opus"]
+    assert "  [eci] updated 2026-10-26" in lines  # the newest model in the trimmed file
+    assert "  [main] updated 2026-10-15" in lines
+    assert "  [banking_knowledge] updated 2026-08-04" in lines
+    assert db_session.scalar(select(BenchmarkSnapshot.id)) is None
+
+
 @pytest.mark.parametrize(
     "args",
     [["--site", "deepswe"], ["--dry-run", "--site", "nope"]],

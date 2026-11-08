@@ -701,11 +701,15 @@ describe("BenchmarksSection", () => {
     expect(within(screen.getByRole("region", { name: "LiveBench" })).getByRole("link", { name: /원본/ })).toBeInTheDocument();
   });
 
-  it("sits under one 「AI 모델 벤치마크」 heading", () => {
+  it("sits under one 「AI 모델 벤치마크」 heading, agents first, then models", () => {
     render(<BenchmarksSection summary={summary} sites={{ deepswe, livebench }} note="" />);
     const heading = screen.getByRole("heading", { level: 2, name: "AI 모델 벤치마크" });
     expect(heading.closest("section")).toHaveAttribute("id", "benchmarks");
-    expect(screen.getByRole("heading", { level: 3, name: /LiveBench/ })).toBeInTheDocument();
+    const groups = screen.getAllByRole("heading", { level: 3 }).map((h) => h.textContent);
+    expect(groups.filter((t) => t !== "새로 등장한 모델")).toEqual(["AI 에이전트 벤치마크", "AI 모델 벤치마크"]);
+    expect(within(screen.getByRole("group", { name: "AI 모델 벤치마크" })).getByRole("heading", { level: 4, name: /LiveBench/ })).toBeInTheDocument();
+    const agents = screen.getByRole("group", { name: "AI 에이전트 벤치마크" });
+    expect(within(agents).getAllByRole("heading", { level: 4 }).map((h) => h.textContent)).toEqual(["Terminal-Bench", "OSWorld 2.0", "τ²-bench"]);
   });
 
   it("gives every card its source link and update time", () => {
