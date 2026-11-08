@@ -224,7 +224,7 @@ tail ops/logs/edge.log
 
 | 키 | 수준 | 조건 | 자동 조치 |
 |---|---|---|---|
-| `docker_down` | 긴급 | `docker info` 실패 | `open -a Docker` (10분에 한 번까지) |
+| `docker_down` | 긴급 | `docker info`가 한 실행에서 3번(10초 간격) 모두 실패, 2회 연속 | Docker Desktop 앱(`com.docker.backend`)이 아예 없을 때만 `open -a Docker` (10분에 한 번까지). 앱이 떠 있는데 엔진이 응답하지 않으면 알리기만 함 |
 | `containers_down` | 긴급 | postgres·redis·api·worker·scheduler·web·caddy 중 실행 중이 아니거나 unhealthy (2회 연속) | 없음. restart 정책이 Docker 기동 뒤 다시 띄움 |
 | `site_down` | 긴급 | `https://127.0.0.1:8700/api/health`(엣지 프록시 → Caddy → api)가 200이 아님 (2회 연속) | 없음 |
 | `db_unreachable` | 긴급 | postgres 컨테이너에서 점검 쿼리 실패 (2회 연속) | 없음 |
@@ -235,6 +235,7 @@ tail ops/logs/edge.log
 | `ops:<키>` | 긴급 | 운영 점검이 열어 둔 다른 긴급 알림(freeze_missing, redis_unreachable, disk_low 등) | 없음 |
 
 - 문제를 확인한 첫 실행에 한 번, 긴급이면 계속되는 동안 6시간마다 한 번, 풀리면 "복구"를 한 번 보냅니다. Docker나 DB가 꺼져 점검하지 못한 항목은 "복구"로 치지 않고 그대로 둡니다.
+- 2026-11-07~08: 처음 판정 규칙(`docker info` 1번 실패 = 꺼짐)에서 "Docker가 꺼져 있습니다" 오탐이 19번 났습니다. 그동안 컨테이너는 3일째 떠 있었고 수집은 끊기지 않았으며, 스왑이 거의 찬 상태였습니다. 지금은 위 규칙대로 재시도·2회 확인을 하고, 실패할 때마다 사유(`docker info failed 3 times (exit …)`)를 로그에 남깁니다.
 - 상태: `ops/logs/watchdog-state.json`. 로그: `ops/logs/watchdog.log`(알림·복구와 시간당 한 줄).
 - 주의 수준의 호스트 메모리 경고(`host_memory`)는 2026-10-08 결정대로 보내지 않습니다.
 

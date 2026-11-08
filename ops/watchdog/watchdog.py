@@ -8,7 +8,8 @@ site, collection and cards stood still for 21 hours with no alert at all; the 10
 never went out. This job runs from launchd every 5 minutes on the system python3 (standard
 library only, Python 3.9), so it works while Docker, Postgres or the app venv are down:
 
-  - Docker not answering: start Docker Desktop (`open -a Docker`) and alert
+  - Docker not answering (3 tries in a run, 2 runs in a row): alert, and start Docker Desktop
+    (`open -a Docker`) when its app is not running at all
   - app containers stopped or unhealthy, the site not answering through the edge proxy
   - no successful collection for 45 minutes, no card run for 45 minutes
   - the host Claude CLI logged out (two card runs in a row say so; the 05:00 digest needs it)
@@ -34,6 +35,7 @@ import re
 import ssl
 import subprocess
 import sys
+import time
 import urllib.error
 import urllib.request
 from collections.abc import Callable
@@ -54,7 +56,20 @@ DOCKER_REOPEN = timedelta(minutes=10)
 HEARTBEAT = timedelta(hours=1)
 # runs in a row a problem must be seen before it is sent: a container restarting during a
 # deploy (about a minute) or one transient "Not logged in" (2026-11-04 05:49) is not an outage
-CONFIRM = {"containers_down": 2, "site_down": 2, "db_unreachable": 2, "claude_login": 2}
+CONFIRM = {
+    "docker_down": 2,
+    "containers_down": 2,
+    "site_down": 2,
+    "db_unreachable": 2,
+    "claude_login": 2,
+}
+# `docker info` from launchd sometimes failed while the stack kept running: 19 "Docker is off"
+# alerts on 11-07..08, containers up for 3 days, collection never paused, with swap near full.
+# A run calls Docker down only after every attempt fails, and alerts after two such runs.
+DOCKER_ATTEMPTS = 3
+DOCKER_TIMEOUT = 20.0
+DOCKER_RETRY_PAUSE = 10.0
+DOCKER_APP = "com.docker.backend"  # the Docker Desktop process; absent until the app starts
 # the briefing retries end at 10:00: repeating "not published" all day would only be noise
 NO_REPEAT = frozenset({"briefing_missing"})
 # keys read from the database: while it (or Docker) is unreachable they are unknown, not cleared
@@ -138,8 +153,24 @@ def read_env(path: Path) -> dict[str, str]:
 # ---------------------------------------------------------------- checks
 
 
-def check_docker(run: Runner) -> bool:
-    code, _ = run(["docker", "info", "--format", "{{.ServerVersion}}"], 30)
+def check_docker(run: Runner, pause: Callable[[float], None] = time.sleep) -> tuple[bool, str]:
+    """Whether the Docker engine answers, tried DOCKER_ATTEMPTS times; the last failure's text."""
+    reason = ""
+    for attempt in range(DOCKER_ATTEMPTS):
+        if attempt:
+            pause(DOCKER_RETRY_PAUSE)
+        code, out = run(["docker", "info", "--format", "{{.ServerVersion}}"], DOCKER_TIMEOUT)
+        if code == 0:
+            if attempt:
+                log(f"docker info answered on attempt {attempt + 1} after: {reason}")
+            return True, ""
+        reason = f"exit {code}: {' '.join(out.split())[:200] or 'no output'}"
+    return False, reason
+
+
+def docker_app_running(run: Runner) -> bool:
+    """Docker Desktop's backend process exists (the engine may still be starting or stuck)."""
+    code, _ = run(["pgrep", "-x", DOCKER_APP], 10)
     return code == 0
 
 
@@ -351,7 +382,8 @@ def check_briefing(briefings: list[dict[str, Any]], now: datetime) -> list[Probl
 @dataclass
 class Findings:
     problems: list[Problem]
-    docker_down: bool = False  # the caller starts Docker Desktop
+    docker_down: bool = False
+    docker_app: bool = True  # False: Docker Desktop is not running at all; the caller starts it
     db_read: bool = True  # False: the database keys were not checked this run
 
     def checked(self, key: str) -> bool:
@@ -365,17 +397,30 @@ def inspect(
     now: datetime,
     run: Runner = run_command,
     status: Callable[[str], int] = http_status,
+    pause: Callable[[float], None] = time.sleep,
 ) -> Findings:
-    if not check_docker(run):
-        problem = Problem(
-            "docker_down",
-            "critical",
-            "Docker가 꺼져 있습니다",
-            "사이트·수집·카드·발행이 모두 멈춘 상태입니다. Docker Desktop을 시작합니다. "
-            "재부팅 뒤라면 Docker Desktop 설정의 "
-            "'Start Docker Desktop when you sign in'을 켜 두세요",
-        )
-        return Findings([problem], docker_down=True)
+    answered, reason = check_docker(run, pause)
+    if not answered:
+        app = docker_app_running(run)
+        log(f"docker info failed {DOCKER_ATTEMPTS} times ({reason}); Docker Desktop running: {app}")
+        if app:
+            problem = Problem(
+                "docker_down",
+                "critical",
+                "Docker가 응답하지 않습니다",
+                "Docker Desktop은 실행 중인데 엔진이 응답하지 않습니다. 사이트·수집·카드가 멈췄을 "
+                f"수 있습니다. 메모리(스왑)와 Docker Desktop 상태를 확인하세요. ({reason})",
+            )
+        else:
+            problem = Problem(
+                "docker_down",
+                "critical",
+                "Docker가 꺼져 있습니다",
+                "사이트·수집·카드·발행이 모두 멈춘 상태입니다. Docker Desktop을 시작합니다. "
+                "재부팅 뒤라면 Docker Desktop 설정의 "
+                "'Start Docker Desktop when you sign in'을 켜 두세요",
+            )
+        return Findings([problem], docker_down=True, docker_app=app)
     problems: list[Problem] = []
     containers = check_containers(run)
     if containers:
@@ -601,8 +646,8 @@ def main(argv: list[str] | None = None) -> int:
 
     state_path = args.state or args.root / "ops" / "logs" / "watchdog-state.json"
     state = load_state(state_path)
-    if findings.docker_down:
-        open_docker(state, now, run_command)
+    if findings.docker_down and not findings.docker_app:
+        open_docker(state, now, run_command)  # a running but stuck app gains nothing from `open`
     step(state, findings, now, notifier)
     beat = _when(state.get("heartbeat_at"))
     if beat is None or now - beat >= HEARTBEAT:
