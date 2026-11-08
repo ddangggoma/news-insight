@@ -5,6 +5,7 @@ import type { CSSProperties, ReactNode } from "react";
 import { useSeriesToggle } from "@/components/chart-frame";
 import { PROVIDER_ORDER, type ProviderKey, providerColor, providerLabel } from "@/components/reader/benchmarks/provider-colors";
 import type { BenchmarkChange } from "@/lib/benchmark-types";
+import { formatBriefingDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 /** A provider's mark in plain HTML (tables, legends), switching with the theme. */
@@ -167,5 +168,38 @@ export function TipBox({ title, provider, org, lines }: { title: string; provide
         </div>
       ))}
     </div>
+  );
+}
+
+/**
+ * A 0-100 share as a filled bar with its 95% interval as whiskers (tbench.ai's resolution-rate
+ * cell); the bar is drawn, the number is written beside it.
+ */
+export function PercentBar({ value, low = null, high = null, label }: { value: number; low?: number | null; high?: number | null; label: string }) {
+  const clamp = (v: number) => Math.min(100, Math.max(0, v));
+  const interval = low !== null && high !== null && high > low;
+  return (
+    <span role="img" aria-label={label} className="relative block h-3 w-24 shrink-0 rounded-sm bg-muted md:w-36">
+      <span className="absolute inset-y-0 left-0 rounded-sm bg-primary/70" style={{ width: `${clamp(value)}%` }} aria-hidden />
+      {interval && (
+        <>
+          <span className="absolute top-1/2 h-px -translate-y-1/2 bg-foreground/60" style={{ left: `${clamp(low)}%`, width: `${clamp(high) - clamp(low)}%` }} aria-hidden />
+          <span className="absolute top-1/2 h-2 w-px -translate-y-1/2 bg-foreground/60" style={{ left: `${clamp(low)}%` }} aria-hidden />
+          <span className="absolute top-1/2 h-2 w-px -translate-y-1/2 bg-foreground/60" style={{ left: `${clamp(high)}%` }} aria-hidden />
+        </>
+      )}
+    </span>
+  );
+}
+
+/** "갱신 10월 23일 (목)": a board's own date, as the source states it. */
+export function UpdatedNote({ day, note }: { day: string | null | undefined; note?: string }) {
+  if (!day) return null;
+  return (
+    <span className="text-xs text-muted-foreground">
+      {"갱신 "}
+      <span className="text-foreground tabular-nums">{formatBriefingDate(day)}</span>
+      {note ? ` · ${note}` : ""}
+    </span>
   );
 }

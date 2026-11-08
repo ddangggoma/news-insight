@@ -1,20 +1,44 @@
 /** AI model leaderboards (plan 18 part 2): the shape of GET /api/public/benchmarks. */
 
-export const BENCHMARK_SITES = ["deepswe", "livebench", "lmarena", "artificial_analysis"] as const;
+export const BENCHMARK_SITES = ["terminal_bench", "osworld", "tau2", "deepswe", "livebench", "lmarena", "epoch", "artificial_analysis"] as const;
 export type BenchmarkSiteKey = (typeof BENCHMARK_SITES)[number];
 
+/** The section's two groups, in page order: agents (harness or computer use) first, then models. */
+export const BENCHMARK_GROUPS: { key: string; title: string; blurb: string; sites: BenchmarkSiteKey[] }[] = [
+  {
+    key: "agents",
+    title: "AI 에이전트 벤치마크",
+    blurb: "Claude Code·Codex 같은 에이전트 하네스와 컴퓨터 사용·고객 응대 에이전트의 과제 성공률",
+    sites: ["terminal_bench", "osworld", "tau2"],
+  },
+  {
+    key: "models",
+    title: "AI 모델 벤치마크",
+    blurb: "모델 자체의 코딩·추론·지식 점수와 사람 선호 투표",
+    sites: ["deepswe", "livebench", "lmarena", "epoch", "artificial_analysis"],
+  },
+];
+
 export const SITE_TITLE: Record<BenchmarkSiteKey, string> = {
+  terminal_bench: "Terminal-Bench",
+  osworld: "OSWorld 2.0",
+  tau2: "τ²-bench",
   deepswe: "DeepSWE",
   livebench: "LiveBench",
   lmarena: "LMArena",
+  epoch: "Epoch AI",
   artificial_analysis: "Artificial Analysis",
 };
 
 /** What each card measures, in one line. */
 export const SITE_BLURB: Record<BenchmarkSiteKey, string> = {
+  terminal_bench: "터미널 과제를 에이전트 하네스(Claude Code·Codex 등)와 모델 조합이 해결한 비율",
+  osworld: "데스크톱·웹을 오가는 긴 컴퓨터 사용 과제를 끝까지 완수한 비율",
+  tau2: "항공·리테일·통신·은행 고객 응대 에이전트가 같은 과제를 k번 모두 성공한 비율(pass^k)",
   deepswe: "긴 소프트웨어 엔지니어링 과제를 코딩 에이전트가 한 번에 통과하는 비율(pass@1)",
   livebench: "에이전틱·코딩·추론 등 영역별 오염 방지 문제 점수",
   lmarena: "사람이 두 모델의 답을 나란히 보고 고른 투표로 매긴 점수",
+  epoch: "Epoch AI가 모은 GPQA·FrontierMath·HLE 등 벤치마크와 종합 능력 지수(ECI)",
   artificial_analysis: "자체 평가 묶음의 지능 지수와 가격·출력 속도",
 };
 
@@ -99,8 +123,38 @@ export const AA_METRICS = {
   speed: "median_output_tokens_per_second",
 } as const;
 
+/** τ²-bench boards in the reader's order, with their labels and the site's track names. */
+export const TAU2_BOARDS = [
+  { key: "overall", label: "전체", track: "τ²-bench" },
+  { key: "retail", label: "리테일", track: "τ²-bench" },
+  { key: "airline", label: "항공", track: "τ²-bench" },
+  { key: "telecom", label: "통신", track: "τ²-bench" },
+  { key: "banking_knowledge", label: "은행(지식 검색)", track: "τ³-Banking" },
+  { key: "voice", label: "음성", track: "τ³-Voice" },
+] as const;
+
+/** Epoch boards we collect, with the reader's labels (the API also sends the site's titles). */
+export const EPOCH_BOARD_LABEL: Record<string, string> = {
+  eci: "ECI (종합 능력 지수)",
+  gpqa_diamond: "GPQA Diamond",
+  frontiermath_tiers_1_3: "FrontierMath 1–3",
+  frontiermath_tier_4: "FrontierMath 4",
+  hle: "Humanity's Last Exam",
+  arc_agi_2: "ARC-AGI-2",
+  swe_bench_verified: "SWE-bench Verified",
+  metr_time_horizons: "METR 시간 지평",
+  cursorbench: "CursorBench",
+  gdpval: "GDPval",
+};
+
 export function boardLabel(site: string, board: string): string {
   if (site === "lmarena") return LMARENA_BOARD_LABEL[board] ?? board;
+  if (site === "epoch") return EPOCH_BOARD_LABEL[board] ?? board;
+  if (site === "tau2") {
+    const found = TAU2_BOARDS.find((b) => b.key === board);
+    return found ? `${found.track} ${found.key === "voice" || found.key === "banking_knowledge" ? "" : found.label}`.trim() : board;
+  }
+  if (site === "osworld" && board === "main") return "기본";
   if (site === "livebench" && board === "main") return "종합";
   if (site === "artificial_analysis" && board === "language") return "언어 모델";
   return board;
@@ -162,12 +216,19 @@ export function newestBoardFirst(boards: string[]): string[] {
   });
 }
 
-/** Models that entered a board today, from the summary (top 10 per board). */
+/**
+ * The boards of the newer sites whose arrivals are told (as the spotlight hears them): Epoch's
+ * many boards and the agent boards would flood the row. A site not listed: every board.
+ */
+const ARRIVAL_BOARDS: Partial<Record<string, string[]>> = { terminal_bench: ["4.0"], epoch: ["eci"], osworld: [], tau2: [] };
+
+/** Models that entered a board today, from the summary (top 10 per board). A newer site's
+ * entry reads as its label (Terminal-Bench: "Claude Code · Opus 5.5"). */
 export function newModels(sites: BenchmarkSite[]): { site: string; title: string; board: string; model: string; rank: number }[] {
   return sites.flatMap((site) =>
     site.rows
-      .filter((row) => row.change === "new" && row.rank !== null)
-      .map((row) => ({ site: site.site, title: site.title, board: row.board, model: row.model, rank: row.rank as number })),
+      .filter((row) => row.change === "new" && row.rank !== null && (ARRIVAL_BOARDS[site.site]?.includes(row.board) ?? true))
+      .map((row) => ({ site: site.site, title: site.title, board: row.board, model: extraString(row, "label") ?? row.model, rank: row.rank as number })),
   );
 }
 

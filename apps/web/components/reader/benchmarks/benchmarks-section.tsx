@@ -3,15 +3,20 @@ import type { ReactNode } from "react";
 
 import { ArtificialAnalysisCharts } from "@/components/reader/benchmarks/artificial-analysis";
 import { DeepSweChart } from "@/components/reader/benchmarks/deepswe";
+import { EpochCard } from "@/components/reader/benchmarks/epoch";
 import { LiveBenchTable } from "@/components/reader/benchmarks/livebench";
 import { LmArenaTable } from "@/components/reader/benchmarks/lmarena";
+import { OsWorldTable } from "@/components/reader/benchmarks/osworld";
+import { Tau2Table } from "@/components/reader/benchmarks/tau2";
+import { TerminalBenchCard } from "@/components/reader/benchmarks/terminal-bench";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { BENCHMARK_SITES, type BenchmarkSite, type BenchmarkSiteKey, SITE_BLURB, SITE_TITLE, boardLabel, newModels } from "@/lib/benchmark-types";
+import { BENCHMARK_GROUPS, BENCHMARK_SITES, type BenchmarkSite, type BenchmarkSiteKey, SITE_BLURB, SITE_TITLE, boardLabel, newModels } from "@/lib/benchmark-types";
 import { type BenchmarkViews, type SiteMeta, projectViews, siteMeta } from "@/lib/benchmark-view";
 import { formatBriefingDate, formatDateTime } from "@/lib/format";
 
 const anchor = (key: string) => `bench-${key}`;
+const groupAnchor = (key: string) => `bench-group-${key}`;
 
 function Empty({ children }: { children: ReactNode }) {
   return <div className="rounded-lg border border-dashed px-4 py-8 text-center text-sm text-muted-foreground">{children}</div>;
@@ -21,6 +26,10 @@ function SiteBody({ siteKey, meta, views }: { siteKey: BenchmarkSiteKey; meta: S
   if (siteKey === "deepswe" && views.deepswe) return <DeepSweChart view={views.deepswe} />;
   if (siteKey === "livebench" && views.livebench) return <LiveBenchTable models={views.livebench} />;
   if (siteKey === "lmarena" && views.lmarena) return <LmArenaTable view={views.lmarena} />;
+  if (siteKey === "terminal_bench" && views.terminal_bench) return <TerminalBenchCard view={views.terminal_bench} />;
+  if (siteKey === "osworld" && views.osworld) return <OsWorldTable rows={views.osworld} updated={meta.updated?.main ?? meta.release ?? null} />;
+  if (siteKey === "tau2" && views.tau2) return <Tau2Table view={views.tau2} />;
+  if (siteKey === "epoch" && views.epoch) return <EpochCard boards={views.epoch} />;
   if (siteKey === "artificial_analysis" && views.artificial_analysis)
     return <ArtificialAnalysisCharts models={views.artificial_analysis} sourceUrl={meta.source_url} attribution={meta.attribution} />;
   return <Empty>아직 수집된 순위가 없습니다.</Empty>;
@@ -31,7 +40,7 @@ function SiteCard({ siteKey, meta, views }: { siteKey: BenchmarkSiteKey; meta: S
   return (
     <Card id={anchor(siteKey)} role="region" aria-label={title} className="scroll-mt-20">
       <CardHeader>
-        <CardTitle role="heading" aria-level={3} className="flex flex-wrap items-center gap-2 text-base font-semibold">
+        <CardTitle role="heading" aria-level={4} className="flex flex-wrap items-center gap-2 text-base font-semibold">
           {title}
           {/* one board: its date here; several (DeepSWE versions, LMArena boards): each board shows its own */}
           {meta?.release && Object.keys(meta.updated ?? {}).length <= 1 && (
@@ -112,7 +121,7 @@ export function BenchmarksSection({
         <h2 id={`${BENCHMARKS_ANCHOR}-title`} className="text-lg font-semibold">
           AI 모델 벤치마크
         </h2>
-        <p className="text-sm text-muted-foreground">DeepSWE·LiveBench·LMArena·Artificial Analysis의 순위를 각 사이트가 처음 열 때 보여 주는 기준 그대로 옮겼습니다.</p>
+        <p className="text-sm text-muted-foreground">각 사이트의 순위를 그 사이트가 처음 열 때 보여 주는 기준(행·순위·점수 열·필터) 그대로 옮겼습니다.</p>
       </div>
       {note && (
         <div className="rounded-lg border bg-muted/40 px-4 py-3">
@@ -124,18 +133,25 @@ export function BenchmarksSection({
         </div>
       )}
 
-      <nav aria-label="벤치마크 사이트" className="flex flex-wrap gap-2 text-xs">
-        {BENCHMARK_SITES.map((key) => {
-          const meta = metas.get(key);
-          return (
-            <a key={key} href={`#${anchor(key)}`} className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 hover:bg-muted">
-              <span className="font-medium">{meta?.title ?? SITE_TITLE[key]}</span>
-              <span className={meta?.stale ? "text-amber-700 dark:text-amber-400" : "text-muted-foreground"}>
-                {!meta ? (key === "artificial_analysis" ? "키 미설정" : "미수집") : meta.stale ? "갱신 지연" : formatDateTime(meta.fetched_at)}
-              </span>
+      <nav aria-label="벤치마크 사이트" className="space-y-1.5 text-xs">
+        {BENCHMARK_GROUPS.map((group) => (
+          <div key={group.key} className="flex flex-wrap items-center gap-2">
+            <a href={`#${groupAnchor(group.key)}`} className="w-full text-xs font-semibold text-muted-foreground hover:text-foreground hover:underline sm:w-auto">
+              {group.title}
             </a>
-          );
-        })}
+            {group.sites.map((key) => {
+              const meta = metas.get(key);
+              return (
+                <a key={key} href={`#${anchor(key)}`} className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 hover:bg-muted">
+                  <span className="font-medium">{meta?.title ?? SITE_TITLE[key]}</span>
+                  <span className={meta?.stale ? "text-amber-700 dark:text-amber-400" : "text-muted-foreground"}>
+                    {!meta ? (key === "artificial_analysis" ? "키 미설정" : "미수집") : meta.stale ? "갱신 지연" : formatDateTime(meta.fetched_at)}
+                  </span>
+                </a>
+              );
+            })}
+          </div>
+        ))}
       </nav>
 
       {arrivals.length > 0 && (
@@ -155,8 +171,18 @@ export function BenchmarksSection({
         </div>
       )}
 
-      {BENCHMARK_SITES.map((key) => (
-        <SiteCard key={key} siteKey={key} meta={metas.get(key)} views={views} />
+      {BENCHMARK_GROUPS.map((group) => (
+        <div key={group.key} id={groupAnchor(group.key)} role="group" aria-labelledby={`${groupAnchor(group.key)}-title`} className="scroll-mt-20 space-y-4">
+          <div className="space-y-0.5 pt-2">
+            <h3 id={`${groupAnchor(group.key)}-title`} className="text-base font-semibold">
+              {group.title}
+            </h3>
+            <p className="text-sm text-muted-foreground">{group.blurb}</p>
+          </div>
+          {group.sites.map((key) => (
+            <SiteCard key={key} siteKey={key} meta={metas.get(key)} views={views} />
+          ))}
+        </div>
       ))}
     </section>
   );
