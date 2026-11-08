@@ -84,7 +84,9 @@ def test_patents_index_prints_the_tally(db_session: Session) -> None:
 
 def test_insights_backfill_stats_rebuilds_each_day(db_session: Session) -> None:
     src = source(db_session, "arxiv-cs")
-    document(db_session, src, "p", published=datetime.now(UTC) - timedelta(days=2))
+    # seen as well as published: a document's date is never later than when it was first seen
+    two_days_ago = datetime.now(UTC) - timedelta(days=2)
+    document(db_session, src, "p", published=two_days_ago, seen=two_days_ago)
 
     result = runner.invoke(cli.app, ["insights", "backfill-stats", "--days", "3"])
 

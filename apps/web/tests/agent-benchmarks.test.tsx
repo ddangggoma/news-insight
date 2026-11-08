@@ -87,7 +87,9 @@ describe("TerminalBenchCard", () => {
     render(<TerminalBenchCard view={view} />);
     const table = screen.getByRole("table", { name: "Terminal-Bench 4.0 순위표" });
     const heads = within(table).getAllByRole("rowheader").map((h) => h.textContent);
-    expect(heads).toEqual(["1Claude Code", "2Claude Code", "3Codex", "3Codex", "6Grok Build"]);
+    expect(heads).toEqual(["1", "2", "3", "3", "6"]);
+    // tbench.ai's column order: rank, model, agent
+    expect(within(table).getAllByRole("columnheader").slice(0, 3).map((h) => h.textContent?.replace(/[↑↓↕]/g, "").trim())).toEqual(["순위", "모델", "에이전트"]);
     expect(within(table).getByText("64.8% ± 3.0%")).toBeInTheDocument();
     expect(within(table).getByText("$4.7k")).toBeInTheDocument();
     expect(within(table).getByText("$0.6k")).toBeInTheDocument();
@@ -108,7 +110,8 @@ describe("TerminalBenchCard", () => {
     fireEvent.click(within(chips).getByRole("button", { name: "Codex" }));
     expect(within(chips).getByRole("button", { name: "Codex" })).toHaveAttribute("aria-pressed", "true");
     const table = screen.getByRole("table", { name: "Terminal-Bench 4.0 순위표" });
-    expect(within(table).getAllByRole("rowheader").map((h) => h.textContent)).toEqual(["3Codex", "3Codex"]);
+    expect(within(table).getAllByRole("rowheader").map((h) => h.textContent)).toEqual(["3", "3"]);
+    expect(within(table).getAllByText("Codex")).toHaveLength(2);
     fireEvent.click(within(chips).getByRole("button", { name: "전체" }));
     expect(within(screen.getByRole("table")).getAllByRole("rowheader")).toHaveLength(5);
   });
@@ -187,9 +190,11 @@ const tau2 = site({
 describe("Tau2Table", () => {
   const view = tau2View(tau2);
 
-  it("opens on τ²-bench overall, pass^1, standard submissions only", () => {
+  it("opens on τ³-Banking as the site does; τ²-bench overall is pass^1, standard submissions only", () => {
     expect(view.boards).toEqual(["overall", "airline", "banking_knowledge", "voice"]);
     render(<Tau2Table view={view} />);
+    expect(screen.getByRole("table", { name: /τ³-Banking/ })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "τ²-bench" }));
     const table = screen.getByRole("table", { name: /τ²-bench 전체 순위표/ });
     expect(within(table).getAllByRole("rowheader").map((h) => h.textContent)).toEqual(["1Claude Opus 4.5", "2GPT-5.2"]);
     expect(within(table).getByText("85.3%")).toBeInTheDocument();
@@ -197,6 +202,7 @@ describe("Tau2Table", () => {
 
   it("re-ranks by pass^k and switches track", () => {
     render(<Tau2Table view={view} />);
+    fireEvent.click(screen.getByRole("button", { name: "τ²-bench" }));
     fireEvent.click(screen.getByRole("button", { name: "pass^4" }));
     expect(within(screen.getByRole("table")).getAllByRole("rowheader").map((h) => h.textContent)).toEqual(["1GPT-5.2", "2Claude Opus 4.5"]);
     fireEvent.click(screen.getByRole("button", { name: "τ³-Banking" }));

@@ -9,9 +9,10 @@ import { TAU2_BOARDS } from "@/lib/benchmark-types";
 import type { Tau2Row, Tau2View } from "@/lib/benchmark-view";
 
 type Track = "core" | "banking" | "voice";
+// tau2's leaderboard opens on τ³-Banking, so the card does too
 const TRACKS: { key: Track; label: string; boards: string[] }[] = [
-  { key: "core", label: "τ²-bench", boards: ["overall", "retail", "airline", "telecom"] },
   { key: "banking", label: "τ³-Banking", boards: ["banking_knowledge"] },
+  { key: "core", label: "τ²-bench", boards: ["overall", "retail", "airline", "telecom"] },
   { key: "voice", label: "τ³-Voice (영어)", boards: ["voice"] },
 ];
 const PASS_K = [1, 2, 3, 4] as const;
@@ -85,7 +86,7 @@ export function rankTau2(rows: Tau2Row[], k: number): Shown[] {
 export function Tau2Table({ view }: { view: Tau2View }) {
   const present = new Set(view.boards);
   const tracks = TRACKS.filter((t) => t.boards.some((b) => present.has(b)));
-  const [track, setTrack] = useState<Track>(tracks[0]?.key ?? "core");
+  const [track, setTrack] = useState<Track>(tracks[0]?.key ?? "banking");
   const current = tracks.find((t) => t.key === track) ?? tracks[0];
   const [domain, setDomain] = useState("overall");
   const board = current && current.boards.length > 1 ? (current.boards.includes(domain) ? domain : current.boards[0]) : (current?.boards[0] ?? "overall");

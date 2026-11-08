@@ -16,15 +16,16 @@ const day = (iso: string | null) => iso ?? "—";
 const col = createColumnHelper<TbRow & { shownRank: number | null }>();
 
 function buildColumns() {
+  // tbench.ai's own column order: rank, model (effort in brackets), agent, accuracy ± CI, date,
+  // tokens, cost
   return [
     col.accessor((r) => r.shownRank ?? undefined, {
-      id: "agent",
-      header: "순위 · 에이전트",
-      meta: { label: "에이전트" },
+      id: "rank",
+      header: "순위",
+      meta: { label: "순위", numeric: true },
       cell: ({ row: { original: r } }) => (
-        <span className="flex items-center gap-1.5">
-          <span className="w-6 text-right font-semibold tabular-nums">{r.shownRank ?? "—"}</span>
-          <span className="font-medium">{r.agent}</span>
+        <span className="flex items-center justify-end gap-1">
+          <span className="font-semibold tabular-nums">{r.shownRank ?? "—"}</span>
           <ChangeMark change={r.change} by={r.changeBy} />
         </span>
       ),
@@ -35,13 +36,14 @@ function buildColumns() {
       cell: ({ row: { original: r } }) => (
         <span className="flex items-center gap-1.5">
           <ProviderDot provider={r.provider} />
-          <span className="max-w-48 truncate" title={r.model}>
+          <span className="max-w-56 truncate font-medium" title={r.model}>
             {r.model}
           </span>
+          {r.effort ? <span className="text-muted-foreground">({r.effort})</span> : null}
         </span>
       ),
     }),
-    col.accessor((r) => r.effort ?? undefined, { id: "effort", header: "추론 강도", meta: { label: "추론 강도" }, cell: ({ row }) => row.original.effort ?? "—" }),
+    col.accessor("agent", { header: "에이전트", meta: { label: "에이전트" }, cell: ({ row }) => row.original.agent }),
     col.accessor("accuracy", {
       header: "정확도 (95% CI)",
       meta: { label: "정확도" },
@@ -56,9 +58,9 @@ function buildColumns() {
         );
       },
     }),
-    col.accessor((r) => r.cost ?? undefined, { id: "cost", header: "비용", meta: { label: "비용", numeric: true }, cell: ({ row }) => tbCost(row.original.cost) }),
-    col.accessor((r) => r.tokens ?? undefined, { id: "tokens", header: "토큰", meta: { label: "토큰", numeric: true }, cell: ({ row }) => tbTokens(row.original.tokens) }),
     col.accessor((r) => r.date ?? undefined, { id: "date", header: "공개일", meta: { label: "공개일" }, cell: ({ row }) => day(row.original.date) }),
+    col.accessor((r) => r.tokens ?? undefined, { id: "tokens", header: "토큰", meta: { label: "토큰", numeric: true }, cell: ({ row }) => tbTokens(row.original.tokens) }),
+    col.accessor((r) => r.cost ?? undefined, { id: "cost", header: "비용", meta: { label: "비용", numeric: true }, cell: ({ row }) => tbCost(row.original.cost) }),
   ];
 }
 
