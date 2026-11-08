@@ -179,7 +179,20 @@ def default_view(rows: list[dict[str, Any]]) -> dict[str, int]:
     return ranks
 
 
-def _score(board: str, row: dict[str, Any], default_rank: int | None) -> ScoreRow:
+def date_key(leaderboard: dict[str, Any]) -> str:
+    """The metadata field the board's date column reads (4.0: `date`, 3.0: `release_date`)."""
+    for column in leaderboard.get("columns") or []:
+        if not isinstance(column, dict) or column.get("type") != "date":
+            continue
+        accessor = column.get("accessor")
+        if isinstance(accessor, str) and accessor.startswith("metadata."):
+            return accessor.removeprefix("metadata.")
+    return "date"
+
+
+def _score(
+    board: str, row: dict[str, Any], default_rank: int | None, date_field: str = "date"
+) -> ScoreRow:
     metadata, metrics = row["metadata"], row["metrics"]
     model, agent = _names(row)
     accuracy = float(metrics["accuracy"])
@@ -189,7 +202,7 @@ def _score(board: str, row: dict[str, Any], default_rank: int | None) -> ScoreRo
         half = 1.96 * stderr if stderr is not None else None
     effort = metadata.get("reasoning_effort")
     effort = effort.strip() if isinstance(effort, str) and effort.strip() else None
-    date = metadata.get("date") or metadata.get("release_date")
+    date = metadata.get(date_field) or metadata.get("date") or metadata.get("release_date")
     extra: dict[str, Any] = {
         "agent": agent,
         "agent_org": _label(metadata.get("agent_org")),
@@ -232,7 +245,8 @@ def fetch(fetcher: SafeFetcher, now: datetime) -> SiteSnapshot:
         data = _download(fetcher, board_url(package, name))
         leaderboard, rows = validate(board, data)
         ranks = default_view(rows)
-        scores.extend(_score(board, row, ranks.get(row["id"])) for row in rows)
+        field = date_key(leaderboard)
+        scores.extend(_score(board, row, ranks.get(row["id"]), field) for row in rows)
         updated[board] = leaderboard["updated_at"][:10]
         boards[board] = {
             "leaderboard": {k: leaderboard.get(k) for k in _LEADERBOARD_KEPT},

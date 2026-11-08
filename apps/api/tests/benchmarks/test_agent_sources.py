@@ -97,6 +97,15 @@ def test_terminal_bench_default_view_keeps_each_model_and_agents_best_effort() -
     ]
 
 
+def test_terminal_bench_date_is_the_boards_own_date_column() -> None:
+    snapshot = terminal_bench.fetch(TbRouter().fetcher(), NOW)
+    # 3.0 dates rows by metadata.release_date, 4.0 by metadata.date
+    assert terminal_bench.date_key(snapshot.raw["boards"]["3.0"]["leaderboard"]) == "release_date"
+    assert terminal_bench.date_key(snapshot.raw["boards"]["4.0"]["leaderboard"]) == "date"
+    first = next(r for r in snapshot.rows if r.board == "3.0" and r.extra["rank"] == 1)
+    assert first.extra["date"] == "2026-07-24"  # tbench.ai 3.0: "Jul 24, 2026"
+
+
 def test_terminal_bench_tie_between_efforts_keeps_the_first_served() -> None:
     rows = [
         {
