@@ -1,10 +1,11 @@
-"""The day's spotlight candidates per section, frozen at 04:40 KST (plan 18 §4).
+"""The day's spotlight candidates per section, frozen at 04:40 KST (plan 18 §4; news: plan 20).
 
 The window is the briefing day's previous 04:40 KST up to its own 04:40 KST, counted by when an
 item was first collected. Each section keeps its strongest 30 (products 40) by a section score;
 the order of that list is the draft ranking (`stat_rank`) that the writer may adjust."""
 
 import logging
+import math
 import re
 from collections import defaultdict
 from collections.abc import Sequence
@@ -50,6 +51,8 @@ CID_PREFIX = {
     "patent": "t",
 }
 MIN_NEWS_SOURCES = 2
+# news_score: 30 outlets today ≈ 150, breaking today 40, relevance 80 ≈ 50, 30 posts ≈ 60
+NEWS_WEIGHTS = {"coverage": 30.0, "surge": 40.0, "relevance": 0.6, "mentions": 12.0, "z": 5.0}
 MIN_COMMUNITY_Z = 1.0
 MIN_PRODUCT_SOURCES = 2
 MIN_PRODUCT_Z = 1.0
@@ -467,11 +470,31 @@ def _ref_groups(
     return groups
 
 
+def news_score(
+    *, new_sources: int, total_sources: int, relevance: int, mentions: int, best_z: float
+) -> float:
+    """How much an event matters today, from four readings (the weights are NEWS_WEIGHTS):
+    today's coverage (damped: the 60th outlet adds little), its surge (the share of all its
+    coverage that arrived today: 1.0 broke today, 0.2 is the tail of an older story), the
+    card's relevance to the DX businesses (0-100) and the community's interest (posts about
+    it, and how far the strongest stands above its platform's norm)."""
+    surge = new_sources / max(total_sources, new_sources, 1)
+    return (
+        NEWS_WEIGHTS["coverage"] * math.log2(1 + new_sources)
+        + NEWS_WEIGHTS["surge"] * surge
+        + NEWS_WEIGHTS["relevance"] * max(min(relevance, 100), 0)
+        + NEWS_WEIGHTS["mentions"] * math.log2(1 + mentions)
+        + NEWS_WEIGHTS["z"] * max(best_z, 0.0)
+    )
+
+
 def _news(
     session: Session, eligible: list[Row], scorer: Scorer, mentions: Mentions
 ) -> list[Candidate]:
-    """Events reported by at least two sources, ranked by how many sources, then by how much the
-    community talked about them (posts in the event, or posts sharing one of its articles)."""
+    """Events reported by at least two sources (the entry bar only), ranked by `news_score`:
+    today's coverage and surge, relevance and community interest. The metrics carry what the
+    writer needs to judge importance and to leave out rumours, certifications and reviews: the
+    lead card's signal type, impact and scope beside the numbers."""
     folds = [
         fold
         for fold in _fold_stories([r for r in eligible if r.item.track is Track.NEWS])
@@ -489,15 +512,35 @@ def _news(
     for fold, lead, ids in zip(folds, leads, mentions.of(folds), strict=True):
         assert fold.story_id is not None
         story = stories[fold.story_id]
+        card = cards.get(lead.item.id)
+        new_sources = len({row.item.source_id for row in fold.rows})
+        relevance = max(story.max_relevance or 0, (card.relevance or 0) if card else 0)
+        metrics: dict[str, Any] = {
+            "source_count": story.source_count,
+            "new_sources": new_sources,
+            "surge": round(100 * new_sources / max(story.source_count, new_sources, 1)),
+            "relevance": relevance,
+            "community_mentions": len(ids),
+        }
+        if card is not None:
+            for name in ("signal_type", "impact", "scope"):
+                if value := getattr(card, name):
+                    metrics[name] = value
         drafts.append(
             _draft(
                 "news",
                 fold,
                 story,
                 lead,
-                cards.get(lead.item.id),
-                metrics={"source_count": story.source_count, "community_mentions": len(ids)},
-                score=float(story.source_count * 100 + len(ids) * 10 + mentions.best_z(ids)),
+                card,
+                metrics=metrics,
+                score=news_score(
+                    new_sources=new_sources,
+                    total_sources=story.source_count,
+                    relevance=relevance,
+                    mentions=len(ids),
+                    best_z=mentions.best_z(ids),
+                ),
             )
         )
     return _finish("news", drafts)

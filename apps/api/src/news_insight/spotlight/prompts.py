@@ -3,7 +3,9 @@
 One Claude call a day: from the frozen per-section candidates (short `cid`s, statistics and the
 card summary), in two groups per section (최근 24시간 `now` and 지속 주목 `sustained`), it picks
 and orders up to 10 and 5 (15 in all), groups the products, writes the Korean summaries and a
-few insight tags. The server maps the cids back to real items and validates every field."""
+few insight tags; for the news it also writes each entry's 시사점 and the day's overview (themes
+and the reader's interest areas, plan 20). The server maps the cids back to real items and
+validates every field."""
 
 from typing import Any
 
@@ -21,6 +23,21 @@ MAX_RANK_NOTE = 140
 MAX_PRODUCT_NAME = 80
 MAX_HEADLINE = 200
 MAX_BENCHMARK_NOTE = 200
+MAX_INSIGHT = 160  # 시사점: what a news entry means for the DX businesses
+MAX_THEMES = 5  # 오늘의 구도: the day's news grouped into a few threads
+MAX_THEME_TITLE = 40
+MAX_THEME_SUMMARY = 280
+MAX_AREA_INSIGHT = 240
+MAX_AREA_ENTRIES = 3
+# The reader's interest areas (the ones the system prompt names), in page order.
+INTEREST_AREAS: dict[str, str] = {
+    "mobile_ai": "모바일·온디바이스 AI",
+    "display": "디스플레이",
+    "home_robot": "스마트가전·홈로봇",
+    "network": "5G Advanced·6G",
+    "health": "디지털 헬스·의료기기",
+    "auto": "전장·SDV",
+}
 
 SYSTEM_PROMPT = "\n".join(
     [
@@ -54,6 +71,26 @@ SYSTEM_PROMPT = "\n".join(
         " 하나로 묶어 cids에 모두 쓰고 product_name에 모델·서비스명을 원어 표기로 80자 이하로 쓴다."
         " 오늘 가장 주목받는 것을 앞에 둔다. metrics.basis가 benchmark인 후보는 순위표"
         " 변화(site·board·rank·from)가 근거다.",
+        "4-1. news 분야는 보도량이 아니라 화제성과 중요도로 고른다. metrics의 new_sources는"
+        " 오늘 새로 보도한 매체 수, source_count는 누적 매체 수, surge는 누적 보도 중 오늘"
+        " 나온 비율(%, 100에 가까우면 오늘 터진 일), relevance는 DX 사업 관련도(0~100),"
+        " community_mentions는 커뮤니티 언급 수, signal_type·impact·scope는 카드 분류다."
+        " 급부상(surge), 주요 기술·시장 구도 변화(기술 전환, 경쟁 구도, 규제, 공급망, 보안,"
+        " 대형 투자·제휴), 관심도를 함께 보고 순위를 정한다."
+        " 다음은 보도가 많아도 고르지 않는다: 루머·유출·예상 사양, 인증 통과(BIS·FCC 등)나"
+        " 출시 임박 추정, 리뷰·사용기·기기 비교, 할인·판촉, 단순 일정 예고."
+        " 고를 만한 것이 10개에 못 미치면 그만큼만 고른다(억지로 채우지 않는다).",
+        "4-2. news 항목마다 insight(시사점)를 1문장(160자 이하)으로 쓴다: 이 일이 관심 영역의"
+        " 사업·기술 전략에 무엇을 뜻하는지, 무엇을 지켜봐야 하는지. why_hot(왜 화제인지)을"
+        ' 되풀이하지 않는다. news가 아닌 분야의 insight는 빈 문자열("")이다.',
+        "4-3. news_overview: 오늘 뉴스 전체의 구도다. themes에는 고른 news 항목(now·sustained)을"
+        " 3~5개의 흐름으로 묶어 title(40자 이하, 예: 'AI 보안 경쟁', '폴더블 생태계'),"
+        " summary(흐름과 그 의미 2문장, 280자 이하), cids(그 흐름에 속한 news cid)를 쓴다."
+        " areas에는 관심 영역별 세부 정리를 쓴다. area는 "
+        + ", ".join(f"{key}({label})" for key, label in INTEREST_AREAS.items())
+        + " 중 하나이고, 그 영역에 해당하는 news 항목이 있을 때만 cids(최대 3개, 중요한 순)와"
+        " insight(그 영역의 오늘 동향과 대응 방향 2문장, 240자 이하)를 쓴다."
+        " 해당 뉴스가 없는 영역은 넣지 않는다. cids에는 네가 news에 고른 cid만 쓴다.",
         "5. interview 분야: 실제 인터뷰·대담·기조연설·공개 발언만 고른다."
         " 그 사람의 발언이 아니라 발언을 인용한 해설·논평은 고르지 않는다.",
         "6. oss 분야: 후보가 10개 이상이면 now와 sustained를 합쳐 반드시 10개 이상 고른다."
@@ -77,7 +114,8 @@ SYSTEM_PROMPT = "\n".join(
 
 INSTRUCTION = (
     "stdin으로 받은 JSON을 읽고, 주어진 스키마에 맞춰 오늘의 분야별 화제를"
-    " 최근 24시간(now) Top 10과 지속 주목(sustained) Top 5로 작성하라."
+    " 최근 24시간(now) Top 10과 지속 주목(sustained) Top 5로 작성하고,"
+    " 뉴스의 시사점과 오늘의 구도(news_overview)를 함께 정리하라."
 )
 
 ENTRY_SCHEMA: dict[str, Any] = {
@@ -90,6 +128,7 @@ ENTRY_SCHEMA: dict[str, Any] = {
         "summary": {"type": "string"},
         "why_hot": {"type": "string"},
         "rank_note": {"type": "string"},
+        "insight": {"type": "string"},
         "tags": {"type": "array", "items": {"type": "string"}, "maxItems": MAX_TAGS},
     },
     "required": ["cids", "rank", "title_ko", "summary", "why_hot", "tags"],
@@ -104,11 +143,46 @@ SECTION_SCHEMA: dict[str, Any] = {
     "required": ["now", "sustained"],
 }
 
+_CIDS: dict[str, Any] = {"type": "array", "items": {"type": "string"}, "minItems": 1}
+
+OVERVIEW_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "themes": {
+            "type": "array",
+            "maxItems": MAX_THEMES,
+            "items": {
+                "type": "object",
+                "properties": {
+                    "title": {"type": "string"},
+                    "summary": {"type": "string"},
+                    "cids": _CIDS,
+                },
+                "required": ["title", "summary", "cids"],
+            },
+        },
+        "areas": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "area": {"type": "string", "enum": list(INTEREST_AREAS)},
+                    "insight": {"type": "string"},
+                    "cids": _CIDS,
+                },
+                "required": ["area", "insight", "cids"],
+            },
+        },
+    },
+    "required": ["themes", "areas"],
+}
+
 OUTPUT_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
         "headline": {"type": "string"},
         "benchmark_note": {"type": "string"},
+        "news_overview": OVERVIEW_SCHEMA,
         "sections": {
             "type": "object",
             "properties": {section: SECTION_SCHEMA for section in SECTIONS},

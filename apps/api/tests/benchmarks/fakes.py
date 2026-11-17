@@ -63,39 +63,6 @@ class Router:
         )
 
 
-DEEPSWE_CHUNK = "https://deepswe.datacurve.ai/assets/live-leaderboard-CCyhM4yo.js"
-DEEPSWE_MAIN = "https://deepswe.datacurve.ai/assets/index-DYZDg9jy.js"
-
-
-def deepswe_routes(
-    router: Router, *, body: str | None = None, recorded: bool = False, page: bool = True
-) -> Router:
-    """Both boards' JSON; `body` replaces what each answers (e.g. a page of HTML).
-    `recorded`: the full boards as the site served them on 2026-11-04. `page`: the home page
-    and its two scripts (the default model set, the cost repricing table); without them the
-    site 404s there."""
-    suffix = "_20261104" if recorded else ""
-    for url, name in (
-        ("deepswe.datacurve.ai/artifacts/v1.1/", f"deepswe_v1_1{suffix}.json"),
-        ("deepswe.datacurve.ai/artifacts/v1/", f"deepswe_v1{suffix}.json"),
-    ):
-        if body is None:
-            router.add(url, reply(200, fixture_text(name), "application/json"))
-        else:
-            router.add(url, reply(200, body, "text/html"))
-    if page:
-        router.add(
-            "=https://deepswe.datacurve.ai/",
-            reply(200, fixture_text("deepswe_index_20261104.html"), "text/html; charset=utf-8"),
-        )
-        for url, name in (
-            (DEEPSWE_CHUNK, "deepswe_live_leaderboard_20261104.js"),
-            (DEEPSWE_MAIN, "deepswe_index_script_20261104.js"),
-        ):
-            router.add(f"={url}", reply(200, fixture_text(name), "application/javascript"))
-    return router
-
-
 def livebench_routes(router: Router, *, table: str | None = None, recorded: bool = False) -> Router:
     """`recorded`: the 2026-10-25 table and the bundle's entries for its models, as served on
     2026-11-04 (the other files are the same either way)."""
@@ -154,15 +121,6 @@ def lmarena_routes(router: Router, *, recorded: bool = False) -> Router:
         )
         router.add(f"={CDN}/{board}?user_id=public", reply(200, body, PARQUET_MIME))
     return router
-
-
-def artificial_analysis_routes(router: Router, *, key: str = "test-key") -> Router:
-    def respond(request: httpx.Request) -> httpx.Response:
-        if request.headers.get("x-api-key") != key:
-            return reply(401, '{"error":"unauthorized"}', "application/json")
-        return reply(200, fixture_text("artificial_analysis.json"), "application/json")
-
-    return router.add("artificialanalysis.ai/api/v2/language/models", respond)
 
 
 TB_BOARDS = (("4-0-0", "4_0"), ("3-0-0", "3_0"), ("main", "2_1"))
@@ -256,15 +214,66 @@ def tau2_routes(router: Router, *, sha: str = TAU2_SHA) -> Router:
     return router
 
 
+SEAL_BOARDS = ("hle-diamond", "mcp_atlas", "swe_bench_pro_public_v2")
+SEAL_URL = "https://labs.scale.com/leaderboard"
+VALS_URL = "https://www.vals.ai/benchmarks/vals_index"
+VENDING_URL = "https://epoch.ai/data/external_benchmarks/vending_bench_2.csv"
+SIMPLEBENCH_URL = "https://simple-bench.com/static/js/leaderboard-data.js"
+FORECASTBENCH_URL = "https://www.forecastbench.org/assets/js/leaderboard_tournament_full.js"
+HTML_TYPE = "text/html; charset=utf-8"
+SCRIPT_TYPE = "application/javascript; charset=UTF-8"
+
+
+def seal_routes(
+    router: Router, *, index: str | None = None, pages: dict[str, str] | None = None
+) -> Router:
+    """The index and the three board pages it lists, as served 2026-11-13 (the index trimmed to
+    a few boards, each page to the flight row that holds its table). `index` replaces the index
+    page, `pages[id]` a board's page."""
+    for board in SEAL_BOARDS:
+        body = (pages or {}).get(board) or fixture_text(f"seal_{board}_20261113.html")
+        router.add(f"={SEAL_URL}/{board}", reply(200, body, HTML_TYPE))
+    return router.add(
+        f"={SEAL_URL}", reply(200, index or fixture_text("seal_index_20261113.html"), HTML_TYPE)
+    )
+
+
+def vals_routes(router: Router, *, body: str | None = None) -> Router:
+    """The Vals Index page as served 2026-11-13: its two data islands, the top twelve models."""
+    text = body if body is not None else fixture_text("vals_index_20261113.html")
+    return router.add(f"={VALS_URL}", reply(200, text, HTML_TYPE))
+
+
+def vending_routes(router: Router, *, body: str | None = None) -> Router:
+    """Epoch's Vending-Bench 2 file as served 2026-11-13 (twelve of its rows)."""
+    text = body if body is not None else fixture_text("vending_bench_2_20261113.csv")
+    return router.add(f"={VENDING_URL}", reply(200, text, "text/csv"))
+
+
+def simplebench_routes(router: Router, *, body: str | None = None) -> Router:
+    """SimpleBench's data script as served 2026-11-13 (the table's first and last rows)."""
+    text = body if body is not None else fixture_text("simplebench_leaderboard_data_20261113.js")
+    return router.add(f"={SIMPLEBENCH_URL}", reply(200, text, SCRIPT_TYPE))
+
+
+def forecastbench_routes(router: Router, *, body: str | None = None) -> Router:
+    """ForecastBench's tournament script as served 2026-11-13 (its first and last rows)."""
+    text = body if body is not None else fixture_text("forecastbench_tournament_20261113.js")
+    return router.add(f"={FORECASTBENCH_URL}", reply(200, text, "text/javascript; charset=utf-8"))
+
+
 def all_sites() -> Router:
     router = TbRouter()
-    deepswe_routes(router)
     livebench_routes(router)
     lmarena_routes(router)
-    artificial_analysis_routes(router)
     osworld_routes(router)
     epoch_routes(router)
     tau2_routes(router)
+    seal_routes(router)
+    vals_routes(router)
+    vending_routes(router)
+    simplebench_routes(router)
+    forecastbench_routes(router)
     return router
 
 

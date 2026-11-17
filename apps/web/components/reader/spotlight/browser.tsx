@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { SpotlightFilterBar } from "@/components/reader/spotlight/filters";
+import { NewsOverviewPanel } from "@/components/reader/spotlight/news-overview";
 import { Overview } from "@/components/reader/spotlight/overview";
 import { SectionList } from "@/components/reader/spotlight/section-list";
 import {
@@ -19,7 +20,8 @@ import {
 /**
  * The overview or one section's lists with the field and group filters above them. Filtering
  * happens here, on the entries already loaded; the address keeps `?field=` and `?group=` so a
- * reload or a shared link opens the same view (the server renders the initial filters).
+ * reload or a shared link opens the same view (the server renders the initial filters). The
+ * news tab opens with 오늘의 구도 (themes and interest areas), which the filters do not narrow.
  */
 export function SpotlightBrowser({
   view,
@@ -56,7 +58,10 @@ export function SpotlightBrowser({
       {tab === "overview" ? (
         <Overview view={narrowed} date={date} groups={groups} filtered={filtered} />
       ) : (
-        <SectionList entries={narrowed.sections[tab]} groups={groups} filtered={filtered} />
+        <>
+          {tab === "news" && <NewsOverviewPanel overview={view.news_overview} entries={view.sections.news ?? []} visible={narrowed.sections.news} />}
+          <SectionList entries={narrowed.sections[tab]} groups={groups} filtered={filtered} anchors={tab === "news"} />
+        </>
       )}
     </div>
   );

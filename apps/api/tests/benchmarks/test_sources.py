@@ -1,4 +1,3 @@
-import copy
 import io
 import json
 from datetime import UTC, date, datetime
@@ -10,8 +9,6 @@ import pytest
 
 from news_insight.benchmarks.sources import (
     BenchmarkError,
-    artificial_analysis,
-    deepswe,
     livebench,
     lmarena,
 )
@@ -22,9 +19,6 @@ from tests.benchmarks.fakes import (
     FakeClock,
     Responder,
     Router,
-    artificial_analysis_routes,
-    deepswe_routes,
-    fixture_json,
     fixture_text,
     livebench_routes,
     lmarena_routes,
@@ -37,81 +31,9 @@ NOW = datetime(2026, 11, 3, 3, 30, tzinfo=UTC)
 
 @pytest.fixture(autouse=True)
 def clock(monkeypatch: pytest.MonkeyPatch) -> FakeClock:
-    monkeypatch.delenv("SOURCE_SECRET_ARTIFICIAL_ANALYSIS_KEY", raising=False)
     fake = FakeClock()
     monkeypatch.setattr(lmarena, "_sleep", fake.sleep)
     return fake
-
-
-def test_deepswe_stores_both_boards() -> None:
-    router = deepswe_routes(Router())
-    snapshot = deepswe.fetch(router.fetcher(), NOW)
-    assert snapshot.site == deepswe.SITE
-    assert [str(r.url) for r in router.requests] == [
-        "https://deepswe.datacurve.ai/artifacts/v1.1/leaderboard-live.json",
-        "https://deepswe.datacurve.ai/artifacts/v1/leaderboard-live.json",
-        "https://deepswe.datacurve.ai/",
-        "https://deepswe.datacurve.ai/assets/live-leaderboard-CCyhM4yo.js",
-        "https://deepswe.datacurve.ai/assets/index-DYZDg9jy.js",
-    ]
-    assert snapshot.release == "2026-09-22"  # the newest file
-    assert set(snapshot.raw["boards"]) == {"v1.1", "v1"}
-    assert snapshot.raw["updated"] == {"v1.1": "2026-09-22", "v1": "2026-06-20"}
-    assert snapshot.raw["boards"]["v1.1"]["n_tasks_in_set"] == 113
-    assert [r.board for r in snapshot.rows] == ["v1.1"] * 3 + ["v1"] * 3
-    first = snapshot.rows[0]
-    assert (first.model_raw, first.metric) == ("gpt-6-astra", "pass_at_1")
-    assert first.config == "xhigh" and first.org == "openai"
-    assert first.value == pytest.approx(0.7411504)
-    assert first.ci_low is not None and first.ci_high is not None
-    assert first.ci_low < first.value < first.ci_high
-    # the chart axes: cost, output tokens, steps stay on the row; the provider too
-    assert first.extra["mean_cost_usd"] == pytest.approx(4.4291172)
-    assert first.extra["mean_agent_steps"] > 0
-    assert first.extra["harness"] == "mini-swe-agent" and first.extra["provider"] == "openai"
-    assert first.extra["cost_basis"].startswith("Current pricing")
-    assert "pass_at_1" not in first.extra and "model" not in first.extra
-    # the cost the site's table shows for claude-opus-5 max
-    opus = snapshot.rows[1]
-    assert opus.model_raw == "claude-opus-5" and opus.org is None
-    assert opus.extra["mean_cost_usd"] == pytest.approx(11.8375833)
-    # a model run without a reasoning effort has no config (and no null fields in extra)
-    default = snapshot.rows[2]
-    assert default.model_raw == "kimi-k2-7-code" and default.config is None
-    assert None not in default.extra.values() and "reasoning_effort" not in default.extra
-    v1 = [r for r in snapshot.rows if r.board == "v1"]
-    assert v1[0].model_raw == "gpt-5-5" and v1[0].config == "xhigh"
-    assert v1[0].extra["mean_cost_usd"] == pytest.approx(6.6058613)
-
-
-@pytest.mark.parametrize("board", ["v1.1", "v1"])
-def test_deepswe_either_board_failing_fails_the_site(board: str) -> None:
-    router = Router()
-    path = "artifacts/v1.1/" if board == "v1.1" else "artifacts/v1/"
-    router.add(path, reply(503, "down", "text/plain"))
-    deepswe_routes(router)
-    with pytest.raises(BenchmarkError) as err:
-        deepswe.fetch(router.fetcher(), NOW)
-    assert err.value.code == "http_error"
-
-
-@pytest.mark.parametrize("board", ["v1.1", "v1"])
-@pytest.mark.parametrize(
-    "body",
-    [
-        pytest.param('{"scope": "moved"}', id="no-rows"),
-        pytest.param('{"rows": [{"model": "m", "pass_at_1": null}]}', id="no-usable-rows"),
-        pytest.param("not json", id="not-json"),
-    ],
-)
-def test_deepswe_unreadable_board_is_drift(board: str, body: str) -> None:
-    router = Router()
-    path = "artifacts/v1.1/" if board == "v1.1" else "artifacts/v1/"
-    router.add(path, reply(200, body, "application/json"))
-    deepswe_routes(router)
-    with pytest.raises(BenchmarkError) as err:
-        deepswe.fetch(router.fetcher(), NOW)
-    assert err.value.code == "selector_drift"
 
 
 def test_livebench_picks_newest_available_release() -> None:
@@ -487,76 +409,36 @@ def test_lmarena_missing_file_is_not_retried(clock: FakeClock) -> None:
     assert err.value.code == "http_error" and not clock.sleeps
 
 
-def test_artificial_analysis_without_key_is_config_error() -> None:
-    router = artificial_analysis_routes(Router())
-    with pytest.raises(BenchmarkError) as err:
-        artificial_analysis.fetch(router.fetcher(), NOW)
-    assert err.value.code == "config_error"
-    assert router.requests == []
-
-
-def test_artificial_analysis_metrics(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("SOURCE_SECRET_ARTIFICIAL_ANALYSIS_KEY", "test-key")
-    snapshot = artificial_analysis.fetch(artificial_analysis_routes(Router()).fetcher(), NOW)
-    by_metric = {r.metric: r for r in snapshot.rows}
-    index = by_metric["artificial_analysis_intelligence_index"]
-    assert (index.model_raw, index.org, index.config, index.board) == (
-        "GLM-5.3 (Max)",
-        "Z AI",
-        "Max",
-        "language",
-    )
-    assert index.value == 31.7
-    assert by_metric["price_1m_input_tokens"].value == 1.4
-    assert by_metric["median_output_tokens_per_second"].value == 80.07
-    assert "artificial_analysis_coding_index" not in by_metric  # null = not measured
-    assert index.extra["slug"] == "glm-5-3" and index.extra["release_date"] == "2026-08-18"
-    assert index.extra["context_window_tokens"] == 1000000
-    assert snapshot.release == "v5"
-
-
-def test_artificial_analysis_follows_pages(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("SOURCE_SECRET_ARTIFICIAL_ANALYSIS_KEY", "test-key")
-    body = fixture_json("artificial_analysis.json")
-
-    def respond(request: httpx.Request) -> httpx.Response:
-        page = int(request.url.params.get("page", "1"))
-        data = copy.deepcopy(body)
-        data["data"][0]["name"] = f"Model {page}"
-        data["pagination"] = {"page": page, "total_pages": 2, "has_more": page < 2}
-        return reply(200, json.dumps(data), "application/json")
-
-    router = Router().add("artificialanalysis.ai/api/v2/language/models", respond)
-    snapshot = artificial_analysis.fetch(router.fetcher(), NOW)
-    assert {r.model_raw for r in snapshot.rows} == {"Model 1", "Model 2"}
-    assert len(snapshot.raw["data"]) == 2
-
-
-@pytest.mark.parametrize("site", ["deepswe", "lmarena", "artificial_analysis"])
-def test_html_instead_of_json_is_drift(site: str, monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("SOURCE_SECRET_ARTIFICIAL_ANALYSIS_KEY", "test-key")
+def test_html_instead_of_the_file_is_drift() -> None:
     router = Router().add("", reply(200, HTML_BODY, "text/html"))
-    module = {"deepswe": deepswe, "lmarena": lmarena, "artificial_analysis": artificial_analysis}[
-        site
-    ]
     with pytest.raises(BenchmarkError) as err:
-        module.fetch(router.fetcher(), NOW)
+        lmarena.fetch(router.fetcher(), NOW)
     assert err.value.code == "selector_drift"
 
 
 def test_http_failure_is_http_error() -> None:
-    router = Router().add("deepswe", reply(503, "down", "text/plain"))
+    router = Router().add("livebench", reply(503, "down", "text/plain"))
     with pytest.raises(BenchmarkError) as err:
-        deepswe.fetch(router.fetcher(), NOW)
+        livebench.fetch(router.fetcher(), NOW)
     assert err.value.code == "http_error"
 
 
-def test_every_site_names_itself() -> None:
-    for module in (deepswe, livebench, lmarena, artificial_analysis):
+def test_every_collected_site_names_itself() -> None:
+    from news_insight.benchmarks.service import SOURCES
+
+    assert len({module.SITE for module in SOURCES}) == len(SOURCES) == 11
+    for module in SOURCES:
         assert module.SITE and module.TITLE and module.SOURCE_URL.startswith("https://")
         assert module.LICENSE and module.ATTRIBUTION
-    assert artificial_analysis.ATTRIBUTION == "Data: Artificial Analysis"
-    assert fixture_text("deepswe_v1_1.json")
+        assert len(module.SITE) <= 40  # benchmark_snapshots.site
+
+
+def test_the_dropped_sites_are_not_collected() -> None:
+    from news_insight.benchmarks.service import SOURCES
+    from news_insight.public.benchmarks import SITES
+
+    for sites in (SOURCES, SITES):
+        assert not {"deepswe", "artificial_analysis"} & {module.SITE for module in sites}
 
 
 def test_daily_job_is_scheduled_at_0330() -> None:

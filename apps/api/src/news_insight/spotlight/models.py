@@ -38,6 +38,9 @@ class Spotlight(Base):
     cost_usd: Mapped[float | None] = mapped_column(Float)
     headline: Mapped[str] = mapped_column(Text)
     benchmark_note: Mapped[str] = mapped_column(Text)
+    # 오늘의 구도 (plan 20): {"themes": [{title, summary, keys}], "areas": [{area, insight, keys}]}
+    # where keys are news entry keys of this day; None on days published before it
+    news_overview: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
     freeze_id: Mapped[int] = mapped_column(ForeignKey("spotlight_freezes.id"))
     error: Mapped[str | None] = mapped_column(Text)
     generated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
@@ -70,6 +73,7 @@ class SpotlightEntry(Base):
     product_name: Mapped[str | None] = mapped_column(Text)
     summary: Mapped[str] = mapped_column(Text)
     why_hot: Mapped[str] = mapped_column(Text)
+    insight: Mapped[str | None] = mapped_column(Text)  # 시사점 (news entries, plan 20)
     rank_note: Mapped[str | None] = mapped_column(Text)
     metrics: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
     fallback: Mapped[bool] = mapped_column(default=False)

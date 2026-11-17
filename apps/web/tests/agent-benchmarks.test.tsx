@@ -268,23 +268,32 @@ describe("EpochCard", () => {
 });
 
 describe("BenchmarksSection with the agent benchmarks", () => {
-  it("renders every new card, with source, licence and attribution", () => {
-    render(<BenchmarksSection summary={null} sites={{ terminal_bench: terminalBench, osworld, tau2, epoch }} note="" />);
-    for (const name of ["Terminal-Bench", "OSWorld 2.0", "τ²-bench", "Epoch AI"]) {
+  it("renders each card when picked, with source, licence and attribution", () => {
+    const sites = { terminal_bench: terminalBench, osworld, tau2, epoch } as const;
+    for (const [key, name] of [
+      ["terminal_bench", "Terminal-Bench"],
+      ["osworld", "OSWorld 2.0"],
+      ["tau2", "τ²-bench"],
+      ["epoch", "Epoch AI"],
+    ] as const) {
+      const { unmount } = render(<BenchmarksSection summary={null} site={key} full={sites[key]} note="" />);
       const card = screen.getByRole("region", { name });
       expect(within(card).getByRole("link", { name: /원본/ })).toBeInTheDocument();
-      expect(within(card).getByText("Apache-2.0")).toBeInTheDocument();
+      expect(within(card).getByText("라이선스: Apache-2.0")).toBeInTheDocument();
+      expect(within(card).getAllByRole("table").length).toBeGreaterThan(0);
+      unmount();
     }
-    const nav = screen.getByRole("navigation", { name: "벤치마크 사이트" });
-    expect(within(nav).getByRole("link", { name: "AI 에이전트 벤치마크" })).toHaveAttribute("href", "#bench-group-agents");
-    expect(within(nav).getByRole("link", { name: /Terminal-Bench/ })).toHaveAttribute("href", "#bench-terminal_bench");
   });
 
   it("says when a site was never collected and when it is stale", () => {
-    render(<BenchmarksSection summary={[{ ...terminalBench, stale: true, rows: [] }]} sites={{ terminal_bench: { ...terminalBench, stale: true } }} note="" />);
+    const summary = [{ ...terminalBench, stale: true, rows: [] }];
+    const { unmount } = render(<BenchmarksSection summary={summary} site="terminal_bench" full={{ ...terminalBench, stale: true }} note="" />);
     expect(within(screen.getByRole("region", { name: "Terminal-Bench" })).getByText("갱신 지연")).toBeInTheDocument();
+    unmount();
+    render(<BenchmarksSection summary={summary} site="osworld" full={null} note="" />);
     expect(within(screen.getByRole("region", { name: "OSWorld 2.0" })).getByText("아직 수집된 순위가 없습니다.")).toBeInTheDocument();
-    expect(within(screen.getByRole("region", { name: "Epoch AI" })).getByText("아직 수집된 순위가 없습니다.")).toBeInTheDocument();
+    const nav = screen.getByRole("navigation", { name: "벤치마크 사이트" });
+    expect(within(nav).getByRole("link", { name: /Epoch AI/ })).toHaveTextContent("미수집");
   });
 });
 

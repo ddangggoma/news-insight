@@ -47,10 +47,15 @@ class AliasOut(BaseModel):
 
 
 def unmatched(session: Session) -> list[UnmatchedOut]:
-    """Names without a model in each site's latest snapshot (older ones are history)."""
+    """Names without a model in each collected site's latest snapshot (older ones are history,
+    and so are the snapshots of a site that is no longer collected)."""
+    from news_insight.benchmarks.service import SOURCES
+
     latest: dict[str, tuple[int, datetime]] = {}
     for snapshot_id, site, fetched_at in session.execute(
-        select(BenchmarkSnapshot.id, BenchmarkSnapshot.site, BenchmarkSnapshot.fetched_at).order_by(
+        select(BenchmarkSnapshot.id, BenchmarkSnapshot.site, BenchmarkSnapshot.fetched_at)
+        .where(BenchmarkSnapshot.site.in_([module.SITE for module in SOURCES]))
+        .order_by(
             BenchmarkSnapshot.site, BenchmarkSnapshot.fetched_at.desc(), BenchmarkSnapshot.id.desc()
         )
     ):

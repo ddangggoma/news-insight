@@ -1,5 +1,5 @@
 import { EntryRow } from "@/components/reader/spotlight/entry-row";
-import { GROUP_KEYS, GROUP_LABEL, type GroupKey, type SpotlightEntry, splitGroups } from "@/lib/spotlight-types";
+import { GROUP_KEYS, GROUP_LABEL, type GroupKey, type SpotlightEntry, entryAnchor, splitGroups } from "@/lib/spotlight-types";
 
 export const EMPTY_SECTION = "오늘은 기준을 넘는 화제가 없습니다";
 export const EMPTY_FILTERED = "조건에 맞는 항목이 없습니다";
@@ -8,9 +8,19 @@ const EMPTY_GROUP: Record<GroupKey, string> = { now: "최근 24시간에 기준�
 /**
  * One section's lists: 최근 24시간 (up to 10) then 지속 주목 (up to 5), each under a small
  * heading with its count. `groups` limits which are shown (the group filter); `filtered` says a
- * filter emptied the list rather than the day.
+ * filter emptied the list rather than the day; `anchors` gives each row an id (`entryAnchor`).
  */
-export function SectionList({ entries, groups = GROUP_KEYS, filtered = false }: { entries: SpotlightEntry[]; groups?: readonly GroupKey[]; filtered?: boolean }) {
+export function SectionList({
+  entries,
+  groups = GROUP_KEYS,
+  filtered = false,
+  anchors = false,
+}: {
+  entries: SpotlightEntry[];
+  groups?: readonly GroupKey[];
+  filtered?: boolean;
+  anchors?: boolean;
+}) {
   if (entries.length === 0)
     return <p className="rounded-lg border border-dashed px-4 py-8 text-center text-sm text-muted-foreground">{filtered ? EMPTY_FILTERED : EMPTY_SECTION}</p>;
   const split = splitGroups(entries);
@@ -28,7 +38,7 @@ export function SectionList({ entries, groups = GROUP_KEYS, filtered = false }: 
             <ol className="divide-y rounded-lg border px-4">
               {split[group].map((entry) => (
                 <li key={`${group}-${entry.key}`}>
-                  <EntryRow entry={entry} />
+                  <EntryRow entry={entry} anchor={anchors ? entryAnchor(entry.key) : null} />
                 </li>
               ))}
             </ol>

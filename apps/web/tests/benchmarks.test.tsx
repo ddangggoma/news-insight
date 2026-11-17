@@ -2,16 +2,13 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { renderToString } from "react-dom/server";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 
-import { ArtificialAnalysisCharts } from "@/components/reader/benchmarks/artificial-analysis";
-import { DeepSweChart } from "@/components/reader/benchmarks/deepswe";
-import { buildPlot, defaultConfigs, displayName, family, formatCost, modelShades, niceTicks, toHsl } from "@/components/reader/benchmarks/deepswe-plot";
 import { LiveBenchTable } from "@/components/reader/benchmarks/livebench";
 import { LmArenaTable } from "@/components/reader/benchmarks/lmarena";
 import { BenchmarksSection } from "@/components/reader/benchmarks/benchmarks-section";
 import { providerColor, providerKey } from "@/components/reader/benchmarks/provider-colors";
-import { type BenchmarkRow, type BenchmarkSite, colourOrg, isOpenLicense, newestBoardFirst } from "@/lib/benchmark-types";
-import { aaModels, deepSweView, liveBenchModels, lmArenaView, projectViews } from "@/lib/benchmark-view";
-import { SPOTLIGHT_TABS, parseTab } from "@/lib/spotlight-types";
+import { BENCHMARK_GROUPS, BENCHMARK_SITES, type BenchmarkRow, type BenchmarkSite, benchmarkHref, colourOrg, isOpenLicense, newestBoardFirst, parseSite } from "@/lib/benchmark-types";
+import { liveBenchModels, lmArenaView, projectViews } from "@/lib/benchmark-view";
+import { SPOTLIGHT_TABS, parseTab, spotlightHref } from "@/lib/spotlight-types";
 
 beforeAll(() => {
   // Recharts' ResponsiveContainer measures its parent; jsdom has no ResizeObserver
@@ -93,7 +90,7 @@ describe("provider colours", () => {
     expect(providerColor("Anthropic", "light")).not.toBe(providerColor("OpenAI", "light"));
   });
 
-  it("uses DeepSWE's family hues, one per provider", () => {
+  it("gives every provider a hue of its own", () => {
     expect(providerColor("Anthropic", "light")).toBe("oklch(62% 0.15 50)");
     expect(providerColor("OpenAI", "dark")).toBe("oklch(75% 0.14 155)");
     expect(providerColor("google", "light")).toBe("oklch(58% 0.17 255)");
@@ -101,8 +98,6 @@ describe("provider colours", () => {
     // the providers that used to share a slot as outlines now have hues of their own
     const hues = ["openai", "anthropic", "google", "moonshot", "minimax", "mistral", "zai", "deepseek"].map((p) => providerColor(p, "light"));
     expect(new Set(hues).size).toBe(hues.length);
-    expect(toHsl(providerColor("anthropic", "light"))[0]).toBeGreaterThan(15);
-    expect(toHsl(providerColor("anthropic", "light"))[0]).toBeLessThan(45);
   });
 
   it("paints an unknown maker neutral gray", () => {
@@ -154,9 +149,31 @@ describe("helpers", () => {
     expect(liveModels.map((m) => m.model)).toEqual(["claude-opus-5.5", "gpt-5.5", "deepseek-v4.1-flash", "qwen3.8-27b", "small-model", "tiny-model"]);
   });
 
-  it("has no AI 모델 tab: the benchmarks moved under AI 모델·서비스, old links map there", () => {
-    expect(SPOTLIGHT_TABS.map((tab) => tab.label)).not.toContain("AI 모델");
-    expect(parseTab("models")).toBe("ai");
+  it("has a 벤치마크 tab right after AI 모델·서비스; the old AI 모델 tab maps to it", () => {
+    const labels = SPOTLIGHT_TABS.map((tab) => tab.label);
+    expect(labels).not.toContain("AI 모델");
+    expect(labels.slice(labels.indexOf("AI 모델·서비스"), labels.indexOf("AI 모델·서비스") + 2)).toEqual(["AI 모델·서비스", "벤치마크"]);
+    expect(parseTab("benchmarks")).toBe("benchmarks");
+    expect(parseTab("models")).toBe("benchmarks");
+    expect(spotlightHref("benchmarks", null)).toBe("/spotlight?tab=benchmarks");
+    expect(spotlightHref("benchmarks", "2026-11-01")).toBe("/spotlight?tab=benchmarks&date=2026-11-01");
+  });
+
+  it("lists eleven sites in two groups, without DeepSWE and Artificial Analysis", () => {
+    expect(BENCHMARK_GROUPS.map((g) => g.title)).toEqual(["AI 에이전트", "AI 모델"]);
+    expect(BENCHMARK_GROUPS.flatMap((g) => g.sites)).toEqual([...BENCHMARK_SITES]);
+    expect(BENCHMARK_SITES).toHaveLength(11);
+    for (const gone of ["deepswe", "artificial_analysis"]) expect(BENCHMARK_SITES as readonly string[]).not.toContain(gone);
+    for (const added of ["seal", "vals", "vending_bench", "simplebench", "forecastbench"]) expect(BENCHMARK_SITES as readonly string[]).toContain(added);
+  });
+
+  it("opens the menu's first site unless ?site= names another", () => {
+    expect(parseSite(undefined)).toBe("terminal_bench");
+    expect(parseSite("vals")).toBe("vals");
+    expect(parseSite("deepswe")).toBe("terminal_bench");
+    expect(benchmarkHref("terminal_bench")).toBe("/spotlight?tab=benchmarks");
+    expect(benchmarkHref("vals")).toBe("/spotlight?tab=benchmarks&site=vals");
+    expect(benchmarkHref("seal", "2026-11-01")).toBe("/spotlight?tab=benchmarks&site=seal&date=2026-11-01");
   });
 });
 
@@ -171,42 +188,30 @@ describe("projections", () => {
     // a moved row carries its change; an unmoved one leaves it out
     expect(boards[0].rows.find((r) => r.model === "Claude Opus 5.5")).toMatchObject({ change: "new", changeBy: 0 });
     expect(boards[0]).toMatchObject({ key: "text_style_control", published: "2026-11-02" });
-    expect(Object.keys(deepSweView(deepswe).points[0]).sort()).toEqual(
-      ["id", "board", "model", "effort", "provider", "score", "low", "high", "cost", "tokens", "steps", "harness", "best", "shown", "change", "changeBy"].sort(),
-    );
-    expect(Object.keys(aaModels(aa)[0]).sort()).toEqual(["model", "org", "provider", "intelligence", "price", "speed"].sort());
   });
 
-  it("drops Artificial Analysis metrics no chart plots", () => {
-    const site = siteOf({ site: "artificial_analysis", rows: [row({ model: "A", metric: "hle", value: 0.4 })] });
-    expect(aaModels(site)).toEqual([]);
+  it("projects only the sites it is given", () => {
+    expect(Object.keys(projectViews({ livebench }))).toEqual(["livebench"]);
+    expect(projectViews({})).toEqual({});
   });
 
-  it("keeps the tab small with leaderboards at today's size", () => {
-    // ~ the 2026-11-03 data: DeepSWE 70 + 29 rows, LiveBench 32 models, LMArena 837 rows
-    const big = {
-      deepswe: siteOf({
-        site: "deepswe",
-        boards: ["v1.1", "v1"],
-        rows: Array.from({ length: 99 }, (_, i) =>
-          row({ board: i < 70 ? "v1.1" : "v1", model: `model-${i}`, config: "high", metric: "pass_at_1", value: 0.7004504504504504, ci_low: 0.6721849259146309, ci_high: 0.7287159749862699, rank: i, extra: { mean_cost_usd: 6.605861326576576, mean_output_tokens: 46977.0472972973, mean_agent_steps: 78.96396396396396, harness: "mini-swe-agent", config: "x".repeat(40), cost_basis: "y".repeat(80) } }),
+  it("keeps the tab small: only the picked site's rows ride in the page", () => {
+    // ~ the 2026-11-03 data of the largest site: LMArena, 837 rows over five boards
+    const boards = ["text_style_control", "webdev", "vision_style_control", "search", "agent"];
+    const lmarena = siteOf({
+      site: "lmarena",
+      boards,
+      rows: [419, 152, 167, 42, 57].flatMap((n, b) =>
+        Array.from({ length: n }, (_, i) =>
+          row({ board: boards[b], model: `Arena Model Name ${i} (High)`, org: "google", config: "High", metric: "rating", value: 1527.5065447464403 - i * 0.731, ci_low: 1521.8137264519027 - i * 0.731, ci_high: 1533.1993630409779 - i * 0.731, rank: i + 1, extra: { rank: i + 1, vote_count: 20000, license: "Proprietary", variance: 3.1, leaderboard_publish_date: "2026-11-02" } }),
         ),
-      }),
-      livebench: siteOf({ rows: Array.from({ length: 32 }, (_, i) => liveModel(`livebench-model-${i}`, [70, 80, 90, 60, 70, 80, 90], i + 1, { display_name: `Model ${i}`, organization: "Org", open_weights: false })).flat() }),
-      lmarena: siteOf({
-        site: "lmarena",
-        boards: ["text_style_control", "webdev", "vision_style_control", "search", "agent"],
-        rows: [419, 152, 167, 42, 57].flatMap((n, b) =>
-          Array.from({ length: n }, (_, i) =>
-            row({ board: ["text_style_control", "webdev", "vision_style_control", "search", "agent"][b], model: `Arena Model Name ${i} (High)`, org: "google", config: "High", metric: "rating", value: 1527.5065447464403 - i * 0.731, ci_low: 1521.8137264519027 - i * 0.731, ci_high: 1533.1993630409779 - i * 0.731, rank: i + 1, extra: { rank: i + 1, vote_count: 20000, license: "Proprietary", variance: 3.1, leaderboard_publish_date: "2026-11-02" } }),
-          ),
-        ),
-      }),
-    };
-    const props = JSON.stringify(projectViews(big)).length;
-    const html = renderToString(<BenchmarksSection summary={null} sites={big} note="" />).length;
-    // measured 164 KB of props + 146 KB of HTML on this data (2026-11-03)
-    expect(props + html).toBeLessThan(350_000);
+      ),
+    });
+    const props = JSON.stringify(projectViews({ lmarena })).length;
+    const html = renderToString(<BenchmarksSection summary={null} site="lmarena" full={lmarena} note="" />).length;
+    expect(props + html).toBeLessThan(250_000);
+    // another site's card is not in the page at all
+    expect(renderToString(<BenchmarksSection summary={null} site="lmarena" full={lmarena} note="" />)).not.toContain("LiveBench 순위표");
   });
 });
 
@@ -333,389 +338,91 @@ describe("LmArenaTable", () => {
   });
 });
 
-const dsRow = (over: Partial<BenchmarkRow>) => row({ board: "v1.1", metric: "pass_at_1", ...over });
-const deepswe = siteOf({
-  site: "deepswe",
-  title: "DeepSWE",
-  // the older board first, as the collector may store it
-  boards: ["v1", "v1.1"],
-  rows: [
-    dsRow({ board: "v1", model: "old-model", value: 0.3, ci_low: 0.25, ci_high: 0.35, rank: 1, extra: { mean_cost_usd: 1 } }),
-    dsRow({ model: "gpt-5-5", org: "OpenAI", config: "xhigh", value: 0.7, ci_low: 0.67, ci_high: 0.73, rank: 1, extra: { mean_cost_usd: 6.6, mean_output_tokens: 46977, mean_agent_steps: 79, harness: "mini-swe-agent" } }),
-    dsRow({ model: "gpt-5-5", org: "OpenAI", config: "high", value: 0.62, ci_low: 0.58, ci_high: 0.66, extra: { mean_cost_usd: 4.5, mean_output_tokens: 30000, mean_agent_steps: 70 } }),
-    dsRow({ model: "glm-5-2", config: null, value: 0.4, ci_low: 0.35, ci_high: 0.45, rank: 2, extra: { mean_cost_usd: 1.2, mean_output_tokens: 20000, mean_agent_steps: 60 } }),
-  ],
-});
-
-describe("DeepSweChart", () => {
-  it("opens on the newest version", () => {
-    render(<DeepSweChart view={deepSweView(deepswe)} />);
-    const versions = within(screen.getByRole("group", { name: "버전" })).getAllByRole("button");
-    expect(versions.map((b) => b.textContent)).toEqual(["v1.1", "v1"]);
-    expect(versions[0]).toHaveAttribute("aria-pressed", "true");
-    expect(screen.queryByText("old-model")).not.toBeInTheDocument();
-    fireEvent.click(versions[1]);
-    expect(within(screen.getByRole("table")).getByText("old-model")).toBeInTheDocument();
-  });
-
-  it("shows each model's best effort until every effort level is asked for", () => {
-    render(<DeepSweChart view={deepSweView(deepswe)} />);
-    expect(within(screen.getByRole("table")).getAllByRole("row")).toHaveLength(3);
-    fireEvent.click(screen.getByRole("button", { name: "모든 추론 강도" }));
-    expect(within(screen.getByRole("table")).getAllByRole("row")).toHaveLength(4);
-    // whole percents like the site's table, the exact value on hover
-    const table = within(screen.getByRole("table"));
-    expect(table.getByText("±3%")).toBeInTheDocument();
-    expect(table.getByText("70%").parentElement).toHaveAttribute("title", "70.00% ±3.00");
-  });
-
-  it("prints cost and output tokens the way the site's table does", () => {
-    const site = siteOf({
-      site: "deepswe",
-      boards: ["v1.1"],
-      rows: [
-        dsRow({ model: "a-model", config: "max", value: 0.7, rank: 1, extra: { mean_cost_usd: 0.2401, mean_output_tokens: 143_152, mean_agent_steps: 166.4 } }),
-        dsRow({ model: "b-model", config: "max", value: 0.6, rank: 2, extra: { mean_cost_usd: 11.8376, mean_output_tokens: 9_612, mean_agent_steps: 29 } }),
-      ],
-    });
-    render(<DeepSweChart view={deepSweView(site)} />);
-    const table = within(screen.getByRole("table"));
-    for (const text of ["$0.24", "143k", "166", "$11.84", "9.6k"]) expect(table.getByText(text)).toBeInTheDocument();
-  });
-
-  it("lists only the site's default models until more are picked in 모델", () => {
-    const site = siteOf({
-      site: "deepswe",
-      boards: ["v1.1"],
-      rows: [
-        dsRow({ model: "shown-model", config: "max", value: 0.7, rank: 1 }),
-        // ranked by nobody: the site hides it until picked
-        dsRow({ model: "gpt-5-6-terra", config: "max", value: 0.72 }),
-        dsRow({ model: "gpt-5-6-terra", config: "high", value: 0.6 }),
-      ],
-    });
-    render(<DeepSweChart view={deepSweView(site)} />);
-    expect(firstColumn(screen.getByRole("table"))).toEqual([expect.stringContaining("shown-model")]);
-    const picker = screen.getByRole("button", { name: "모델 고르기" });
-    expect(picker).toHaveTextContent("(1/2)");
-    fireEvent.click(picker);
-    fireEvent.click(screen.getByRole("checkbox", { name: "gpt-5.6-terra" }));
-    // its best effort joins the table, in pass@1 order
-    expect(firstColumn(screen.getByRole("table"))).toEqual([expect.stringContaining("gpt-5.6-terra[max]"), expect.stringContaining("shown-model")]);
-  });
-
-  it("switches the x axis", () => {
-    render(<DeepSweChart view={deepSweView(deepswe)} />);
-    const toggle = within(screen.getByRole("group", { name: "가로축" })).getByRole("button", { name: "출력 토큰" });
-    fireEvent.click(toggle);
-    expect(toggle).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getByText("작업당 평균 출력 토큰")).toBeInTheDocument();
-  });
-});
-
-// a small v1.1 board shaped like the site's: several effort levels per model, out of order
-const sweep = (model: string, levels: [string | null, number, number][], extra: Record<string, unknown> = {}) =>
-  levels.map(([config, pass, cost]) =>
-    dsRow({ model, config, value: pass, ci_low: pass - 0.03, ci_high: pass + 0.03, extra: { mean_cost_usd: cost, mean_output_tokens: cost * 10_000, mean_agent_steps: 30, harness: "mini-swe-agent", n_tasks_attempted: 113, ...extra } }),
-  );
-// the API ranks each default model's best configuration: gpt-5-4 is one the site hides, and
-// tiny-model is under its 5% floor, so neither is ranked
-const ranked = (rows: BenchmarkRow[], rank: number) => {
-  const best = rows.reduce((a, b) => (b.value > a.value ? b : a));
-  return rows.map((r) => (r === best ? { ...r, rank } : r));
-};
-const board = siteOf({
-  site: "deepswe",
-  title: "DeepSWE",
-  boards: ["v1.1"],
-  release: "2026-09-22",
-  rows: [
-    ...ranked(sweep("gpt-5-5", [["high", 0.64, 5.1], ["max", 0.66, 9], ["low", 0.27, 1.2], ["medium", 0.54, 2.75], ["xhigh", 0.67, 7.23]]), 3),
-    ...ranked(sweep("claude-opus-5", [["low", 0.58, 1.66], ["max", 0.736, 11.84], ["high", 0.728, 6.08]]), 1),
-    ...ranked(sweep("claude-fable-5", [["high", 0.686, 9.18], ["max", 0.697, 21.63]]), 2),
-    ...ranked(sweep("glm-5-3-flash", [[null, 0.63, 0.48]]), 4),
-    ...sweep("gpt-5-4", [["xhigh", 0.518, 5.65]]),
-    ...sweep("tiny-model", [["high", 0.03, 0.2]]),
-  ],
-});
-const boardView = deepSweView(board);
-const v11 = boardView.points;
-
-describe("DeepSWE chart rules", () => {
-  it("names models like the site", () => {
-    expect(displayName("gpt-5-6-sol")).toBe("gpt-5.6-sol");
-    expect(displayName("glm-5-3-flash")).toBe("glm-5.3-flash");
-    expect(displayName("qwen3-8-max")).toBe("qwen3.8-max");
-    expect(displayName("gemini-3-1-pro-preview")).toBe("gemini-3.1-pro");
-    expect(displayName("gpt-6-astra")).toBe("gpt-6-astra");
-  });
-
-  it("colours by the maker in the name, each next model of a maker a lighter step", () => {
-    expect(family("gpt-6-astra")).toBe("openai");
-    expect(family("muse-spark-1-1")).toBe("meta");
-    expect(family("glm-5-3")).toBe("zai");
-    expect(family("mimo-v2-5-pro")).toBe("xiaomi");
-    expect(family("frob-1")).toBe("other");
-    const shades = modelShades(v11);
-    expect(shades.get("claude-opus-5")!.light).toBe(providerColor("anthropic", "light"));
-    expect(shades.get("claude-fable-5")!.light).not.toBe(shades.get("claude-opus-5")!.light);
-    expect(shades.get("claude-fable-5")!.dark).not.toBe(shades.get("claude-opus-5")!.dark);
-  });
-
-  it("steps lower-ranked models lighter in the dark theme too, so they stay visible on the dark card", () => {
-    const many = ["gpt-a", "gpt-b", "gpt-c", "gpt-d", "gpt-e", "gpt-f"].map((model, i) => ({ model, score: 70 - i }));
-    const shades = modelShades(many);
-    const base = toHsl(providerColor("openai", "dark"))[2];
-    const lightness = many.map((m) => toHsl(shades.get(m.model)!.dark)[2]);
-    for (const l of lightness.slice(1)) expect(l).toBeGreaterThan(base);
-    expect(Math.max(...lightness)).toBeLessThanOrEqual(82.05);
-    expect(toHsl(shades.get("gpt-b")!.light)[2]).toBeGreaterThan(toHsl(providerColor("openai", "light"))[2]);
-  });
-
-  it("keeps two close labels apart and draws a leader to a far one", () => {
-    const crowd = ["aaa-1", "bbb-1", "ccc-1", "ddd-1", "eee-1", "fff-1", "ggg-1"].map((model, i) => dsRow({ model, config: "high", value: 0.5 + i * 0.001, extra: { mean_cost_usd: 3 + i * 0.01, harness: "h" } }));
-    const plot = buildPlot(deepSweView(siteOf({ site: "deepswe", boards: ["v1.1"], rows: crowd })).points, "cost", null)!;
-    const [a, b] = plot.labels;
-    const overlapX = Math.min(a.box.x + a.box.w, b.box.x + b.box.w) - Math.max(a.box.x, b.box.x);
-    const overlapY = Math.min(a.box.y + a.box.h, b.box.y + b.box.h) - Math.max(a.box.y, b.box.y);
-    expect(overlapX <= 0 || overlapY <= 0).toBe(true);
-    expect(plot.labels.some((l) => l.leader)).toBe(true);
-    expect(plot.labels[0].leader).toBe(false);
-  });
-
-  it("uses the narrow frame under 640 px", () => {
-    const plot = buildPlot(v11, "cost", 400)!;
-    expect(plot.dims).toMatchObject({ mobile: true, W: 440, H: 500 });
-    expect(plot.yTicks).toEqual([0, 0.2, 0.4, 0.6, 0.8]);
-    // about four ticks instead of six
-    expect(plot.xTicks).toEqual([0, 10, 20]);
-    expect(buildPlot(v11, "cost", 1000)!.dims).toMatchObject({ mobile: false, W: 1000, H: 625 });
-  });
-
-  it("joins a model's configurations in effort order, one line per swept model", () => {
-    const plot = buildPlot(v11, "cost", null)!;
-    const ids = (model: string) => v11.filter((p) => p.model === model);
-    const gpt = plot.lines.find((l) => l.model === "gpt-5-5")!;
-    expect(gpt.ids.map((id) => ids("gpt-5-5").find((p) => p.id === id)!.effort)).toEqual(["low", "medium", "high", "xhigh", "max"]);
-    expect(plot.lines.map((l) => l.model).sort()).toEqual(["claude-fable-5", "claude-opus-5", "gpt-5-5"]);
-    expect(plot.lines.find((l) => l.model === "glm-5-3-flash")).toBeUndefined();
-  });
-
-  it("labels each model's default effort, else its highest", () => {
-    const plot = buildPlot(v11, "cost", null)!;
-    const labelled = (model: string) => plot.points.filter((p) => p.model === model && p.labeled).map((p) => p.effort);
-    expect(labelled("gpt-5-5")).toEqual(["medium"]);
-    expect(labelled("claude-fable-5")).toEqual(["high"]);
-    expect(labelled("claude-opus-5")).toEqual(["max"]);
-    expect(labelled("glm-5-3-flash")).toEqual([null]);
-    expect(plot.labels).toHaveLength(6);
-    expect(plot.labels.find((l) => l.model === "glm-5-3-flash")).toMatchObject({ line1: "glm-5.3-flash", line2: null });
-  });
-
-  it("runs the x axis from dear to cheap with nice ticks", () => {
-    expect(niceTicks(13.94)).toEqual([0, 5, 10]);
-    expect(niceTicks(52_000)).toEqual([0, 10_000, 20_000, 30_000, 40_000, 50_000]);
-    expect([formatCost(0), formatCost(5), formatCost(10), formatCost(0.005)]).toEqual(["$0", "$5.00", "$10", "$0.005"]);
-    const plot = buildPlot(v11, "cost", null)!;
-    const at = (model: string, effort: string) => plot.points.find((p) => p.model === model && p.effort === effort)!;
-    expect(at("gpt-5-5", "low").px).toBeGreaterThan(at("gpt-5-5", "max").px);
-    expect(plot.xTicks).toEqual([0, 5, 10, 15, 20]);
-    expect(plot.yTicks).toEqual([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]);
-    // every label inside the frame
-    for (const l of plot.labels) expect(l.x).toBeGreaterThan(0);
-  });
-
-  it("opens with the site's default configurations", () => {
-    const shown = defaultConfigs(v11);
-    const models = (ids: Set<string>) => new Set(v11.filter((p) => ids.has(p.id)).map((p) => p.model));
-    // gpt-5-4 and tiny-model are not ranked (not default models), fable's $21.63 max is above $15
-    expect([...models(shown)].sort()).toEqual(["claude-fable-5", "claude-opus-5", "glm-5-3-flash", "gpt-5-5"]);
-    expect(v11.filter((p) => shown.has(p.id)).some((p) => p.cost! > 15)).toBe(false);
-    expect(shown.size).toBe(10);
-  });
-
-  it("carries the task count and the snapshot day", () => {
-    expect(boardView.info["v1.1"]).toEqual({ tasks: 113, updated: "2026-09-22" });
-  });
-
-  it("dates every version from the site's own timestamp", () => {
-    const view = deepSweView({ ...deepswe, updated: { "v1.1": "2026-09-22", v1: "2026-06-20" } });
-    expect(view.info).toMatchObject({ "v1.1": { updated: "2026-09-22" }, v1: { updated: "2026-06-20" } });
-  });
-
-  it("sizes chart text to read at least 12 px (ticks 11 px) on a phone and a desktop", () => {
-    const narrow = buildPlot(v11, "cost", 343)!.dims;
-    const scale = 343 / narrow.W; // the 440-wide frame is drawn into 343 px
-    expect(narrow.font.tick * scale).toBeGreaterThanOrEqual(11);
-    for (const key of ["title", "axis", "eff", "label", "hover", "sub"] as const) expect(narrow.font[key] * scale).toBeGreaterThanOrEqual(12);
-    const wide = buildPlot(v11, "cost", 900)!.dims;
-    expect(wide.font.tick).toBeGreaterThanOrEqual(11);
-    for (const key of ["title", "axis", "eff", "label", "hover", "sub"] as const) expect(wide.font[key]).toBeGreaterThanOrEqual(12);
-  });
-});
-
-describe("DeepSWE chart", () => {
-  const svg = () => screen.getByRole("group", { name: /DeepSWE 점수와/ });
-
-  it("draws dots, effort lines and labels without error bars or a frontier", () => {
-    render(<DeepSweChart view={boardView} />);
-    const chart = svg();
-    // fable's $21.63 max starts hidden, so fable is a lone dot
-    expect(chart.querySelectorAll("[data-line]")).toHaveLength(2);
-    expect(chart.querySelectorAll("[data-point]")).toHaveLength(10);
-    expect(within(chart).getByText("gpt-5.5")).toBeInTheDocument();
-    expect(within(chart).getByText("MEDIUM")).toBeInTheDocument();
-    expect(within(chart).queryByText("gpt-5.4")).not.toBeInTheDocument();
-    expect(within(chart).getByText("효율 높음 ↗")).toBeInTheDocument();
-    expect(document.querySelector(".recharts-wrapper, .recharts-errorBar")).toBeNull();
-    expect(screen.queryByText(/효율 경계/)).not.toBeInTheDocument();
-    expect(screen.getByText("과제 113개")).toBeInTheDocument();
-  });
-
-  it("counts shown configurations and toggles a model's", () => {
-    render(<DeepSweChart view={boardView} />);
-    const picker = screen.getByRole("button", { name: "구성 고르기" });
-    expect(picker).toHaveTextContent("(10/13)");
-    fireEvent.click(picker);
-    fireEvent.click(screen.getByRole("checkbox", { name: /gpt-5\.4/ }));
-    expect(picker).toHaveTextContent("(11/13)");
-    expect(within(svg()).getByText("gpt-5.4")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("checkbox", { name: /gpt-5\.5/ }));
-    expect(picker).toHaveTextContent("(6/13)");
-    expect(svg().querySelector('[data-line="gpt-5-5"]')).toBeNull();
-  });
-
-  it("picks out the hovered model and pins it on click", () => {
-    render(<DeepSweChart view={boardView} />);
-    const chart = svg();
-    const point = (model: string) => chart.querySelector<SVGGElement>(`[data-point="${model}"]`)!;
-    fireEvent.mouseEnter(point("gpt-5-5"));
-    expect(point("claude-opus-5").style.opacity).toBe("0.55");
-    expect(point("claude-opus-5").style.filter).toBe("grayscale(1)");
-    expect(point("gpt-5-5").style.opacity).toBe("");
-    // the crosshair reads the exact pass rate off the y axis
-    expect(within(chart).getAllByText("64%").length).toBeGreaterThan(0);
-    fireEvent.click(point("gpt-5-5"));
-    fireEvent.mouseLeave(point("gpt-5-5"));
-    expect(point("claude-opus-5").style.opacity).toBe("0.55");
-    fireEvent.keyDown(window, { key: "Escape" });
-    expect(point("claude-opus-5").style.opacity).toBe("");
-  });
-
-  it("tells screen readers the table has the same data and lets the keyboard pick a model", () => {
-    render(<DeepSweChart view={boardView} />);
-    const chart = svg();
-    expect(chart).toHaveAccessibleDescription(/아래 DeepSWE 순위표/);
-    const point = within(chart).getByRole("button", { name: /^gpt-5\.5 medium: pass@1 54\.0%/ });
-    expect(point).toHaveAttribute("tabindex", "0");
-    // one focusable point per model, the labelled one
-    expect(within(chart).getAllByRole("button")).toHaveLength(4);
-    const other = () => chart.querySelector<SVGGElement>('[data-point="claude-opus-5"]')!;
-    fireEvent.focus(point);
-    expect(other().style.opacity).toBe("0.55");
-    fireEvent.keyDown(point, { key: "Enter" });
-    expect(point).toHaveAttribute("aria-pressed", "true");
-    fireEvent.blur(point);
-    expect(other().style.opacity).toBe("0.55");
-    fireEvent.keyDown(point, { key: "Escape" });
-    expect(point).toHaveAttribute("aria-pressed", "false");
-    expect(other().style.opacity).toBe("");
-  });
-
-  it("drops a provider switched off in the legend from the plot, not from the legend", () => {
-    render(<DeepSweChart view={boardView} />);
-    const legend = screen.getByRole("list", { name: "제공사 색 (눌러서 숨기기)" });
-    fireEvent.click(within(legend).getByRole("button", { name: "Anthropic" }));
-    expect(within(legend).getByRole("button", { name: "Anthropic" })).toHaveAttribute("aria-pressed", "false");
-    expect(svg().querySelector('[data-point="claude-opus-5"], [data-line="claude-opus-5"], [data-label="claude-opus-5"]')).toBeNull();
-    expect(svg().querySelector('[data-point="gpt-5-5"]')).not.toBeNull();
-    fireEvent.click(within(legend).getByRole("button", { name: "모두 보기" }));
-    expect(svg().querySelector('[data-label="claude-opus-5"]')).not.toBeNull();
-  });
-
-  it("opens the chart full screen from the chart tools", () => {
-    render(<DeepSweChart view={boardView} />);
-    fireEvent.click(within(screen.getByRole("toolbar", { name: "차트 도구" })).getByRole("button", { name: "크게 보기" }));
-    const dialog = screen.getByRole("dialog");
-    expect(within(dialog).getByRole("group", { name: /DeepSWE 점수와/ })).toBeInTheDocument();
-    expect(screen.getByText("크게 보기 창에서 보는 중입니다")).toBeInTheDocument();
-  });
-
-  it("puts a pass@1 bar with its interval on every table row", () => {
-    render(<DeepSweChart view={boardView} />);
-    const table = screen.getByRole("table");
-    const rows = within(table).getAllByRole("row").length - 1;
-    expect(within(table).getAllByRole("img", { name: /^pass@1 / })).toHaveLength(rows);
-    expect(within(table).getByText("80%")).toBeInTheDocument();
-  });
-});
-
-const aa = siteOf({
-  site: "artificial_analysis",
-  title: "Artificial Analysis",
-  source_url: "https://artificialanalysis.ai/",
-  attribution: "Data: Artificial Analysis",
-  boards: ["language"],
-  rows: [
-    row({ board: "language", model: "GLM-5.3 (Max)", org: "Z AI", metric: "artificial_analysis_intelligence_index", value: 31.7, rank: 1 }),
-    row({ board: "language", model: "GLM-5.3 (Max)", org: "Z AI", metric: "price_1m_blended_3_to_1", value: 2.15 }),
-    row({ board: "language", model: "GLM-5.3 (Max)", org: "Z AI", metric: "median_output_tokens_per_second", value: 80 }),
-  ],
-});
-
-describe("ArtificialAnalysisCharts", () => {
-  it("credits Artificial Analysis", () => {
-    render(<ArtificialAnalysisCharts models={aaModels(aa)} sourceUrl={aa.source_url} attribution={aa.attribution} />);
-    const link = screen.getByRole("link", { name: "Data: Artificial Analysis" });
-    expect(link).toHaveAttribute("href", "https://artificialanalysis.ai/");
-  });
-});
-
 describe("BenchmarksSection", () => {
-  const summary = [siteOf({ site: "deepswe", title: "DeepSWE", stale: true, boards: ["v1.1"] }), siteOf({ rows: [row({ model: "gpt-5.5", rank: 2, change: "new" })] })];
+  const stale = siteOf({ site: "lmarena", title: "LMArena", stale: true, boards: ["text_style_control"] });
+  const summary = [stale, siteOf({ rows: [row({ model: "gpt-5.5", rank: 2, change: "new" })] })];
+  const menu = () => screen.getByRole("navigation", { name: "벤치마크 사이트" });
 
-  it("marks a stale site", () => {
-    render(<BenchmarksSection summary={summary} sites={{ deepswe, livebench }} note="" />);
-    const card = screen.getByRole("region", { name: "DeepSWE" });
-    expect(within(card).getByText("갱신 지연")).toBeInTheDocument();
-    expect(within(screen.getByRole("region", { name: "LiveBench" })).queryByText("갱신 지연")).not.toBeInTheDocument();
+  it("shows one site's card: the one picked in the menu", () => {
+    render(<BenchmarksSection summary={summary} site="livebench" full={livebench} note="" />);
+    // the section itself is a region too; the cards are the ones named by aria-label
+    const cards = screen.getAllByRole("region").filter((region) => region.hasAttribute("aria-label"));
+    expect(cards.map((card) => card.getAttribute("aria-label"))).toEqual(["LiveBench"]);
+    expect(within(screen.getByRole("region", { name: "LiveBench" })).getByRole("table")).toBeInTheDocument();
+    expect(within(menu()).getByRole("link", { name: "LiveBench" })).toHaveAttribute("aria-current", "page");
+    expect(within(menu()).getByRole("link", { name: /Vals Index/ })).not.toHaveAttribute("aria-current");
   });
 
-  it("shows Opus's note, today's new models and a missing key", () => {
-    render(<BenchmarksSection summary={summary} sites={{ deepswe, livebench }} note="오늘은 오픈 모델이 약진했습니다" />);
+  it("lists every site in the menu under its group, each addressable by ?site=", () => {
+    render(<BenchmarksSection summary={summary} site="livebench" full={livebench} note="" />);
+    const agents = within(menu()).getByRole("group", { name: "AI 에이전트" });
+    const models = within(menu()).getByRole("group", { name: "AI 모델" });
+    const names = (group: HTMLElement) =>
+      within(group)
+        .getAllByRole("link")
+        .map((a) => a.textContent?.replace(/미수집|갱신 지연/, "") ?? "");
+    expect(names(agents)).toEqual(["Terminal-Bench", "OSWorld 2.0", "τ²-bench", "Vals Index", "Vending-Bench 2"]);
+    expect(names(models)).toEqual(["LiveBench", "LMArena", "Epoch AI", "Scale SEAL", "SimpleBench", "ForecastBench"]);
+    expect(within(agents).getByRole("link", { name: /Terminal-Bench/ })).toHaveAttribute("href", "/spotlight?tab=benchmarks");
+    expect(within(models).getByRole("link", { name: /Scale SEAL/ })).toHaveAttribute("href", "/spotlight?tab=benchmarks&site=seal");
+    expect(screen.queryByText(/DeepSWE|Artificial Analysis/)).not.toBeInTheDocument();
+  });
+
+  it("keeps the picked day in the menu's links", () => {
+    render(<BenchmarksSection summary={summary} site="livebench" full={livebench} note="" date="2026-11-01" />);
+    expect(within(menu()).getByRole("link", { name: /Epoch AI/ })).toHaveAttribute("href", "/spotlight?tab=benchmarks&site=epoch&date=2026-11-01");
+  });
+
+  it("marks a stale site and one never collected in the menu", () => {
+    render(<BenchmarksSection summary={summary} site="lmarena" full={null} note="" />);
+    expect(within(menu()).getByRole("link", { name: /LMArena/ })).toHaveTextContent("갱신 지연");
+    expect(within(menu()).getByRole("link", { name: /Epoch AI/ })).toHaveTextContent("미수집");
+    expect(within(menu()).getByRole("link", { name: "LiveBench" })).not.toHaveTextContent(/갱신 지연|미수집/);
+    expect(within(screen.getByRole("region", { name: "LMArena" })).getByText("갱신 지연")).toBeInTheDocument();
+  });
+
+  it("says so when the picked site was never collected", () => {
+    render(<BenchmarksSection summary={summary} site="forecastbench" full={null} note="" />);
+    expect(within(screen.getByRole("region", { name: "ForecastBench" })).getByText("아직 수집된 순위가 없습니다.")).toBeInTheDocument();
+  });
+
+  it("falls back to the summary's rows when the site's full rows did not load", () => {
+    render(<BenchmarksSection summary={[livebench]} site="livebench" full={null} note="" />);
+    expect(within(screen.getByRole("region", { name: "LiveBench" })).getByRole("table")).toBeInTheDocument();
+  });
+
+  it("shows Opus's note and today's new models, each linking to its site", () => {
+    render(<BenchmarksSection summary={summary} site="lmarena" full={null} note="오늘은 오픈 모델이 약진했습니다" />);
     expect(screen.getByText("오늘은 오픈 모델이 약진했습니다")).toBeInTheDocument();
     expect(screen.getByText("오늘의 순위 변화 (Opus)")).toBeInTheDocument();
-    expect(within(screen.getByRole("list", { name: "새로 등장한 모델" })).getByText(/gpt-5\.5/)).toBeInTheDocument();
-    expect(within(screen.getByRole("region", { name: "Artificial Analysis" })).getByText("키 미설정")).toBeInTheDocument();
+    const arrival = within(screen.getByRole("list", { name: "새로 등장한 모델" })).getByRole("link", { name: /gpt-5\.5/ });
+    expect(arrival).toHaveAttribute("href", "/spotlight?tab=benchmarks&site=livebench");
   });
 
   it("dates the note of a past day, since the leaderboards are always the latest", () => {
-    render(<BenchmarksSection summary={summary} sites={{ deepswe, livebench }} note="지난 메모" noteDate="2026-11-01" />);
+    render(<BenchmarksSection summary={summary} site="livebench" full={livebench} note="지난 메모" noteDate="2026-11-01" />);
     expect(screen.getByText(/2026년 11월 1일.*순위 변화 \(Opus\) · 아래 순위표는 최신 기준/)).toBeInTheDocument();
   });
 
   it("works without the summary", () => {
-    render(<BenchmarksSection summary={null} sites={{ deepswe, livebench }} note="" />);
+    render(<BenchmarksSection summary={null} site="livebench" full={livebench} note="" />);
     expect(screen.queryByRole("list", { name: "새로 등장한 모델" })).not.toBeInTheDocument();
     expect(within(screen.getByRole("region", { name: "LiveBench" })).getByRole("table")).toBeInTheDocument();
-    expect(within(screen.getByRole("region", { name: "LiveBench" })).getByRole("link", { name: /원본/ })).toBeInTheDocument();
   });
 
-  it("sits under one 「AI 모델 벤치마크」 heading, agents first, then models", () => {
-    render(<BenchmarksSection summary={summary} sites={{ deepswe, livebench }} note="" />);
-    const heading = screen.getByRole("heading", { level: 2, name: "AI 모델 벤치마크" });
+  it("sits under one 「AI 벤치마크」 heading that old #benchmarks links land on", () => {
+    render(<BenchmarksSection summary={summary} site="livebench" full={livebench} note="" />);
+    const heading = screen.getByRole("heading", { level: 2, name: "AI 벤치마크" });
     expect(heading.closest("section")).toHaveAttribute("id", "benchmarks");
-    const groups = screen.getAllByRole("heading", { level: 3 }).map((h) => h.textContent);
-    expect(groups.filter((t) => t !== "새로 등장한 모델")).toEqual(["AI 에이전트 벤치마크", "AI 모델 벤치마크"]);
-    expect(within(screen.getByRole("group", { name: "AI 모델 벤치마크" })).getByRole("heading", { level: 4, name: /LiveBench/ })).toBeInTheDocument();
-    const agents = screen.getByRole("group", { name: "AI 에이전트 벤치마크" });
-    expect(within(agents).getAllByRole("heading", { level: 4 }).map((h) => h.textContent)).toEqual(["Terminal-Bench", "OSWorld 2.0", "τ²-bench"]);
+    expect(screen.getByRole("heading", { level: 3, name: /LiveBench/ })).toBeInTheDocument();
   });
 
-  it("gives every card its source link and update time", () => {
-    render(<BenchmarksSection summary={summary} sites={{ deepswe, livebench }} note="" />);
+  it("gives the card its source link, licence, attribution and update time", () => {
+    render(<BenchmarksSection summary={summary} site="livebench" full={livebench} note="" />);
     const card = screen.getByRole("region", { name: "LiveBench" });
     expect(within(card).getByRole("link", { name: /원본/ })).toHaveAttribute("href", "https://livebench.ai/");
-    expect(within(card).getByText(/LiveBench \(Abacus\.AI\)/)).toBeInTheDocument();
+    expect(within(card).getByText("라이선스: 공개 데이터, 별도 라이선스 표기 없음")).toBeInTheDocument();
+    expect(within(card).getByText(/출처: LiveBench \(Abacus\.AI\)/)).toBeInTheDocument();
+    expect(within(card).getByText(/^갱신 /)).toBeInTheDocument();
   });
 });

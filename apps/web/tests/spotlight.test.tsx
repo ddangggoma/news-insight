@@ -169,14 +169,23 @@ describe("Overview", () => {
 });
 
 describe("AI 모델·서비스", () => {
-  it("has its own tab right after 제품, and no separate AI 모델 tab (the benchmarks sit under it)", () => {
+  it("has its own tab right after 제품, then 벤치마크 (the leaderboards), and no separate AI 모델 tab", () => {
     render(<SpotlightTabs active="ai" date={null} />);
     const labels = within(screen.getByRole("navigation", { name: "주목 받는 보기" }))
       .getAllByRole("link")
       .map((link) => link.textContent);
-    expect(labels).toEqual(["전체", "뉴스", "제품", "AI 모델·서비스", "오픈소스", "인터뷰·발언", "커뮤니티", "연구", "특허"]);
+    expect(labels).toEqual(["전체", "뉴스", "제품", "AI 모델·서비스", "벤치마크", "오픈소스", "인터뷰·발언", "커뮤니티", "연구", "특허"]);
     expect(screen.getByRole("link", { name: "AI 모델·서비스" })).toHaveAttribute("aria-current", "page");
     expect(screen.getByRole("link", { name: "AI 모델·서비스" })).toHaveAttribute("href", "/spotlight?tab=ai");
+    expect(screen.getByRole("link", { name: "벤치마크" })).toHaveAttribute("href", "/spotlight?tab=benchmarks");
+    expect(screen.getByRole("link", { name: "벤치마크" })).not.toHaveAttribute("aria-current");
+  });
+
+  it("marks the 벤치마크 tab when it is open and keeps the day in its link", () => {
+    render(<SpotlightTabs active="benchmarks" date="2026-11-02" />);
+    expect(screen.getByRole("link", { name: "벤치마크" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("link", { name: "벤치마크" })).toHaveAttribute("href", "/spotlight?tab=benchmarks&date=2026-11-02");
+    expect(screen.getByRole("link", { name: "AI 모델·서비스" })).not.toHaveAttribute("aria-current");
   });
 
   it("shows its top three on the overview", () => {
@@ -236,8 +245,8 @@ describe("SpotlightTabs", () => {
     expect(screen.getByRole("link", { name: "전체" })).toHaveAttribute("href", "/spotlight?date=2026-11-02");
     expect(screen.getByRole("link", { name: "뉴스" })).toHaveAttribute("href", "/spotlight?tab=news&date=2026-11-02");
     expect(screen.queryByRole("link", { name: "AI 모델" })).not.toBeInTheDocument();
-    // 전체 and one per section
-    expect(within(screen.getByRole("navigation", { name: "주목 받는 보기" })).getAllByRole("link")).toHaveLength(1 + SECTION_KEYS.length);
+    // 전체, one per section, and 벤치마크
+    expect(within(screen.getByRole("navigation", { name: "주목 받는 보기" })).getAllByRole("link")).toHaveLength(2 + SECTION_KEYS.length);
   });
 
   it("defaults to the overview", () => {

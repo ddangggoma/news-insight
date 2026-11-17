@@ -40,7 +40,6 @@ from tests.benchmarks.fakes import (
 )
 
 NOW = datetime(2026, 11, 8, 3, 30, tzinfo=UTC)
-KEY = "SOURCE_SECRET_ARTIFICIAL_ANALYSIS_KEY"
 
 
 @pytest.fixture(autouse=True)
@@ -402,7 +401,6 @@ def test_tau2_manifest_without_submissions_is_a_parse_error() -> None:
 def test_schema_change_keeps_the_last_good_snapshot(
     db_session: Session, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
 ) -> None:
-    monkeypatch.setenv(KEY, "test-key")
     collect_all(db_session, all_sites().fetcher(), NOW)
     before = db_session.scalars(
         select(BenchmarkScore.id).where(BenchmarkScore.site == "terminal_bench")
@@ -423,7 +421,6 @@ def test_schema_change_keeps_the_last_good_snapshot(
 def test_unchanged_etag_and_commit_mark_the_snapshot_seen(
     db_session: Session, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setenv(KEY, "test-key")
     collect_all(db_session, all_sites().fetcher(), NOW)
     later = NOW + timedelta(days=1)
     router = all_sites()
@@ -444,14 +441,13 @@ def test_unchanged_etag_and_commit_mark_the_snapshot_seen(
     )
     assert seen == {"epoch": later, "tau2": later}
     count = db_session.scalar(select(func.count()).select_from(BenchmarkSnapshot))
-    assert count == 8
+    assert count == 11
 
 
 @pytest.mark.db
 def test_one_new_source_failing_does_not_block_the_others(
     db_session: Session, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setenv(KEY, "test-key")
     router = all_sites()
     router.routes.insert(0, ("osworld-v2.xlang.ai", lambda _r: reply(503, "down", "text/plain")))
     result = collect_all(db_session, router.fetcher(), NOW)
@@ -467,7 +463,6 @@ def test_spotlight_hears_only_eci_and_terminal_bench_4(
 ) -> None:
     """A move on any board of the newer sites reaches the spotlight only from Epoch's ECI and
     Terminal-Bench 4.0 (Epoch's other boards and the agent boards would flood it)."""
-    monkeypatch.setenv(KEY, "test-key")
     collect_all(db_session, all_sites().fetcher(), NOW)
     # the next day every board of the newer sites reverses its order
     for snapshot in db_session.scalars(

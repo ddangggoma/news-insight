@@ -23,14 +23,13 @@ from news_insight.net.safe_fetch import FetchResponse, SafeFetcher
 
 SELECTOR_DRIFT = "selector_drift"
 HTTP_ERROR = "http_error"
-CONFIG_ERROR = "config_error"
 PARSE_ERROR = "parse_error"
 
 _TRAILING_PARENS = re.compile(r"\(([^()]*)\)\s*$")
 
 
 class BenchmarkError(Exception):
-    """A site could not be read. `code`: selector_drift, http_error or config_error."""
+    """A site could not be read. `code`: selector_drift, http_error or parse_error."""
 
     def __init__(
         self,

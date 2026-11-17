@@ -1,8 +1,8 @@
 """The ranked boards equal what each site shows by default, on responses recorded 2026-11-04
 (Terminal-Bench, OSWorld 2.0, Epoch AI and τ²-bench: 2026-11-08).
 
-The expected lists were read off the sites' own pages that day (deepswe.datacurve.ai's table,
-livebench.ai's leaderboard, arena.ai's text and search boards), in the precision they print.
+The expected lists were read off the sites' own pages that day (livebench.ai's leaderboard,
+arena.ai's text and search boards), in the precision they print.
 """
 
 from datetime import UTC, datetime
@@ -10,7 +10,6 @@ from datetime import UTC, datetime
 import pytest
 
 from news_insight.benchmarks.sources import (
-    deepswe,
     epoch,
     livebench,
     lmarena,
@@ -20,64 +19,19 @@ from news_insight.benchmarks.sources import (
 )
 from news_insight.public.benchmarks import preview
 from tests.benchmarks.fakes import (
-    DEEPSWE_CHUNK,
     FakeClock,
     Router,
     TbRouter,
-    deepswe_routes,
     epoch_routes,
     fixture_text,
     livebench_routes,
     lmarena_routes,
     osworld_routes,
-    reply,
     tau2_routes,
 )
 
 NOW = datetime(2026, 11, 4, 3, 30, tzinfo=UTC)
 
-# deepswe.datacurve.ai, v1.1, "Best": the table's 21 rows (Models 21/28), name [effort] pass@1
-DEEPSWE_V1_1 = [
-    ("gpt-6-astra", "xhigh", 74),
-    ("gemini-3-8-flash", "high", 74),
-    ("claude-opus-5", "max", 74),
-    ("gpt-5-6-sol", "max", 73),
-    ("claude-fable-5", "xhigh", 70),
-    ("glm-5-3", "max", 69),
-    ("kimi-k3", "max", 69),
-    ("grok-4-6", "medium", 67),
-    ("gpt-5-6-luna", "max", 67),
-    ("gpt-5-5", "xhigh", 67),
-    ("gemini-3-7-flash", "medium", 65),
-    ("glm-5-3-flash", "max", 63),
-    ("deepseek-v4-pro", "max", 63),
-    ("claude-opus-4-8", "max", 59),
-    ("qwen3-8-max", "xhigh", 57),
-    ("muse-spark-1-2", "xhigh", 55),
-    ("claude-sonnet-5", "max", 54),
-    ("deepseek-v4-flash", "max", 53),
-    ("gemini-3-6-flash", "high", 47),
-    ("glm-5-2", "max", 44),
-    ("gemini-3-5-flash", "high", 36),
-]
-# the same table on v1 (Models 15/21)
-DEEPSWE_V1 = [
-    ("gpt-5-5", "xhigh", 70),
-    ("claude-opus-4-8", "max", 58),
-    ("claude-opus-4-7", "max", 54),
-    ("glm-5-2", "max", 42),
-    ("gemini-3-5-flash", "medium", 28),
-    ("claude-opus-4-6", "max", 28),
-    ("gpt-5-4-mini", "xhigh", 24),
-    ("kimi-k2-6", None, 24),
-    ("minimax-m3", None, 20),
-    ("mimo-v2-5-pro", None, 19),
-    ("qwen3-7-max", None, 18),
-    ("glm-5-1", None, 18),
-    ("grok-build-0-1", None, 13),
-    ("deepseek-v4-pro", None, 8),
-    ("gemini-3-flash-preview", None, 5),
-]
 # livebench.ai, latest release (25 October 2026): model, Overall as the table prints it
 LIVEBENCH = [
     ("claude-fable-5.1", 85.7),
@@ -146,116 +100,6 @@ ARENA_SEARCH = [
 @pytest.fixture(autouse=True)
 def no_sleep(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(lmarena, "_sleep", FakeClock().sleep)
-
-
-def test_deepswe_default_table_equals_the_sites() -> None:
-    router = deepswe_routes(Router(), recorded=True)
-    snapshot = deepswe.fetch(router.fetcher(), NOW)
-    assert snapshot.raw["default_view"] == {
-        "min_best": 0.05,
-        "hidden": sorted(deepswe.DEFAULT_HIDDEN),
-    }
-    boards = preview(snapshot, top=100)
-    for board, expected in (("v1.1", DEEPSWE_V1_1), ("v1", DEEPSWE_V1)):
-        shown = [(e["model"], e["config"], round(e["value"] * 100)) for e in boards[board]]
-        assert shown == expected, board
-    assert snapshot.raw["updated"] == {"v1.1": "2026-09-22", "v1": "2026-06-20"}
-
-
-# the same table's "Avg cost" column: the page re-prices these models at today's prices
-DEEPSWE_COSTS = {
-    ("v1.1", "gpt-5-6-luna", "max"): "$0.61",
-    ("v1.1", "gpt-5-6-sol", "max"): "$6.46",
-    ("v1.1", "glm-5-3-flash", "max"): "$0.24",
-    ("v1.1", "deepseek-v4-pro", "max"): "$1.67",
-    ("v1.1", "deepseek-v4-flash", "max"): "$0.46",
-    ("v1.1", "gemini-3-6-flash", "high"): "$2.21",
-    ("v1.1", "claude-opus-5", "max"): "$11.84",  # not in the table: as served
-    ("v1.1", "gpt-6-astra", "xhigh"): "$4.43",
-    ("v1", "deepseek-v4-pro", None): "$1.05",  # the v1 board has its own price pair
-    ("v1", "gpt-5-5", "xhigh"): "$6.61",
-}
-
-
-def test_deepswe_costs_are_repriced_like_the_site() -> None:
-    snapshot = deepswe.fetch(deepswe_routes(Router(), recorded=True).fetcher(), NOW)
-    assert snapshot.raw["repricing"] == deepswe.DEFAULT_REPRICING
-    cost = {
-        (r.board, r.model_raw, r.config): f"${r.extra['mean_cost_usd']:.2f}" for r in snapshot.rows
-    }
-    for key, shown in DEEPSWE_COSTS.items():
-        assert cost[key] == shown, key
-    # the stored board stays as the site serves it
-    luna = next(
-        r
-        for r in snapshot.raw["boards"]["v1.1"]["rows"]
-        if r["model"] == "gpt-5-6-luna" and r.get("reasoning_effort") == "max"
-    )
-    assert f"${luna['mean_cost_usd']:.2f}" == "$3.03"
-
-
-def test_deepswe_chart_opens_on_the_sites_57_configurations() -> None:
-    # "Configs (57/70)": the default models' configurations at $15 a task or less
-    snapshot = deepswe.fetch(deepswe_routes(Router(), recorded=True).fetcher(), NOW)
-    shown = {e["model"] for e in preview(snapshot, top=100)["v1.1"]}
-    rows = [r for r in snapshot.rows if r.board == "v1.1"]
-    assert len(rows) == 70
-    assert sum(1 for r in rows if r.model_raw in shown and r.extra["mean_cost_usd"] <= 15) == 57
-
-
-def test_deepswe_repricing_table_read_from_the_main_script() -> None:
-    script = (
-        'x=1,T={"m-1":{from:{input:2,cached:.5,output:10},to:{input:1,cached:.25,output:5}}},'
-        "R=/(^|_)cost_usd$/,"
-    )
-    table = deepswe.repricing(script)
-    assert table == {
-        "m-1": {
-            "from": {"input": 2, "cached": 0.5, "output": 10},
-            "to": {"input": 1, "cached": 0.25, "output": 5},
-        }
-    }
-    row = {"model": "m.1", "mean_cost_usd": 4.0, "total_cost_usd": 8.0, "mean_output_tokens": 10.0}
-    # no input tokens: one factor across the board (all prices halved) is still applied
-    assert deepswe.repriced(row, "v1.1", table)["mean_cost_usd"] == 2.0
-    assert deepswe.repriced({"model": "other", "mean_cost_usd": 4.0}, "v1.1", table) == {
-        "model": "other",
-        "mean_cost_usd": 4.0,
-    }
-    assert deepswe.repricing("no table") is None
-
-
-def test_deepswe_hidden_models_are_not_ranked() -> None:
-    snapshot = deepswe.fetch(deepswe_routes(Router(), recorded=True).fetcher(), NOW)
-    ranked = {e["model"] for board in preview(snapshot, top=100).values() for e in board}
-    # all stored, none ranked: the site keeps them out of its default chart and table
-    stored = {r.model_raw for r in snapshot.rows}
-    assert {"gpt-5-6-terra", "gpt-5-4", "claude-sonnet-4-6"} <= stored
-    assert not ranked & set(deepswe.DEFAULT_HIDDEN)
-
-
-def test_deepswe_defaults_read_from_the_page_script() -> None:
-    chunk = 'x=1;const q=.1,w=new Set(["a","b"]),z=2;'
-    assert deepswe.default_view(chunk) == {"min_best": 0.1, "hidden": ["a", "b"]}
-    assert deepswe.default_view("no defaults here") is None
-    router = Router().add(f"={DEEPSWE_CHUNK}", reply(200, chunk, "application/javascript"))
-    snapshot = deepswe.fetch(deepswe_routes(router).fetcher(), NOW)
-    assert snapshot.raw["default_view"] == {"min_best": 0.1, "hidden": ["a", "b"]}
-
-
-@pytest.mark.parametrize(
-    "page",
-    [
-        pytest.param(reply(503, "down", "text/plain"), id="page-down"),
-        pytest.param(reply(200, "<html>no script</html>", "text/html"), id="no-script"),
-    ],
-)
-def test_deepswe_unreadable_page_falls_back_to_the_last_known_defaults(page: object) -> None:
-    router = Router().add("=https://deepswe.datacurve.ai/", page)  # type: ignore[arg-type]
-    snapshot = deepswe.fetch(deepswe_routes(router).fetcher(), NOW)
-    assert snapshot.raw["default_view"] == deepswe.fallback_view()
-    assert snapshot.raw["repricing"] == deepswe.DEFAULT_REPRICING
-    assert len(snapshot.rows) == 6  # the boards are unaffected
 
 
 def test_livebench_default_table_equals_the_sites() -> None:

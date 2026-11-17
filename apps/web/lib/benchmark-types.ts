@@ -1,21 +1,33 @@
 /** AI model leaderboards (plan 18 part 2): the shape of GET /api/public/benchmarks. */
 
-export const BENCHMARK_SITES = ["terminal_bench", "osworld", "tau2", "deepswe", "livebench", "lmarena", "epoch", "artificial_analysis"] as const;
+export const BENCHMARK_SITES = [
+  "terminal_bench",
+  "osworld",
+  "tau2",
+  "vals",
+  "vending_bench",
+  "livebench",
+  "lmarena",
+  "epoch",
+  "seal",
+  "simplebench",
+  "forecastbench",
+] as const;
 export type BenchmarkSiteKey = (typeof BENCHMARK_SITES)[number];
 
-/** The section's two groups, in page order: agents (harness or computer use) first, then models. */
+/** The 벤치마크 tab's two groups, in menu order: agents (harness, computer use, long tasks) first, then models. */
 export const BENCHMARK_GROUPS: { key: string; title: string; blurb: string; sites: BenchmarkSiteKey[] }[] = [
   {
     key: "agents",
-    title: "AI 에이전트 벤치마크",
-    blurb: "Claude Code·Codex 같은 에이전트 하네스와 컴퓨터 사용·고객 응대 에이전트의 과제 성공률",
-    sites: ["terminal_bench", "osworld", "tau2"],
+    title: "AI 에이전트",
+    blurb: "Claude Code·Codex 같은 에이전트 하네스와 컴퓨터 사용·고객 응대·업무 에이전트의 과제 성과",
+    sites: ["terminal_bench", "osworld", "tau2", "vals", "vending_bench"],
   },
   {
     key: "models",
-    title: "AI 모델 벤치마크",
-    blurb: "모델 자체의 코딩·추론·지식 점수와 사람 선호 투표",
-    sites: ["deepswe", "livebench", "lmarena", "epoch", "artificial_analysis"],
+    title: "AI 모델",
+    blurb: "모델 자체의 코딩·추론·지식·예측 점수와 사람 선호 투표",
+    sites: ["livebench", "lmarena", "epoch", "seal", "simplebench", "forecastbench"],
   },
 ];
 
@@ -23,11 +35,14 @@ export const SITE_TITLE: Record<BenchmarkSiteKey, string> = {
   terminal_bench: "Terminal-Bench",
   osworld: "OSWorld 2.0",
   tau2: "τ²-bench",
-  deepswe: "DeepSWE",
+  vals: "Vals Index",
+  vending_bench: "Vending-Bench 2",
   livebench: "LiveBench",
   lmarena: "LMArena",
   epoch: "Epoch AI",
-  artificial_analysis: "Artificial Analysis",
+  seal: "Scale SEAL",
+  simplebench: "SimpleBench",
+  forecastbench: "ForecastBench",
 };
 
 /** What each card measures, in one line. */
@@ -35,12 +50,26 @@ export const SITE_BLURB: Record<BenchmarkSiteKey, string> = {
   terminal_bench: "터미널 과제를 에이전트 하네스(Claude Code·Codex 등)와 모델 조합이 해결한 비율",
   osworld: "데스크톱·웹을 오가는 긴 컴퓨터 사용 과제를 끝까지 완수한 비율",
   tau2: "항공·리테일·통신·은행 고객 응대 에이전트가 같은 과제를 k번 모두 성공한 비율(pass^k)",
-  deepswe: "긴 소프트웨어 엔지니어링 과제를 코딩 에이전트가 한 번에 통과하는 비율(pass@1)",
+  vals: "금융·코딩·법률·세무 에이전트 과제 정확도를 미국 GDP 비중으로 가중한 지수",
+  vending_bench: "자판기 사업을 1년간 맡긴 시뮬레이션에서 에이전트가 마지막에 남긴 잔고(달러)",
   livebench: "에이전틱·코딩·추론 등 영역별 오염 방지 문제 점수",
   lmarena: "사람이 두 모델의 답을 나란히 보고 고른 투표로 매긴 점수",
   epoch: "Epoch AI가 모은 GPQA·FrontierMath·HLE 등 벤치마크와 종합 능력 지수(ECI)",
-  artificial_analysis: "자체 평가 묶음의 지능 지수와 가격·출력 속도",
+  seal: "Scale AI가 전문가와 만든 비공개 평가(SWE-Bench Pro·HLE·MCP Atlas 등)의 점수와 신뢰구간",
+  simplebench: "보통 사람은 쉽게 푸는 일상 추론 함정 문제의 정답률(5회 평균)",
+  forecastbench: "아직 답이 정해지지 않은 질문에 대한 예측 정확도(Brier Index)를 슈퍼포캐스터와 비교",
 };
+
+/** The site a `?site=` value names, else the first site of the menu. */
+export function parseSite(raw: string | undefined): BenchmarkSiteKey {
+  return BENCHMARK_SITES.find((key) => key === raw) ?? BENCHMARK_GROUPS[0].sites[0];
+}
+
+/** The 벤치마크 tab's address for a site (and day): the first site and the latest day stay out of it. */
+export function benchmarkHref(site: BenchmarkSiteKey | null, date: string | null = null): string {
+  const query = ["tab=benchmarks", site && site !== BENCHMARK_GROUPS[0].sites[0] ? `site=${site}` : null, date ? `date=${date}` : null].filter(Boolean).join("&");
+  return `/spotlight?${query}`;
+}
 
 export type BenchmarkChange = "new" | "up" | "down" | "same";
 
@@ -116,13 +145,6 @@ export const LIVEBENCH_CATEGORIES = [
   { key: "reasoning", label: "추론", site: "Reasoning" },
 ] as const;
 
-/** Artificial Analysis metrics the charts plot (the API names them; the full rows carry ~60). */
-export const AA_METRICS = {
-  intelligence: "artificial_analysis_intelligence_index",
-  price: "price_1m_blended_3_to_1",
-  speed: "median_output_tokens_per_second",
-} as const;
-
 /** τ²-bench boards in the reader's order, with their labels and the site's track names. */
 export const TAU2_BOARDS = [
   { key: "overall", label: "전체", track: "τ²-bench" },
@@ -147,6 +169,14 @@ export const EPOCH_BOARD_LABEL: Record<string, string> = {
   gdpval: "GDPval",
 };
 
+/** Scale SEAL boards the spotlight hears about, as the site titles them (other boards read by their key). */
+export const SEAL_BOARD_LABEL: Record<string, string> = {
+  "hle-diamond": "HLE (Diamond)",
+  mcp_atlas: "MCP Atlas",
+  "swe_bench_pro_public_v2:full": "SWE-Bench Pro V2 Full",
+  "swe_bench_pro_public_v2:hard": "SWE-Bench Pro V2 HARD",
+};
+
 export function boardLabel(site: string, board: string): string {
   if (site === "lmarena") return LMARENA_BOARD_LABEL[board] ?? board;
   if (site === "epoch") return EPOCH_BOARD_LABEL[board] ?? board;
@@ -156,7 +186,7 @@ export function boardLabel(site: string, board: string): string {
   }
   if (site === "osworld" && board === "main") return "기본";
   if (site === "livebench" && board === "main") return "종합";
-  if (site === "artificial_analysis" && board === "language") return "언어 모델";
+  if (site === "seal") return SEAL_BOARD_LABEL[board] ?? board;
   return board;
 }
 
@@ -203,7 +233,7 @@ export function isOpenLicense(license: string | null | undefined): boolean {
   return typeof license === "string" && !CLOSED_OR_UNKNOWN.has(license.trim().toLowerCase());
 }
 
-/** Newest version first: "v1.1" before "v1" (boards are named by benchmark version). */
+/** Newest version first: "4.0" before "3.0" (boards are named by benchmark version). */
 export function newestBoardFirst(boards: string[]): string[] {
   const parts = (b: string) => (b.match(/\d+/g) ?? []).map(Number);
   return [...boards].sort((a, b) => {
@@ -217,10 +247,18 @@ export function newestBoardFirst(boards: string[]): string[] {
 }
 
 /**
- * The boards of the newer sites whose arrivals are told (as the spotlight hears them): Epoch's
- * many boards and the agent boards would flood the row. A site not listed: every board.
+ * The boards whose arrivals are told (as the spotlight hears them, public.benchmarks.SPOTLIGHT_BOARDS):
+ * Epoch's many boards and the agent boards would flood the row, and ForecastBench's entries are
+ * teams' code names. A site not listed: every board.
  */
-const ARRIVAL_BOARDS: Partial<Record<string, string[]>> = { terminal_bench: ["4.0"], epoch: ["eci"], osworld: [], tau2: [] };
+const ARRIVAL_BOARDS: Partial<Record<string, string[]>> = {
+  terminal_bench: ["4.0"],
+  epoch: ["eci"],
+  osworld: [],
+  tau2: [],
+  seal: Object.keys(SEAL_BOARD_LABEL),
+  forecastbench: [],
+};
 
 /** Models that entered a board today, from the summary (top 10 per board). A newer site's
  * entry reads as its label (Terminal-Bench: "Claude Code · Opus 5.5"). */
