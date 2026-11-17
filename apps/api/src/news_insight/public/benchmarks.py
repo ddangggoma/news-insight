@@ -2,11 +2,7 @@
 with a rank per board and the move against the snapshot before. The all-sites view is a summary
 (top ten per board); one site's full rows come from its own request.
 
-Ranks follow each site's own default view (higher is better for all four):
-- DeepSWE `pass_at_1`, one entry per model name as the site lists it, ranked by its best
-  configuration (a tie goes to the higher effort, as on the site); only the models the site
-  shows by default are ranked (best pass rate of at least 5%, minus the few it hides until
-  picked: the snapshot's `default_view`).
+Ranks follow each site's own default view:
 - LiveBench the site's weighted mean of its category scores (a derived `overall` row: the table
   has no overall column and the site weighs Long Agentic, Coding and Design above the rest),
   over whatever categories a model has; one entry per base model (a variant competes with its
@@ -14,15 +10,19 @@ Ranks follow each site's own default view (higher is better for all four):
   are left out of its default table and stay unranked.
 - LMArena the dataset's own `rank` per row: every row is its own entry, as on arena.ai (a
   model's effort levels are separate rows there).
-- Artificial Analysis its intelligence index, one entry per model.
-- Terminal-Bench, Epoch AI, OSWorld 2.0 and τ²-bench: their collectors work out the site's
-  default view (which rows its table opens on, in its order) and store it on each row as
+- Every other site (Terminal-Bench, Epoch AI, OSWorld 2.0, τ²-bench, Scale SEAL, Vals Index,
+  Vending-Bench 2, SimpleBench, ForecastBench): its collector works out the site's default
+  view (which rows its table opens on, in its order) and stores it on each row as
   `extra.default_rank`, with `extra.entry` naming the entry across snapshots and `extra.label`
   how it reads (Terminal-Bench: harness · model). Rows without a default rank stay unranked.
 The rank is the place in that list, counted the way the site counts it.
 
-The spotlight's leaderboard moves read every board of the first four sites but only the boards
-in SPOTLIGHT_BOARDS of the newer ones (Epoch's many boards and the agent boards would flood it)."""
+The spotlight's leaderboard moves read every board of LiveBench and LMArena but only the boards
+in SPOTLIGHT_BOARDS of the others (Epoch's many boards and the agent boards would flood it;
+ForecastBench's entries are teams' code names, not models a reader could follow).
+
+DeepSWE and Artificial Analysis were dropped on 2026-11-13: their snapshots stay stored, but
+only the sites in SITES are ever read here, so they are neither served nor compared."""
 
 import math
 from collections.abc import Iterable
@@ -39,14 +39,17 @@ from news_insight.benchmarks.models import AiModel, BenchmarkScore, BenchmarkSna
 from news_insight.benchmarks.names import normalize
 from news_insight.benchmarks.sources import (
     SiteSnapshot,
-    artificial_analysis,
-    deepswe,
     epoch,
+    forecastbench,
     livebench,
     lmarena,
     osworld,
+    seal,
+    simplebench,
     tau2,
     terminal_bench,
+    vals,
+    vending_bench,
 )
 from news_insight.public.periods import KST
 
@@ -58,27 +61,47 @@ TOP = 20  # the ranks whose moves the spotlight writer is told about
 SUMMARY_ROWS = 10  # ranked rows per board in the all-sites summary
 OVERALL = "overall"
 _MODEL_INFO = ("display_name", "organization", "open_weights")  # LiveBench's model metadata
-INTELLIGENCE_INDEX = "artificial_analysis_intelligence_index"
 AGENT_BOARD = "agent"
 
 SITES = (
-    deepswe,
     livebench,
     lmarena,
-    artificial_analysis,
     terminal_bench,
     epoch,
     osworld,
     tau2,
+    seal,
+    vals,
+    vending_bench,
+    simplebench,
+    forecastbench,
 )
 # sites whose collector stores the default view (extra.default_rank) and names its metric
-DEFAULT_VIEW_SITES = {m.SITE: m for m in (terminal_bench, epoch, osworld, tau2)}
-# the newer sites' boards the spotlight hears about; a site not named here: every board
+DEFAULT_VIEW_SITES = {
+    m.SITE: m
+    for m in (
+        terminal_bench,
+        epoch,
+        osworld,
+        tau2,
+        seal,
+        vals,
+        vending_bench,
+        simplebench,
+        forecastbench,
+    )
+}
+# the boards of those sites the spotlight hears about; a site not named here: every board
 SPOTLIGHT_BOARDS: dict[str, frozenset[str]] = {
     terminal_bench.SITE: frozenset({terminal_bench.DEFAULT_BOARD}),
     epoch.SITE: frozenset({"eci"}),
     osworld.SITE: frozenset(),
     tau2.SITE: frozenset(),
+    seal.SITE: seal.SPOTLIGHT,
+    vals.SITE: frozenset({vals.BOARD}),
+    vending_bench.SITE: frozenset({vending_bench.BOARD}),
+    simplebench.SITE: frozenset({simplebench.BOARD}),
+    forecastbench.SITE: frozenset(),
 }
 
 
@@ -123,25 +146,13 @@ def representative_metric(site: str, board: str) -> str:
     if site in DEFAULT_VIEW_SITES:
         metric: str = DEFAULT_VIEW_SITES[site].METRIC
         return metric
-    if site == deepswe.SITE:
-        return "pass_at_1"
     if site == livebench.SITE:
         return OVERALL
-    if site == lmarena.SITE:
-        return "score" if board == AGENT_BOARD else "rating"
-    return INTELLIGENCE_INDEX
+    return "score" if board == AGENT_BOARD else "rating"  # LMArena
 
 
 class UnknownSite(LookupError):
     """No leaderboard site of that name."""
-
-
-# DeepSWE's effort order (its `ue`): a tie between one model's configurations goes up it
-_EFFORT = {"none": 0, "minimal": 1, "low": 2, "medium": 3, "high": 4, "xhigh": 5, "max": 6}
-
-
-def _effort(config: str | None) -> int:
-    return _EFFORT.get(config.lower(), 50) if config else -1
 
 
 @dataclass
@@ -159,8 +170,7 @@ class _Score:
     coverage: float = 1.0
     eligible: bool = True
     group: str = ""  # the entry the site ranks (a LiveBench variant: its base); default `key`
-    order: float = 0.0  # sorted on before the value: LMArena's own rank
-    effort: int = -1  # breaks a tie between one entry's rows (DeepSWE: the higher effort)
+    order: float = 0.0  # sorted on before the value: the site's own rank
 
     def __post_init__(self) -> None:
         self.group = self.group or self.key
@@ -221,11 +231,6 @@ def _scores(session: Session, site: str, snapshot_id: int) -> list[_Score]:
             select(BenchmarkSnapshot.raw["categories"]).where(BenchmarkSnapshot.id == snapshot_id)
         )
         return build_scores(site, stored, weights=livebench_weights(categories))
-    if site == deepswe.SITE:
-        view = session.scalar(
-            select(BenchmarkSnapshot.raw["default_view"]).where(BenchmarkSnapshot.id == snapshot_id)
-        )
-        return build_scores(site, stored, default_view=view)
     return build_scores(site, stored)
 
 
@@ -234,7 +239,6 @@ def build_scores(
     stored: Iterable[_Stored],
     *,
     weights: dict[str, float] | None = None,
-    default_view: Any = None,
 ) -> list[_Score]:
     """The rows as each site's default view ranks them (see the module docstring)."""
     rows = list(stored)
@@ -252,8 +256,6 @@ def build_scores(
             )
             for r in rows
         ]
-    if site == deepswe.SITE:
-        return _deepswe_scores(rows, default_view)
     if site == lmarena.SITE:
         return [
             _Score(
@@ -267,50 +269,20 @@ def build_scores(
             )
             for r in rows
         ]
-    if site == livebench.SITE:
-        scores = [
-            _Score(
-                r.id,
-                r.board,
-                _key(r.model_id, r.model),
-                r.model,
-                r.metric,
-                r.value,
-                eligible=r.listed is not False and r.finetune is not True,
-                group=_key(None, r.base_name) if r.base_name else "",
-            )
-            for r in rows
-        ]
-        return scores + _livebench_overall(scores, weights or {})
-    return [
-        _Score(r.id, r.board, _key(r.model_id, r.model), r.model, r.metric, r.value) for r in rows
-    ]
-
-
-def _deepswe_scores(rows: list[_Stored], default_view: Any) -> list[_Score]:
-    """One entry per model name; only the models the site's chart and table open on rank."""
-    view = default_view if isinstance(default_view, dict) else deepswe.fallback_view()
-    hidden = {m for m in view.get("hidden") or [] if isinstance(m, str)}
-    floor = view.get("min_best")
-    floor = float(floor) if isinstance(floor, int | float) else deepswe.DEFAULT_MIN_BEST
-    best: dict[tuple[str, str], float] = {}
-    for r in rows:
-        if r.metric == "pass_at_1":
-            slot = (r.board, r.model)
-            best[slot] = max(best.get(slot, -math.inf), r.value)
-    return [
+    scores = [  # LiveBench
         _Score(
             r.id,
             r.board,
-            f"raw:{r.model}",
+            _key(r.model_id, r.model),
             r.model,
             r.metric,
             r.value,
-            eligible=r.model not in hidden and best.get((r.board, r.model), -math.inf) >= floor,
-            effort=_effort(r.config),
+            eligible=r.listed is not False and r.finetune is not True,
+            group=_key(None, r.base_name) if r.base_name else "",
         )
         for r in rows
     ]
+    return scores + _livebench_overall(scores, weights or {})
 
 
 def livebench_weights(categories: Any) -> dict[str, float]:
@@ -381,11 +353,7 @@ def _ranking(site: str, scores: list[_Score]) -> dict[str, list[_Score]]:
             continue
         slot = (score.board, score.group)
         held = best.get(slot)
-        if (
-            held is None
-            or score.value > held.value
-            or (score.value == held.value and score.effort > held.effort)
-        ):
+        if held is None or score.value > held.value:
             best[slot] = score
     boards: dict[str, list[_Score]] = {}
     for (board, _), score in best.items():
@@ -684,7 +652,6 @@ def preview(snapshot: SiteSnapshot, *, top: int = SUMMARY_ROWS) -> dict[str, lis
         snapshot.site,
         stored,
         weights=livebench_weights(snapshot.raw.get("categories")),
-        default_view=snapshot.raw.get("default_view"),
     )
     out: dict[str, list[dict[str, Any]]] = {}
     for board, ranked in _ranking(snapshot.site, scores).items():

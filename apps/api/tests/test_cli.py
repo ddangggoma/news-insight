@@ -305,25 +305,61 @@ def test_benchmarks_collect_prints_each_site_and_exits_0(
 def test_benchmarks_collect_dry_run_prints_the_top_and_writes_nothing(
     db_session: Session, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    from tests.benchmarks.fakes import Router, deepswe_routes
+    from tests.benchmarks.fakes import Router, seal_routes
 
     def no_session() -> Any:
         raise AssertionError("a dry run opens no database session")
 
     monkeypatch.setattr(cli, "session_scope", no_session)
-    monkeypatch.setattr(cli, "_fetcher", lambda: deepswe_routes(Router(), recorded=True).fetcher())
+    monkeypatch.setattr(cli, "_fetcher", lambda: seal_routes(Router()).fetcher())
 
     result = runner.invoke(
-        cli.app, ["benchmarks", "collect", "--dry-run", "--site", "deepswe", "--top", "3"]
+        cli.app, ["benchmarks", "collect", "--dry-run", "--site", "seal", "--top", "3"]
     )
 
     assert result.exit_code == 0, result.output
     lines = result.output.splitlines()
-    assert lines[0] == "deepswe: release 2026-09-22, 99 rows (not saved)"
-    assert lines[1] == "  [v1.1] updated 2026-09-22"
-    assert lines[2].split()[:3] == ["1", "gpt-6-astra", "[xhigh]"]
-    assert lines[4].split()[:3] == ["3", "claude-opus-5", "[max]"]
-    assert "  [v1] updated 2026-06-20" in lines
+    assert lines[0] == "seal: release 2026-11-11, 66 rows (not saved)"
+    assert lines[1] == "  [hle-diamond] updated 2026-11-11"
+    assert lines[2].split()[:3] == ["1", "claude-fable-5-2", "score=72.40"]
+    assert lines[4].split()[:3] == ["3", "claude-opus-5-5", "score=55.00"]
+    assert "  [swe_bench_pro_public_v2:full] updated 2026-11-06" in lines
+    assert db_session.scalar(select(BenchmarkSnapshot.id)) is None
+
+
+def test_benchmarks_collect_dry_run_of_the_sites_added_in_november(
+    db_session: Session, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from tests.benchmarks.fakes import (
+        Router,
+        forecastbench_routes,
+        simplebench_routes,
+        vals_routes,
+        vending_routes,
+    )
+
+    def no_session() -> Any:
+        raise AssertionError("a dry run opens no database session")
+
+    router = forecastbench_routes(simplebench_routes(vending_routes(vals_routes(Router()))))
+    monkeypatch.setattr(cli, "session_scope", no_session)
+    monkeypatch.setattr(cli, "_fetcher", router.fetcher)
+    sites = ["vals", "vending_bench", "simplebench", "forecastbench"]
+    args = [part for site in sites for part in ("--site", site)]
+
+    result = runner.invoke(cli.app, ["benchmarks", "collect", "--dry-run", *args, "--top", "2"])
+
+    assert result.exit_code == 0, result.output
+    lines = result.output.splitlines()
+    assert [line.split(":")[0] for line in lines if not line.startswith(" ")] == sites
+    assert "  [vals_index] updated 2026-11-11" in lines
+    first = lines[lines.index("  [vals_index] updated 2026-11-11") + 1].split()
+    assert first[:5] == ["1", "Claude", "Fable", "5.2", "accuracy=71.31"]
+    assert "  [main] updated 2026-10-28" in lines
+    assert "  [tournament] updated 2026-11-11" in lines
+    # the first row the page shows is the file's rank 3 (two anonymous teams lead it)
+    fire = lines[lines.index("  [tournament] updated 2026-11-11") + 1]
+    assert fire.split()[:3] == ["1", "fire", "hedgehog"] and "site_rank=3" in fire
     assert db_session.scalar(select(BenchmarkSnapshot.id)) is None
 
 
@@ -357,7 +393,7 @@ def test_benchmarks_collect_dry_run_of_the_newer_sites(
 
 @pytest.mark.parametrize(
     "args",
-    [["--site", "deepswe"], ["--dry-run", "--site", "nope"]],
+    [["--site", "seal"], ["--dry-run", "--site", "deepswe"]],
     ids=["site-without-dry-run", "unknown-site"],
 )
 def test_benchmarks_collect_rejects_bad_site_options(args: list[str]) -> None:

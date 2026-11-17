@@ -1,10 +1,10 @@
 import type { ChartConfig } from "@/components/ui/chart";
 
 // A provider keeps one colour on every card and under every filter (colour follows the
-// entity, never its rank). The hues are DeepSWE's own family colours (deepswe.datacurve.ai's
-// --family-* tokens, light and dark), so the DeepSWE chart reads like the site and the other
-// cards agree with it: Anthropic orange, OpenAI green, Google blue. Each provider has its
-// own hue, so no mark needs an outline variant.
+// entity, never its rank). The hues were taken from deepswe.datacurve.ai's --family-* tokens
+// (light and dark) when its chart was mirrored here (until 2026-11-13) and kept since, so every
+// card agrees: Anthropic orange, OpenAI green, Google blue. Each provider has its own hue, so
+// no mark needs an outline variant.
 type Pair = { light: string; dark: string };
 
 const FAMILY = {
@@ -25,7 +25,7 @@ const FAMILY = {
 
 const OTHER: Pair = { light: "oklch(55% 0.02 270)", dark: "oklch(75% 0.02 270)" };
 
-/** Providers with a colour, in legend order (DeepSWE's family order). */
+/** Providers with a colour, in legend order. */
 export const PROVIDERS = [
   { key: "openai", label: "OpenAI", aliases: ["openai"] },
   { key: "anthropic", label: "Anthropic", aliases: ["anthropic"] },
@@ -74,7 +74,7 @@ export function providerLabel(key: ProviderKey): string {
   return key === "other" ? "기타" : (BY_KEY.get(key)?.label ?? key);
 }
 
-/** Legend order: DeepSWE's family order, "기타" last. */
+/** Legend order: the providers as listed above, "기타" last. */
 export const PROVIDER_ORDER: ProviderKey[] = [...PROVIDERS.map((p) => p.key), "other"];
 
 // The eight categorical slots of the validated reference palette (dataviz skill), light and

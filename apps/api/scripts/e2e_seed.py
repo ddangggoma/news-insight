@@ -341,6 +341,38 @@ SPOTLIGHT_TAGS: dict[str, tuple[list[str], list[str]]] = {
     "n-chip": (["첫 공개", "NPU 2배"], ["보도 4곳"]),
     "n-rgb-week": (["장기 화제"], ["7일 중 5일"]),
 }
+# 시사점 of today's news entries and the day's overview (plan 20), by key
+SPOTLIGHT_INSIGHT: dict[str, str] = {
+    "n-chip": "NPU 성능 격차가 온디바이스 AI 기능의 차별점이 된다. 차기 AP 로드맵을 점검한다.",
+    "n-fold": "폴더블 양산 확대는 패널 단가와 힌지 공급망 협상력에 영향을 준다.",
+}
+SPOTLIGHT_OVERVIEW: dict[str, list[dict[str, object]]] = {
+    "themes": [
+        {
+            "title": "온디바이스 AI 칩 경쟁",
+            "summary": "새 칩 공개로 단말 안에서 도는 AI 성능 경쟁이 빨라졌다. "
+            "모델 경량화와 NPU가 함께 움직인다.",
+            "keys": ["n-chip"],
+        },
+        {
+            "title": "폼팩터와 패널 전환",
+            "summary": "폴더블 양산과 마이크로 RGB 경쟁이 이어진다. 패널 조달 구도가 바뀔 수 있다.",
+            "keys": ["n-fold", "n-rgb-week"],
+        },
+    ],
+    "areas": [
+        {
+            "area": "mobile_ai",
+            "insight": "칩과 폼팩터가 함께 바뀌는 시기다. 온디바이스 기능의 출시 순서를 다시 본다.",
+            "keys": ["n-chip", "n-fold"],
+        },
+        {
+            "area": "display",
+            "insight": "마이크로 RGB 경쟁이 길어진다. 프리미엄 TV 패널 전략을 점검한다.",
+            "keys": ["n-rgb-week"],
+        },
+    ],
+}
 SPOTLIGHT_YESTERDAY: list[tuple[str, int, int, str, int, str, str | None, str | None, bool]] = [
     ("news", 1, 1, "n-fold", 2, "폴더블 양산 소식", None, None, False),
     ("news", 2, 2, "n-chip", 0, "온디바이스 칩 소식", None, None, False),
@@ -366,6 +398,7 @@ def _spotlight(
             else "전일에는 폴더블 양산 소식이 화제였다"
         ),
         benchmark_note="",
+        news_overview=SPOTLIGHT_OVERVIEW if day == TODAY else None,
         freeze_id=freeze_id,
         error=None,
         generated_at=now,
@@ -386,6 +419,7 @@ def _spotlight(
             product_name=product,
             summary=f"{title} 요약",
             why_hot="" if fallback else f"{title}: 여러 매체가 동시에 보도",
+            insight=SPOTLIGHT_INSIGHT.get(key) if day == TODAY else None,
             rank_note=note,
             metrics={"source_count": 5 - rank},
             fallback=fallback,
@@ -794,6 +828,25 @@ TAU2_FILES = {
 }
 
 
+def _november_benchmark_file(url: str) -> tuple[str, str] | None:
+    """Scale SEAL, Vals Index, Vending-Bench 2, SimpleBench and ForecastBench as recorded on
+    2026-11-13 (trimmed)."""
+    seal = "https://labs.scale.com/leaderboard"
+    if url == seal:
+        return ("seal_index_20261113.html", "text/html")
+    if url.startswith(f"{seal}/"):
+        return (f"seal_{url.rsplit('/', 1)[-1]}_20261113.html", "text/html")
+    if url == "https://www.vals.ai/benchmarks/vals_index":
+        return ("vals_index_20261113.html", "text/html")
+    if url.endswith("external_benchmarks/vending_bench_2.csv"):
+        return ("vending_bench_2_20261113.csv", "text/csv")
+    if url.endswith("simple-bench.com/static/js/leaderboard-data.js"):
+        return ("simplebench_leaderboard_data_20261113.js", "application/javascript")
+    if url.endswith("forecastbench.org/assets/js/leaderboard_tournament_full.js"):
+        return ("forecastbench_tournament_20261113.js", "text/javascript")
+    return None
+
+
 def _newer_benchmark_answer(request: httpx.Request) -> httpx.Response | None:
     """Terminal-Bench, OSWorld 2.0, Epoch AI and τ²-bench as recorded on 2026-11-08 (trimmed)."""
     url = str(request.url)
@@ -811,6 +864,8 @@ def _newer_benchmark_answer(request: httpx.Request) -> httpx.Response | None:
         found = next((f for part, f in TAU2_FILES.items() if part in url), None)
         if found is None and url.endswith("/submission.json"):
             found = (f"tau2_{url.rsplit('/', 2)[-2]}.json", "text/plain")
+    else:
+        found = _november_benchmark_file(url)
     if found is None or not (BENCHMARK_FIXTURES / found[0]).exists():
         return None
     body = (BENCHMARK_FIXTURES / found[0]).read_bytes()
@@ -818,7 +873,7 @@ def _newer_benchmark_answer(request: httpx.Request) -> httpx.Response | None:
 
 
 def _benchmark_answer(request: httpx.Request) -> httpx.Response:
-    """The leaderboard sites as recorded on 2026-11-04 and 2026-11-08
+    """The leaderboard sites as recorded on 2026-11-04, 2026-11-08 and 2026-11-13
     (tests/benchmarks/fixtures), offline."""
     newer = _newer_benchmark_answer(request)
     if newer is not None:
@@ -829,19 +884,12 @@ def _benchmark_answer(request: httpx.Request) -> httpx.Response:
         "search": "lmarena_search_20261104.parquet",
     }
     routes: list[tuple[str, str, str]] = [
-        ("deepswe.datacurve.ai/artifacts/v1.1/", "deepswe_v1_1_20261104.json", "application/json"),
-        ("deepswe.datacurve.ai/artifacts/v1/", "deepswe_v1_20261104.json", "application/json"),
-        ("live-leaderboard-", "deepswe_live_leaderboard_20261104.js", "application/javascript"),
-        ("datacurve.ai/assets/index-", "deepswe_index_script_20261104.js", "text/javascript"),
         ("livebench.ai/static/js/main", "livebench_main_20261104.js", "application/javascript"),
         ("/data/20261025/table.csv", "livebench_table_20261025.csv", "text/csv"),
         ("/data/20261025/cost.csv", "livebench_cost.csv", "text/csv"),
         ("/data/20261025/categories.json", "livebench_categories.json", "application/json"),
         ("/data/20261025/breakdown.json", "livebench_breakdown.json", "application/json"),
     ]
-    if url == "https://deepswe.datacurve.ai/":
-        body = (BENCHMARK_FIXTURES / "deepswe_index_20261104.html").read_bytes()
-        return httpx.Response(200, headers={"content-type": "text/html"}, content=body)
     if url == "https://livebench.ai/":
         return httpx.Response(200, headers={"content-type": "text/html"}, content=LIVEBENCH_HOME)
     for part, name, mime in routes:
@@ -859,8 +907,7 @@ def _benchmark_answer(request: httpx.Request) -> httpx.Response:
 
 
 def seed_benchmarks(session: Session) -> None:
-    """Every leaderboard but Artificial Analysis (no key, as on live) collected by the real
-    collectors from recorded responses."""
+    """Every leaderboard collected by the real collectors from recorded responses."""
     from news_insight.benchmarks.service import collect_all
     from news_insight.net.safe_fetch import SafeFetcher
 

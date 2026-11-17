@@ -2,6 +2,7 @@ from datetime import date, timedelta
 
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from news_insight.spotlight.candidates import SECTIONS
@@ -256,3 +257,47 @@ def test_groups_tags_signals_and_field(
         None,
         None,
     )
+
+
+def test_news_insight_and_overview(
+    public_client: TestClient, public_headers: dict[str, str], db_session: Session
+) -> None:
+    today = _spotlight(db_session, TODAY, (("news", 1, "a"), ("news", 2, "b"), ("ai", 1, "m")))
+    today.news_overview = {
+        "themes": [
+            {"title": "AI 보안 경쟁", "summary": "흐름과 의미.", "keys": ["b", "gone", "a"]},
+            {"title": "사라진 흐름", "summary": "기사 없음.", "keys": ["gone"]},
+        ],
+        "areas": [
+            {"area": "display", "insight": "OLED 전환.", "keys": ["a"]},
+            {"area": "auto", "insight": "기사 없음.", "keys": ["m"]},  # not a news entry
+        ],
+    }
+    first = db_session.scalars(
+        select(SpotlightEntry).where(
+            SpotlightEntry.spotlight_id == today.id, SpotlightEntry.key == "a"
+        )
+    ).one()
+    first.insight = "패널 조달선을 다시 봐야 한다."
+    db_session.flush()
+    view = _get(public_client, public_headers)
+    assert [e["insight"] for e in view["sections"]["news"]] == [
+        "패널 조달선을 다시 봐야 한다.",
+        None,
+    ]
+    # only keys of news entries the day lists; a theme or an area left with none is dropped
+    assert view["news_overview"] == {
+        "themes": [{"title": "AI 보안 경쟁", "summary": "흐름과 의미.", "keys": ["b", "a"]}],
+        "areas": [
+            {"area": "display", "label": "디스플레이", "insight": "OLED 전환.", "keys": ["a"]}
+        ],
+    }
+
+
+def test_days_before_the_overview_have_none(
+    public_client: TestClient, public_headers: dict[str, str], db_session: Session
+) -> None:
+    _spotlight(db_session, TODAY, (("news", 1, "a"),))
+    view = _get(public_client, public_headers)
+    assert view["news_overview"] is None
+    assert view["sections"]["news"][0]["insight"] is None

@@ -166,8 +166,8 @@ def check_domain_insights(session: Session, *, now: datetime) -> list[Finding]:
 
 def check_benchmarks(session: Session, *, now: datetime) -> list[Finding]:
     """A leaderboard whose newest snapshot is over 48 hours old: the site changed (the
-    collector logs which code) or the job stopped. Artificial Analysis needs a key and is left
-    out without one; a site never collected stays quiet until its first snapshot."""
+    collector logs which code) or the job stopped. A site never collected stays quiet until its
+    first snapshot; a site no longer in SOURCES is not looked at."""
     from news_insight.benchmarks.service import SOURCES
 
     last = dict(
@@ -181,8 +181,6 @@ def check_benchmarks(session: Session, *, now: datetime) -> list[Finding]:
     )
     findings: list[Finding] = []
     for module in SOURCES:
-        if module.SITE == "artificial_analysis" and not module.has_key():
-            continue
         fetched = last.get(module.SITE)
         if fetched is None or now - fetched <= BENCHMARK_STALE:
             continue

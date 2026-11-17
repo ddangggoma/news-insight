@@ -17,7 +17,12 @@ from news_insight.spotlight.models import (
     SpotlightFreeze,
     SpotlightStatus,
 )
-from news_insight.spotlight.prompts import OUTPUT_SCHEMA, SYSTEM_PROMPT
+from news_insight.spotlight.prompts import (
+    ENTRY_SCHEMA,
+    INTEREST_AREAS,
+    OUTPUT_SCHEMA,
+    SYSTEM_PROMPT,
+)
 from news_insight.spotlight.service import build_payload, freeze, listed_counts, validate, write
 from tests.factories import build_source
 
@@ -261,8 +266,9 @@ def test_valid_output_published(db_session: Session) -> None:
         (2, "둘째 제목", 2),
     ]
     assert all(row.fallback is False for row in rows[:2])
-    # the places the writer left open are filled from the statistical order
-    assert [(row.stat_rank, row.fallback) for row in rows[2:]] == [(i, True) for i in range(3, 13)]
+    # the news list is the writer's choice: nothing is added from the statistical order
+    assert len(rows) == 2
+    assert result.news_overview is None  # the writer sent no overview
     assert rows[0].key == "item:1"
     assert rows[0].group == "now"
     assert rows[0].item_ids == [1]
@@ -811,13 +817,15 @@ def test_tags_signals_group_and_field_are_stored(db_session: Session) -> None:
 
 def test_fill_lends_the_short_groups_places_to_the_other(db_session: Session) -> None:
     found = {section: [] for section in SECTIONS} | {
-        "news": [cand(f"n{i}", "news", i) for i in range(1, 4)]
-        + [sustained_cand(f"ns{i}", "news", 500 + i) for i in range(1, 15)]
+        "community": [cand(f"c{i}", "community", i) for i in range(1, 4)]
+        + [sustained_cand(f"cs{i}", "community", 500 + i) for i in range(1, 15)]
     }
     db_session.add(SpotlightFreeze(spotlight_date=DAY, frozen_at=NOW, candidates=found))
     db_session.flush()
     rows = entries(
-        db_session, run(db_session, FakeClaude(output({"news": [entry(["n2"], 1)]}))), "news"
+        db_session,
+        run(db_session, FakeClaude(output({"community": [entry(["c2"], 1)]}))),
+        "community",
     )
     groups = [r.group for r in rows]
     assert (groups.count("now"), groups.count("sustained")) == (3, 12)
@@ -920,3 +928,105 @@ def test_lent_places_never_take_a_section_past_fifteen(
     assert len(rows) == 15
     assert (groups.count("now"), groups.count("sustained")) == (listed_now, listed_sustained)
     assert not any(r.fallback for r in rows)
+
+
+def overview(**parts: Any) -> dict[str, Any]:
+    return {"themes": [], "areas": []} | parts
+
+
+def test_news_insight_is_stored_and_other_sections_have_none(db_session: Session) -> None:
+    seed_freeze(db_session)
+    answer = output(
+        {
+            "news": [
+                entry(["n1"], 1, insight="패널 조달선을 다시 봐야 한다."),
+                entry(["n2"], 2, insight="가" * 161),
+                entry(["n3"], 3),
+            ],
+            "community": [entry(["c1"], 1, insight="뉴스가 아니다.")],
+        }
+    )
+    result = run(db_session, FakeClaude(answer))
+    news = entries(db_session, result, "news")
+    # an over-long insight is dropped, the entry stays; a missing one is None
+    assert [row.insight for row in news] == ["패널 조달선을 다시 봐야 한다.", None, None]
+    assert {row.insight for row in entries(db_session, result, "community")} == {None}
+
+
+def test_curated_news_falls_back_only_when_nothing_passed(db_session: Session) -> None:
+    seed_freeze(db_session)
+    result = run(db_session, FakeClaude(output({"news": [entry(["zz"], 1)]})))
+    rows = entries(db_session, result, "news")
+    # the statistical list (all 12 candidates: the empty sustained group lends its places)
+    assert len(rows) == 12 and all(row.fallback for row in rows)
+
+
+def test_news_overview_points_at_published_entries(db_session: Session) -> None:
+    seed_freeze(db_session)
+    answer = output({"news": [entry(["n1"], 1), entry(["n2"], 2), entry(["n3"], 3)]}) | {
+        "news_overview": overview(
+            themes=[
+                {
+                    "title": "AI 보안 경쟁",
+                    "summary": "흐름과 의미.",
+                    "cids": ["n2", "n1", "n2"],
+                },
+                {"title": "없는 기사", "summary": "요약.", "cids": ["n9", "zz"]},
+                {"title": "가" * 41, "summary": "요약.", "cids": ["n1"]},
+                {"title": "요약 없음", "summary": " ", "cids": ["n1"]},
+            ],
+            areas=[
+                {
+                    "area": "display",
+                    "insight": "OLED 전환.",
+                    "cids": ["n3", "n1", "n2", "n3"],
+                },
+                {"area": "mobile_ai", "insight": "온디바이스 경쟁.", "cids": ["n1"]},
+                {"area": "display", "insight": "두 번째는 버린다.", "cids": ["n2"]},
+                {"area": "crypto", "insight": "모르는 영역.", "cids": ["n1"]},
+                {"area": "auto", "insight": "가" * 241, "cids": ["n1"]},
+            ],
+        )
+    }
+    result = run(db_session, FakeClaude(answer))
+    assert result.news_overview == {
+        "themes": [
+            {"title": "AI 보안 경쟁", "summary": "흐름과 의미.", "keys": ["item:2", "item:1"]}
+        ],
+        # in the page order of the interest areas, at most three entries each
+        "areas": [
+            {"area": "mobile_ai", "insight": "온디바이스 경쟁.", "keys": ["item:1"]},
+            {
+                "area": "display",
+                "insight": "OLED 전환.",
+                "keys": ["item:3", "item:1", "item:2"],
+            },
+        ],
+    }
+
+
+def test_news_overview_is_none_without_writer_entries() -> None:
+    raw = {"news_overview": overview(themes=[{"title": "t", "summary": "s", "cids": ["n1"]}])}
+    fallback = service.fallback_entries("news", candidates()["news"])
+    assert service.news_overview(raw, fallback) is None
+    assert service.news_overview({"news_overview": "nope"}, []) is None
+    assert service.news_overview({}, []) is None
+
+
+def test_surge_signal_needs_volume_and_share() -> None:
+    assert service.signals("news", {"new_sources": 6, "surge": 90, "source_count": 6}) == [
+        "급부상",
+        "보도 6곳",
+    ]
+    assert service.signals("news", {"new_sources": 4, "surge": 100, "source_count": 4}) == []
+    assert service.signals("news", {"new_sources": 9, "surge": 30, "source_count": 30}) == [
+        "보도 30곳"
+    ]
+
+
+def test_prompt_and_schema_carry_the_news_rules() -> None:
+    assert "루머" in SYSTEM_PROMPT and "인증 통과" in SYSTEM_PROMPT and "리뷰" in SYSTEM_PROMPT
+    assert all(label in SYSTEM_PROMPT for label in INTEREST_AREAS.values())
+    areas = OUTPUT_SCHEMA["properties"]["news_overview"]["properties"]["areas"]
+    assert areas["items"]["properties"]["area"]["enum"] == list(INTEREST_AREAS)
+    assert "insight" in ENTRY_SCHEMA["properties"]

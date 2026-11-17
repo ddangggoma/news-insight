@@ -8,7 +8,14 @@ from sqlalchemy import event
 from sqlalchemy.orm import Session
 
 from news_insight.benchmarks.models import AiModel, BenchmarkScore, BenchmarkSnapshot
-from news_insight.benchmarks.sources import artificial_analysis, deepswe, livebench, lmarena
+from news_insight.benchmarks.sources import (
+    forecastbench,
+    livebench,
+    lmarena,
+    simplebench,
+    vals,
+    vending_bench,
+)
 from news_insight.public.benchmarks import (
     BenchmarkSiteOut,
     UnknownSite,
@@ -83,11 +90,38 @@ def ranked(site: dict[str, Any], board: str) -> list[tuple[str, int, str | None,
 
 def test_view_marks_stale_after_48h(db_session: Session) -> None:
     snapshot(db_session, lmarena.SITE, [("text", "a", 1500.0)], hours_ago=47)
-    snapshot(db_session, deepswe.SITE, [("v1.1", "m", 0.5, "pass_at_1")], hours_ago=49)
+    snapshot(db_session, vals.SITE, [(vals.BOARD, "m", 50.0, "accuracy")], hours_ago=49)
     by_site = {s.site: s for s in benchmarks_view(db_session, now=NOW)}
     assert by_site[lmarena.SITE].stale is False
-    assert by_site[deepswe.SITE].stale is True
-    assert lmarena.SITE in by_site and artificial_analysis.SITE not in by_site  # never collected
+    assert by_site[vals.SITE].stale is True
+    assert lmarena.SITE in by_site and forecastbench.SITE not in by_site  # never collected
+
+
+def test_the_dropped_sites_snapshots_are_not_served(
+    db_session: Session, public_client: TestClient, public_headers: dict[str, str]
+) -> None:
+    """DeepSWE and Artificial Analysis left the page on 2026-11-13: what was collected before
+    stays in the tables, but no view, summary or leaderboard move reads it."""
+    index = "artificial_analysis_intelligence_index"
+    for hours_ago, first, second in ((30, "a", "b"), (3, "b", "a")):
+        snapshot(
+            db_session,
+            "deepswe",
+            [("v1.1", first, 0.5, "pass_at_1"), ("v1.1", second, 0.4, "pass_at_1")],
+            hours_ago=hours_ago,
+        )
+        snapshot(
+            db_session,
+            "artificial_analysis",
+            [("language", first, 60.0, index), ("language", second, 50.0, index)],
+            hours_ago=hours_ago,
+        )
+    assert benchmarks_view(db_session, now=NOW) == []
+    assert benchmark_changes(db_session, now=NOW) == {"changes": [], "new_models": []}
+    assert public_client.get(PATH, headers=public_headers).json() == []
+    for site in ("deepswe", "artificial_analysis"):
+        response = public_client.get(PATH, params={"site": site}, headers=public_headers)
+        assert response.status_code == 404
 
 
 def test_latest_snapshot_is_the_one_seen_last(db_session: Session) -> None:
@@ -159,22 +193,6 @@ def test_agent_board_ranks_by_score_and_other_metrics_stay_unranked(db_session: 
     assert by[("y", "cost_per_task_p50")].change is None
 
 
-def test_deepswe_ranks_each_model_by_its_best_config(db_session: Session) -> None:
-    snapshot(
-        db_session,
-        deepswe.SITE,
-        [
-            ("v1.1", "alpha", 0.30, "pass_at_1", "low"),
-            ("v1.1", "alpha", 0.55, "pass_at_1", "high"),
-            ("v1.1", "beta", 0.50, "pass_at_1", "high"),
-        ],
-    )
-    rows = full(db_session, deepswe.SITE).rows
-    assert len(rows) == 3  # every stored row comes back
-    ranks = {(r.model, r.config): r.rank for r in rows}
-    assert ranks == {("alpha", "high"): 1, ("alpha", "low"): None, ("beta", "high"): 2}
-
-
 def test_lmarena_ranks_every_row_as_the_site_lists_it(db_session: Session) -> None:
     # arena.ai lists a model's effort levels as rows of their own: nothing is merged, even when
     # the names are linked to one model, and the dataset's own rank orders them
@@ -213,55 +231,28 @@ def test_lmarena_follows_the_sites_rank_over_the_value(db_session: Session) -> N
     assert [r.model for r in full(db_session, lmarena.SITE).rows] == ["b", "a", "c"]
 
 
-def test_deepswe_ranks_only_the_models_the_site_shows_by_default(db_session: Session) -> None:
-    snapshot(
-        db_session,
-        deepswe.SITE,
-        [
-            ("v1.1", "gpt-6-astra", 0.74, "pass_at_1", "xhigh"),
-            ("v1.1", "gpt-5-6-terra", 0.70, "pass_at_1", "max"),  # hidden on the site
-            ("v1.1", "glm-5-3", 0.69, "pass_at_1", "max"),
-            ("v1.1", "tiny", 0.04, "pass_at_1", "high"),  # under the 5% floor
-        ],
-        raw={"default_view": {"min_best": 0.05, "hidden": ["gpt-5-6-terra"]}},
-    )
-    rows = {r.model: r.rank for r in full(db_session, deepswe.SITE).rows}
-    assert rows == {"gpt-6-astra": 1, "glm-5-3": 2, "gpt-5-6-terra": None, "tiny": None}
-    summary = benchmarks_view(db_session, now=NOW)[0].rows
-    assert [r.model for r in summary] == ["gpt-6-astra", "glm-5-3"]
-
-
-def test_deepswe_without_a_stored_default_view_uses_the_last_known(db_session: Session) -> None:
-    snapshot(
-        db_session,
-        deepswe.SITE,
-        [("v1", "gpt-5-4", 0.56, "pass_at_1", "xhigh"), ("v1", "glm-5-2", 0.42, "pass_at_1")],
-    )
-    rows = {r.model: r.rank for r in full(db_session, deepswe.SITE).rows}
-    assert rows == {"gpt-5-4": None, "glm-5-2": 1}
-
-
-def test_deepswe_tie_between_configs_goes_to_the_higher_effort(db_session: Session) -> None:
-    snapshot(
-        db_session,
-        deepswe.SITE,
-        [
-            ("v1.1", "m", 0.5, "pass_at_1", "max"),
-            ("v1.1", "m", 0.5, "pass_at_1", "medium"),
-            ("v1.1", "m", 0.5, "pass_at_1", "xhigh"),
-        ],
-    )
-    ranked = [r for r in full(db_session, deepswe.SITE).rows if r.rank is not None]
-    assert [r.config for r in ranked] == ["max"]
-
-
 def test_equal_values_keep_the_sites_row_order(db_session: Session) -> None:
+    snapshot(db_session, lmarena.SITE, [("text", "zeta", 1500.0), ("text", "alpha", 1500.0)])
+    assert [r.model for r in full(db_session, lmarena.SITE).rows] == ["zeta", "alpha"]
+
+
+def test_default_view_site_ranks_only_the_rows_its_table_shows(db_session: Session) -> None:
+    """SimpleBench's human reference rows sit in the table without a rank: they come back with
+    the full rows, never in the ranking or the summary."""
     snapshot(
         db_session,
-        deepswe.SITE,
-        [("v1.1", "zeta", 0.5, "pass_at_1"), ("v1.1", "alpha", 0.5, "pass_at_1")],
+        simplebench.SITE,
+        [
+            (simplebench.BOARD, "Highest Human Score*", 95.4, "score"),
+            (simplebench.BOARD, "second", 90.0, "score"),
+            (simplebench.BOARD, "first", 94.9, "score"),
+        ],
+        extras={"first": {"default_rank": 1}, "second": {"default_rank": 2}},
     )
-    assert [r.model for r in full(db_session, deepswe.SITE).rows] == ["zeta", "alpha"]
+    rows = {r.model: r.rank for r in full(db_session, simplebench.SITE).rows}
+    assert rows == {"first": 1, "second": 2, "Highest Human Score*": None}
+    summary = benchmarks_view(db_session, now=NOW)[0].rows
+    assert [r.model for r in summary] == ["first", "second"]
 
 
 def test_livebench_gets_a_derived_overall_row_without_the_cost_metric(db_session: Session) -> None:
@@ -461,34 +452,21 @@ def test_livebench_derived_row_keeps_the_models_metadata(db_session: Session) ->
     assert "category" not in row.extra
 
 
-def test_artificial_analysis_ranks_the_intelligence_index(db_session: Session) -> None:
-    index = "artificial_analysis_intelligence_index"
-    snapshot(
-        db_session,
-        artificial_analysis.SITE,
-        [
-            ("language", "p", 40.0, index),
-            ("language", "q", 55.0, index),
-            ("language", "q", 900.0, "median_output_tokens_per_second"),
-        ],
-    )
-    site = full(db_session, artificial_analysis.SITE)
-    assert site.attribution == "Data: Artificial Analysis"
-    assert ranked(site.model_dump(mode="json"), "language") == [
-        ("q", 1, None, 0),
-        ("p", 2, None, 0),
-    ]
-
-
-def test_attribution_present_for_artificial_analysis(
+def test_vending_bench_credits_the_maker_and_the_distributor(
     db_session: Session, public_client: TestClient, public_headers: dict[str, str]
 ) -> None:
-    snapshot(db_session, artificial_analysis.SITE, [("language", "q", 55.0)])
+    snapshot(
+        db_session,
+        vending_bench.SITE,
+        [(vending_bench.BOARD, "q", 5500.0, "money_balance")],
+        extras={"q": {"default_rank": 1}},
+    )
     body = public_client.get(PATH, headers=public_headers).json()
-    site = site_of(body, artificial_analysis.SITE)
-    assert site["attribution"] == "Data: Artificial Analysis"
-    assert site["title"] == artificial_analysis.TITLE
-    assert site["source_url"] == artificial_analysis.SOURCE_URL
+    site = site_of(body, vending_bench.SITE)
+    assert "Andon Labs" in site["attribution"] and "Epoch AI" in site["attribution"]
+    assert site["license"].startswith("CC BY 4.0")
+    assert site["title"] == vending_bench.TITLE == "Vending-Bench 2"
+    assert site["source_url"] == "https://andonlabs.com/evals/vending-bench-2"
 
 
 def test_row_shape(
@@ -577,23 +555,42 @@ def test_changes_skip_moves_older_than_two_days(db_session: Session) -> None:
 
 
 def test_changes_use_the_site_title(db_session: Session) -> None:
+    board = simplebench.BOARD
     snapshot(
         db_session,
-        deepswe.SITE,
-        [("v1.1", "a", 0.4, "pass_at_1"), ("v1.1", "b", 0.3, "pass_at_1")],
+        simplebench.SITE,
+        [(board, "a", 90.0, "score"), (board, "b", 80.0, "score")],
         hours_ago=30,
+        extras={"a": {"default_rank": 1}, "b": {"default_rank": 2}},
     )
     snapshot(
         db_session,
-        deepswe.SITE,
-        [("v1.1", "b", 0.5, "pass_at_1"), ("v1.1", "a", 0.4, "pass_at_1")],
+        simplebench.SITE,
+        [(board, "b", 95.0, "score"), (board, "a", 90.0, "score")],
         hours_ago=3,
+        extras={"b": {"default_rank": 1}, "a": {"default_rank": 2}},
     )
     result = benchmark_changes(db_session, now=NOW)
     assert {(c["site"], c["model"], c["from"], c["to"]) for c in result["changes"]} == {
-        ("DeepSWE", "b", 2, 1),
-        ("DeepSWE", "a", 1, 2),
+        ("SimpleBench", "b", 2, 1),
+        ("SimpleBench", "a", 1, 2),
     }
+
+
+def test_forecastbench_moves_never_reach_the_spotlight(db_session: Session) -> None:
+    """Its entries are teams' code names for unnamed models: the board is shown, not told."""
+    board = forecastbench.BOARD
+    for hours_ago, first, second in ((30, "fire hedgehog", "blue croc"), (3, "blue croc", "x")):
+        snapshot(
+            db_session,
+            forecastbench.SITE,
+            [(board, first, 68.6, "overall"), (board, second, 68.3, "overall")],
+            hours_ago=hours_ago,
+            extras={first: {"default_rank": 1}, second: {"default_rank": 2}},
+        )
+    assert benchmark_changes(db_session, now=NOW) == {"changes": [], "new_models": []}
+    ranked_rows = [r for r in full(db_session, forecastbench.SITE).rows if r.rank]
+    assert [(r.model, r.change) for r in ranked_rows] == [("blue croc", "up"), ("x", "new")]
 
 
 def test_unlisted_livebench_model_is_not_in_the_changes(db_session: Session) -> None:
@@ -618,13 +615,13 @@ def test_updated_is_each_boards_own_date(db_session: Session) -> None:
         [("text_style_control", "a", 1500.0), ("search", "b", 1200.0)],
         raw={"updated": {"text_style_control": "2026-10-28", "search": "2026-10-13"}},
     )
-    snapshot(db_session, deepswe.SITE, [("v1.1", "m", 0.5, "pass_at_1")])
+    snapshot(db_session, vals.SITE, [(vals.BOARD, "m", 50.0, "accuracy")])
     sites = {s.site: s for s in benchmarks_view(db_session, now=NOW)}
     assert sites[lmarena.SITE].updated == {
         "text_style_control": "2026-10-28",
         "search": "2026-10-13",
     }
-    assert sites[deepswe.SITE].updated == {}  # collected before the dates were kept
+    assert sites[vals.SITE].updated == {}  # a snapshot that kept no date
 
 
 def test_summary_keeps_ten_ranked_rows_per_board(db_session: Session) -> None:
@@ -644,12 +641,8 @@ def test_summary_keeps_ten_ranked_rows_per_board(db_session: Session) -> None:
 def test_summary_has_no_unranked_rows(db_session: Session) -> None:
     snapshot(
         db_session,
-        deepswe.SITE,
-        [
-            ("v1.1", "a", 0.5, "pass_at_1", "high"),
-            ("v1.1", "a", 0.3, "pass_at_1", "low"),
-            ("v1.1", "a", 9.0, "cost_usd"),
-        ],
+        lmarena.SITE,
+        [("agent", "a", 0.5, "score", "high"), ("agent", "a", 9.0, "cost_per_task_p50")],
     )
     assert [r.config for r in benchmarks_view(db_session, now=NOW)[0].rows] == ["high"]
 
@@ -659,10 +652,15 @@ def test_site_parameter_returns_the_full_rows(
 ) -> None:
     rows = [("text", f"m{i:02d}", 1600.0 - i) for i in range(1, 15)]
     snapshot(db_session, lmarena.SITE, rows)
-    snapshot(db_session, deepswe.SITE, [("v1.1", "m", 0.5, "pass_at_1")])
+    snapshot(
+        db_session,
+        simplebench.SITE,
+        [(simplebench.BOARD, "m", 50.0, "score")],
+        extras={"m": {"default_rank": 1}},
+    )
     summary = public_client.get(PATH, headers=public_headers).json()
     one = public_client.get(PATH, params={"site": lmarena.SITE}, headers=public_headers).json()
-    assert [s["site"] for s in summary] == [deepswe.SITE, lmarena.SITE]
+    assert [s["site"] for s in summary] == [lmarena.SITE, simplebench.SITE]
     assert len(site_of(summary, lmarena.SITE)["rows"]) == 10
     assert [s["site"] for s in one] == [lmarena.SITE]
     assert len(one[0]["rows"]) == 14
@@ -673,7 +671,7 @@ def test_unknown_site_is_404_and_an_uncollected_one_is_empty(
 ) -> None:
     unknown = public_client.get(PATH, params={"site": "nope"}, headers=public_headers)
     uncollected = public_client.get(
-        PATH, params={"site": artificial_analysis.SITE}, headers=public_headers
+        PATH, params={"site": forecastbench.SITE}, headers=public_headers
     )
     assert unknown.status_code == 404
     assert uncollected.status_code == 200 and uncollected.json() == []

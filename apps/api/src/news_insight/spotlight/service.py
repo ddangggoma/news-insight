@@ -27,8 +27,12 @@ from news_insight.spotlight.models import (
 )
 from news_insight.spotlight.prompts import (
     INSTRUCTION,
+    INTEREST_AREAS,
+    MAX_AREA_ENTRIES,
+    MAX_AREA_INSIGHT,
     MAX_BENCHMARK_NOTE,
     MAX_HEADLINE,
+    MAX_INSIGHT,
     MAX_NOW,
     MAX_PRODUCT_NAME,
     MAX_RANK_NOTE,
@@ -36,6 +40,9 @@ from news_insight.spotlight.prompts import (
     MAX_SUSTAINED,
     MAX_TAG,
     MAX_TAGS,
+    MAX_THEME_SUMMARY,
+    MAX_THEME_TITLE,
+    MAX_THEMES,
     MAX_TITLE,
     MAX_TOTAL,
     MAX_WHY_HOT,
@@ -175,6 +182,11 @@ def _merged_metrics(members: list[dict[str, Any]]) -> dict[str, Any]:
     return merged
 
 
+SURGE_MIN_SOURCES = 5  # 급부상: at least this many outlets today ...
+SURGE_MIN_SHARE = 80  # ... making up this share (%) of all the event's coverage
+CURATED = frozenset({"news"})  # the writer's choice stands: never topped up from the statistics
+
+
 def signals(section: str, metrics: dict[str, Any]) -> list[str]:
     """Deterministic, reader-facing reasons an entry is listed, from its numbers alone."""
     out: list[str] = []
@@ -183,6 +195,8 @@ def signals(section: str, metrics: dict[str, Any]) -> list[str]:
         value = metrics.get(name)
         return int(value) if _number(value) else 0
 
+    if count("new_sources") >= SURGE_MIN_SOURCES and count("surge") >= SURGE_MIN_SHARE:
+        out.append("급부상")
     if count("source_count") >= 5:
         out.append(f"보도 {count('source_count')}곳")
     if max(count("community_mentions"), count("mentions") if section != "oss" else 0) >= 3:
@@ -217,6 +231,14 @@ def _tags(raw: Any) -> list[str]:
     return kept[:MAX_TAGS]
 
 
+def _insight(section: str, raw: Any) -> str | None:
+    """A news entry's 시사점; an over-long one is dropped (the entry stays)."""
+    if section not in CURATED:
+        return None
+    text = _text(raw)
+    return text if text and len(text) <= MAX_INSIGHT else None
+
+
 def _entry(
     section: str,
     members: list[dict[str, Any]],
@@ -228,6 +250,7 @@ def _entry(
     rank_note: str | None,
     fallback: bool,
     tags: list[str] | None = None,
+    insight: str | None = None,
 ) -> dict[str, Any]:
     grouped = len(members) > 1
     item_ids = list(dict.fromkeys(i for member in members for i in member["item_ids"]))
@@ -242,6 +265,7 @@ def _entry(
         "product_name": product_name,
         "summary": summary,
         "why_hot": why_hot,
+        "insight": insight,
         "rank_note": rank_note,
         "metrics": metrics,
         "stat_rank": min(member["stat_rank"] for member in members),
@@ -297,6 +321,7 @@ def _checked(
         "why_hot": why_hot,
         "rank_note": note,
         "tags": _tags(raw.get("tags")),
+        "insight": _insight(section, raw.get("insight")),
     }
     return order, members, fields
 
@@ -392,6 +417,60 @@ def validate(
         keep_now, keep_sustained = quotas(len(now), len(sustained))
         result[section] = _ranked(now[:keep_now], sustained[:keep_sustained])
     return result
+
+
+def _list(raw: Any) -> list[Any]:
+    return raw if isinstance(raw, list) else []
+
+
+def _keys(raw: Any, key_of: dict[str, str], limit: int) -> list[str]:
+    """The entry keys the cids of a theme or an area point at: published news entries only,
+    each once, in the writer's order."""
+    keys: list[str] = []
+    for cid in _list(raw):
+        key = key_of.get(cid) if isinstance(cid, str) else None
+        if key is not None and key not in keys:
+            keys.append(key)
+    return keys[:limit]
+
+
+def news_overview(output: dict[str, Any], news: list[dict[str, Any]]) -> dict[str, Any] | None:
+    """오늘의 구도 as stored: the writer's themes and interest areas, each pointing at published
+    news entries by key. A theme or an area whose text is missing or over-long, or none of whose
+    cids was published, is left out; an area is listed once and must be a known one. None when
+    nothing is left (or the writer's entries were not published at all)."""
+    raw = output.get("news_overview")
+    key_of = {cid: built["key"] for built in news if not built["fallback"] for cid in built["cids"]}
+    if not isinstance(raw, dict) or not key_of:
+        return None
+    themes: list[dict[str, Any]] = []
+    for theme in _list(raw.get("themes")):
+        if not isinstance(theme, dict):
+            continue
+        title, summary = _text(theme.get("title")), _text(theme.get("summary"))
+        keys = _keys(theme.get("cids"), key_of, MAX_TOTAL)
+        if not title or not summary or not keys:
+            continue
+        if len(title) > MAX_THEME_TITLE or len(summary) > MAX_THEME_SUMMARY:
+            continue
+        themes.append({"title": title, "summary": summary, "keys": keys})
+    areas: dict[str, dict[str, Any]] = {}
+    for area in _list(raw.get("areas")):
+        if not isinstance(area, dict):
+            continue
+        name, insight = area.get("area"), _text(area.get("insight"))
+        keys = _keys(area.get("cids"), key_of, MAX_AREA_ENTRIES)
+        if name not in INTEREST_AREAS or name in areas or not insight or not keys:
+            continue
+        if len(insight) > MAX_AREA_INSIGHT:
+            continue
+        areas[name] = {"area": name, "insight": insight, "keys": keys}
+    if not themes and not areas:
+        return None
+    return {
+        "themes": themes[:MAX_THEMES],
+        "areas": [areas[name] for name in INTEREST_AREAS if name in areas],
+    }
 
 
 def _fallback_row(section: str, candidate: dict[str, Any]) -> dict[str, Any]:
@@ -492,6 +571,7 @@ def _store(
     benchmark_note: str,
     error: str | None,
     now: datetime,
+    news_overview: dict[str, Any] | None = None,
 ) -> Spotlight:
     """Create the day's row, or update the FAILED one of an earlier attempt in place."""
     if row is None:
@@ -503,6 +583,7 @@ def _store(
     row.cost_usd = cost_usd
     row.headline = headline
     row.benchmark_note = benchmark_note
+    row.news_overview = news_overview
     row.error = error[:ERROR_LIMIT] if error else None
     row.generated_at = now
     session.flush()
@@ -538,6 +619,7 @@ def _publish(
                     product_name=built["product_name"],
                     summary=built["summary"],
                     why_hot=built["why_hot"],
+                    insight=built.get("insight"),
                     rank_note=built["rank_note"],
                     metrics=built["metrics"],
                     fallback=built["fallback"],
@@ -620,6 +702,10 @@ def write(
         declined = all(count == 0 for count in listed[section].values())
         if declined and section != "oss":
             continue
+        # a curated section keeps the writer's list as it is (it leaves rumours, certifications
+        # and reviews out on purpose); only when none of its entries passed is it filled
+        if section in CURATED and chosen[section]:
+            continue
         chosen[section] = top_up(section, chosen[section], snapshot.candidates.get(section, []))
     structured = result.structured
     return _publish(
@@ -633,4 +719,5 @@ def write(
         benchmark_note=(_text(structured.get("benchmark_note")) or "")[:MAX_BENCHMARK_NOTE],
         error=None,
         now=now,
+        news_overview=news_overview(structured, chosen.get("news", [])),
     )

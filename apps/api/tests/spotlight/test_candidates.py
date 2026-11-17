@@ -1,4 +1,5 @@
 import json
+import math
 from datetime import UTC, date, datetime, timedelta
 
 import pytest
@@ -16,6 +17,7 @@ from news_insight.spotlight.candidates import (
     INTERVIEW_PATTERN,
     SECTIONS,
     collect_candidates,
+    news_score,
     window,
 )
 from news_insight.stories.models import ItemRef, Relation, Story, StoryItem
@@ -175,8 +177,14 @@ def test_one_entry_per_story(db_session: Session):
     assert candidate.stat_rank == 1
     assert len(candidate.item_ids) == 3
     assert candidate.item_ids[0] == row.representative_item_id
-    assert candidate.metrics == {"source_count": 3, "community_mentions": 0}
-    assert candidate.score == pytest.approx(300.0)
+    assert candidate.metrics == {
+        "source_count": 3,
+        "new_sources": 3,
+        "surge": 100,
+        "relevance": 0,
+        "community_mentions": 0,
+    }
+    assert candidate.score == pytest.approx(100.0)  # 30·log2(4) + 40 (all of it today)
 
 
 def test_duplicate_items_excluded(db_session: Session):
@@ -213,7 +221,7 @@ def test_canary_items_excluded(db_session: Session):
     assert probe.id not in {i for c in result["community"] for i in c.item_ids}
 
 
-def test_news_ranked_by_source_count(db_session: Session):
+def test_news_with_more_coverage_today_ranks_first_other_things_equal(db_session: Session):
     small = news_story(db_session, "small", 3)
     big = news_story(db_session, "big", 5)
     result = collect_candidates(db_session, day=DAY, now=NOW)
@@ -260,13 +268,71 @@ def test_news_counts_community_mentions_and_uses_best_z(db_session: Session):
     db_session.flush()
     result = collect_candidates(db_session, day=DAY, now=NOW)
     by_key = {c.key: c for c in result["news"]}
-    assert by_key[f"story:{talked.id}"].metrics == {"source_count": 2, "community_mentions": 2}
+    talked_metrics = by_key[f"story:{talked.id}"].metrics
+    assert (talked_metrics["source_count"], talked_metrics["community_mentions"]) == (2, 2)
     assert by_key[f"story:{plain.id}"].metrics["community_mentions"] == 0
-    # 2 sources, 2 mentions, and the viral post's z on top
-    assert 220.0 < by_key[f"story:{talked.id}"].score < 235.0
-    assert by_key[f"story:{plain.id}"].stat_rank == 1  # 3 sources still outrank
+    # coverage of 2 outlets and the surge, two mentions, and the viral post's z on top
+    quiet = news_score(new_sources=2, total_sources=2, relevance=0, mentions=0, best_z=0.0)
+    assert by_key[f"story:{talked.id}"].score > quiet + 12 * math.log2(3)
+    # interest outweighs one more outlet: the talked-about event leads
+    assert by_key[f"story:{talked.id}"].stat_rank == 1
     # the post is a mention of the event, not one of its news items
     assert posts[-1].id not in by_key[f"story:{talked.id}"].item_ids
+
+
+def test_news_surge_is_todays_share_of_all_coverage(db_session: Session):
+    # both were reported by three outlets today; `tail` had 27 more on earlier days
+    fresh = news_story(db_session, "fresh", 3)
+    members = [
+        item(db_session, source(db_session, f"tail-{n}", Track.NEWS), f"tail-{n}") for n in range(3)
+    ]
+    tail = story(db_session, members, source_count=30)
+    result = collect_candidates(db_session, day=DAY, now=NOW)
+    by_key = {c.key: c for c in result["news"]}
+    assert by_key[f"story:{fresh.id}"].metrics["surge"] == 100
+    assert by_key[f"story:{tail.id}"].metrics["surge"] == 10
+    assert by_key[f"story:{tail.id}"].metrics["new_sources"] == 3
+    assert by_key[f"story:{fresh.id}"].stat_rank == 1
+
+
+def test_news_relevance_and_card_labels_reach_the_writer(db_session: Session):
+    plain = news_story(db_session, "plain", 3)
+    relevant = news_story(db_session, "relevant", 3)
+    relevant.max_relevance = 85
+    db_session.add(
+        ItemCard(
+            item_id=relevant.representative_item_id,
+            status=CardStatus.READY,
+            title_ko="관련 사건",
+            summary_ko=["요약"],
+            input_hash="h" * 64,
+            generated_at=SEEN,
+            signal_type="supply",
+            impact="risk",
+            scope="dx",
+            relevance=70,
+        )
+    )
+    db_session.flush()
+    result = collect_candidates(db_session, day=DAY, now=NOW)
+    assert [c.key for c in result["news"]] == [f"story:{relevant.id}", f"story:{plain.id}"]
+    metrics = result["news"][0].metrics
+    assert metrics["relevance"] == 85  # the higher of the story's and the lead card's
+    assert (metrics["signal_type"], metrics["impact"], metrics["scope"]) == ("supply", "risk", "dx")
+    assert "signal_type" not in result["news"][1].metrics
+
+
+def test_news_score_weighs_coverage_surge_relevance_and_interest():
+    base = {"new_sources": 5, "total_sources": 5, "relevance": 50, "mentions": 3, "best_z": 1.0}
+    score = news_score(**base)
+    assert news_score(**base | {"new_sources": 9, "total_sources": 9}) > score
+    assert news_score(**base | {"total_sources": 50}) < score  # the tail of an older story
+    assert news_score(**base | {"relevance": 90}) > score
+    assert news_score(**base | {"mentions": 30}) > score
+    assert news_score(**base | {"best_z": -2.0}) == news_score(**base | {"best_z": 0.0})
+    # the 60th outlet adds less than a newly breaking story's surge
+    many = news_score(**base | {"new_sources": 60, "total_sources": 300})
+    assert many - score < 30 * 4
 
 
 def test_community_below_z_one_excluded(db_session: Session):

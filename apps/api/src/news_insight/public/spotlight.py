@@ -15,6 +15,7 @@ from news_insight.content.models import Item
 from news_insight.public.periods import KST
 from news_insight.spotlight.candidates import SECTIONS
 from news_insight.spotlight.models import Spotlight, SpotlightEntry, SpotlightStatus
+from news_insight.spotlight.prompts import INTEREST_AREAS
 from news_insight.taxonomy.catalog import LABELS
 
 AVAILABLE_DATES = 60
@@ -38,6 +39,7 @@ class SpotlightEntryOut(BaseModel):
     product_name: str | None
     summary: str
     why_hot: str
+    insight: str | None  # 시사점 (news entries published since plan 20)
     rank_note: str | None
     metrics: dict[str, Any]
     fallback: bool
@@ -48,11 +50,32 @@ class SpotlightEntryOut(BaseModel):
     field_label: str | None
 
 
+class NewsTheme(BaseModel):
+    title: str
+    summary: str
+    keys: list[str]  # news entries of this day, by key
+
+
+class NewsArea(BaseModel):
+    area: str
+    label: str
+    insight: str
+    keys: list[str]
+
+
+class NewsOverview(BaseModel):
+    """오늘의 구도: the day's news as a few themes, then per interest area."""
+
+    themes: list[NewsTheme]
+    areas: list[NewsArea]
+
+
 class SpotlightView(BaseModel):
     date: dt.date | None
     generating: bool  # today's (KST) spotlight is not published yet
     headline: str
     benchmark_note: str
+    news_overview: NewsOverview | None  # None on days published before plan 20
     sections: dict[str, list[SpotlightEntryOut]]
     available_dates: list[dt.date]  # newest first
     generated_at: datetime | None
@@ -76,6 +99,32 @@ def _change(entry: SpotlightEntry, before: dict[tuple[str, str], int]) -> tuple[
     return "same", 0
 
 
+def _overview(stored: dict[str, Any] | None, listed: set[str]) -> NewsOverview | None:
+    """The stored overview with only the keys of entries this day lists."""
+    if not stored:
+        return None
+
+    def keys(raw: dict[str, Any]) -> list[str]:
+        return [key for key in raw.get("keys", []) if key in listed]
+
+    themes = [
+        NewsTheme(title=t["title"], summary=t["summary"], keys=keys(t))
+        for t in stored.get("themes", [])
+        if keys(t)
+    ]
+    areas = [
+        NewsArea(
+            area=a["area"],
+            label=INTEREST_AREAS.get(a["area"], a["area"]),
+            insight=a["insight"],
+            keys=keys(a),
+        )
+        for a in stored.get("areas", [])
+        if keys(a)
+    ]
+    return NewsOverview(themes=themes, areas=areas) if themes or areas else None
+
+
 def spotlight_view(session: Session, *, day: date | None, now: datetime) -> SpotlightView:
     spotlight = _published(session, day)
     if spotlight is None and day is not None:
@@ -95,6 +144,7 @@ def spotlight_view(session: Session, *, day: date | None, now: datetime) -> Spot
             generating=True,
             headline="",
             benchmark_note="",
+            news_overview=None,
             sections=sections,
             available_dates=available,
             generated_at=None,
@@ -138,6 +188,7 @@ def spotlight_view(session: Session, *, day: date | None, now: datetime) -> Spot
                 product_name=entry.product_name,
                 summary=entry.summary,
                 why_hot=entry.why_hot,
+                insight=entry.insight,
                 rank_note=entry.rank_note,
                 metrics=entry.metrics,
                 fallback=entry.fallback,
@@ -153,6 +204,7 @@ def spotlight_view(session: Session, *, day: date | None, now: datetime) -> Spot
         generating=day is None and now.astimezone(KST).date() > spotlight.spotlight_date,
         headline=spotlight.headline,
         benchmark_note=spotlight.benchmark_note,
+        news_overview=_overview(spotlight.news_overview, {e.key for e in sections["news"]}),
         sections=sections,
         available_dates=available,
         generated_at=spotlight.generated_at,

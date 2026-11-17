@@ -46,13 +46,16 @@ export function EntryTags({ entry }: { entry: Pick<SpotlightEntry, "tags" | "sig
   );
 }
 
-/** One line of a section's list: rank, change, title, field, Opus's summary and reason, the tags and the raw metrics. */
-export function EntryRow({ entry }: { entry: SpotlightEntry }) {
+/**
+ * One line of a section's list: rank, change, title, field, Opus's summary and reason, the 시사점
+ * of a news entry, the tags and the raw metrics. `anchor` is the row's id (the overview links to it).
+ */
+export function EntryRow({ entry, anchor = null }: { entry: SpotlightEntry; anchor?: string | null }) {
   const signals = new Set(visibleSignals(entry));
   const chips = metricChips(entry.metrics).filter((chip) => !signals.has(chip));
   const others = entry.item_ids.length - 1;
   return (
-    <div className="flex gap-3 py-3">
+    <div id={anchor ?? undefined} className="flex scroll-mt-20 gap-3 py-3">
       <div className="flex w-10 shrink-0 flex-col items-center gap-0.5">
         <span className="text-xl font-semibold tabular-nums">{entry.rank}</span>
         <ChangeBadge entry={entry} />
@@ -79,6 +82,12 @@ export function EntryRow({ entry }: { entry: SpotlightEntry }) {
         <EntryTags entry={entry} />
         {entry.summary && <p className="text-sm text-muted-foreground">{entry.summary}</p>}
         {entry.why_hot && <p className="text-sm">{entry.why_hot}</p>}
+        {entry.insight && (
+          <p className="border-l-2 border-primary/60 pl-2 text-sm">
+            <span className="mr-1.5 text-xs font-semibold text-primary">시사점</span>
+            {entry.insight}
+          </p>
+        )}
         {entry.rank_note && <p className="text-xs text-muted-foreground">{entry.rank_note}</p>}
         {(chips.length > 0 || others > 0) && (
           <ul className="flex flex-wrap gap-1.5 pt-0.5" aria-label="화제 지표">

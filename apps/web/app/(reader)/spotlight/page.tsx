@@ -1,41 +1,36 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 
-import { BENCHMARKS_ANCHOR, BenchmarksSection } from "@/components/reader/benchmarks/benchmarks-section";
+import { BenchmarksSection } from "@/components/reader/benchmarks/benchmarks-section";
+import { BenchmarksHashRedirect } from "@/components/reader/benchmarks/hash-redirect";
 import { SpotlightBrowser } from "@/components/reader/spotlight/browser";
 import { DateSelect } from "@/components/reader/spotlight/date-select";
 import { GeneratingBand } from "@/components/reader/spotlight/generating-band";
 import { SpotlightTabs } from "@/components/reader/spotlight/spotlight-tabs";
 import { ApiError } from "@/lib/api";
-import { BENCHMARK_SITES, type BenchmarkSite, type BenchmarkSiteKey } from "@/lib/benchmark-types";
+import { type BenchmarkSite, type BenchmarkSiteKey, parseSite } from "@/lib/benchmark-types";
 import { formatDateTime } from "@/lib/format";
 import { param, type SearchParams } from "@/lib/params";
 import { REVALIDATE, readerGet } from "@/lib/reader-api";
 import { requireUser } from "@/lib/session";
-import { RETIRED_MODELS_TAB, SECTION_LABEL, type SpotlightView, isCalendarDay, parseFilters, parseTab, spotlightHref } from "@/lib/spotlight-types";
+import { BENCHMARKS_TAB, RETIRED_MODELS_TAB, SECTION_LABEL, type SpotlightView, isCalendarDay, parseFilters, parseTab, spotlightHref } from "@/lib/spotlight-types";
 
 /**
- * The benchmarks' data (under the AI 모델·서비스 tab): the all-sites summary (freshness, today's arrivals) and each site's
- * full rows, fetched side by side so every cached response stays small. A failed summary only
- * hides the arrivals; a site whose full request fails falls back to its summary rows (top 10
- * per board). The rows stay on the server: BenchmarksSection projects them before any client card.
+ * The 벤치마크 tab's data: the all-sites summary (the menu's freshness, today's arrivals) and the
+ * full rows of the one site picked in the menu, fetched side by side; the other sites' rows are
+ * never asked for. A failed summary only hides the arrivals; when the site's full request fails
+ * BenchmarksSection falls back to its summary rows (top 10 per board). The rows stay on the
+ * server: BenchmarksSection projects them before any client card.
  */
-async function loadBenchmarks(): Promise<{ summary: BenchmarkSite[] | null; sites: Partial<Record<BenchmarkSiteKey, BenchmarkSite>> }> {
-  const [summary, ...full] = await Promise.all([
+async function loadBenchmarks(site: BenchmarkSiteKey): Promise<{ summary: BenchmarkSite[] | null; full: BenchmarkSite | null }> {
+  const [summary, full] = await Promise.all([
     readerGet<BenchmarkSite[]>("/benchmarks", {}, REVALIDATE.benchmarks).catch(() => null),
-    ...BENCHMARK_SITES.map((site) =>
-      readerGet<BenchmarkSite[]>("/benchmarks", { site }, REVALIDATE.benchmarks).then(
-        (rows) => rows[0] ?? null,
-        () => null,
-      ),
+    readerGet<BenchmarkSite[]>("/benchmarks", { site }, REVALIDATE.benchmarks).then(
+      (rows) => rows[0] ?? null,
+      () => null,
     ),
   ]);
-  const sites: Partial<Record<BenchmarkSiteKey, BenchmarkSite>> = {};
-  BENCHMARK_SITES.forEach((key, index) => {
-    const site = full[index] ?? summary?.find((s) => s.site === key);
-    if (site) sites[key] = site;
-  });
-  return { summary, sites };
+  return { summary, full };
 }
 
 export const metadata: Metadata = { title: "주목 받는", robots: { index: false } };
@@ -47,8 +42,8 @@ export default async function SpotlightPage({ searchParams }: { searchParams: Pr
   const requested = param(sp, "date");
   const filters = parseFilters(param(sp, "field"), param(sp, "group"));
   if (requested !== undefined && !isCalendarDay(requested)) notFound();
-  // the former 「AI 모델」 tab: its benchmarks live under AI 모델·서비스 now
-  if (param(sp, "tab") === RETIRED_MODELS_TAB) redirect(`${spotlightHref("ai", requested ?? null)}#${BENCHMARKS_ANCHOR}`);
+  // the former 「AI 모델」 tab: its leaderboards are the 벤치마크 tab now
+  if (param(sp, "tab") === RETIRED_MODELS_TAB) redirect(spotlightHref(BENCHMARKS_TAB, requested ?? null));
 
   let view: SpotlightView;
   try {
@@ -59,7 +54,9 @@ export default async function SpotlightPage({ searchParams }: { searchParams: Pr
     throw error;
   }
 
-  const benchmarks = tab === "ai" ? await loadBenchmarks() : null;
+  // 벤치마크: one site at a time (`?site=`, the menu's first site when none is named)
+  const site = parseSite(param(sp, "site"));
+  const benchmarks = tab === BENCHMARKS_TAB ? await loadBenchmarks(site) : null;
 
   return (
     <main className="mx-auto max-w-6xl space-y-5 px-4 py-6 md:px-6">
@@ -67,7 +64,8 @@ export default async function SpotlightPage({ searchParams }: { searchParams: Pr
         <div className="min-w-64 flex-1">
           <h1 className="text-xl font-semibold">주목 받는</h1>
           <p className="text-sm text-muted-foreground">
-            뉴스·제품·AI 모델·서비스·오픈소스·인터뷰·커뮤니티·연구·특허별로 최근 24시간 Top 10과 지난 7일 동안 이어진 지속 주목 Top 5를 모았습니다.
+            뉴스·제품·AI 모델·서비스·오픈소스·인터뷰·커뮤니티·연구·특허별로 최근 24시간 Top 10과 지난 7일 동안 이어진 지속 주목 Top 5를 모았습니다. AI 리더보드는 벤치마크 탭에서
+            사이트별로 봅니다.
             {view.generated_at && ` ${formatDateTime(view.generated_at)} 생성.`}
           </p>
         </div>
@@ -80,20 +78,21 @@ export default async function SpotlightPage({ searchParams }: { searchParams: Pr
 
       {tab === "overview" ? (
         <SpotlightBrowser view={view} tab={tab} date={requested ?? null} initial={filters} />
+      ) : tab === BENCHMARKS_TAB ? (
+        <BenchmarksSection
+          summary={benchmarks?.summary ?? null}
+          site={site}
+          full={benchmarks?.full ?? null}
+          note={view.benchmark_note}
+          date={requested ?? null}
+          noteDate={requested && requested !== view.available_dates[0] ? requested : null}
+        />
       ) : (
-        <>
-          <section aria-label={SECTION_LABEL[tab]}>
-            <SpotlightBrowser key={tab} view={view} tab={tab} date={requested ?? null} initial={filters} />
-          </section>
-          {benchmarks && (
-            <BenchmarksSection
-              summary={benchmarks.summary}
-              sites={benchmarks.sites}
-              note={view.benchmark_note}
-              noteDate={requested && requested !== view.available_dates[0] ? requested : null}
-            />
-          )}
-        </>
+        <section aria-label={SECTION_LABEL[tab]}>
+          <SpotlightBrowser key={tab} view={view} tab={tab} date={requested ?? null} initial={filters} />
+          {/* links from when the leaderboards sat under this tab (`?tab=ai#benchmarks`) */}
+          {tab === "ai" && <BenchmarksHashRedirect date={requested ?? null} />}
+        </section>
       )}
     </main>
   );

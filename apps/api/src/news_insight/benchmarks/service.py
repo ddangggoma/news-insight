@@ -16,28 +16,36 @@ from news_insight.benchmarks.sources import (
     BenchmarkError,
     NotModified,
     SiteSnapshot,
-    artificial_analysis,
-    deepswe,
     epoch,
+    forecastbench,
     livebench,
     lmarena,
     osworld,
+    seal,
+    simplebench,
     tau2,
     terminal_bench,
+    vals,
+    vending_bench,
 )
 from news_insight.net.safe_fetch import SafeFetcher
 
 logger = logging.getLogger(__name__)
 
+# DeepSWE (no longer updated) and Artificial Analysis (needs an API key) were dropped on
+# 2026-11-13: their stored snapshots stay in the tables but are neither collected nor served.
 SOURCES: tuple[ModuleType, ...] = (
-    deepswe,
     livebench,
     lmarena,
-    artificial_analysis,
     terminal_bench,
     epoch,
     osworld,
     tau2,
+    seal,
+    vals,
+    vending_bench,
+    simplebench,
+    forecastbench,
 )
 SAVED = "saved"
 UNCHANGED = "unchanged"
@@ -71,7 +79,7 @@ def _fetch(
 
 def collect_all(session: Session, fetcher: SafeFetcher, now: datetime) -> dict[str, str]:
     """Per site: "saved", "unchanged", or the error code (selector_drift, http_error,
-    config_error, parse_error, error). A site that fails keeps its last good snapshot and never
+    parse_error, error). A site that fails keeps its last good snapshot and never
     blocks the others. Each site is fetched with no transaction open and committed on its own,
     so a slow site holds nothing idle and a restart keeps the sites already saved. A site that
     reads its previous snapshot (an ETag, per-file SHAs) gets it first; when it answers

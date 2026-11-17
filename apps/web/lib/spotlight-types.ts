@@ -35,6 +35,8 @@ export interface SpotlightEntry {
   product_name: string | null;
   summary: string;
   why_hot: string;
+  /** 시사점: what a news entry means for the DX businesses (news entries since plan 20). */
+  insight?: string | null;
   rank_note: string | null;
   metrics: Record<string, number | string>;
   /** True when Opus did not write this entry (statistical order and card text). */
@@ -89,27 +91,60 @@ export function fieldCounts(entries: SpotlightEntry[]): { key: string; label: st
   return [...found.values()].sort((a, b) => b.count - a.count || a.label.localeCompare(b.label, "ko"));
 }
 
+/** A thread of the day's news (오늘의 구도): its entries are news entries of that day, by key. */
+export interface NewsTheme {
+  title: string;
+  summary: string;
+  keys: string[];
+}
+
+/** One of the reader's interest areas: the day's direction for it and up to three news entries. */
+export interface NewsArea {
+  area: string;
+  label: string;
+  insight: string;
+  keys: string[];
+}
+
+export interface NewsOverview {
+  themes: NewsTheme[];
+  areas: NewsArea[];
+}
+
+/** The id of an entry's row in its section list (story:12 → entry-story-12). */
+export const entryAnchor = (key: string): string => `entry-${key.replace(/[^A-Za-z0-9_-]+/g, "-")}`;
+
 export interface SpotlightView {
   /** Null while nothing has been published yet. */
   date: string | null;
   generating: boolean;
   headline: string;
   benchmark_note: string;
+  /** Missing or null on days published before the overview. */
+  news_overview?: NewsOverview | null;
   sections: Record<SectionKey, SpotlightEntry[]>;
   /** Published days, newest first. */
   available_dates: string[];
   generated_at: string | null;
 }
 
-/** The page's tabs: the overview and one per section (AI 모델·서비스 also holds the benchmarks). */
-export const SPOTLIGHT_TABS = [{ key: "overview", label: "전체" }, ...SECTION_KEYS.map((key) => ({ key, label: SECTION_LABEL[key] }))] as const;
-export type SpotlightTab = (typeof SPOTLIGHT_TABS)[number]["key"];
+/** The 벤치마크 tab: the AI leaderboards, one site at a time (`?tab=benchmarks&site=<key>`). Not a section. */
+export const BENCHMARKS_TAB = "benchmarks";
+export type SpotlightTab = "overview" | SectionKey | typeof BENCHMARKS_TAB;
 
-/** The tab key of the former 「AI 모델」 tab (until 2026-11-04); its benchmarks are under `ai` now. */
+/** The page's tabs: the overview, one per section, and 벤치마크 right after AI 모델·서비스. */
+export const SPOTLIGHT_TABS: readonly { key: SpotlightTab; label: string }[] = [
+  { key: "overview", label: "전체" },
+  ...SECTION_KEYS.flatMap((key): { key: SpotlightTab; label: string }[] =>
+    key === "ai" ? [{ key, label: SECTION_LABEL[key] }, { key: BENCHMARKS_TAB, label: "벤치마크" }] : [{ key, label: SECTION_LABEL[key] }],
+  ),
+];
+
+/** The tab key of the former 「AI 모델」 tab (until 2026-11-04): its leaderboards are the 벤치마크 tab now. */
 export const RETIRED_MODELS_TAB = "models";
 
 export function parseTab(raw: string | undefined): SpotlightTab {
-  if (raw === RETIRED_MODELS_TAB) return "ai";
+  if (raw === RETIRED_MODELS_TAB) return BENCHMARKS_TAB;
   return SPOTLIGHT_TABS.find((tab) => tab.key === raw)?.key ?? "overview";
 }
 
@@ -137,6 +172,7 @@ export function spotlightHref(tab: SpotlightTab, date: string | null, filters?: 
 
 const METRIC_LABEL: Record<string, (n: string) => string> = {
   source_count: (n) => `보도 ${n}곳`,
+  new_sources: (n) => `오늘 ${n}곳`,
   community_mentions: (n) => `언급 ${n}`,
   mentions: (n) => `언급 ${n}`,
   upvotes: (n) => `추천 ${n}`,
@@ -159,7 +195,7 @@ const METRIC_LABEL: Record<string, (n: string) => string> = {
 };
 
 /** Internal ranking inputs: they mean nothing to a reader. */
-const HIDDEN_METRICS = new Set(["community_z", "basis", "trend_rank", "best_rank", "days_active", "listed_days"]);
+const HIDDEN_METRICS = new Set(["community_z", "basis", "trend_rank", "best_rank", "days_active", "listed_days", "surge", "relevance"]);
 
 /** Shown by the trend chip instead, when there is one. */
 const TREND_METRICS = new Set(["rank", "from", "site", "board"]);

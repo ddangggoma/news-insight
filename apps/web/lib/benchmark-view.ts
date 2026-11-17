@@ -3,10 +3,8 @@
  * runs these before handing props to the client components, so the browser gets one small
  * record per model or point instead of every stored row with its `extra` (plan 18, R21/R24).
  */
-import { family } from "@/components/reader/benchmarks/deepswe-plot";
 import { type ProviderKey, providerKey } from "@/components/reader/benchmarks/provider-colors";
 import {
-  AA_METRICS,
   BENCHMARK_SITES,
   type BenchmarkChange,
   type BenchmarkRow,
@@ -34,90 +32,6 @@ const provider = (org: string | null, model: string): ProviderKey => providerKey
 const round = (v: number, digits = 2) => Math.round(v * 10 ** digits) / 10 ** digits;
 const r2 = (v: number) => round(v);
 const r2n = (v: number | null, digits = 2) => (v === null ? null : round(v, digits));
-
-// ---- DeepSWE -------------------------------------------------------------------------
-
-export interface DsPoint {
-  id: string;
-  board: string;
-  model: string;
-  effort: string | null;
-  /** The maker as DeepSWE tells it, by model name. */
-  provider: ProviderKey;
-  /** pass@1 in percent, and its 95% interval. */
-  score: number;
-  low: number | null;
-  high: number | null;
-  cost: number | null;
-  tokens: number | null;
-  steps: number | null;
-  harness: string | null;
-  /** The model's best configuration on the board (the ranked row). */
-  best: boolean;
-  /** The model is in the site's default set (the chart's and table's opening models). */
-  shown: boolean;
-  change: BenchmarkChange | null;
-  changeBy: number;
-}
-
-export interface DeepSweView {
-  /** Newest version first; the card opens on the first. */
-  boards: string[];
-  points: DsPoint[];
-  /** Per board: tasks in the set and the day the site generated it, when known. */
-  info: Record<string, { tasks: number | null; updated: string | null }>;
-}
-
-export function deepSweView(site: BenchmarkSite): DeepSweView {
-  const pct = (v: number | null) => (v === null ? null : r2(v * 100));
-  const points = site.rows
-    .filter((row) => row.metric === "pass_at_1")
-    .map(
-      (row, index): DsPoint => ({
-        id: `${row.board}|${row.model}|${row.config ?? ""}|${index}`,
-        board: row.board,
-        model: row.model,
-        effort: row.config,
-        provider: family(row.model),
-        score: r2(row.value * 100),
-        low: pct(row.ci_low),
-        high: pct(row.ci_high),
-        cost: r2n(extraNumber(row, "mean_cost_usd")),
-        tokens: r2n(extraNumber(row, "mean_output_tokens")),
-        steps: r2n(extraNumber(row, "mean_agent_steps")),
-        harness: extraString(row, "harness"),
-        best: row.rank !== null,
-        shown: false,
-        change: row.change,
-        changeBy: row.change_by,
-      }),
-    );
-  for (const board of new Set(points.map((p) => p.board))) {
-    const onBoard = points.filter((p) => p.board === board);
-    // the API ranks exactly the site's default models (their best configuration)
-    const ranked = new Set(onBoard.filter((p) => p.best).map((p) => p.model));
-    if (ranked.size > 0) {
-      for (const p of onBoard) p.shown = ranked.has(p.model);
-      continue;
-    }
-    // a board with no ranking at all: every model shown, each best configuration marked
-    const best = new Map<string, DsPoint>();
-    for (const p of onBoard) if ((best.get(p.model)?.score ?? -1) < p.score) best.set(p.model, p);
-    for (const p of best.values()) p.best = true;
-    for (const p of onBoard) p.shown = true;
-  }
-  const boards = newestBoardFirst(site.boards.filter((b) => points.some((p) => p.board === b)));
-  // the rows carry each config's task count; each board's date is the site's own, else (an
-  // older snapshot) the snapshot's release for the newest board
-  const info: DeepSweView["info"] = {};
-  for (const board of boards) {
-    const counts = site.rows.filter((r) => r.board === board).map((r) => extraNumber(r, "n_tasks_in_set") ?? extraNumber(r, "n_tasks_attempted") ?? 0);
-    const tasks = Math.max(0, ...counts);
-    const updated = site.updated?.[board] ?? (board === boards[0] ? site.release || null : null);
-    info[board] = { tasks: tasks || null, updated };
-  }
-  return { boards, points, info };
-}
 
 // ---- LiveBench -----------------------------------------------------------------------
 
@@ -284,31 +198,6 @@ export function lmArenaView(site: BenchmarkSite): ArenaView {
   }
   const order = (b: string) => (ARENA_ORDER.includes(b) ? ARENA_ORDER.indexOf(b) : ARENA_ORDER.length);
   return [...boards.values()].sort((a, b) => order(a.key) - order(b.key) || site.boards.indexOf(a.key) - site.boards.indexOf(b.key));
-}
-
-// ---- Artificial Analysis -------------------------------------------------------------
-
-export interface AaModel {
-  model: string;
-  org: string | null;
-  provider: ProviderKey;
-  intelligence: number | null;
-  price: number | null;
-  speed: number | null;
-}
-
-/** One record per model with the three plotted numbers (the API stores ~60 metrics each). */
-export function aaModels(site: BenchmarkSite): AaModel[] {
-  const byModel = new Map<string, AaModel>();
-  for (const row of site.rows) {
-    const entry = byModel.get(row.model) ?? { model: row.model, org: row.org, provider: provider(row.org, row.model), intelligence: null, price: null, speed: null };
-    if (row.metric === AA_METRICS.intelligence) entry.intelligence = row.value;
-    else if (row.metric === AA_METRICS.price) entry.price = row.value;
-    else if (row.metric === AA_METRICS.speed) entry.speed = row.value;
-    else continue;
-    byModel.set(row.model, entry);
-  }
-  return [...byModel.values()];
 }
 
 // ---- the newer sites: their collectors store the site's default view -------------------
@@ -540,17 +429,277 @@ export function epochView(site: BenchmarkSite): EpochBoard[] {
   return [...boards.values()].sort((a, b) => order(a.key) - order(b.key));
 }
 
+// ---- Scale SEAL ----------------------------------------------------------------------
+
+export interface SealRow {
+  /** The site's "Rank (UB)" (ties share one); null for a row it marks deprecated. */
+  rank: number | null;
+  model: string;
+  org: string | null;
+  provider: ProviderKey;
+  score: number;
+  /** Half of the confidence interval, as the site prints it after "±". */
+  half: number | null;
+  isNew: boolean;
+  created: string | null;
+  change: BenchmarkChange | null;
+  changeBy: number;
+}
+
+export interface SealBoard {
+  key: string;
+  title: string;
+  /** The board's page on labs.scale.com. */
+  page: string;
+  updated: string | null;
+  rows: SealRow[];
+}
+
+/** Boards in the collector's order (the index page's, a board's open tab first), rows as served. */
+export function sealView(site: BenchmarkSite): SealBoard[] {
+  const boards = new Map<string, SealBoard & { order: number }>();
+  for (const row of site.rows) {
+    let board = boards.get(row.board);
+    if (!board) {
+      const id = extraString(row, "board_id") ?? row.board.split(":")[0];
+      board = {
+        key: row.board,
+        title: extraString(row, "board_title") ?? row.board,
+        page: `${site.source_url.replace(/\/$/, "")}/${encodeURIComponent(id)}`,
+        updated: site.updated?.[row.board] ?? null,
+        order: extraNumber(row, "board_order") ?? Infinity,
+        rows: [],
+      };
+      boards.set(row.board, board);
+    }
+    board.rows.push({
+      rank: defaultRank(row),
+      model: row.model,
+      org: row.org,
+      provider: provider(row.org, row.model),
+      score: r2(row.value),
+      half: r2n(extraNumber(row, "ci_half")),
+      isNew: row.extra.is_new === true,
+      created: extraString(row, "created"),
+      change: row.change,
+      changeBy: row.change_by,
+    });
+  }
+  return [...boards.values()]
+    .sort((a, b) => a.order - b.order || a.key.localeCompare(b.key))
+    .map(({ order: _order, ...board }) => ({ ...board, rows: board.rows.sort((a, b) => byDefaultRank(a, b) || b.score - a.score) }));
+}
+
+// ---- Vals Index ----------------------------------------------------------------------
+
+export interface ValsRow {
+  rank: number;
+  model: string;
+  org: string | null;
+  provider: ProviderKey;
+  /** Accuracy in percent. */
+  accuracy: number;
+  stderr: number | null;
+  costPerTest: number | null;
+  tokensPerTest: number | null;
+  /** Seconds per test. */
+  latency: number | null;
+  open: boolean;
+  /** The first model of its company in rank order: the site's "best model from each lab". */
+  labBest: boolean;
+  change: BenchmarkChange | null;
+  changeBy: number;
+}
+
+export function valsView(site: BenchmarkSite): ValsRow[] {
+  const labs = new Set<string>();
+  return site.rows
+    .filter((row) => defaultRank(row) !== null)
+    .sort((a, b) => byDefaultRank({ rank: defaultRank(a) }, { rank: defaultRank(b) }))
+    .map((row): ValsRow => {
+      const lab = row.org ?? row.model;
+      const labBest = !labs.has(lab);
+      labs.add(lab);
+      return {
+        rank: defaultRank(row) as number,
+        model: row.model,
+        org: row.org,
+        provider: provider(row.org, row.model),
+        accuracy: round(row.value, 3),
+        stderr: r2n(extraNumber(row, "stderr"), 3),
+        costPerTest: r2n(extraNumber(row, "cost_per_test"), 4),
+        tokensPerTest: extraNumber(row, "tokens_per_test"),
+        latency: extraNumber(row, "latency"),
+        open: row.extra.open_weights === true,
+        labBest,
+        change: row.change,
+        changeBy: row.change_by,
+      };
+    });
+}
+
+// ---- Vending-Bench 2 -----------------------------------------------------------------
+
+export interface VendingRow {
+  rank: number;
+  /** Andon Labs' own name for the entry. */
+  name: string;
+  /** The model as Epoch names it (the tooltip). */
+  model: string;
+  org: string | null;
+  provider: ProviderKey;
+  /** Money balance at the end of the simulated year, in dollars. */
+  balance: number;
+  released: string | null;
+  change: BenchmarkChange | null;
+  changeBy: number;
+}
+
+export function vendingView(site: BenchmarkSite): VendingRow[] {
+  return site.rows
+    .filter((row) => defaultRank(row) !== null)
+    .map(
+      (row): VendingRow => ({
+        rank: defaultRank(row) as number,
+        name: extraString(row, "label") ?? row.model,
+        model: row.model,
+        org: row.org,
+        provider: provider(row.org, row.model),
+        balance: r2(row.value),
+        released: extraString(row, "release_date"),
+        change: row.change,
+        changeBy: row.change_by,
+      }),
+    )
+    .sort(byDefaultRank);
+}
+
+// ---- SimpleBench ---------------------------------------------------------------------
+
+/** simple-bench.com tags a row NEW for two weeks after it was added. */
+const SIMPLEBENCH_NEW_DAYS = 14;
+
+export interface SimpleRow {
+  /** The row's place in the site's table (the human reference rows sit among the models). */
+  position: number;
+  /** "1st", "2nd", …; "-" on a human reference row. */
+  rankLabel: string;
+  rank: number | null;
+  model: string;
+  org: string | null;
+  provider: ProviderKey;
+  /** Score (AVG@5) in percent. */
+  score: number;
+  human: boolean;
+  added: string | null;
+  isNew: boolean;
+  change: BenchmarkChange | null;
+  changeBy: number;
+}
+
+export function simpleBenchView(site: BenchmarkSite, now: Date = new Date()): SimpleRow[] {
+  const cutoff = now.getTime() - SIMPLEBENCH_NEW_DAYS * 86_400_000;
+  return site.rows
+    .map((row, index): SimpleRow => {
+      const added = extraString(row, "date_added");
+      const human = row.extra.human === true;
+      return {
+        position: extraNumber(row, "position") ?? defaultRank(row) ?? index + 1,
+        rankLabel: extraString(row, "rank_label") ?? (defaultRank(row) !== null ? String(defaultRank(row)) : "-"),
+        rank: defaultRank(row),
+        model: row.model,
+        org: row.org,
+        provider: human ? "other" : provider(row.org, row.model),
+        score: round(row.value, 1),
+        human,
+        added,
+        isNew: added !== null && new Date(`${added}T00:00:00Z`).getTime() >= cutoff,
+        change: row.change,
+        changeBy: row.change_by,
+      };
+    })
+    .sort((a, b) => a.position - b.position);
+}
+
+// ---- ForecastBench -------------------------------------------------------------------
+
+export interface ForecastRow {
+  id: string;
+  /** The site's own rank, counted over every row (anonymous teams included; ties share one). */
+  rank: number | null;
+  team: string | null;
+  org: string | null;
+  provider: ProviderKey;
+  model: string;
+  /** Brier Index percentages and the questions behind each. */
+  dataset: number | null;
+  nDataset: number | null;
+  datasetCi: string | null;
+  market: number | null;
+  nMarket: number | null;
+  marketCi: string | null;
+  overall: number;
+  n: number | null;
+  low: number | null;
+  high: number | null;
+  /** "Yes" / "No" (the site's "Supers > Forecaster?"), "—" on the reference rows. */
+  supersBeat: string | null;
+  beatsPublic: string | null;
+  /** Hidden until "Show anonymous teams" is ticked. */
+  anonymous: boolean;
+  /** The superforecaster and public median rows, which the site shades. */
+  reference: boolean;
+  change: BenchmarkChange | null;
+  changeBy: number;
+}
+
+const FORECAST_REFERENCE = new Set(["Superforecaster median forecast", "Public median forecast"]);
+
+export function forecastBenchView(site: BenchmarkSite): ForecastRow[] {
+  return site.rows
+    .map(
+      (row, index): ForecastRow => ({
+        id: `${extraString(row, "entry") ?? row.model}|${index}`,
+        rank: extraNumber(row, "site_rank") ?? defaultRank(row),
+        team: extraString(row, "team"),
+        org: row.org,
+        provider: provider(row.org, row.model),
+        model: row.model,
+        dataset: extraNumber(row, "dataset"),
+        nDataset: extraNumber(row, "n_dataset"),
+        datasetCi: extraString(row, "dataset_ci"),
+        market: extraNumber(row, "market"),
+        nMarket: extraNumber(row, "n_market"),
+        marketCi: extraString(row, "market_ci"),
+        overall: row.value,
+        n: extraNumber(row, "n"),
+        low: row.ci_low,
+        high: row.ci_high,
+        supersBeat: extraString(row, "supers_beat"),
+        beatsPublic: extraString(row, "beats_public"),
+        anonymous: row.extra.anonymous === true,
+        reference: FORECAST_REFERENCE.has(row.model),
+        change: row.change,
+        changeBy: row.change_by,
+      }),
+    )
+    .sort((a, b) => byDefaultRank(a, b) || b.overall - a.overall);
+}
+
 // ---- all sites -----------------------------------------------------------------------
 
 export interface BenchmarkViews {
-  deepswe?: DeepSweView;
   livebench?: LiveModel[];
   lmarena?: ArenaView;
-  artificial_analysis?: AaModel[];
   terminal_bench?: TbView;
   osworld?: OsRow[];
   tau2?: Tau2View;
   epoch?: EpochBoard[];
+  seal?: SealBoard[];
+  vals?: ValsRow[];
+  vending_bench?: VendingRow[];
+  simplebench?: SimpleRow[];
+  forecastbench?: ForecastRow[];
 }
 
 export function projectViews(sites: Partial<Record<BenchmarkSiteKey, BenchmarkSite>>): BenchmarkViews {
@@ -558,14 +707,17 @@ export function projectViews(sites: Partial<Record<BenchmarkSiteKey, BenchmarkSi
   for (const key of BENCHMARK_SITES) {
     const site = sites[key];
     if (!site) continue;
-    if (key === "deepswe") views.deepswe = deepSweView(site);
-    else if (key === "livebench") views.livebench = liveBenchModels(site);
+    if (key === "livebench") views.livebench = liveBenchModels(site);
     else if (key === "lmarena") views.lmarena = lmArenaView(site);
     else if (key === "terminal_bench") views.terminal_bench = terminalBenchView(site);
     else if (key === "osworld") views.osworld = osWorldView(site);
     else if (key === "tau2") views.tau2 = tau2View(site);
     else if (key === "epoch") views.epoch = epochView(site);
-    else views.artificial_analysis = aaModels(site);
+    else if (key === "seal") views.seal = sealView(site);
+    else if (key === "vals") views.vals = valsView(site);
+    else if (key === "vending_bench") views.vending_bench = vendingView(site);
+    else if (key === "simplebench") views.simplebench = simpleBenchView(site);
+    else views.forecastbench = forecastBenchView(site);
   }
   return views;
 }
@@ -611,4 +763,37 @@ export function epochScore(value: number, unit: EpochBoard["unit"]): string {
   if (unit === "minutes") return formatDurationMinutes(value);
   if (unit === "index") return value.toFixed(0);
   return `${(value * 100).toFixed(1)}%`;
+}
+
+/** vals.ai: tokens per test in millions with two decimals ("31.31m"). */
+export function valsTokens(value: number | null): string {
+  return value !== null ? `${(value / 1e6).toFixed(2)}m` : "-";
+}
+
+/** vals.ai: duration per test, "43m42s" and from an hour up "1h26m". */
+export function valsDuration(seconds: number | null): string {
+  if (seconds === null) return "-";
+  if (seconds >= 3600) {
+    const minutes = Math.round(seconds / 60);
+    return `${Math.floor(minutes / 60)}h${String(minutes % 60).padStart(2, "0")}m`;
+  }
+  const whole = Math.round(seconds);
+  return `${Math.floor(whole / 60)}m${String(whole % 60).padStart(2, "0")}s`;
+}
+
+/** vals.ai: cost per test in dollars with two decimals; "-" when the site has none. */
+export function valsCost(value: number | null): string {
+  return value !== null ? `$${value.toFixed(2)}` : "-";
+}
+
+/** andonlabs.com: a money balance as "$16,484.21" ("-$23.16" below zero). */
+export function vendingBalance(value: number): string {
+  const text = Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return `${value < 0 ? "-" : ""}$${text}`;
+}
+
+/** forecastbench.org: a Brier Index with one decimal and its question count ("65.1 (723)"). */
+export function forecastCell(score: number | null, count: number | null): string {
+  if (score === null) return "—";
+  return count === null ? score.toFixed(1) : `${score.toFixed(1)} (${count.toLocaleString("en-US")})`;
 }
