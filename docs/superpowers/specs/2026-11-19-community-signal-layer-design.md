@@ -73,7 +73,7 @@
 
 | 열쇠 | 내용 |
 |---|---|
-| `link_key` | 글이 공유한 기사의 URL 키(`item_dedup.link_key`) |
+| `links` | 글 자체 URL 키와 공유한 기사 URL 키(`item_dedup.url_key`·`link_key`). HN 글은 URL이 곧 기사, 툿은 링크로 공유 |
 | `refs` | 제목·요약·URL의 GitHub 저장소, arXiv, DOI, CVE, HF 모델(`stories/refs.py`) |
 | `signature`·`bands` | URL·해시태그·멘션을 뺀 제목의 MinHash(64)와 LSH 밴드(16) |
 | `platform` | 운영 주체를 플랫폼 계열로 묶음: Mastodon gGmbH·Fosstodon·mstdn.jp → `fediverse`, HN 두 경로 → `hn`, V2EX 노드 → `v2ex`, Meta Platforms → `threads` |
@@ -83,7 +83,7 @@
 
 24시간 창의 글을 union-find로 잇는다.
 
-- 같은 `link_key` → 한 묶음
+- 같은 링크 키 → 한 묶음
 - 같은 참조(`kind:value`) → 한 묶음
 - 같은 LSH 밴드를 공유하고 **서명 유사도 ≥ 0.6** → 한 묶음(스토리의 0.45보다 엄격: 짧고 시끄러운 글이 많음)
 
@@ -93,8 +93,8 @@
 
 - 같은 플랫폼에서 24시간에 **20건 이상** 쓴 작성자(봇·피드 계정)
 - 작성자 이름에 `bot`이 단어로 들어가거나 `@web.brid.gy`·`@rss-parrot`·`@newsmast` 같은 브리지 계정
-- 작성자 없음
 - 같은 작성자의 글은 묶음 안에서 한 명으로 셈
+- 작성자를 밝히지 않는 목록(HN 첫 페이지, はてな 인기 목록 등)은 글마다 한 명으로 셈
 
 빠진 글도 묶음 구성원으로는 남는다(링크를 이어 주는 역할). 임계값과 순위에는 쓰지 않는다.
 
@@ -117,7 +117,7 @@
 
 임계값을 넘은 묶음만(하루 수십 건) 뉴스와 대조한다. 대상: 뉴스 트랙, 처음 본 시각이 묶음 첫 글 48시간 전 이후.
 
-1. 묶음 글의 `link_key` = 뉴스 글의 `url_key` (기사를 직접 공유)
+1. 묶음 글의 링크 키 = 뉴스 글의 `url_key` (기사를 직접 공유)
 2. 같은 참조(`item_refs`)
 3. 대표 글 제목과 뉴스 원제목의 pg_trgm 유사도 ≥ 0.5, 또는 묶음 한국어 제목과 뉴스 한국어 카드 제목 ≥ 0.5
 
@@ -141,7 +141,8 @@
 - **판정 시점**: 묶음이 처음 화제 임계값을 넘는 실행.
 - **조건**: 그 시점에 잇힌 뉴스가 하나도 없고(`news_first_seen_at`이 없거나 지금보다 뒤), 묶음 첫 글이 6시간 이내.
 - **뉴스 따라잡기**: 이후 실행에서 뉴스가 잇히면 `news_caught_up_at`. 화면에 「뉴스보다 N분 먼저」를 보인다. 속보 표시는 그대로 둔다(먼저 터졌다는 사실은 변하지 않음).
-- **푸시 조건**: 속보 + 요약 완료 + `is_event` + `relevant` + 속보 판정 후 3시간 이내 + 아직 안 보냄.
+- **푸시 조건**: 속보 + 요약 완료 + `is_event` + `relevant` + 속보 판정 후 3시간 이내 + 아직 뉴스가 따라잡지 않음 + 아직 안 보냄.
+- **늦게 찾은 뉴스**: 요약의 한국어 제목으로 뒤늦게 잇힌 뉴스가 묶음 첫 글보다 먼저였다면(애초에 커뮤니티가 먼저가 아님) 푸시 전이면 속보 표시를 거둔다.
 - **채널**: 워치독과 같은 환경변수(`WATCHDOG_NTFY_TOPIC`·`_SERVER`·`_TOKEN`, `WATCHDOG_TELEGRAM_BOT_TOKEN`·`_CHAT_ID`)를 앱 컨테이너에도 넘긴다. `SIGNAL_NTFY_TOPIC` 등으로 따로 지정 가능.
 - **절제**: 시간당 3건, 하루(KST) 12건, 00:00–07:00 KST 보내지 않음. 무음 시간에 판정된 속보는 07시에 3시간 이내인 것만 보낸다. 보낸 시각·채널은 `pushed_at`·`push_channels`에 남겨 한 번만 보낸다. 채널 하나가 실패해도 다른 채널은 보낸다.
 - **스위치**: `SIGNAL_PUSH=false`면 판정·화면은 그대로, 푸시만 멈춘다.
@@ -163,8 +164,8 @@
 
 ## 8. 데이터 모델(마이그레이션 0052, 추가만)
 
-- `buzz_item_keys(item_id PK, platform, author, link_key, refs jsonb, signature bigint[], bands bigint[], first_seen_at, computed_at)`
-- `buzz_clusters(id, first_seen_at, last_seen_at, post_count, human_posts, author_count, platform_count, platforms jsonb, heat, score, lead_item_id, crossed_at, breaking, breaking_at, news_item_ids jsonb, news_first_seen_at, news_caught_up_at, title_ko, summary_ko jsonb, keywords jsonb, is_event, relevant, summary_engine, summary_model, summarized_at, summary_posts, summary_attempts, summary_error, pushed_at, push_channels jsonb, merged_into, updated_at)`
+- `buzz_item_keys(item_id PK, platform, author, links jsonb, refs jsonb, signature bigint[], bands bigint[], first_seen_at, computed_at)`
+- `buzz_clusters(id, first_seen_at, last_seen_at, post_count, human_posts, author_count, platform_count, platforms jsonb, heat, score, lead_item_id, crossed_at, breaking, breaking_at, news_item_ids jsonb, news_first_seen_at, news_caught_up_at, title_ko, summary_ko jsonb, keywords jsonb, is_event, relevant, summary_engine, summary_model, summarized_at, summary_posts, summary_count, summary_attempts, summary_error, pushed_at, push_channels jsonb, merged_into, updated_at)`
 - `buzz_cluster_items(item_id PK, cluster_id, relation, joined_at)`
 
 이전 코드는 새 표를 읽지 않으므로 되돌리기 안전하다.

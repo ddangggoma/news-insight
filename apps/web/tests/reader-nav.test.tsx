@@ -14,7 +14,7 @@ const item = (label: string) => READER_NAV.find((entry) => entry.label === label
 
 describe("reader menu", () => {
   it("starts with the daily briefing and leaves dossiers, collections and questions out", () => {
-    expect(READER_NAV.map((entry) => entry.label)).toEqual(["데일리 브리핑", "주목 받는", "탐색", "레이더", "투자·제휴", "특허", "연구", "로드맵", "동향 보고서 작성"]);
+    expect(READER_NAV.map((entry) => entry.label)).toEqual(["데일리 브리핑", "주목 받는", "화제·속보", "탐색", "레이더", "투자·제휴", "특허", "연구", "로드맵", "동향 보고서 작성"]);
     expect(READER_NAV.some((entry) => ["/dossiers", "/collections", "/ask"].includes(entry.href))).toBe(false);
   });
 
@@ -52,7 +52,7 @@ describe("reader menu", () => {
   it("shows the same entries at the bottom on phones, with short labels where the full ones would wrap", () => {
     render(<BottomNav />);
     const links = within(screen.getByRole("navigation", { name: "하단 메뉴" })).getAllByRole("link");
-    expect(links.map((link) => link.textContent)).toEqual(["브리핑", "주목", "탐색", "레이더", "투자", "특허", "연구", "로드맵", "보고서"]);
+    expect(links.map((link) => link.textContent)).toEqual(["브리핑", "주목", "화제", "탐색", "레이더", "투자", "특허", "연구", "로드맵", "보고서"]);
     expect(links.map((link) => link.textContent)).toEqual(READER_NAV.map((entry) => entry.short ?? entry.label));
     // the full label stays the accessible name
     expect(links.map((link) => link.getAttribute("href"))).toEqual(READER_NAV.map((entry) => entry.href));

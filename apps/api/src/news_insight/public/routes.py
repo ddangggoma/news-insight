@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from news_insight.ask import service as ask_service
+from news_insight.buzz import views as buzz_views
 from news_insight.console.schemas import Page
 from news_insight.db import get_db
 from news_insight.deals import views as deal_views
@@ -483,6 +484,14 @@ def get_patents(
         tab=tab, period=period, field=field, company=company, org=None, kind="company", page=page
     )
     return _domain_view(session, patent_queries.PatentDomain(), query, now, cache)
+
+
+@router.get("/buzz")
+def get_buzz(
+    session: DB, now: Now, hours: Annotated[int, Query(ge=1, le=72)] = 24
+) -> buzz_views.BuzzView:
+    """Community buzz clusters over the threshold, breaking ones first (2026-11-19)."""
+    return buzz_views.buzz_view(session, now=now, hours=hours)
 
 
 @router.get("/spotlight")
