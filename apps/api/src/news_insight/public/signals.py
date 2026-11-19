@@ -68,7 +68,9 @@ def _mean(values: Sequence[float]) -> float:
 
 
 def _chatter(mix: dict[str, int]) -> int:
-    return mix.get("news", 0) + mix.get("community", 0)
+    """Reports about a topic: news only. Community posts are never counted with news (2026-11-19);
+    their buzz is the signal layer of its own (buzz/)."""
+    return mix.get("news", 0)
 
 
 def _research(mix: dict[str, int]) -> int:
@@ -351,7 +353,7 @@ def radar_signals(
             share_drop_z(shift),
         )
 
-    # ── hype: news and community well above their usual rate while research is not
+    # ── hype: news well above its usual rate while research is not
     def hype_z(t: Topic) -> float:
         return rate_z(_chatter(t.tracks), per_window(t.baseline_tracks, _chatter))
 
@@ -373,7 +375,7 @@ def radar_signals(
         push(
             "hype",
             label("theme", hype),
-            f"뉴스·커뮤니티 {_chatter(hype.tracks)}건으로 평소({usual:.1f}건)의 "
+            f"뉴스 {_chatter(hype.tracks)}건으로 평소({usual:.1f}건)의 "
             f"{_chatter(hype.tracks) / usual:.1f}배, 논문·오픈소스는 {_research(hype.tracks)}건"
             f"(평소 {usual_research:.1f}건): 화제가 실체보다 앞섬",
             "theme",

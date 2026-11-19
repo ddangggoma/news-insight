@@ -1,6 +1,6 @@
 "use client";
 
-import { Compass, FileSearch, FileText, Flame, FlaskConical, Handshake, type LucideIcon, Map as MapIcon, Radar, ScrollText, Search } from "lucide-react";
+import { Compass, FileSearch, FileText, Flame, FlaskConical, Handshake, type LucideIcon, Map as MapIcon, Radar, ScrollText, Search, Zap } from "lucide-react";
 import { AppLink as Link } from "@/components/app-link";
 import { usePathname, useSearchParams } from "next/navigation";
 
@@ -13,10 +13,11 @@ import { cn } from "@/lib/utils";
 // and questions left the menu; their pages still open from a direct link. Trend reports on request
 // (plan 17 R1) joined it on 2026-10-13; 주목 받는 (plan 18, daily Top 10s) took the second place on 2026-11-03;
 // 연구 (plan 19, papers by field, company and trend) sits right after 특허 since 2026-11-04.
+// 화제·속보 (community buzz clusters and breaking signals) follows 주목 받는 since 2026-11-19.
 interface ReaderNavEntry {
   href: string;
   label: string;
-  /** Shorter text for the phone's bottom bar, where nine entries share 375px; the header keeps `label`. */
+  /** Shorter text for the phone's bottom bar, where ten entries share 375px; the header keeps `label`. */
   short?: string;
   icon: LucideIcon;
   match: readonly string[];
@@ -25,6 +26,7 @@ interface ReaderNavEntry {
 export const READER_NAV: readonly ReaderNavEntry[] = [
   { href: "/briefings", label: "데일리 브리핑", short: "브리핑", icon: FileText, match: ["/briefings"] },
   { href: "/spotlight", label: "주목 받는", short: "주목", icon: Flame, match: ["/spotlight"] },
+  { href: "/buzz", label: "화제·속보", short: "화제", icon: Zap, match: ["/buzz"] },
   { href: "/", label: "탐색", icon: Compass, match: ["/items"] },
   { href: "/radar", label: "레이더", icon: Radar, match: ["/radar"] },
   { href: "/deals", label: "투자·제휴", short: "투자", icon: Handshake, match: ["/deals"] },

@@ -94,6 +94,26 @@ def cluster_stories_task() -> dict[str, Any]:
         return asdict(cluster(session_scope, now=datetime.now(UTC)))
 
 
+@celery_app.task(name="buzz.update")
+def buzz_update_task() -> dict[str, Any]:
+    """Community buzz clusters, their threshold and breaking (buzz/cluster.py), then the
+    breaking push (buzz/push.py). One run at a time."""
+    from news_insight.buzz.cluster import run as run_buzz
+    from news_insight.buzz.push import Notifier, push_due
+    from news_insight.stories.lock import story_writer
+
+    with story_writer("buzz") as acquired:
+        if not acquired:
+            return {"skipped": "another buzz run is active"}
+        now = datetime.now(UTC)
+        settings = get_settings()
+        with session_scope() as session:
+            clusters = run_buzz(session, now=now)
+        with session_scope() as session:
+            pushed = push_due(session, Notifier(settings), settings, now=now)
+        return {"clusters": asdict(clusters), "push": asdict(pushed)}
+
+
 @celery_app.task(name="sources.quality")
 def source_quality_task() -> dict[str, Any]:
     with session_scope() as session:

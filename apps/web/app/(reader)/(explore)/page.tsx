@@ -1,6 +1,7 @@
 import { AppLink as Link } from "@/components/app-link";
 
 import { ActiveFilters } from "@/components/reader/active-filters";
+import { BuzzStrip } from "@/components/reader/buzz/buzz-list";
 import { DigestBanner } from "@/components/reader/digest-banner";
 import { FacetPanel } from "@/components/reader/facet-panel";
 import { FacetSheet } from "@/components/reader/facet-sheet";
@@ -9,6 +10,7 @@ import { FeedToolbar } from "@/components/reader/feed-toolbar";
 import { InsightPanel } from "@/components/reader/insight-panel";
 import { StoryRow } from "@/components/reader/story-row";
 import { ApiError } from "@/lib/api";
+import type { BuzzCluster, BuzzView } from "@/lib/buzz-types";
 import type { SearchParams } from "@/lib/params";
 import { REVALIDATE, readerGet } from "@/lib/reader-api";
 import { activeChips, apiParams, pageHref, parseReaderFilters } from "@/lib/reader-filters";
@@ -26,15 +28,26 @@ async function latestDigest(): Promise<PublicDigest | null> {
   }
 }
 
+/** Community buzz shows as a band above the feed, never in it; without it the page still renders. */
+async function buzz(): Promise<BuzzCluster[]> {
+  try {
+    return (await readerGet<BuzzView>("/buzz", {}, REVALIDATE.buzz)).clusters;
+  } catch (error) {
+    console.error("buzz failed", error);
+    return [];
+  }
+}
+
 export default async function ExplorePage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const filters = parseReaderFilters(await searchParams);
   const params = apiParams(filters);
   const { page: _page, sort: _sort, ...aggregate } = params;
-  const [feed, facets, insights, digest] = await Promise.all([
+  const [feed, facets, insights, digest, clusters] = await Promise.all([
     readerGet<FeedPage>("/items", params),
     readerGet<Facets>("/facets", aggregate),
     readerGet<Insights>("/insights", aggregate),
     latestDigest(),
+    buzz(),
   ]);
   const pages = Math.max(1, Math.ceil(feed.total / feed.size));
   const companyNames = Object.fromEntries(feed.items.flatMap((item) => (item.companies ?? []).map((c) => [c.key, c.label])));
@@ -80,6 +93,11 @@ export default async function ExplorePage({ searchParams }: { searchParams: Prom
             headline={digest.content.headline}
             insights={digest.content.insights.map((insight) => insight.title)}
           />
+        </div>
+      ) : null}
+      {clusters.length ? (
+        <div className="mb-5">
+          <BuzzStrip clusters={clusters} />
         </div>
       ) : null}
       <div className="grid gap-x-8 gap-y-4 md:grid-cols-[minmax(0,1fr)_280px] xl:grid-cols-[240px_minmax(0,1fr)_300px]">

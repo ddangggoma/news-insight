@@ -32,6 +32,14 @@ x-python-env: &python-env
   OPS_ALERT_MAIL: ${OPS_ALERT_MAIL:-false}
   OPENALEX_MAILTO: ${OPENALEX_MAILTO:-}
   OPENALEX_API_KEY: ${OPENALEX_API_KEY:-}
+  # community breaking pushes (buzz/push.py, 2026-11-19): the watchdog's ntfy topic and Telegram
+  # chat unless SIGNAL_* name others; SIGNAL_PUSH=false stops them
+  SIGNAL_PUSH: ${SIGNAL_PUSH:-true}
+  SIGNAL_NTFY_SERVER: ${SIGNAL_NTFY_SERVER:-${WATCHDOG_NTFY_SERVER:-https://ntfy.sh}}
+  SIGNAL_NTFY_TOPIC: ${SIGNAL_NTFY_TOPIC:-${WATCHDOG_NTFY_TOPIC:-}}
+  SIGNAL_NTFY_TOKEN: ${SIGNAL_NTFY_TOKEN:-${WATCHDOG_NTFY_TOKEN:-}}
+  SIGNAL_TELEGRAM_BOT_TOKEN: ${SIGNAL_TELEGRAM_BOT_TOKEN:-${WATCHDOG_TELEGRAM_BOT_TOKEN:-}}
+  SIGNAL_TELEGRAM_CHAT_ID: ${SIGNAL_TELEGRAM_CHAT_ID:-${WATCHDOG_TELEGRAM_CHAT_ID:-}}
 
 # every container keeps at most 5 x 20 MB of logs (json-file had no limit)
 x-logging: &logging

@@ -25,7 +25,13 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Session
 
-from news_insight.public.filters import AXES, SCOPES, ReaderFilters, search_condition
+from news_insight.public.filters import (
+    AXES,
+    SCOPES,
+    SIGNAL_TRACKS,
+    ReaderFilters,
+    search_condition,
+)
 from news_insight.public.periods import Window
 from news_insight.taxonomy.catalog import TAXONOMY_TREE
 from news_insight.taxonomy.query import labelled_under, parse_ref
@@ -143,7 +149,10 @@ def axis_condition(axis: str, chosen: tuple[str, ...]) -> ColumnElement[bool]:
 
 def common(filters: ReaderFilters) -> list[ColumnElement[bool]]:
     """What every count shares: the current tree, the search, companies and nodes."""
-    conditions: list[ColumnElement[bool]] = [F.taxonomy_revision.like(f"{TAXONOMY_TREE}.%")]
+    conditions: list[ColumnElement[bool]] = [
+        F.taxonomy_revision.like(f"{TAXONOMY_TREE}.%"),
+        F.track.not_in([track.value for track in SIGNAL_TRACKS]),  # buzz/ shows them apart
+    ]
     for axis, chosen in filters.values.items():
         if axis not in AXES:
             conditions.append(axis_condition(axis, chosen))

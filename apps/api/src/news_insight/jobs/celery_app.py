@@ -16,6 +16,8 @@ BEAT_SCHEDULE: dict[str, dict[str, Any]] = {
     "sources-resume-transient": {"task": "sources.resume_transient", "schedule": 1800.0},
     "sources-auto-validate": {"task": "sources.auto_validate", "schedule": 600.0},
     "stories-cluster": {"task": "stories.cluster", "schedule": 300.0},
+    # community buzz clusters, breaking and its push (buzz/, 2026-11-19)
+    "buzz-update": {"task": "buzz.update", "schedule": 600.0, "options": {"expires": 590}},
     "ops-check": {"task": "ops.check", "schedule": 300.0},
     "radar-warm": {"task": "radar.warm", "schedule": 900.0},  # the open window's cache TTL
     # the explore page's view (public/facts.py): new cards show within about three minutes

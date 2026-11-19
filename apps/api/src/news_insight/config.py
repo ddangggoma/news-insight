@@ -1,5 +1,6 @@
 from functools import lru_cache
 
+from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -108,6 +109,36 @@ class Settings(BaseSettings):
     card_cap_bypass_dx: float = 0.5  # triage probability that passes that cap (2026-10-10)
     card_timeout_seconds: int = 300
     card_time_budget_seconds: int = 540
+    # Community posts get no card of their own since 2026-11-19 (user decision): one Korean
+    # summary per buzz cluster instead (buzz/). True restores per-post cards.
+    community_item_cards: bool = False
+    # Community buzz and breaking signals (buzz/, 2026-11-19). Breaking clusters are pushed to
+    # the watchdog's ntfy topic and Telegram chat unless SIGNAL_PUSH=false; the 2026-10-05
+    # "no alerts" decision was lifted for this one kind of push only. SIGNAL_* variables override
+    # the watchdog's channel for these pushes.
+    signal_push: bool = True
+    signal_push_max_per_hour: int = 3
+    signal_push_max_per_day: int = 12
+    signal_push_quiet_hours: str = "00-07"  # KST, start inclusive, end exclusive
+    signal_ntfy_server: str = Field(
+        default="https://ntfy.sh",
+        validation_alias=AliasChoices("signal_ntfy_server", "watchdog_ntfy_server"),
+    )
+    signal_ntfy_topic: str = Field(
+        default="", validation_alias=AliasChoices("signal_ntfy_topic", "watchdog_ntfy_topic")
+    )
+    signal_ntfy_token: str = Field(
+        default="", validation_alias=AliasChoices("signal_ntfy_token", "watchdog_ntfy_token")
+    )
+    signal_telegram_bot_token: str = Field(
+        default="",
+        validation_alias=AliasChoices("signal_telegram_bot_token", "watchdog_telegram_bot_token"),
+    )
+    signal_telegram_chat_id: str = Field(
+        default="",
+        validation_alias=AliasChoices("signal_telegram_chat_id", "watchdog_telegram_chat_id"),
+    )
+    buzz_summary_limit: int = 12  # clusters summarised per host card run
 
 
 @lru_cache
