@@ -15,6 +15,7 @@ x-python-env: &python-env
   SOURCE_SECRET_EPO_OPS_KEY: ${SOURCE_SECRET_EPO_OPS_KEY:-}
   SOURCE_SECRET_EPO_OPS_SECRET: ${SOURCE_SECRET_EPO_OPS_SECRET:-}
   SOURCE_SECRET_ARTIFICIAL_ANALYSIS_KEY: ${SOURCE_SECRET_ARTIFICIAL_ANALYSIS_KEY:-}
+  SOURCE_SECRET_THREADS_TOKEN: ${SOURCE_SECRET_THREADS_TOKEN:-}
   CONSOLE_API_KEY: ${CONSOLE_API_KEY:?CONSOLE_API_KEY is required}
   PUBLIC_API_KEY: ${PUBLIC_API_KEY:-}
   PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-https://localhost:8700}
@@ -107,6 +108,8 @@ services:
       API_INTERNAL_URL: http://api:8000
       CONSOLE_API_KEY: ${CONSOLE_API_KEY:?CONSOLE_API_KEY is required}
       PUBLIC_API_KEY: ${PUBLIC_API_KEY:-}
+      # shown on the public /privacy page (Threads API app review)
+      PRIVACY_CONTACT_EMAIL: ${PRIVACY_CONTACT_EMAIL:-}
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
       interval: 10s

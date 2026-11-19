@@ -35,7 +35,7 @@ describe("proxy matcher", () => {
     },
   );
 
-  it.each(["/login", "/signup", "/_next/static/chunks/app.js", "/icon.svg", "/internal/revalidate"])(
+  it.each(["/login", "/signup", "/privacy", "/_next/static/chunks/app.js", "/icon.svg", "/internal/revalidate"])(
     "leaves %s alone",
     (url) => {
       expect(doesProxyMatch({ config, url })).toBe(false);

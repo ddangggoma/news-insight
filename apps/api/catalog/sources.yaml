@@ -22060,3 +22060,2852 @@ sources:
     storage_right: excerpt_allowed
     config:
       preset: openalex_works
+  - key: threads-search-generative-ai
+    name: 'Threads search: generative AI'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=generative%20AI&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''generative AI'' 인기 글의 화제·반응 신호 (생성형 AI·모델)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 60
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+  - key: threads-search-llm
+    name: 'Threads search: LLM'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=LLM&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''LLM'' 인기 글의 화제·반응 신호 (생성형 AI·모델)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 60
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+  - key: threads-search-open-source-ai
+    name: 'Threads search: open source AI'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=open%20source%20AI&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''open source AI'' 인기 글의 화제·반응 신호 (생성형 AI·모델)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 60
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+  - key: threads-search-reasoning-model
+    name: 'Threads search: reasoning model'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=reasoning%20model&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''reasoning model'' 인기 글의 화제·반응 신호 (생성형 AI·모델)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 60
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+  - key: threads-search-multimodal-ai
+    name: 'Threads search: multimodal AI'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=multimodal%20AI&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''multimodal AI'' 인기 글의 화제·반응 신호 (생성형 AI·모델)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 60
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+  - key: threads-search-ai-video-generation
+    name: 'Threads search: AI video generation'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=AI%20video%20generation&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''AI video generation'' 인기 글의 화제·반응 신호 (생성형 AI·모델)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 60
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+  - key: threads-search-foundation-model
+    name: 'Threads search: foundation model'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=foundation%20model&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''foundation model'' 인기 글의 화제·반응 신호 (생성형 AI·모델)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+  - key: threads-search-small-language-model
+    name: 'Threads search: small language model'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=small%20language%20model&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''small language model'' 인기 글의 화제·반응 신호 (생성형 AI·모델)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+  - key: threads-search-ai-image-generation
+    name: 'Threads search: AI image generation'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=AI%20image%20generation&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''AI image generation'' 인기 글의 화제·반응 신호 (생성형 AI·모델)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+  - key: threads-search-ai-voice
+    name: 'Threads search: AI voice'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=AI%20voice&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''AI voice'' 인기 글의 화제·반응 신호 (생성형 AI·모델)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+  - key: threads-search-ai-search
+    name: 'Threads search: AI search'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=AI%20search&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''AI search'' 인기 글의 화제·반응 신호 (생성형 AI·모델)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+  - key: threads-search-ai-chatbot
+    name: 'Threads search: AI chatbot'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=AI%20chatbot&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''AI chatbot'' 인기 글의 화제·반응 신호 (생성형 AI·모델)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+  - key: threads-search-ai-agent
+    name: 'Threads search: AI agent'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=AI%20agent&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''AI agent'' 인기 글의 화제·반응 신호 (AI 에이전트·개발)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 60
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+      - platform_sw
+  - key: threads-search-agentic-ai
+    name: 'Threads search: agentic AI'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=agentic%20AI&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''agentic AI'' 인기 글의 화제·반응 신호 (AI 에이전트·개발)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 60
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+      - platform_sw
+  - key: threads-search-ai-coding
+    name: 'Threads search: AI coding'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=AI%20coding&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''AI coding'' 인기 글의 화제·반응 신호 (AI 에이전트·개발)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 60
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+      - platform_sw
+  - key: threads-search-vibe-coding
+    name: 'Threads search: vibe coding'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=vibe%20coding&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''vibe coding'' 인기 글의 화제·반응 신호 (AI 에이전트·개발)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 60
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+      - platform_sw
+  - key: threads-search-multi-agent
+    name: 'Threads search: multi-agent'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=multi-agent&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''multi-agent'' 인기 글의 화제·반응 신호 (AI 에이전트·개발)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+      - platform_sw
+  - key: threads-search-coding-agent
+    name: 'Threads search: coding agent'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=coding%20agent&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''coding agent'' 인기 글의 화제·반응 신호 (AI 에이전트·개발)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+      - platform_sw
+  - key: threads-search-model-context-protocol
+    name: 'Threads search: Model Context Protocol'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=Model%20Context%20Protocol&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''Model Context Protocol'' 인기 글의 화제·반응 신호 (AI 에이전트·개발)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+      - platform_sw
+  - key: threads-search-ai-browser
+    name: 'Threads search: AI browser'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=AI%20browser&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''AI browser'' 인기 글의 화제·반응 신호 (AI 에이전트·개발)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+      - platform_sw
+  - key: threads-search-ai-automation
+    name: 'Threads search: AI automation'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=AI%20automation&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''AI automation'' 인기 글의 화제·반응 신호 (AI 에이전트·개발)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+      - platform_sw
+  - key: threads-search-prompt-engineering
+    name: 'Threads search: prompt engineering'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=prompt%20engineering&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''prompt engineering'' 인기 글의 화제·반응 신호 (AI 에이전트·개발)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+      - platform_sw
+  - key: threads-search-ai-inference
+    name: 'Threads search: AI inference'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=AI%20inference&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''AI inference'' 인기 글의 화제·반응 신호 (AI 기술·연구)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 60
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+  - key: threads-search-ai-safety
+    name: 'Threads search: AI safety'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=AI%20safety&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''AI safety'' 인기 글의 화제·반응 신호 (AI 기술·연구)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 60
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+  - key: threads-search-agi
+    name: 'Threads search: AGI'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=AGI&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''AGI'' 인기 글의 화제·반응 신호 (AI 기술·연구)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 60
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+  - key: threads-search-world-model
+    name: 'Threads search: world model'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=world%20model&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''world model'' 인기 글의 화제·반응 신호 (AI 기술·연구)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 60
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+  - key: threads-search-ai-training
+    name: 'Threads search: AI training'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=AI%20training&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''AI training'' 인기 글의 화제·반응 신호 (AI 기술·연구)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+  - key: threads-search-fine-tuning
+    name: 'Threads search: fine-tuning'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=fine-tuning&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''fine-tuning'' 인기 글의 화제·반응 신호 (AI 기술·연구)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+  - key: threads-search-retrieval-augmented-generation
+    name: 'Threads search: retrieval augmented generation'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=retrieval%20augmented%20generation&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''retrieval augmented generation'' 인기 글의 화제·반응 신호 (AI 기술·연구)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+  - key: threads-search-ai-benchmark
+    name: 'Threads search: AI benchmark'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=AI%20benchmark&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''AI benchmark'' 인기 글의 화제·반응 신호 (AI 기술·연구)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+  - key: threads-search-ai-alignment
+    name: 'Threads search: AI alignment'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=AI%20alignment&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''AI alignment'' 인기 글의 화제·반응 신호 (AI 기술·연구)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+  - key: threads-search-synthetic-data
+    name: 'Threads search: synthetic data'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=synthetic%20data&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''synthetic data'' 인기 글의 화제·반응 신호 (AI 기술·연구)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+  - key: threads-search-ai-quantization
+    name: 'Threads search: AI quantization'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=AI%20quantization&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''AI quantization'' 인기 글의 화제·반응 신호 (AI 기술·연구)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+  - key: threads-search-context-window
+    name: 'Threads search: context window'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=context%20window&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''context window'' 인기 글의 화제·반응 신호 (AI 기술·연구)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+  - key: threads-search-on-device-ai
+    name: 'Threads search: on-device AI'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=on-device%20AI&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''on-device AI'' 인기 글의 화제·반응 신호 (온디바이스·엣지 AI)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 60
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+      - semis
+  - key: threads-search-ai-pc
+    name: 'Threads search: AI PC'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=AI%20PC&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''AI PC'' 인기 글의 화제·반응 신호 (온디바이스·엣지 AI)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 60
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+      - semis
+  - key: threads-search-ai-smartphone
+    name: 'Threads search: AI smartphone'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=AI%20smartphone&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''AI smartphone'' 인기 글의 화제·반응 신호 (온디바이스·엣지 AI)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 60
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+      - semis
+  - key: threads-search-edge-ai
+    name: 'Threads search: edge AI'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=edge%20AI&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''edge AI'' 인기 글의 화제·반응 신호 (온디바이스·엣지 AI)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+      - semis
+  - key: threads-search-npu
+    name: 'Threads search: NPU'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=NPU&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''NPU'' 인기 글의 화제·반응 신호 (온디바이스·엣지 AI)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+      - semis
+  - key: threads-search-ai-accelerator
+    name: 'Threads search: AI accelerator'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=AI%20accelerator&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''AI accelerator'' 인기 글의 화제·반응 신호 (온디바이스·엣지 AI)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+      - semis
+  - key: threads-search-ai-wearable
+    name: 'Threads search: AI wearable'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=AI%20wearable&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''AI wearable'' 인기 글의 화제·반응 신호 (온디바이스·엣지 AI)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+      - semis
+  - key: threads-search-tinyml
+    name: 'Threads search: TinyML'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=TinyML&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''TinyML'' 인기 글의 화제·반응 신호 (온디바이스·엣지 AI)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - ai
+      - semis
+  - key: threads-search-ai-chip
+    name: 'Threads search: AI chip'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=AI%20chip&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''AI chip'' 인기 글의 화제·반응 신호 (반도체)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 60
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - semis
+  - key: threads-search-hbm
+    name: 'Threads search: HBM'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=HBM&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''HBM'' 인기 글의 화제·반응 신호 (반도체)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 60
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - semis
+  - key: threads-search-gpu
+    name: 'Threads search: GPU'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=GPU&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''GPU'' 인기 글의 화제·반응 신호 (반도체)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 60
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - semis
+  - key: threads-search-semiconductor
+    name: 'Threads search: semiconductor'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=semiconductor&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''semiconductor'' 인기 글의 화제·반응 신호 (반도체)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - semis
+  - key: threads-search-semiconductor-foundry
+    name: 'Threads search: semiconductor foundry'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=semiconductor%20foundry&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''semiconductor foundry'' 인기 글의 화제·반응 신호 (반도체)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - semis
+  - key: threads-search-advanced-packaging
+    name: 'Threads search: advanced packaging'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=advanced%20packaging&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''advanced packaging'' 인기 글의 화제·반응 신호 (반도체)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - semis
+  - key: threads-search-chiplet
+    name: 'Threads search: chiplet'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=chiplet&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''chiplet'' 인기 글의 화제·반응 신호 (반도체)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - semis
+  - key: threads-search-2nm-process
+    name: 'Threads search: 2nm process'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=2nm%20process&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''2nm process'' 인기 글의 화제·반응 신호 (반도체)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - semis
+  - key: threads-search-euv-lithography
+    name: 'Threads search: EUV lithography'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=EUV%20lithography&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''EUV lithography'' 인기 글의 화제·반응 신호 (반도체)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - semis
+  - key: threads-search-memory-chip
+    name: 'Threads search: memory chip'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=memory%20chip&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''memory chip'' 인기 글의 화제·반응 신호 (반도체)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - semis
+  - key: threads-search-risc-v
+    name: 'Threads search: RISC-V'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=RISC-V&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''RISC-V'' 인기 글의 화제·반응 신호 (반도체)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - semis
+  - key: threads-search-silicon-photonics
+    name: 'Threads search: silicon photonics'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=silicon%20photonics&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''silicon photonics'' 인기 글의 화제·반응 신호 (반도체)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - semis
+  - key: threads-search-ai-data-center
+    name: 'Threads search: AI data center'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=AI%20data%20center&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''AI data center'' 인기 글의 화제·반응 신호 (데이터센터·클라우드·통신)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 60
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - cloud_data
+      - connectivity
+  - key: threads-search-cloud-computing
+    name: 'Threads search: cloud computing'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=cloud%20computing&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''cloud computing'' 인기 글의 화제·반응 신호 (데이터센터·클라우드·통신)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - cloud_data
+      - connectivity
+  - key: threads-search-edge-computing
+    name: 'Threads search: edge computing'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=edge%20computing&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''edge computing'' 인기 글의 화제·반응 신호 (데이터센터·클라우드·통신)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - cloud_data
+      - connectivity
+  - key: threads-search-gpu-cluster
+    name: 'Threads search: GPU cluster'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=GPU%20cluster&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''GPU cluster'' 인기 글의 화제·반응 신호 (데이터센터·클라우드·통신)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - cloud_data
+      - connectivity
+  - key: threads-search-liquid-cooling
+    name: 'Threads search: liquid cooling'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=liquid%20cooling&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''liquid cooling'' 인기 글의 화제·반응 신호 (데이터센터·클라우드·통신)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - cloud_data
+      - connectivity
+  - key: threads-search-data-center-power
+    name: 'Threads search: data center power'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=data%20center%20power&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''data center power'' 인기 글의 화제·반응 신호 (데이터센터·클라우드·통신)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - cloud_data
+      - connectivity
+  - key: threads-search-6g
+    name: 'Threads search: 6G'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=6G&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''6G'' 인기 글의 화제·반응 신호 (데이터센터·클라우드·통신)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - cloud_data
+      - connectivity
+  - key: threads-search-satellite-internet
+    name: 'Threads search: satellite internet'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=satellite%20internet&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''satellite internet'' 인기 글의 화제·반응 신호 (데이터센터·클라우드·통신)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - cloud_data
+      - connectivity
+  - key: threads-search-humanoid-robot
+    name: 'Threads search: humanoid robot'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=humanoid%20robot&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''humanoid robot'' 인기 글의 화제·반응 신호 (로봇·피지컬 AI)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 60
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - robotics_mobility
+      - ai
+  - key: threads-search-physical-ai
+    name: 'Threads search: physical AI'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=physical%20AI&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''physical AI'' 인기 글의 화제·반응 신호 (로봇·피지컬 AI)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 60
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - robotics_mobility
+      - ai
+  - key: threads-search-robotics
+    name: 'Threads search: robotics'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=robotics&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''robotics'' 인기 글의 화제·반응 신호 (로봇·피지컬 AI)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - robotics_mobility
+      - ai
+  - key: threads-search-embodied-ai
+    name: 'Threads search: embodied AI'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=embodied%20AI&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''embodied AI'' 인기 글의 화제·반응 신호 (로봇·피지컬 AI)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - robotics_mobility
+      - ai
+  - key: threads-search-robot-foundation-model
+    name: 'Threads search: robot foundation model'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=robot%20foundation%20model&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''robot foundation model'' 인기 글의 화제·반응 신호 (로봇·피지컬 AI)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - robotics_mobility
+      - ai
+  - key: threads-search-home-robot
+    name: 'Threads search: home robot'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=home%20robot&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''home robot'' 인기 글의 화제·반응 신호 (로봇·피지컬 AI)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - robotics_mobility
+      - ai
+  - key: threads-search-robot-vacuum
+    name: 'Threads search: robot vacuum'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=robot%20vacuum&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''robot vacuum'' 인기 글의 화제·반응 신호 (로봇·피지컬 AI)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - robotics_mobility
+      - ai
+  - key: threads-search-industrial-robot
+    name: 'Threads search: industrial robot'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=industrial%20robot&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''industrial robot'' 인기 글의 화제·반응 신호 (로봇·피지컬 AI)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - robotics_mobility
+      - ai
+  - key: threads-search-dexterous-robot
+    name: 'Threads search: dexterous robot'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=dexterous%20robot&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''dexterous robot'' 인기 글의 화제·반응 신호 (로봇·피지컬 AI)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - robotics_mobility
+      - ai
+  - key: threads-search-robotic-exoskeleton
+    name: 'Threads search: robotic exoskeleton'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=robotic%20exoskeleton&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''robotic exoskeleton'' 인기 글의 화제·반응 신호 (로봇·피지컬 AI)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - robotics_mobility
+      - ai
+  - key: threads-search-autonomous-driving
+    name: 'Threads search: autonomous driving'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=autonomous%20driving&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''autonomous driving'' 인기 글의 화제·반응 신호 (모빌리티)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 60
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - robotics_mobility
+      - energy
+  - key: threads-search-robotaxi
+    name: 'Threads search: robotaxi'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=robotaxi&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''robotaxi'' 인기 글의 화제·반응 신호 (모빌리티)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - robotics_mobility
+      - energy
+  - key: threads-search-software-defined-vehicle
+    name: 'Threads search: software defined vehicle'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=software%20defined%20vehicle&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''software defined vehicle'' 인기 글의 화제·반응 신호 (모빌리티)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - robotics_mobility
+      - energy
+  - key: threads-search-ev-battery
+    name: 'Threads search: EV battery'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=EV%20battery&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''EV battery'' 인기 글의 화제·반응 신호 (모빌리티)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - robotics_mobility
+      - energy
+  - key: threads-search-solid-state-battery
+    name: 'Threads search: solid-state battery'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=solid-state%20battery&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''solid-state battery'' 인기 글의 화제·반응 신호 (모빌리티)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - robotics_mobility
+      - energy
+  - key: threads-search-foldable-phone
+    name: 'Threads search: foldable phone'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=foldable%20phone&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''foldable phone'' 인기 글의 화제·반응 신호 (기기·디스플레이·XR)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 60
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - display_av
+  - key: threads-search-smart-glasses
+    name: 'Threads search: smart glasses'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=smart%20glasses&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''smart glasses'' 인기 글의 화제·반응 신호 (기기·디스플레이·XR)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 60
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - display_av
+  - key: threads-search-smartphone
+    name: 'Threads search: smartphone'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=smartphone&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''smartphone'' 인기 글의 화제·반응 신호 (기기·디스플레이·XR)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - display_av
+  - key: threads-search-ar-glasses
+    name: 'Threads search: AR glasses'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=AR%20glasses&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''AR glasses'' 인기 글의 화제·반응 신호 (기기·디스플레이·XR)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - display_av
+  - key: threads-search-mixed-reality
+    name: 'Threads search: mixed reality'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=mixed%20reality&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''mixed reality'' 인기 글의 화제·반응 신호 (기기·디스플레이·XR)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - display_av
+  - key: threads-search-spatial-computing
+    name: 'Threads search: spatial computing'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=spatial%20computing&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''spatial computing'' 인기 글의 화제·반응 신호 (기기·디스플레이·XR)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - display_av
+  - key: threads-search-smartwatch
+    name: 'Threads search: smartwatch'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=smartwatch&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''smartwatch'' 인기 글의 화제·반응 신호 (기기·디스플레이·XR)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - display_av
+  - key: threads-search-smart-ring
+    name: 'Threads search: smart ring'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=smart%20ring&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''smart ring'' 인기 글의 화제·반응 신호 (기기·디스플레이·XR)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - display_av
+  - key: threads-search-oled
+    name: 'Threads search: OLED'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=OLED&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''OLED'' 인기 글의 화제·반응 신호 (기기·디스플레이·XR)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - display_av
+  - key: threads-search-microled
+    name: 'Threads search: microLED'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=microLED&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''microLED'' 인기 글의 화제·반응 신호 (기기·디스플레이·XR)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - display_av
+  - key: threads-search-brain-computer-interface
+    name: 'Threads search: brain computer interface'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=brain%20computer%20interface&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''brain computer interface'' 인기 글의 화제·반응 신호 (기기·디스플레이·XR)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - display_av
+  - key: threads-search-smart-home
+    name: 'Threads search: smart home'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=smart%20home&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''smart home'' 인기 글의 화제·반응 신호 (스마트홈·IoT)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - connectivity
+  - key: threads-search-matter-protocol
+    name: 'Threads search: Matter protocol'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=Matter%20protocol&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''Matter protocol'' 인기 글의 화제·반응 신호 (스마트홈·IoT)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - connectivity
+  - key: threads-search-iot
+    name: 'Threads search: IoT'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=IoT&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''IoT'' 인기 글의 화제·반응 신호 (스마트홈·IoT)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - connectivity
+  - key: threads-search-wi-fi-7
+    name: 'Threads search: Wi-Fi 7'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=Wi-Fi%207&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''Wi-Fi 7'' 인기 글의 화제·반응 신호 (스마트홈·IoT)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - connectivity
+  - key: threads-search-cybersecurity
+    name: 'Threads search: cybersecurity'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=cybersecurity&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''cybersecurity'' 인기 글의 화제·반응 신호 (보안·신뢰·규제)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 60
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - security
+  - key: threads-search-deepfake
+    name: 'Threads search: deepfake'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=deepfake&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''deepfake'' 인기 글의 화제·반응 신호 (보안·신뢰·규제)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 60
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - security
+  - key: threads-search-ai-regulation
+    name: 'Threads search: AI regulation'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=AI%20regulation&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''AI regulation'' 인기 글의 화제·반응 신호 (보안·신뢰·규제)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 60
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - security
+  - key: threads-search-data-privacy
+    name: 'Threads search: data privacy'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=data%20privacy&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''data privacy'' 인기 글의 화제·반응 신호 (보안·신뢰·규제)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - security
+  - key: threads-search-passkey
+    name: 'Threads search: passkey'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=passkey&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''passkey'' 인기 글의 화제·반응 신호 (보안·신뢰·규제)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - security
+  - key: threads-search-post-quantum-cryptography
+    name: 'Threads search: post-quantum cryptography'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=post-quantum%20cryptography&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''post-quantum cryptography'' 인기 글의 화제·반응 신호 (보안·신뢰·규제)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - security
+  - key: threads-search-quantum-computing
+    name: 'Threads search: quantum computing'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=quantum%20computing&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''quantum computing'' 인기 글의 화제·반응 신호 (차세대 컴퓨팅)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 60
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - frontier
+  - key: threads-search-neuromorphic-computing
+    name: 'Threads search: neuromorphic computing'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/search?q=neuromorphic%20computing&serp_type=default
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads에서 ''neuromorphic computing'' 인기 글의 화제·반응 신호 (차세대 컴퓨팅)'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 240
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - frontier
+  - key: threads-profile-techcrunch
+    name: 'Threads @techcrunch (TechCrunch)'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/@techcrunch
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads IT 매체 @techcrunch의 새 글과 반응'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 180
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - platform_sw
+  - key: threads-profile-verge
+    name: 'Threads @verge (The Verge)'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/@verge
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads IT 매체 @verge의 새 글과 반응'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 180
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - platform_sw
+  - key: threads-profile-9to5mac
+    name: 'Threads @9to5mac (9to5Mac)'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/@9to5mac
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads 애플 전문 매체 @9to5mac의 새 글과 반응'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 180
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - platform_sw
+  - key: threads-profile-9to5google
+    name: 'Threads @9to5google (9to5Google)'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/@9to5google
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads 구글 전문 매체 @9to5google의 새 글과 반응'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 180
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - platform_sw
+  - key: threads-profile-mkbhd
+    name: 'Threads @mkbhd (MKBHD)'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/@mkbhd
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads 기기 리뷰어 @mkbhd의 새 글과 반응'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 180
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - platform_sw
+  - key: threads-profile-zuck
+    name: 'Threads @zuck (Mark Zuckerberg)'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/@zuck
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads Meta CEO @zuck의 새 글과 반응'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 180
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - platform_sw
+  - key: threads-profile-mosseri
+    name: 'Threads @mosseri (Adam Mosseri)'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/@mosseri
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads Instagram·Threads 책임자 @mosseri의 새 글과 반응'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 180
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - platform_sw
+  - key: threads-profile-threads
+    name: 'Threads @threads (Threads)'
+    track: community
+    category: open_social
+    access_method: crawler
+    endpoint_url: https://www.threads.com/@threads
+    official_domain: threads.com
+    operator: Meta Platforms
+    region: global_en
+    language: en
+    poll_class: community
+    dx_relevance: 'Threads Threads 공식 계정 @threads의 새 글과 반응'
+    terms_url: https://help.instagram.com/769983657850450
+    storage_right: excerpt_allowed
+    config:
+      mode: threads
+      manual_review: true
+      crawl_permitted: true
+      robots_checked: true
+      robots_note: 'threads.com robots.txt disallows all bots and its notice bans automated collection without permission; the user decided on 2026-11-19 to crawl it logged out at low volume for personal news monitoring while the official Threads API application is reviewed'
+      min_interval_minutes: 180
+      max_age_days: 14
+      probe_max_age_days: 14
+      quiet_days: 21
+      themes:
+      - platform_sw

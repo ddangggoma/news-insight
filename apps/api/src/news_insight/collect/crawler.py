@@ -22,12 +22,15 @@ from news_insight.collect.github_trending import collect_trending
 from news_insight.collect.http import fetch_checked, request_headers
 from news_insight.collect.macros import expand_macros
 from news_insight.collect.pages import exclusion
+from news_insight.collect.threads import collect_threads
 from news_insight.collect.velog import collect_velog
 from news_insight.content.normalize import canonical_url, clean_text
 from news_insight.net.mime import HTML_MIME
 from news_insight.net.safe_fetch import FetchResponse, SafeFetcher
 
 REQUIRED_SELECTORS = ("item", "title", "link")
+# modes that parse a page with code of their own instead of declarative selectors
+PARSER_MODES = frozenset({"velog", "threads", "github_trending", "auto"})
 
 
 class CrawlerCollector:
@@ -37,6 +40,8 @@ class CrawlerCollector:
     def collect(self, context: CollectContext) -> CollectResult:
         if context.config.get("mode") == "velog":
             return collect_velog(self._fetcher, context)
+        if context.config.get("mode") == "threads":
+            return collect_threads(self._fetcher, context)
         if context.config.get("mode") == "github_trending":
             return collect_trending(self._fetcher, context)
         if context.config.get("mode") == "auto":

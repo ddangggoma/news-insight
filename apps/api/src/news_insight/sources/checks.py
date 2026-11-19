@@ -6,6 +6,7 @@ from urllib.parse import urlsplit
 
 from news_insight.collect.context import collect_context, polite_url, provider_headers
 from news_insight.collect.contracts import CollectorError, RawItem
+from news_insight.collect.crawler import PARSER_MODES
 from news_insight.collect.macros import expand_macros
 from news_insight.collect.registry import collector_for
 from news_insight.net.mime import EXPECTED_MIME, FEED_MIME, HTML_MIME
@@ -82,8 +83,8 @@ def check_policy(source: Source) -> CheckResult:
             reasons.append("crawler requires config.crawl_permitted=true after terms review")
         if source.config.get("robots_checked") is not True:
             reasons.append("crawler requires config.robots_checked=true")
-        if not source.config.get("selectors"):
-            reasons.append("crawler requires declarative config.selectors")
+        if not source.config.get("selectors") and source.config.get("mode") not in PARSER_MODES:
+            reasons.append("crawler requires declarative config.selectors or a parser mode")
     if (
         source.track is Track.RESEARCH_IP
         and source.storage_right in FULLTEXT_RIGHTS
