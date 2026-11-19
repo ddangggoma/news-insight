@@ -76,6 +76,13 @@ EMPTY_RUN_LIMIT = 10
 QUIET_DAYS = 7
 
 
+def source_floor(source: Source) -> int:
+    """`config.min_interval_minutes`: a source polled less often than its class allows (the
+    Threads keywords poll hourly or every four hours, 2026-11-18)."""
+    minutes = source.config.get("min_interval_minutes")
+    return int(minutes) * 60 if minutes else 0
+
+
 def known_stable_ids(session: Session, source: Source) -> frozenset[str]:
     """Recent stable ids of a page-based source, so crawlers only fetch unseen articles."""
     if source.access_method not in PAGE_METHODS:
@@ -195,6 +202,7 @@ def collect_source(
     runtime.interval_seconds = max(
         next_interval(source.poll_class, runtime.interval_seconds, idle=idle, new_items=stats.new),
         min_interval(source.endpoint_url),  # a shared API's daily budget split over its sources
+        source_floor(source),
     )
     runtime.consecutive_failures = 0
     runtime.consecutive_idle = runtime.consecutive_idle + 1 if idle else 0

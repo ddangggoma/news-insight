@@ -119,6 +119,20 @@ def test_success_stores_items_and_schedules_the_next_poll(
     assert count(db_session, Item) == 2
 
 
+def test_a_source_floor_keeps_it_from_polling_more_often(
+    db_session: Session, fetcher: SafeFetcher
+) -> None:
+    source = collectable(db_session, config={"min_interval_minutes": 240})
+
+    collect(db_session, source, StubCollector(ok(raw(1))), fetcher)
+
+    runtime = runtime_of(db_session, source)
+    assert (runtime.interval_seconds, runtime.next_due_at) == (
+        14_400,
+        NOW + timedelta(hours=4),
+    )
+
+
 def test_identical_recollection_writes_nothing_and_backs_off(
     db_session: Session, fetcher: SafeFetcher
 ) -> None:

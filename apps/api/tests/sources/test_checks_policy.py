@@ -73,8 +73,14 @@ def test_policy_requires_reviewed_declarative_crawler() -> None:
     assert result.reasons == [
         "crawler requires config.crawl_permitted=true after terms review",
         "crawler requires config.robots_checked=true",
-        "crawler requires declarative config.selectors",
+        "crawler requires declarative config.selectors or a parser mode",
     ]
+
+
+def test_policy_accepts_a_reviewed_crawler_with_a_parser_mode() -> None:
+    config = {"crawl_permitted": True, "robots_checked": True, "mode": "threads"}
+
+    assert check_policy(build_source(access_method=AccessMethod.CRAWLER, config=config)).passed
 
 
 def test_policy_blocks_research_fulltext_without_open_access() -> None:
