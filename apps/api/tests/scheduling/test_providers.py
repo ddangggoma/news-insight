@@ -16,6 +16,10 @@ def test_shared_api_hosts_are_recognised() -> None:
         "export.arxiv.org"
     )
     assert min_interval("https://export.arxiv.org/api/query") == 6 * 3600
+    assert provider_host("https://graph.threads.net/v1.0/keyword_search?q=robot") == (
+        "graph.threads.net"
+    )
+    assert PROVIDERS["graph.threads.net"].per_day < 2200  # the documented keyword-search limit
 
 
 def test_one_budget_for_every_source_on_a_provider(redis_client: redis.Redis) -> None:

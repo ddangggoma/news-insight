@@ -44,6 +44,14 @@ PROVIDERS: dict[str, Provider] = {
     "www.threads.com": Provider(
         per_day=24 * 60, burst=2, validate_per_batch=2, min_interval_seconds=3600
     ),
+    # Official Threads API (presets threads_keyword_search / threads_profile_posts). Keyword
+    # search allows 2,200 queries per user in a rolling 24 hours (a query that finds nothing
+    # is not counted) and profile discovery 1,000; one budget for both, a tenth under the
+    # keyword-search limit for manual checks, no source more than hourly.
+    # developers.facebook.com/docs/threads/keyword-search, /docs/threads/threads-profiles
+    "graph.threads.net": Provider(
+        per_day=2000, burst=3, validate_per_batch=3, min_interval_seconds=3600
+    ),
 }
 # with a free OpenAlex key ($1 a day, 10x): about 900 searches, so sources poll every 6 hours
 OPENALEX_WITH_KEY = Provider(

@@ -109,8 +109,95 @@ scripts/threads-token.sh check
 
 - **추가 확인 요청:** 심사 도중 Meta가 **Access Verification**(개인 또는 사업자 확인)을 요구하면, 앱 대시보드 안내에 따라 신분 확인을 진행합니다.
 
-## 4. 심사 통과 후
+## 4. 심사 통과 후 (크롤링 → 공식 API 전환)
 
-1. 토큰으로 `keyword_search` 응답 필드를 확인합니다(반응 수가 오는지 등).
-2. 공식 API 수집 프리셋을 추가하고, 같은 키워드 100개를 API 소스로 등록합니다.
-3. 크롤링 소스(`threads-search-*`)는 `sources retire`로 내립니다. 프로필은 `threads_profile_discovery`로 옮깁니다.
+### 4-0. 미리 준비된 것
+- **수집 프리셋:** `threads_keyword_search`(키워드 검색), `threads_profile_posts`(공개 프로필 글) — `collect/presets.py`.
+  - 토큰은 `config.auth.secret: THREADS_TOKEN`으로 `.env`의 `SOURCE_SECRET_THREADS_TOKEN`을 읽어 `Authorization: Bearer` 헤더로 보냅니다. URL·로그·오류 메시지에 토큰이 남지 않습니다.
+  - 글 ID(shortcode)·주소(`www.threads.com/@아이디/post/코드`)·제목(첫 줄)·본문 500자가 크롤러와 같아서, 같은 글은 하나로 합쳐집니다.
+  - 답글과 단순 리포스트는 건너뛰고, 최근 14일 글만 저장합니다.
+- **공용 한도:** `scheduling/providers.py`의 `graph.threads.net` 항목이 하루 2,000회, 연속 3회, 소스당 최소 1시간 간격을 지킵니다.
+  - 키워드 검색 한도는 사용자당 24시간 2,200회(결과 없는 검색은 제외), 프로필 조회는 1,000회입니다.
+  - 지금 주기(30개 1시간·70개 4시간)로는 하루 약 1,140회입니다.
+- **카탈로그 변환 스크립트:** `scripts/threads-api-catalog.py`가 크롤링 소스를 API 소스로 바꿉니다.
+  - 새 키는 `threads-search-x` → `threads-api-search-x`입니다. 키워드·수집 간격·테마는 그대로 옮깁니다.
+
+### 4-1. 달라지는 점 (반응 수)
+- **공식 API는 다른 사람 글의 좋아요·답글·리포스트·인용 수를 주지 않습니다.**
+  - 미디어 필드 목록에 반응 수 필드가 없습니다. 반응 수(insights)는 토큰 주인 본인 글에만 열립니다.
+  - 근거: https://developers.facebook.com/docs/threads/threads-media , https://developers.facebook.com/docs/threads/insights
+- **영향:** API로 옮긴 소스는 `item_metric_snapshots`에 반응 수가 쌓이지 않습니다. 반응 속도 기반 신호는 "어떤 글이 검색 상위에 오르는가"로 바뀝니다.
+- **선택지:** 반응 수가 꼭 필요한 핵심 키워드 몇 개만 크롤링으로 남기고 나머지를 API로 옮길 수 있습니다. 4-4에서 내릴 키를 고르면 됩니다.
+
+### 4-2. 응답 확인 (live 작업 폴더, 토큰 발급 후)
+심사 전에는 본인 글만 나오므로, 다른 사람 글이 섞여 나오면 심사가 반영된 것입니다.
+
+```bash
+cd ~/WorkSpace/NEWS_INSIGHT-live
+TOKEN="$(grep ^SOURCE_SECRET_THREADS_TOKEN= .env | cut -d= -f2-)"
+FIELDS=id,shortcode,text,media_type,permalink,timestamp,username,is_reply,link_attachment_url
+curl -sG https://graph.threads.net/v1.0/keyword_search -H "Authorization: Bearer $TOKEN" \
+  --data-urlencode q="humanoid robot" --data-urlencode search_type=TOP --data-urlencode fields=$FIELDS | head -c 1500; echo
+curl -sG https://graph.threads.net/v1.0/profile_posts -H "Authorization: Bearer $TOKEN" \
+  --data-urlencode username=threads --data-urlencode fields=$FIELDS | head -c 1500; echo
+unset TOKEN
+```
+
+- `data` 배열에 여러 아이디의 글이 오면 정상입니다.
+- `"error"`가 오면 메시지를 확인합니다.
+  - `nonexisting field`: 프리셋의 `THREADS_FIELDS`에서 그 필드를 뺍니다.
+  - 권한 오류(`OAuthException`, permission): 고급 액세스 승인이 아직 반영되지 않았습니다.
+- 프로필 조회는 `threads_profile_discovery` 고급 액세스 전에는 `@meta`, `@threads`, `@instagram`, `@facebook`만 됩니다.
+
+### 4-3. 카탈로그에 API 소스 추가 (개발 폴더, PR)
+```bash
+cd apps/api
+uv run python ../../scripts/threads-api-catalog.py | less               # 미리보기 (파일은 그대로)
+uv run python ../../scripts/threads-api-catalog.py --write              # 키워드 검색 100개 추가
+uv run python ../../scripts/threads-api-catalog.py --kind all --write   # 프로필 승인 후: 프로필 8개도 추가
+```
+
+- 스크립트는 카탈로그 스키마를 검사한 뒤에만 파일을 고칩니다. 다시 실행해도 이미 있는 키는 건너뜁니다.
+- 최신순으로 받고 싶으면 `--search-type RECENT`를 붙입니다(기본 `TOP` = 크롤러의 인기순).
+- 변경을 커밋하고 PR → 배포합니다.
+
+### 4-4. live에 반영하고 크롤링 소스 내리기
+1. 배포 후 시드하고, 두세 개를 바로 검증합니다.
+
+   ```bash
+   cd ~/WorkSpace/NEWS_INSIGHT-live
+   docker compose exec -T api news-insight sources seed
+   docker compose exec -T api news-insight sources validate threads-api-search-llm
+   docker compose exec -T api news-insight sources validate threads-api-search-humanoid-robot
+   ```
+
+2. 몇 시간 동안 수집이 되는지(콘솔 → 소스 품질, `threads-api-*`) 확인합니다.
+3. 크롤링 소스를 카탈로그에서 빼고 퇴역시킵니다(개발 폴더에서 카탈로그 수정 → PR → 배포 후 live에서 퇴역).
+
+   ```bash
+   cd apps/api
+   uv run python ../../scripts/threads-api-catalog.py --drop-crawler > /tmp/threads-crawler-keys.txt   # API 짝이 있는 크롤링 항목만 삭제
+   ```
+
+   ```bash
+   cd ~/WorkSpace/NEWS_INSIGHT-live
+   while read -r key; do docker compose exec -T api news-insight sources retire "$key" --reason "moved to Threads API"; done < /tmp/threads-crawler-keys.txt
+   ```
+
+   - 반응 수 때문에 일부 키워드를 크롤링으로 남기려면 파일에서 그 키를 지우고, 해당 `threads-api-*` 항목도 카탈로그에서 뺍니다.
+   - 프로필 크롤링(`threads-profile-*`)은 `--kind all`로 API 항목을 넣기 전까지는 지워지지 않습니다.
+
+### 4-5. 되돌리기
+- API 소스만 멈추기: 2장의 일괄 정지 명령에서 `like 'threads-%'`를 `like 'threads-api-%'`로 바꿔 실행합니다.
+- 크롤링 소스 되살리기: 카탈로그에 항목을 다시 넣고 시드하면 미검증부터 다시 시작합니다.
+
+### 4-6. 토큰 유지
+- 60일 토큰은 한 달에 한 번 `scripts/threads-token.sh refresh`로 연장하고, `docker compose up -d worker api`로 반영합니다.
+- 토큰이 만료되면 API 소스가 401/400(`code 190`) 오류로 일시정지됩니다. 3-5로 새로 발급합니다.
+
+### 참고 문서 (2026-11-19 확인)
+- 키워드 검색: https://developers.facebook.com/docs/threads/keyword-search
+- 프로필 조회(profile_lookup, profile_posts): https://developers.facebook.com/docs/threads/threads-profiles
+- 미디어 필드: https://developers.facebook.com/docs/threads/threads-media
+- 인사이트(본인 글 반응 수): https://developers.facebook.com/docs/threads/insights
+- 호출 한도: https://developers.facebook.com/docs/threads/overview
