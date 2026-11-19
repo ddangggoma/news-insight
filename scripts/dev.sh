@@ -131,6 +131,9 @@ cards()         {
   (cd "$API" && LM_STUDIO_URL=http://127.0.0.1:1234 uv run --env-file "$ROOT/.env" news-insight cards triage) \
     || echo "triage skipped (LM Studio unavailable): cards go newest first" >&2
   (cd "$API" && LM_STUDIO_URL=http://127.0.0.1:1234 uv run --env-file "$ROOT/.env" news-insight cards run)
+  # 2026-11-19: one Korean summary per community buzz cluster (no card per post any more)
+  (cd "$API" && uv run --env-file "$ROOT/.env" news-insight buzz summarize) \
+    || echo "buzz summaries skipped" >&2
   # plan 16 #1: embed new cards (and backfill older ones) for the ask page
   (cd "$API" && LM_STUDIO_URL=http://127.0.0.1:1234 uv run --env-file "$ROOT/.env" news-insight cards embed) \
     || echo "card embeddings skipped (LM Studio unavailable)" >&2

@@ -110,6 +110,10 @@ cards_app = typer.Typer(
     no_args_is_help=True,
 )
 app.add_typer(cards_app, name="cards")
+buzz_app = typer.Typer(
+    help="Community buzz clusters and breaking signals (2026-11-19)", no_args_is_help=True
+)
+app.add_typer(buzz_app, name="buzz")
 digest_app = typer.Typer(
     help="Daily digest generated with the Claude CLI (05:00 KST)", no_args_is_help=True
 )
@@ -868,6 +872,57 @@ def cards_run(
     )
     for note in stats.notes:
         typer.echo(f"  note: {note}")
+
+
+@buzz_app.command("summarize")
+def buzz_summarize(
+    limit: Annotated[int | None, typer.Option(help="Clusters this run")] = None,
+) -> None:
+    """One Korean summary per buzz cluster over the threshold (host-side, after the card run):
+    Antigravity, then Claude Code when it is enabled for cards."""
+    from news_insight.buzz.summary import Asker, summarize
+    from news_insight.cards.engines import ClaudeEngine
+
+    settings = get_settings()
+    metered, _ = _card_engines(False)
+    engines: list[Asker] = list(metered)
+    if settings.card_claude:
+        cli = ClaudeCli(
+            executable=settings.claude_cli, timeout_seconds=settings.card_timeout_seconds
+        )
+        engines.append(ClaudeEngine(cli=cli, model=settings.card_claude_model))
+    with session_scope() as session:
+        stats = summarize(
+            session, engines, now=datetime.now(UTC), limit=limit or settings.buzz_summary_limit
+        )
+    typer.echo(
+        f"buzz summaries: due={stats.due} written={stats.written} failed={stats.failed} "
+        f"engine={stats.engine or '-'}"
+    )
+    for note in stats.notes:
+        typer.echo(f"  note: {note}")
+
+
+@buzz_app.command("update")
+def buzz_update(
+    push: Annotated[bool, typer.Option(help="Also send due breaking pushes")] = False,
+) -> None:
+    """Cluster the window's community posts now (Celery does it every 10 minutes)."""
+    from news_insight.buzz.cluster import run as run_buzz
+    from news_insight.buzz.push import Notifier, push_due
+
+    settings = get_settings()
+    now = datetime.now(UTC)
+    with session_scope() as session:
+        stats = run_buzz(session, now=now)
+    typer.echo(
+        f"posts={stats.posts} new_keys={stats.computed} clusters={stats.clusters} "
+        f"merged={stats.merged} crossed={stats.crossed} breaking={stats.breaking}"
+    )
+    if push:
+        with session_scope() as session:
+            sent = push_due(session, Notifier(settings), settings, now=now)
+        typer.echo(f"push: due={sent.due} sent={sent.sent} held={sent.held or '-'}")
 
 
 @cards_app.command("triage")

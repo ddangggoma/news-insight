@@ -23,8 +23,8 @@ START, _ = digest_window(DAY)
 FREEZE_AT = datetime(2026, 10, 4, 19, 40, tzinfo=UTC)  # 04:40 KST on DAY
 RULES = SelectionRules(
     size=8,
-    track_min={"news": 3, "research_ip": 1, "oss": 1, "community": 1},
-    track_gate_min={"news": 3, "research_ip": 1, "oss": 1, "community": 1},
+    track_min={"news": 3, "research_ip": 1, "oss": 1},
+    track_gate_min={"news": 3, "research_ip": 1, "oss": 1},
     domain_cap=0.25,
     korean_min=0.25,
     official_min=0.25,
@@ -69,7 +69,7 @@ SPECS = [
     ("fcc", Track.NEWS, "government", Region.GLOBAL_EN),
     ("arxiv", Track.RESEARCH_IP, "academic_paper", Region.GLOBAL_EN),
     ("github", Track.OSS, "oss_trend", Region.GLOBAL_EN),
-    ("hn", Track.COMMUNITY, "dev_forum", Region.GLOBAL_EN),
+    ("bloter", Track.NEWS, "independent_media", Region.GLOBAL_EN),
 ]
 
 

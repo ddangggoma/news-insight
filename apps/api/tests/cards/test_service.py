@@ -422,6 +422,39 @@ def test_archive_pages_get_no_card(db_session: Session) -> None:
     assert [item.title for item, _ in pending_items(db_session, limit=10)] == ["fresh"]
 
 
+def test_community_posts_get_no_card_of_their_own(
+    db_session: Session, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """2026-11-19: community buzz is summarised per cluster (buzz/), not per post."""
+    from news_insight.cards import service
+    from news_insight.config import Settings
+    from news_insight.sources.enums import Track
+
+    seed(db_session, ["news report"])
+    forum = build_source(key="forum", name="Forum", track=Track.COMMUNITY, category="dev_forum")
+    db_session.add(forum)
+    db_session.flush()
+    ingest_items(
+        db_session,
+        forum,
+        [RawItem(stable_id="p", url="https://forum.example.com/p", title="forum post")],
+        fetch_run=None,
+        now=NOW,
+        canary=True,
+    )
+
+    assert [item.title for item, _ in pending_items(db_session, limit=10)] == ["news report"]
+    assert pending_count(db_session) == 1
+
+    monkeypatch.setattr(
+        service, "get_settings", lambda: Settings(_env_file=None, community_item_cards=True)
+    )
+    assert {item.title for item, _ in pending_items(db_session, limit=10)} == {
+        "news report",
+        "forum post",
+    }
+
+
 def test_an_unvalidated_source_waits_after_its_daily_cap(db_session: Session) -> None:
     from news_insight.sources.enums import SourceStatus
 

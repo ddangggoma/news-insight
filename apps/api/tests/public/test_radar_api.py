@@ -124,7 +124,9 @@ def test_radar_signal_type_is_a_filter(
     assert body["kpis"]["items"][-1] == 1
     assert body["taxonomy_revised_on"] == "2026-10-05"
     everything = get(public_client, public_headers, "radar", period="week", scope="all")
-    assert {row["key"] for row in everything["fields"]} >= {"semis", "platform_sw"}
+    fields = {row["key"] for row in everything["fields"]}
+    # platform_sw is only a community post here: community is not counted with news (2026-11-19)
+    assert "semis" in fields and "platform_sw" not in fields
 
 
 def test_radar_topic_theme(public_client: TestClient, public_headers: dict[str, str]) -> None:
@@ -227,7 +229,7 @@ def test_failed_and_stale_cards_stay_out(
 ) -> None:
     assert db_session.scalar(select(ItemCard.id).limit(1)) is not None
     body = get(public_client, public_headers, "radar", period="week", scope="all")
-    assert body["kpis"]["items"][-1] == 6
+    assert body["kpis"]["items"][-1] == 5  # the community post is not counted (2026-11-19)
 
 
 def test_radar_regions_concentration_and_flows(

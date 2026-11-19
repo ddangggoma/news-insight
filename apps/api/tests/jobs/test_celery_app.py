@@ -69,3 +69,8 @@ def test_beat_rebuilds_research_and_patent_counts_at_0340() -> None:
 
     assert entry["task"] == "insights.stats"
     assert (entry["schedule"].hour, entry["schedule"].minute) == ({3}, {40})
+
+
+def test_beat_updates_community_buzz_every_ten_minutes() -> None:
+    entry = celery_app.conf.beat_schedule["buzz-update"]
+    assert entry["task"] == "buzz.update" and entry["schedule"] == 600.0

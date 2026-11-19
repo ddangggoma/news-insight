@@ -149,18 +149,24 @@ def test_chatter_that_outruns_research_once_per_theme() -> None:
         "platform_sw__device_os",
         [3, 3, 3, 9],
         z=0.8,
-        tracks=mix(6, 2, 1, 0),
-        baseline_tracks=mix(6, 3, 6, 0),
+        # community posts are not counted with news (2026-11-19): readers' counts carry none
+        tracks=mix(8, 0, 1, 0),
+        baseline_tracks=mix(9, 0, 6, 0),
     )
     signals = radar_signals(RADAR.model_copy(update={"themes": [*RADAR.themes, hot]}))
     hype = next(s for s in signals if s.tone == "hype")
     assert hype.title == "디바이스 OS·플랫폼"
     assert hype.detail == (
-        "뉴스·커뮤니티 8건으로 평소(3.0건)의 2.7배, 논문·오픈소스는 1건(평소 2.0건): "
-        "화제가 실체보다 앞섬"
+        "뉴스 8건으로 평소(3.0건)의 2.7배, 논문·오픈소스는 1건(평소 2.0건): 화제가 실체보다 앞섬"
     )
     keys = [s.focus.key for s in signals if s.focus.kind == "theme"]
     assert len(set(keys)) == len(keys)
+
+
+def test_chatter_is_news_only() -> None:
+    from news_insight.public.signals import _chatter
+
+    assert _chatter(mix(news=3, community=50)) == 3
 
 
 def test_thin_sourcing_and_korean_gaps() -> None:
