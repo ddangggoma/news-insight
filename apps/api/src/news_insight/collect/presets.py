@@ -7,6 +7,31 @@ A catalog entry picks one with `config.preset`; its own keys override the preset
 from collections.abc import Mapping
 from typing import Any
 
+# Media fields both Threads endpoints return for other users' public posts (2026-11-19 docs);
+# asking for an undocumented field fails the whole request.
+THREADS_FIELDS = (
+    "id,shortcode,text,media_type,permalink,timestamp,username,is_reply,link_attachment_url"
+)
+THREADS_POSTS: dict[str, Any] = {
+    "list_path": "data",
+    "fields": {
+        "id": ["shortcode", "id"],
+        "url": [],
+        "title": "text",
+        "summary": "text",
+        "published_at": "timestamp",
+        "author": "username",
+        "link": "link_attachment_url",
+    },
+    "url_template": "https://www.threads.com/@{username}/post/{shortcode}",
+    "title_first_line": True,
+    "title_limit": 200,
+    "summary_limit": 500,
+    # replies and bare reposts are not posts of their own (the crawler skips them too)
+    "skip_when": {"is_reply": True, "media_type": "REPOST_FACADE"},
+    "max_age_days": 14,
+}
+
 PRESETS: dict[str, dict[str, Any]] = {
     "github_search": {
         "list_path": "items",
@@ -208,6 +233,17 @@ PRESETS: dict[str, dict[str, Any]] = {
         # view counts come from a second call, videos?part=statistics
         "video_stats": True,
     },
+    # Official Threads API (graph.threads.net/v1.0, token as a Bearer header from
+    # config.auth.secret THREADS_TOKEN, so it never appears in a URL or a stored error).
+    # Items match the logged-out crawler's (collect/threads.py): id = shortcode, the same
+    # www.threads.com permalink, the first line as title, 500 characters of text. The API
+    # documents no like/reply/repost/quote counts on other users' posts (insights cover only
+    # the token owner's own media), so these sources carry no metrics.
+    # Keyword search: developers.facebook.com/docs/threads/keyword-search
+    "threads_keyword_search": {**THREADS_POSTS, "query_overrides": {"fields": THREADS_FIELDS}},
+    # A public profile's posts (threads_profile_discovery):
+    # developers.facebook.com/docs/threads/threads-profiles
+    "threads_profile_posts": {**THREADS_POSTS, "query_overrides": {"fields": THREADS_FIELDS}},
     # Hugging Face daily papers (curated, with upvotes); the sitemap source only saw Spaces.
     "hf_daily_papers": {
         "list_path": "",

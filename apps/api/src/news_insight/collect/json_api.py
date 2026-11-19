@@ -2,12 +2,15 @@
 
 Mapping keys: `list_path`, `fields` (each a dotted path or a list of fallbacks),
 `url_template` (`{a.b}` / `{a.b|last}`, used when no `fields.url` path yields a link),
-`title_limit`, and `metrics` ({name: dotted path} of integer signals).
+`title_limit`, `title_first_line` (a post's first line as its title), `summary_limit`,
+`metrics` ({name: dotted path} of integer signals), `skip_when` ({dotted path: value}: such
+records, e.g. replies, are not items and do not count as incomplete) and `max_age_days`.
 """
 
 import json
 import re
 from dataclasses import dataclass, replace
+from datetime import timedelta
 from typing import Any
 from urllib.parse import parse_qsl, quote, urlencode, urljoin, urlsplit, urlunsplit
 
@@ -44,6 +47,8 @@ class _Mapping:
     url_template: str | None
     title_limit: int | None
     metrics: dict[str, Any]
+    title_first_line: bool = False
+    summary_limit: int | None = None
 
 
 class JsonApiCollector:
@@ -87,8 +92,11 @@ class JsonApiCollector:
             url_template=str(context.config.get("url_template") or "") or None,
             title_limit=_int_or_none(context.config.get("title_limit")),
             metrics=dict(context.config.get("metrics") or {}),
+            title_first_line=bool(context.config.get("title_first_line")),
+            summary_limit=_int_or_none(context.config.get("summary_limit")),
         )
-        window = records[: context.item_limit]
+        skip = dict(context.config.get("skip_when") or {})
+        window = [record for record in records[: context.item_limit] if not _skipped(record, skip)]
         pairs = [
             (record, raw)
             for record in window
@@ -104,6 +112,14 @@ class JsonApiCollector:
                 f"{incomplete}/{len(window)} records lack url or title",
                 retryable=False,
             )
+        if context.config.get("max_age_days"):
+            cutoff = context.now - timedelta(days=float(context.config["max_age_days"]))
+            items = [
+                item
+                for item in items
+                if item.published_at is not None
+                and cutoff <= item.published_at <= context.now + timedelta(minutes=5)
+            ]
         return CollectResult(
             items=items,
             status_code=200,
@@ -185,6 +201,16 @@ def inverted_text(index: Any, limit: int = 4000) -> str | None:
     return text[:limit] or None
 
 
+def _skipped(record: Any, skip: dict[str, Any]) -> bool:
+    return isinstance(record, dict) and any(
+        dotted_get(record, str(path)) == value for path, value in skip.items()
+    )
+
+
+def _first_line(text: str) -> str:
+    return next((line for line in text.splitlines() if line.strip()), text)
+
+
 def _int_or_none(value: Any) -> int | None:
     try:
         return int(value) if value is not None else None
@@ -244,6 +270,13 @@ def extract_metrics(record: Any, mapping: dict[str, Any]) -> dict[str, int]:
     return metrics
 
 
+def _summary(record: Any, mapping: _Mapping) -> str | None:
+    summary = first_text(record, mapping.fields["summary"])
+    if summary and mapping.summary_limit:
+        return clean_text(summary, limit=mapping.summary_limit)
+    return summary or inverted_text(first_value(record, mapping.fields.get("summary_index") or []))
+
+
 def _to_item(record: Any, mapping: _Mapping, *, base_url: str) -> RawItem | None:
     if not isinstance(record, dict):
         return None
@@ -251,7 +284,9 @@ def _to_item(record: Any, mapping: _Mapping, *, base_url: str) -> RawItem | None
     if link is None and mapping.url_template:
         link = render_template(mapping.url_template, record)
     title = first_text(record, mapping.fields["title"])
-    if title and mapping.title_limit:
+    if title and mapping.title_first_line:
+        title = clean_text(_first_line(title), limit=mapping.title_limit)
+    elif title and mapping.title_limit:
         title = clean_text(title, limit=mapping.title_limit)
     if not (link and title):
         return None
@@ -262,8 +297,7 @@ def _to_item(record: Any, mapping: _Mapping, *, base_url: str) -> RawItem | None
         title=title,
         published_at=parse_datetime(first_value(record, mapping.fields["published_at"])),
         author=first_text(record, mapping.fields["author"]),
-        summary=first_text(record, mapping.fields["summary"])
-        or inverted_text(first_value(record, mapping.fields.get("summary_index") or [])),
+        summary=_summary(record, mapping),
         metrics=extract_metrics(record, mapping.metrics),
         link=first_text(record, mapping.fields.get("link") or []),
     )

@@ -307,6 +307,30 @@ CASES: list[tuple[str, dict[str, Any], tuple[str, str, str, datetime, dict[str, 
             {"likes": 900, "downloads": 12000, "trending": 650},
         ),
     ),
+    # Threads API (synthetic post): the crawler's id and permalink, the first line as title
+    *[
+        (
+            preset,
+            {
+                "id": "18000000000000001",
+                "shortcode": "DAbCdEfGhIj",
+                "text": "On-device AI chips are shipping\nDetails below",
+                "media_type": "TEXT_POST",
+                "permalink": "https://www.threads.net/@example.tech/post/DAbCdEfGhIj",
+                "timestamp": "2026-10-01T09:00:00+0000",
+                "username": "example.tech",
+                "is_reply": False,
+            },
+            (
+                "DAbCdEfGhIj",
+                "https://www.threads.com/@example.tech/post/DAbCdEfGhIj",
+                "On-device AI chips are shipping",
+                OCT_1_0900,
+                {},
+            ),
+        )
+        for preset in ("threads_keyword_search", "threads_profile_posts")
+    ],
 ]
 
 
