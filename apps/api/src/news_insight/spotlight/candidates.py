@@ -17,6 +17,7 @@ from sqlalchemy import ColumnElement, or_, select
 from sqlalchemy.orm import Session, load_only
 
 from news_insight.benchmarks.names import normalize
+from news_insight.buzz.models import BuzzCluster, BuzzClusterItem
 from news_insight.cards.models import CardStatus, ItemCard
 from news_insight.content.models import Item, ItemDedup, ItemMetricSnapshot
 from news_insight.public.benchmarks import benchmark_changes
@@ -242,6 +243,23 @@ def _cards(session: Session, item_ids: Sequence[int]) -> dict[int, ItemCard]:
 
 def _summary(card: ItemCard | None) -> str:
     return " ".join(card.summary_ko) if card is not None and card.summary_ko else ""
+
+
+def _buzz_texts(session: Session, item_ids: Sequence[int]) -> dict[int, tuple[str, str]]:
+    """The Korean title and summary of each post's buzz cluster, where it has one: community
+    posts get no card of their own since 2026-11-19, their cluster is summarised instead."""
+    if not item_ids:
+        return {}
+    rows = session.execute(
+        select(BuzzClusterItem.item_id, BuzzCluster.title_ko, BuzzCluster.summary_ko)
+        .join(BuzzCluster, BuzzCluster.id == BuzzClusterItem.cluster_id)
+        .where(
+            BuzzClusterItem.item_id.in_(item_ids),
+            BuzzCluster.title_ko.is_not(None),
+            BuzzCluster.relevant.is_not(False),
+        )
+    ).tuples()
+    return {item_id: (title, " ".join(summary or [])) for item_id, title, summary in rows if title}
 
 
 def _number(section: str, ranked: list[Candidate]) -> list[Candidate]:
@@ -823,17 +841,21 @@ def _community(session: Session, eligible: list[Row], scorer: Scorer) -> list[Ca
         if scorer.z[top.item.id] >= MIN_COMMUNITY_Z:
             best.append(top)
     cards = _cards(session, [row.item.id for row in best])
+    buzz = _buzz_texts(session, [row.item.id for row in best if row.item.id not in cards])
     drafts = []
     for row in best:
         card = cards.get(row.item.id)
+        buzz_title, buzz_summary = buzz.get(row.item.id, (None, ""))
         drafts.append(
             Candidate(
                 cid="",
                 section="community",
                 key=f"item:{row.item.id}",
                 item_ids=[row.item.id],
-                title_ko=(card.title_ko if card is not None else None) or row.item.title,
-                summary_ko=_summary(card),
+                title_ko=(card.title_ko if card is not None else None)
+                or buzz_title
+                or row.item.title,
+                summary_ko=_summary(card) or buzz_summary,
                 url=row.item.url,
                 metrics={**scorer.metrics[row.item.id], "platform": row.operator},
                 score=scorer.z[row.item.id],

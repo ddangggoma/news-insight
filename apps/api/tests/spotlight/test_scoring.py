@@ -224,3 +224,10 @@ def test_platform_stats_gives_hf_daily_papers_a_distribution_outside_the_pool(db
     per_platform, overall = platform_stats(db_session, at=AT)
     assert per_platform["Hugging Face Daily Papers"].n == 2
     assert overall.n == 1  # the pool stays community and open source
+
+
+def test_threads_engagement_sums_its_four_counts() -> None:
+    from news_insight.spotlight.scoring import engagement
+
+    metrics = {"likes": 120, "replies": 3, "reposts": 13, "quotes": 1, "reshares": 6}
+    assert engagement("Meta Platforms", metrics) == 137

@@ -14,7 +14,7 @@ def cand(
 
 RULES = SelectionRules(
     size=10,
-    track_min={"news": 4, "research_ip": 2, "oss": 1, "community": 1},
+    track_min={"news": 4, "research_ip": 2, "oss": 1},
     domain_cap=0.2,
     korean_min=0.2,
     official_min=0.2,
@@ -35,15 +35,25 @@ def test_minimums_are_met_before_filling_by_score() -> None:
     ]
     pool += [
         cand(400, track="oss", category="oss_trend", score=4),
-        cand(500, track="community", category="dev_forum", score=3),
     ]
 
     picked = shortlist(pool, RULES)
     ids = {c.item_id for c in picked}
 
     assert len(picked) == 10
-    assert {100, 101, 200, 201, 300, 301, 400, 500} <= ids
+    assert {100, 101, 200, 201, 300, 301, 400} <= ids
     assert [c.track for c in picked][:2] == ["news", "news"]
+
+
+def test_community_posts_are_never_picked() -> None:
+    # 2026-11-19: community buzz is a signal layer of its own, never a news-level slot
+    pool = [cand(1, track="community", category="dev_forum", score=999)]
+    pool += [cand(i, score=50 - i) for i in range(2, 12)]
+
+    picked = shortlist(pool, SelectionRules(size=10, track_min={"community": 5}))
+
+    assert 1 not in {c.item_id for c in picked}
+    assert all(c.track != "community" for c in picked)
 
 
 def test_domain_cap_limits_any_single_publisher() -> None:

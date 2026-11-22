@@ -30,7 +30,8 @@ def test_facets_count_reports_in_the_window(
     assert body["impact"] == {"opportunity": 3, "watch": 1}
     assert body["track"] == {"news": 2, "research_ip": 1, "oss": 1}
     assert body["region"] == {"global_en": 3, "kr": 1}
-    assert body["scope"] == {"dx": 4, "excluded": 1, "irrelevant": 1}
+    # the irrelevant one is a community post: not counted with news (2026-11-19)
+    assert body["scope"] == {"dx": 4, "excluded": 1}
 
 
 def test_facet_ignores_its_own_axis_but_applies_the_others(

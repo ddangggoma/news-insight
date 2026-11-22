@@ -27,6 +27,8 @@ PLATFORM_METRICS: dict[str, tuple[str, ...]] = {
     "Fosstodon": ("favourites", "reblogs", "replies"),
     "mstdn.jp": ("favourites", "reblogs", "replies"),
     "Bluesky Social PBC": ("likes", "reposts", "replies"),
+    # Threads (PR #156): the logged-out crawl reads like, reply, repost and quote counts
+    "Meta Platforms": ("likes", "replies", "reposts", "quotes"),
     "DEV Community": ("reactions", "comments"),
     "Stack Exchange Inc.": _SCORE_ANSWERS,
     **{

@@ -1,4 +1,7 @@
-"""Freeze candidates and pick the daily shortlist under the publication balance rules (§8, D13)."""
+"""Freeze candidates and pick the daily shortlist under the publication balance rules (§8, D13).
+
+Community posts are not news-level items (2026-11-19 signal layer): they never enter the
+shortlist or its quotas; their buzz shows apart, as clusters (buzz/)."""
 
 import math
 from dataclasses import dataclass, field
@@ -16,6 +19,8 @@ from news_insight.sources.models import Source
 from news_insight.stories.models import Story, StoryItem
 
 RELEVANT_SCOPES = ("dx", "dx_dependency")
+# never counted with news: community buzz is a signal of its own (buzz/, 2026-11-19)
+EXCLUDED_TRACKS = (Track.COMMUNITY,)
 OFFICIAL_CATEGORIES = frozenset({"official_vendor", "government", "research_org", "ip_office"})
 INDEPENDENT_CATEGORIES = frozenset({"independent_media"})
 MIN_STAGE = ValidationStage.V3
@@ -25,11 +30,11 @@ MIN_STAGE = ValidationStage.V3
 class SelectionRules:
     size: int = 60
     track_min: dict[str, int] = field(
-        default_factory=lambda: {"news": 30, "research_ip": 10, "oss": 6, "community": 8}
+        default_factory=lambda: {"news": 30, "research_ip": 10, "oss": 6}
     )
     # blocking gate: the published shortlist must contain at least this many per track
     track_gate_min: dict[str, int] = field(
-        default_factory=lambda: {"news": 10, "research_ip": 3, "oss": 2, "community": 3}
+        default_factory=lambda: {"news": 10, "research_ip": 3, "oss": 2}
     )
     domain_cap: float = 0.08
     korean_min: float = 0.15
@@ -71,6 +76,7 @@ def eligible_items(session: Session, *, briefing_date: date) -> list[int]:
         .where(
             Item.first_seen_at >= start,
             Item.first_seen_at < end,
+            Item.track.not_in(EXCLUDED_TRACKS),
             ItemCard.status == CardStatus.READY,
             ItemCard.scope.in_(RELEVANT_SCOPES),
             Source.status != SourceStatus.PAUSED,
@@ -116,7 +122,9 @@ def load_candidates(session: Session, item_ids: list[int], *, now: datetime) -> 
 
 def shortlist(candidates: list[Candidate], rules: SelectionRules) -> list[Candidate]:
     """Greedy: satisfy each minimum with its best candidates, then fill by score; a domain
-    never exceeds `domain_cap` of the target size."""
+    never exceeds `domain_cap` of the target size. Community posts are never picked."""
+    excluded = {track.value for track in EXCLUDED_TRACKS}
+    candidates = [c for c in candidates if c.track not in excluded]
     cap = max(1, math.floor(rules.domain_cap * rules.size))
     chosen: list[Candidate] = []
     taken: set[int] = set()
@@ -151,6 +159,8 @@ def shortlist(candidates: list[Candidate], rules: SelectionRules) -> list[Candid
         short(sum(c.independent for c in chosen), rules.independent_min),
     )
     for track in Track:
+        if track.value in excluded:
+            continue
         have = sum(c.track == track.value for c in chosen)
         take(
             [c for c in candidates if c.track == track.value],

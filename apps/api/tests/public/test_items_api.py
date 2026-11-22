@@ -54,7 +54,9 @@ def test_scope_all_shows_excluded_and_irrelevant(
     public_client: TestClient, public_headers: dict[str, str], ids: dict[str, int]
 ) -> None:
     body = feed(public_client, public_headers, scope="all")
-    assert set(titles(body)) >= {"HBM capacity expansion", "커뮤니티 잡담"}
+    assert "HBM capacity expansion" in titles(body)
+    # community posts are signals (buzz/), never feed items (2026-11-19)
+    assert "커뮤니티 잡담" not in titles(body)
     assert "Failed card" not in titles(body)
     assert "Stale revision" not in titles(body)
 

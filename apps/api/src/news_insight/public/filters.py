@@ -28,6 +28,9 @@ def in_current_tree() -> ColumnElement[bool]:
 
 
 SCOPES = {"relevant": ("dx", "dx_dependency"), "dx": ("dx",), "all": None}
+# tracks shown only as signals (buzz clusters), never as items in reader lists and counts; the
+# `track=community` value stays accepted so old links do not fail, it just matches nothing
+SIGNAL_TRACKS = (Track.COMMUNITY,)
 AXES = ("field", "theme", "signal", "impact", "track", "region")  # facet axes
 COMPANY_KEY = re.compile(r"^[^\s]{2,80}$")  # registry keys are normalised (no spaces)
 FIXED: dict[str, frozenset[str]] = {
@@ -88,6 +91,8 @@ class ReaderFilters:
         conditions: list[ColumnElement[bool]] = [
             ItemCard.status == CardStatus.READY,
             in_current_tree(),
+            # community posts are a signal layer (buzz/), never counted with news (2026-11-19)
+            Item.track.not_in(SIGNAL_TRACKS),
             fresh_condition(),  # archive pages a sitemap found are not today's news
             # a repeat of an earlier item (the same toot under two hashtags, a syndicated copy)
             # counts once: 31 % of a radar week were repeats (2026-10-27 audit)

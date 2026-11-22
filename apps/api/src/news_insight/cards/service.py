@@ -31,11 +31,12 @@ from news_insight.cards.schemas import (
     parse_classifications,
     parse_drafts,
 )
+from news_insight.config import get_settings
 from news_insight.content.freshness import fresh_condition
 from news_insight.content.models import Item, ItemDedup
 from news_insight.content.normalize import truncate
 from news_insight.content.placeholder import PLACEHOLDER_PATTERN, has_text, usable_text
-from news_insight.sources.enums import SourceStatus
+from news_insight.sources.enums import SourceStatus, Track
 from news_insight.sources.models import Source
 from news_insight.taxonomy.catalog import TAXONOMY_REVISION
 
@@ -79,6 +80,15 @@ def waits_for_root() -> Any:
     )
 
 
+def carded_condition() -> Any:
+    """Items that get a card of their own. Community posts do not since 2026-11-19 (user
+    decision): their buzz clusters get one Korean summary each instead (buzz/summary.py);
+    COMMUNITY_ITEM_CARDS=true restores per-post cards."""
+    if get_settings().community_item_cards:
+        return true()
+    return Item.track != Track.COMMUNITY
+
+
 def pending_condition() -> Any:
     """Card text is needed: no card yet, the item changed since its card, or a failed card
     with retries left. A taxonomy revision alone does not regenerate text (checklist CLS-2).
@@ -88,6 +98,7 @@ def pending_condition() -> Any:
     held = select(Source.id).where(Source.status.in_((SourceStatus.PAUSED, SourceStatus.RETIRED)))
     return and_(
         fresh_condition(),  # archive pages get no card (2026-10-05 audit)
+        carded_condition(),
         Item.source_id.not_in(held.scalar_subquery()),
         or_(
             ItemCard.id.is_(None),
@@ -105,6 +116,7 @@ def classify_pending_condition() -> Any:
         ItemCard.input_hash == Item.content_hash,
         func.coalesce(ItemCard.taxonomy_revision, "") != TAXONOMY_REVISION,
         fresh_condition(),
+        carded_condition(),
     )
 
 
@@ -347,6 +359,8 @@ _DONORS = text(
                and (i.body is null or i.body ~* :placeholder)))
       and (i.published_at is null or i.published_at >= i.first_seen_at - interval '30 days')
       and (own.id is null or own.input_hash <> i.content_hash or own.status = 'failed')
+      -- community posts get no card of their own, copied or written (2026-11-19, buzz/)
+      and (:community_cards or i.track <> 'community')
     order by t.item_id, (donor.item_id = t.root) desc, donor.item_id
     limit :limit
     """
@@ -358,7 +372,14 @@ def reuse_cards(session: Session, *, now: datetime, limit: int = 5000) -> set[in
     current card takes the root's card, or another member's when the root has none yet. No
     engine call. Returns the ids that got a card."""
     pairs = (
-        session.execute(_DONORS, {"limit": limit, "placeholder": PLACEHOLDER_PATTERN})
+        session.execute(
+            _DONORS,
+            {
+                "limit": limit,
+                "placeholder": PLACEHOLDER_PATTERN,
+                "community_cards": get_settings().community_item_cards,
+            },
+        )
         .tuples()
         .all()
     )
