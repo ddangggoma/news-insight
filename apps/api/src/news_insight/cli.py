@@ -910,19 +910,25 @@ def buzz_update(
     """Cluster the window's community posts now (Celery does it every 10 minutes)."""
     from news_insight.buzz.cluster import run as run_buzz
     from news_insight.buzz.push import Notifier, push_due
+    from news_insight.stories.lock import story_writer
 
     settings = get_settings()
     now = datetime.now(UTC)
-    with session_scope() as session:
-        stats = run_buzz(session, now=now)
-    typer.echo(
-        f"posts={stats.posts} new_keys={stats.computed} clusters={stats.clusters} "
-        f"merged={stats.merged} crossed={stats.crossed} breaking={stats.breaking}"
-    )
-    if push:
+    # the Celery run holds the same lock: two runs at once could push one cluster twice
+    with story_writer("buzz") as acquired:
+        if not acquired:
+            typer.echo("another buzz run is active; try again in a minute")
+            raise typer.Exit(1)
         with session_scope() as session:
-            sent = push_due(session, Notifier(settings), settings, now=now)
-        typer.echo(f"push: due={sent.due} sent={sent.sent} held={sent.held or '-'}")
+            stats = run_buzz(session, now=now)
+        typer.echo(
+            f"posts={stats.posts} new_keys={stats.computed} clusters={stats.clusters} "
+            f"merged={stats.merged} crossed={stats.crossed} breaking={stats.breaking}"
+        )
+        if push:
+            with session_scope() as session:
+                sent = push_due(session, Notifier(settings), settings, now=now)
+            typer.echo(f"push: due={sent.due} sent={sent.sent} held={sent.held or '-'}")
 
 
 @cards_app.command("triage")

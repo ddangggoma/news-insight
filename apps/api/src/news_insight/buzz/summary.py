@@ -6,7 +6,7 @@ there. A cluster is summarised again when its people grew by half since (at most
 import json
 from collections.abc import Sequence
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any, Protocol
 
 from sqlalchemy import or_, select
@@ -19,6 +19,9 @@ from news_insight.content.models import Item
 from news_insight.content.normalize import truncate
 
 MAX_ATTEMPTS = 3
+# after MAX_ATTEMPTS failures a cluster is tried once more every RETRY_AFTER while it is active:
+# an engine outage (timeouts, a logged-out CLI) fails every due cluster and must not retire them
+RETRY_AFTER = timedelta(hours=2)
 MAX_SUMMARIES = 4
 GROWTH = 1.5
 POSTS_PER_CLUSTER = 12
@@ -91,7 +94,10 @@ def due(session: Session, *, now: datetime, limit: int) -> list[BuzzCluster]:
                 BuzzCluster.crossed_at.is_not(None),
                 BuzzCluster.merged_into.is_(None),
                 BuzzCluster.last_seen_at >= now - WINDOW,
-                BuzzCluster.summary_attempts < MAX_ATTEMPTS,
+                or_(
+                    BuzzCluster.summary_attempts < MAX_ATTEMPTS,
+                    BuzzCluster.summary_tried_at < now - RETRY_AFTER,
+                ),
                 BuzzCluster.summary_count < MAX_SUMMARIES,
                 or_(
                     BuzzCluster.summarized_at.is_(None),
@@ -201,6 +207,7 @@ def summarize(
             stats.written += 1
             continue
         cluster.summary_attempts += 1
+        cluster.summary_tried_at = now
         cluster.summary_error = (
             "missing or invalid in engine output" if answer is not None else "no engine answered"
         )

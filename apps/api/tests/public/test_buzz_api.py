@@ -51,3 +51,27 @@ def test_buzz_lists_breaking_first_with_posts_and_news(
     ]
     assert public_client.get("/api/public/buzz").status_code == 401
     assert public_client.get("/api/public/buzz?hours=0", headers=public_headers).status_code == 422
+
+
+def test_breaking_clusters_are_kept_before_the_limit(
+    db_session: Session, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from news_insight.buzz import views
+
+    now = datetime.now(UTC)
+    start = now - timedelta(minutes=50)
+    post(db_session, "mastodon", 1, when=start, link=ARTICLE, title="This launch is wild")
+    post(db_session, "bluesky", 2, when=start + timedelta(minutes=2), link=ARTICLE)
+    post(db_session, "hn", 3, when=start + timedelta(minutes=4), link=ARTICLE)
+    news(db_session, 1, when=now - timedelta(hours=5), url=OTHER, title="Old news story")
+    for n, key in enumerate(("mastodon", "bluesky", "threads"), start=10):
+        post(db_session, key, n, when=start, link=OTHER)
+    run(db_session, now=now - timedelta(minutes=30), heat=FixedHeat(0.6))
+    told = db_session.scalars(select(BuzzCluster).where(BuzzCluster.breaking.is_(False))).one()
+    told.score = 1000.0  # a big story the news already has outscores the fresh breaking one
+    db_session.flush()
+    monkeypatch.setattr(views, "LIMIT", 1)
+
+    [only] = views.buzz_view(db_session, now=now).clusters
+
+    assert only.breaking

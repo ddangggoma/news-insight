@@ -216,9 +216,16 @@ def persist(
         ).tuples():
             current[item_id] = cluster_id
     merged = 0
+    # clusters a group of this run already took: a later group never merges one away (that would
+    # fuse two stories) nor shares it; it moves only its own posts out of it
+    claimed: set[int] = set()
     for group in groups:
         members = [posts[i] for i in group]
-        counts = Counter(current[p.item_id] for p in members if p.item_id in current)
+        counts = Counter(
+            current[p.item_id]
+            for p in members
+            if p.item_id in current and current[p.item_id] not in claimed
+        )
         if counts:
             target_id = min(counts, key=lambda c: (-counts[c], c))
             target = session.get(BuzzCluster, target_id)
@@ -246,6 +253,7 @@ def persist(
             )
             session.add(target)
             session.flush()
+        claimed.add(target.id)
         moving = [p.item_id for p in members if current.get(p.item_id) != target.id]
         if moving:
             statement = insert(BuzzClusterItem).values(

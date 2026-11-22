@@ -76,6 +76,7 @@ class BuzzCluster(Base):
     summary_posts: Mapped[int] = mapped_column(default=0)  # human posts when last summarised
     summary_count: Mapped[int] = mapped_column(default=0)
     summary_attempts: Mapped[int] = mapped_column(default=0)
+    summary_tried_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     summary_error: Mapped[str | None] = mapped_column(Text)
     pushed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     push_channels: Mapped[list[str]] = mapped_column(JSONB, default=list)

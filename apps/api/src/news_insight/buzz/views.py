@@ -73,7 +73,9 @@ def buzz_view(session: Session, *, now: datetime, hours: int = 24) -> BuzzView:
                 BuzzCluster.merged_into.is_(None),
                 BuzzCluster.last_seen_at >= now - timedelta(hours=hours),
             )
-            .order_by(BuzzCluster.score.desc(), BuzzCluster.id)
+            # breaking first before the limit: a fresh breaking cluster scores low (few people
+            # yet) and must not fall outside the top LIMIT by score
+            .order_by(BuzzCluster.breaking.desc(), BuzzCluster.score.desc(), BuzzCluster.id)
             .limit(LIMIT)
         )
     )

@@ -40,8 +40,9 @@ export function BuzzCard({ cluster, now }: { cluster: BuzzCluster; now?: Date })
       </h2>
       {cluster.summary.length > 0 && (
         <div className="space-y-0.5 text-sm text-muted-foreground">
-          {cluster.summary.map((line) => (
-            <p key={line}>{line}</p>
+          {cluster.summary.map((line, index) => (
+            // engines can repeat a line: the position keeps the keys unique
+            <p key={`${index}:${line}`}>{line}</p>
           ))}
         </div>
       )}

@@ -52,6 +52,7 @@ def upgrade() -> None:
         sa.Column("summary_posts", sa.Integer(), nullable=False),
         sa.Column("summary_count", sa.Integer(), nullable=False),
         sa.Column("summary_attempts", sa.Integer(), nullable=False),
+        sa.Column("summary_tried_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("summary_error", sa.Text(), nullable=True),
         sa.Column("pushed_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("push_channels", postgresql.JSONB(astext_type=sa.Text()), nullable=False),

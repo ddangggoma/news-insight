@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from news_insight.buzz.cluster import run
 from news_insight.buzz.models import BuzzCluster
 from news_insight.buzz.push import Notifier, push_due
-from news_insight.buzz.summary import MAX_ATTEMPTS, summarize
+from news_insight.buzz.summary import MAX_ATTEMPTS, RETRY_AFTER, summarize
 from news_insight.cards.engines import EngineError, EngineOutput, QuotaExhausted
 from news_insight.config import Settings
 from tests.buzz.helpers import FixedHeat, post
@@ -179,3 +179,29 @@ def test_hourly_limit_and_failed_channels(db_session: Session) -> None:
     down = settings()
     failed = push_due(db_session, Notifier(down, Wire(status=500)), down, now=NOW)
     assert failed.held == "every channel failed" and cluster.pushed_at is None
+
+
+def test_an_engine_outage_does_not_retire_clusters_for_good(db_session: Session) -> None:
+    cluster = breaking(db_session)
+    down = Engine("agy", error=EngineError("agy timed out after 300s"))
+    for _ in range(MAX_ATTEMPTS):
+        summarize(db_session, [down], now=NOW, limit=12)
+    assert summarize(db_session, [down], now=NOW + timedelta(hours=1), limit=12).due == 0
+    later = NOW + RETRY_AFTER + timedelta(minutes=1)
+    back = Engine("claude", {"clusters": [draft(cluster.id)]})
+    assert summarize(db_session, [back], now=later, limit=12).written == 1
+    assert cluster.summary_attempts == 0 and cluster.summary_error is None
+
+
+def test_spotlight_reads_a_cardless_post_through_its_cluster_summary(db_session: Session) -> None:
+    from news_insight.spotlight.candidates import _buzz_texts
+
+    cluster = summarised(db_session)
+    assert cluster.lead_item_id is not None
+
+    title, summary = _buzz_texts(db_session, [cluster.lead_item_id])[cluster.lead_item_id]
+
+    assert title == "클라우드 대규모 장애" and summary.startswith("주요 클라우드 리전에서")
+    cluster.relevant = False
+    db_session.flush()
+    assert _buzz_texts(db_session, [cluster.lead_item_id]) == {}

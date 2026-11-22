@@ -148,3 +148,38 @@ def test_repeats_across_instances_count_once(db_session: Session) -> None:
     post(db_session, "bluesky", 2, when=NOW - timedelta(minutes=35), link=ARTICLE)
     run(db_session, now=NOW, heat=FixedHeat(1.0))
     assert live(db_session) == []
+
+
+def test_a_later_group_never_merges_away_a_cluster_this_run_took(db_session: Session) -> None:
+    from news_insight.buzz.cluster import Post, persist
+
+    when = NOW - timedelta(minutes=30)
+    items = [post(db_session, "mastodon", n, when=when) for n in range(1, 7)]
+
+    def cluster() -> BuzzCluster:
+        row = BuzzCluster(
+            first_seen_at=when,
+            last_seen_at=when,
+            updated_at=when,
+            platforms=[],
+            news_item_ids=[],
+            summary_ko=[],
+            keywords=[],
+            push_channels=[],
+        )
+        db_session.add(row)
+        db_session.flush()
+        return row
+
+    x, y = cluster(), cluster()
+    # x: the first story (items 1-3) and item 4, which joined it once; y: items 5-6
+    for item, target in zip(items, (x, x, x, x, y, y), strict=True):
+        db_session.add(BuzzClusterItem(item_id=item.id, cluster_id=target.id, joined_at=when))
+    db_session.flush()
+    posts = [Post(i.id, "fediverse", f"p{i.id}", [], [], [], [], i.first_seen_at) for i in items]
+
+    by_cluster, merged = persist(db_session, posts, [[0, 1, 2], [3, 4, 5]], now=NOW)
+
+    assert merged == 0 and db_session.get(BuzzCluster, x.id).merged_into is None  # type: ignore[union-attr]
+    assert sorted(p.item_id for p in by_cluster[x.id]) == [i.id for i in items[:3]]
+    assert sorted(p.item_id for p in by_cluster[y.id]) == [i.id for i in items[3:]]
