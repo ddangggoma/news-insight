@@ -49,7 +49,8 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Everything except static assets, the login and sign-up pages, and /internal (cache hooks
-  // reached over the compose network with the console key; Caddy answers 404 from outside).
-  matcher: ["/((?!_next/static|_next/image|favicon\\.ico|icon\\.svg|login$|signup$|internal/).*)"],
+  // Everything except static assets, the login, sign-up and privacy pages (the privacy policy
+  // must be public for the Threads API app review), and /internal (cache hooks reached over the
+  // compose network with the console key; Caddy answers 404 from outside).
+  matcher: ["/((?!_next/static|_next/image|favicon\\.ico|icon\\.svg|login$|signup$|privacy$|internal/).*)"],
 };

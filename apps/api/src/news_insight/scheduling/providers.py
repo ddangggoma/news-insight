@@ -38,6 +38,12 @@ PROVIDERS: dict[str, Provider] = {
     "export.arxiv.org": Provider(
         per_day=24 * 60, burst=1, validate_per_batch=3, min_interval_seconds=6 * 3600
     ),
+    # Threads logged-out pages (collect/threads.py): about 1,200 requests a day are planned
+    # (2026-11-18), so one a minute on average, two back to back, no source more than hourly;
+    # a login wall or 429 backs off every Threads source together.
+    "www.threads.com": Provider(
+        per_day=24 * 60, burst=2, validate_per_batch=2, min_interval_seconds=3600
+    ),
 }
 # with a free OpenAlex key ($1 a day, 10x): about 900 searches, so sources poll every 6 hours
 OPENALEX_WITH_KEY = Provider(
